@@ -1,0 +1,9 @@
+[package]
+name = "alpaca-provider"
+edition.workspace = true
+version.workspace = true
+license.workspace = true
+
+[dependencies]
+contracts = { path = "../../contracts" }
+thiserror.workspace = true
