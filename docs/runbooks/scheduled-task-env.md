@@ -21,7 +21,7 @@ $env:ALPACA_BASE_URL = "https://paper-api.alpaca.markets"
 
 Required:
 - `KRAKEN_API_KEY`
-- `KRAKEN_API_SECRET`
+- `KRAKEN_API_SECRET` (base64-encoded secret from Kraken API key settings)
 
 Optional:
 - `KRAKEN_BASE_URL` (defaults to `https://api.kraken.com`)
