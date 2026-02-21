@@ -2,6 +2,7 @@ use std::{fs, process::Command};
 
 use assert_cmd::prelude::*;
 use contracts::TradeIntent;
+use mockito::Matcher;
 use tempfile::NamedTempFile;
 
 #[test]
@@ -89,6 +90,27 @@ fn validate_intent_rejects_invalid_payload() {
 
 #[test]
 fn execute_intent_returns_provider_result() {
+    let mut server = mockito::Server::new();
+    let mock = server
+        .mock("POST", "/v2/orders")
+        .match_header("APCA-API-KEY-ID", "k")
+        .match_header("APCA-API-SECRET-KEY", "s")
+        .match_body(Matcher::Regex("\"symbol\":\"AAPL\"".to_string()))
+        .match_body(Matcher::Regex("\"qty\":\"1\"".to_string()))
+        .match_body(Matcher::Regex("\"side\":\"buy\"".to_string()))
+        .match_body(Matcher::Regex(
+            "\"client_order_id\":\"intent-exec-1\"".to_string(),
+        ))
+        .with_status(200)
+        .with_body(
+            serde_json::json!({
+                "id": "order-cli-1",
+                "status": "accepted"
+            })
+            .to_string(),
+        )
+        .create();
+
     let tmp = NamedTempFile::new().expect("temp file");
     let intent = TradeIntent {
         intent_id: "intent-exec-1".to_string(),
@@ -111,7 +133,7 @@ fn execute_intent_returns_provider_result() {
     let output = Command::new(assert_cmd::cargo::cargo_bin!("thales-cli"))
         .env("ALPACA_API_KEY", "k")
         .env("ALPACA_API_SECRET", "s")
-        .env("ALPACA_BASE_URL", "https://paper-api.alpaca.markets")
+        .env("ALPACA_BASE_URL", server.url())
         .args([
             "execute-intent",
             "--provider",
@@ -129,4 +151,6 @@ fn execute_intent_returns_provider_result() {
     let json: serde_json::Value = serde_json::from_str(&body).expect("json");
     assert_eq!(json["status"], "ok");
     assert_eq!(json["data"]["provider"], "alpaca");
+    assert_eq!(json["data"]["provider_order_id"], "order-cli-1");
+    mock.assert();
 }

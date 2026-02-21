@@ -17,3 +17,4 @@ kraken-provider = { path = "../providers/kraken" }
 [dev-dependencies]
 assert_cmd = "2"
 tempfile = "3"
+mockito = "1"
