@@ -71,6 +71,8 @@ fn validate_intent_rejects_invalid_payload() {
         rationale: "bad payload".to_string(),
         invalidation: "none".to_string(),
         schema_version: "v0".to_string(),
+        stop_loss: None,
+        take_profit: None,
     };
     fs::write(
         tmp.path(),
@@ -123,6 +125,8 @@ fn execute_intent_returns_provider_result() {
         rationale: "test".to_string(),
         invalidation: "none".to_string(),
         schema_version: "v0".to_string(),
+        stop_loss: None,
+        take_profit: None,
     };
     fs::write(
         tmp.path(),
@@ -189,6 +193,8 @@ fn execute_intent_returns_kraken_provider_result() {
         rationale: "test".to_string(),
         invalidation: "none".to_string(),
         schema_version: "v0".to_string(),
+        stop_loss: None,
+        take_profit: None,
     };
     fs::write(
         tmp.path(),

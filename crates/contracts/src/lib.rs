@@ -12,6 +12,8 @@ pub struct TradeIntent {
     pub rationale: String,
     pub invalidation: String,
     pub schema_version: String,
+    pub stop_loss: Option<f64>,
+    pub take_profit: Option<f64>,
 }
 
 impl Default for TradeIntent {
@@ -27,6 +29,8 @@ impl Default for TradeIntent {
             rationale: String::new(),
             invalidation: String::new(),
             schema_version: "v0".to_string(),
+            stop_loss: None,
+            take_profit: None,
         }
     }
 }

@@ -9,8 +9,11 @@ clap.workspace = true
 serde.workspace = true
 serde_json.workspace = true
 thiserror.workspace = true
+anyhow = "1.0"
+polars = { version = "0.42.0", features = ["lazy", "dtype-datetime", "random", "strings"] }
 tokio.workspace = true
 contracts = { path = "../contracts" }
+strategies = { path = "../strategies" }
 alpaca-provider = { path = "../providers/alpaca" }
 kraken-provider = { path = "../providers/kraken" }
 

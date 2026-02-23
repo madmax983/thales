@@ -53,6 +53,8 @@ fn execute_intent_submits_order_and_maps_response() {
             rationale: "breakout".to_string(),
             invalidation: "below support".to_string(),
             schema_version: "v0".to_string(),
+            stop_loss: None,
+            take_profit: None,
         })
         .expect("execution");
 
@@ -98,6 +100,8 @@ fn execute_intent_returns_error_on_http_failure() {
             rationale: "breakout".to_string(),
             invalidation: "below support".to_string(),
             schema_version: "v0".to_string(),
+            stop_loss: None,
+            take_profit: None,
         })
         .expect_err("expected http error");
 
