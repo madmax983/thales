@@ -81,3 +81,16 @@ pub struct ResponseEnvelope<T> {
     pub warnings: Vec<String>,
     pub data: Option<T>,
 }
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct MarketAnalysis {
+    pub symbol: String,
+    pub market: String,
+    pub regime: String,
+    pub sentiment: String,
+    pub patterns: Vec<String>,
+    pub key_levels: Vec<f64>,
+    pub volatility: String,
+    pub confidence: f64,
+    pub timestamp_unix_ms: i64,
+}
