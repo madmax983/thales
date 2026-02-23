@@ -15,6 +15,7 @@ use thiserror::Error;
 
 mod analysis;
 mod rag;
+mod reporting;
 mod signals;
 
 #[derive(Debug, Parser)]
@@ -191,6 +192,18 @@ fn run(command: Commands) -> Result<String, CliError> {
             };
 
             let analysis = analysis::analyze(&series);
+
+            // Reporting Step
+            let signals_path = PathBuf::from("Signals.md");
+            let similar_trades = rag::find_similar_trades(&analysis, &PathBuf::from("history.json")).unwrap_or_default();
+            let previous_regime = reporting::read_last_regime(&signals_path);
+
+            let report = reporting::generate_report(&analysis, &similar_trades, previous_regime.as_deref());
+
+            if let Err(e) = reporting::append_to_signals_md(&signals_path, &report) {
+                eprintln!("Warning: Failed to write to Signals.md: {}", e);
+            }
+
             ok_envelope(analysis)
         }
         Commands::GenerateSignals { input, strategy, history } => {
