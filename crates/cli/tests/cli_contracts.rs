@@ -73,6 +73,10 @@ fn validate_intent_rejects_invalid_payload() {
         schema_version: "v0".to_string(),
         stop_loss: None,
         take_profit: None,
+        order_type: "market".to_string(),
+        limit_price: None,
+        stop_price: None,
+        time_in_force: "gtc".to_string(),
     };
     fs::write(
         tmp.path(),
@@ -127,6 +131,10 @@ fn execute_intent_returns_provider_result() {
         schema_version: "v0".to_string(),
         stop_loss: None,
         take_profit: None,
+        order_type: "market".to_string(),
+        limit_price: None,
+        stop_price: None,
+        time_in_force: "gtc".to_string(),
     };
     fs::write(
         tmp.path(),
@@ -195,6 +203,10 @@ fn execute_intent_returns_kraken_provider_result() {
         schema_version: "v0".to_string(),
         stop_loss: None,
         take_profit: None,
+        order_type: "market".to_string(),
+        limit_price: None,
+        stop_price: None,
+        time_in_force: "gtc".to_string(),
     };
     fs::write(
         tmp.path(),

@@ -49,6 +49,14 @@ enum Commands {
         size_hint: String,
         #[arg(long)]
         confidence: f64,
+        #[arg(long, default_value = "market")]
+        order_type: String,
+        #[arg(long)]
+        limit_price: Option<f64>,
+        #[arg(long)]
+        stop_price: Option<f64>,
+        #[arg(long, default_value = "day")]
+        time_in_force: String,
     },
     ValidateIntent {
         #[arg(long)]
@@ -144,6 +152,10 @@ fn run(command: Commands) -> Result<String, CliError> {
             side,
             size_hint,
             confidence,
+            order_type,
+            limit_price,
+            stop_price,
+            time_in_force,
         } => {
             let intent = TradeIntent {
                 intent_id: format!("{market}:{symbol}:{side}:v0"),
@@ -158,6 +170,10 @@ fn run(command: Commands) -> Result<String, CliError> {
                 schema_version: "v0".to_string(),
                 stop_loss: None,
                 take_profit: None,
+                order_type,
+                limit_price,
+                stop_price,
+                time_in_force,
             };
             ok_envelope(intent)
         }
@@ -259,6 +275,16 @@ fn validate_intent(intent: &TradeIntent) -> Vec<String> {
     }
     if !(0.0..=1.0).contains(&intent.confidence) {
         errors.push("confidence must be in [0, 1]".to_string());
+    }
+    let valid_types = ["market", "limit", "stop", "stop_limit"];
+    if !valid_types.contains(&intent.order_type.as_str()) {
+        errors.push(format!(
+            "order_type must be one of: {}",
+            valid_types.join(", ")
+        ));
+    }
+    if intent.time_in_force.trim().is_empty() {
+        errors.push("time_in_force must not be empty".to_string());
     }
     errors
 }

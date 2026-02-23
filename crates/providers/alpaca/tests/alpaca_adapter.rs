@@ -55,6 +55,10 @@ fn execute_intent_submits_order_and_maps_response() {
             schema_version: "v0".to_string(),
             stop_loss: None,
             take_profit: None,
+            order_type: "market".to_string(),
+            limit_price: None,
+            stop_price: None,
+            time_in_force: "day".to_string(),
         })
         .expect("execution");
 
@@ -102,10 +106,114 @@ fn execute_intent_returns_error_on_http_failure() {
             schema_version: "v0".to_string(),
             stop_loss: None,
             take_profit: None,
+            order_type: "market".to_string(),
+            limit_price: None,
+            stop_price: None,
+            time_in_force: "day".to_string(),
         })
         .expect_err("expected http error");
 
     let message = err.to_string();
     assert!(message.contains("unexpected alpaca response status"));
+    mock.assert();
+}
+
+#[test]
+fn execute_intent_submits_limit_order() {
+    let mut server = mockito::Server::new();
+    let mock = server
+        .mock("POST", "/v2/orders")
+        .match_body(Matcher::Regex("\"type\":\"limit\"".to_string()))
+        .match_body(Matcher::Regex("\"limit_price\":150.0".to_string()))
+        .with_status(200)
+        .with_body(
+            json!({
+                "id": "order-limit-1",
+                "status": "accepted"
+            })
+            .to_string(),
+        )
+        .create();
+
+    let cfg = AlpacaConfig::from_env_with(|key| match key {
+        "ALPACA_API_KEY" => Some("k".to_string()),
+        "ALPACA_API_SECRET" => Some("s".to_string()),
+        "ALPACA_BASE_URL" => Some(server.url()),
+        _ => None,
+    })
+    .expect("config");
+    let client = AlpacaClient::new(cfg);
+
+    client
+        .execute_intent(&TradeIntent {
+            intent_id: "intent-limit".to_string(),
+            market: "equities".to_string(),
+            symbol: "AAPL".to_string(),
+            side: "buy".to_string(),
+            size_hint: "1".to_string(),
+            confidence: 0.9,
+            horizon: "1h".to_string(),
+            rationale: "limit buy".to_string(),
+            invalidation: "n/a".to_string(),
+            schema_version: "v0".to_string(),
+            stop_loss: None,
+            take_profit: None,
+            order_type: "limit".to_string(),
+            limit_price: Some(150.0),
+            stop_price: None,
+            time_in_force: "day".to_string(),
+        })
+        .expect("execution");
+
+    mock.assert();
+}
+
+#[test]
+fn execute_intent_submits_bracket_order() {
+    let mut server = mockito::Server::new();
+    let mock = server
+        .mock("POST", "/v2/orders")
+        .match_body(Matcher::Regex("\"take_profit\":\\{\"limit_price\":160.0\\}".to_string()))
+        .match_body(Matcher::Regex("\"stop_loss\":\\{\"stop_price\":140.0\\}".to_string()))
+        .with_status(200)
+        .with_body(
+            json!({
+                "id": "order-bracket-1",
+                "status": "accepted"
+            })
+            .to_string(),
+        )
+        .create();
+
+    let cfg = AlpacaConfig::from_env_with(|key| match key {
+        "ALPACA_API_KEY" => Some("k".to_string()),
+        "ALPACA_API_SECRET" => Some("s".to_string()),
+        "ALPACA_BASE_URL" => Some(server.url()),
+        _ => None,
+    })
+    .expect("config");
+    let client = AlpacaClient::new(cfg);
+
+    client
+        .execute_intent(&TradeIntent {
+            intent_id: "intent-bracket".to_string(),
+            market: "equities".to_string(),
+            symbol: "AAPL".to_string(),
+            side: "buy".to_string(),
+            size_hint: "1".to_string(),
+            confidence: 0.9,
+            horizon: "1h".to_string(),
+            rationale: "bracket".to_string(),
+            invalidation: "n/a".to_string(),
+            schema_version: "v0".to_string(),
+            stop_loss: Some(140.0),
+            take_profit: Some(160.0),
+            order_type: "market".to_string(),
+            limit_price: None,
+            stop_price: None,
+            time_in_force: "day".to_string(),
+        })
+        .expect("execution");
+
     mock.assert();
 }

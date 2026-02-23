@@ -114,6 +114,10 @@ pub async fn generate_signals(
             schema_version: "v0".to_string(),
             stop_loss,
             take_profit,
+            order_type: "market".to_string(),
+            limit_price: None,
+            stop_price: None,
+            time_in_force: "day".to_string(),
         };
 
         intents.push(intent);

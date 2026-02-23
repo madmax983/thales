@@ -61,9 +61,16 @@ impl AlpacaClient {
             symbol: intent.symbol.clone(),
             qty: intent.size_hint.clone(),
             side: intent.side.clone(),
-            order_type: "market".to_string(),
-            time_in_force: "day".to_string(),
+            order_type: intent.order_type.clone(),
+            time_in_force: intent.time_in_force.clone(),
             client_order_id: intent.intent_id.clone(),
+            limit_price: intent.limit_price,
+            stop_price: intent.stop_price,
+            take_profit: intent.take_profit.map(|p| TakeProfitSpec { limit_price: p }),
+            stop_loss: intent.stop_loss.map(|p| StopLossSpec {
+                stop_price: p,
+                limit_price: None,
+            }),
         };
         let url = format!("{}/v2/orders", self.config.base_url.trim_end_matches('/'));
 
@@ -100,7 +107,7 @@ impl AlpacaClient {
     }
 }
 
-#[derive(Debug, Clone, PartialEq, Eq, Serialize)]
+#[derive(Debug, Clone, PartialEq, Serialize)]
 struct AlpacaOrderRequest {
     symbol: String,
     qty: String,
@@ -109,6 +116,26 @@ struct AlpacaOrderRequest {
     order_type: String,
     time_in_force: String,
     client_order_id: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    limit_price: Option<f64>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    stop_price: Option<f64>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    take_profit: Option<TakeProfitSpec>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    stop_loss: Option<StopLossSpec>,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize)]
+struct TakeProfitSpec {
+    limit_price: f64,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize)]
+struct StopLossSpec {
+    stop_price: f64,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    limit_price: Option<f64>,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Deserialize)]
