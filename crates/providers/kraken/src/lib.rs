@@ -1,7 +1,8 @@
+use std::collections::HashMap;
 use std::time::{SystemTime, UNIX_EPOCH};
 
-use base64::{Engine, engine::general_purpose::STANDARD};
-use contracts::{ExecutionResult, TradeIntent};
+use base64::{engine::general_purpose::STANDARD, Engine};
+use contracts::{Bar, ExecutionResult, TradeIntent};
 use hmac::{Hmac, Mac};
 use reqwest::blocking::Client;
 use serde::Deserialize;
@@ -164,6 +165,104 @@ impl KrakenClient {
             submitted_at_unix_ms,
         })
     }
+
+    pub fn fetch_bars(
+        &self,
+        symbol: &str,
+        timeframe: &str,
+    ) -> Result<Vec<Bar>, KrakenProviderError> {
+        let pair = normalize_pair(symbol);
+        let interval = match timeframe {
+            "1m" => 1,
+            "5m" => 5,
+            "15m" => 15,
+            "30m" => 30,
+            "1h" => 60,
+            "4h" => 240,
+            "1d" => 1440,
+            "1w" => 10080,
+            "15d" => 21600,
+            _ => return Err(KrakenProviderError::InvalidTimeframe(timeframe.to_string())),
+        };
+
+        let url = format!(
+            "{}/0/public/OHLC?pair={}&interval={}",
+            self.config.base_url.trim_end_matches('/'),
+            pair,
+            interval
+        );
+        let response = self.http.get(&url).send()?;
+
+        if !response.status().is_success() {
+            let status = response.status().as_u16();
+            let body = response
+                .text()
+                .unwrap_or_else(|_| "unable to decode error body".to_string());
+            return Err(KrakenProviderError::UnexpectedHttpStatus(status, body));
+        }
+
+        let api_response: KrakenOhlcResponse = response.json()?;
+        if !api_response.error.is_empty() {
+            return Err(KrakenProviderError::Api(api_response.error.join(", ")));
+        }
+
+        let mut bars = Vec::new();
+        if let Some(result) = api_response.result {
+            for (key, val) in result {
+                if key == "last" {
+                    continue;
+                }
+                if let serde_json::Value::Array(arr) = val {
+                    for item in arr {
+                        if let serde_json::Value::Array(ohlc) = item {
+                            // [time, open, high, low, close, vwap, volume, count]
+                            let time = ohlc[0].as_i64().unwrap_or(0) * 1000;
+                            let open = ohlc[1].as_str().unwrap_or("0").parse().unwrap_or(0.0);
+                            let high = ohlc[2].as_str().unwrap_or("0").parse().unwrap_or(0.0);
+                            let low = ohlc[3].as_str().unwrap_or("0").parse().unwrap_or(0.0);
+                            let close = ohlc[4].as_str().unwrap_or("0").parse().unwrap_or(0.0);
+                            let volume = ohlc[6].as_str().unwrap_or("0").parse().unwrap_or(0.0);
+
+                            bars.push(Bar {
+                                symbol: symbol.to_string(),
+                                market: "crypto".to_string(),
+                                timeframe: timeframe.to_string(),
+                                timestamp_unix_ms: time,
+                                open,
+                                high,
+                                low,
+                                close,
+                                volume,
+                            });
+                        }
+                    }
+                }
+            }
+        }
+        // Sort by time
+        bars.sort_by_key(|b| b.timestamp_unix_ms);
+        Ok(bars)
+    }
+
+    pub fn fetch_tickers(&self) -> Result<HashMap<String, KrakenTickerInfo>, KrakenProviderError> {
+        let url = format!("{}/0/public/Ticker", self.config.base_url.trim_end_matches('/'));
+        let response = self.http.get(&url).send()?;
+
+        if !response.status().is_success() {
+            let status = response.status().as_u16();
+            let body = response
+                .text()
+                .unwrap_or_else(|_| "unable to decode error body".to_string());
+            return Err(KrakenProviderError::UnexpectedHttpStatus(status, body));
+        }
+
+        let api_response: KrakenTickerResponse = response.json()?;
+        if !api_response.error.is_empty() {
+            return Err(KrakenProviderError::Api(api_response.error.join(", ")));
+        }
+
+        Ok(api_response.result.unwrap_or_default())
+    }
 }
 
 fn now_unix_ms() -> Result<i64, KrakenProviderError> {
@@ -231,6 +330,31 @@ struct KrakenAddOrderResult {
     txid: Vec<String>,
 }
 
+#[derive(Debug, Clone, Deserialize)]
+struct KrakenOhlcResponse {
+    error: Vec<String>,
+    result: Option<HashMap<String, serde_json::Value>>,
+}
+
+#[derive(Debug, Clone, Deserialize)]
+struct KrakenTickerResponse {
+    error: Vec<String>,
+    result: Option<HashMap<String, KrakenTickerInfo>>,
+}
+
+#[derive(Debug, Clone, Deserialize)]
+pub struct KrakenTickerInfo {
+    pub a: Vec<String>,
+    pub b: Vec<String>,
+    pub c: Vec<String>,
+    pub v: Vec<String>,
+    pub p: Vec<String>,
+    pub t: Vec<i64>,
+    pub l: Vec<String>,
+    pub h: Vec<String>,
+    pub o: String,
+}
+
 #[derive(Debug, Error)]
 pub enum KrakenProviderError {
     #[error("missing required environment variable: {0}")]
@@ -255,4 +379,8 @@ pub enum KrakenProviderError {
     MissingTxid,
     #[error("invalid time in force: {0}")]
     InvalidTimeInForce(String),
+    #[error("invalid timeframe: {0}")]
+    InvalidTimeframe(String),
+    #[error("json error: {0}")]
+    Json(#[from] serde_json::Error),
 }

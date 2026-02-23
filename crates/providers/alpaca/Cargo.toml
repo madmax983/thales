@@ -9,6 +9,8 @@ contracts = { path = "../../contracts" }
 thiserror.workspace = true
 reqwest.workspace = true
 serde.workspace = true
+serde_json.workspace = true
+chrono = { version = "0.4", features = ["serde"] }
 
 [dev-dependencies]
 serde_json.workspace = true
