@@ -1,6 +1,8 @@
+use std::collections::HashMap;
 use std::time::{SystemTime, UNIX_EPOCH};
 
-use contracts::{ExecutionResult, TradeIntent};
+use chrono::DateTime;
+use contracts::{Bar, ExecutionResult, TradeIntent};
 use reqwest::blocking::Client;
 use serde::{Deserialize, Serialize};
 use thiserror::Error;
@@ -105,6 +107,71 @@ impl AlpacaClient {
             submitted_at_unix_ms,
         })
     }
+
+    pub fn fetch_bars(
+        &self,
+        symbol: &str,
+        timeframe: &str,
+    ) -> Result<Vec<Bar>, AlpacaProviderError> {
+        let tf = match timeframe {
+            "1m" => "1Min",
+            "5m" => "5Min",
+            "15m" => "15Min",
+            "1h" => "1Hour",
+            "1d" => "1Day",
+            _ => return Err(AlpacaProviderError::InvalidTimeframe(timeframe.to_string())),
+        };
+
+        // Hardcoded Data API URL (v2)
+        let url = "https://data.alpaca.markets/v2/stocks/bars";
+        let params = [
+            ("symbols", symbol),
+            ("timeframe", tf),
+            ("limit", "1000"),
+            ("adjustment", "raw"),
+        ];
+
+        let response = self
+            .http
+            .get(url)
+            .header("APCA-API-KEY-ID", &self.config.api_key)
+            .header("APCA-API-SECRET-KEY", &self.config.api_secret)
+            .query(&params)
+            .send()?;
+
+        if !response.status().is_success() {
+            let status = response.status().as_u16();
+            let body = response
+                .text()
+                .unwrap_or_else(|_| "unable to decode error body".to_string());
+            return Err(AlpacaProviderError::UnexpectedHttpStatus(status, body));
+        }
+
+        let api_response: AlpacaBarsResponse = response.json()?;
+        let mut bars = Vec::new();
+        if let Some(symbol_bars) = api_response.bars.get(symbol) {
+            for b in symbol_bars {
+                let dt = DateTime::parse_from_rfc3339(&b.t)
+                    .map_err(|e| AlpacaProviderError::DateParse(e.to_string()))?;
+
+                bars.push(Bar {
+                    symbol: symbol.to_string(),
+                    market: "equities".to_string(),
+                    timeframe: timeframe.to_string(),
+                    timestamp_unix_ms: dt.timestamp_millis(),
+                    open: b.o,
+                    high: b.h,
+                    low: b.l,
+                    close: b.c,
+                    volume: b.v as f64,
+                });
+            }
+        }
+
+        // Sort by time
+        bars.sort_by_key(|b| b.timestamp_unix_ms);
+        Ok(bars)
+    }
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize)]
@@ -144,6 +211,24 @@ struct AlpacaOrderResponse {
     status: String,
 }
 
+#[derive(Debug, Clone, Deserialize)]
+struct AlpacaBarsResponse {
+    bars: HashMap<String, Vec<AlpacaBar>>,
+    next_page_token: Option<String>,
+}
+
+#[derive(Debug, Clone, Deserialize)]
+struct AlpacaBar {
+    t: String,
+    o: f64,
+    h: f64,
+    l: f64,
+    c: f64,
+    v: u64,
+    n: u64,
+    vw: f64,
+}
+
 fn validate_size_hint(size_hint: &str) -> Result<(), AlpacaProviderError> {
     let qty = size_hint
         .parse::<f64>()
@@ -176,4 +261,10 @@ pub enum AlpacaProviderError {
     Http(#[from] reqwest::Error),
     #[error("unexpected alpaca response status {0}: {1}")]
     UnexpectedHttpStatus(u16, String),
+    #[error("invalid timeframe: {0}")]
+    InvalidTimeframe(String),
+    #[error("date parse error: {0}")]
+    DateParse(String),
+    #[error("json error: {0}")]
+    Json(#[from] serde_json::Error),
 }

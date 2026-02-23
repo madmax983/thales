@@ -81,6 +81,16 @@ enum Commands {
         #[arg(long)]
         history: Option<PathBuf>,
     },
+    ScanMarket {
+        #[arg(long)]
+        provider: String,
+        #[arg(long, default_value = "10")]
+        top_n: usize,
+        #[arg(long, default_value = "0.01")]
+        min_volatility: f64,
+        #[arg(long, default_value = "0.0")]
+        min_momentum: f64,
+    },
 }
 
 fn main() {
@@ -103,31 +113,19 @@ fn run(command: Commands) -> Result<String, CliError> {
             symbol,
             timeframe,
         } => {
-            let now = now_unix_ms()?;
-            let market = infer_market(&provider);
-            // Generate 50 simulated bars
-            let mut bars = Vec::new();
-            let mut price = 100.0;
-            for i in 0..50 {
-                let time = now - (50 - i) * 60 * 1000;
-                let change = (i as f64).sin() + 0.5; // Deterministic wave
-                let open = price;
-                let close = price + change;
-                let high = open.max(close) + 0.5;
-                let low = open.min(close) - 0.5;
-                price = close;
-                bars.push(Bar {
-                    symbol: symbol.clone(),
-                    market: market.clone(),
-                    timeframe: timeframe.clone(),
-                    timestamp_unix_ms: time,
-                    open,
-                    high,
-                    low,
-                    close,
-                    volume: 10_000.0 + (i as f64) * 100.0,
-                });
-            }
+            let bars = match provider.as_str() {
+                "kraken" => {
+                    let cfg = KrakenConfig::from_env().map_err(|e| CliError::Provider(e.to_string()))?;
+                    let client = KrakenClient::new(cfg);
+                    client.fetch_bars(&symbol, &timeframe).map_err(|e| CliError::Provider(e.to_string()))?
+                }
+                "alpaca" => {
+                    let cfg = AlpacaConfig::from_env().map_err(|e| CliError::Provider(e.to_string()))?;
+                    let client = AlpacaClient::new(cfg);
+                    client.fetch_bars(&symbol, &timeframe).map_err(|e| CliError::Provider(e.to_string()))?
+                }
+                _ => return Err(CliError::Validation(format!("Unsupported provider: {}", provider))),
+            };
 
             let series = BarSeries {
                 schema_version: "v0".to_string(),
@@ -241,6 +239,69 @@ fn run(command: Commands) -> Result<String, CliError> {
 
             ok_envelope(intents)
         }
+        Commands::ScanMarket { provider, top_n, min_volatility, min_momentum } => {
+            let symbols = scan_market(&provider, top_n, min_volatility, min_momentum)?;
+            ok_envelope(symbols)
+        }
+    }
+}
+
+fn scan_market(provider: &str, top_n: usize, min_volatility: f64, min_momentum: f64) -> Result<Vec<String>, CliError> {
+    match provider {
+        "kraken" => {
+            let cfg = KrakenConfig::from_env().map_err(|e| CliError::Provider(e.to_string()))?;
+            let client = KrakenClient::new(cfg);
+            let tickers = client.fetch_tickers().map_err(|e| CliError::Provider(e.to_string()))?;
+
+            // Filter and Sort
+            let mut candidates: Vec<(String, f64, f64)> = Vec::new(); // (Symbol, Volume, Volatility)
+
+            for (pair, info) in tickers {
+                // Filter for USD pairs (usually end in USD or ZUSD)
+                // Kraken pairs are weird: XXBTZUSD, XETHZUSD, ADAUSD
+                if !pair.ends_with("USD") { continue; }
+
+                // Parse volume (24h) - 'v' field [today, 24h]
+                let vol_str = info.v.get(1).unwrap_or(&"0".to_string()).clone();
+                let vol_24h = vol_str.parse::<f64>().unwrap_or(0.0);
+
+                // Parse High/Low for Volatility
+                let high_str = info.h.get(1).unwrap_or(&"0".to_string()).clone();
+                let low_str = info.l.get(1).unwrap_or(&"0".to_string()).clone();
+
+                let high_24h = high_str.parse::<f64>().unwrap_or(0.0);
+                let low_24h = low_str.parse::<f64>().unwrap_or(0.0);
+
+                // Parse Open/Close for Momentum (24h)
+                let open_str = info.o.clone();
+                let close_str = info.c.get(0).unwrap_or(&"0".to_string()).clone();
+                let open = open_str.parse::<f64>().unwrap_or(0.0);
+                let close = close_str.parse::<f64>().unwrap_or(0.0);
+
+                let momentum = if open > 0.0 { (close - open) / open } else { 0.0 };
+
+                if low_24h > 0.0 {
+                    let volatility = (high_24h - low_24h) / low_24h;
+                    if volatility >= min_volatility && momentum >= min_momentum {
+                         candidates.push((pair, vol_24h, volatility));
+                    }
+                }
+            }
+
+            // Sort by volume descending
+            candidates.sort_by(|a, b| b.1.partial_cmp(&a.1).unwrap_or(std::cmp::Ordering::Equal));
+
+            let result: Vec<String> = candidates.into_iter().take(top_n).map(|(s, _, _)| s).collect();
+            Ok(result)
+        }
+        "alpaca" => {
+            // Static watchlist for equities
+            let watchlist = vec![
+                "SPY", "QQQ", "TQQQ", "AAPL", "NVDA", "TSLA", "AMZN", "META", "MSFT", "AMD", "GOOGL"
+            ];
+            Ok(watchlist.into_iter().map(String::from).collect())
+        }
+        _ => Err(CliError::Validation(format!("Unsupported provider for scanning: {}", provider))),
     }
 }
 
