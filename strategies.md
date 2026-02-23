@@ -63,3 +63,72 @@ pub struct BollingerBandsConfig {
 ### Performance
 - Uses O(N) sliding window calculation for SMA and Standard Deviation.
 - Efficient for typical market data window sizes.
+
+---
+
+# Trading Strategy: EMA Crossover
+
+## Strategy Specification
+
+**Name:** EmaCrossover
+
+**Description:** A trend-following strategy that uses two Exponential Moving Averages (EMA) with different lookback periods (Short and Long). It generates buy signals when the Short EMA crosses above the Long EMA, and sell signals when the Short EMA crosses below the Long EMA.
+
+**Rationale:** EMAs react faster to price changes than SMAs. A crossover of a faster EMA above a slower EMA often signals the start of an uptrend.
+
+## Requirements
+
+### Implementation Details
+- Uses Polars for data analysis.
+- Implements the `Strategy` trait in Rust.
+- Uses `rust_decimal` for precise EMA calculation.
+
+### Strategy Type
+Trend Following
+
+### Entry Conditions
+- **Long Entry (Buy):** Short EMA > Long EMA (and Short EMA was <= Long EMA in previous bar).
+
+### Exit Conditions
+- **Long Exit (Sell):** Short EMA < Long EMA.
+- **Stop Loss:** Close Price <= Entry Price * (1 - `stop_loss_pct`).
+
+### Position Sizing
+- **Size Hint:** "100" (fixed units) or "max" (for exits).
+
+## Code Pattern
+
+```rust
+use crate::strategy::{Strategy, StrategyConfig, Signal, SignalType};
+use crate::indicators::ema;
+use polars::prelude::*;
+use async_trait::async_trait;
+use anyhow::Result;
+
+pub struct EmaCrossover {
+    config: EmaCrossoverConfig,
+}
+
+#[derive(Debug, Clone, serde::Deserialize)]
+pub struct EmaCrossoverConfig {
+    pub short_window: usize,
+    pub long_window: usize,
+    pub stop_loss_pct: f64,
+    pub symbol: String,
+}
+```
+
+## Critical Considerations
+
+### Risk Management Integration
+- **Stop Loss:** Explicitly checks if current price drops below a percentage of the entry price. This is crucial for limiting downside risk in false breakouts.
+- **Statefulness:** The strategy tracks simulated position state during signal generation to correctly apply stop-loss logic based on the specific entry price.
+
+### Backtesting Requirements
+- Accepts `DataFrame` with historical data.
+- Signal generation mimics real-time execution by iterating chronologically and updating state.
+
+### Performance
+- EMA calculation is O(N).
+- Signal generation loop is O(N).
+- Uses `Vec<Option<f64>>` for efficient indexed access during iteration.
