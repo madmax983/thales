@@ -67,7 +67,7 @@ impl Strategy for BollingerBandsMeanReversion {
             let lower = mean - (std_dev * self.config.num_std_dev);
 
             if let (Some(close), Some(ts)) = (close_arr.get(i), time_arr.get(i)) {
-                 if close < lower {
+                if close < lower {
                     signals.push(Signal {
                         signal_type: SignalType::Entry,
                         symbol: self.config.symbol.clone(),

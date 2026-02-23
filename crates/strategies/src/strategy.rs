@@ -1,5 +1,5 @@
-use async_trait::async_trait;
 use anyhow::Result;
+use async_trait::async_trait;
 use polars::prelude::*;
 use serde::{Deserialize, Serialize};
 
@@ -14,7 +14,7 @@ pub enum SignalType {
 pub struct Signal {
     pub signal_type: SignalType,
     pub symbol: String,
-    pub side: String, // "buy" or "sell"
+    pub side: String,      // "buy" or "sell"
     pub size_hint: String, // e.g., "100" or "0.1" or "max"
     pub confidence: f64,
     pub reason: String,

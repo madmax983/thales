@@ -30,7 +30,8 @@ pub fn analyze(series: &BarSeries) -> MarketAnalysis {
         "Trending Up" => "Bullish",
         "Trending Down" => "Bearish",
         _ => "Neutral",
-    }.to_string();
+    }
+    .to_string();
 
     MarketAnalysis {
         symbol,
@@ -104,7 +105,13 @@ fn identify_levels(bars: &[Bar]) -> Vec<f64> {
         return vec![];
     }
     let window = &bars[bars.len().saturating_sub(20)..];
-    let highest = window.iter().map(|b| b.high).fold(f64::NEG_INFINITY, |a, b| a.max(b));
-    let lowest = window.iter().map(|b| b.low).fold(f64::INFINITY, |a, b| a.min(b));
+    let highest = window
+        .iter()
+        .map(|b| b.high)
+        .fold(f64::NEG_INFINITY, |a, b| a.max(b));
+    let lowest = window
+        .iter()
+        .map(|b| b.low)
+        .fold(f64::INFINITY, |a, b| a.min(b));
     vec![highest, lowest]
 }

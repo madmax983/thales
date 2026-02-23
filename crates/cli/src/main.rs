@@ -118,10 +118,13 @@ fn run(command: Commands) -> Result<String, CliError> {
         }
         Commands::NormalizeBars { input } => {
             let raw = fs::read_to_string(&input)?;
-            let mut series: BarSeries = match serde_json::from_str::<ResponseEnvelope<BarSeries>>(&raw) {
-                Ok(envelope) => envelope.data.ok_or(CliError::Validation("Envelope has no data".to_string()))?,
-                Err(_) => serde_json::from_str::<BarSeries>(&raw)?
-            };
+            let mut series: BarSeries =
+                match serde_json::from_str::<ResponseEnvelope<BarSeries>>(&raw) {
+                    Ok(envelope) => envelope
+                        .data
+                        .ok_or(CliError::Validation("Envelope has no data".to_string()))?,
+                    Err(_) => serde_json::from_str::<BarSeries>(&raw)?,
+                };
             series.bars.sort_by_key(|bar| bar.timestamp_unix_ms);
             ok_envelope(series)
         }
@@ -167,9 +170,12 @@ fn run(command: Commands) -> Result<String, CliError> {
         }
         Commands::AnalyzeMarket { input } => {
             let raw = fs::read_to_string(&input)?;
-            let series: BarSeries = match serde_json::from_str::<ResponseEnvelope<BarSeries>>(&raw) {
-                Ok(envelope) => envelope.data.ok_or(CliError::Validation("Envelope has no data".to_string()))?,
-                Err(_) => serde_json::from_str::<BarSeries>(&raw)?
+            let series: BarSeries = match serde_json::from_str::<ResponseEnvelope<BarSeries>>(&raw)
+            {
+                Ok(envelope) => envelope
+                    .data
+                    .ok_or(CliError::Validation("Envelope has no data".to_string()))?,
+                Err(_) => serde_json::from_str::<BarSeries>(&raw)?,
             };
 
             let analysis = analysis::analyze(&series);
