@@ -5,7 +5,7 @@ use contracts::{BarSeries, TradeIntent};
 use polars::prelude::*;
 use std::path::Path;
 use strategies::bollinger_bands::{BollingerBandsConfig, BollingerBandsMeanReversion};
-use strategies::strategy::Strategy;
+use strategies::strategy::{SignalType, Strategy};
 
 const DEFAULT_RISK_PER_TRADE: f64 = 100.0;
 
@@ -84,24 +84,30 @@ pub async fn generate_signals(
         let sl_dist = 2.0 * atr;
         let tp_dist = 4.0 * atr;
 
-        let (stop_loss, take_profit) = if signal.side == "buy" {
-            (
-                Some(last_close - sl_dist),
-                Some(last_close + tp_dist),
-            )
-        } else {
-            (
-                Some(last_close + sl_dist),
-                Some(last_close - tp_dist),
-            )
-        };
+        let (stop_loss, take_profit, size_hint) = match signal.signal_type {
+            SignalType::Entry | SignalType::ScaleIn => {
+                let (sl, tp) = if signal.side == "buy" {
+                    (
+                        Some(last_close - sl_dist),
+                        Some(last_close + tp_dist),
+                    )
+                } else {
+                    (
+                        Some(last_close + sl_dist),
+                        Some(last_close - tp_dist),
+                    )
+                };
 
-        // Size = Risk / DistanceToSL
-        // If Risk = 100$, and DistanceToSL = 2$, Size = 50 units.
-        let size = if sl_dist > 0.0 {
-            (DEFAULT_RISK_PER_TRADE / sl_dist).round()
-        } else {
-            0.0
+                let size = if sl_dist > 0.0 {
+                    (DEFAULT_RISK_PER_TRADE / sl_dist).round().to_string()
+                } else {
+                    "0".to_string()
+                };
+                (sl, tp, size)
+            },
+            SignalType::Exit | SignalType::ScaleOut => {
+                (None, None, signal.size_hint.clone())
+            }
         };
 
         let time_in_force = if market_analysis.market == "crypto" {
@@ -118,7 +124,7 @@ pub async fn generate_signals(
             market: market_analysis.market.clone(),
             symbol: signal.symbol.clone(),
             side: signal.side.clone(),
-            size_hint: size.to_string(),
+            size_hint,
             confidence: signal.confidence,
             horizon: "1d".to_string(),
             rationale: format!("Strategy: {}. Reason: {}. Market: {}. {}", strategy.name(), signal.reason, market_analysis.regime, historical_context),
@@ -178,6 +184,7 @@ mod tests {
         }
 
         // Generate spike to trigger Sell signal (Upper Band breakout)
+        // This should trigger Entry (Sell)
         bars.push(Bar {
             symbol: "AAPL".to_string(),
             market: "equities".to_string(),
@@ -284,7 +291,8 @@ mod tests {
         assert_eq!(size, expected_size);
 
         // Check signal type
-        assert_eq!(intent.signal_type, Some("Entry".to_string()));
+        // With constant price (std_dev = 0), any drop is considered "Deep Value" / ScaleIn by the strategy
+        assert_eq!(intent.signal_type, Some("ScaleIn".to_string()));
 
         Ok(())
     }
