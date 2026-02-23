@@ -7,6 +7,8 @@ use std::path::Path;
 use strategies::bollinger_bands::{BollingerBandsConfig, BollingerBandsMeanReversion};
 use strategies::strategy::Strategy;
 
+const DEFAULT_RISK_PER_TRADE: f64 = 100.0;
+
 pub async fn generate_signals(
     bars: &BarSeries,
     strategy_name: &str,
@@ -37,7 +39,15 @@ pub async fn generate_signals(
 
     // 4. Enrich and Filter Signals
     let mut intents = Vec::new();
-    let mut signals_today = 0; // Simple counter for daily limit
+
+    // Check existing signals count from history
+    let existing_signals_count = if let Some(path) = history_path {
+        rag::count_todays_signals(&market_analysis.symbol, path)?
+    } else {
+        0
+    };
+
+    let mut signals_today = existing_signals_count;
 
     // Filter for latest signals only
     let latest_timestamp = bars.bars.last().map(|b| b.timestamp_unix_ms).unwrap_or(0);
@@ -48,7 +58,7 @@ pub async fn generate_signals(
             continue;
         }
 
-        // Filter: Limit to 3 signals per day (naive check per batch)
+        // Filter: Limit to 3 signals per day
         if signals_today >= 3 {
             break;
         }
@@ -66,39 +76,32 @@ pub async fn generate_signals(
             "No similar past trades found.".to_string()
         };
 
-        // Position Sizing (Volatility based)
-        // Simple logic: Base size 100, adjusted by volatility.
-        // Volatility "High" -> 0.5x, "Medium" -> 1.0x, "Low" -> 2.0x
-        let size_multiplier = match market_analysis.volatility.as_str() {
-            "High" => 0.5,
-            "Low" => 2.0,
-            _ => 1.0,
-        };
-
-        let base_size: f64 = 100.0; // Placeholder base unit
-        let size = (base_size * size_multiplier).round();
-
-        // SL / TP Calculation
-        // Use volatility from analysis or assume ATR-like proxy
-        // For simplicity, we use % based on volatility description
-        let (sl_pct, tp_pct) = match market_analysis.volatility.as_str() {
-            "High" => (0.05, 0.10), // Wider stops for high vol
-            "Low" => (0.01, 0.02),  // Tighter stops for low vol
-            _ => (0.02, 0.04),
-        };
-
+        // Position Sizing and SL/TP (ATR based)
         let last_close = bars.bars.last().map(|b| b.close).unwrap_or(100.0);
+        let atr = market_analysis.atr.unwrap_or(last_close * 0.01); // Fallback to 1% if ATR missing
+
+        // SL distance = 2 ATR, TP distance = 4 ATR (2:1 Reward/Risk)
+        let sl_dist = 2.0 * atr;
+        let tp_dist = 4.0 * atr;
 
         let (stop_loss, take_profit) = if signal.side == "buy" {
             (
-                Some(last_close * (1.0 - sl_pct)),
-                Some(last_close * (1.0 + tp_pct)),
+                Some(last_close - sl_dist),
+                Some(last_close + tp_dist),
             )
         } else {
             (
-                Some(last_close * (1.0 + sl_pct)),
-                Some(last_close * (1.0 - tp_pct)),
+                Some(last_close + sl_dist),
+                Some(last_close - tp_dist),
             )
+        };
+
+        // Size = Risk / DistanceToSL
+        // If Risk = 100$, and DistanceToSL = 2$, Size = 50 units.
+        let size = if sl_dist > 0.0 {
+            (DEFAULT_RISK_PER_TRADE / sl_dist).round()
+        } else {
+            0.0
         };
 
         let time_in_force = if market_analysis.market == "crypto" {
@@ -106,6 +109,9 @@ pub async fn generate_signals(
         } else {
             "day".to_string()
         };
+
+        // Map SignalType
+        let signal_type_str = format!("{:?}", signal.signal_type);
 
         let intent = TradeIntent {
             intent_id: format!("{}:{}:{}:{}", market_analysis.market, signal.symbol, signal.side, signal.timestamp_ms),
@@ -118,6 +124,7 @@ pub async fn generate_signals(
             rationale: format!("Strategy: {}. Reason: {}. Market: {}. {}", strategy.name(), signal.reason, market_analysis.regime, historical_context),
             invalidation: "Price hits Stop Loss".to_string(),
             schema_version: "v0".to_string(),
+            signal_type: Some(signal_type_str),
             stop_loss,
             take_profit,
             order_type: "market".to_string(),
@@ -203,6 +210,81 @@ mod tests {
         // But let's check basic direction
         assert!(intent.stop_loss.unwrap() > close); // SL above entry for short
         assert!(intent.take_profit.unwrap() < close); // TP below entry for short
+
+        Ok(())
+    }
+
+    #[tokio::test]
+    async fn test_generate_signals_atr_sizing() -> Result<()> {
+        // Create bars with predictable range for ATR calculation
+        // High - Low = 2.0 (High = Close + 1, Low = Close - 1)
+        // Previous Close = Close (so TR is High - Low = 2.0)
+        let mut bars = Vec::new();
+        let now = 100000;
+
+        // Fill history with constant price 100.0, range 2.0
+        for i in 0..20 {
+            bars.push(Bar {
+                symbol: "TEST".to_string(),
+                market: "equities".to_string(),
+                timeframe: "1m".to_string(),
+                timestamp_unix_ms: now + i * 60000,
+                open: 100.0,
+                high: 101.0,
+                low: 99.0,
+                close: 100.0,
+                volume: 1000.0,
+            });
+        }
+
+        // Trigger Buy signal: Drop below lower band
+        // Mean is 100. Std Dev is 0 (approx). Lower Band is 100.
+        // Drop to 95.
+        bars.push(Bar {
+            symbol: "TEST".to_string(),
+            market: "equities".to_string(),
+            timeframe: "1m".to_string(),
+            timestamp_unix_ms: now + 20 * 60000,
+            open: 100.0,
+            high: 101.0,
+            low: 94.0, // Low drop
+            close: 95.0, // Close below 100
+            volume: 1000.0,
+        });
+
+        let series = BarSeries {
+            schema_version: "v0".to_string(),
+            bars,
+        };
+
+        let intents = generate_signals(&series, "BollingerBands", None).await?;
+
+        assert!(!intents.is_empty());
+        let intent = &intents[0];
+        assert_eq!(intent.side, "buy");
+
+        let close = 95.0;
+        let sl = intent.stop_loss.unwrap();
+        let tp = intent.take_profit.unwrap();
+
+        assert!(sl < close);
+        assert!(tp > close);
+
+        // Check relationships
+        let sl_dist = close - sl;
+        let tp_dist = tp - close;
+
+        // TP should be roughly 2x SL distance (4 ATR vs 2 ATR)
+        assert!((tp_dist - 2.0 * sl_dist).abs() < 0.1);
+
+        // Check size
+        let size: f64 = intent.size_hint.parse().unwrap();
+        // Size = 100 / sl_dist
+        let expected_size = (100.0 / sl_dist).round();
+        assert_eq!(size, expected_size);
+
+        // Check signal type
+        assert_eq!(intent.signal_type, Some("Entry".to_string()));
 
         Ok(())
     }

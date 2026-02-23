@@ -12,6 +12,8 @@ pub struct TradeIntent {
     pub rationale: String,
     pub invalidation: String,
     pub schema_version: String,
+    #[serde(default)]
+    pub signal_type: Option<String>,
     pub stop_loss: Option<f64>,
     pub take_profit: Option<f64>,
     pub order_type: String,
@@ -33,6 +35,7 @@ impl Default for TradeIntent {
             rationale: String::new(),
             invalidation: String::new(),
             schema_version: "v0".to_string(),
+            signal_type: None,
             stop_loss: None,
             take_profit: None,
             order_type: "market".to_string(),
@@ -103,6 +106,8 @@ pub struct MarketAnalysis {
     pub patterns: Vec<String>,
     pub key_levels: Vec<f64>,
     pub volatility: String,
+    #[serde(default)]
+    pub atr: Option<f64>,
     pub confidence: f64,
     pub timestamp_unix_ms: i64,
 }

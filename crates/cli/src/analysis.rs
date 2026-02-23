@@ -16,6 +16,7 @@ pub fn analyze(series: &BarSeries) -> MarketAnalysis {
             patterns: vec![],
             key_levels: vec![],
             volatility: "Unknown".to_string(),
+            atr: None,
             confidence: 0.0,
             timestamp_unix_ms: timestamp,
         };
@@ -23,6 +24,7 @@ pub fn analyze(series: &BarSeries) -> MarketAnalysis {
 
     let regime = calculate_regime(bars);
     let volatility = calculate_volatility(bars);
+    let atr = calculate_atr(bars, 14);
     let patterns = detect_patterns(bars);
     let key_levels = identify_levels(bars);
     let sentiment = calculate_sentiment(bars, &regime);
@@ -55,6 +57,7 @@ pub fn analyze(series: &BarSeries) -> MarketAnalysis {
         patterns,
         key_levels,
         volatility,
+        atr,
         confidence,
         timestamp_unix_ms: timestamp,
     }
