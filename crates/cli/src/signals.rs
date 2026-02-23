@@ -101,6 +101,12 @@ pub async fn generate_signals(
             )
         };
 
+        let time_in_force = if market_analysis.market == "crypto" {
+            "GTC".to_string()
+        } else {
+            "day".to_string()
+        };
+
         let intent = TradeIntent {
             intent_id: format!("{}:{}:{}:{}", market_analysis.market, signal.symbol, signal.side, signal.timestamp_ms),
             market: market_analysis.market.clone(),
@@ -117,7 +123,7 @@ pub async fn generate_signals(
             order_type: "market".to_string(),
             limit_price: None,
             stop_price: None,
-            time_in_force: "day".to_string(),
+            time_in_force,
         };
 
         intents.push(intent);
