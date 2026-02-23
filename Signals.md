@@ -44,3 +44,27 @@ Regime: Trending Up
 *Historical Context*: No similar historical trades found.
 
 ---
+
+## Market Analysis Report - crypto - XBTUSD
+
+**Timestamp (ms)**: 1771880921241
+**Confidence**: 80.00%
+
+### 1. Market Regime
+Regime Unchanged (Trending Up)
+*Sentiment*: Bullish (Overbought)
+
+### 2. Volatility
+*Assessment*: Medium
+
+### 3. Patterns & Price Action
+*Patterns*: None detected
+
+### 4. Key Levels
+*Support/Resistance*: 99.50, 115.28, 126.39
+
+### 5. Research & Context
+*External Research*: No external research available. (Placeholder for search_research)
+*Historical Context*: No similar historical trades found.
+
+---
