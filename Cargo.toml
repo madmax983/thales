@@ -4,6 +4,7 @@ members = [
   "crates/providers/alpaca",
   "crates/providers/kraken",
   "crates/cli",
+  "crates/strategies",
 ]
 resolver = "2"
 
