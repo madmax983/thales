@@ -32,3 +32,35 @@ let sma_series = sma::calculate(&df, period)?;
 - Returns `Result<Series>`.
 - The output Series is named "sma".
 - The first `period - 1` values will be null.
+
+## Relative Strength Index (RSI)
+
+**Name:** RSI
+**Description:** Calculates the Relative Strength Index, a momentum oscillator measuring the speed and change of price movements.
+**Rationale:** Standard momentum indicator used to identify overbought or oversold conditions.
+
+### Implementation Details
+- Uses `rust_decimal::Decimal` for precision.
+- Implements Wilder's Smoothing for the moving average calculation.
+- Returns a Polars `Series` of `f64` values (0-100).
+- Handles edge cases like flat prices (returns 50).
+
+### Usage
+
+```rust
+use strategies::indicators::rsi;
+use polars::prelude::*;
+
+// Assuming df is a DataFrame with a "close" column
+let period = 14;
+let rsi_series = rsi::calculate(&df, period)?;
+```
+
+### Parameters
+- `data`: Reference to a Polars `DataFrame`. Must contain a numeric column named "close".
+- `period`: The lookback period (typically 14).
+
+### Output
+- Returns `Result<Series>`.
+- The output Series is named "rsi".
+- The first `period` values will be null (requires `period` changes to initialize).
