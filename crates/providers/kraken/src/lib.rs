@@ -63,10 +63,32 @@ impl KrakenClient {
 
         let nonce = now_unix_ms()?.to_string();
         let pair = normalize_pair(&intent.symbol);
-        let body = format!(
-            "nonce={}&ordertype=market&type={}&pair={}&volume={}",
-            nonce, intent.side, pair, intent.size_hint
+
+        let order_type = intent.order_type.clone().unwrap_or_else(|| "market".to_string());
+
+        let (kraken_ordertype, price_param, price2_param) = match order_type.as_str() {
+            "limit" => Ok(("limit", intent.limit_price.map(|p| format!("&price={}", p)), None)),
+            "stop" => Ok(("stop-loss", intent.stop_price.map(|p| format!("&price={}", p)), None)),
+            "stop_limit" => Ok((
+                "stop-loss-limit",
+                intent.stop_price.map(|p| format!("&price={}", p)),
+                intent.limit_price.map(|p| format!("&price2={}", p))
+            )),
+            "market" => Ok(("market", None, None)),
+            other => Err(KrakenProviderError::InvalidOrderType(other.to_string())),
+        }?;
+
+        let mut body = format!(
+            "nonce={}&ordertype={}&type={}&pair={}&volume={}",
+            nonce, kraken_ordertype, intent.side, pair, intent.size_hint
         );
+
+        if let Some(p) = price_param {
+            body.push_str(&p);
+        }
+        if let Some(p2) = price2_param {
+            body.push_str(&p2);
+        }
 
         let path = "/0/private/AddOrder";
         let signature = sign_request(&self.config.api_secret, path, &nonce, &body)?;
@@ -202,4 +224,6 @@ pub enum KrakenProviderError {
     Api(String),
     #[error("kraken response missing txid")]
     MissingTxid,
+    #[error("invalid order type: {0}")]
+    InvalidOrderType(String),
 }

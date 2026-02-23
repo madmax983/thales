@@ -52,7 +52,7 @@ fn execute_intent_submits_order_and_maps_response() {
             horizon: "1h".to_string(),
             rationale: "breakout".to_string(),
             invalidation: "below support".to_string(),
-            schema_version: "v0".to_string(),
+            schema_version: "v0".to_string(), order_type: None, limit_price: None, stop_price: None, time_in_force: None,
         })
         .expect("execution");
 
@@ -97,11 +97,61 @@ fn execute_intent_returns_error_on_http_failure() {
             horizon: "1h".to_string(),
             rationale: "breakout".to_string(),
             invalidation: "below support".to_string(),
-            schema_version: "v0".to_string(),
+            schema_version: "v0".to_string(), order_type: None, limit_price: None, stop_price: None, time_in_force: None,
         })
         .expect_err("expected http error");
 
     let message = err.to_string();
     assert!(message.contains("unexpected alpaca response status"));
+    mock.assert();
+}
+
+#[test]
+fn execute_intent_submits_limit_order() {
+    let mut server = mockito::Server::new();
+    let mock = server
+        .mock("POST", "/v2/orders")
+        .match_body(Matcher::Regex("\"type\":\"limit\"".to_string()))
+        .match_body(Matcher::Regex("\"limit_price\":150.0".to_string()))
+        .match_body(Matcher::Regex("\"time_in_force\":\"gtc\"".to_string()))
+        .with_status(200)
+        .with_body(
+            json!({
+                "id": "order-limit",
+                "status": "accepted"
+            })
+            .to_string(),
+        )
+        .create();
+
+    let cfg = AlpacaConfig::from_env_with(|key| match key {
+        "ALPACA_API_KEY" => Some("k".to_string()),
+        "ALPACA_API_SECRET" => Some("s".to_string()),
+        "ALPACA_BASE_URL" => Some(server.url()),
+        _ => None,
+    })
+    .expect("config");
+    let client = AlpacaClient::new(cfg);
+
+    let result = client
+        .execute_intent(&TradeIntent {
+            intent_id: "intent-limit".to_string(),
+            market: "equities".to_string(),
+            symbol: "AAPL".to_string(),
+            side: "buy".to_string(),
+            size_hint: "1".to_string(),
+            confidence: 0.9,
+            horizon: "1h".to_string(),
+            rationale: "limit buy".to_string(),
+            invalidation: "none".to_string(),
+            schema_version: "v0".to_string(),
+            order_type: Some("limit".to_string()),
+            limit_price: Some(150.0),
+            stop_price: None,
+            time_in_force: Some("gtc".to_string()),
+        })
+        .expect("execution");
+
+    assert_eq!(result.provider_order_id, "order-limit");
     mock.assert();
 }

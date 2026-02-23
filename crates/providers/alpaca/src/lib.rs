@@ -57,12 +57,22 @@ impl AlpacaClient {
         validate_size_hint(&intent.size_hint)?;
         validate_side(&intent.side)?;
 
+        let order_type = intent.order_type.clone().unwrap_or_else(|| "market".to_string());
+        match order_type.as_str() {
+            "market" | "limit" | "stop" | "stop_limit" => {},
+            other => return Err(AlpacaProviderError::InvalidOrderType(other.to_string())),
+        }
+
+        let time_in_force = intent.time_in_force.clone().unwrap_or_else(|| "day".to_string());
+
         let request = AlpacaOrderRequest {
             symbol: intent.symbol.clone(),
             qty: intent.size_hint.clone(),
             side: intent.side.clone(),
-            order_type: "market".to_string(),
-            time_in_force: "day".to_string(),
+            order_type,
+            time_in_force,
+            limit_price: intent.limit_price,
+            stop_price: intent.stop_price,
             client_order_id: intent.intent_id.clone(),
         };
         let url = format!("{}/v2/orders", self.config.base_url.trim_end_matches('/'));
@@ -100,7 +110,7 @@ impl AlpacaClient {
     }
 }
 
-#[derive(Debug, Clone, PartialEq, Eq, Serialize)]
+#[derive(Debug, Clone, PartialEq, Serialize)]
 struct AlpacaOrderRequest {
     symbol: String,
     qty: String,
@@ -108,6 +118,10 @@ struct AlpacaOrderRequest {
     #[serde(rename = "type")]
     order_type: String,
     time_in_force: String,
+    #[serde(rename = "limit_price", skip_serializing_if = "Option::is_none")]
+    limit_price: Option<f64>,
+    #[serde(rename = "stop_price", skip_serializing_if = "Option::is_none")]
+    stop_price: Option<f64>,
     client_order_id: String,
 }
 
@@ -149,4 +163,6 @@ pub enum AlpacaProviderError {
     Http(#[from] reqwest::Error),
     #[error("unexpected alpaca response status {0}: {1}")]
     UnexpectedHttpStatus(u16, String),
+    #[error("invalid order type: {0}")]
+    InvalidOrderType(String),
 }

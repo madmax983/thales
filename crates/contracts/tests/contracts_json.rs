@@ -16,6 +16,10 @@ fn trade_intent_roundtrip_preserves_v0_schema() {
         rationale: "simple momentum".to_string(),
         invalidation: "price < 180".to_string(),
         schema_version: "v0".to_string(),
+        order_type: None,
+        limit_price: None,
+        stop_price: None,
+        time_in_force: None,
     };
 
     let json = serde_json::to_value(&intent).expect("serialize");
@@ -72,6 +76,10 @@ fn execution_contracts_serialize() {
             rationale: "mean reversion".to_string(),
             invalidation: "price > 421".to_string(),
             schema_version: "v0".to_string(),
+            order_type: None,
+            limit_price: None,
+            stop_price: None,
+            time_in_force: None,
         },
     };
 

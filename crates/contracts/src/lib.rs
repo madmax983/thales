@@ -12,6 +12,15 @@ pub struct TradeIntent {
     pub rationale: String,
     pub invalidation: String,
     pub schema_version: String,
+    // New fields
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub order_type: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub limit_price: Option<f64>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub stop_price: Option<f64>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub time_in_force: Option<String>,
 }
 
 impl Default for TradeIntent {
@@ -27,6 +36,10 @@ impl Default for TradeIntent {
             rationale: String::new(),
             invalidation: String::new(),
             schema_version: "v0".to_string(),
+            order_type: None,
+            limit_price: None,
+            stop_price: None,
+            time_in_force: None,
         }
     }
 }

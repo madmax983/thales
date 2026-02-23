@@ -70,7 +70,7 @@ fn validate_intent_rejects_invalid_payload() {
         horizon: "1h".to_string(),
         rationale: "bad payload".to_string(),
         invalidation: "none".to_string(),
-        schema_version: "v0".to_string(),
+        schema_version: "v0".to_string(), order_type: None, limit_price: None, stop_price: None, time_in_force: None,
     };
     fs::write(
         tmp.path(),
@@ -122,7 +122,7 @@ fn execute_intent_returns_provider_result() {
         horizon: "1h".to_string(),
         rationale: "test".to_string(),
         invalidation: "none".to_string(),
-        schema_version: "v0".to_string(),
+        schema_version: "v0".to_string(), order_type: None, limit_price: None, stop_price: None, time_in_force: None,
     };
     fs::write(
         tmp.path(),
@@ -188,7 +188,7 @@ fn execute_intent_returns_kraken_provider_result() {
         horizon: "1h".to_string(),
         rationale: "test".to_string(),
         invalidation: "none".to_string(),
-        schema_version: "v0".to_string(),
+        schema_version: "v0".to_string(), order_type: None, limit_price: None, stop_price: None, time_in_force: None,
     };
     fs::write(
         tmp.path(),

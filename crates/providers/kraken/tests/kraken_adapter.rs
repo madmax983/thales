@@ -20,6 +20,10 @@ fn execute_intent_submits_order_and_maps_response() {
             "content-type",
             Matcher::Regex("application/x-www-form-urlencoded".to_string()),
         )
+        .match_header(
+            "content-type",
+            Matcher::Regex("application/x-www-form-urlencoded".to_string()),
+        )
         .match_body(Matcher::Regex("pair=XBTUSD".to_string()))
         .match_body(Matcher::Regex("type=sell".to_string()))
         .match_body(Matcher::Regex("ordertype=market".to_string()))
@@ -57,7 +61,7 @@ fn execute_intent_submits_order_and_maps_response() {
             horizon: "15m".to_string(),
             rationale: "reversion".to_string(),
             invalidation: "break above range".to_string(),
-            schema_version: "v0".to_string(),
+            schema_version: "v0".to_string(), order_type: None, limit_price: None, stop_price: None, time_in_force: None,
         })
         .expect("execution");
 
@@ -103,11 +107,69 @@ fn execute_intent_returns_error_when_kraken_error_array_is_non_empty() {
             horizon: "15m".to_string(),
             rationale: "reversion".to_string(),
             invalidation: "break above range".to_string(),
-            schema_version: "v0".to_string(),
+            schema_version: "v0".to_string(), order_type: None, limit_price: None, stop_price: None, time_in_force: None,
         })
         .expect_err("expected kraken API error");
 
     let message = err.to_string();
     assert!(message.contains("kraken api error"));
+    mock.assert();
+}
+
+#[test]
+fn execute_intent_submits_limit_order() {
+    let mut server = mockito::Server::new();
+    let mock = server
+        .mock("POST", "/0/private/AddOrder")
+        .match_header("API-Key", "k")
+        .match_header("API-Sign", Matcher::Regex(".+".to_string()))
+        .match_header(
+            "content-type",
+            Matcher::Regex("application/x-www-form-urlencoded".to_string()),
+        )
+        .match_body(Matcher::Regex("nonce=\\d+".to_string()))
+        .match_body(Matcher::Regex("ordertype=limit".to_string()))
+        .match_body(Matcher::Regex("price=50000".to_string()))
+        .with_status(200)
+        .with_body(
+            json!({
+                "error": [],
+                "result": {
+                    "txid": ["kraken-limit-1"]
+                }
+            })
+            .to_string(),
+        )
+        .create();
+
+    let cfg = KrakenConfig::from_env_with(|key| match key {
+        "KRAKEN_API_KEY" => Some("k".to_string()),
+        "KRAKEN_API_SECRET" => Some("YWJj".to_string()),
+        "KRAKEN_BASE_URL" => Some(server.url()),
+        _ => None,
+    })
+    .expect("config");
+    let client = KrakenClient::new(cfg);
+
+    let result = client
+        .execute_intent(&TradeIntent {
+            intent_id: "intent-kr-limit".to_string(),
+            market: "crypto".to_string(),
+            symbol: "XBT/USD".to_string(),
+            side: "buy".to_string(),
+            size_hint: "0.5".to_string(),
+            confidence: 0.9,
+            horizon: "15m".to_string(),
+            rationale: "dip".to_string(),
+            invalidation: "none".to_string(),
+            schema_version: "v0".to_string(),
+            order_type: Some("limit".to_string()),
+            limit_price: Some(50000.0),
+            stop_price: None,
+            time_in_force: None,
+        })
+        .expect("execution");
+
+    assert_eq!(result.provider_order_id, "kraken-limit-1");
     mock.assert();
 }
