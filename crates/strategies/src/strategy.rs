@@ -8,6 +8,8 @@ use serde::{Deserialize, Serialize};
 pub enum SignalType {
     Entry,
     Exit,
+    ScaleIn,
+    ScaleOut,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]

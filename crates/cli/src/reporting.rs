@@ -169,6 +169,7 @@ mod tests {
             patterns: vec!["Doji".to_string()],
             key_levels: vec![100.0, 110.0],
             volatility: "Low".to_string(),
+            atr: None,
             confidence: 0.9,
             timestamp_unix_ms: 1600000000000,
         };

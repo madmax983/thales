@@ -2,6 +2,7 @@ use contracts::{MarketAnalysis, TradeIntent};
 use serde::{Deserialize, Serialize};
 use std::fs;
 use std::path::Path;
+use std::time::{SystemTime, UNIX_EPOCH};
 use anyhow::Result;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -46,6 +47,33 @@ pub fn find_similar_trades(
     Ok(similar_trades)
 }
 
+pub fn count_todays_signals(symbol: &str, history_path: &Path) -> Result<usize> {
+    if !history_path.exists() {
+        return Ok(0);
+    }
+
+    let raw = fs::read_to_string(history_path)?;
+    let history: Vec<HistoryEntry> = serde_json::from_str(&raw)?;
+
+    let now_ms = SystemTime::now()
+        .duration_since(UNIX_EPOCH)
+        .map_err(|e| anyhow::anyhow!("Time error: {}", e))?
+        .as_millis() as i64;
+
+    let ms_per_day = 24 * 60 * 60 * 1000;
+    let today_day_num = now_ms / ms_per_day;
+
+    let count = history
+        .iter()
+        .filter(|entry| {
+            entry.market_analysis.symbol == symbol
+                && (entry.market_analysis.timestamp_unix_ms / ms_per_day) == today_day_num
+        })
+        .count();
+
+    Ok(count)
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -61,6 +89,7 @@ mod tests {
             patterns: vec![],
             key_levels: vec![],
             volatility: volatility.to_string(),
+            atr: None,
             confidence: 0.5,
             timestamp_unix_ms: 1000,
         }
