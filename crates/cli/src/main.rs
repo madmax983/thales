@@ -173,6 +173,12 @@ fn run(command: Commands) -> Result<String, CliError> {
             };
 
             let analysis = analysis::analyze(&series);
+
+            // Log signals to Signals.md
+            if let Err(e) = analysis::log_signal_to_file(&analysis, "Signals.md") {
+                eprintln!("Warning: Failed to log signal to Signals.md: {}", e);
+            }
+
             ok_envelope(analysis)
         }
     }
