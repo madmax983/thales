@@ -56,6 +56,10 @@ impl Strategy for BollingerBandsMeanReversion {
             }
         }
 
+        // We track prev_mean for crossover detection.
+        // Initialize prev_mean from the first window check.
+        let mut prev_mean: f64;
+
         // Check first window
         {
             let i = window_size - 1;
@@ -65,10 +69,19 @@ impl Strategy for BollingerBandsMeanReversion {
             let upper = mean + (std_dev * self.config.num_std_dev);
             let lower = mean - (std_dev * self.config.num_std_dev);
 
+            prev_mean = mean;
+
             if let (Some(close), Some(ts)) = (close_arr.get(i), time_arr.get(i)) {
-                if close < lower {
+                // Initial window signal check
+                 if close < lower {
+                    // Check for ScaleIn depth
+                     let signal_type = if close < lower - (0.5 * std_dev) {
+                         SignalType::ScaleIn
+                     } else {
+                         SignalType::Entry
+                     };
                     signals.push(Signal {
-                        signal_type: SignalType::Entry,
+                        signal_type,
                         symbol: self.config.symbol.clone(),
                         side: "buy".to_string(),
                         size_hint: "100".to_string(),
@@ -77,11 +90,16 @@ impl Strategy for BollingerBandsMeanReversion {
                         timestamp_ms: ts,
                     });
                 } else if close > upper {
+                     let signal_type = if close > upper + (0.5 * std_dev) {
+                         SignalType::ScaleIn
+                     } else {
+                         SignalType::Entry
+                     };
                     signals.push(Signal {
-                        signal_type: SignalType::Exit,
+                        signal_type,
                         symbol: self.config.symbol.clone(),
-                        side: "sell".to_string(),
-                        size_hint: "max".to_string(),
+                        side: "sell".to_string(), // Short Entry
+                        size_hint: "100".to_string(),
                         confidence: 0.8,
                         reason: format!("Close {:.2} > Upper Band {:.2}", close, upper),
                         timestamp_ms: ts,
@@ -108,10 +126,18 @@ impl Strategy for BollingerBandsMeanReversion {
                 let upper = mean + (std_dev * self.config.num_std_dev);
                 let lower = mean - (std_dev * self.config.num_std_dev);
 
+                let prev_close = close_arr.get(i-1).unwrap(); // Safe because i starts at window_size >= 1
+
                 if let Some(ts) = time_arr.get(i) {
+                    // Entry / ScaleIn Logic
                     if new_val < lower {
+                         let signal_type = if new_val < lower - (0.5 * std_dev) {
+                             SignalType::ScaleIn
+                         } else {
+                             SignalType::Entry
+                         };
                         signals.push(Signal {
-                            signal_type: SignalType::Entry,
+                            signal_type,
                             symbol: self.config.symbol.clone(),
                             side: "buy".to_string(),
                             size_hint: "100".to_string(),
@@ -120,17 +146,53 @@ impl Strategy for BollingerBandsMeanReversion {
                             timestamp_ms: ts,
                         });
                     } else if new_val > upper {
+                         let signal_type = if new_val > upper + (0.5 * std_dev) {
+                             SignalType::ScaleIn
+                         } else {
+                             SignalType::Entry
+                         };
                         signals.push(Signal {
-                            signal_type: SignalType::Exit,
+                            signal_type,
                             symbol: self.config.symbol.clone(),
                             side: "sell".to_string(),
-                            size_hint: "max".to_string(),
+                            size_hint: "100".to_string(),
                             confidence: 0.8,
                             reason: format!("Close {:.2} > Upper Band {:.2}", new_val, upper),
                             timestamp_ms: ts,
                         });
                     }
+
+                    // Exit Logic (Mean Crossover)
+                    // Exit Long (Sell): Price crosses SMA from below
+                    // if prev_close < prev_mean && new_val >= mean
+                    if prev_close < prev_mean && new_val >= mean {
+                         signals.push(Signal {
+                            signal_type: SignalType::Exit,
+                            symbol: self.config.symbol.clone(),
+                            side: "sell".to_string(), // Exit Long
+                            size_hint: "max".to_string(),
+                            confidence: 0.6,
+                            reason: format!("Price crossed SMA from below ({:.2} -> {:.2}, Mean {:.2})", prev_close, new_val, mean),
+                            timestamp_ms: ts,
+                        });
+                    }
+
+                    // Exit Short (Buy): Price crosses SMA from above
+                    // if prev_close > prev_mean && new_val <= mean
+                    if prev_close > prev_mean && new_val <= mean {
+                         signals.push(Signal {
+                            signal_type: SignalType::Exit,
+                            symbol: self.config.symbol.clone(),
+                            side: "buy".to_string(), // Exit Short
+                            size_hint: "max".to_string(),
+                            confidence: 0.6,
+                            reason: format!("Price crossed SMA from above ({:.2} -> {:.2}, Mean {:.2})", prev_close, new_val, mean),
+                            timestamp_ms: ts,
+                        });
+                    }
                 }
+
+                prev_mean = mean;
             }
         }
 
@@ -160,7 +222,7 @@ mod tests {
         let strategy = BollingerBandsMeanReversion::new(config);
 
         // Pattern: 10, 10, 10 (mean 10, std 0) -> no signal
-        // then 15 (mean ~11, std increase) -> 15 > upper -> Sell Signal
+        // then 15 (mean ~11, std increase) -> 15 > upper -> Entry Sell Signal (Short)
         let df = df! (
             "timestamp_unix_ms" => &[1000i64, 2000, 3000, 4000],
             "close" => &[10.0, 10.0, 10.0, 15.0],
@@ -168,22 +230,42 @@ mod tests {
 
         let signals = strategy.generate_signals(&df).await?;
 
-        // Window 3.
-        // Index 2 (3000): vals [10, 10, 10]. Mean 10. Std 0. Upper 10. Lower 10. Close 10. No signal (edge case) or maybe?
-        // Index 3 (4000): vals [10, 10, 15]. Mean 11.66. Std ~2.3. Upper 14. Lower 9. Close 15. 15 > 14 -> Exit/Sell.
-
-        // Actually my manual calculation:
-        // [10, 10, 15]. Sum 35. Mean 11.666.
-        // SumSq 100+100+225 = 425.
-        // Var = 425/3 - (35/3)^2 = 141.66 - 136.11 = 5.55.
-        // Std = 2.35.
-        // Upper = 11.66 + 2.35 = 14.01.
-        // Close 15 > 14.01 -> Signal.
-
         assert!(!signals.is_empty(), "Should generate signals");
         let last_signal = signals.last().unwrap();
-        assert_eq!(last_signal.signal_type, SignalType::Exit);
+        // Updated expectation: Entry (Short) instead of Exit
+        assert_eq!(last_signal.signal_type, SignalType::Entry);
         assert_eq!(last_signal.side, "sell");
+
+        Ok(())
+    }
+
+    #[tokio::test]
+    async fn test_crossover_exit() -> Result<()> {
+        let config = BollingerBandsConfig {
+            window_size: 3,
+            num_std_dev: 2.0,
+            stop_loss_pct: 0.05,
+            symbol: "AAPL".to_string(),
+        };
+        let strategy = BollingerBandsMeanReversion::new(config);
+
+        // 10, 10, 10 -> Mean 10.
+        // 8 -> Mean (10+10+8)/3 = 9.33. Close 8. (Below Mean)
+        // 12 -> Mean (10+8+12)/3 = 10. Close 12. (Above Mean). Crossover!
+
+        let df = df! (
+            "timestamp_unix_ms" => &[1000i64, 2000, 3000, 4000, 5000],
+            "close" => &[10.0, 10.0, 10.0, 8.0, 12.0],
+        )?;
+
+        let signals = strategy.generate_signals(&df).await?;
+        // We expect an Exit signal at timestamp 5000.
+
+        let exit_signal = signals.iter().find(|s| s.signal_type == SignalType::Exit);
+        assert!(exit_signal.is_some());
+        let s = exit_signal.unwrap();
+        assert_eq!(s.timestamp_ms, 5000);
+        assert_eq!(s.side, "sell"); // Crossed from below -> Exit Long -> Sell
 
         Ok(())
     }
