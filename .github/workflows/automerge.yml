@@ -1,0 +1,23 @@
+name: Auto-merge PRs from madmax983
+
+on:
+    pull_request:
+        types: [opened, synchronize, reopened]
+
+permissions:
+    contents: write
+    pull-requests: write
+
+jobs:
+    automerge:
+        runs-on: ubuntu-latest
+        if: github.actor == 'madmax983'
+        steps:
+            - name: Checkout repository
+              uses: actions/checkout@v4
+
+            - name: Enable auto-merge
+              run: gh pr merge --auto --squash "${{ github.event.pull_request.number }}" || echo "Auto-merge failed (likely due to missing branch protection rules), skipping."
+              env:
+                  GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+                  GH_REPO: ${{ github.repository }}
