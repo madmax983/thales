@@ -13,6 +13,8 @@ use serde::Serialize;
 use serde_json::json;
 use thiserror::Error;
 
+mod analysis;
+
 #[derive(Debug, Parser)]
 #[command(name = "thales-cli", version, about = "Agent trading toolkit CLI")]
 struct Cli {
@@ -56,6 +58,10 @@ enum Commands {
         #[arg(long)]
         input: PathBuf,
     },
+    AnalyzeMarket {
+        #[arg(long)]
+        input: PathBuf,
+    },
 }
 
 fn main() {
@@ -79,24 +85,43 @@ fn run(command: Commands) -> Result<String, CliError> {
             timeframe,
         } => {
             let now = now_unix_ms()?;
+            let market = infer_market(&provider);
+            // Generate 50 simulated bars
+            let mut bars = Vec::new();
+            let mut price = 100.0;
+            for i in 0..50 {
+                let time = now - (50 - i) * 60 * 1000;
+                let change = (i as f64).sin() + 0.5; // Deterministic wave
+                let open = price;
+                let close = price + change;
+                let high = open.max(close) + 0.5;
+                let low = open.min(close) - 0.5;
+                price = close;
+                bars.push(Bar {
+                    symbol: symbol.clone(),
+                    market: market.clone(),
+                    timeframe: timeframe.clone(),
+                    timestamp_unix_ms: time,
+                    open,
+                    high,
+                    low,
+                    close,
+                    volume: 10_000.0 + (i as f64) * 100.0,
+                });
+            }
+
             let series = BarSeries {
                 schema_version: "v0".to_string(),
-                bars: vec![Bar {
-                    symbol,
-                    market: infer_market(&provider),
-                    timeframe,
-                    timestamp_unix_ms: now,
-                    open: 100.0,
-                    high: 101.0,
-                    low: 99.5,
-                    close: 100.5,
-                    volume: 10_000.0,
-                }],
+                bars,
             };
             ok_envelope(series)
         }
         Commands::NormalizeBars { input } => {
-            let mut series: BarSeries = read_json_file(&input)?;
+            let raw = fs::read_to_string(&input)?;
+            let mut series: BarSeries = match serde_json::from_str::<ResponseEnvelope<BarSeries>>(&raw) {
+                Ok(envelope) => envelope.data.ok_or(CliError::Validation("Envelope has no data".to_string()))?,
+                Err(_) => serde_json::from_str::<BarSeries>(&raw)?
+            };
             series.bars.sort_by_key(|bar| bar.timestamp_unix_ms);
             ok_envelope(series)
         }
@@ -139,6 +164,16 @@ fn run(command: Commands) -> Result<String, CliError> {
 
             let result = execute_by_provider(&provider, &intent)?;
             ok_envelope(result)
+        }
+        Commands::AnalyzeMarket { input } => {
+            let raw = fs::read_to_string(&input)?;
+            let series: BarSeries = match serde_json::from_str::<ResponseEnvelope<BarSeries>>(&raw) {
+                Ok(envelope) => envelope.data.ok_or(CliError::Validation("Envelope has no data".to_string()))?,
+                Err(_) => serde_json::from_str::<BarSeries>(&raw)?
+            };
+
+            let analysis = analysis::analyze(&series);
+            ok_envelope(analysis)
         }
     }
 }
