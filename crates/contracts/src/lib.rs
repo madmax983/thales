@@ -14,6 +14,10 @@ pub struct TradeIntent {
     pub schema_version: String,
     pub stop_loss: Option<f64>,
     pub take_profit: Option<f64>,
+    pub order_type: String,
+    pub limit_price: Option<f64>,
+    pub stop_price: Option<f64>,
+    pub time_in_force: String,
 }
 
 impl Default for TradeIntent {
@@ -31,6 +35,10 @@ impl Default for TradeIntent {
             schema_version: "v0".to_string(),
             stop_loss: None,
             take_profit: None,
+            order_type: "market".to_string(),
+            limit_price: None,
+            stop_price: None,
+            time_in_force: "day".to_string(),
         }
     }
 }

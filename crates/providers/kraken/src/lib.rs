@@ -63,10 +63,61 @@ impl KrakenClient {
 
         let nonce = now_unix_ms()?.to_string();
         let pair = normalize_pair(&intent.symbol);
-        let body = format!(
-            "nonce={}&ordertype=market&type={}&pair={}&volume={}",
+        let mut body = format!(
+            "nonce={}&type={}&pair={}&volume={}",
             nonce, intent.side, pair, intent.size_hint
         );
+
+        let ordertype = match intent.order_type.as_str() {
+            "market" => "market",
+            "limit" => "limit",
+            "stop" => "stop-loss",
+            "stop_limit" => "stop-loss-limit",
+            _ => "market",
+        };
+        body.push_str(&format!("&ordertype={}", ordertype));
+
+        if ordertype == "limit" {
+            if let Some(p) = intent.limit_price {
+                body.push_str(&format!("&price={}", p));
+            }
+        } else if ordertype == "stop-loss" {
+            if let Some(p) = intent.stop_price {
+                body.push_str(&format!("&price={}", p));
+            }
+        } else if ordertype == "stop-loss-limit" {
+            if let Some(p) = intent.stop_price {
+                body.push_str(&format!("&price={}", p));
+            }
+            if let Some(p) = intent.limit_price {
+                body.push_str(&format!("&price2={}", p));
+            }
+        }
+
+        if let Some(sl) = intent.stop_loss {
+            body.push_str("&close[ordertype]=stop-loss");
+            body.push_str(&format!("&close[price]={}", sl));
+        }
+
+        let tif = intent.time_in_force.to_uppercase();
+        match tif.as_str() {
+            "GTC" | "IOC" => {
+                body.push_str(&format!("&timeinforce={}", tif));
+            }
+            "DAY" => {
+                return Err(KrakenProviderError::InvalidTimeInForce(
+                    "DAY time-in-force not supported for Kraken. Use GTC or IOC.".to_string(),
+                ));
+            }
+            _ => {
+                // For other values, we can either error or pass through if we support more in future.
+                // For safety, error on unknown.
+                return Err(KrakenProviderError::InvalidTimeInForce(format!(
+                    "Unsupported time-in-force: {}",
+                    intent.time_in_force
+                )));
+            }
+        }
 
         let path = "/0/private/AddOrder";
         let signature = sign_request(&self.config.api_secret, path, &nonce, &body)?;
@@ -202,4 +253,6 @@ pub enum KrakenProviderError {
     Api(String),
     #[error("kraken response missing txid")]
     MissingTxid,
+    #[error("invalid time in force: {0}")]
+    InvalidTimeInForce(String),
 }

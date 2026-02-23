@@ -18,6 +18,10 @@ fn trade_intent_roundtrip_preserves_v0_schema() {
         schema_version: "v0".to_string(),
         stop_loss: None,
         take_profit: None,
+        order_type: "market".to_string(),
+        limit_price: None,
+        stop_price: None,
+        time_in_force: "day".to_string(),
     };
 
     let json = serde_json::to_value(&intent).expect("serialize");
@@ -76,6 +80,10 @@ fn execution_contracts_serialize() {
             schema_version: "v0".to_string(),
             stop_loss: None,
             take_profit: None,
+            order_type: "market".to_string(),
+            limit_price: None,
+            stop_price: None,
+            time_in_force: "day".to_string(),
         },
     };
 

@@ -60,6 +60,10 @@ fn execute_intent_submits_order_and_maps_response() {
             schema_version: "v0".to_string(),
             stop_loss: None,
             take_profit: None,
+            order_type: "market".to_string(),
+            limit_price: None,
+            stop_price: None,
+            time_in_force: "gtc".to_string(),
         })
         .expect("execution");
 
@@ -108,10 +112,153 @@ fn execute_intent_returns_error_when_kraken_error_array_is_non_empty() {
             schema_version: "v0".to_string(),
             stop_loss: None,
             take_profit: None,
+            order_type: "market".to_string(),
+            limit_price: None,
+            stop_price: None,
+            time_in_force: "gtc".to_string(),
         })
         .expect_err("expected kraken API error");
 
     let message = err.to_string();
     assert!(message.contains("kraken api error"));
+    mock.assert();
+}
+
+#[test]
+fn execute_intent_returns_error_for_day_tif() {
+    let mut server = mockito::Server::new();
+    let cfg = KrakenConfig::from_env_with(|key| match key {
+        "KRAKEN_API_KEY" => Some("k".to_string()),
+        "KRAKEN_API_SECRET" => Some("YWJj".to_string()),
+        "KRAKEN_BASE_URL" => Some(server.url()),
+        _ => None,
+    })
+    .expect("config");
+    let client = KrakenClient::new(cfg);
+
+    let err = client
+        .execute_intent(&TradeIntent {
+            intent_id: "intent-day-tif".to_string(),
+            market: "crypto".to_string(),
+            symbol: "XBT/USD".to_string(),
+            side: "sell".to_string(),
+            size_hint: "0.1".to_string(),
+            confidence: 0.6,
+            horizon: "15m".to_string(),
+            rationale: "test".to_string(),
+            invalidation: "n/a".to_string(),
+            schema_version: "v0".to_string(),
+            stop_loss: None,
+            take_profit: None,
+            order_type: "market".to_string(),
+            limit_price: None,
+            stop_price: None,
+            time_in_force: "day".to_string(),
+        })
+        .expect_err("expected error");
+
+    assert!(err
+        .to_string()
+        .contains("DAY time-in-force not supported"));
+}
+
+#[test]
+fn execute_intent_submits_limit_order() {
+    let mut server = mockito::Server::new();
+    let mock = server
+        .mock("POST", "/0/private/AddOrder")
+        .match_body(Matcher::Regex("ordertype=limit".to_string()))
+        .match_body(Matcher::Regex("price=50000".to_string()))
+        .with_status(200)
+        .with_body(
+            json!({
+                "error": [],
+                "result": { "txid": ["tx1"] }
+            })
+            .to_string(),
+        )
+        .create();
+
+    let cfg = KrakenConfig::from_env_with(|key| match key {
+        "KRAKEN_API_KEY" => Some("k".to_string()),
+        "KRAKEN_API_SECRET" => Some("YWJj".to_string()),
+        "KRAKEN_BASE_URL" => Some(server.url()),
+        _ => None,
+    })
+    .expect("config");
+    let client = KrakenClient::new(cfg);
+
+    client
+        .execute_intent(&TradeIntent {
+            intent_id: "intent-limit".to_string(),
+            market: "crypto".to_string(),
+            symbol: "XBT/USD".to_string(),
+            side: "buy".to_string(),
+            size_hint: "0.1".to_string(),
+            confidence: 0.6,
+            horizon: "15m".to_string(),
+            rationale: "limit".to_string(),
+            invalidation: "n/a".to_string(),
+            schema_version: "v0".to_string(),
+            stop_loss: None,
+            take_profit: None,
+            order_type: "limit".to_string(),
+            limit_price: Some(50000.0),
+            stop_price: None,
+            time_in_force: "gtc".to_string(),
+        })
+        .expect("execution");
+
+    mock.assert();
+}
+
+#[test]
+fn execute_intent_submits_stop_loss_order_with_close() {
+    let mut server = mockito::Server::new();
+    let mock = server
+        .mock("POST", "/0/private/AddOrder")
+        .match_body(Matcher::Regex("ordertype=market".to_string()))
+        .match_body(Matcher::Regex("close\\[ordertype\\]=stop-loss".to_string()))
+        .match_body(Matcher::Regex("close\\[price\\]=49000".to_string()))
+        .with_status(200)
+        .with_body(
+            json!({
+                "error": [],
+                "result": { "txid": ["tx2"] }
+            })
+            .to_string(),
+        )
+        .create();
+
+    let cfg = KrakenConfig::from_env_with(|key| match key {
+        "KRAKEN_API_KEY" => Some("k".to_string()),
+        "KRAKEN_API_SECRET" => Some("YWJj".to_string()),
+        "KRAKEN_BASE_URL" => Some(server.url()),
+        _ => None,
+    })
+    .expect("config");
+    let client = KrakenClient::new(cfg);
+
+    client
+        .execute_intent(&TradeIntent {
+            intent_id: "intent-sl".to_string(),
+            market: "crypto".to_string(),
+            symbol: "XBT/USD".to_string(),
+            side: "buy".to_string(),
+            size_hint: "0.1".to_string(),
+            confidence: 0.6,
+            horizon: "15m".to_string(),
+            rationale: "sl".to_string(),
+            invalidation: "n/a".to_string(),
+            schema_version: "v0".to_string(),
+            stop_loss: Some(49000.0),
+            take_profit: None,
+            order_type: "market".to_string(),
+            limit_price: None,
+            stop_price: None,
+            time_in_force: "gtc".to_string(),
+        })
+        .expect("execution");
+
     mock.assert();
 }
