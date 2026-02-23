@@ -2749,13 +2749,16 @@ name = "thales-cli"
 version = "0.1.0"
 dependencies = [
  "alpaca-provider",
+ "anyhow",
  "assert_cmd",
  "clap",
  "contracts",
  "kraken-provider",
  "mockito",
+ "polars",
  "serde",
  "serde_json",
+ "strategies",
  "tempfile",
  "thiserror 2.0.18",
  "tokio",

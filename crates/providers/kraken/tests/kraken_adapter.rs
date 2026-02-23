@@ -58,6 +58,8 @@ fn execute_intent_submits_order_and_maps_response() {
             rationale: "reversion".to_string(),
             invalidation: "break above range".to_string(),
             schema_version: "v0".to_string(),
+            stop_loss: None,
+            take_profit: None,
         })
         .expect("execution");
 
@@ -104,6 +106,8 @@ fn execute_intent_returns_error_when_kraken_error_array_is_non_empty() {
             rationale: "reversion".to_string(),
             invalidation: "break above range".to_string(),
             schema_version: "v0".to_string(),
+            stop_loss: None,
+            take_profit: None,
         })
         .expect_err("expected kraken API error");
 

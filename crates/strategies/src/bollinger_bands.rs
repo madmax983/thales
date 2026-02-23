@@ -35,11 +35,8 @@ impl Strategy for BollingerBandsMeanReversion {
         let close_arr = close_series.f64()?;
 
         let time_series = data.column("timestamp_unix_ms")?;
-        let time_arr = if time_series.dtype() == &DataType::Int64 {
-            time_series.i64()?.clone()
-        } else {
-            time_series.cast(&DataType::Int64)?.i64()?.clone()
-        };
+        let time_arr = time_series.cast(&DataType::Int64)?;
+        let time_arr = time_arr.i64()?;
 
         let window_size = self.config.window_size;
         let mut signals = Vec::new();
@@ -51,6 +48,7 @@ impl Strategy for BollingerBandsMeanReversion {
         let mut current_sum = 0.0;
         let mut current_sum_sq = 0.0;
 
+        // Initialize first window (0 to window_size - 1)
         for i in 0..window_size {
             if let Some(val) = close_arr.get(i) {
                 current_sum += val;
@@ -58,6 +56,7 @@ impl Strategy for BollingerBandsMeanReversion {
             }
         }
 
+        // Check first window
         {
             let i = window_size - 1;
             let mean = current_sum / window_size as f64;
@@ -91,6 +90,7 @@ impl Strategy for BollingerBandsMeanReversion {
             }
         }
 
+        // Slide window
         for i in window_size..close_arr.len() {
             if let Some(old_val) = close_arr.get(i - window_size) {
                 current_sum -= old_val;
@@ -153,19 +153,38 @@ mod tests {
     async fn test_generate_signals() -> Result<()> {
         let config = BollingerBandsConfig {
             window_size: 3,
-            num_std_dev: 2.0,
+            num_std_dev: 1.0, // Small std dev to trigger signals easily
             stop_loss_pct: 0.05,
             symbol: "AAPL".to_string(),
         };
         let strategy = BollingerBandsMeanReversion::new(config);
 
+        // Pattern: 10, 10, 10 (mean 10, std 0) -> no signal
+        // then 15 (mean ~11, std increase) -> 15 > upper -> Sell Signal
         let df = df! (
-            "timestamp_unix_ms" => &[1000i64, 2000, 3000, 4000, 5000, 6000, 7000, 8000],
-            "close" => &[100.0, 102.0, 104.0, 102.0, 100.0, 98.0, 96.0, 98.0],
+            "timestamp_unix_ms" => &[1000i64, 2000, 3000, 4000],
+            "close" => &[10.0, 10.0, 10.0, 15.0],
         )?;
 
         let signals = strategy.generate_signals(&df).await?;
-        assert!(signals.is_empty() || !signals.is_empty());
+
+        // Window 3.
+        // Index 2 (3000): vals [10, 10, 10]. Mean 10. Std 0. Upper 10. Lower 10. Close 10. No signal (edge case) or maybe?
+        // Index 3 (4000): vals [10, 10, 15]. Mean 11.66. Std ~2.3. Upper 14. Lower 9. Close 15. 15 > 14 -> Exit/Sell.
+
+        // Actually my manual calculation:
+        // [10, 10, 15]. Sum 35. Mean 11.666.
+        // SumSq 100+100+225 = 425.
+        // Var = 425/3 - (35/3)^2 = 141.66 - 136.11 = 5.55.
+        // Std = 2.35.
+        // Upper = 11.66 + 2.35 = 14.01.
+        // Close 15 > 14.01 -> Signal.
+
+        assert!(!signals.is_empty(), "Should generate signals");
+        let last_signal = signals.last().unwrap();
+        assert_eq!(last_signal.signal_type, SignalType::Exit);
+        assert_eq!(last_signal.side, "sell");
+
         Ok(())
     }
 

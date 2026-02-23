@@ -1,0 +1,117 @@
+use contracts::{MarketAnalysis, TradeIntent};
+use serde::{Deserialize, Serialize};
+use std::fs;
+use std::path::Path;
+use anyhow::Result;
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct HistoryEntry {
+    pub intent: TradeIntent,
+    pub market_analysis: MarketAnalysis,
+    pub outcome: Option<f64>, // PnL or score, optional
+}
+
+pub fn find_similar_trades(
+    current_analysis: &MarketAnalysis,
+    history_path: &Path,
+) -> Result<Vec<TradeIntent>> {
+    if !history_path.exists() {
+        return Ok(vec![]);
+    }
+
+    let raw = fs::read_to_string(history_path)?;
+    let history: Vec<HistoryEntry> = serde_json::from_str(&raw)?;
+
+    let mut similar_trades = Vec::new();
+
+    for entry in history {
+        // Basic similarity check:
+        // 1. Same symbol (or highly correlated, but let's stick to symbol for now)
+        // 2. Same market
+        // 3. Similar regime
+        // 4. Similar volatility
+
+        if entry.market_analysis.symbol == current_analysis.symbol
+            && entry.market_analysis.market == current_analysis.market
+            && entry.market_analysis.regime == current_analysis.regime
+        {
+            // Check volatility similarity (simple string match or numeric?)
+            // MarketAnalysis volatility is a String ("High", "Medium", "Low")
+            if entry.market_analysis.volatility == current_analysis.volatility {
+                similar_trades.push(entry.intent);
+            }
+        }
+    }
+
+    Ok(similar_trades)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use std::io::Write;
+    use tempfile::NamedTempFile;
+
+    fn create_dummy_analysis(symbol: &str, regime: &str, volatility: &str) -> MarketAnalysis {
+        MarketAnalysis {
+            symbol: symbol.to_string(),
+            market: "equities".to_string(),
+            regime: regime.to_string(),
+            sentiment: "Neutral".to_string(),
+            patterns: vec![],
+            key_levels: vec![],
+            volatility: volatility.to_string(),
+            confidence: 0.5,
+            timestamp_unix_ms: 1000,
+        }
+    }
+
+    fn create_dummy_intent(symbol: &str) -> TradeIntent {
+        TradeIntent {
+            symbol: symbol.to_string(),
+            ..Default::default()
+        }
+    }
+
+    #[test]
+    fn test_find_similar_trades() -> Result<()> {
+        let mut history_file = NamedTempFile::new()?;
+        let history_data = vec![
+            HistoryEntry {
+                intent: create_dummy_intent("AAPL"),
+                market_analysis: create_dummy_analysis("AAPL", "Trending Up", "Low"),
+                outcome: Some(1.0),
+            },
+            HistoryEntry {
+                intent: create_dummy_intent("GOOG"),
+                market_analysis: create_dummy_analysis("GOOG", "Trending Up", "Low"),
+                outcome: Some(1.0),
+            },
+            HistoryEntry {
+                intent: create_dummy_intent("AAPL"),
+                market_analysis: create_dummy_analysis("AAPL", "Ranging", "Low"),
+                outcome: Some(-1.0),
+            },
+        ];
+
+        write!(history_file, "{}", serde_json::to_string(&history_data)?)?;
+
+        let current_analysis = create_dummy_analysis("AAPL", "Trending Up", "Low");
+
+        let similar = find_similar_trades(&current_analysis, history_file.path())?;
+
+        assert_eq!(similar.len(), 1);
+        assert_eq!(similar[0].symbol, "AAPL");
+
+        Ok(())
+    }
+
+    #[test]
+    fn test_no_history_file() -> Result<()> {
+        let current_analysis = create_dummy_analysis("AAPL", "Trending Up", "Low");
+        let path = Path::new("non_existent_file.json");
+        let similar = find_similar_trades(&current_analysis, path)?;
+        assert!(similar.is_empty());
+        Ok(())
+    }
+}
