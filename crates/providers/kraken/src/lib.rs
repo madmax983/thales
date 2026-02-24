@@ -60,13 +60,46 @@ impl KrakenClient {
         intent: &TradeIntent,
     ) -> Result<ExecutionResult, KrakenProviderError> {
         validate_side(&intent.side)?;
-        validate_size_hint(&intent.size_hint)?;
+        if intent.size_hint != "max" {
+            validate_size_hint(&intent.size_hint)?;
+        }
 
         let nonce = now_unix_ms()?.to_string();
         let pair = normalize_pair(&intent.symbol);
+
+        let volume = if intent.size_hint == "max" {
+            // Fetch open positions to find size
+            let positions = self.fetch_open_positions()?;
+            // Normalize pair for comparison (Kraken pairs can be weird)
+            // But open positions return specific pair keys.
+            // We sum up all positions for this pair.
+            let mut total = 0.0;
+            for (_key, pos) in positions {
+                // Key might be like "XBTUSD" or "XXBTZUSD"
+                // Pair we have is normalized.
+                // Best effort matching.
+                let pos_pair = normalize_pair(&pos.pair);
+                if pos_pair == pair {
+                   if let Ok(v) = pos.vol.parse::<f64>() {
+                       if let Ok(vc) = pos.vol_closed.parse::<f64>() {
+                            total += v - vc;
+                       } else {
+                            total += v;
+                       }
+                   }
+                }
+            }
+            if total <= 0.0 {
+                 return Err(KrakenProviderError::InvalidVolume(format!("No open position found for max exit for {}", pair)));
+            }
+            total.to_string()
+        } else {
+            intent.size_hint.clone()
+        };
+
         let mut body = format!(
             "nonce={}&type={}&pair={}&volume={}",
-            nonce, intent.side, pair, intent.size_hint
+            nonce, intent.side, pair, volume
         );
 
         let ordertype = match intent.order_type.as_str() {
@@ -263,6 +296,38 @@ impl KrakenClient {
 
         Ok(api_response.result.unwrap_or_default())
     }
+
+    pub fn fetch_open_positions(&self) -> Result<HashMap<String, KrakenOpenPosition>, KrakenProviderError> {
+        let nonce = now_unix_ms()?.to_string();
+        let body = format!("nonce={}", nonce);
+        let path = "/0/private/OpenPositions";
+        let signature = sign_request(&self.config.api_secret, path, &nonce, &body)?;
+        let url = format!("{}{}", self.config.base_url.trim_end_matches('/'), path);
+
+        let response = self
+            .http
+            .post(url)
+            .header("API-Key", &self.config.api_key)
+            .header("API-Sign", signature)
+            .header("Content-Type", "application/x-www-form-urlencoded")
+            .body(body)
+            .send()?;
+
+        if !response.status().is_success() {
+            let status = response.status().as_u16();
+            let body = response
+                .text()
+                .unwrap_or_else(|_| "unable to decode error body".to_string());
+            return Err(KrakenProviderError::UnexpectedHttpStatus(status, body));
+        }
+
+        let api_response: KrakenOpenPositionsResponse = response.json()?;
+        if !api_response.error.is_empty() {
+             return Err(KrakenProviderError::Api(api_response.error.join(", ")));
+        }
+
+        Ok(api_response.result.unwrap_or_default())
+    }
 }
 
 fn now_unix_ms() -> Result<i64, KrakenProviderError> {
@@ -353,6 +418,27 @@ pub struct KrakenTickerInfo {
     pub l: Vec<String>,
     pub h: Vec<String>,
     pub o: String,
+}
+
+#[derive(Debug, Clone, Deserialize)]
+struct KrakenOpenPositionsResponse {
+    error: Vec<String>,
+    result: Option<HashMap<String, KrakenOpenPosition>>,
+}
+
+#[derive(Debug, Clone, Deserialize)]
+pub struct KrakenOpenPosition {
+    pub ordertxid: String,
+    pub pair: String,
+    pub time: f64,
+    #[serde(rename = "type")]
+    pub type_: String,
+    pub ordertype: String,
+    pub cost: String,
+    pub fee: String,
+    pub vol: String,
+    pub vol_closed: String,
+    pub margin: String,
 }
 
 #[derive(Debug, Error)]

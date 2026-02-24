@@ -5,6 +5,7 @@ use contracts::{BarSeries, TradeIntent};
 use polars::prelude::*;
 use std::path::Path;
 use strategies::bollinger_bands::{BollingerBandsConfig, BollingerBandsMeanReversion};
+use strategies::ema_crossover::{EmaCrossover, EmaCrossoverConfig};
 use strategies::strategy::{SignalType, Strategy};
 
 const DEFAULT_RISK_PER_TRADE: f64 = 100.0;
@@ -22,14 +23,22 @@ pub async fn generate_signals(
 
     // 3. Run Strategy
     // For now, hardcode BollingerBandsMeanReversion. In future, use factory.
-    let strategy = if strategy_name == "BollingerBands" || strategy_name == "BollingerBandsMeanReversion" {
+    let strategy: Box<dyn Strategy> = if strategy_name == "BollingerBands" || strategy_name == "BollingerBandsMeanReversion" {
         let config = BollingerBandsConfig {
             window_size: 20,
             num_std_dev: 2.0,
             stop_loss_pct: 0.05, // Strategy config default, but we'll override or use for initial filtering
             symbol: market_analysis.symbol.clone(),
         };
-        Box::new(BollingerBandsMeanReversion::new(config)) as Box<dyn Strategy>
+        Box::new(BollingerBandsMeanReversion::new(config))
+    } else if strategy_name == "EmaCrossover" {
+        let config = EmaCrossoverConfig {
+            short_window: 9,
+            long_window: 21,
+            stop_loss_pct: 0.05,
+            symbol: market_analysis.symbol.clone(),
+        };
+        Box::new(EmaCrossover::new(config))
     } else {
         // Fallback or Error
         return Err(anyhow::anyhow!("Unknown strategy: {}", strategy_name));
