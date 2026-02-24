@@ -43,11 +43,11 @@ def run_command(args):
         print(f"Command failed: {cmd}\nOutput: {e.output}\nError: {e.stderr}")
         return None
 
-def get_active_strategy():
-    """Parses strategies.md to find the active strategy name."""
+def get_active_strategies():
+    """Parses strategies.md to find all active strategy names."""
     if not os.path.exists(STRATEGIES_PATH):
         print(f"Warning: {STRATEGIES_PATH} not found.")
-        return None
+        return []
 
     with open(STRATEGIES_PATH, "r") as f:
         content = f.read()
@@ -62,20 +62,7 @@ def get_active_strategy():
     if "Macd" in content:
         strategies.append("Macd")
 
-    if not strategies:
-        return None
-
-    # Pick the one that appears first in the file
-    first_pos = float('inf')
-    best_strategy = None
-
-    for s in strategies:
-        pos = content.find(s)
-        if pos != -1 and pos < first_pos:
-            first_pos = pos
-            best_strategy = s
-
-    return best_strategy
+    return strategies
 
 def get_candidates_from_signals():
     """Parses Signals.md for potential candidates."""
@@ -200,8 +187,8 @@ def scan_markets():
 
     return candidates
 
-def fetch_and_generate(candidate, strategy_name, portfolio_path=None):
-    """Fetches data and generates signal for a candidate."""
+def evaluate_candidate(candidate, strategies, portfolio_path=None):
+    """Fetches data and generates signals for a candidate using all active strategies."""
     provider = candidate["provider"]
     symbol = candidate["symbol"]
 
@@ -218,42 +205,82 @@ def fetch_and_generate(candidate, strategy_name, portfolio_path=None):
     # Generate Analysis (for history)
     analysis = run_command(["analyze-market", "--input", temp_bars_file, "--no-report"])
 
-    # Generate Signals
-    args = ["generate-signals", "--input", temp_bars_file, "--strategy", strategy_name]
-    if os.path.exists(HISTORY_PATH):
-        args.extend(["--history", HISTORY_PATH])
+    all_generated_intents = []
 
-    if portfolio_path and os.path.exists(portfolio_path):
-        args.extend(["--portfolio", portfolio_path])
+    for strategy_name in strategies:
+        # Generate Signals
+        args = ["generate-signals", "--input", temp_bars_file, "--strategy", strategy_name]
+        if os.path.exists(HISTORY_PATH):
+            args.extend(["--history", HISTORY_PATH])
 
-    # NEW: Pass enriched analysis if available
-    temp_analysis_file = None
-    if candidate.get("raw_analysis_json"):
-        temp_analysis_file = f"temp_analysis_{symbol}.json"
-        with open(temp_analysis_file, "w") as f:
-            json.dump(candidate["raw_analysis_json"], f)
-        args.extend(["--analysis", temp_analysis_file])
+        if portfolio_path and os.path.exists(portfolio_path):
+            args.extend(["--portfolio", portfolio_path])
 
-    intents = run_command(args)
+        # NEW: Pass enriched analysis if available
+        temp_analysis_file = None
+        if candidate.get("raw_analysis_json"):
+            temp_analysis_file = f"temp_analysis_{symbol}.json"
+            with open(temp_analysis_file, "w") as f:
+                json.dump(candidate["raw_analysis_json"], f)
+            args.extend(["--analysis", temp_analysis_file])
 
-    # Cleanup
+        intents = run_command(args)
+
+        # Cleanup temp analysis
+        if temp_analysis_file and os.path.exists(temp_analysis_file):
+            os.remove(temp_analysis_file)
+
+        if intents:
+            # Enrich intent with provider and strategy info
+            for intent in intents:
+                intent["provider"] = provider
+                intent["strategy_used"] = strategy_name # Keep track of which strategy generated this
+                # If we used raw_analysis_json, it's already "baked into" the signal rationale.
+                # But we might still want to attach it for history.
+                if analysis:
+                    intent["_market_analysis"] = analysis
+                elif candidate.get("raw_analysis_json"):
+                     intent["_market_analysis"] = candidate["raw_analysis_json"]
+
+            all_generated_intents.extend(intents)
+
+    # Cleanup temp bars
     if os.path.exists(temp_bars_file):
         os.remove(temp_bars_file)
-    if temp_analysis_file and os.path.exists(temp_analysis_file):
-        os.remove(temp_analysis_file)
 
-    if intents:
-        # Enrich intent with provider for execution later
+    return all_generated_intents
+
+def resolve_conflicts(intents):
+    """
+    Resolves conflicts among signals for the same candidate.
+    - If signals conflict (Buy vs Sell), returns empty list and logs warning.
+    - If consistent, returns the single signal with highest confidence.
+    """
+    if not intents:
+        return []
+
+    # Assume all intents are for the same symbol (caller ensures this)
+    symbol = intents[0]["symbol"]
+
+    sides = set(intent["side"] for intent in intents)
+    if len(sides) > 1:
+        # Conflict!
+        strategies_involved = ", ".join([intent.get("strategy_used", "Unknown") for intent in intents])
+        print(f"CONFLICT detected for {symbol}: Strategies ({strategies_involved}) gave conflicting signals ({sides}). Skipping.")
+
+        # Log conflict
         for intent in intents:
-            intent["provider"] = provider
-            # If we used raw_analysis_json, it's already "baked into" the signal rationale.
-            # But we might still want to attach it for history.
-            if analysis:
-                intent["_market_analysis"] = analysis
-            elif candidate.get("raw_analysis_json"):
-                 intent["_market_analysis"] = candidate["raw_analysis_json"]
-        return intents
-    return []
+             log_skipped(intent, f"Conflict: Multiple strategies gave conflicting signals ({sides})")
+        return []
+
+    # No conflict, pick best confidence
+    intents.sort(key=lambda x: x.get("confidence", 0.0), reverse=True)
+    best_intent = intents[0]
+
+    # Optional: If multiple strategies agree, maybe boost confidence?
+    # For now, just taking the max confidence is safe.
+
+    return [best_intent]
 
 def update_history(intent):
     """Appends executed trade to history.json."""
@@ -270,6 +297,8 @@ def update_history(intent):
         del clean_intent["_market_analysis"]
     if "provider" in clean_intent: # provider is also internal
         del clean_intent["provider"]
+    if "strategy_used" in clean_intent:
+        del clean_intent["strategy_used"]
 
     entry = {
         "intent": clean_intent,
@@ -400,16 +429,16 @@ def main():
         print("Error: thales-cli not found. Run cargo build.")
         return
 
-    # 1. Identify Strategy
-    strategy_name = get_active_strategy()
-    if not strategy_name:
-        print("No active strategy found in strategies.md. Doing nothing.")
+    # 1. Identify Strategies
+    strategies = get_active_strategies()
+    if not strategies:
+        print("No active strategies found in strategies.md. Doing nothing.")
         # Log why?
         with open(PORTFOLIO_PATH, "a") as f:
-             f.write(f"\n# Execution Attempt {datetime.now()}\nNo active strategy found. Aborting.\n")
+             f.write(f"\n# Execution Attempt {datetime.now()}\nNo active strategies found. Aborting.\n")
         return
 
-    print(f"Active Strategy: {strategy_name}")
+    print(f"Active Strategies: {strategies}")
 
     # 2. Scan Markets + Get from Signals.md
     scanned_candidates = scan_markets()
@@ -433,10 +462,18 @@ def main():
         all_signals = []
         print("Evaluating candidates...")
         for cand in candidates:
-            signals = fetch_and_generate(cand, strategy_name, portfolio_path)
-            if signals:
-                print(f"  {cand['symbol']}: Generated {len(signals)} signals.")
-                all_signals.extend(signals)
+            # Generate signals from all strategies
+            raw_signals = evaluate_candidate(cand, strategies, portfolio_path)
+
+            # Resolve conflicts (per candidate)
+            valid_signals = resolve_conflicts(raw_signals)
+
+            if valid_signals:
+                print(f"  {cand['symbol']}: Selected {len(valid_signals)} valid signals.")
+                all_signals.extend(valid_signals)
+            elif raw_signals:
+                print(f"  {cand['symbol']}: All {len(raw_signals)} signals rejected due to conflicts.")
+
     finally:
         # Cleanup portfolio file
         if os.path.exists(portfolio_path):
