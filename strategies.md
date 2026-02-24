@@ -201,3 +201,74 @@ pub struct RsiMeanReversionConfig {
 ### Performance
 - RSI calculation is O(N).
 - Signal generation is O(N).
+
+---
+
+# Trading Strategy: MACD (Moving Average Convergence Divergence)
+
+## Strategy Specification
+
+**Name:** Macd
+
+**Description:** A trend-following momentum strategy that uses the Moving Average Convergence Divergence (MACD) indicator. It generates buy signals when the MACD line crosses above the Signal line, and sell signals when the MACD line crosses below the Signal line.
+
+**Rationale:** MACD is one of the most popular and reliable indicators for identifying trend reversals and momentum. The crossover of the MACD line over the Signal line suggests a shift in momentum that often precedes a trend change.
+
+## Requirements
+
+### Implementation Details
+- Uses Polars for data analysis.
+- Implements the `Strategy` trait in Rust.
+- Uses `rust_decimal` for precise calculation.
+- Calculates MACD(12, 26, 9) by default.
+
+### Strategy Type
+Trend Following / Momentum
+
+### Entry Conditions
+- **Long Entry (Buy):** MACD Line > Signal Line (and MACD Line was <= Signal Line in previous bar).
+
+### Exit Conditions
+- **Long Exit (Sell):** MACD Line < Signal Line.
+- **Stop Loss:** Close Price <= Entry Price * (1 - `stop_loss_pct`).
+
+### Position Sizing
+- **Size Hint:** "100" (fixed units) or "max" (for exits).
+
+## Code Pattern
+
+```rust
+use crate::strategy::{Strategy, StrategyConfig, Signal, SignalType};
+use crate::indicators::macd;
+use polars::prelude::*;
+use async_trait::async_trait;
+use anyhow::Result;
+
+pub struct Macd {
+    config: MacdConfig,
+}
+
+#[derive(Debug, Clone, serde::Deserialize)]
+pub struct MacdConfig {
+    pub fast_period: usize,
+    pub slow_period: usize,
+    pub signal_period: usize,
+    pub stop_loss_pct: f64,
+    pub symbol: String,
+}
+```
+
+## Critical Considerations
+
+### Risk Management Integration
+- **Stop Loss:** Explicitly checks if current price drops below a percentage of the entry price (default 5%).
+- **Statefulness:** The strategy tracks simulated position state during signal generation to correctly apply stop-loss logic.
+
+### Backtesting Requirements
+- Accepts `DataFrame` with historical data.
+- Signal generation mimics real-time execution by iterating chronologically and updating state.
+
+### Performance
+- MACD calculation is O(N).
+- Signal generation loop is O(N).
+- Uses `Vec<Option<f64>>` for efficient indexed access during iteration.

@@ -7,6 +7,7 @@ use std::path::Path;
 use strategies::bollinger_bands::{BollingerBandsConfig, BollingerBandsMeanReversion};
 use strategies::ema_crossover::{EmaCrossover, EmaCrossoverConfig};
 use strategies::rsi_mean_reversion::{RsiMeanReversion, RsiMeanReversionConfig};
+use strategies::macd::{Macd, MacdConfig};
 use strategies::strategy::{SignalType, Strategy};
 
 pub async fn generate_signals(
@@ -51,6 +52,15 @@ pub async fn generate_signals(
             symbol: market_analysis.symbol.clone(),
         };
         Box::new(RsiMeanReversion::new(config))
+    } else if strategy_name == "Macd" {
+        let config = MacdConfig {
+            fast_period: 12,
+            slow_period: 26,
+            signal_period: 9,
+            stop_loss_pct: 0.05,
+            symbol: market_analysis.symbol.clone(),
+        };
+        Box::new(Macd::new(config))
     } else {
         // Fallback or Error
         return Err(anyhow::anyhow!("Unknown strategy: {}", strategy_name));
@@ -556,6 +566,44 @@ mod tests {
         assert_eq!(intent.side, "buy");
         assert!(intent.signal_type.as_ref().unwrap().contains("Exit"));
         assert!(intent.rationale.contains("Closing opposite position"));
+
+        Ok(())
+    }
+
+    #[tokio::test]
+    async fn test_generate_signals_macd_integration() -> Result<()> {
+        let mut bars = Vec::new();
+        let now = 100000;
+        // Generate enough bars for MACD
+        // Sine wave
+        for i in 0..100 {
+            let close = 100.0 + (i as f64 * 0.2).sin() * 10.0;
+            bars.push(Bar {
+                symbol: "TEST".to_string(),
+                market: "equities".to_string(),
+                timeframe: "1m".to_string(),
+                timestamp_unix_ms: now + i * 60000,
+                open: close,
+                high: close + 1.0,
+                low: close - 1.0,
+                close: close,
+                volume: 1000.0,
+            });
+        }
+
+        let series = BarSeries { schema_version: "v0".to_string(), bars };
+        let positions = vec![];
+
+        // Strategy Name "Macd"
+        let intents = generate_signals(&series, "Macd", None, 100.0, &positions).await?;
+
+        // We might get a signal or not depending on the last bar.
+        // But importantly, it shouldn't error "Unknown strategy".
+        // And if we get an intent, rationale should mention Macd.
+
+        if !intents.is_empty() {
+             assert!(intents[0].rationale.contains("Strategy: Macd"));
+        }
 
         Ok(())
     }
