@@ -33,6 +33,37 @@ let sma_series = sma::calculate(&df, period)?;
 - The output Series is named "sma".
 - The first `period - 1` values will be null.
 
+## Exponential Moving Average (EMA)
+
+**Name:** EMA
+**Description:** Calculates the Exponential Moving Average, which places a greater weight and significance on the most recent data points.
+**Rationale:** Trend-following indicator that reacts more significantly to recent price changes than a simple moving average.
+
+### Implementation Details
+- Uses `rust_decimal::Decimal` for precision.
+- Uses SMA of the first `period` values as the seed.
+- Returns a Polars `Series` of `f64` values.
+
+### Usage
+
+```rust
+use strategies::indicators::ema;
+use polars::prelude::*;
+
+// Assuming df is a DataFrame with a "close" column
+let period = 14;
+let ema_series = ema::calculate(&df, period)?;
+```
+
+### Parameters
+- `data`: Reference to a Polars `DataFrame`. Must contain a numeric column named "close".
+- `period`: The lookback period (typically 14).
+
+### Output
+- Returns `Result<Series>`.
+- The output Series is named "ema".
+- The first `period - 1` values will be null.
+
 ## Relative Strength Index (RSI)
 
 **Name:** RSI
@@ -64,3 +95,35 @@ let rsi_series = rsi::calculate(&df, period)?;
 - Returns `Result<Series>`.
 - The output Series is named "rsi".
 - The first `period` values will be null (requires `period` changes to initialize).
+
+## Average True Range (ATR)
+
+**Name:** ATR
+**Description:** Calculates the Average True Range, a measure of market volatility.
+**Rationale:** Standard volatility indicator used to determine stop loss levels and position sizing.
+
+### Implementation Details
+- Uses `rust_decimal::Decimal` for precision.
+- Implements Wilder's Smoothing (RMA) for the moving average of True Range.
+- Returns a Polars `Series` of `f64` values.
+- True Range uses Max(High-Low, |High-PrevClose|, |Low-PrevClose|).
+
+### Usage
+
+```rust
+use strategies::indicators::atr;
+use polars::prelude::*;
+
+// Assuming df is a DataFrame with "high", "low", "close" columns
+let period = 14;
+let atr_series = atr::calculate(&df, period)?;
+```
+
+### Parameters
+- `data`: Reference to a Polars `DataFrame`. Must contain numeric columns named "high", "low", and "close".
+- `period`: The lookback period (typically 14).
+
+### Output
+- Returns `Result<Series>`.
+- The output Series is named "atr".
+- The first `period - 1` values will be null.
