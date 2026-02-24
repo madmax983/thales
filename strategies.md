@@ -272,3 +272,70 @@ pub struct MacdConfig {
 - MACD calculation is O(N).
 - Signal generation loop is O(N).
 - Uses `Vec<Option<f64>>` for efficient indexed access during iteration.
+
+---
+
+# Trading Strategy: Supertrend
+
+## Strategy Specification
+
+**Name:** Supertrend
+
+**Description:** A trend-following strategy that uses the Average True Range (ATR) to define a trailing stop line (the Supertrend line). It generates buy signals when the price closes above the Supertrend line (indicating an uptrend) and sell signals when the price closes below the Supertrend line (indicating a downtrend).
+
+**Rationale:** The Supertrend indicator is effective at identifying the primary trend and filtering out noise. It provides a clear trailing stop level, making risk management integral to the strategy.
+
+## Requirements
+
+### Implementation Details
+- Uses Polars for data analysis.
+- Implements the `Strategy` trait in Rust.
+- Uses `atr` indicator for volatility calculation.
+
+### Strategy Type
+Trend Following
+
+### Entry Conditions
+- **Long Entry (Buy):** Close Price > Supertrend Line (and Trend changed from Down to Up).
+
+### Exit Conditions
+- **Long Exit (Sell):** Close Price < Supertrend Line (and Trend changed from Up to Down).
+- **Stop Loss:** The Supertrend line itself acts as the dynamic stop loss.
+
+### Position Sizing
+- **Size Hint:** "100" (fixed units) or "max" (for exits).
+
+## Code Pattern
+
+```rust
+use crate::strategy::{Strategy, StrategyConfig, Signal, SignalType};
+use crate::indicators::atr;
+use polars::prelude::*;
+use async_trait::async_trait;
+use anyhow::Result;
+
+pub struct Supertrend {
+    config: SupertrendConfig,
+}
+
+#[derive(Debug, Clone, serde::Deserialize)]
+pub struct SupertrendConfig {
+    pub period: usize,
+    pub factor: f64,
+    pub symbol: String,
+}
+```
+
+## Critical Considerations
+
+### Risk Management Integration
+- **Stop Loss:** The Supertrend line is naturally a trailing stop loss. The strategy output explicitly sets the `stop_loss` field to the Supertrend value.
+- **Statefulness:** The strategy tracks the previous trend and band values to determine flips and update the trailing stop.
+
+### Backtesting Requirements
+- Accepts `DataFrame` with historical data.
+- Signal generation iterates through bars to simulate real-time state updates.
+
+### Performance
+- ATR calculation is O(N).
+- Signal generation loop is O(N).

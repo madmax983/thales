@@ -8,6 +8,7 @@ use strategies::bollinger_bands::{BollingerBandsConfig, BollingerBandsMeanRevers
 use strategies::ema_crossover::{EmaCrossover, EmaCrossoverConfig};
 use strategies::rsi_mean_reversion::{RsiMeanReversion, RsiMeanReversionConfig};
 use strategies::macd::{Macd, MacdConfig};
+use strategies::supertrend::{Supertrend, SupertrendConfig};
 use strategies::strategy::{SignalType, Strategy};
 
 pub async fn generate_signals(
@@ -66,6 +67,13 @@ pub async fn generate_signals(
             symbol: market_analysis.symbol.clone(),
         };
         Box::new(Macd::new(config))
+    } else if strategy_name == "Supertrend" {
+        let config = SupertrendConfig {
+            period: 10,
+            factor: 3.0,
+            symbol: market_analysis.symbol.clone(),
+        };
+        Box::new(Supertrend::new(config))
     } else {
         // Fallback or Error
         return Err(anyhow::anyhow!("Unknown strategy: {}", strategy_name));
@@ -303,11 +311,19 @@ fn signal_priority(signal_type: &SignalType) -> u8 {
 }
 
 fn bars_to_dataframe(series: &BarSeries) -> Result<DataFrame> {
+    let opens: Vec<f64> = series.bars.iter().map(|b| b.open).collect();
+    let highs: Vec<f64> = series.bars.iter().map(|b| b.high).collect();
+    let lows: Vec<f64> = series.bars.iter().map(|b| b.low).collect();
     let closes: Vec<f64> = series.bars.iter().map(|b| b.close).collect();
+    let volumes: Vec<f64> = series.bars.iter().map(|b| b.volume).collect();
     let times: Vec<i64> = series.bars.iter().map(|b| b.timestamp_unix_ms).collect();
 
     let df = df!(
+        "open" => opens,
+        "high" => highs,
+        "low" => lows,
         "close" => closes,
+        "volume" => volumes,
         "timestamp_unix_ms" => times
     )?;
     Ok(df)
@@ -860,6 +876,50 @@ mod tests {
         assert!(size_small_drop > 0.0);
         assert!(size_large_drop > 0.0);
         assert!(size_small_drop > size_large_drop, "Size should decrease as volatility (drop) increases. Small: {}, Large: {}", size_small_drop, size_large_drop);
+
+        Ok(())
+    }
+
+    #[tokio::test]
+    async fn test_generate_signals_supertrend() -> Result<()> {
+        let mut bars = Vec::new();
+        let now = 100000;
+
+        // 1. Establish Downtrend
+        // Period 10.
+        let mut close = 100.0;
+        // Drop for 40 bars to ensure we break the lower band and flip to Down
+        for i in 0..40 {
+            close -= 1.0;
+            bars.push(Bar {
+                symbol: "TEST".to_string(),
+                market: "equities".to_string(),
+                timeframe: "1m".to_string(),
+                timestamp_unix_ms: now + i * 60000,
+                open: close, high: close + 2.0, low: close - 2.0, close: close, volume: 1000.0,
+            });
+        }
+
+        // 2. Trigger Rally on Last Bar (Index 40)
+        let i = 40;
+        let close_rally = close + 20.0; // Rally 20 points
+        bars.push(Bar {
+            symbol: "TEST".to_string(),
+            market: "equities".to_string(),
+            timeframe: "1m".to_string(),
+            timestamp_unix_ms: now + i * 60000,
+            open: close, high: close_rally + 2.0, low: close - 2.0, close: close_rally, volume: 1000.0,
+        });
+
+        let series = BarSeries { schema_version: "v0".to_string(), bars };
+        let positions = vec![];
+
+        let intents = generate_signals(&series, "Supertrend", None, 100.0, &positions, None).await?;
+
+        assert!(!intents.is_empty(), "Should generate signal on trend flip");
+        let intent = &intents[0];
+        assert_eq!(intent.side, "buy");
+        assert!(intent.rationale.contains("Strategy: Supertrend"));
 
         Ok(())
     }
