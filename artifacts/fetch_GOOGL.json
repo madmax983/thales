@@ -1,0 +1,1 @@
+{"status":"ok","errors":[],"warnings":[],"data":{"schema_version":"v0","bars":[{"symbol":"GOOGL","market":"equities","timeframe":"1d","timestamp_unix_ms":1771822800000,"open":319.045,"high":319.515,"low":309.865,"close":311.49,"volume":31591753.0}]}}

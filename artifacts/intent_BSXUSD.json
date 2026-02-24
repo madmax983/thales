@@ -1,0 +1,19 @@
+{
+  "intent_id": "crypto:BSXUSD:buy:1771891200000",
+  "market": "crypto",
+  "symbol": "BSXUSD",
+  "side": "buy",
+  "size_hint": "18177726",
+  "confidence": 0.8,
+  "horizon": "1d",
+  "rationale": "Strategy: BollingerBandsMeanReversion. Reason: Close 0.00 < Lower Band 0.00. Market: Trending Down. No similar past trades found.",
+  "invalidation": "Price hits Stop Loss",
+  "schema_version": "v0",
+  "signal_type": "Entry",
+  "stop_loss": 0.00000750,
+  "take_profit": 0.00002400,
+  "order_type": "market",
+  "limit_price": null,
+  "stop_price": null,
+  "time_in_force": "GTC"
+}
