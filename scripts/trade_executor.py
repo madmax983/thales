@@ -16,6 +16,7 @@ SKIPPED_PATH = "skipped_trades.md"
 def run_command(args):
     """Runs a thales-cli command and returns the parsed JSON data."""
     cmd = [CLI_PATH] + args
+    run_command.last_error = None
     try:
         result = subprocess.run(cmd, capture_output=True, text=True, check=True)
         # Parse envelope
@@ -24,15 +25,31 @@ def run_command(args):
             if envelope.get("status") == "ok":
                 return envelope.get("data")
             else:
-                print(f"Error executing {args}: {envelope.get('errors')}")
+                errors = envelope.get("errors") or []
+                reason = "; ".join(str(e) for e in errors) if errors else "Execution failed"
+                run_command.last_error = reason
+                print(f"Error executing {args}: {reason}")
                 return None
         except json.JSONDecodeError:
+            run_command.last_error = "Failed to parse JSON output."
             print(f"Failed to parse JSON output from {args}")
             print(result.stdout)
             return None
     except subprocess.CalledProcessError as e:
-        print(f"Command failed: {cmd}\nOutput: {e.output}\nError: {e.stderr}")
+        reason = (e.stderr or "").strip()
+        try:
+            envelope = json.loads((e.stdout or "").strip())
+            if envelope.get("status") == "error":
+                errors = envelope.get("errors") or []
+                reason = "; ".join(str(err) for err in errors) if errors else reason
+        except Exception:
+            pass
+
+        run_command.last_error = reason or "Execution failed"
+        print(f"Command failed: {cmd}\nReason: {run_command.last_error}")
         return None
+
+run_command.last_error = None
 
 def get_active_strategy():
     """Parses strategies.md to find the active strategy name."""
@@ -223,8 +240,9 @@ def main():
             print(f"Success! Status: {result['status']}")
             log_trade(intent, result)
         else:
-            print("Execution failed.")
-            log_skipped(intent, "Execution Failed")
+            reason = run_command.last_error or "Execution failed"
+            print(f"Execution failed: {reason}")
+            log_skipped(intent, reason)
 
     # Cleanup
     if os.path.exists("temp_bars.json"): os.remove("temp_bars.json")

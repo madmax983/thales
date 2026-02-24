@@ -6,6 +6,7 @@ import time
 import re
 
 def run_command(command, input_data=None):
+    run_command.last_error = None
     try:
         if input_data:
             process = subprocess.Popen(command, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
@@ -15,13 +16,28 @@ def run_command(command, input_data=None):
             stdout, stderr = process.communicate()
 
         if process.returncode != 0:
+            reason = (stderr or "").strip()
+            parsed_error = None
+            try:
+                if stdout:
+                    envelope = json.loads(stdout)
+                    if envelope.get("status") == "error":
+                        errors = envelope.get("errors") or []
+                        parsed_error = "; ".join(str(e) for e in errors) if errors else None
+            except Exception:
+                parsed_error = None
+
+            run_command.last_error = parsed_error or reason or "Execution failed"
             print(f"Error running command: {' '.join(command)}")
-            print(f"Stderr: {stderr}")
+            print(f"Reason: {run_command.last_error}")
             return None
         return stdout
     except Exception as e:
+        run_command.last_error = str(e)
         print(f"Exception running command: {e}")
         return None
+
+run_command.last_error = None
 
 def parse_envelope(output):
     try:
@@ -264,7 +280,9 @@ def process_candidate(cand, cli_cmd, strategy_name, sentiment_bias=None):
         exec_cmd = cli_cmd + ["execute-intent", "--provider", provider, "--input", "temp_intent.json"]
         exec_output = run_command(exec_cmd)
         if not exec_output:
-            print("Execution failed.")
+            reason = run_command.last_error or "Execution failed."
+            print(f"Execution failed: {reason}")
+            log_rejection(symbol, "Generated", reason)
             continue
 
         exec_result = parse_envelope(exec_output)

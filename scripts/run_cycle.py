@@ -14,21 +14,43 @@ HISTORY_PATH = "history.json"
 def run_command(args):
     """Runs a thales-cli command and returns the parsed JSON data."""
     cmd = [CLI_PATH] + args
+    run_command.last_error = None
     try:
-        result = subprocess.run(cmd, capture_output=True, text=True, check=True)
-        # Parse envelope
-        envelope = json.loads(result.stdout)
-        if envelope.get("status") == "ok":
+        result = subprocess.run(cmd, capture_output=True, text=True, check=False)
+        stdout = (result.stdout or "").strip()
+        stderr = (result.stderr or "").strip()
+
+        envelope = None
+        if stdout:
+            try:
+                envelope = json.loads(stdout)
+            except json.JSONDecodeError:
+                envelope = None
+
+        if envelope and envelope.get("status") == "ok":
             return envelope.get("data")
-        else:
-            print(f"Error executing {args}: {envelope.get('errors')}")
+
+        if envelope and envelope.get("status") == "error":
+            errors = envelope.get("errors") or []
+            reason = "; ".join(str(e) for e in errors) if errors else "Execution failed"
+            run_command.last_error = reason
+            print(f"Error executing {args}: {reason}")
             return None
-    except subprocess.CalledProcessError as e:
-        print(f"Command failed: {cmd}\nOutput: {e.output}\nError: {e.stderr}")
+
+        if result.returncode != 0:
+            run_command.last_error = stderr or stdout or f"Command failed with exit code {result.returncode}"
+            print(f"Command failed: {cmd}\nReason: {run_command.last_error}")
+            return None
+
+        run_command.last_error = "Unexpected CLI response format."
+        print(f"Failed to parse CLI response from {args}: {stdout[:200]}")
         return None
-    except json.JSONDecodeError as e:
-        print(f"Failed to parse JSON: {e}\nOutput: {result.stdout}")
+    except Exception as e:
+        run_command.last_error = str(e)
+        print(f"Exception running command {cmd}: {e}")
         return None
+
+run_command.last_error = None
 
 def log_trade(intent, execution_result):
     """Logs a successful trade to portfolio.md."""
@@ -176,8 +198,9 @@ def process_symbol(provider, symbol, strategy_name):
             log_trade(intent, result)
             executed = True
         else:
-            print("Execution failed")
-            log_rejection(symbol, intent["intent_id"], "Execution failed (check logs)")
+            reason = run_command.last_error or "Execution failed"
+            print(f"Execution failed: {reason}")
+            log_rejection(symbol, intent["intent_id"], reason)
 
     return executed
 
