@@ -33,20 +33,16 @@ pub fn find_similar_trades(
 
     for entry in history {
         // Basic similarity check:
-        // 1. Same symbol (or highly correlated, but let's stick to symbol for now)
-        // 2. Same market
-        // 3. Similar regime
-        // 4. Similar volatility
+        // 1. Same market
+        // 2. Similar regime
+        // 3. Similar volatility
+        // 4. Optionally same symbol (prioritized in summary but included in list)
 
-        if entry.market_analysis.symbol == current_analysis.symbol
-            && entry.market_analysis.market == current_analysis.market
+        if entry.market_analysis.market == current_analysis.market
             && entry.market_analysis.regime == current_analysis.regime
+            && entry.market_analysis.volatility == current_analysis.volatility
         {
-            // Check volatility similarity (simple string match or numeric?)
-            // MarketAnalysis volatility is a String ("High", "Medium", "Low")
-            if entry.market_analysis.volatility == current_analysis.volatility {
-                similar_trades.push(entry);
-            }
+            similar_trades.push(entry);
         }
     }
 
@@ -82,11 +78,16 @@ pub fn count_todays_signals(symbol: &str, history_path: &Path, reference_ts: i64
     Ok(count)
 }
 
-pub fn summarize_history(entries: &[HistoryEntry]) -> String {
+pub fn summarize_history(entries: &[HistoryEntry], current_symbol: &str) -> String {
     if entries.is_empty() {
         return "No similar past trades found.".to_string();
     }
     let count = entries.len();
+    let same_symbol_count = entries
+        .iter()
+        .filter(|e| e.market_analysis.symbol == current_symbol)
+        .count();
+
     let wins = entries
         .iter()
         .filter(|t| t.outcome.unwrap_or(0.0) > 0.0)
@@ -99,8 +100,8 @@ pub fn summarize_history(entries: &[HistoryEntry]) -> String {
         / count as f64;
 
     format!(
-        "Found {} similar past trades. Win Rate: {:.1}%. Avg PnL: {:.2}",
-        count, win_rate, avg_outcome
+        "Found {} similar past trades ({} on same symbol). Win Rate: {:.1}%. Avg PnL: {:.2}",
+        count, same_symbol_count, win_rate, avg_outcome
     )
 }
 
@@ -162,8 +163,15 @@ mod tests {
 
         let similar = find_similar_trades(&current_analysis, history_file.path())?;
 
-        assert_eq!(similar.len(), 1);
-        assert_eq!(similar[0].market_analysis.symbol, "AAPL");
+        // Should find AAPL (exact match) and GOOG (context match).
+        // Should NOT find second AAPL (different regime).
+        assert_eq!(similar.len(), 2);
+
+        // Sort or check existence
+        let has_aapl = similar.iter().any(|e| e.market_analysis.symbol == "AAPL");
+        let has_goog = similar.iter().any(|e| e.market_analysis.symbol == "GOOG");
+        assert!(has_aapl);
+        assert!(has_goog);
 
         Ok(())
     }
@@ -201,14 +209,15 @@ mod tests {
                 outcome: Some(10.0), // Win
             },
             HistoryEntry {
-                intent: create_dummy_intent("AAPL"),
-                market_analysis: create_dummy_analysis("AAPL", "Trending Up", "Low"),
+                intent: create_dummy_intent("GOOG"),
+                market_analysis: create_dummy_analysis("GOOG", "Trending Up", "Low"),
                 outcome: Some(-5.0), // Loss
             },
         ];
 
-        let summary = summarize_history(&entries);
+        let summary = summarize_history(&entries, "AAPL");
         assert!(summary.contains("Found 2 similar past trades"));
+        assert!(summary.contains("(1 on same symbol)"));
         assert!(summary.contains("Win Rate: 50.0%"));
         assert!(summary.contains("Avg PnL: 2.50")); // (10 - 5) / 2 = 2.5
     }
