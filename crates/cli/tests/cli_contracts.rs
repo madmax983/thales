@@ -172,6 +172,20 @@ fn execute_intent_returns_provider_result() {
 #[test]
 fn execute_intent_returns_kraken_provider_result() {
     let mut server = mockito::Server::new();
+    let _asset_mock = server
+        .mock("GET", "/0/public/AssetPairs?pair=XBTUSD")
+        .with_status(200)
+        .with_body(
+            serde_json::json!({
+                "error": [],
+                "result": {
+                    "XXBTZUSD": { "pair_decimals": 1, "lot_decimals": 8 }
+                }
+            })
+            .to_string(),
+        )
+        .create();
+
     let mock = server
         .mock("POST", "/0/private/AddOrder")
         .match_header("API-Key", "k")

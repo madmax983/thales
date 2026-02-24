@@ -12,6 +12,20 @@ fn from_env_with_requires_required_keys() {
 #[test]
 fn execute_intent_submits_order_and_maps_response() {
     let mut server = mockito::Server::new();
+    let _asset_mock = server
+        .mock("GET", "/0/public/AssetPairs?pair=XBTUSD")
+        .with_status(200)
+        .with_body(
+            json!({
+                "error": [],
+                "result": {
+                    "XXBTZUSD": { "pair_decimals": 0, "lot_decimals": 8 }
+                }
+            })
+            .to_string(),
+        )
+        .create();
+
     let mock = server
         .mock("POST", "/0/private/AddOrder")
         .match_header("API-Key", "k")
@@ -78,6 +92,20 @@ fn execute_intent_submits_order_and_maps_response() {
 #[test]
 fn execute_intent_returns_error_when_kraken_error_array_is_non_empty() {
     let mut server = mockito::Server::new();
+    let _asset_mock = server
+        .mock("GET", "/0/public/AssetPairs?pair=XBTUSD")
+        .with_status(200)
+        .with_body(
+            json!({
+                "error": [],
+                "result": {
+                    "XXBTZUSD": { "pair_decimals": 0, "lot_decimals": 8 }
+                }
+            })
+            .to_string(),
+        )
+        .create();
+
     let mock = server
         .mock("POST", "/0/private/AddOrder")
         .with_status(200)
@@ -129,6 +157,20 @@ fn execute_intent_returns_error_when_kraken_error_array_is_non_empty() {
 #[test]
 fn execute_intent_returns_error_for_day_tif() {
     let mut server = mockito::Server::new();
+    let _asset_mock = server
+        .mock("GET", "/0/public/AssetPairs?pair=XBTUSD")
+        .with_status(200)
+        .with_body(
+            json!({
+                "error": [],
+                "result": {
+                    "XXBTZUSD": { "pair_decimals": 0, "lot_decimals": 8 }
+                }
+            })
+            .to_string(),
+        )
+        .create();
+
     let cfg = KrakenConfig::from_env_with(|key| match key {
         "KRAKEN_API_KEY" => Some("k".to_string()),
         "KRAKEN_API_SECRET" => Some("YWJj".to_string()),
@@ -168,6 +210,20 @@ fn execute_intent_returns_error_for_day_tif() {
 #[test]
 fn execute_intent_submits_limit_order() {
     let mut server = mockito::Server::new();
+    let _asset_mock = server
+        .mock("GET", "/0/public/AssetPairs?pair=XBTUSD")
+        .with_status(200)
+        .with_body(
+            json!({
+                "error": [],
+                "result": {
+                    "XXBTZUSD": { "pair_decimals": 0, "lot_decimals": 8 }
+                }
+            })
+            .to_string(),
+        )
+        .create();
+
     let mock = server
         .mock("POST", "/0/private/AddOrder")
         .match_body(Matcher::Regex("ordertype=limit".to_string()))
@@ -219,6 +275,20 @@ fn execute_intent_submits_limit_order() {
 #[test]
 fn execute_intent_submits_stop_loss_order_with_close() {
     let mut server = mockito::Server::new();
+    let _asset_mock = server
+        .mock("GET", "/0/public/AssetPairs?pair=XBTUSD")
+        .with_status(200)
+        .with_body(
+            json!({
+                "error": [],
+                "result": {
+                    "XXBTZUSD": { "pair_decimals": 0, "lot_decimals": 8 }
+                }
+            })
+            .to_string(),
+        )
+        .create();
+
     let mock = server
         .mock("POST", "/0/private/AddOrder")
         .match_body(Matcher::Regex("ordertype=market".to_string()))

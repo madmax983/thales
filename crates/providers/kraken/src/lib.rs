@@ -131,6 +131,11 @@ impl KrakenClient {
         let nonce = now_unix_ms()?.to_string();
         let pair = normalize_pair(&intent.symbol);
 
+        // Fetch pair info for precision
+        let pair_info = self.get_pair_info(&pair)?;
+        let price_decimals = pair_info.pair_decimals as usize;
+        let volume_decimals = pair_info.lot_decimals as usize;
+
         let volume = if intent.size_hint == "max" {
             // Fetch open positions to find size
             let positions = self.fetch_open_positions()?;
@@ -144,21 +149,29 @@ impl KrakenClient {
                 // Best effort matching.
                 let pos_pair = normalize_pair(&pos.pair);
                 if pos_pair == pair {
-                   if let Ok(v) = pos.vol.parse::<f64>() {
-                       if let Ok(vc) = pos.vol_closed.parse::<f64>() {
+                    if let Ok(v) = pos.vol.parse::<f64>() {
+                        if let Ok(vc) = pos.vol_closed.parse::<f64>() {
                             total += v - vc;
-                       } else {
+                        } else {
                             total += v;
-                       }
-                   }
+                        }
+                    }
                 }
             }
             if total <= 0.0 {
-                 return Err(KrakenProviderError::InvalidVolume(format!("No open position found for max exit for {}", pair)));
+                return Err(KrakenProviderError::InvalidVolume(format!(
+                    "No open position found for max exit for {}",
+                    pair
+                )));
             }
-            total.to_string()
+            format!("{:.1$}", total, volume_decimals)
         } else {
-            intent.size_hint.clone()
+            // Reformat size hint to respect lot decimals
+            let v = intent
+                .size_hint
+                .parse::<f64>()
+                .map_err(|_| KrakenProviderError::InvalidVolume(intent.size_hint.clone()))?;
+            format!("{:.1$}", v, volume_decimals)
         };
 
         let mut body = format!(
@@ -177,24 +190,24 @@ impl KrakenClient {
 
         if ordertype == "limit" {
             if let Some(p) = intent.limit_price {
-                body.push_str(&format!("&price={}", p));
+                body.push_str(&format!("&price={:.1$}", p, price_decimals));
             }
         } else if ordertype == "stop-loss" {
             if let Some(p) = intent.stop_price {
-                body.push_str(&format!("&price={}", p));
+                body.push_str(&format!("&price={:.1$}", p, price_decimals));
             }
         } else if ordertype == "stop-loss-limit" {
             if let Some(p) = intent.stop_price {
-                body.push_str(&format!("&price={}", p));
+                body.push_str(&format!("&price={:.1$}", p, price_decimals));
             }
             if let Some(p) = intent.limit_price {
-                body.push_str(&format!("&price2={}", p));
+                body.push_str(&format!("&price2={:.1$}", p, price_decimals));
             }
         }
 
         if let Some(sl) = intent.stop_loss {
             body.push_str("&close[ordertype]=stop-loss");
-            body.push_str(&format!("&close[price]={}", sl));
+            body.push_str(&format!("&close[price]={:.1$}", sl, price_decimals));
         }
 
         let tif = intent.time_in_force.to_uppercase();
@@ -261,6 +274,36 @@ impl KrakenClient {
             status: "submitted".to_string(),
             submitted_at_unix_ms,
         })
+    }
+
+    /// Fetches asset pair information (decimals, etc).
+    pub fn get_pair_info(&self, pair: &str) -> Result<KrakenAssetPairInfo, KrakenProviderError> {
+        let url = format!(
+            "{}/0/public/AssetPairs?pair={}",
+            self.config.base_url.trim_end_matches('/'),
+            pair
+        );
+        let response = self.http.get(&url).send()?;
+
+        if !response.status().is_success() {
+            let status = response.status().as_u16();
+            let body = response
+                .text()
+                .unwrap_or_else(|_| "unable to decode error body".to_string());
+            return Err(KrakenProviderError::UnexpectedHttpStatus(status, body));
+        }
+
+        let api_response: KrakenAssetPairsResponse = response.json()?;
+        if !api_response.error.is_empty() {
+            return Err(KrakenProviderError::Api(api_response.error.join(", ")));
+        }
+
+        api_response
+            .result
+            .and_then(|map| map.values().next().cloned())
+            .ok_or_else(|| {
+                KrakenProviderError::Api(format!("Asset pair info not found for {}", pair))
+            })
     }
 
     /// Fetches historical OHLCV data.
@@ -514,6 +557,20 @@ struct KrakenAddOrderResult {
 struct KrakenOhlcResponse {
     error: Vec<String>,
     result: Option<HashMap<String, serde_json::Value>>,
+}
+
+#[derive(Debug, Clone, Deserialize)]
+struct KrakenAssetPairsResponse {
+    error: Vec<String>,
+    result: Option<HashMap<String, KrakenAssetPairInfo>>,
+}
+
+#[derive(Debug, Clone, Deserialize)]
+pub struct KrakenAssetPairInfo {
+    #[serde(default)]
+    pub pair_decimals: u32,
+    #[serde(default)]
+    pub lot_decimals: u32,
 }
 
 #[derive(Debug, Clone, Deserialize)]
