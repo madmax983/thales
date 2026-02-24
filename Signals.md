@@ -211,3 +211,57 @@ No new news.
 *Historical Context*: No similar past trades found.
 
 ---
+
+## Market Analysis Report - crypto - BTCUSD
+
+**Timestamp (ms)**: 1771959600000
+**Confidence**: 70.00%
+
+### 1. Market Regime
+Regime Unchanged (Trending Down)
+*Sentiment*: Bullish
+
+### 2. Volatility
+*Assessment*: Low
+
+### 3. Strategy Recommendation
+**Trend Following (Short)**
+
+### 4. Patterns & Price Action
+*Patterns*: None detected
+
+### 5. Key Levels
+*Support/Resistance*: 62646.765625, 64972.7421875, 67710.84375
+
+### 6. Research & Context
+**Research**:
+Bitcoin is trading around 9k, showing strong bullish momentum driven by ETF inflows.
+
+**News**:
+BlackRock Bitcoin ETF hits new AUM record. SEC discussing further crypto regulations.
+*Historical Context*: No similar past trades found.
+
+
+```json
+{
+  "symbol": "BTCUSD",
+  "market": "crypto",
+  "regime": "Trending Down",
+  "sentiment": "Bullish",
+  "patterns": [],
+  "key_levels": [
+    62646.765625,
+    64972.7421875,
+    67710.84375
+  ],
+  "volatility": "Low",
+  "atr": 485.78464829715847,
+  "research_summary": "Bitcoin is trading around 9k, showing strong bullish momentum driven by ETF inflows.",
+  "news_summary": "BlackRock Bitcoin ETF hits new AUM record. SEC discussing further crypto regulations.",
+  "recommendation": "Trend Following (Short)",
+  "confidence": 0.7,
+  "timestamp_unix_ms": 1771959600000
+}
+```
+
+---
