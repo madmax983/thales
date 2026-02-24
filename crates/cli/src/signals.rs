@@ -1,7 +1,7 @@
 use crate::analysis;
 use crate::rag;
 use anyhow::Result;
-use contracts::{BarSeries, TradeIntent};
+use contracts::{BarSeries, TradeIntent, MarketAnalysis};
 use polars::prelude::*;
 use std::path::Path;
 use strategies::bollinger_bands::{BollingerBandsConfig, BollingerBandsMeanReversion};
@@ -16,9 +16,14 @@ pub async fn generate_signals(
     history_path: Option<&Path>,
     risk_per_trade: f64,
     positions: &[contracts::Position],
+    analysis: Option<MarketAnalysis>,
 ) -> Result<Vec<TradeIntent>> {
     // 1. Analyze Market
-    let market_analysis = analysis::analyze(bars);
+    let market_analysis = if let Some(a) = analysis {
+        a
+    } else {
+        analysis::analyze(bars)
+    };
 
     // 2. Prepare Data for Strategy
     let df = bars_to_dataframe(bars)?;
@@ -240,7 +245,25 @@ pub async fn generate_signals(
 
             if !skip {
                 let signal_type_str = format!("{:?}", final_signal_type);
-                let final_rationale = format!("Strategy: {} ({:.0}%). Reason: {}. Market Context: {} ({} Volatility). {}{}", strategy.name(), signal.confidence * 100.0, signal.reason, market_analysis.regime, market_analysis.volatility, historical_context, rationale_suffix);
+
+                let mut context_summary = String::new();
+                if let Some(ref research) = market_analysis.research_summary {
+                    context_summary.push_str(&format!(" Research: {}.", research));
+                }
+                if let Some(ref news) = market_analysis.news_summary {
+                    context_summary.push_str(&format!(" News: {}.", news));
+                }
+
+                let final_rationale = format!("Strategy: {} ({:.0}%). Reason: {}. Market Context: {} ({} Volatility). {}{}{}",
+                    strategy.name(),
+                    signal.confidence * 100.0,
+                    signal.reason,
+                    market_analysis.regime,
+                    market_analysis.volatility,
+                    historical_context,
+                    context_summary,
+                    rationale_suffix
+                );
 
                 let intent = TradeIntent {
                     intent_id: format!("{}:{}:{}:{}", market_analysis.market, signal.symbol, signal.side, signal.timestamp_ms),
@@ -336,7 +359,7 @@ mod tests {
         };
 
         let positions = vec![];
-        let intents = generate_signals(&series, "BollingerBands", None, 100.0, &positions).await?;
+        let intents = generate_signals(&series, "BollingerBands", None, 100.0, &positions, None).await?;
 
         assert!(!intents.is_empty());
         let intent = &intents[0];
@@ -396,7 +419,7 @@ mod tests {
         };
 
         let positions = vec![];
-        let intents = generate_signals(&series, "BollingerBands", None, 100.0, &positions).await?;
+        let intents = generate_signals(&series, "BollingerBands", None, 100.0, &positions, None).await?;
 
         assert!(!intents.is_empty());
         let intent = &intents[0];
@@ -468,7 +491,7 @@ mod tests {
         };
 
         let positions = vec![];
-        let intents = generate_signals(&series, "BollingerBands", None, 100.0, &positions).await?;
+        let intents = generate_signals(&series, "BollingerBands", None, 100.0, &positions, None).await?;
         assert!(!intents.is_empty());
         let intent = &intents[0];
 
@@ -511,7 +534,7 @@ mod tests {
 
         let series = BarSeries { schema_version: "v0".to_string(), bars };
         let positions = vec![];
-        let intents = generate_signals(&series, "BollingerBands", None, 100.0, &positions).await?;
+        let intents = generate_signals(&series, "BollingerBands", None, 100.0, &positions, None).await?;
         let intent = &intents[0];
 
         // "Strategy: {}. Reason: {}. Market Context: {} ({} Volatility). {}"
@@ -564,7 +587,7 @@ mod tests {
             entry_price: Some(100.0),
         }];
 
-        let intents = generate_signals(&series, "BollingerBands", None, 100.0, &positions).await?;
+        let intents = generate_signals(&series, "BollingerBands", None, 100.0, &positions, None).await?;
         assert!(!intents.is_empty());
         let intent = &intents[0];
         assert_eq!(intent.side, "buy");
@@ -579,7 +602,7 @@ mod tests {
             entry_price: Some(100.0),
         }];
 
-        let intents = generate_signals(&series, "BollingerBands", None, 100.0, &positions).await?;
+        let intents = generate_signals(&series, "BollingerBands", None, 100.0, &positions, None).await?;
         assert!(!intents.is_empty());
         let intent = &intents[0];
         assert_eq!(intent.side, "buy");
@@ -614,7 +637,7 @@ mod tests {
         let positions = vec![];
 
         // Strategy Name "Macd"
-        let intents = generate_signals(&series, "Macd", None, 100.0, &positions).await?;
+        let intents = generate_signals(&series, "Macd", None, 100.0, &positions, None).await?;
 
         // We might get a signal or not depending on the last bar.
         // But importantly, it shouldn't error "Unknown strategy".
@@ -663,7 +686,7 @@ mod tests {
         let positions = vec![];
 
         // risk = 0.0 should result in size = 0.0 -> Filtered
-        let intents = generate_signals(&series, "BollingerBands", None, 0.0, &positions).await?;
+        let intents = generate_signals(&series, "BollingerBands", None, 0.0, &positions, None).await?;
 
         // Should be empty because size is 0
         assert!(intents.is_empty(), "Signals with 0 size should be filtered");

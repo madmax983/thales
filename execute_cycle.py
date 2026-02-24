@@ -87,17 +87,70 @@ def get_candidates_from_signals():
 
     candidates = {}
 
-    # Format 1: ## Market Analysis Report - <market> - <symbol>
-    matches1 = re.findall(r"## Market Analysis Report - (\w+) - (\w+)", content)
-    for market, symbol in matches1:
-        provider = "kraken" if market == "crypto" else "alpaca"
-        candidates[symbol] = {"provider": provider, "symbol": symbol, "market": market}
+    # New parsing logic to handle sections and extract full context
+    chunks = re.split(r"\n## ", content)
+    for chunk in chunks:
+        chunk = chunk.strip()
+        if not chunk: continue
 
-    # Format 2: ## Symbol: <symbol> (<market>)
-    matches2 = re.findall(r"## Symbol: (\w+) \((\w+)\)", content)
-    for symbol, market in matches2:
+        market = None
+        symbol = None
+
+        # Format 1: Market Analysis Report - <market> - <symbol>
+        match1 = re.match(r"Market Analysis Report - (\w+) - (\w+)", chunk)
+        if match1:
+            market = match1.group(1)
+            symbol = match1.group(2)
+
+        # Format 2: Symbol: <symbol> (<market>)
+        if not symbol:
+            match2 = re.match(r"Symbol: (\w+) \((\w+)\)", chunk)
+            if match2:
+                symbol = match2.group(1)
+                market = match2.group(2)
+
+        if not symbol:
+            continue
+
         provider = "kraken" if market == "crypto" else "alpaca"
-        candidates[symbol] = {"provider": provider, "symbol": symbol, "market": market}
+
+        # Extract JSON
+        json_match = re.search(r"```json\s*(\{.*?\})\s*```", chunk, re.DOTALL)
+        raw_json = None
+        if json_match:
+            try:
+                raw_json = json.loads(json_match.group(1))
+            except:
+                pass
+
+        # Extract Research
+        research_text = None
+        res_match = re.search(r"\*\*Research\*\*:\s*(.*?)(?=\n\n|\n\*\*|\n###|$)", chunk, re.DOTALL)
+        if res_match:
+            research_text = res_match.group(1).strip()
+        else:
+             res_match_alt = re.search(r"\*External Research\*:\s*(.*?)(?=\n\n|\n\*\*|\n###|$)", chunk, re.DOTALL)
+             if res_match_alt:
+                 research_text = res_match_alt.group(1).strip()
+
+        # Extract News
+        news_text = None
+        news_match = re.search(r"\*\*News\*\*:\s*(.*?)(?=\n\n|\n\*\*|\n###|$)", chunk, re.DOTALL)
+        if news_match:
+            news_text = news_match.group(1).strip()
+
+        if raw_json:
+            if research_text:
+                raw_json["research_summary"] = research_text
+            if news_text:
+                raw_json["news_summary"] = news_text
+
+        candidates[symbol] = {
+            "provider": provider,
+            "symbol": symbol,
+            "market": market,
+            "raw_analysis_json": raw_json
+        }
 
     return list(candidates.values())
 
@@ -144,18 +197,32 @@ def fetch_and_generate(candidate, strategy_name):
     if os.path.exists(HISTORY_PATH):
         args.extend(["--history", HISTORY_PATH])
 
+    # NEW: Pass enriched analysis if available
+    temp_analysis_file = None
+    if candidate.get("raw_analysis_json"):
+        temp_analysis_file = f"temp_analysis_{symbol}.json"
+        with open(temp_analysis_file, "w") as f:
+            json.dump(candidate["raw_analysis_json"], f)
+        args.extend(["--analysis", temp_analysis_file])
+
     intents = run_command(args)
 
     # Cleanup
     if os.path.exists(temp_bars_file):
         os.remove(temp_bars_file)
+    if temp_analysis_file and os.path.exists(temp_analysis_file):
+        os.remove(temp_analysis_file)
 
     if intents:
         # Enrich intent with provider for execution later
         for intent in intents:
             intent["provider"] = provider
+            # If we used raw_analysis_json, it's already "baked into" the signal rationale.
+            # But we might still want to attach it for history.
             if analysis:
                 intent["_market_analysis"] = analysis
+            elif candidate.get("raw_analysis_json"):
+                 intent["_market_analysis"] = candidate["raw_analysis_json"]
         return intents
     return []
 
