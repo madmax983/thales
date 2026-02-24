@@ -384,8 +384,10 @@ def log_trade(intent, result):
 
     signal_ref = intent["intent_id"]
     rationale = intent["rationale"]
+    order_id = result.get("provider_order_id", "-")
+    status = result.get("status", "-")
 
-    line = f"| {date_str} | {asset_class} | {symbol} | {action} | {size} | {price} | {sl} | {tp} | {max_risk} | {signal_ref} | {rationale} |"
+    line = f"| {date_str} | {asset_class} | {symbol} | {action} | {size} | {price} | {sl} | {tp} | {max_risk} | {signal_ref} | {rationale} | {order_id} | {status} |"
 
     with open(PORTFOLIO_PATH, "a") as f:
         f.write(line + "\n")
