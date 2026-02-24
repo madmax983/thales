@@ -68,3 +68,55 @@ Regime Unchanged (Trending Up)
 *Historical Context*: No similar historical trades found.
 
 ---
+
+## Market Analysis Report - crypto - XXBTZUSD
+
+**Timestamp (ms)**: 1771891200000
+**Confidence**: 80.00%
+
+### 1. Market Regime
+**ALERT: Regime Change Detected!** (Previous: Trending Up, Current: Trending Down)
+*Sentiment*: Bearish (Oversold)
+
+### 2. Volatility
+*Assessment*: High
+
+### 3. Patterns & Price Action
+*Patterns*: None detected
+
+### 4. Key Levels
+*Support/Resistance*: 60500.00, 73156.80, 97899.70
+
+### 5. Research & Context
+No external research available. (Placeholder for search_research)
+*Historical Context*: No similar past trades found.
+
+---
+
+## Market Analysis Report - crypto - XETHZUSD
+
+**Timestamp (ms)**: 1771891200000
+**Confidence**: 80.00%
+
+### 1. Market Regime
+Regime Unchanged (Trending Down)
+*Sentiment*: Bearish (Oversold)
+
+### 2. Volatility
+*Assessment*: High
+
+### 3. Patterns & Price Action
+*Patterns*: None detected
+
+### 4. Key Levels
+*Support/Resistance*: 1744.56, 2168.59, 3402.64
+
+### 5. Research & Context
+**Research**:
+Ethereum price around ,850. Market sentiment cautious due to Bitcoin trend break. Recent upgrades (Fusaka) live. Mixed volatility signals.
+
+**News**:
+Critical Bitcoin weekly trend breaks for first time in 2+ years: Is BTC done? Cointelegraph 2/23/2026.
+*Historical Context*: No similar past trades found.
+
+---
