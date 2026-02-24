@@ -12,3 +12,6 @@
 | Date/Time | Symbol | Signal Ref | Rejection Reason |
 |---|---|---|---|
 | 2026-02-24 02:06:08 | SPICEUSD | Signals.md | Exit signal received but no open position to exit. |
+| 2026-02-24 03:39:12 | XBTUSD | None | No Strategy Signal (BollingerBandsMeanReversion) |
+| 2026-02-24 03:39:12 | AAPL | None | No Strategy Signal (BollingerBandsMeanReversion) |
+| 2026-02-24 03:39:12 | SPY | None | No Strategy Signal (BollingerBandsMeanReversion) |
