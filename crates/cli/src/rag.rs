@@ -85,7 +85,7 @@ pub fn summarize_history(entries: &[HistoryEntry]) -> String {
         / count as f64;
 
     format!(
-        "Found {} similar past trades. Win Rate: {:.1}%. Avg Outcome: {:.2}",
+        "Found {} similar past trades. Win Rate: {:.1}%. Avg PnL: {:.2}",
         count, win_rate, avg_outcome
     )
 }
@@ -180,6 +180,6 @@ mod tests {
         let summary = summarize_history(&entries);
         assert!(summary.contains("Found 2 similar past trades"));
         assert!(summary.contains("Win Rate: 50.0%"));
-        assert!(summary.contains("Avg Outcome: 2.50")); // (10 - 5) / 2 = 2.5
+        assert!(summary.contains("Avg PnL: 2.50")); // (10 - 5) / 2 = 2.5
     }
 }

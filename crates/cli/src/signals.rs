@@ -93,7 +93,9 @@ pub async fn generate_signals(
     // We assume the strategy output is for the single symbol we analyzed.
     // If there are multiple signals (e.g. conflicting or redundant), the top one wins.
     if let Some(signal) = valid_signals.first() {
-        // Limit to 3 signals per day
+        // SIGNAL FILTERING: Limit to 3 signals per symbol per day.
+        // We check `signals_today` count from history. If we have 0, 1, or 2, we allow a new one.
+        // If we have 3 or more, we skip.
         if signals_today < 3 {
              // RAG Step: Check history
             let similar_trades = if let Some(path) = history_path {
@@ -138,10 +140,16 @@ pub async fn generate_signals(
                     let size = if let Some(s) = sl {
                         let dist = (last_close - s).abs();
                         if dist > 0.0 {
-                            format!("{:.6}", DEFAULT_RISK_PER_TRADE / dist)
+                            let calc_size = DEFAULT_RISK_PER_TRADE / dist;
+                            // Safety check: Avoid Infinite or NaN sizes
+                            // Also cap max size if needed, but for now just ensure finite
+                            if calc_size.is_finite() {
+                                format!("{:.6}", calc_size)
+                            } else {
+                                "0".to_string()
+                            }
                         } else {
-                            // If SL distance is 0 (e.g. no volatility), safe fallback?
-                            // Or return 0 to indicate invalid sizing?
+                            // If SL distance is 0 (e.g. no volatility), return 0 to indicate invalid sizing
                             "0".to_string()
                         }
                     } else {
@@ -172,7 +180,7 @@ pub async fn generate_signals(
                 size_hint,
                 confidence: signal.confidence,
                 horizon: "1d".to_string(),
-                rationale: format!("Strategy: {}. Reason: {}. Market: {}. {}", strategy.name(), signal.reason, market_analysis.regime, historical_context),
+                rationale: format!("Strategy: {}. Reason: {}. Market Context: {} ({} Volatility). {}", strategy.name(), signal.reason, market_analysis.regime, market_analysis.volatility, historical_context),
                 invalidation: "Price hits Stop Loss".to_string(),
                 schema_version: "v0".to_string(),
                 signal_type: Some(signal_type_str),
@@ -393,6 +401,49 @@ mod tests {
         let size: f64 = intent.size_hint.parse().unwrap();
         assert!(size > 0.0, "Size should be greater than 0");
         assert!(size < 1.0, "Size should be fractional");
+
+        Ok(())
+    }
+
+    #[tokio::test]
+    async fn test_generate_signals_rationale_format() -> Result<()> {
+        let mut bars = Vec::new();
+        let now = 100000;
+        for i in 0..20 {
+            bars.push(Bar {
+                symbol: "TEST".to_string(),
+                market: "equities".to_string(),
+                timeframe: "1m".to_string(),
+                timestamp_unix_ms: now + i * 60000,
+                open: 100.0,
+                high: 101.0,
+                low: 99.0,
+                close: 100.0,
+                volume: 1000.0,
+            });
+        }
+        // Trigger signal
+        bars.push(Bar {
+            symbol: "TEST".to_string(),
+            market: "equities".to_string(),
+            timeframe: "1m".to_string(),
+            timestamp_unix_ms: now + 20 * 60000,
+            open: 100.0,
+            high: 110.0,
+            low: 100.0,
+            close: 110.0,
+            volume: 5000.0,
+        });
+
+        let series = BarSeries { schema_version: "v0".to_string(), bars };
+        let intents = generate_signals(&series, "BollingerBands", None).await?;
+        let intent = &intents[0];
+
+        // "Strategy: {}. Reason: {}. Market Context: {} ({} Volatility). {}"
+        assert!(intent.rationale.contains("Strategy: BollingerBandsMeanReversion"));
+        assert!(intent.rationale.contains("Market Context:"));
+        assert!(intent.rationale.contains("Volatility"));
+        assert!(intent.rationale.contains("No similar past trades found")); // Default history context
 
         Ok(())
     }
