@@ -217,7 +217,26 @@ pub async fn generate_signals(
             }
 
             // Filter out invalid Exits (no position)
-            let skip = (final_signal_type == SignalType::Exit || final_signal_type == SignalType::ScaleOut) && existing_pos.is_none();
+            let mut skip = (final_signal_type == SignalType::Exit || final_signal_type == SignalType::ScaleOut) && existing_pos.is_none();
+
+            // Filter out invalid Entries (missing stop loss)
+            if !skip && (final_signal_type == SignalType::Entry || final_signal_type == SignalType::ScaleIn) {
+                if stop_loss.is_none() {
+                    skip = true;
+                }
+            }
+
+            // Filter out invalid sizes (0, NaN, Inf)
+            if !skip && size_hint != "max" {
+                 if let Ok(size) = size_hint.parse::<f64>() {
+                     if size <= 0.0 || !size.is_finite() {
+                         skip = true;
+                     }
+                 } else {
+                     // Parse error means invalid size (unless "max" which is handled above)
+                     skip = true;
+                 }
+            }
 
             if !skip {
                 let signal_type_str = format!("{:?}", final_signal_type);
@@ -604,6 +623,50 @@ mod tests {
         if !intents.is_empty() {
              assert!(intents[0].rationale.contains("Strategy: Macd"));
         }
+
+        Ok(())
+    }
+
+    #[tokio::test]
+    async fn test_generate_signals_filter_invalid() -> Result<()> {
+        let mut bars = Vec::new();
+        let now = 100000;
+        // Generate stable price
+        for i in 0..20 {
+            bars.push(Bar {
+                symbol: "AAPL".to_string(),
+                market: "equities".to_string(),
+                timeframe: "1m".to_string(),
+                timestamp_unix_ms: now + i * 60000,
+                open: 100.0,
+                high: 101.0,
+                low: 99.0,
+                close: 100.0,
+                volume: 1000.0,
+            });
+        }
+
+        // Trigger Buy (Lower Band)
+        bars.push(Bar {
+            symbol: "AAPL".to_string(),
+            market: "equities".to_string(),
+            timeframe: "1m".to_string(),
+            timestamp_unix_ms: now + 20 * 60000,
+            open: 100.0,
+            high: 101.0,
+            low: 90.0,
+            close: 90.0,
+            volume: 1000.0,
+        });
+
+        let series = BarSeries { schema_version: "v0".to_string(), bars };
+        let positions = vec![];
+
+        // risk = 0.0 should result in size = 0.0 -> Filtered
+        let intents = generate_signals(&series, "BollingerBands", None, 0.0, &positions).await?;
+
+        // Should be empty because size is 0
+        assert!(intents.is_empty(), "Signals with 0 size should be filtered");
 
         Ok(())
     }
