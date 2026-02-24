@@ -32,7 +32,7 @@ pub fn generate_report(
         analysis
             .key_levels
             .iter()
-            .map(|l| format!("{:.2}", l))
+            .map(|l| format!("{}", l))
             .collect::<Vec<_>>()
             .join(", ")
     };
@@ -194,6 +194,6 @@ mod tests {
         let report = generate_report(&analysis, &[], Some("Ranging"));
         assert!(report.contains("**ALERT: Regime Change Detected!**"));
         assert!(report.contains("Doji"));
-        assert!(report.contains("100.00, 110.00"));
+        assert!(report.contains("100, 110"));
     }
 }

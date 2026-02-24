@@ -148,3 +148,66 @@ Analyst consensus is Buy
 *Historical Context*: No similar past trades found.
 
 ---
+
+## Market Analysis Report - crypto - XBTUSD
+
+**Timestamp (ms)**: 1771938000000
+**Confidence**: 80.00%
+
+### 1. Market Regime
+**ALERT: Regime Change Detected!** (Previous: Unknown, Current: Trending Down)
+*Sentiment*: Bearish
+
+### 2. Volatility
+*Assessment*: Low
+
+### 3. Strategy Recommendation
+**Trend Following (Short)**
+
+### 4. Patterns & Price Action
+*Patterns*: None detected
+
+### 5. Key Levels
+*Support/Resistance*: 62679.60, 65152.10, 68202.10
+
+### 6. Research & Context
+**Research**:
+Previous Analysis: Feb 23 (Yesterday) - Trending Up, Bullish (Overbought). Volatility: Medium. No external news available due to tool failure.
+
+**News**:
+No new news.
+*Historical Context*: No similar past trades found.
+
+---
+
+
+## Market Analysis Report - crypto - BSXUSD
+
+**Timestamp (ms)**: 1771938000000
+**Confidence**: 80.00%
+
+### 1. Market Regime
+Regime Unchanged (Trending Down)
+*Sentiment*: Bearish
+
+### 2. Volatility
+*Assessment*: High
+
+### 3. Strategy Recommendation
+**Reduce Risk / Wait for Clarity**
+
+### 4. Patterns & Price Action
+*Patterns*: None detected
+
+### 5. Key Levels
+*Support/Resistance*: 0.00001137, 0.0000142
+
+### 6. Research & Context
+**Research**:
+New coverage. Volatile asset. No external news available.
+
+**News**:
+No new news.
+*Historical Context*: No similar past trades found.
+
+---
