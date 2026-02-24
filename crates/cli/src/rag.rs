@@ -90,6 +90,8 @@ mod tests {
             key_levels: vec![],
             volatility: volatility.to_string(),
             atr: None,
+            research_summary: None,
+            news_summary: None,
             confidence: 0.5,
             timestamp_unix_ms: 1000,
         }
