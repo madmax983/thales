@@ -198,14 +198,30 @@ fn run(command: Commands) -> Result<String, CliError> {
             }
         }
         Commands::ExecuteIntent { provider, input } => {
-            let intent: TradeIntent = read_json_file(&input)?;
-            let errors = validate_intent(&intent);
-            if !errors.is_empty() {
-                return Err(CliError::Validation(errors.join("; ")));
+            let intents: Vec<TradeIntent> = match read_json_file::<Vec<TradeIntent>>(&input) {
+                Ok(list) => list,
+                Err(_) => {
+                    let single: TradeIntent = read_json_file(&input)?;
+                    vec![single]
+                }
+            };
+
+            let mut results = Vec::new();
+            for intent in intents {
+                let errors = validate_intent(&intent);
+                if !errors.is_empty() {
+                    return Err(CliError::Validation(format!(
+                        "Validation error for intent {}: {}",
+                        intent.intent_id,
+                        errors.join("; ")
+                    )));
+                }
+
+                let result = execute_by_provider(&provider, &intent)?;
+                results.push(result);
             }
 
-            let result = execute_by_provider(&provider, &intent)?;
-            ok_envelope(result)
+            ok_envelope(results)
         }
         Commands::AnalyzeMarket {
             input,

@@ -164,8 +164,8 @@ fn execute_intent_returns_provider_result() {
     let body = String::from_utf8(output).expect("utf8");
     let json: serde_json::Value = serde_json::from_str(&body).expect("json");
     assert_eq!(json["status"], "ok");
-    assert_eq!(json["data"]["provider"], "alpaca");
-    assert_eq!(json["data"]["provider_order_id"], "order-cli-1");
+    assert_eq!(json["data"][0]["provider"], "alpaca");
+    assert_eq!(json["data"][0]["provider_order_id"], "order-cli-1");
     mock.assert();
 }
 
@@ -251,7 +251,7 @@ fn execute_intent_returns_kraken_provider_result() {
     let body = String::from_utf8(output).expect("utf8");
     let json: serde_json::Value = serde_json::from_str(&body).expect("json");
     assert_eq!(json["status"], "ok");
-    assert_eq!(json["data"]["provider"], "kraken");
-    assert_eq!(json["data"]["provider_order_id"], "kraken-cli-1");
+    assert_eq!(json["data"][0]["provider"], "kraken");
+    assert_eq!(json["data"][0]["provider_order_id"], "kraken-cli-1");
     mock.assert();
 }
