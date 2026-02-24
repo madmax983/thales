@@ -4,6 +4,7 @@ import os
 import sys
 import re
 import shutil
+import math
 from datetime import datetime
 
 # Paths
@@ -248,6 +249,56 @@ def log_skipped(intent, reason):
     with open(PORTFOLIO_PATH, "a") as f:
          f.write(line + "\n")
 
+def verify_risk(intent):
+    """
+    Risk Agent logic to verify trade intent before execution.
+    Returns (bool, reason).
+    """
+    # Defensive checks
+    if not isinstance(intent, dict):
+        return False, "Invalid intent format"
+
+    symbol = intent.get("symbol", "Unknown")
+    side = intent.get("side", "unknown")
+    signal_type = intent.get("signal_type", "Unknown")
+    size_hint = intent.get("size_hint", "0")
+    stop_loss = intent.get("stop_loss")
+    confidence = intent.get("confidence", 0.0)
+
+    # 1. Check Size
+    if size_hint == "max":
+        # Valid for Exit/ScaleOut
+        pass
+    else:
+        try:
+            size = float(size_hint)
+            if math.isnan(size):
+                 return False, f"Invalid size: NaN"
+            if math.isinf(size):
+                 return False, f"Invalid size: Infinity"
+            if size <= 0:
+                return False, f"Invalid size: {size_hint} (must be > 0)"
+        except ValueError:
+            return False, f"Invalid size format: {size_hint}"
+
+    # 2. Check Stop Loss for Entries
+    # Signal type might be "SignalType::Entry" string from Rust debug format
+    # Or just "Entry"
+    is_entry = False
+    if signal_type:
+        if "Entry" in signal_type or "ScaleIn" in signal_type:
+            is_entry = True
+
+    if is_entry:
+        if stop_loss is None:
+             return False, "Missing Stop Loss for Entry"
+
+    # 3. Check Confidence
+    if confidence < 0.5:
+        return False, f"Low confidence: {confidence}"
+
+    return True, "Approved"
+
 def main():
     if not os.path.exists(CLI_PATH):
         print("Error: thales-cli not found. Run cargo build.")
@@ -301,6 +352,13 @@ def main():
 
     # 5. Execute
     for intent in top_signals:
+        # Risk Agent Check
+        risk_ok, risk_reason = verify_risk(intent)
+        if not risk_ok:
+            print(f"Skipping {intent['symbol']}: {risk_reason}")
+            log_skipped(intent, f"Rejected by Risk Agent: {risk_reason}")
+            continue
+
         provider = intent["provider"]
         print(f"Executing {intent['side']} {intent['symbol']} via {provider}...")
 
