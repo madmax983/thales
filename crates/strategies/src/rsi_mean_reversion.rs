@@ -47,8 +47,11 @@ impl Strategy for RsiMeanReversion {
 
         let mut signals = Vec::new();
         let mut entry_price: Option<Decimal> = None;
+        let mut has_scaled_in = false;
+        let mut has_scaled_out = false;
         let stop_loss_pct_dec = Decimal::from_f64_retain(self.config.stop_loss_pct).unwrap_or(Decimal::ZERO);
         let one_dec = Decimal::ONE;
+        let two_dec = Decimal::from(2);
 
         // Iterate through data
         for i in 1..close_arr.len() {
@@ -57,9 +60,9 @@ impl Strategy for RsiMeanReversion {
             let rsi_opt = rsi_arr.get(i);
 
             if let (Some(price), Some(rsi_val)) = (price_opt, rsi_opt) {
-                // Check for Exit first
+                // Check Existing Position Logic first
                 if let Some(entry) = entry_price {
-                    // Stop Loss
+                    // 1. Stop Loss Check
                     let stop_price = entry * (one_dec - stop_loss_pct_dec);
                     if price <= stop_price {
                         signals.push(Signal {
@@ -74,32 +77,73 @@ impl Strategy for RsiMeanReversion {
                             timestamp_ms: timestamp,
                         });
                         entry_price = None;
+                        has_scaled_in = false;
+                        has_scaled_out = false;
                         continue;
                     }
 
-                    // Overbought Exit
+                    // 2. ScaleOut (Take Profit / Trim)
                     if rsi_val > self.config.overbought_threshold {
-                        signals.push(Signal {
-                            signal_type: SignalType::Exit,
+                        // If very high, full Exit
+                        if rsi_val > self.config.overbought_threshold + 10.0 {
+                             signals.push(Signal {
+                                signal_type: SignalType::Exit,
+                                symbol: self.config.symbol.clone(),
+                                side: "sell".to_string(),
+                                size_hint: "max".to_string(),
+                                confidence: 0.9,
+                                stop_loss: None,
+                                take_profit: None,
+                                reason: format!("RSI Extreme Overbought (Exit): {:.2} > {:.2}", rsi_val, self.config.overbought_threshold + 10.0),
+                                timestamp_ms: timestamp,
+                            });
+                            entry_price = None;
+                            has_scaled_in = false;
+                            has_scaled_out = false;
+                        } else if !has_scaled_out {
+                            // Just Overbought, ScaleOut once
+                            signals.push(Signal {
+                                signal_type: SignalType::ScaleOut,
+                                symbol: self.config.symbol.clone(),
+                                side: "sell".to_string(),
+                                size_hint: "100".to_string(),
+                                confidence: 0.7,
+                                stop_loss: None,
+                                take_profit: None,
+                                reason: format!("RSI Overbought (ScaleOut): {:.2} > {:.2}", rsi_val, self.config.overbought_threshold),
+                                timestamp_ms: timestamp,
+                            });
+                            has_scaled_out = true;
+                        }
+                        continue;
+                    }
+
+                    // 3. ScaleIn (Add to position)
+                    if rsi_val < self.config.oversold_threshold - 10.0 && !has_scaled_in {
+                         let sl = price * (one_dec - stop_loss_pct_dec);
+                         let tp = price * (one_dec + (two_dec * stop_loss_pct_dec));
+
+                         signals.push(Signal {
+                            signal_type: SignalType::ScaleIn,
                             symbol: self.config.symbol.clone(),
-                            side: "sell".to_string(),
-                            size_hint: "max".to_string(),
-                            confidence: 0.8,
-                            stop_loss: None,
-                            take_profit: None,
-                            reason: format!("RSI Overbought: {:.2} > {:.2}", rsi_val, self.config.overbought_threshold),
+                            side: "buy".to_string(),
+                            size_hint: "100".to_string(),
+                            confidence: 0.6,
+                            stop_loss: Some(sl.to_f64().unwrap_or(0.0)),
+                            take_profit: Some(tp.to_f64().unwrap_or(0.0)),
+                            reason: format!("RSI Extreme Oversold (ScaleIn): {:.2} < {:.2}", rsi_val, self.config.oversold_threshold - 10.0),
                             timestamp_ms: timestamp,
                         });
-                        entry_price = None;
+                        has_scaled_in = true;
                         continue;
                     }
                 }
 
-                // Check for Entry
+                // Check Entry Logic (No Position)
                 if entry_price.is_none() {
-                    // Oversold Entry
                     if rsi_val < self.config.oversold_threshold {
-                         let sl = price * (one_dec - stop_loss_pct_dec);
+                        let sl = price * (one_dec - stop_loss_pct_dec);
+                        let tp = price * (one_dec + (two_dec * stop_loss_pct_dec));
 
                         signals.push(Signal {
                             signal_type: SignalType::Entry,
@@ -108,11 +152,13 @@ impl Strategy for RsiMeanReversion {
                             size_hint: "100".to_string(),
                             confidence: 0.8,
                             stop_loss: Some(sl.to_f64().unwrap_or(0.0)),
-                            take_profit: None,
-                            reason: format!("RSI Oversold: {:.2} < {:.2}", rsi_val, self.config.oversold_threshold),
+                            take_profit: Some(tp.to_f64().unwrap_or(0.0)),
+                            reason: format!("RSI Oversold (Entry): {:.2} < {:.2}", rsi_val, self.config.oversold_threshold),
                             timestamp_ms: timestamp,
                         });
                         entry_price = Some(price);
+                        has_scaled_in = false;
+                        has_scaled_out = false;
                     }
                 }
             }
@@ -148,9 +194,9 @@ mod tests {
         // Period 2.
         // 0: 100
         // 1: 90 (Change -10)
-        // 2: 80 (Change -10). AvgGain=0, AvgLoss=10. RSI=0. < 30. ENTRY.
-        // 3: 100 (Change +20). Gain 20. AvgGain=(0*1+20)/2=10. AvgLoss=(10*1+0)/2=5. RS=2. RSI=100-33=66. Hold.
-        // 4: 120 (Change +20). Gain 20. AvgGain=(10*1+20)/2=15. AvgLoss=(5*1+0)/2=2.5. RS=6. RSI=100-14=85. > 70. EXIT.
+        // 2: 80 (Change -10). RSI=0. < 30. Entry (Buy).
+        // 3: 100 (Change +20). RSI=66. Hold.
+        // 4: 120 (Change +20). RSI=85. > 80. Exit (Sell).
 
         let df = df!(
             "timestamp_unix_ms" => &[1000i64, 2000, 3000, 4000, 5000],
@@ -163,13 +209,53 @@ mod tests {
 
         let entry = &signals[0];
         assert_eq!(entry.signal_type, SignalType::Entry);
-        assert_eq!(entry.timestamp_ms, 3000); // Index 2
-        assert!(entry.reason.contains("RSI Oversold"));
+        assert_eq!(entry.side, "buy");
+        assert_eq!(entry.timestamp_ms, 3000);
+        assert!(entry.take_profit.is_some()); // Verify TP added
 
         let exit = &signals[1];
         assert_eq!(exit.signal_type, SignalType::Exit);
-        assert_eq!(exit.timestamp_ms, 5000); // Index 4
-        assert!(exit.reason.contains("RSI Overbought"));
+        assert_eq!(exit.side, "sell");
+        assert_eq!(exit.timestamp_ms, 5000);
+
+        Ok(())
+    }
+
+    #[tokio::test]
+    async fn test_scale_in_once() -> Result<()> {
+        let config = RsiMeanReversionConfig {
+            period: 2,
+            oversold_threshold: 30.0,
+            overbought_threshold: 70.0,
+            stop_loss_pct: 0.1,
+            symbol: "TEST".to_string(),
+        };
+        let strategy = RsiMeanReversion::new(config);
+
+        // 0: 100
+        // 1: 90
+        // 2: 80. RSI 0. Entry (Buy).
+        // 3: 75. Change -5. AvgGain 0. AvgLoss (10+5)/2=7.5. RSI 0. < 20. ScaleIn.
+        // 4: 70. Change -5. RSI 0. < 20. Should NOT ScaleIn again.
+
+        let df = df!(
+            "timestamp_unix_ms" => &[1000i64, 2000, 3000, 4000, 5000],
+            "close" => &[100.0, 90.0, 80.0, 75.0, 70.0]
+        )?;
+
+        let signals = strategy.generate_signals(&df).await?;
+
+        // Expect Entry, then ScaleIn. No second ScaleIn.
+        // But wait, 70 might trigger Stop Loss? Entry 80. SL 72.
+        // Price 75 -> OK. ScaleIn.
+        // Price 70 -> SL Hit! (70 <= 72).
+        // So third signal is Exit.
+
+        assert_eq!(signals.len(), 3);
+        assert_eq!(signals[0].signal_type, SignalType::Entry);
+        assert_eq!(signals[1].signal_type, SignalType::ScaleIn);
+        assert_eq!(signals[2].signal_type, SignalType::Exit);
+        assert!(signals[2].reason.contains("Stop Loss"));
 
         Ok(())
     }

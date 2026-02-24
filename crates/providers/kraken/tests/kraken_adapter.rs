@@ -128,7 +128,7 @@ fn execute_intent_returns_error_when_kraken_error_array_is_non_empty() {
 
 #[test]
 fn execute_intent_returns_error_for_day_tif() {
-    let mut server = mockito::Server::new();
+    let server = mockito::Server::new();
     let cfg = KrakenConfig::from_env_with(|key| match key {
         "KRAKEN_API_KEY" => Some("k".to_string()),
         "KRAKEN_API_SECRET" => Some("YWJj".to_string()),

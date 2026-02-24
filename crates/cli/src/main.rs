@@ -2,12 +2,11 @@ use std::{
     fs,
     path::PathBuf,
     process,
-    time::{SystemTime, UNIX_EPOCH},
 };
 
 use alpaca_provider::{AlpacaClient, AlpacaConfig};
 use clap::{Parser, Subcommand};
-use contracts::{Bar, BarSeries, EnvelopeStatus, ExecutionResult, ResponseEnvelope, TradeIntent};
+use contracts::{BarSeries, EnvelopeStatus, ExecutionResult, ResponseEnvelope, TradeIntent};
 use kraken_provider::{KrakenClient, KrakenConfig};
 use serde::Serialize;
 use serde_json::json;
@@ -359,14 +358,6 @@ fn scan_market(provider: &str, top_n: usize, min_volatility: f64, min_momentum: 
     }
 }
 
-fn infer_market(provider: &str) -> String {
-    match provider {
-        "alpaca" => "equities".to_string(),
-        "kraken" => "crypto".to_string(),
-        _ => "unknown".to_string(),
-    }
-}
-
 fn execute_by_provider(provider: &str, intent: &TradeIntent) -> Result<ExecutionResult, CliError> {
     match provider {
         "alpaca" => {
@@ -456,13 +447,6 @@ fn error_envelope(errors: Vec<String>) -> String {
         "{\"status\":\"error\",\"errors\":[\"failed to serialize error envelope\"],\"warnings\":[],\"data\":null}"
             .to_string()
     })
-}
-
-fn now_unix_ms() -> Result<i64, CliError> {
-    Ok(SystemTime::now()
-        .duration_since(UNIX_EPOCH)
-        .map_err(|err| CliError::Provider(format!("system clock error: {err}")))?
-        .as_millis() as i64)
 }
 
 #[derive(Debug, Error)]
