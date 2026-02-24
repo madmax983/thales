@@ -120,3 +120,31 @@ Critical Bitcoin weekly trend breaks for first time in 2+ years: Is BTC done? Co
 *Historical Context*: No similar past trades found.
 
 ---
+
+## Market Analysis Report - equities - AAPL
+
+**Timestamp (ms)**: 1600172800000
+**Confidence**: 50.00%
+
+### 1. Market Regime
+**ALERT: Regime Change Detected!** (Previous: Trending Down, Current: Unknown)
+*Sentiment*: Neutral
+
+### 2. Volatility
+*Assessment*: Unknown
+
+### 3. Strategy Recommendation
+**Neutral / Wait**
+
+### 4. Patterns & Price Action
+*Patterns*: None detected
+
+### 5. Key Levels
+*Support/Resistance*: None identified
+
+### 6. Research & Context
+**Research**:
+Analyst consensus is Buy
+*Historical Context*: No similar past trades found.
+
+---

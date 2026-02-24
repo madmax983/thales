@@ -46,6 +46,14 @@ pub fn generate_report(
 
     let history_section = crate::rag::summarize_history(similar_trades);
 
+    let volatility_display = if analysis.volatility == "Extreme" {
+        "**EXTREME (Unusual Activity)**".to_string()
+    } else {
+        analysis.volatility.clone()
+    };
+
+    let recommendation = analysis.recommendation.clone().unwrap_or_else(|| "None".to_string());
+
     format!(
         r#"
 ## Market Analysis Report - {} - {}
@@ -60,13 +68,16 @@ pub fn generate_report(
 ### 2. Volatility
 *Assessment*: {}
 
-### 3. Patterns & Price Action
+### 3. Strategy Recommendation
+**{}**
+
+### 4. Patterns & Price Action
 *Patterns*: {}
 
-### 4. Key Levels
+### 5. Key Levels
 *Support/Resistance*: {}
 
-### 5. Research & Context
+### 6. Research & Context
 {}
 *Historical Context*: {}
 
@@ -78,7 +89,8 @@ pub fn generate_report(
         analysis.confidence * 100.0,
         regime_change,
         analysis.sentiment,
-        analysis.volatility,
+        volatility_display,
+        recommendation,
         patterns_str,
         levels_str,
         research_section,
@@ -174,6 +186,7 @@ mod tests {
             atr: None,
             research_summary: None,
             news_summary: None,
+            recommendation: None,
             confidence: 0.9,
             timestamp_unix_ms: 1600000000000,
         };

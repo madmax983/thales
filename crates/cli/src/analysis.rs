@@ -19,6 +19,7 @@ pub fn analyze(series: &BarSeries) -> MarketAnalysis {
             atr: None,
             research_summary: None,
             news_summary: None,
+            recommendation: None,
             confidence: 0.0,
             timestamp_unix_ms: timestamp,
         };
@@ -30,6 +31,7 @@ pub fn analyze(series: &BarSeries) -> MarketAnalysis {
     let patterns = detect_patterns(bars);
     let key_levels = identify_levels(bars);
     let sentiment = calculate_sentiment(bars, &regime);
+    let recommendation = calculate_recommendation(&regime, &volatility, &sentiment);
 
     let mut confidence: f64 = 0.5;
     if regime == "Trending Up" || regime == "Trending Down" {
@@ -40,6 +42,9 @@ pub fn analyze(series: &BarSeries) -> MarketAnalysis {
     {
         confidence += 0.1;
     }
+    if volatility == "Extreme" {
+        confidence -= 0.2;
+    }
     for pattern in &patterns {
         if (regime == "Trending Up" && (pattern.contains("Bullish") || pattern == "Hammer"))
             || (regime == "Trending Down"
@@ -49,7 +54,7 @@ pub fn analyze(series: &BarSeries) -> MarketAnalysis {
             break;
         }
     }
-    confidence = confidence.min(1.0);
+    confidence = confidence.clamp(0.0, 1.0);
 
     MarketAnalysis {
         symbol,
@@ -62,8 +67,21 @@ pub fn analyze(series: &BarSeries) -> MarketAnalysis {
         atr,
         research_summary: None,
         news_summary: None,
+        recommendation: Some(recommendation),
         confidence,
         timestamp_unix_ms: timestamp,
+    }
+}
+
+fn calculate_recommendation(regime: &str, volatility: &str, _sentiment: &str) -> String {
+    if volatility == "High" || volatility == "Extreme" {
+        return "Reduce Risk / Wait for Clarity".to_string();
+    }
+    match regime {
+        "Trending Up" => "Trend Following (Long)".to_string(),
+        "Trending Down" => "Trend Following (Short)".to_string(),
+        "Ranging" => "Mean Reversion".to_string(),
+        _ => "Neutral / Wait".to_string(),
     }
 }
 
@@ -112,7 +130,9 @@ fn calculate_volatility(bars: &[Bar]) -> String {
     match atr {
         Some(val) => {
             let ratio = val / last_close;
-            if ratio > 0.02 {
+            if ratio > 0.05 {
+                "Extreme".to_string()
+            } else if ratio > 0.02 {
                 "High".to_string()
             } else if ratio > 0.01 {
                 "Medium".to_string()
@@ -172,7 +192,7 @@ fn detect_patterns(bars: &[Bar]) -> Vec<String> {
             patterns.push("Shooting Star".to_string());
         }
         // Doji
-        if curr_body <= curr_range * 0.1 {
+        if curr_body <= curr_range * 0.05 {
              patterns.push("Doji".to_string());
         }
     }

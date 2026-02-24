@@ -251,6 +251,9 @@ pub struct MarketAnalysis {
     /// Summary of relevant news (if injected).
     #[serde(default)]
     pub news_summary: Option<String>,
+    /// Strategic recommendation based on the analysis.
+    #[serde(default)]
+    pub recommendation: Option<String>,
     /// Overall confidence score for the analysis.
     pub confidence: f64,
     /// Timestamp of the analysis.
