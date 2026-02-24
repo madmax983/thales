@@ -2,6 +2,8 @@ use crate::strategy::{Signal, SignalType, Strategy, StrategyConfig};
 use anyhow::Result;
 use async_trait::async_trait;
 use polars::prelude::*;
+use rust_decimal::prelude::*;
+use rust_decimal::Decimal;
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -45,65 +47,95 @@ impl Strategy for BollingerBandsMeanReversion {
             return Ok(signals);
         }
 
-        let mut current_sum = 0.0;
-        let mut current_sum_sq = 0.0;
+        let mut current_sum = Decimal::ZERO;
+        let mut current_sum_sq = Decimal::ZERO;
+        let window_size_dec = Decimal::from_usize(window_size).unwrap_or(Decimal::ONE);
+        let num_std_dev_dec = Decimal::from_f64_retain(self.config.num_std_dev).unwrap_or(Decimal::ZERO);
+        let half_dec = Decimal::new(5, 1); // 0.5
+        let two_dec = Decimal::new(2, 0); // 2.0
 
         // Initialize first window (0 to window_size - 1)
         for i in 0..window_size {
             if let Some(val) = close_arr.get(i) {
-                current_sum += val;
-                current_sum_sq += val * val;
+                if let Some(d) = Decimal::from_f64_retain(val) {
+                    current_sum += d;
+                    current_sum_sq += d * d;
+                }
             }
         }
 
         // We track prev_mean for crossover detection.
         // Initialize prev_mean from the first window check.
-        let mut prev_mean: f64;
+        let mut prev_mean: Decimal;
 
         // Check first window
         {
             let i = window_size - 1;
-            let mean = current_sum / window_size as f64;
-            let variance = (current_sum_sq / window_size as f64) - (mean * mean);
-            let std_dev = if variance < 0.0 { 0.0 } else { variance.sqrt() };
-            let upper = mean + (std_dev * self.config.num_std_dev);
-            let lower = mean - (std_dev * self.config.num_std_dev);
+            let mean = current_sum / window_size_dec;
+            let variance = (current_sum_sq / window_size_dec) - (mean * mean);
+            // variance might be slightly negative due to precision if using f64, but with Decimal should be fine.
+            // Safety check for sqrt.
+            let std_dev = if variance <= Decimal::ZERO {
+                Decimal::ZERO
+            } else {
+                variance.sqrt().unwrap_or(Decimal::ZERO)
+            };
+
+            let upper = mean + (std_dev * num_std_dev_dec);
+            let lower = mean - (std_dev * num_std_dev_dec);
 
             prev_mean = mean;
 
-            if let (Some(close), Some(ts)) = (close_arr.get(i), time_arr.get(i)) {
-                // Initial window signal check
-                 if close < lower {
-                    // Check for ScaleIn depth
-                     let signal_type = if close < lower - (0.5 * std_dev) {
-                         SignalType::ScaleIn
-                     } else {
-                         SignalType::Entry
-                     };
-                    signals.push(Signal {
-                        signal_type,
-                        symbol: self.config.symbol.clone(),
-                        side: "buy".to_string(),
-                        size_hint: "100".to_string(),
-                        confidence: 0.8,
-                        reason: format!("Close {:.2} < Lower Band {:.2}", close, lower),
-                        timestamp_ms: ts,
-                    });
-                } else if close > upper {
-                     let signal_type = if close > upper + (0.5 * std_dev) {
-                         SignalType::ScaleIn
-                     } else {
-                         SignalType::Entry
-                     };
-                    signals.push(Signal {
-                        signal_type,
-                        symbol: self.config.symbol.clone(),
-                        side: "sell".to_string(), // Short Entry
-                        size_hint: "100".to_string(),
-                        confidence: 0.8,
-                        reason: format!("Close {:.2} > Upper Band {:.2}", close, upper),
-                        timestamp_ms: ts,
-                    });
+            if let (Some(close_val), Some(ts)) = (close_arr.get(i), time_arr.get(i)) {
+                if let Some(close) = Decimal::from_f64_retain(close_val) {
+                    // Initial window signal check
+                     if close < lower {
+                        // Check for ScaleIn depth
+                         let signal_type = if close < lower - (half_dec * std_dev) {
+                             SignalType::ScaleIn
+                         } else {
+                             SignalType::Entry
+                         };
+
+                        // Calculate SL/TP
+                        // Buy: SL below close (e.g. 2 std dev further down?) or just use config SL pct
+                        // Let's use 2 std dev below close for now as per plan
+                        let sl = close - (two_dec * std_dev);
+                        let tp = mean;
+
+                        signals.push(Signal {
+                            signal_type,
+                            symbol: self.config.symbol.clone(),
+                            side: "buy".to_string(),
+                            size_hint: "100".to_string(),
+                            confidence: 0.8,
+                            stop_loss: Some(sl.to_f64().unwrap_or(0.0)),
+                            take_profit: Some(tp.to_f64().unwrap_or(0.0)),
+                            reason: format!("Close {} < Lower Band {}", close, lower.round_dp(2)),
+                            timestamp_ms: ts,
+                        });
+                    } else if close > upper {
+                         let signal_type = if close > upper + (half_dec * std_dev) {
+                             SignalType::ScaleIn
+                         } else {
+                             SignalType::Entry
+                         };
+
+                        let sl = close + (two_dec * std_dev);
+                        let tp = mean;
+
+                        signals.push(Signal {
+                            signal_type,
+                            symbol: self.config.symbol.clone(),
+                            side: "sell".to_string(), // Short Entry
+                            size_hint: "100".to_string(),
+                            confidence: 0.8,
+                            stop_loss: Some(sl.to_f64().unwrap_or(0.0)),
+                            take_profit: Some(tp.to_f64().unwrap_or(0.0)),
+                            reason: format!("Close {} > Upper Band {}", close, upper.round_dp(2)),
+                            timestamp_ms: ts,
+                        });
+                    }
                 }
             }
         }
@@ -111,88 +143,112 @@ impl Strategy for BollingerBandsMeanReversion {
         // Slide window
         for i in window_size..close_arr.len() {
             if let Some(old_val) = close_arr.get(i - window_size) {
-                current_sum -= old_val;
-                current_sum_sq -= old_val * old_val;
+                 if let Some(old_d) = Decimal::from_f64_retain(old_val) {
+                    current_sum -= old_d;
+                    current_sum_sq -= old_d * old_d;
+                 }
             }
 
             if let Some(new_val) = close_arr.get(i) {
-                current_sum += new_val;
-                current_sum_sq += new_val * new_val;
+                if let Some(new_d) = Decimal::from_f64_retain(new_val) {
+                    current_sum += new_d;
+                    current_sum_sq += new_d * new_d;
 
-                let mean = current_sum / window_size as f64;
-                let variance = (current_sum_sq / window_size as f64) - (mean * mean);
-                let std_dev = if variance < 0.0 { 0.0 } else { variance.sqrt() };
+                    let mean = current_sum / window_size_dec;
+                    let variance = (current_sum_sq / window_size_dec) - (mean * mean);
+                    let std_dev = if variance <= Decimal::ZERO {
+                        Decimal::ZERO
+                    } else {
+                        variance.sqrt().unwrap_or(Decimal::ZERO)
+                    };
 
-                let upper = mean + (std_dev * self.config.num_std_dev);
-                let lower = mean - (std_dev * self.config.num_std_dev);
+                    let upper = mean + (std_dev * num_std_dev_dec);
+                    let lower = mean - (std_dev * num_std_dev_dec);
 
-                let prev_close = close_arr.get(i-1).unwrap(); // Safe because i starts at window_size >= 1
+                    let prev_close = close_arr.get(i-1).and_then(|v| Decimal::from_f64_retain(v)).unwrap_or(prev_mean); // Fallback to mean if prev missing (shouldn't happen)
 
-                if let Some(ts) = time_arr.get(i) {
-                    // Entry / ScaleIn Logic
-                    if new_val < lower {
-                         let signal_type = if new_val < lower - (0.5 * std_dev) {
-                             SignalType::ScaleIn
-                         } else {
-                             SignalType::Entry
-                         };
-                        signals.push(Signal {
-                            signal_type,
-                            symbol: self.config.symbol.clone(),
-                            side: "buy".to_string(),
-                            size_hint: "100".to_string(),
-                            confidence: 0.8,
-                            reason: format!("Close {:.2} < Lower Band {:.2}", new_val, lower),
-                            timestamp_ms: ts,
-                        });
-                    } else if new_val > upper {
-                         let signal_type = if new_val > upper + (0.5 * std_dev) {
-                             SignalType::ScaleIn
-                         } else {
-                             SignalType::Entry
-                         };
-                        signals.push(Signal {
-                            signal_type,
-                            symbol: self.config.symbol.clone(),
-                            side: "sell".to_string(),
-                            size_hint: "100".to_string(),
-                            confidence: 0.8,
-                            reason: format!("Close {:.2} > Upper Band {:.2}", new_val, upper),
-                            timestamp_ms: ts,
-                        });
+                    if let Some(ts) = time_arr.get(i) {
+                        // Entry / ScaleIn Logic
+                        if new_d < lower {
+                             let signal_type = if new_d < lower - (half_dec * std_dev) {
+                                 SignalType::ScaleIn
+                             } else {
+                                 SignalType::Entry
+                             };
+
+                            let sl = new_d - (two_dec * std_dev);
+                            let tp = mean;
+
+                            signals.push(Signal {
+                                signal_type,
+                                symbol: self.config.symbol.clone(),
+                                side: "buy".to_string(),
+                                size_hint: "100".to_string(),
+                                confidence: 0.8,
+                                stop_loss: Some(sl.to_f64().unwrap_or(0.0)),
+                                take_profit: Some(tp.to_f64().unwrap_or(0.0)),
+                                reason: format!("Close {} < Lower Band {}", new_d, lower.round_dp(2)),
+                                timestamp_ms: ts,
+                            });
+                        } else if new_d > upper {
+                             let signal_type = if new_d > upper + (half_dec * std_dev) {
+                                 SignalType::ScaleIn
+                             } else {
+                                 SignalType::Entry
+                             };
+
+                            let sl = new_d + (two_dec * std_dev);
+                            let tp = mean;
+
+                            signals.push(Signal {
+                                signal_type,
+                                symbol: self.config.symbol.clone(),
+                                side: "sell".to_string(),
+                                size_hint: "100".to_string(),
+                                confidence: 0.8,
+                                stop_loss: Some(sl.to_f64().unwrap_or(0.0)),
+                                take_profit: Some(tp.to_f64().unwrap_or(0.0)),
+                                reason: format!("Close {} > Upper Band {}", new_d, upper.round_dp(2)),
+                                timestamp_ms: ts,
+                            });
+                        }
+
+                        // Exit Logic (Mean Crossover)
+                        // Exit Long (Sell): Price crosses SMA from below
+                        // if prev_close < prev_mean && new_d >= mean
+                        if prev_close < prev_mean && new_d >= mean {
+                             signals.push(Signal {
+                                signal_type: SignalType::Exit,
+                                symbol: self.config.symbol.clone(),
+                                side: "sell".to_string(), // Exit Long
+                                size_hint: "max".to_string(),
+                                confidence: 0.6,
+                                stop_loss: None,
+                                take_profit: None,
+                                reason: format!("Price crossed SMA from below ({} -> {}, Mean {})", prev_close, new_d, mean.round_dp(2)),
+                                timestamp_ms: ts,
+                            });
+                        }
+
+                        // Exit Short (Buy): Price crosses SMA from above
+                        // if prev_close > prev_mean && new_d <= mean
+                        if prev_close > prev_mean && new_d <= mean {
+                             signals.push(Signal {
+                                signal_type: SignalType::Exit,
+                                symbol: self.config.symbol.clone(),
+                                side: "buy".to_string(), // Exit Short
+                                size_hint: "max".to_string(),
+                                confidence: 0.6,
+                                stop_loss: None,
+                                take_profit: None,
+                                reason: format!("Price crossed SMA from above ({} -> {}, Mean {})", prev_close, new_d, mean.round_dp(2)),
+                                timestamp_ms: ts,
+                            });
+                        }
                     }
 
-                    // Exit Logic (Mean Crossover)
-                    // Exit Long (Sell): Price crosses SMA from below
-                    // if prev_close < prev_mean && new_val >= mean
-                    if prev_close < prev_mean && new_val >= mean {
-                         signals.push(Signal {
-                            signal_type: SignalType::Exit,
-                            symbol: self.config.symbol.clone(),
-                            side: "sell".to_string(), // Exit Long
-                            size_hint: "max".to_string(),
-                            confidence: 0.6,
-                            reason: format!("Price crossed SMA from below ({:.2} -> {:.2}, Mean {:.2})", prev_close, new_val, mean),
-                            timestamp_ms: ts,
-                        });
-                    }
-
-                    // Exit Short (Buy): Price crosses SMA from above
-                    // if prev_close > prev_mean && new_val <= mean
-                    if prev_close > prev_mean && new_val <= mean {
-                         signals.push(Signal {
-                            signal_type: SignalType::Exit,
-                            symbol: self.config.symbol.clone(),
-                            side: "buy".to_string(), // Exit Short
-                            size_hint: "max".to_string(),
-                            confidence: 0.6,
-                            reason: format!("Price crossed SMA from above ({:.2} -> {:.2}, Mean {:.2})", prev_close, new_val, mean),
-                            timestamp_ms: ts,
-                        });
-                    }
+                    prev_mean = mean;
                 }
-
-                prev_mean = mean;
             }
         }
 
@@ -235,6 +291,8 @@ mod tests {
         // Updated expectation: Entry (Short) instead of Exit
         assert_eq!(last_signal.signal_type, SignalType::Entry);
         assert_eq!(last_signal.side, "sell");
+        assert!(last_signal.stop_loss.is_some());
+        assert!(last_signal.take_profit.is_some());
 
         Ok(())
     }
@@ -266,6 +324,8 @@ mod tests {
         let s = exit_signal.unwrap();
         assert_eq!(s.timestamp_ms, 5000);
         assert_eq!(s.side, "sell"); // Crossed from below -> Exit Long -> Sell
+        assert!(s.stop_loss.is_none());
+        assert!(s.take_profit.is_none());
 
         Ok(())
     }
