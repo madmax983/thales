@@ -11,6 +11,7 @@ CLI_PATH = "./target/debug/thales-cli"
 PORTFOLIO_PATH = "portfolio.md"
 STRATEGIES_PATH = "strategies.md"
 HISTORY_PATH = "history.json"
+SIGNALS_PATH = "Signals.md"
 
 def run_command(args):
     """Runs a thales-cli command and returns the parsed JSON data."""
@@ -19,17 +20,24 @@ def run_command(args):
         # print(f"Running: {' '.join(cmd)}")
         result = subprocess.run(cmd, capture_output=True, text=True, check=True)
         # Parse envelope
-        try:
-            envelope = json.loads(result.stdout)
-            if envelope.get("status") == "ok":
-                return envelope.get("data")
-            else:
-                print(f"Error executing {args}: {envelope.get('errors')}")
-                return None
-        except json.JSONDecodeError:
-            print(f"Failed to parse JSON output from {args}")
-            print(result.stdout)
-            return None
+        output = result.stdout.strip()
+        # Attempt to find JSON start
+        json_start = output.find('{')
+        if json_start != -1:
+            json_str = output[json_start:]
+            try:
+                envelope = json.loads(json_str)
+                if envelope.get("status") == "ok":
+                    return envelope.get("data")
+                else:
+                    print(f"Error executing {args}: {envelope.get('errors')}")
+                    return None
+            except json.JSONDecodeError:
+                pass # Fall through to error reporting
+
+        print(f"Failed to parse JSON output from {args}")
+        print(result.stdout)
+        return None
     except subprocess.CalledProcessError as e:
         print(f"Command failed: {cmd}\nOutput: {e.output}\nError: {e.stderr}")
         return None
@@ -37,8 +45,8 @@ def run_command(args):
 def get_active_strategy():
     """Parses strategies.md to find the active strategy name."""
     if not os.path.exists(STRATEGIES_PATH):
-        print(f"Warning: {STRATEGIES_PATH} not found. Defaulting to BollingerBands.")
-        return "BollingerBands"
+        print(f"Warning: {STRATEGIES_PATH} not found.")
+        return None
 
     with open(STRATEGIES_PATH, "r") as f:
         content = f.read()
@@ -50,10 +58,15 @@ def get_active_strategy():
         strategies.append("EmaCrossover")
     if "RsiMeanReversion" in content:
         strategies.append("RsiMeanReversion")
+    if "Macd" in content:
+        strategies.append("Macd")
+
+    if not strategies:
+        return None
 
     # Pick the one that appears first in the file
     first_pos = float('inf')
-    best_strategy = "BollingerBands"
+    best_strategy = None
 
     for s in strategies:
         pos = content.find(s)
@@ -62,6 +75,30 @@ def get_active_strategy():
             best_strategy = s
 
     return best_strategy
+
+def get_candidates_from_signals():
+    """Parses Signals.md for potential candidates."""
+    if not os.path.exists(SIGNALS_PATH):
+        return []
+
+    with open(SIGNALS_PATH, "r") as f:
+        content = f.read()
+
+    candidates = {}
+
+    # Format 1: ## Market Analysis Report - <market> - <symbol>
+    matches1 = re.findall(r"## Market Analysis Report - (\w+) - (\w+)", content)
+    for market, symbol in matches1:
+        provider = "kraken" if market == "crypto" else "alpaca"
+        candidates[symbol] = {"provider": provider, "symbol": symbol, "market": market}
+
+    # Format 2: ## Symbol: <symbol> (<market>)
+    matches2 = re.findall(r"## Symbol: (\w+) \((\w+)\)", content)
+    for symbol, market in matches2:
+        provider = "kraken" if market == "crypto" else "alpaca"
+        candidates[symbol] = {"provider": provider, "symbol": symbol, "market": market}
+
+    return list(candidates.values())
 
 def scan_markets():
     """Scans markets for candidates."""
@@ -168,7 +205,7 @@ def update_history(intent):
 def log_trade(intent, result):
     """Logs executed trade to portfolio.md"""
     date_str = datetime.fromtimestamp(result["submitted_at_unix_ms"] / 1000).strftime("%Y-%m-%d %H:%M:%S")
-    asset_class = intent["market"]
+    asset_class = intent.get("market", "-")
     symbol = intent["symbol"]
     action = intent["side"]
     size = intent["size_hint"]
@@ -218,11 +255,27 @@ def main():
 
     # 1. Identify Strategy
     strategy_name = get_active_strategy()
+    if not strategy_name:
+        print("No active strategy found in strategies.md. Doing nothing.")
+        # Log why?
+        with open(PORTFOLIO_PATH, "a") as f:
+             f.write(f"\n# Execution Attempt {datetime.now()}\nNo active strategy found. Aborting.\n")
+        return
+
     print(f"Active Strategy: {strategy_name}")
 
-    # 2. Scan Markets
-    candidates = scan_markets()
-    print(f"Found {len(candidates)} candidates.")
+    # 2. Scan Markets + Get from Signals.md
+    scanned_candidates = scan_markets()
+    signal_candidates = get_candidates_from_signals()
+
+    # Merge candidates (prefer signal candidates if duplicates?)
+    # Using a dict to deduplicate by symbol
+    candidates_map = {c["symbol"]: c for c in scanned_candidates}
+    for c in signal_candidates:
+        candidates_map[c["symbol"]] = c # Overwrite or add
+
+    candidates = list(candidates_map.values())
+    print(f"Found {len(candidates)} unique candidates (Scanned: {len(scanned_candidates)}, Signals: {len(signal_candidates)}).")
 
     # 3. Generate Signals for all candidates
     all_signals = []
