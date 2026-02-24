@@ -2,13 +2,13 @@ use std::{
     fs,
     path::PathBuf,
     process,
-    time::{SystemTime, UNIX_EPOCH},
 };
 
 use alpaca_provider::{AlpacaClient, AlpacaConfig};
 use clap::{Parser, Subcommand};
-use contracts::{Bar, BarSeries, EnvelopeStatus, ExecutionResult, ResponseEnvelope, TradeIntent};
+use contracts::{BarSeries, EnvelopeStatus, ExecutionResult, ResponseEnvelope, TradeIntent};
 use kraken_provider::{KrakenClient, KrakenConfig};
+use paper_provider::{PaperClient, PaperConfig};
 use serde::Serialize;
 use serde_json::json;
 use thiserror::Error;
@@ -322,6 +322,12 @@ fn run(command: Commands) -> Result<String, CliError> {
                     let positions = client.get_open_positions().map_err(|e| CliError::Provider(e.to_string()))?;
                     ok_envelope(positions)
                 }
+                "paper" => {
+                    let cfg = PaperConfig::from_env();
+                    let client = PaperClient::new(cfg);
+                    let positions = client.get_open_positions().map_err(|e| CliError::Provider(e.to_string()))?;
+                    ok_envelope(positions)
+                }
                 _ => Err(CliError::Validation(format!("Unsupported provider: {}", provider))),
             }
         }
@@ -387,14 +393,6 @@ fn scan_market(provider: &str, top_n: usize, min_volatility: f64, min_momentum: 
     }
 }
 
-fn infer_market(provider: &str) -> String {
-    match provider {
-        "alpaca" => "equities".to_string(),
-        "kraken" => "crypto".to_string(),
-        _ => "unknown".to_string(),
-    }
-}
-
 fn execute_by_provider(provider: &str, intent: &TradeIntent) -> Result<ExecutionResult, CliError> {
     match provider {
         "alpaca" => {
@@ -409,6 +407,13 @@ fn execute_by_provider(provider: &str, intent: &TradeIntent) -> Result<Execution
             let cfg =
                 KrakenConfig::from_env().map_err(|err| CliError::Provider(err.to_string()))?;
             let client = KrakenClient::new(cfg);
+            client
+                .execute_intent(intent)
+                .map_err(|err| CliError::Provider(err.to_string()))
+        }
+        "paper" => {
+            let cfg = PaperConfig::from_env();
+            let client = PaperClient::new(cfg);
             client
                 .execute_intent(intent)
                 .map_err(|err| CliError::Provider(err.to_string()))
@@ -484,13 +489,6 @@ fn error_envelope(errors: Vec<String>) -> String {
         "{\"status\":\"error\",\"errors\":[\"failed to serialize error envelope\"],\"warnings\":[],\"data\":null}"
             .to_string()
     })
-}
-
-fn now_unix_ms() -> Result<i64, CliError> {
-    Ok(SystemTime::now()
-        .duration_since(UNIX_EPOCH)
-        .map_err(|err| CliError::Provider(format!("system clock error: {err}")))?
-        .as_millis() as i64)
 }
 
 #[derive(Debug, Error)]

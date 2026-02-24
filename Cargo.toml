@@ -3,6 +3,7 @@ members = [
   "crates/contracts",
   "crates/providers/alpaca",
   "crates/providers/kraken",
+  "crates/providers/paper",
   "crates/cli",
   "crates/strategies",
 ]
