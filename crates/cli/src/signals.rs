@@ -21,6 +21,8 @@ pub async fn generate_signals(
     // 2. Prepare Data for Strategy
     let df = bars_to_dataframe(bars)?;
 
+    let latest_timestamp = bars.bars.last().map(|b| b.timestamp_unix_ms).unwrap_or(0);
+
     // 3. Run Strategy
     // For now, hardcode BollingerBandsMeanReversion. In future, use factory.
     let strategy: Box<dyn Strategy> = if strategy_name == "BollingerBands" || strategy_name == "BollingerBandsMeanReversion" {
@@ -51,7 +53,7 @@ pub async fn generate_signals(
 
     // Check existing signals count from history
     let existing_signals_count = if let Some(path) = history_path {
-        rag::count_todays_signals(&market_analysis.symbol, path)?
+        rag::count_todays_signals(&market_analysis.symbol, path, latest_timestamp)?
     } else {
         0
     };
@@ -59,8 +61,6 @@ pub async fn generate_signals(
     let signals_today = existing_signals_count;
 
     // Filter for latest signals only
-    let latest_timestamp = bars.bars.last().map(|b| b.timestamp_unix_ms).unwrap_or(0);
-
     // Filter, Sort and Deduplicate signals
     // 1. Filter by timestamp
     let mut valid_signals: Vec<_> = raw_signals

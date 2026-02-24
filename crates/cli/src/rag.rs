@@ -47,7 +47,7 @@ pub fn find_similar_trades(
     Ok(similar_trades)
 }
 
-pub fn count_todays_signals(symbol: &str, history_path: &Path) -> Result<usize> {
+pub fn count_todays_signals(symbol: &str, history_path: &Path, reference_ts: i64) -> Result<usize> {
     if !history_path.exists() {
         return Ok(0);
     }
@@ -55,13 +55,8 @@ pub fn count_todays_signals(symbol: &str, history_path: &Path) -> Result<usize> 
     let raw = fs::read_to_string(history_path)?;
     let history: Vec<HistoryEntry> = serde_json::from_str(&raw)?;
 
-    let now_ms = SystemTime::now()
-        .duration_since(UNIX_EPOCH)
-        .map_err(|e| anyhow::anyhow!("Time error: {}", e))?
-        .as_millis() as i64;
-
     let ms_per_day = 24 * 60 * 60 * 1000;
-    let today_day_num = now_ms / ms_per_day;
+    let today_day_num = reference_ts / ms_per_day;
 
     let count = history
         .iter()
