@@ -154,6 +154,32 @@ def get_candidates_from_signals():
 
     return list(candidates.values())
 
+def fetch_positions(provider):
+    """Fetches open positions for a provider."""
+    # print(f"Fetching positions from {provider}...")
+    positions = run_command(["get-positions", "--provider", provider])
+    return positions if positions else []
+
+def get_all_positions():
+    """Fetches all open positions across providers and saves to temp file."""
+    all_positions = []
+
+    # Try fetching from both providers
+    # If one fails (e.g. no creds), it returns empty list or None handled by fetch_positions
+    kraken_pos = fetch_positions("kraken")
+    if kraken_pos:
+        all_positions.extend(kraken_pos)
+
+    alpaca_pos = fetch_positions("alpaca")
+    if alpaca_pos:
+        all_positions.extend(alpaca_pos)
+
+    temp_file = "temp_portfolio.json"
+    with open(temp_file, "w") as f:
+        json.dump(all_positions, f)
+
+    return temp_file
+
 def scan_markets():
     """Scans markets for candidates."""
     candidates = []
@@ -174,7 +200,7 @@ def scan_markets():
 
     return candidates
 
-def fetch_and_generate(candidate, strategy_name):
+def fetch_and_generate(candidate, strategy_name, portfolio_path=None):
     """Fetches data and generates signal for a candidate."""
     provider = candidate["provider"]
     symbol = candidate["symbol"]
@@ -196,6 +222,9 @@ def fetch_and_generate(candidate, strategy_name):
     args = ["generate-signals", "--input", temp_bars_file, "--strategy", strategy_name]
     if os.path.exists(HISTORY_PATH):
         args.extend(["--history", HISTORY_PATH])
+
+    if portfolio_path and os.path.exists(portfolio_path):
+        args.extend(["--portfolio", portfolio_path])
 
     # NEW: Pass enriched analysis if available
     temp_analysis_file = None
@@ -395,14 +424,23 @@ def main():
     candidates = list(candidates_map.values())
     print(f"Found {len(candidates)} unique candidates (Scanned: {len(scanned_candidates)}, Signals: {len(signal_candidates)}).")
 
-    # 3. Generate Signals for all candidates
-    all_signals = []
-    print("Evaluating candidates...")
-    for cand in candidates:
-        signals = fetch_and_generate(cand, strategy_name)
-        if signals:
-            print(f"  {cand['symbol']}: Generated {len(signals)} signals.")
-            all_signals.extend(signals)
+    # 2b. Fetch Current Portfolio (Positions)
+    print("Fetching open positions...")
+    portfolio_path = get_all_positions()
+
+    try:
+        # 3. Generate Signals for all candidates
+        all_signals = []
+        print("Evaluating candidates...")
+        for cand in candidates:
+            signals = fetch_and_generate(cand, strategy_name, portfolio_path)
+            if signals:
+                print(f"  {cand['symbol']}: Generated {len(signals)} signals.")
+                all_signals.extend(signals)
+    finally:
+        # Cleanup portfolio file
+        if os.path.exists(portfolio_path):
+            os.remove(portfolio_path)
 
     # 4. Filter and Select Top 3
     if not all_signals:
