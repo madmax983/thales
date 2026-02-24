@@ -6,6 +6,7 @@ use polars::prelude::*;
 use std::path::Path;
 use strategies::bollinger_bands::{BollingerBandsConfig, BollingerBandsMeanReversion};
 use strategies::ema_crossover::{EmaCrossover, EmaCrossoverConfig};
+use strategies::rsi_mean_reversion::{RsiMeanReversion, RsiMeanReversionConfig};
 use strategies::strategy::{SignalType, Strategy};
 
 const DEFAULT_RISK_PER_TRADE: f64 = 100.0;
@@ -41,6 +42,15 @@ pub async fn generate_signals(
             symbol: market_analysis.symbol.clone(),
         };
         Box::new(EmaCrossover::new(config))
+    } else if strategy_name == "RsiMeanReversion" {
+        let config = RsiMeanReversionConfig {
+            period: 14,
+            oversold_threshold: 30.0,
+            overbought_threshold: 70.0,
+            stop_loss_pct: 0.05,
+            symbol: market_analysis.symbol.clone(),
+        };
+        Box::new(RsiMeanReversion::new(config))
     } else {
         // Fallback or Error
         return Err(anyhow::anyhow!("Unknown strategy: {}", strategy_name));

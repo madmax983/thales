@@ -132,3 +132,72 @@ pub struct EmaCrossoverConfig {
 - EMA calculation is O(N).
 - Signal generation loop is O(N).
 - Uses `Vec<Option<f64>>` for efficient indexed access during iteration.
+
+---
+
+# Trading Strategy: RSI Mean Reversion
+
+## Strategy Specification
+
+**Name:** RsiMeanReversion
+
+**Description:** A mean reversion strategy that uses the Relative Strength Index (RSI) to identify overbought and oversold conditions. It buys when the RSI falls below a lower threshold (Oversold) and sells when the RSI rises above an upper threshold (Overbought).
+
+**Rationale:** Extreme RSI values often indicate that an asset is overbought or oversold and a price reversal is likely.
+
+## Requirements
+
+### Implementation Details
+- Uses Polars for data analysis.
+- Implements the `Strategy` trait in Rust.
+- Uses `rust_decimal` for precise calculation.
+
+### Strategy Type
+Mean Reversion
+
+### Entry Conditions
+- **Long Entry (Buy):** RSI(period) < `oversold_threshold`
+
+### Exit Conditions
+- **Long Exit (Sell):** RSI(period) > `overbought_threshold`
+- **Stop Loss:** Close Price <= Entry Price * (1 - `stop_loss_pct`).
+
+### Position Sizing
+- **Size Hint:** "100" (fixed units) or "max" (for exits).
+
+## Code Pattern
+
+```rust
+use crate::strategy::{Strategy, StrategyConfig, Signal, SignalType};
+use crate::indicators::rsi;
+use polars::prelude::*;
+use async_trait::async_trait;
+use anyhow::Result;
+
+pub struct RsiMeanReversion {
+    config: RsiMeanReversionConfig,
+}
+
+#[derive(Debug, Clone, serde::Deserialize)]
+pub struct RsiMeanReversionConfig {
+    pub period: usize,
+    pub oversold_threshold: f64,
+    pub overbought_threshold: f64,
+    pub stop_loss_pct: f64,
+    pub symbol: String,
+}
+```
+
+## Critical Considerations
+
+### Risk Management Integration
+- **Stop Loss:** Includes a fixed percentage stop loss relative to the entry price.
+- **Trend Filter:** Does not currently filter against the major trend (e.g. trading against a strong downtrend).
+
+### Backtesting Requirements
+- Accepts `DataFrame` with historical data.
+- Requires sufficient data length (at least `period` + 1) to calculate RSI.
+
+### Performance
+- RSI calculation is O(N).
+- Signal generation is O(N).
