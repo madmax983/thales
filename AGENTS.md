@@ -88,6 +88,17 @@ cargo run -p thales-cli -- execute-intent --provider <alpaca|kraken> --input <pa
 - Validates intent first, then submits live order request to selected provider adapter.
 - Returns `ExecutionResult` including `provider_order_id`.
 
+### `generate-signals`
+
+```powershell
+cargo run -p thales-cli -- generate-signals --input <path-to-bars-json> --strategy <STRATEGY_NAME> --history <path-to-history-json>
+```
+
+- Generates trade signals based on market analysis and provided strategy.
+- Uses RAG to find similar past trades and limits signals per day.
+- Returns a list of `TradeIntent` objects.
+- Supported strategies: `BollingerBands`, `BollingerBandsMeanReversion`.
+
 ## Required Environment Variables
 
 ### Alpaca

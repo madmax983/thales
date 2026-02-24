@@ -47,103 +47,125 @@ pub async fn generate_signals(
         0
     };
 
-    let mut signals_today = existing_signals_count;
+    let signals_today = existing_signals_count;
 
     // Filter for latest signals only
     let latest_timestamp = bars.bars.last().map(|b| b.timestamp_unix_ms).unwrap_or(0);
 
-    for signal in raw_signals {
-        // Filter: Only keep signals from the latest bar
-        if signal.timestamp_ms != latest_timestamp {
-            continue;
+    // Filter, Sort and Deduplicate signals
+    // 1. Filter by timestamp
+    let mut valid_signals: Vec<_> = raw_signals
+        .into_iter()
+        .filter(|s| s.timestamp_ms == latest_timestamp)
+        .collect();
+
+    // 2. Sort by Priority (Entry > ScaleIn > Exit > ScaleOut) and then Confidence
+    valid_signals.sort_by(|a, b| {
+        let p_a = signal_priority(&a.signal_type);
+        let p_b = signal_priority(&b.signal_type);
+        if p_a != p_b {
+            p_a.cmp(&p_b)
+        } else {
+            b.confidence.partial_cmp(&a.confidence).unwrap_or(std::cmp::Ordering::Equal)
         }
+    });
 
-        // Filter: Limit to 3 signals per day
-        if signals_today >= 3 {
-            break;
+    // 3. Take the best signal (if any)
+    // We assume the strategy output is for the single symbol we analyzed.
+    // If there are multiple signals (e.g. conflicting or redundant), the top one wins.
+    if let Some(signal) = valid_signals.first() {
+        // Limit to 3 signals per day
+        if signals_today < 3 {
+             // RAG Step: Check history
+            let similar_trades = if let Some(path) = history_path {
+                rag::find_similar_trades(&market_analysis, path).unwrap_or_default()
+            } else {
+                Vec::new()
+            };
+
+            let historical_context = if !similar_trades.is_empty() {
+                 format!("Found {} similar past trades.", similar_trades.len())
+            } else {
+                "No similar past trades found.".to_string()
+            };
+
+            // Position Sizing and SL/TP (ATR based)
+            let last_close = bars.bars.last().map(|b| b.close).unwrap_or(100.0);
+            let atr = market_analysis.atr.unwrap_or(last_close * 0.01); // Fallback to 1% if ATR missing
+
+            // SL distance = 2 ATR, TP distance = 4 ATR (2:1 Reward/Risk)
+            let sl_dist = 2.0 * atr;
+            let tp_dist = 4.0 * atr;
+
+            let (stop_loss, take_profit, size_hint) = match signal.signal_type {
+                SignalType::Entry | SignalType::ScaleIn => {
+                    let (sl, tp) = if signal.side == "buy" {
+                        (
+                            Some(last_close - sl_dist),
+                            Some(last_close + tp_dist),
+                        )
+                    } else {
+                        (
+                            Some(last_close + sl_dist),
+                            Some(last_close - tp_dist),
+                        )
+                    };
+
+                    let size = if sl_dist > 0.0 {
+                        (DEFAULT_RISK_PER_TRADE / sl_dist).round().to_string()
+                    } else {
+                        "0".to_string()
+                    };
+                    (sl, tp, size)
+                },
+                SignalType::Exit | SignalType::ScaleOut => {
+                    (None, None, signal.size_hint.clone())
+                }
+            };
+
+            let time_in_force = if market_analysis.market == "crypto" {
+                "GTC".to_string()
+            } else {
+                "day".to_string()
+            };
+
+            // Map SignalType
+            let signal_type_str = format!("{:?}", signal.signal_type);
+
+            let intent = TradeIntent {
+                intent_id: format!("{}:{}:{}:{}", market_analysis.market, signal.symbol, signal.side, signal.timestamp_ms),
+                market: market_analysis.market.clone(),
+                symbol: signal.symbol.clone(),
+                side: signal.side.clone(),
+                size_hint,
+                confidence: signal.confidence,
+                horizon: "1d".to_string(),
+                rationale: format!("Strategy: {}. Reason: {}. Market: {}. {}", strategy.name(), signal.reason, market_analysis.regime, historical_context),
+                invalidation: "Price hits Stop Loss".to_string(),
+                schema_version: "v0".to_string(),
+                signal_type: Some(signal_type_str),
+                stop_loss,
+                take_profit,
+                order_type: "market".to_string(),
+                limit_price: None,
+                stop_price: None,
+                time_in_force,
+            };
+
+            intents.push(intent);
         }
-
-        // RAG Step: Check history
-        let similar_trades = if let Some(path) = history_path {
-            rag::find_similar_trades(&market_analysis, path).unwrap_or_default()
-        } else {
-            Vec::new()
-        };
-
-        let historical_context = if !similar_trades.is_empty() {
-             format!("Found {} similar past trades.", similar_trades.len())
-        } else {
-            "No similar past trades found.".to_string()
-        };
-
-        // Position Sizing and SL/TP (ATR based)
-        let last_close = bars.bars.last().map(|b| b.close).unwrap_or(100.0);
-        let atr = market_analysis.atr.unwrap_or(last_close * 0.01); // Fallback to 1% if ATR missing
-
-        // SL distance = 2 ATR, TP distance = 4 ATR (2:1 Reward/Risk)
-        let sl_dist = 2.0 * atr;
-        let tp_dist = 4.0 * atr;
-
-        let (stop_loss, take_profit, size_hint) = match signal.signal_type {
-            SignalType::Entry | SignalType::ScaleIn => {
-                let (sl, tp) = if signal.side == "buy" {
-                    (
-                        Some(last_close - sl_dist),
-                        Some(last_close + tp_dist),
-                    )
-                } else {
-                    (
-                        Some(last_close + sl_dist),
-                        Some(last_close - tp_dist),
-                    )
-                };
-
-                let size = if sl_dist > 0.0 {
-                    (DEFAULT_RISK_PER_TRADE / sl_dist).round().to_string()
-                } else {
-                    "0".to_string()
-                };
-                (sl, tp, size)
-            },
-            SignalType::Exit | SignalType::ScaleOut => {
-                (None, None, signal.size_hint.clone())
-            }
-        };
-
-        let time_in_force = if market_analysis.market == "crypto" {
-            "GTC".to_string()
-        } else {
-            "day".to_string()
-        };
-
-        // Map SignalType
-        let signal_type_str = format!("{:?}", signal.signal_type);
-
-        let intent = TradeIntent {
-            intent_id: format!("{}:{}:{}:{}", market_analysis.market, signal.symbol, signal.side, signal.timestamp_ms),
-            market: market_analysis.market.clone(),
-            symbol: signal.symbol.clone(),
-            side: signal.side.clone(),
-            size_hint,
-            confidence: signal.confidence,
-            horizon: "1d".to_string(),
-            rationale: format!("Strategy: {}. Reason: {}. Market: {}. {}", strategy.name(), signal.reason, market_analysis.regime, historical_context),
-            invalidation: "Price hits Stop Loss".to_string(),
-            schema_version: "v0".to_string(),
-            signal_type: Some(signal_type_str),
-            stop_loss,
-            take_profit,
-            order_type: "market".to_string(),
-            limit_price: None,
-            stop_price: None,
-            time_in_force,
-        };
-
-        intents.push(intent);
-        signals_today += 1;
     }
 
     Ok(intents)
+}
+
+fn signal_priority(signal_type: &SignalType) -> u8 {
+    match signal_type {
+        SignalType::Entry => 1,
+        SignalType::ScaleIn => 2,
+        SignalType::Exit => 3,
+        SignalType::ScaleOut => 4,
+    }
 }
 
 fn bars_to_dataframe(series: &BarSeries) -> Result<DataFrame> {
@@ -295,5 +317,12 @@ mod tests {
         assert_eq!(intent.signal_type, Some("ScaleIn".to_string()));
 
         Ok(())
+    }
+
+    #[test]
+    fn test_signal_priority() {
+        assert!(signal_priority(&SignalType::Entry) < signal_priority(&SignalType::ScaleIn));
+        assert!(signal_priority(&SignalType::ScaleIn) < signal_priority(&SignalType::Exit));
+        assert!(signal_priority(&SignalType::Exit) < signal_priority(&SignalType::ScaleOut));
     }
 }
