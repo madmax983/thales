@@ -112,6 +112,25 @@ def get_candidates_from_signals():
             except:
                 pass
 
+        # Check for Staleness (24 hours = 86400000 ms)
+        if raw_json and raw_json.get("timestamp_unix_ms"):
+            ts = raw_json["timestamp_unix_ms"]
+            now = int(datetime.now().timestamp() * 1000)
+            if (now - ts) > 86400000:
+                 age_hours = (now - ts) / 3600000
+                 reason = f"Signal too old ({age_hours:.1f} hours > 24 hours)"
+                 print(f"Skipping stale signal for {symbol}: {reason}")
+
+                 # Log to portfolio.md
+                 # Create a dummy intent for logging
+                 dummy_intent = {
+                     "symbol": symbol,
+                     "intent_id": "STALE_SIGNAL",
+                     "rationale": "Stale signal from Signals.md"
+                 }
+                 log_skipped(dummy_intent, reason)
+                 continue
+
         # Extract Research
         research_text = None
         res_match = re.search(r"\*\*Research\*\*:\s*(.*?)(?=\n\n|\n\*\*|\n###|$)", chunk, re.DOTALL)
