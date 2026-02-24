@@ -9,12 +9,11 @@ use strategies::ema_crossover::{EmaCrossover, EmaCrossoverConfig};
 use strategies::rsi_mean_reversion::{RsiMeanReversion, RsiMeanReversionConfig};
 use strategies::strategy::{SignalType, Strategy};
 
-const DEFAULT_RISK_PER_TRADE: f64 = 100.0;
-
 pub async fn generate_signals(
     bars: &BarSeries,
     strategy_name: &str,
     history_path: Option<&Path>,
+    risk_per_trade: f64,
 ) -> Result<Vec<TradeIntent>> {
     // 1. Analyze Market
     let market_analysis = analysis::analyze(bars);
@@ -140,7 +139,7 @@ pub async fn generate_signals(
                     let size = if let Some(s) = sl {
                         let dist = (last_close - s).abs();
                         if dist > 0.0 {
-                            let calc_size = DEFAULT_RISK_PER_TRADE / dist;
+                            let calc_size = risk_per_trade / dist;
                             // Safety check: Avoid Infinite or NaN sizes
                             // Also cap max size if needed, but for now just ensure finite
                             if calc_size.is_finite() {
@@ -264,7 +263,7 @@ mod tests {
             bars,
         };
 
-        let intents = generate_signals(&series, "BollingerBands", None).await?;
+        let intents = generate_signals(&series, "BollingerBands", None, 100.0).await?;
 
         assert!(!intents.is_empty());
         let intent = &intents[0];
@@ -323,7 +322,7 @@ mod tests {
             bars,
         };
 
-        let intents = generate_signals(&series, "BollingerBands", None).await?;
+        let intents = generate_signals(&series, "BollingerBands", None, 100.0).await?;
 
         assert!(!intents.is_empty());
         let intent = &intents[0];
@@ -394,7 +393,7 @@ mod tests {
             bars,
         };
 
-        let intents = generate_signals(&series, "BollingerBands", None).await?;
+        let intents = generate_signals(&series, "BollingerBands", None, 100.0).await?;
         assert!(!intents.is_empty());
         let intent = &intents[0];
 
@@ -436,7 +435,7 @@ mod tests {
         });
 
         let series = BarSeries { schema_version: "v0".to_string(), bars };
-        let intents = generate_signals(&series, "BollingerBands", None).await?;
+        let intents = generate_signals(&series, "BollingerBands", None, 100.0).await?;
         let intent = &intents[0];
 
         // "Strategy: {}. Reason: {}. Market Context: {} ({} Volatility). {}"
