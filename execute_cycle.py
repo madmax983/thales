@@ -3,6 +3,7 @@ import json
 import os
 import sys
 import re
+import shutil
 from datetime import datetime
 
 # Paths
@@ -97,6 +98,9 @@ def fetch_and_generate(candidate, strategy_name):
     with open(temp_bars_file, "w") as f:
         json.dump(bars, f)
 
+    # Generate Analysis (for history)
+    analysis = run_command(["analyze-market", "--input", temp_bars_file, "--no-report"])
+
     # Generate Signals
     args = ["generate-signals", "--input", temp_bars_file, "--strategy", strategy_name]
     if os.path.exists(HISTORY_PATH):
@@ -112,8 +116,54 @@ def fetch_and_generate(candidate, strategy_name):
         # Enrich intent with provider for execution later
         for intent in intents:
             intent["provider"] = provider
+            if analysis:
+                intent["_market_analysis"] = analysis
         return intents
     return []
+
+def update_history(intent):
+    """Appends executed trade to history.json."""
+    if "_market_analysis" not in intent:
+        return
+
+    analysis = intent["_market_analysis"]
+    # Clean up internal field before saving? Or keep it separate.
+    # We need to construct HistoryEntry: { intent, market_analysis, outcome }
+
+    # Create a clean intent copy without internal fields
+    clean_intent = intent.copy()
+    if "_market_analysis" in clean_intent:
+        del clean_intent["_market_analysis"]
+    if "provider" in clean_intent: # provider is also internal
+        del clean_intent["provider"]
+
+    entry = {
+        "intent": clean_intent,
+        "market_analysis": analysis,
+        "outcome": None
+    }
+
+    history = []
+    if os.path.exists(HISTORY_PATH):
+        try:
+            with open(HISTORY_PATH, "r") as f:
+                history = json.load(f)
+        except Exception as e:
+            print(f"Warning: Failed to load history.json: {e}")
+            # Backup corrupted file
+            timestamp = datetime.now().strftime("%Y%m%d%H%M%S")
+            backup_path = f"{HISTORY_PATH}.bak.{timestamp}"
+            try:
+                shutil.copy(HISTORY_PATH, backup_path)
+                print(f"Backed up corrupted history to {backup_path}")
+            except Exception as copy_err:
+                print(f"Failed to backup corrupted history: {copy_err}")
+            history = []
+
+    history.append(entry)
+
+    with open(HISTORY_PATH, "w") as f:
+        json.dump(history, f, indent=2)
 
 def log_trade(intent, result):
     """Logs executed trade to portfolio.md"""
@@ -216,6 +266,7 @@ def main():
         if result:
             print(f"Success! Status: {result['status']}")
             log_trade(intent, result)
+            update_history(intent)
         else:
             print("Execution failed.")
             log_skipped(intent, "Execution Failed")

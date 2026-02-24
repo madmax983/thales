@@ -73,6 +73,8 @@ enum Commands {
         research: Option<String>,
         #[arg(long)]
         news: Option<String>,
+        #[arg(long)]
+        no_report: bool,
     },
     GenerateSignals {
         #[arg(long)]
@@ -203,6 +205,7 @@ fn run(command: Commands) -> Result<String, CliError> {
             input,
             research,
             news,
+            no_report,
         } => {
             let raw = fs::read_to_string(&input)?;
             let series: BarSeries = match serde_json::from_str::<ResponseEnvelope<BarSeries>>(&raw)
@@ -217,15 +220,23 @@ fn run(command: Commands) -> Result<String, CliError> {
             analysis.research_summary = research;
             analysis.news_summary = news;
 
-            // Reporting Step
-            let signals_path = PathBuf::from("Signals.md");
-            let similar_trades = rag::find_similar_trades(&analysis, &PathBuf::from("history.json")).unwrap_or_default();
-            let previous_regime = reporting::read_last_regime(&signals_path);
+            if !no_report {
+                // Reporting Step
+                let signals_path = PathBuf::from("Signals.md");
+                let similar_trades =
+                    rag::find_similar_trades(&analysis, &PathBuf::from("history.json"))
+                        .unwrap_or_default();
+                let previous_regime = reporting::read_last_regime(&signals_path);
 
-            let report = reporting::generate_report(&analysis, &similar_trades, previous_regime.as_deref());
+                let report = reporting::generate_report(
+                    &analysis,
+                    &similar_trades,
+                    previous_regime.as_deref(),
+                );
 
-            if let Err(e) = reporting::append_to_signals_md(&signals_path, &report) {
-                eprintln!("Warning: Failed to write to Signals.md: {}", e);
+                if let Err(e) = reporting::append_to_signals_md(&signals_path, &report) {
+                    eprintln!("Warning: Failed to write to Signals.md: {}", e);
+                }
             }
 
             ok_envelope(analysis)
