@@ -92,11 +92,7 @@ pub async fn generate_signals(
                 Vec::new()
             };
 
-            let historical_context = if !similar_trades.is_empty() {
-                 format!("Found {} similar past trades.", similar_trades.len())
-            } else {
-                "No similar past trades found.".to_string()
-            };
+            let historical_context = rag::summarize_history(&similar_trades);
 
             // Position Sizing and SL/TP (ATR based)
             let last_close = bars.bars.last().map(|b| b.close).unwrap_or(100.0);

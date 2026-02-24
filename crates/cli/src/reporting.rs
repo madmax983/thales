@@ -1,12 +1,13 @@
+use crate::rag::HistoryEntry;
 use anyhow::{Context, Result};
-use contracts::{MarketAnalysis, TradeIntent};
+use contracts::MarketAnalysis;
 use std::fs::{self, OpenOptions};
 use std::io::Write;
 use std::path::Path;
 
 pub fn generate_report(
     analysis: &MarketAnalysis,
-    similar_trades: &[TradeIntent],
+    similar_trades: &[HistoryEntry],
     previous_regime: Option<&str>,
 ) -> String {
     let regime_change = if let Some(prev) = previous_regime {
@@ -43,11 +44,7 @@ pub fn generate_report(
         (None, None) => "No external research available. (Placeholder for search_research)".to_string(),
     };
 
-    let history_section = if similar_trades.is_empty() {
-        "No similar historical trades found.".to_string()
-    } else {
-        format!("Found {} similar past trades.", similar_trades.len())
-    };
+    let history_section = crate::rag::summarize_history(similar_trades);
 
     format!(
         r#"

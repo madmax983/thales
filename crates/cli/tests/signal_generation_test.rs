@@ -37,6 +37,8 @@ fn create_history_entry(symbol: &str, timestamp: i64, regime: &str, volatility: 
             atr: None,
             confidence: 0.0,
             timestamp_unix_ms: timestamp,
+            research_summary: None,
+            news_summary: None,
         },
         outcome: None,
     }

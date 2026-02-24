@@ -15,7 +15,7 @@ pub struct HistoryEntry {
 pub fn find_similar_trades(
     current_analysis: &MarketAnalysis,
     history_path: &Path,
-) -> Result<Vec<TradeIntent>> {
+) -> Result<Vec<HistoryEntry>> {
     if !history_path.exists() {
         return Ok(vec![]);
     }
@@ -39,7 +39,7 @@ pub fn find_similar_trades(
             // Check volatility similarity (simple string match or numeric?)
             // MarketAnalysis volatility is a String ("High", "Medium", "Low")
             if entry.market_analysis.volatility == current_analysis.volatility {
-                similar_trades.push(entry.intent);
+                similar_trades.push(entry);
             }
         }
     }
@@ -67,6 +67,28 @@ pub fn count_todays_signals(symbol: &str, history_path: &Path, reference_ts: i64
         .count();
 
     Ok(count)
+}
+
+pub fn summarize_history(entries: &[HistoryEntry]) -> String {
+    if entries.is_empty() {
+        return "No similar past trades found.".to_string();
+    }
+    let count = entries.len();
+    let wins = entries
+        .iter()
+        .filter(|t| t.outcome.unwrap_or(0.0) > 0.0)
+        .count();
+    let win_rate = (wins as f64 / count as f64) * 100.0;
+    let avg_outcome = entries
+        .iter()
+        .map(|t| t.outcome.unwrap_or(0.0))
+        .sum::<f64>()
+        / count as f64;
+
+    format!(
+        "Found {} similar past trades. Win Rate: {:.1}%. Avg Outcome: {:.2}",
+        count, win_rate, avg_outcome
+    )
 }
 
 #[cfg(test)]
@@ -127,7 +149,7 @@ mod tests {
         let similar = find_similar_trades(&current_analysis, history_file.path())?;
 
         assert_eq!(similar.len(), 1);
-        assert_eq!(similar[0].symbol, "AAPL");
+        assert_eq!(similar[0].market_analysis.symbol, "AAPL");
 
         Ok(())
     }
@@ -139,5 +161,26 @@ mod tests {
         let similar = find_similar_trades(&current_analysis, path)?;
         assert!(similar.is_empty());
         Ok(())
+    }
+
+    #[test]
+    fn test_summarize_history() {
+        let entries = vec![
+            HistoryEntry {
+                intent: create_dummy_intent("AAPL"),
+                market_analysis: create_dummy_analysis("AAPL", "Trending Up", "Low"),
+                outcome: Some(10.0), // Win
+            },
+            HistoryEntry {
+                intent: create_dummy_intent("AAPL"),
+                market_analysis: create_dummy_analysis("AAPL", "Trending Up", "Low"),
+                outcome: Some(-5.0), // Loss
+            },
+        ];
+
+        let summary = summarize_history(&entries);
+        assert!(summary.contains("Found 2 similar past trades"));
+        assert!(summary.contains("Win Rate: 50.0%"));
+        assert!(summary.contains("Avg Outcome: 2.50")); // (10 - 5) / 2 = 2.5
     }
 }
