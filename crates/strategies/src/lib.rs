@@ -10,6 +10,7 @@
 //! - [`ema_crossover::EmaCrossover`] - Trend following using EMA crossovers.
 //! - [`rsi_mean_reversion::RsiMeanReversion`] - Mean reversion using RSI.
 //! - [`macd::Macd`] - Trend following using MACD.
+//! - [`supertrend::Supertrend`] - Trend following using Supertrend.
 
 pub mod bollinger_bands;
 pub mod ema_crossover;
@@ -17,3 +18,4 @@ pub mod indicators;
 pub mod rsi_mean_reversion;
 pub mod strategy;
 pub mod macd;
+pub mod supertrend;
