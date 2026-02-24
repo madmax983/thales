@@ -233,7 +233,13 @@ def evaluate_candidate(candidate, strategies, portfolio_path=None):
         if intents:
             # Enrich intent with provider and strategy info
             for intent in intents:
-                intent["provider"] = provider
+                # Use scan provider for intent unless it's equities, then execute on Kraken
+                # We fetch data from Alpaca (provider) but execute on Kraken.
+                if candidate.get("market") == "equities":
+                    intent["provider"] = "kraken"
+                else:
+                    intent["provider"] = provider
+
                 intent["strategy_used"] = strategy_name # Keep track of which strategy generated this
                 # If we used raw_analysis_json, it's already "baked into" the signal rationale.
                 # But we might still want to attach it for history.
@@ -445,23 +451,36 @@ def main():
     signal_candidates = get_candidates_from_signals()
 
     # Merge candidates (prefer signal candidates if duplicates?)
-    # Using a dict to deduplicate by symbol
-    candidates_map = {c["symbol"]: c for c in scanned_candidates}
-    for c in signal_candidates:
-        candidates_map[c["symbol"]] = c # Overwrite or add
+    # Priority: Signals.md candidates > Scanned candidates
+    # We want to limit total analysis to top 3 candidates to follow "Pick the top 1–3 candidates" directive.
 
-    candidates = list(candidates_map.values())
-    print(f"Found {len(candidates)} unique candidates (Scanned: {len(scanned_candidates)}, Signals: {len(signal_candidates)}).")
+    # 1. Start with Signal candidates
+    selected_candidates = signal_candidates[:]
+
+    # 2. Fill remaining slots with Scanned candidates
+    # Scanned candidates are already sorted (Kraken by volume) or static list (Alpaca)
+    existing_symbols = set(c["symbol"] for c in selected_candidates)
+
+    for cand in scanned_candidates:
+        if len(selected_candidates) >= 3:
+            break
+        if cand["symbol"] not in existing_symbols:
+            selected_candidates.append(cand)
+            existing_symbols.add(cand["symbol"])
+
+    print(f"Selected {len(selected_candidates)} candidates for deep analysis (from {len(scanned_candidates)} scanned + {len(signal_candidates)} signals).")
+    for c in selected_candidates:
+        print(f" - {c['symbol']} ({c.get('market', 'unknown')})")
 
     # 2b. Fetch Current Portfolio (Positions)
     print("Fetching open positions...")
     portfolio_path = get_all_positions()
 
     try:
-        # 3. Generate Signals for all candidates
+        # 3. Generate Signals for selected candidates
         all_signals = []
         print("Evaluating candidates...")
-        for cand in candidates:
+        for cand in selected_candidates:
             # Generate signals from all strategies
             raw_signals = evaluate_candidate(cand, strategies, portfolio_path)
 
