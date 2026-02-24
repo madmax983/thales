@@ -30,3 +30,6 @@
 | 2026-02-24 22:36:45 | AAPL | STALE_SIGNAL | Signal too old (29.8 hours > 24 hours) |
 | 2026-02-24 22:36:48 | BTCUSD | NO_STRATEGY_SIGNAL | No active strategy generated a signal (Strategies: BollingerBands, EmaCrossover, RsiMeanReversion, Macd, Supertrend) |
 | 2026-02-24 22:36:48 | SPY | NO_STRATEGY_SIGNAL | No active strategy generated a signal (Strategies: BollingerBands, EmaCrossover, RsiMeanReversion, Macd, Supertrend) |
+| 2026-02-24 23:38:46 | AAPL | STALE_SIGNAL | Signal too old (30.9 hours > 24 hours) |
+| 2026-02-24 23:38:49 | BTCUSD | NO_STRATEGY_SIGNAL | No active strategy generated a signal (Strategies: BollingerBands, EmaCrossover, RsiMeanReversion, Macd, Supertrend) |
+| 2026-02-24 23:38:50 | SPY | NO_STRATEGY_SIGNAL | No active strategy generated a signal (Strategies: BollingerBands, EmaCrossover, RsiMeanReversion, Macd, Supertrend) |

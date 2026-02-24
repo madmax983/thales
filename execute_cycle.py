@@ -356,6 +356,77 @@ def update_history(intent):
     with open(HISTORY_PATH, "w") as f:
         json.dump(history, f, indent=2)
 
+def append_to_section(filepath, section_header, table_header, row):
+    """
+    Appends a row to a specific section's table in a markdown file.
+    Creates the file/section/table if they don't exist.
+    """
+    if not os.path.exists(filepath):
+        col_count = table_header.count("|") - 1
+        if col_count < 1: col_count = 1
+        separator = "|" + "---|" * col_count
+        with open(filepath, "w") as f:
+            f.write(f"{section_header}\n\n{table_header}\n{separator}\n{row}\n")
+        return
+
+    with open(filepath, "r") as f:
+        lines = f.readlines()
+
+    # Find section
+    section_idx = -1
+    clean_header = section_header.strip()
+    for i, line in enumerate(lines):
+        if line.strip() == clean_header:
+            section_idx = i
+            break
+
+    if section_idx != -1:
+        # Section exists.
+        # Look for table separator line |---| to identify existing table
+        table_start_idx = -1
+        for i in range(section_idx + 1, len(lines)):
+            if lines[i].strip().startswith("#"): # Start of next section
+                break
+            # Check for separator line (must contain |, -, and optionally space/newlines)
+            stripped = lines[i].strip()
+            if "|" in stripped and set(stripped).issubset(set("|- \n")):
+                 # The line BEFORE is likely the header
+                 table_start_idx = i - 1
+                 break
+
+        if table_start_idx != -1:
+            # Table found. Find end of table.
+            table_end_idx = table_start_idx + 2 # Skip header and separator
+            while table_end_idx < len(lines):
+                line = lines[table_end_idx].strip()
+                if not line.startswith("|"):
+                    break
+                table_end_idx += 1
+
+            lines.insert(table_end_idx, row + "\n")
+        else:
+            # Table not found in section. Insert after section header.
+            # Add separator line as well based on header columns
+            col_count = table_header.count("|") - 1
+            if col_count < 1: col_count = 1
+            separator = "|" + "---|" * col_count
+            lines.insert(section_idx + 1, f"\n{table_header}\n{separator}\n{row}\n")
+
+    else:
+        # Section doesn't exist. Append to end of file.
+        # Ensure we have a newline before if file not empty
+        prefix = "\n" if lines and lines[-1].strip() != "" else ""
+
+        # Build separator
+        col_count = table_header.count("|") - 1
+        if col_count < 1: col_count = 1
+        separator = "|" + "---|" * col_count
+
+        lines.append(f"{prefix}{section_header}\n\n{table_header}\n{separator}\n{row}\n")
+
+    with open(filepath, "w") as f:
+        f.writelines(lines)
+
 def log_trade(intent, result):
     """Logs executed trade to portfolio.md"""
     date_str = datetime.fromtimestamp(result["submitted_at_unix_ms"] / 1000).strftime("%Y-%m-%d %H:%M:%S")
@@ -386,10 +457,10 @@ def log_trade(intent, result):
     signal_ref = intent["intent_id"]
     rationale = intent["rationale"]
 
-    line = f"| {date_str} | {asset_class} | {symbol} | {action} | {size} | {price} | {sl} | {tp} | {max_risk} | {signal_ref} | {rationale} |"
+    header = "| Date/Time | Asset Class | Symbol/Contract | Action | Size/Qty | Entry Price | SL | TP | Max Risk | Signal Ref | Rationale |"
+    row = f"| {date_str} | {asset_class} | {symbol} | {action} | {size} | {price} | {sl} | {tp} | {max_risk} | {signal_ref} | {rationale} |"
 
-    with open(PORTFOLIO_PATH, "a") as f:
-        f.write(line + "\n")
+    append_to_section(PORTFOLIO_PATH, "## Executed Trades", header, row)
 
 def log_skipped(intent, reason):
     """Logs skipped trade."""
@@ -397,10 +468,10 @@ def log_skipped(intent, reason):
     symbol = intent["symbol"]
     signal_ref = intent["intent_id"]
 
-    line = f"| {date_str} | {symbol} | {signal_ref} | {reason} |"
+    header = "| Date/Time | Symbol | Signal Ref | Rejection Reason |"
+    row = f"| {date_str} | {symbol} | {signal_ref} | {reason} |"
 
-    with open(PORTFOLIO_PATH, "a") as f:
-         f.write(line + "\n")
+    append_to_section(PORTFOLIO_PATH, "## Skipped Signals", header, row)
 
 def verify_risk(intent):
     """
