@@ -56,12 +56,26 @@ impl AlpacaClient {
         &self,
         intent: &TradeIntent,
     ) -> Result<ExecutionResult, AlpacaProviderError> {
-        validate_size_hint(&intent.size_hint)?;
         validate_side(&intent.side)?;
+        if intent.size_hint != "max" {
+            validate_size_hint(&intent.size_hint)?;
+        }
+
+        let qty = if intent.size_hint == "max" {
+            // Fetch positions to find size
+            let positions = self.fetch_positions()?;
+            let pos = positions.into_iter().find(|p| p.symbol == intent.symbol)
+                .ok_or_else(|| AlpacaProviderError::InvalidSizeHint(format!("No open position found for max exit for {}", intent.symbol)))?;
+            // We need to return abs value of qty because Alpaca positions can be negative (short)
+            // But qty in order must be positive.
+            pos.qty.abs().to_string()
+        } else {
+             intent.size_hint.clone()
+        };
 
         let request = AlpacaOrderRequest {
             symbol: intent.symbol.clone(),
-            qty: intent.size_hint.clone(),
+            qty,
             side: intent.side.clone(),
             order_type: intent.order_type.clone(),
             time_in_force: intent.time_in_force.clone(),
@@ -172,6 +186,28 @@ impl AlpacaClient {
         bars.sort_by_key(|b| b.timestamp_unix_ms);
         Ok(bars)
     }
+
+    pub fn fetch_positions(&self) -> Result<Vec<AlpacaPosition>, AlpacaProviderError> {
+        let url = format!("{}/v2/positions", self.config.base_url.trim_end_matches('/'));
+
+        let response = self
+            .http
+            .get(url)
+            .header("APCA-API-KEY-ID", &self.config.api_key)
+            .header("APCA-API-SECRET-KEY", &self.config.api_secret)
+            .send()?;
+
+        if !response.status().is_success() {
+            let status = response.status().as_u16();
+            let body = response
+                .text()
+                .unwrap_or_else(|_| "unable to decode error body".to_string());
+            return Err(AlpacaProviderError::UnexpectedHttpStatus(status, body));
+        }
+
+        let positions: Vec<AlpacaPosition> = response.json()?;
+        Ok(positions)
+    }
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize)]
@@ -227,6 +263,25 @@ struct AlpacaBar {
     v: u64,
     n: u64,
     vw: f64,
+}
+
+#[derive(Debug, Clone, Deserialize)]
+pub struct AlpacaPosition {
+    pub symbol: String,
+    #[serde(deserialize_with = "deserialize_number_from_string")]
+    pub qty: f64,
+    pub side: String,
+    pub market_value: Option<String>,
+    pub cost_basis: String,
+    pub unrealized_pl: Option<String>,
+}
+
+fn deserialize_number_from_string<'de, D>(deserializer: D) -> Result<f64, D::Error>
+where
+    D: serde::Deserializer<'de>,
+{
+    let s: String = Deserialize::deserialize(deserializer)?;
+    s.parse::<f64>().map_err(serde::de::Error::custom)
 }
 
 fn validate_size_hint(size_hint: &str) -> Result<(), AlpacaProviderError> {
