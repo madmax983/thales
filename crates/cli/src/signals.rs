@@ -179,7 +179,7 @@ pub async fn generate_signals(
                 size_hint,
                 confidence: signal.confidence,
                 horizon: "1d".to_string(),
-                rationale: format!("Strategy: {}. Reason: {}. Market Context: {} ({} Volatility). {}", strategy.name(), signal.reason, market_analysis.regime, market_analysis.volatility, historical_context),
+                rationale: format!("Strategy: {} ({:.0}%). Reason: {}. Market Context: {} ({} Volatility). {}", strategy.name(), signal.confidence * 100.0, signal.reason, market_analysis.regime, market_analysis.volatility, historical_context),
                 invalidation: "Price hits Stop Loss".to_string(),
                 schema_version: "v0".to_string(),
                 signal_type: Some(signal_type_str),
