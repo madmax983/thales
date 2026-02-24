@@ -316,7 +316,36 @@ fn bars_to_dataframe(series: &BarSeries) -> Result<DataFrame> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use contracts::Bar;
+    use contracts::{Bar, MarketAnalysis, TradeIntent};
+    use crate::rag::HistoryEntry;
+    use std::io::Write;
+    use tempfile::NamedTempFile;
+
+    fn create_dummy_history_entry(symbol: &str, timestamp: i64) -> HistoryEntry {
+        HistoryEntry {
+            intent: TradeIntent {
+                symbol: symbol.to_string(),
+                intent_id: "test".to_string(),
+                ..Default::default()
+            },
+            market_analysis: MarketAnalysis {
+                symbol: symbol.to_string(),
+                market: "equities".to_string(),
+                regime: "Trending Up".to_string(), // Matches dummy analysis default
+                sentiment: "Neutral".to_string(),
+                patterns: vec![],
+                key_levels: vec![],
+                volatility: "Low".to_string(), // Matches dummy analysis default
+                atr: None,
+                research_summary: None,
+                news_summary: None,
+                recommendation: None,
+                confidence: 0.5,
+                timestamp_unix_ms: timestamp,
+            },
+            outcome: Some(1.0),
+        }
+    }
 
     #[tokio::test]
     async fn test_generate_signals_e2e() -> Result<()> {
@@ -690,6 +719,147 @@ mod tests {
 
         // Should be empty because size is 0
         assert!(intents.is_empty(), "Signals with 0 size should be filtered");
+
+        Ok(())
+    }
+
+    #[tokio::test]
+    async fn test_daily_signal_limit() -> Result<()> {
+        let mut history_file = NamedTempFile::new()?;
+        let now = 100000;
+
+        // Write 3 entries for today
+        let entries = vec![
+            create_dummy_history_entry("AAPL", now),
+            create_dummy_history_entry("AAPL", now + 1000),
+            create_dummy_history_entry("AAPL", now + 2000),
+        ];
+        write!(history_file, "{}", serde_json::to_string(&entries)?)?;
+
+        // Prepare bars to trigger signal
+        let mut bars = Vec::new();
+        for i in 0..20 {
+            bars.push(Bar {
+                symbol: "AAPL".to_string(),
+                market: "equities".to_string(),
+                timeframe: "1m".to_string(),
+                timestamp_unix_ms: now + i * 60000,
+                open: 100.0, high: 101.0, low: 99.0, close: 100.0, volume: 1000.0,
+            });
+        }
+        // Trigger Buy
+        bars.push(Bar {
+            symbol: "AAPL".to_string(),
+            market: "equities".to_string(),
+            timeframe: "1m".to_string(),
+            timestamp_unix_ms: now + 20 * 60000,
+            open: 100.0, high: 101.0, low: 90.0, close: 90.0, volume: 1000.0,
+        });
+        let series = BarSeries { schema_version: "v0".to_string(), bars };
+        let positions = vec![];
+
+        // Should return empty because limit (3) reached
+        let intents = generate_signals(&series, "BollingerBands", Some(history_file.path()), 100.0, &positions, None).await?;
+        assert!(intents.is_empty(), "Should not generate signal if limit reached");
+
+        // Now try with < 3 entries
+        let mut history_file_2 = NamedTempFile::new()?;
+        let entries_2 = vec![
+            create_dummy_history_entry("AAPL", now),
+            create_dummy_history_entry("AAPL", now + 1000),
+        ];
+        write!(history_file_2, "{}", serde_json::to_string(&entries_2)?)?;
+
+        let intents_2 = generate_signals(&series, "BollingerBands", Some(history_file_2.path()), 100.0, &positions, None).await?;
+        assert!(!intents_2.is_empty(), "Should generate signal if limit not reached");
+
+        Ok(())
+    }
+
+    #[tokio::test]
+    async fn test_historical_context_inclusion() -> Result<()> {
+        let mut history_file = NamedTempFile::new()?;
+        let now = 100000;
+
+        // The analysis will result in "Trending Down" and "Medium" or "High" volatility due to the sharp drop.
+        // We create a history entry that matches this to ensure it is found.
+        let mut entry = create_dummy_history_entry("AAPL", now - 86400000);
+        entry.market_analysis.regime = "Trending Down".to_string();
+        entry.market_analysis.volatility = "Medium".to_string();
+
+        let entries = vec![entry];
+        write!(history_file, "{}", serde_json::to_string(&entries)?)?;
+
+        let mut bars = Vec::new();
+        // Stable price
+        for i in 0..20 {
+            bars.push(Bar {
+                symbol: "AAPL".to_string(),
+                market: "equities".to_string(),
+                timeframe: "1m".to_string(),
+                timestamp_unix_ms: now + i * 60000,
+                open: 100.0, high: 100.1, low: 99.9, close: 100.0, volume: 1000.0,
+            });
+        }
+        // Trigger Buy with Drop (triggers Trending Down)
+        bars.push(Bar {
+            symbol: "AAPL".to_string(),
+            market: "equities".to_string(),
+            timeframe: "1m".to_string(),
+            timestamp_unix_ms: now + 20 * 60000,
+            open: 100.0, high: 100.1, low: 90.0, close: 90.0, volume: 1000.0,
+        });
+
+        let series = BarSeries { schema_version: "v0".to_string(), bars };
+        let positions = vec![];
+
+        let intents = generate_signals(&series, "BollingerBands", Some(history_file.path()), 100.0, &positions, None).await?;
+        assert!(!intents.is_empty());
+        let intent = &intents[0];
+
+        assert!(intent.rationale.contains("Found 1 similar past trades"), "Rationale should include history context: {}", intent.rationale);
+
+        Ok(())
+    }
+
+    #[tokio::test]
+    async fn test_volatility_sizing() -> Result<()> {
+        // Goal: Verify Size is inversely proportional to volatility.
+        // Case A: Small Volatility (Drop 100 -> 95)
+        // Case B: High Volatility (Drop 100 -> 80)
+
+        async fn get_size_for_drop(drop_to: f64) -> f64 {
+            let now = 100000;
+            let mut bars = Vec::new();
+            for i in 0..30 {
+                bars.push(Bar {
+                    symbol: "TEST".to_string(),
+                    market: "equities".to_string(),
+                    timeframe: "1m".to_string(),
+                    timestamp_unix_ms: now + i * 60000,
+                    open: 100.0, high: 101.0, low: 99.0, close: 100.0, volume: 1000.0,
+                });
+            }
+            bars.push(Bar {
+                symbol: "TEST".to_string(),
+                market: "equities".to_string(),
+                timeframe: "1m".to_string(),
+                timestamp_unix_ms: now + 30 * 60000,
+                open: 100.0, high: 101.0, low: drop_to, close: drop_to, volume: 1000.0,
+            });
+            let series = BarSeries { schema_version: "v0".to_string(), bars };
+            let positions = vec![];
+            let intents = generate_signals(&series, "BollingerBands", None, 100.0, &positions, None).await.unwrap();
+            if intents.is_empty() { return 0.0; }
+            intents[0].size_hint.parse().unwrap()
+        }
+
+        let size_small_drop = get_size_for_drop(95.0).await;
+        let size_large_drop = get_size_for_drop(80.0).await;
+
+        assert!(size_small_drop > 0.0);
+        assert!(size_large_drop > 0.0);
+        assert!(size_small_drop > size_large_drop, "Size should decrease as volatility (drop) increases. Small: {}, Large: {}", size_small_drop, size_large_drop);
 
         Ok(())
     }
