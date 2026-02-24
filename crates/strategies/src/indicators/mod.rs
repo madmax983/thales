@@ -3,3 +3,4 @@ pub mod rsi;
 pub mod ema;
 pub mod atr;
 pub mod macd;
+pub mod bollinger_bands;
