@@ -15,7 +15,7 @@ HISTORY_PATH = "history.json"
 SIGNALS_PATH = "Signals.md"
 
 def run_command(args):
-    """Runs a thales-cli command and returns the parsed JSON data."""
+    """Runs a thales-cli command and returns (data, error_message)."""
     cmd = [CLI_PATH] + args
     try:
         # print(f"Running: {' '.join(cmd)}")
@@ -29,19 +29,24 @@ def run_command(args):
             try:
                 envelope = json.loads(json_str)
                 if envelope.get("status") == "ok":
-                    return envelope.get("data")
+                    return envelope.get("data"), None
                 else:
-                    print(f"Error executing {args}: {envelope.get('errors')}")
-                    return None
+                    err_msg = str(envelope.get("errors", ["Unknown Error"]))
+                    # Clean up error message (remove brackets/quotes if simple list)
+                    if isinstance(envelope.get("errors"), list) and len(envelope.get("errors")) == 1:
+                        err_msg = envelope.get("errors")[0]
+
+                    print(f"Error executing {args}: {err_msg}")
+                    return None, err_msg
             except json.JSONDecodeError:
                 pass # Fall through to error reporting
 
         print(f"Failed to parse JSON output from {args}")
-        print(result.stdout)
-        return None
+        # print(result.stdout)
+        return None, f"Failed to parse JSON output: {output[:100]}..."
     except subprocess.CalledProcessError as e:
         print(f"Command failed: {cmd}\nOutput: {e.output}\nError: {e.stderr}")
-        return None
+        return None, f"Command failed: {e.stderr.strip() or e.output.strip()}"
 
 def get_active_strategies():
     """Parses strategies.md to find all active strategy names."""
@@ -144,7 +149,9 @@ def get_candidates_from_signals():
 def fetch_positions(provider):
     """Fetches open positions for a provider."""
     # print(f"Fetching positions from {provider}...")
-    positions = run_command(["get-positions", "--provider", provider])
+    positions, err = run_command(["get-positions", "--provider", provider])
+    if err:
+        print(f"Warning: Failed to fetch positions from {provider}: {err}")
     return positions if positions else []
 
 def get_all_positions():
@@ -173,17 +180,21 @@ def scan_markets():
 
     # Crypto (Kraken)
     print("Scanning Kraken (Crypto)...")
-    crypto = run_command(["scan-market", "--provider", "kraken", "--top-n", "10", "--min-volatility", "0.01", "--min-momentum", "0.0"])
+    crypto, err = run_command(["scan-market", "--provider", "kraken", "--top-n", "10", "--min-volatility", "0.01", "--min-momentum", "0.0"])
     if crypto:
         for symbol in crypto:
             candidates.append({"provider": "kraken", "symbol": symbol, "market": "crypto"})
+    elif err:
+        print(f"Warning: Kraken scan failed: {err}")
 
     # Equities (Alpaca)
     print("Scanning Alpaca (Equities)...")
-    equities = run_command(["scan-market", "--provider", "alpaca"])
+    equities, err = run_command(["scan-market", "--provider", "alpaca"])
     if equities:
         for symbol in equities:
             candidates.append({"provider": "alpaca", "symbol": symbol, "market": "equities"})
+    elif err:
+        print(f"Warning: Alpaca scan failed: {err}")
 
     return candidates
 
@@ -193,8 +204,9 @@ def evaluate_candidate(candidate, strategies, portfolio_path=None):
     symbol = candidate["symbol"]
 
     # Fetch Data
-    bars = run_command(["fetch-market-data", "--provider", provider, "--symbol", symbol, "--timeframe", "1h"])
+    bars, err = run_command(["fetch-market-data", "--provider", provider, "--symbol", symbol, "--timeframe", "1h"])
     if not bars:
+        # if err: print(f"  Failed to fetch data for {symbol}: {err}")
         return []
 
     # Save temp bars
@@ -203,7 +215,7 @@ def evaluate_candidate(candidate, strategies, portfolio_path=None):
         json.dump(bars, f)
 
     # Generate Analysis (for history)
-    analysis = run_command(["analyze-market", "--input", temp_bars_file, "--no-report"])
+    analysis, _ = run_command(["analyze-market", "--input", temp_bars_file, "--no-report"])
 
     all_generated_intents = []
 
@@ -224,7 +236,7 @@ def evaluate_candidate(candidate, strategies, portfolio_path=None):
                 json.dump(candidate["raw_analysis_json"], f)
             args.extend(["--analysis", temp_analysis_file])
 
-        intents = run_command(args)
+        intents, err = run_command(args)
 
         # Cleanup temp analysis
         if temp_analysis_file and os.path.exists(temp_analysis_file):
@@ -243,6 +255,8 @@ def evaluate_candidate(candidate, strategies, portfolio_path=None):
                      intent["_market_analysis"] = candidate["raw_analysis_json"]
 
             all_generated_intents.extend(intents)
+        # elif err:
+        #     print(f"  Warning: Strategy {strategy_name} failed for {symbol}: {err}")
 
     # Cleanup temp bars
     if os.path.exists(temp_bars_file):
@@ -368,6 +382,10 @@ def log_skipped(intent, reason):
     date_str = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     symbol = intent["symbol"]
     signal_ref = intent["intent_id"]
+
+    # Truncate reason if too long
+    if len(reason) > 200:
+        reason = reason[:197] + "..."
 
     line = f"| {date_str} | {symbol} | {signal_ref} | {reason} |"
 
@@ -510,7 +528,7 @@ def main():
             json.dump(intent, f)
 
         # Execute
-        result = run_command(["execute-intent", "--provider", provider, "--input", temp_intent_file])
+        result, err = run_command(["execute-intent", "--provider", provider, "--input", temp_intent_file])
 
         # Cleanup
         if os.path.exists(temp_intent_file):
@@ -523,8 +541,10 @@ def main():
             log_trade(intent, exec_res)
             update_history(intent)
         else:
-            print("Execution failed.")
-            log_skipped(intent, "Execution Failed")
+            print(f"Execution failed: {err}")
+            # Use the captured error if available, else generic
+            reason = f"Execution Failed: {err}" if err else "Execution Failed (Unknown Reason)"
+            log_skipped(intent, reason)
 
     # Log skipped signals (signals not selected in top 3)
     # Only if they were valid signals but we didn't select them.
