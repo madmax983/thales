@@ -98,6 +98,11 @@ class TestExecuteCycle(unittest.TestCase):
                 }]
                 return ret_json(result)
 
+            elif "get-positions" in cmd_str:
+                # Return mock position to test ScaleIn logic if needed
+                # For now just return empty list or a dummy one
+                return ret_json([])
+
             # Default empty
             return ret_json([])
 
