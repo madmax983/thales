@@ -161,5 +161,5 @@ async fn test_rag_context() {
     // 4. Assert Context
     assert!(!intents.is_empty());
     let intent = &intents[0];
-    assert!(intent.rationale.contains("Found 1 similar past trades."));
+    assert!(intent.rationale.contains("Found 1 similar past trades"));
 }
