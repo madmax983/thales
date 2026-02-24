@@ -15,3 +15,4 @@
 | 2026-02-24 03:39:12 | XBTUSD | None | No Strategy Signal (BollingerBandsMeanReversion) |
 | 2026-02-24 03:39:12 | AAPL | None | No Strategy Signal (BollingerBandsMeanReversion) |
 | 2026-02-24 03:39:12 | SPY | None | No Strategy Signal (BollingerBandsMeanReversion) |
+| 2026-02-24 05:35:57 | AKEUSD | crypto:AKEUSD:sell:1771909200000 | Execution Failed |
