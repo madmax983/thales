@@ -442,8 +442,10 @@ def main():
             os.remove(temp_intent_file)
 
         if result:
-            print(f"Success! Status: {result['status']}")
-            log_trade(intent, result)
+            # Handle list response from execute-intent
+            exec_res = result[0] if isinstance(result, list) else result
+            print(f"Success! Status: {exec_res.get('status')}")
+            log_trade(intent, exec_res)
             update_history(intent)
         else:
             print("Execution failed.")
