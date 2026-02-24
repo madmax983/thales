@@ -11,6 +11,7 @@
 //! - [`rsi_mean_reversion::RsiMeanReversion`] - Mean reversion using RSI.
 //! - [`macd::Macd`] - Trend following using MACD.
 //! - [`supertrend::Supertrend`] - Trend following using Supertrend.
+//! - [`donchian_breakout::DonchianBreakout`] - Trend following using Donchian Channels.
 
 pub mod bollinger_bands;
 pub mod ema_crossover;
@@ -19,3 +20,4 @@ pub mod rsi_mean_reversion;
 pub mod strategy;
 pub mod macd;
 pub mod supertrend;
+pub mod donchian_breakout;

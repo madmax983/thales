@@ -339,3 +339,71 @@ pub struct SupertrendConfig {
 ### Performance
 - ATR calculation is O(N).
 - Signal generation loop is O(N).
+
+---
+
+# Trading Strategy: Donchian Breakout
+
+## Strategy Specification
+
+**Name:** DonchianBreakout
+
+**Description:** A trend-following strategy that generates signals based on breakouts of the Donchian Channels (rolling maximum and minimum). It buys when price breaks above the N-period high and sells when price breaks below the M-period low.
+
+**Rationale:** Captures sustained trends by entering on new highs and exiting on new lows. The strategy assumes that new highs indicate a continuing uptrend.
+
+## Requirements
+
+### Implementation Details
+- Uses `VecDeque` for efficient O(N) rolling maximum and minimum calculation.
+- Implements the `Strategy` trait in Rust.
+- Uses `atr` indicator for volatility-based stop loss sizing.
+
+### Strategy Type
+Trend Following
+
+### Entry Conditions
+- **Long Entry (Buy):** Close Price > Upper Channel (rolling max of Highs over `entry_period`, shifted by 1).
+
+### Exit Conditions
+- **Long Exit (Sell):** Close Price < Lower Channel (rolling min of Lows over `exit_period`, shifted by 1).
+- **Stop Loss:** Entry Price - (ATR * `stop_loss_atr_mult`). Fallback to Lower Channel or 5% if ATR unavailable.
+
+### Position Sizing
+- **Size Hint:** "100" (fixed units) or "max" (for exits).
+
+## Code Pattern
+
+```rust
+use crate::strategy::{Strategy, StrategyConfig, Signal, SignalType};
+use crate::indicators::atr;
+use polars::prelude::*;
+use async_trait::async_trait;
+use anyhow::Result;
+
+pub struct DonchianBreakout {
+    config: DonchianBreakoutConfig,
+}
+
+#[derive(Debug, Clone, serde::Deserialize)]
+pub struct DonchianBreakoutConfig {
+    pub entry_period: usize,
+    pub exit_period: usize,
+    pub stop_loss_atr_mult: f64,
+    pub symbol: String,
+}
+```
+
+## Critical Considerations
+
+### Risk Management Integration
+- **Stop Loss:** Uses ATR-based stop loss for initial risk control.
+- **Trailing Stop:** The Lower Channel acts as a natural trailing stop.
+
+### Backtesting Requirements
+- Accepts `DataFrame` with historical data.
+- Requires data length > `max(entry_period, exit_period)`.
+
+### Performance
+- Rolling Max/Min calculation is O(N) using Monotonic Queue.
+- Signal generation loop is O(N).
