@@ -2,7 +2,6 @@ use contracts::{MarketAnalysis, TradeIntent};
 use serde::{Deserialize, Serialize};
 use std::fs;
 use std::path::Path;
-use std::time::{SystemTime, UNIX_EPOCH};
 use anyhow::Result;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

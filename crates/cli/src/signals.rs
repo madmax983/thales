@@ -117,7 +117,7 @@ pub async fn generate_signals(
                     };
 
                     let size = if sl_dist > 0.0 {
-                        (DEFAULT_RISK_PER_TRADE / sl_dist).round().to_string()
+                        format!("{:.6}", DEFAULT_RISK_PER_TRADE / sl_dist)
                     } else {
                         "0".to_string()
                     };
@@ -314,8 +314,8 @@ mod tests {
         // Check size
         let size: f64 = intent.size_hint.parse().unwrap();
         // Size = 100 / sl_dist
-        let expected_size = (100.0 / sl_dist).round();
-        assert_eq!(size, expected_size);
+        let expected_size = 100.0 / sl_dist;
+        assert!((size - expected_size).abs() < 0.01, "Size {} not close to expected {}", size, expected_size);
 
         // Check signal type
         // With constant price (std_dev = 0), any drop is considered "Deep Value" / ScaleIn by the strategy
@@ -329,5 +329,63 @@ mod tests {
         assert!(signal_priority(&SignalType::Entry) < signal_priority(&SignalType::ScaleIn));
         assert!(signal_priority(&SignalType::ScaleIn) < signal_priority(&SignalType::Exit));
         assert!(signal_priority(&SignalType::Exit) < signal_priority(&SignalType::ScaleOut));
+    }
+
+    #[tokio::test]
+    async fn test_generate_signals_crypto_sizing() -> Result<()> {
+        // High priced asset (BTC), small risk
+        let mut bars = Vec::new();
+        let now = 100000;
+
+        // ATR setup: Range of 1000.
+        // Close 50000.
+        for i in 0..20 {
+            bars.push(Bar {
+                symbol: "BTCUSD".to_string(),
+                market: "crypto".to_string(),
+                timeframe: "1m".to_string(),
+                timestamp_unix_ms: now + i * 60000,
+                open: 50000.0,
+                high: 51000.0,
+                low: 50000.0,
+                close: 50500.0,
+                volume: 1.0,
+            });
+        }
+
+        // Trigger Buy: Drop to 45000
+        bars.push(Bar {
+            symbol: "BTCUSD".to_string(),
+            market: "crypto".to_string(),
+            timeframe: "1m".to_string(),
+            timestamp_unix_ms: now + 20 * 60000,
+            open: 50000.0,
+            high: 50000.0,
+            low: 45000.0,
+            close: 45000.0,
+            volume: 1.0,
+        });
+
+        let series = BarSeries {
+            schema_version: "v0".to_string(),
+            bars,
+        };
+
+        let intents = generate_signals(&series, "BollingerBands", None).await?;
+        assert!(!intents.is_empty());
+        let intent = &intents[0];
+
+        // Check size hint
+        // SL Dist ~ 2 * ATR. ATR ~ 1000. SL Dist ~ 2000.
+        // Risk = 100.
+        // Size = 100 / 2000 = 0.05.
+        // If rounded, it is "0".
+        // We expect "0.05" or similar.
+
+        let size: f64 = intent.size_hint.parse().unwrap();
+        assert!(size > 0.0, "Size should be greater than 0");
+        assert!(size < 1.0, "Size should be fractional");
+
+        Ok(())
     }
 }
