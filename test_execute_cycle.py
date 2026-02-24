@@ -24,10 +24,20 @@ class TestExecuteCycle(unittest.TestCase):
         if os.path.exists("temp_history.json"):
             os.remove("temp_history.json")
 
+        # Override SIGNALS_PATH in execute_cycle for test isolation
+        self.original_signals_path = execute_cycle.SIGNALS_PATH
+        execute_cycle.SIGNALS_PATH = "temp_signals.md"
+        if os.path.exists("temp_signals.md"):
+            os.remove("temp_signals.md")
+        # Create empty signals file
+        with open("temp_signals.md", "w") as f:
+            f.write("")
+
     def tearDown(self):
         # Restore PORTFOLIO_PATH
         execute_cycle.PORTFOLIO_PATH = self.original_portfolio_path
         execute_cycle.HISTORY_PATH = self.original_history_path
+        execute_cycle.SIGNALS_PATH = self.original_signals_path
 
         # Remove temp portfolio
         if os.path.exists("temp_portfolio.md"):
@@ -36,6 +46,10 @@ class TestExecuteCycle(unittest.TestCase):
         # Remove temp history
         if os.path.exists("temp_history.json"):
             os.remove("temp_history.json")
+
+        # Remove temp signals
+        if os.path.exists("temp_signals.md"):
+            os.remove("temp_signals.md")
 
         # Restore original portfolio if backup exists (though we didn't modify it)
         if os.path.exists("portfolio.md.bak"):
