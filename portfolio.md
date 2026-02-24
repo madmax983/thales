@@ -21,3 +21,7 @@
 | 2026-02-24 16:46:14 | LOBOUSD | crypto:LOBOUSD:sell:1771948800000 | Execution Failed |
 | 2026-02-24 16:46:14 | PENGUUSD | crypto:PENGUUSD:sell:1771948800000 | Execution Failed |
 | 2026-02-24 19:05:17 | BSXUSD | crypto:BSXUSD:buy:1771959600000 | Execution Failed |
+| 2026-02-24 20:36:54 | XBTUSD | crypto:XBTUSD:buy:1771963200000 | Execution Failed |
+| 2026-02-24 20:36:55 | XXBTZUSD | crypto:XXBTZUSD:buy:1771963200000 | Execution Failed |
+| 2026-02-24 20:36:55 | XETHZUSD | crypto:XETHZUSD:buy:1771963200000 | Execution Failed |
+| 2026-02-24 20:36:55 | BTCUSD | crypto:BTCUSD:buy:1771963200000 | Lower priority/confidence than top 3 |
