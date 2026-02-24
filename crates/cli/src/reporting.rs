@@ -44,7 +44,7 @@ pub fn generate_report(
         (None, None) => "No external research available. (Placeholder for search_research)".to_string(),
     };
 
-    let history_section = crate::rag::summarize_history(similar_trades);
+    let history_section = crate::rag::summarize_history(similar_trades, &analysis.symbol);
 
     let volatility_display = if analysis.volatility == "Extreme" {
         "**EXTREME (Unusual Activity)**".to_string()

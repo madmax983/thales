@@ -119,7 +119,7 @@ pub async fn generate_signals(
                 Vec::new()
             };
 
-            let historical_context = rag::summarize_history(&similar_trades);
+            let historical_context = rag::summarize_history(&similar_trades, &market_analysis.symbol);
 
             // Position Sizing and SL/TP
             let last_close = bars.bars.last().map(|b| b.close).unwrap_or(100.0);
