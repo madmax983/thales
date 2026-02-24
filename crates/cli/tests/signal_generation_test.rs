@@ -76,7 +76,7 @@ async fn test_signal_generation_limit() {
     };
 
     // 3. Generate Signals
-    let intents = signals::generate_signals(&series, "BollingerBands", Some(&history_path)).await.unwrap();
+    let intents = signals::generate_signals(&series, "BollingerBands", Some(&history_path), 100.0).await.unwrap();
 
     // 4. Assert Limit Reached (should be empty)
     assert!(intents.is_empty(), "Should not generate signal if 3 already exist for today");
@@ -106,7 +106,7 @@ async fn test_signal_generation_success() {
     };
 
     // 3. Generate Signals
-    let intents = signals::generate_signals(&series, "BollingerBands", Some(&history_path)).await.unwrap();
+    let intents = signals::generate_signals(&series, "BollingerBands", Some(&history_path), 100.0).await.unwrap();
 
     // 4. Assert Signal Generated
     assert!(!intents.is_empty());
@@ -148,7 +148,7 @@ async fn test_rag_context() {
     };
 
     // 3. Generate Signals
-    let intents = signals::generate_signals(&series, "BollingerBands", Some(&history_path)).await.unwrap();
+    let intents = signals::generate_signals(&series, "BollingerBands", Some(&history_path), 100.0).await.unwrap();
 
     // 4. Assert Context
     assert!(!intents.is_empty());

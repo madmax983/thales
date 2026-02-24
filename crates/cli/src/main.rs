@@ -81,6 +81,8 @@ enum Commands {
         strategy: String,
         #[arg(long)]
         history: Option<PathBuf>,
+        #[arg(long, default_value = "100.0")]
+        risk: f64,
     },
     ScanMarket {
         #[arg(long)]
@@ -228,7 +230,7 @@ fn run(command: Commands) -> Result<String, CliError> {
 
             ok_envelope(analysis)
         }
-        Commands::GenerateSignals { input, strategy, history } => {
+        Commands::GenerateSignals { input, strategy, history, risk } => {
             let raw = fs::read_to_string(&input)?;
             let series: BarSeries = match serde_json::from_str::<ResponseEnvelope<BarSeries>>(&raw) {
                 Ok(envelope) => envelope.data.ok_or(CliError::Validation("Envelope has no data".to_string()))?,
@@ -241,7 +243,7 @@ fn run(command: Commands) -> Result<String, CliError> {
                 .map_err(|e| CliError::Provider(format!("Failed to create runtime: {}", e)))?;
 
             let intents = rt.block_on(async {
-                signals::generate_signals(&series, &strategy, history.as_deref()).await
+                signals::generate_signals(&series, &strategy, history.as_deref(), risk).await
             }).map_err(|e| CliError::Validation(e.to_string()))?;
 
             ok_envelope(intents)
