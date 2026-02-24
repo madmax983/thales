@@ -122,6 +122,7 @@ mod tests {
             atr: None,
             research_summary: None,
             news_summary: None,
+            recommendation: None,
             confidence: 0.5,
             timestamp_unix_ms: 1000,
         }
