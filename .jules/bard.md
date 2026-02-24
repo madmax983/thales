@@ -1,0 +1,13 @@
+# Bard's Journal 🎻
+
+## 2024-05-22 - The Missing Map
+**Confusion:** The project had no `README.md` at the root, making it impossible for a new developer (or agent) to understand how to build or run the CLI without digging into `AGENTS.md`.
+**Clarification:** Created a developer-focused `README.md` that bridges the gap between the code and the agent documentation.
+
+## 2024-05-22 - The Silent Contract
+**Confusion:** The core data structures in `crates/contracts` (like `TradeIntent`) were completely undocumented. Users had to guess what `confidence` meant or what values `size_hint` accepted.
+**Clarification:** Added detailed docstrings to `crates/contracts/src/lib.rs` explaining every field, especially "magic strings" like `size_hint="max"`.
+
+## 2024-05-22 - The Hidden Strategy
+**Confusion:** The `Strategy` trait in `crates/strategies` had no documentation. It wasn't clear what the expected input `DataFrame` should look like (required columns).
+**Clarification:** documented the `Strategy` trait and explicitly listed the required columns (`open`, `high`, `low`, `close`, `volume`, `timestamp`) in the `generate_signals` method docs.

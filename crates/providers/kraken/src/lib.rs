@@ -1,3 +1,8 @@
+//! Kraken API provider implementation.
+//!
+//! This crate provides an adapter for the Kraken cryptocurrency exchange.
+//! It handles authentication, request signing, and data normalization.
+
 use std::collections::HashMap;
 use std::time::{SystemTime, UNIX_EPOCH};
 
@@ -9,18 +14,49 @@ use serde::Deserialize;
 use sha2::{Digest, Sha256, Sha512};
 use thiserror::Error;
 
+/// Configuration for the Kraken API client.
+///
+/// Use [`KrakenConfig::from_env`] to load from environment variables.
+///
+/// # Examples
+///
+/// ```rust
+/// use kraken_provider::KrakenConfig;
+///
+/// unsafe {
+///     std::env::set_var("KRAKEN_API_KEY", "key");
+///     std::env::set_var("KRAKEN_API_SECRET", "secret");
+/// }
+///
+/// let config = KrakenConfig::from_env().unwrap();
+/// assert_eq!(config.api_key, "key");
+/// ```
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct KrakenConfig {
+    /// The API Key provided by Kraken.
     pub api_key: String,
+    /// The API Secret (Base64 encoded) provided by Kraken.
     pub api_secret: String,
+    /// The base URL for the Kraken API (defaults to `<https://api.kraken.com>`).
     pub base_url: String,
 }
 
 impl KrakenConfig {
+    /// Loads configuration from environment variables.
+    ///
+    /// # Required Variables
+    ///
+    /// - `KRAKEN_API_KEY`
+    /// - `KRAKEN_API_SECRET`
+    ///
+    /// # Optional Variables
+    ///
+    /// - `KRAKEN_BASE_URL`
     pub fn from_env() -> Result<Self, KrakenProviderError> {
         Self::from_env_with(|key| std::env::var(key).ok())
     }
 
+    /// Helper to load configuration from a custom source.
     pub fn from_env_with<F>(get: F) -> Result<Self, KrakenProviderError>
     where
         F: Fn(&str) -> Option<String>,
@@ -41,6 +77,26 @@ where
     get(name).ok_or(KrakenProviderError::MissingEnvVar(name))
 }
 
+/// A synchronous client for the Kraken API.
+///
+/// This client handles the complexities of the Kraken API, including:
+/// - Request signing (HMAC-SHA512).
+/// - Nonce management.
+/// - Data normalization to Thales contracts.
+///
+/// # Examples
+///
+/// ```rust
+/// use kraken_provider::{KrakenClient, KrakenConfig};
+///
+/// let config = KrakenConfig {
+///     api_key: "key".to_string(),
+///     api_secret: "secret".to_string(),
+///     base_url: "https://api.kraken.com".to_string(),
+/// };
+///
+/// let client = KrakenClient::new(config);
+/// ```
 #[derive(Debug, Clone)]
 pub struct KrakenClient {
     pub config: KrakenConfig,
@@ -48,6 +104,7 @@ pub struct KrakenClient {
 }
 
 impl KrakenClient {
+    /// Creates a new Kraken client.
     pub fn new(config: KrakenConfig) -> Self {
         Self {
             config,
@@ -55,6 +112,13 @@ impl KrakenClient {
         }
     }
 
+    /// Executes a trade intent on Kraken.
+    ///
+    /// Translates the generic `TradeIntent` into a Kraken-specific order.
+    /// Supports:
+    /// - Market, Limit, Stop-Loss, Stop-Loss-Limit orders.
+    /// - Conditional Close orders (Stop Loss / Take Profit).
+    /// - "max" size hint (closes full position).
     pub fn execute_intent(
         &self,
         intent: &TradeIntent,
@@ -199,6 +263,7 @@ impl KrakenClient {
         })
     }
 
+    /// Fetches historical OHLCV data.
     pub fn fetch_bars(
         &self,
         symbol: &str,
@@ -277,6 +342,7 @@ impl KrakenClient {
         Ok(bars)
     }
 
+    /// Fetches ticker information for all pairs.
     pub fn fetch_tickers(&self) -> Result<HashMap<String, KrakenTickerInfo>, KrakenProviderError> {
         let url = format!("{}/0/public/Ticker", self.config.base_url.trim_end_matches('/'));
         let response = self.http.get(&url).send()?;
@@ -297,6 +363,9 @@ impl KrakenClient {
         Ok(api_response.result.unwrap_or_default())
     }
 
+    /// Fetches all open positions for the account.
+    ///
+    /// This requires the `OpenPositions` permission on the API key.
     pub fn fetch_open_positions(&self) -> Result<HashMap<String, KrakenOpenPosition>, KrakenProviderError> {
         let nonce = now_unix_ms()?.to_string();
         let body = format!("nonce={}", nonce);
