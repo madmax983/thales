@@ -72,6 +72,10 @@ enum Commands {
     AnalyzeMarket {
         #[arg(long)]
         input: PathBuf,
+        #[arg(long)]
+        research: Option<String>,
+        #[arg(long)]
+        news: Option<String>,
     },
     GenerateSignals {
         #[arg(long)]
@@ -196,7 +200,11 @@ fn run(command: Commands) -> Result<String, CliError> {
             let result = execute_by_provider(&provider, &intent)?;
             ok_envelope(result)
         }
-        Commands::AnalyzeMarket { input } => {
+        Commands::AnalyzeMarket {
+            input,
+            research,
+            news,
+        } => {
             let raw = fs::read_to_string(&input)?;
             let series: BarSeries = match serde_json::from_str::<ResponseEnvelope<BarSeries>>(&raw)
             {
@@ -206,7 +214,9 @@ fn run(command: Commands) -> Result<String, CliError> {
                 Err(_) => serde_json::from_str::<BarSeries>(&raw)?,
             };
 
-            let analysis = analysis::analyze(&series);
+            let mut analysis = analysis::analyze(&series);
+            analysis.research_summary = research;
+            analysis.news_summary = news;
 
             // Reporting Step
             let signals_path = PathBuf::from("Signals.md");

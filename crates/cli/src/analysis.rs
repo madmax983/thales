@@ -17,6 +17,8 @@ pub fn analyze(series: &BarSeries) -> MarketAnalysis {
             key_levels: vec![],
             volatility: "Unknown".to_string(),
             atr: None,
+            research_summary: None,
+            news_summary: None,
             confidence: 0.0,
             timestamp_unix_ms: timestamp,
         };
@@ -58,6 +60,8 @@ pub fn analyze(series: &BarSeries) -> MarketAnalysis {
         key_levels,
         volatility,
         atr,
+        research_summary: None,
+        news_summary: None,
         confidence,
         timestamp_unix_ms: timestamp,
     }

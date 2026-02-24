@@ -108,6 +108,10 @@ pub struct MarketAnalysis {
     pub volatility: String,
     #[serde(default)]
     pub atr: Option<f64>,
+    #[serde(default)]
+    pub research_summary: Option<String>,
+    #[serde(default)]
+    pub news_summary: Option<String>,
     pub confidence: f64,
     pub timestamp_unix_ms: i64,
 }

@@ -36,7 +36,12 @@ pub fn generate_report(
             .join(", ")
     };
 
-    let research_section = "No external research available. (Placeholder for search_research)";
+    let research_section = match (&analysis.research_summary, &analysis.news_summary) {
+        (Some(r), Some(n)) => format!("**Research**:\n{}\n\n**News**:\n{}", r, n),
+        (Some(r), None) => format!("**Research**:\n{}", r),
+        (None, Some(n)) => format!("**News**:\n{}", n),
+        (None, None) => "No external research available. (Placeholder for search_research)".to_string(),
+    };
 
     let history_section = if similar_trades.is_empty() {
         "No similar historical trades found.".to_string()
@@ -65,7 +70,7 @@ pub fn generate_report(
 *Support/Resistance*: {}
 
 ### 5. Research & Context
-*External Research*: {}
+{}
 *Historical Context*: {}
 
 ---
@@ -170,6 +175,8 @@ mod tests {
             key_levels: vec![100.0, 110.0],
             volatility: "Low".to_string(),
             atr: None,
+            research_summary: None,
+            news_summary: None,
             confidence: 0.9,
             timestamp_unix_ms: 1600000000000,
         };
