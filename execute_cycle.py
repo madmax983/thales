@@ -61,6 +61,8 @@ def get_active_strategies():
         strategies.append("RsiMeanReversion")
     if "Macd" in content:
         strategies.append("Macd")
+    if "Supertrend" in content:
+        strategies.append("Supertrend")
 
     return strategies
 
