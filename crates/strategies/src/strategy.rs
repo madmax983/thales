@@ -19,6 +19,10 @@ pub struct Signal {
     pub side: String,      // "buy" or "sell"
     pub size_hint: String, // e.g., "100" or "0.1" or "max"
     pub confidence: f64,
+    #[serde(default)]
+    pub stop_loss: Option<f64>,
+    #[serde(default)]
+    pub take_profit: Option<f64>,
     pub reason: String,
     pub timestamp_ms: i64,
 }
