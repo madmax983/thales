@@ -26,3 +26,7 @@
 | 2026-02-24 20:36:55 | XETHZUSD | crypto:XETHZUSD:buy:1771963200000 | Execution Failed |
 | 2026-02-24 20:36:55 | BTCUSD | crypto:BTCUSD:buy:1771963200000 | Lower priority/confidence than top 3 |
 | 2026-02-24 22:21:24 | AAPL | STALE_SIGNAL | Signal too old (29.6 hours > 24 hours) |
+| 2026-02-24 22:35:37 | AAPL | STALE_SIGNAL | Signal too old (29.8 hours > 24 hours) |
+| 2026-02-24 22:36:45 | AAPL | STALE_SIGNAL | Signal too old (29.8 hours > 24 hours) |
+| 2026-02-24 22:36:48 | BTCUSD | NO_STRATEGY_SIGNAL | No active strategy generated a signal (Strategies: BollingerBands, EmaCrossover, RsiMeanReversion, Macd, Supertrend) |
+| 2026-02-24 22:36:48 | SPY | NO_STRATEGY_SIGNAL | No active strategy generated a signal (Strategies: BollingerBands, EmaCrossover, RsiMeanReversion, Macd, Supertrend) |
