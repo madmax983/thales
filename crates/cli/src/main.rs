@@ -87,6 +87,8 @@ enum Commands {
         risk: f64,
         #[arg(long)]
         portfolio: Option<PathBuf>,
+        #[arg(long)]
+        analysis: Option<PathBuf>,
     },
     ScanMarket {
         #[arg(long)]
@@ -263,7 +265,7 @@ fn run(command: Commands) -> Result<String, CliError> {
 
             ok_envelope(analysis)
         }
-        Commands::GenerateSignals { input, strategy, history, risk, portfolio } => {
+        Commands::GenerateSignals { input, strategy, history, risk, portfolio, analysis } => {
             let raw = fs::read_to_string(&input)?;
             let series: BarSeries = match serde_json::from_str::<ResponseEnvelope<BarSeries>>(&raw) {
                 Ok(envelope) => envelope.data.ok_or(CliError::Validation("Envelope has no data".to_string()))?,
@@ -281,13 +283,23 @@ fn run(command: Commands) -> Result<String, CliError> {
                 Vec::new()
             };
 
+            let market_analysis: Option<contracts::MarketAnalysis> = if let Some(path) = analysis {
+                let raw_analysis = fs::read_to_string(&path)?;
+                match serde_json::from_str::<ResponseEnvelope<contracts::MarketAnalysis>>(&raw_analysis) {
+                    Ok(env) => env.data,
+                    Err(_) => Some(serde_json::from_str(&raw_analysis)?),
+                }
+            } else {
+                None
+            };
+
             let rt = tokio::runtime::Builder::new_current_thread()
                 .enable_all()
                 .build()
                 .map_err(|e| CliError::Provider(format!("Failed to create runtime: {}", e)))?;
 
             let intents = rt.block_on(async {
-                signals::generate_signals(&series, &strategy, history.as_deref(), risk, &positions).await
+                signals::generate_signals(&series, &strategy, history.as_deref(), risk, &positions, market_analysis).await
             }).map_err(|e| CliError::Validation(e.to_string()))?;
 
             ok_envelope(intents)
