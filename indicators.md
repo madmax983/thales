@@ -127,3 +127,36 @@ let atr_series = atr::calculate(&df, period)?;
 - Returns `Result<Series>`.
 - The output Series is named "atr".
 - The first `period - 1` values will be null.
+
+## Bollinger Bands (BB)
+
+**Name:** Bollinger Bands
+**Description:** Calculates the Bollinger Bands, which consist of a middle band (SMA) and two outer bands (standard deviation away from the middle band).
+**Rationale:** Technical analysis tool defined by a set of trendlines plotted two standard deviations (positively and negatively) away from a simple moving average (SMA) of a security's price.
+
+### Implementation Details
+- Uses `rust_decimal::Decimal` for all internal calculations to ensure precision.
+- Implements a single-pass sliding window algorithm to calculate SMA and Standard Deviation.
+- Returns a tuple of three Polars `Series` of `f64` values: (Lower, Middle, Upper).
+
+### Usage
+
+```rust
+use strategies::indicators::bollinger_bands;
+use polars::prelude::*;
+
+// Assuming df is a DataFrame with a "close" column
+let period = 20;
+let std_dev_multiplier = 2.0;
+let (lower, middle, upper) = bollinger_bands::calculate(&df, period, std_dev_multiplier)?;
+```
+
+### Parameters
+- `data`: Reference to a Polars `DataFrame`. Must contain a numeric column named "close".
+- `period`: The lookback period (typically 20).
+- `std_dev_multiplier`: The number of standard deviations for the bands (typically 2.0).
+
+### Output
+- Returns `Result<(Series, Series, Series)>` representing `(lower_band, middle_band, upper_band)`.
+- The output Series are named "bollinger_lower", "bollinger_middle", and "bollinger_upper".
+- The first `period - 1` values will be null.
