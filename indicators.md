@@ -160,3 +160,37 @@ let (lower, middle, upper) = bollinger_bands::calculate(&df, period, std_dev_mul
 - Returns `Result<(Series, Series, Series)>` representing `(lower_band, middle_band, upper_band)`.
 - The output Series are named "bollinger_lower", "bollinger_middle", and "bollinger_upper".
 - The first `period - 1` values will be null.
+
+## Supertrend
+
+**Name:** Supertrend
+**Description:** Calculates the Supertrend indicator, which provides a trend direction and a trailing stop-loss line.
+**Rationale:** Trend-following indicator that uses ATR to adjust for volatility and helps in identifying the primary trend direction.
+
+### Implementation Details
+- Uses `rust_decimal::Decimal` for all internal calculations to ensure precision.
+- Uses ATR for volatility adjustment.
+- Returns a tuple of two Polars `Series`: (Supertrend Line, Trend Direction).
+- Trend Direction: 1 for Up, -1 for Down.
+
+### Usage
+
+```rust
+use strategies::indicators::supertrend;
+use polars::prelude::*;
+
+// Assuming df is a DataFrame with "high", "low", "close" columns
+let period = 10;
+let multiplier = 3.0;
+let (st_line, st_trend) = supertrend::calculate(&df, period, multiplier)?;
+```
+
+### Parameters
+- `data`: Reference to a Polars `DataFrame`. Must contain numeric columns "high", "low", and "close".
+- `period`: The ATR lookback period (typically 10).
+- `multiplier`: The factor to multiply ATR by (typically 3.0).
+
+### Output
+- Returns `Result<(Series, Series)>` representing `(supertrend_line, trend_direction)`.
+- The output Series are named "supertrend" and "supertrend_trend".
+- The first `period` values (approx) will be null.
