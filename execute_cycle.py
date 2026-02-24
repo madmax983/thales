@@ -62,6 +62,23 @@ def get_active_strategy():
 
     return best_strategy
 
+def get_portfolio():
+    """Fetches open positions from all providers."""
+    portfolio = {} # key: (provider, symbol) -> qty
+
+    for provider in ["kraken", "alpaca"]:
+        try:
+            positions = run_command(["get-positions", "--provider", provider])
+            if positions:
+                for pos in positions:
+                    # pos is {"symbol": "...", "qty": 1.0}
+                    key = (provider, pos["symbol"])
+                    portfolio[key] = pos["qty"]
+        except Exception as e:
+            print(f"Failed to fetch portfolio for {provider}: {e}")
+
+    return portfolio
+
 def scan_markets():
     """Scans markets for candidates."""
     candidates = []
@@ -170,11 +187,15 @@ def main():
     strategy_name = get_active_strategy()
     print(f"Active Strategy: {strategy_name}")
 
-    # 2. Scan Markets
+    # 2. Fetch Portfolio
+    portfolio = get_portfolio()
+    print(f"Current Portfolio: {portfolio}")
+
+    # 3. Scan Markets
     candidates = scan_markets()
     print(f"Found {len(candidates)} candidates.")
 
-    # 3. Generate Signals for all candidates
+    # 4. Generate Signals for all candidates
     all_signals = []
     print("Evaluating candidates...")
     for cand in candidates:
@@ -183,7 +204,7 @@ def main():
             print(f"  {cand['symbol']}: Generated {len(signals)} signals.")
             all_signals.extend(signals)
 
-    # 4. Filter and Select Top 3
+    # 5. Filter and Select Top 3
     if not all_signals:
         print("No signals generated. Doing nothing.")
         return
@@ -191,13 +212,43 @@ def main():
     # Sort by confidence descending
     all_signals.sort(key=lambda x: x.get("confidence", 0.0), reverse=True)
 
-    # Take top 3
-    top_signals = all_signals[:3]
+    # Selection logic:
+    # We want top 3 *valid* signals.
+    # We iterate and pick up to 3 that pass the portfolio check.
 
-    print(f"Selected top {len(top_signals)} signals for execution.")
+    executed_count = 0
 
-    # 5. Execute
-    for intent in top_signals:
+    for intent in all_signals:
+        if executed_count >= 3:
+             log_skipped(intent, "Skipped (Limit 3 reached)")
+             continue
+
+        # Portfolio Check
+        key = (intent["provider"], intent["symbol"])
+        qty_held = portfolio.get(key, 0.0)
+
+        # 1. Check for "Max Exit" (Close Position)
+        if intent["size_hint"] == "max":
+            if intent["side"] == "sell":  # Closing Long
+                if qty_held <= 0.0:
+                    print(f"Skipping MAX SELL {intent['symbol']} - No long position held.")
+                    log_skipped(intent, "No long position held for max exit")
+                    continue
+            elif intent["side"] == "buy":  # Closing Short
+                if qty_held >= 0.0:
+                    print(f"Skipping MAX BUY {intent['symbol']} - No short position held.")
+                    log_skipped(intent, "No short position held for max exit")
+                    continue
+
+        # 2. Check for "New Short" (Sell to Open)
+        # If user implies "Don't sell what we don't have", this means no naked shorts.
+        elif intent["side"] == "sell":
+            if qty_held <= 0.0:
+                print(f"Skipping SELL {intent['symbol']} - No position held (Preventing Naked Short).")
+                log_skipped(intent, "No position held (Preventing Naked Short)")
+                continue
+
+        # Execute
         provider = intent["provider"]
         print(f"Executing {intent['side']} {intent['symbol']} via {provider}...")
 
@@ -216,16 +267,12 @@ def main():
         if result:
             print(f"Success! Status: {result['status']}")
             log_trade(intent, result)
+            executed_count += 1
         else:
             print("Execution failed.")
             log_skipped(intent, "Execution Failed")
-
-    # Log skipped signals (signals not selected in top 3)
-    # Only if they were valid signals but we didn't select them.
-    # We should log them as "Skipped" with reason "Lower priority/confidence".
-
-    for intent in all_signals[3:]:
-        log_skipped(intent, "Lower priority/confidence than top 3")
+            # We don't count failed execution against the limit of 3?
+            # Or should we? Let's say we don't.
 
 if __name__ == "__main__":
     main()

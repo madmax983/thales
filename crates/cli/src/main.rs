@@ -7,7 +7,9 @@ use std::{
 
 use alpaca_provider::{AlpacaClient, AlpacaConfig};
 use clap::{Parser, Subcommand};
-use contracts::{Bar, BarSeries, EnvelopeStatus, ExecutionResult, ResponseEnvelope, TradeIntent};
+use contracts::{
+    Bar, BarSeries, EnvelopeStatus, ExecutionResult, Position, ResponseEnvelope, TradeIntent,
+};
 use kraken_provider::{KrakenClient, KrakenConfig};
 use serde::Serialize;
 use serde_json::json;
@@ -91,6 +93,10 @@ enum Commands {
         min_volatility: f64,
         #[arg(long, default_value = "0.0")]
         min_momentum: f64,
+    },
+    GetPositions {
+        #[arg(long)]
+        provider: String,
     },
 }
 
@@ -246,9 +252,70 @@ fn run(command: Commands) -> Result<String, CliError> {
 
             ok_envelope(intents)
         }
-        Commands::ScanMarket { provider, top_n, min_volatility, min_momentum } => {
+        Commands::ScanMarket {
+            provider,
+            top_n,
+            min_volatility,
+            min_momentum,
+        } => {
             let symbols = scan_market(&provider, top_n, min_volatility, min_momentum)?;
             ok_envelope(symbols)
+        }
+        Commands::GetPositions { provider } => {
+            let positions = match provider.as_str() {
+                "kraken" => {
+                    let cfg =
+                        KrakenConfig::from_env().map_err(|e| CliError::Provider(e.to_string()))?;
+                    let client = KrakenClient::new(cfg);
+                    let open_positions = client
+                        .fetch_open_positions()
+                        .map_err(|e| CliError::Provider(e.to_string()))?;
+                    let mut result = Vec::new();
+                    // Kraken returns individual position entries, we should aggregate by pair.
+                    let mut aggregated: std::collections::HashMap<String, f64> =
+                        std::collections::HashMap::new();
+
+                    for (_key, pos) in open_positions {
+                        let pair = pos.pair;
+                        let vol = pos.vol.parse::<f64>().unwrap_or(0.0);
+                        let vol_closed = pos.vol_closed.parse::<f64>().unwrap_or(0.0);
+                        let mut net = vol - vol_closed;
+                        if pos.type_ == "sell" {
+                            net = -net;
+                        }
+                        *aggregated.entry(pair).or_default() += net;
+                    }
+
+                    for (symbol, qty) in aggregated {
+                        if qty != 0.0 {
+                            result.push(Position { symbol, qty });
+                        }
+                    }
+                    result
+                }
+                "alpaca" => {
+                    let cfg =
+                        AlpacaConfig::from_env().map_err(|e| CliError::Provider(e.to_string()))?;
+                    let client = AlpacaClient::new(cfg);
+                    let positions = client
+                        .fetch_positions()
+                        .map_err(|e| CliError::Provider(e.to_string()))?;
+                    positions
+                        .into_iter()
+                        .map(|p| Position {
+                            symbol: p.symbol,
+                            qty: p.qty,
+                        })
+                        .collect()
+                }
+                _ => {
+                    return Err(CliError::Validation(format!(
+                        "Unsupported provider: {}",
+                        provider
+                    )))
+                }
+            };
+            ok_envelope(positions)
         }
     }
 }

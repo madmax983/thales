@@ -16,3 +16,7 @@
 | 2026-02-24 03:39:12 | AAPL | None | No Strategy Signal (BollingerBandsMeanReversion) |
 | 2026-02-24 03:39:12 | SPY | None | No Strategy Signal (BollingerBandsMeanReversion) |
 | 2026-02-24 05:35:57 | AKEUSD | crypto:AKEUSD:sell:1771909200000 | Execution Failed |
+| 2026-02-24 06:08:25 | ZBCNUSD | crypto:ZBCNUSD:sell:1771912800000 | No position held (filtered by portfolio check) |
+| 2026-02-24 06:08:26 | AKEUSD | crypto:AKEUSD:buy:1771912800000 | Execution Failed |
+| 2026-02-24 06:09:59 | ZBCNUSD | crypto:ZBCNUSD:sell:1771912800000 | No long position held for max exit |
+| 2026-02-24 06:09:59 | AKEUSD | crypto:AKEUSD:buy:1771912800000 | No short position held for max exit |

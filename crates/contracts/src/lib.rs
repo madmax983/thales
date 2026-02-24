@@ -115,3 +115,9 @@ pub struct MarketAnalysis {
     pub confidence: f64,
     pub timestamp_unix_ms: i64,
 }
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct Position {
+    pub symbol: String,
+    pub qty: f64,
+}
