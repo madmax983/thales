@@ -256,3 +256,16 @@ pub struct MarketAnalysis {
     /// Timestamp of the analysis.
     pub timestamp_unix_ms: i64,
 }
+
+/// Represents an open position.
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct Position {
+    /// The symbol of the position (e.g., "BTCUSD", "AAPL").
+    pub symbol: String,
+    /// The side of the position ("long" or "short").
+    pub side: String,
+    /// The quantity held.
+    pub qty: f64,
+    /// The average entry price.
+    pub entry_price: Option<f64>,
+}

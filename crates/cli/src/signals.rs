@@ -14,6 +14,7 @@ pub async fn generate_signals(
     strategy_name: &str,
     history_path: Option<&Path>,
     risk_per_trade: f64,
+    positions: &[contracts::Position],
 ) -> Result<Vec<TradeIntent>> {
     // 1. Analyze Market
     let market_analysis = analysis::analyze(bars);
@@ -168,30 +169,72 @@ pub async fn generate_signals(
                 "day".to_string()
             };
 
-            // Map SignalType
-            let signal_type_str = format!("{:?}", signal.signal_type);
+            // Map SignalType and Check Redundancy/Conflicts with Positions
+            let mut final_signal_type = signal.signal_type.clone();
+            let mut rationale_suffix = String::new();
 
-            let intent = TradeIntent {
-                intent_id: format!("{}:{}:{}:{}", market_analysis.market, signal.symbol, signal.side, signal.timestamp_ms),
-                market: market_analysis.market.clone(),
-                symbol: signal.symbol.clone(),
-                side: signal.side.clone(),
-                size_hint,
-                confidence: signal.confidence,
-                horizon: "1d".to_string(),
-                rationale: format!("Strategy: {} ({:.0}%). Reason: {}. Market Context: {} ({} Volatility). {}", strategy.name(), signal.confidence * 100.0, signal.reason, market_analysis.regime, market_analysis.volatility, historical_context),
-                invalidation: "Price hits Stop Loss".to_string(),
-                schema_version: "v0".to_string(),
-                signal_type: Some(signal_type_str),
-                stop_loss,
-                take_profit,
-                order_type: "market".to_string(),
-                limit_price: None,
-                stop_price: None,
-                time_in_force,
-            };
+            // Find existing position for this symbol
+            let existing_pos = positions.iter().find(|p| p.symbol == signal.symbol);
+            if existing_pos.is_some() {
+                println!("DEBUG: Found position for {}", signal.symbol);
+            } else {
+                println!("DEBUG: No position for {}", signal.symbol);
+                println!("DEBUG: Positions available: {:?}", positions);
+            }
 
-            intents.push(intent);
+            if let Some(pos) = existing_pos {
+                let signal_side_long = signal.side == "buy";
+                let pos_side_long = pos.side == "long";
+
+                match signal.signal_type {
+                    SignalType::Entry | SignalType::ScaleIn => {
+                        if signal_side_long == pos_side_long {
+                            // Already have position in same direction -> ScaleIn
+                            final_signal_type = SignalType::ScaleIn;
+                            if signal.signal_type == SignalType::Entry {
+                                rationale_suffix.push_str(" (Scaled into existing position)");
+                            } else {
+                                rationale_suffix.push_str(" (Adding to existing position)");
+                            }
+                        } else {
+                            // Opposite direction -> Exit (Close existing)
+                            final_signal_type = SignalType::Exit;
+                            rationale_suffix.push_str(" (Closing opposite position)");
+                        }
+                    },
+                    _ => {}
+                }
+            }
+
+            // Filter out invalid Exits (no position)
+            let skip = (final_signal_type == SignalType::Exit || final_signal_type == SignalType::ScaleOut) && existing_pos.is_none();
+
+            if !skip {
+                let signal_type_str = format!("{:?}", final_signal_type);
+                let final_rationale = format!("Strategy: {} ({:.0}%). Reason: {}. Market Context: {} ({} Volatility). {}{}", strategy.name(), signal.confidence * 100.0, signal.reason, market_analysis.regime, market_analysis.volatility, historical_context, rationale_suffix);
+
+                let intent = TradeIntent {
+                    intent_id: format!("{}:{}:{}:{}", market_analysis.market, signal.symbol, signal.side, signal.timestamp_ms),
+                    market: market_analysis.market.clone(),
+                    symbol: signal.symbol.clone(),
+                    side: signal.side.clone(),
+                    size_hint,
+                    confidence: signal.confidence,
+                    horizon: "1d".to_string(),
+                    rationale: final_rationale,
+                    invalidation: "Price hits Stop Loss".to_string(),
+                    schema_version: "v0".to_string(),
+                    signal_type: Some(signal_type_str),
+                    stop_loss,
+                    take_profit,
+                    order_type: "market".to_string(),
+                    limit_price: None,
+                    stop_price: None,
+                    time_in_force,
+                };
+
+                intents.push(intent);
+            }
         }
     }
 
@@ -263,7 +306,8 @@ mod tests {
             bars,
         };
 
-        let intents = generate_signals(&series, "BollingerBands", None, 100.0).await?;
+        let positions = vec![];
+        let intents = generate_signals(&series, "BollingerBands", None, 100.0, &positions).await?;
 
         assert!(!intents.is_empty());
         let intent = &intents[0];
@@ -322,7 +366,8 @@ mod tests {
             bars,
         };
 
-        let intents = generate_signals(&series, "BollingerBands", None, 100.0).await?;
+        let positions = vec![];
+        let intents = generate_signals(&series, "BollingerBands", None, 100.0, &positions).await?;
 
         assert!(!intents.is_empty());
         let intent = &intents[0];
@@ -393,7 +438,8 @@ mod tests {
             bars,
         };
 
-        let intents = generate_signals(&series, "BollingerBands", None, 100.0).await?;
+        let positions = vec![];
+        let intents = generate_signals(&series, "BollingerBands", None, 100.0, &positions).await?;
         assert!(!intents.is_empty());
         let intent = &intents[0];
 
@@ -435,7 +481,8 @@ mod tests {
         });
 
         let series = BarSeries { schema_version: "v0".to_string(), bars };
-        let intents = generate_signals(&series, "BollingerBands", None, 100.0).await?;
+        let positions = vec![];
+        let intents = generate_signals(&series, "BollingerBands", None, 100.0, &positions).await?;
         let intent = &intents[0];
 
         // "Strategy: {}. Reason: {}. Market Context: {} ({} Volatility). {}"
@@ -443,6 +490,72 @@ mod tests {
         assert!(intent.rationale.contains("Market Context:"));
         assert!(intent.rationale.contains("Volatility"));
         assert!(intent.rationale.contains("No similar past trades found")); // Default history context
+
+        Ok(())
+    }
+
+    #[tokio::test]
+    async fn test_generate_signals_with_positions() -> Result<()> {
+        let mut bars = Vec::new();
+        let now = 100000;
+        // Generate stable price
+        for i in 0..20 {
+            bars.push(Bar {
+                symbol: "AAPL".to_string(),
+                market: "equities".to_string(),
+                timeframe: "1m".to_string(),
+                timestamp_unix_ms: now + i * 60000,
+                open: 100.0,
+                high: 101.0,
+                low: 99.0,
+                close: 100.0,
+                volume: 1000.0,
+            });
+        }
+        // Trigger Buy (Lower Band)
+        bars.push(Bar {
+            symbol: "AAPL".to_string(),
+            market: "equities".to_string(),
+            timeframe: "1m".to_string(),
+            timestamp_unix_ms: now + 20 * 60000,
+            open: 100.0,
+            high: 101.0,
+            low: 90.0,
+            close: 90.0,
+            volume: 1000.0,
+        });
+
+        let series = BarSeries { schema_version: "v0".to_string(), bars };
+
+        // Case 1: Existing Long Position -> Should result in ScaleIn
+        let positions = vec![contracts::Position {
+            symbol: "AAPL".to_string(),
+            side: "long".to_string(),
+            qty: 10.0,
+            entry_price: Some(100.0),
+        }];
+
+        let intents = generate_signals(&series, "BollingerBands", None, 100.0, &positions).await?;
+        assert!(!intents.is_empty());
+        let intent = &intents[0];
+        assert_eq!(intent.side, "buy");
+        assert!(intent.signal_type.as_ref().unwrap().contains("ScaleIn"));
+        assert!(intent.rationale.contains("existing position"));
+
+        // Case 2: Existing Short Position -> Should result in Exit (buy to close)
+        let positions = vec![contracts::Position {
+            symbol: "AAPL".to_string(),
+            side: "short".to_string(),
+            qty: 10.0,
+            entry_price: Some(100.0),
+        }];
+
+        let intents = generate_signals(&series, "BollingerBands", None, 100.0, &positions).await?;
+        assert!(!intents.is_empty());
+        let intent = &intents[0];
+        assert_eq!(intent.side, "buy");
+        assert!(intent.signal_type.as_ref().unwrap().contains("Exit"));
+        assert!(intent.rationale.contains("Closing opposite position"));
 
         Ok(())
     }

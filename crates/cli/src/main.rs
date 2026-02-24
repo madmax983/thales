@@ -85,6 +85,8 @@ enum Commands {
         history: Option<PathBuf>,
         #[arg(long, default_value = "100.0")]
         risk: f64,
+        #[arg(long)]
+        portfolio: Option<PathBuf>,
     },
     ScanMarket {
         #[arg(long)]
@@ -95,6 +97,10 @@ enum Commands {
         min_volatility: f64,
         #[arg(long, default_value = "0.0")]
         min_momentum: f64,
+    },
+    GetPositions {
+        #[arg(long)]
+        provider: String,
     },
 }
 
@@ -241,11 +247,22 @@ fn run(command: Commands) -> Result<String, CliError> {
 
             ok_envelope(analysis)
         }
-        Commands::GenerateSignals { input, strategy, history, risk } => {
+        Commands::GenerateSignals { input, strategy, history, risk, portfolio } => {
             let raw = fs::read_to_string(&input)?;
             let series: BarSeries = match serde_json::from_str::<ResponseEnvelope<BarSeries>>(&raw) {
                 Ok(envelope) => envelope.data.ok_or(CliError::Validation("Envelope has no data".to_string()))?,
                 Err(_) => serde_json::from_str::<BarSeries>(&raw)?
+            };
+
+            let positions: Vec<contracts::Position> = if let Some(path) = portfolio {
+                let raw_pos = fs::read_to_string(&path)?;
+                // Handle envelope or raw list
+                match serde_json::from_str::<ResponseEnvelope<Vec<contracts::Position>>>(&raw_pos) {
+                     Ok(env) => env.data.unwrap_or_default(),
+                     Err(_) => serde_json::from_str(&raw_pos).unwrap_or_default(),
+                }
+            } else {
+                Vec::new()
             };
 
             let rt = tokio::runtime::Builder::new_current_thread()
@@ -254,7 +271,7 @@ fn run(command: Commands) -> Result<String, CliError> {
                 .map_err(|e| CliError::Provider(format!("Failed to create runtime: {}", e)))?;
 
             let intents = rt.block_on(async {
-                signals::generate_signals(&series, &strategy, history.as_deref(), risk).await
+                signals::generate_signals(&series, &strategy, history.as_deref(), risk, &positions).await
             }).map_err(|e| CliError::Validation(e.to_string()))?;
 
             ok_envelope(intents)
@@ -262,6 +279,23 @@ fn run(command: Commands) -> Result<String, CliError> {
         Commands::ScanMarket { provider, top_n, min_volatility, min_momentum } => {
             let symbols = scan_market(&provider, top_n, min_volatility, min_momentum)?;
             ok_envelope(symbols)
+        }
+        Commands::GetPositions { provider } => {
+            match provider.as_str() {
+                "kraken" => {
+                    let cfg = KrakenConfig::from_env().map_err(|e| CliError::Provider(e.to_string()))?;
+                    let client = KrakenClient::new(cfg);
+                    let positions = client.get_open_positions().map_err(|e| CliError::Provider(e.to_string()))?;
+                    ok_envelope(positions)
+                }
+                "alpaca" => {
+                    let cfg = AlpacaConfig::from_env().map_err(|e| CliError::Provider(e.to_string()))?;
+                    let client = AlpacaClient::new(cfg);
+                    let positions = client.get_open_positions().map_err(|e| CliError::Provider(e.to_string()))?;
+                    ok_envelope(positions)
+                }
+                _ => Err(CliError::Validation(format!("Unsupported provider: {}", provider))),
+            }
         }
     }
 }

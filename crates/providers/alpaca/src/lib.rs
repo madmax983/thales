@@ -208,6 +208,28 @@ impl AlpacaClient {
         let positions: Vec<AlpacaPosition> = response.json()?;
         Ok(positions)
     }
+
+    pub fn get_open_positions(&self) -> Result<Vec<contracts::Position>, AlpacaProviderError> {
+        let positions = self.fetch_positions()?;
+        Ok(positions
+            .into_iter()
+            .map(|p| {
+                let cost_basis = p.cost_basis.parse::<f64>().unwrap_or(0.0);
+                let entry_price = if p.qty != 0.0 {
+                    Some(cost_basis / p.qty)
+                } else {
+                    None
+                };
+
+                contracts::Position {
+                    symbol: p.symbol,
+                    side: p.side,
+                    qty: p.qty,
+                    entry_price,
+                }
+            })
+            .collect())
+    }
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize)]

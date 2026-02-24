@@ -397,6 +397,52 @@ impl KrakenClient {
 
         Ok(api_response.result.unwrap_or_default())
     }
+
+    pub fn get_open_positions(&self) -> Result<Vec<contracts::Position>, KrakenProviderError> {
+        let open_positions = self.fetch_open_positions()?;
+
+        // Aggregate
+        // Key: (Pair, Type)
+        // Value: (Total Qty, Total Cost)
+        let mut agg: HashMap<(String, String), (f64, f64)> = HashMap::new();
+
+        for pos in open_positions.values() {
+            let vol: f64 = pos.vol.parse().unwrap_or(0.0);
+            let vol_closed: f64 = pos.vol_closed.parse().unwrap_or(0.0);
+            let cost: f64 = pos.cost.parse().unwrap_or(0.0);
+
+            let current_qty = vol - vol_closed;
+            if current_qty <= 0.00000001 { continue; } // effectively closed
+
+            // Proportional cost for remaining qty
+            // Assuming cost is for initial 'vol'
+            let current_cost = if vol > 0.0 {
+                cost * (current_qty / vol)
+            } else {
+                0.0
+            };
+
+            let key = (normalize_pair(&pos.pair), pos.type_.clone());
+            let entry = agg.entry(key).or_insert((0.0, 0.0));
+            entry.0 += current_qty;
+            entry.1 += current_cost;
+        }
+
+        let mut positions = Vec::new();
+        for ((pair, side), (qty, total_cost)) in agg {
+            let entry_price = if qty > 0.0 { Some(total_cost / qty) } else { None };
+            let side = if side == "buy" { "long" } else { "short" }; // Map Kraken "buy"/"sell" to "long"/"short"
+
+            positions.push(contracts::Position {
+                symbol: pair,
+                side: side.to_string(),
+                qty,
+                entry_price,
+            });
+        }
+
+        Ok(positions)
+    }
 }
 
 fn now_unix_ms() -> Result<i64, KrakenProviderError> {

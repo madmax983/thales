@@ -150,8 +150,13 @@ def process_symbol(provider, symbol, strategy_name):
     with open("temp_bars.json", "w") as f:
         json.dump(bars, f)
 
+    # Fetch Positions (for redundancy check)
+    positions = run_command(["get-positions", "--provider", provider])
+    with open("temp_positions.json", "w") as f:
+        json.dump(positions or [], f)
+
     # Generate Signals (Validation)
-    intents = run_command(["generate-signals", "--input", "temp_bars.json", "--strategy", strategy_name, "--history", HISTORY_PATH])
+    intents = run_command(["generate-signals", "--input", "temp_bars.json", "--strategy", strategy_name, "--history", HISTORY_PATH, "--portfolio", "temp_positions.json"])
 
     if not intents:
         print(f"No signals for {symbol}")
@@ -221,6 +226,7 @@ def main():
     # Clean up
     if os.path.exists("temp_bars.json"): os.remove("temp_bars.json")
     if os.path.exists("temp_intent.json"): os.remove("temp_intent.json")
+    if os.path.exists("temp_positions.json"): os.remove("temp_positions.json")
 
 if __name__ == "__main__":
     main()
