@@ -13,10 +13,7 @@ use serde::Serialize;
 use serde_json::json;
 use thiserror::Error;
 
-mod analysis;
-mod rag;
-mod reporting;
-mod signals;
+use thales_cli::{analysis, rag, reporting, signals};
 
 #[derive(Debug, Parser)]
 #[command(name = "thales-cli", version, about = "Agent trading toolkit CLI")]
