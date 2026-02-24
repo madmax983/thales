@@ -79,7 +79,8 @@ def get_candidates_from_signals():
     # New parsing logic to handle sections and extract full context
     chunks = re.split(r"\n## ", content)
     for chunk in chunks:
-        chunk = chunk.strip()
+        # Strip leading # and whitespace. This handles the very first chunk which might start with ##
+        chunk = chunk.lstrip('#').strip()
         if not chunk: continue
 
         market = None
