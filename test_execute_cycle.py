@@ -124,5 +124,60 @@ class TestExecuteCycle(unittest.TestCase):
         self.assertIn("0.1", content)
         self.assertIn("Test Signal", content)
 
+    @patch('execute_cycle.subprocess.run')
+    def test_verify_risk_rejects_sell_without_position(self, mock_run):
+         # Setup mock behavior
+        def side_effect(cmd, **kwargs):
+            mock_ret = MagicMock()
+            mock_ret.returncode = 0
+            def ret_json(data):
+                mock_ret.stdout = json.dumps({"status": "ok", "data": data})
+                return mock_ret
+
+            cmd_str = " ".join(cmd)
+            if "scan-market" in cmd_str:
+                return ret_json(["MOCKUSD"])
+            elif "fetch-market-data" in cmd_str:
+                 return ret_json([{"close": 100.0, "timestamp_unix_ms": 1000}])
+            elif "analyze-market" in cmd_str:
+                return ret_json({"regime": "Bearish"})
+            elif "get-positions" in cmd_str:
+                return ret_json([]) # NO POSITIONS
+            elif "generate-signals" in cmd_str:
+                # Generate a SELL signal
+                signal = [{
+                    "intent_id": "test_sell_id",
+                    "market": "crypto",
+                    "symbol": "MOCKUSD",
+                    "side": "sell", # SELL!
+                    "size_hint": "0.1",
+                    "confidence": 0.9,
+                    "rationale": "Test Sell Signal",
+                    "limit_price": 100.0,
+                    "order_type": "limit",
+                    "time_in_force": "GTC",
+                    "signal_type": "Exit"
+                }]
+                return ret_json(signal)
+
+            return ret_json([])
+
+        mock_run.side_effect = side_effect
+
+        execute_cycle.main()
+
+        with open("temp_portfolio.md", "r") as f:
+            content = f.read()
+
+        print(f"Portfolio Content (Sell Test):\n{content}")
+        # Should contain rejection log
+        self.assertIn("Rejected by Risk Agent", content)
+        self.assertIn("Sell signal received but no open position", content)
+        # Should NOT contain "submitted" execution log (which has | buy | or | sell | format)
+        # The rejection log has | MOCKUSD | test_sell_id | Rejected... |
+        # The execution log has | ... | MOCKUSD | sell | ... |
+
+        self.assertIn("| test_sell_id |", content)
+
 if __name__ == '__main__':
     unittest.main()

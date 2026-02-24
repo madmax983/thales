@@ -15,7 +15,7 @@ HISTORY_PATH = "history.json"
 SIGNALS_PATH = "Signals.md"
 
 def run_command(args):
-    """Runs a thales-cli command and returns the parsed JSON data."""
+    """Runs a thales-cli command and returns (data, error_message)."""
     cmd = [CLI_PATH] + args
     try:
         # print(f"Running: {' '.join(cmd)}")
@@ -29,19 +29,32 @@ def run_command(args):
             try:
                 envelope = json.loads(json_str)
                 if envelope.get("status") == "ok":
-                    return envelope.get("data")
+                    return envelope.get("data"), None
                 else:
-                    print(f"Error executing {args}: {envelope.get('errors')}")
-                    return None
+                    errors = envelope.get("errors", [])
+                    error_msg = "; ".join(errors) if errors else "Unknown error"
+                    # print(f"Error executing {args}: {error_msg}")
+                    return None, error_msg
             except json.JSONDecodeError:
                 pass # Fall through to error reporting
 
         print(f"Failed to parse JSON output from {args}")
-        print(result.stdout)
-        return None
+        # print(result.stdout)
+        return None, "Failed to parse JSON output"
     except subprocess.CalledProcessError as e:
-        print(f"Command failed: {cmd}\nOutput: {e.output}\nError: {e.stderr}")
-        return None
+        # Attempt to parse JSON error from stdout if available
+        if e.stdout:
+            try:
+                envelope = json.loads(e.stdout)
+                if envelope.get("status") == "error":
+                     errors = envelope.get("errors", [])
+                     return None, "; ".join(errors)
+            except:
+                pass
+
+        # Fallback to stderr or stdout raw
+        msg = e.stderr.strip() if e.stderr else e.stdout.strip()
+        return None, f"Command failed: {msg}"
 
 def get_active_strategies():
     """Parses strategies.md to find all active strategy names."""
@@ -144,7 +157,10 @@ def get_candidates_from_signals():
 def fetch_positions(provider):
     """Fetches open positions for a provider."""
     # print(f"Fetching positions from {provider}...")
-    positions = run_command(["get-positions", "--provider", provider])
+    positions, err = run_command(["get-positions", "--provider", provider])
+    if err:
+        print(f"Error fetching positions for {provider}: {err}")
+        return []
     return positions if positions else []
 
 def get_all_positions():
@@ -165,7 +181,7 @@ def get_all_positions():
     with open(temp_file, "w") as f:
         json.dump(all_positions, f)
 
-    return temp_file
+    return temp_file, all_positions
 
 def scan_markets():
     """Scans markets for candidates."""
@@ -173,14 +189,20 @@ def scan_markets():
 
     # Crypto (Kraken)
     print("Scanning Kraken (Crypto)...")
-    crypto = run_command(["scan-market", "--provider", "kraken", "--top-n", "10", "--min-volatility", "0.01", "--min-momentum", "0.0"])
+    crypto, err = run_command(["scan-market", "--provider", "kraken", "--top-n", "10", "--min-volatility", "0.01", "--min-momentum", "0.0"])
+    if err:
+        print(f"Error scanning Kraken: {err}")
+
     if crypto:
         for symbol in crypto:
             candidates.append({"provider": "kraken", "symbol": symbol, "market": "crypto"})
 
     # Equities (Alpaca)
     print("Scanning Alpaca (Equities)...")
-    equities = run_command(["scan-market", "--provider", "alpaca"])
+    equities, err = run_command(["scan-market", "--provider", "alpaca"])
+    if err:
+        print(f"Error scanning Alpaca: {err}")
+
     if equities:
         for symbol in equities:
             candidates.append({"provider": "alpaca", "symbol": symbol, "market": "equities"})
@@ -193,7 +215,10 @@ def evaluate_candidate(candidate, strategies, portfolio_path=None):
     symbol = candidate["symbol"]
 
     # Fetch Data
-    bars = run_command(["fetch-market-data", "--provider", provider, "--symbol", symbol, "--timeframe", "1h"])
+    bars, err = run_command(["fetch-market-data", "--provider", provider, "--symbol", symbol, "--timeframe", "1h"])
+    if err:
+        # print(f"Error fetching data for {symbol}: {err}")
+        return []
     if not bars:
         return []
 
@@ -203,7 +228,7 @@ def evaluate_candidate(candidate, strategies, portfolio_path=None):
         json.dump(bars, f)
 
     # Generate Analysis (for history)
-    analysis = run_command(["analyze-market", "--input", temp_bars_file, "--no-report"])
+    analysis, _ = run_command(["analyze-market", "--input", temp_bars_file, "--no-report"])
 
     all_generated_intents = []
 
@@ -224,7 +249,10 @@ def evaluate_candidate(candidate, strategies, portfolio_path=None):
                 json.dump(candidate["raw_analysis_json"], f)
             args.extend(["--analysis", temp_analysis_file])
 
-        intents = run_command(args)
+        intents, err = run_command(args)
+        if err:
+             # print(f"Error generating signals for {symbol} ({strategy_name}): {err}")
+             pass
 
         # Cleanup temp analysis
         if temp_analysis_file and os.path.exists(temp_analysis_file):
@@ -276,9 +304,6 @@ def resolve_conflicts(intents):
     # No conflict, pick best confidence
     intents.sort(key=lambda x: x.get("confidence", 0.0), reverse=True)
     best_intent = intents[0]
-
-    # Optional: If multiple strategies agree, maybe boost confidence?
-    # For now, just taking the max confidence is safe.
 
     return [best_intent]
 
@@ -374,7 +399,7 @@ def log_skipped(intent, reason):
     with open(PORTFOLIO_PATH, "a") as f:
          f.write(line + "\n")
 
-def verify_risk(intent):
+def verify_risk(intent, positions):
     """
     Risk Agent logic to verify trade intent before execution.
     Returns (bool, reason).
@@ -422,6 +447,26 @@ def verify_risk(intent):
     if confidence < 0.5:
         return False, f"Low confidence: {confidence}"
 
+    # 4. Check Position for Sell (Exit/ScaleOut/Short)
+    if side == "sell":
+        # Find position for symbol
+        current_pos = None
+        for p in positions:
+            if p["symbol"] == symbol:
+                current_pos = p
+                break
+
+        if not current_pos:
+            return False, f"Sell signal received but no open position for {symbol}."
+
+        # Check qty > 0? (Usually position implies qty != 0)
+        try:
+            qty = float(current_pos.get("qty", 0.0))
+            if qty <= 0:
+                 return False, f"Sell signal received but position qty is {qty}."
+        except:
+             pass
+
     return True, "Approved"
 
 def main():
@@ -455,7 +500,7 @@ def main():
 
     # 2b. Fetch Current Portfolio (Positions)
     print("Fetching open positions...")
-    portfolio_path = get_all_positions()
+    portfolio_path, current_positions = get_all_positions()
 
     try:
         # 3. Generate Signals for all candidates
@@ -495,7 +540,7 @@ def main():
     # 5. Execute
     for intent in top_signals:
         # Risk Agent Check
-        risk_ok, risk_reason = verify_risk(intent)
+        risk_ok, risk_reason = verify_risk(intent, current_positions)
         if not risk_ok:
             print(f"Skipping {intent['symbol']}: {risk_reason}")
             log_skipped(intent, f"Rejected by Risk Agent: {risk_reason}")
@@ -510,7 +555,7 @@ def main():
             json.dump(intent, f)
 
         # Execute
-        result = run_command(["execute-intent", "--provider", provider, "--input", temp_intent_file])
+        result, err = run_command(["execute-intent", "--provider", provider, "--input", temp_intent_file])
 
         # Cleanup
         if os.path.exists(temp_intent_file):
@@ -523,8 +568,8 @@ def main():
             log_trade(intent, exec_res)
             update_history(intent)
         else:
-            print("Execution failed.")
-            log_skipped(intent, "Execution Failed")
+            print(f"Execution failed: {err}")
+            log_skipped(intent, f"Execution Failed: {err}")
 
     # Log skipped signals (signals not selected in top 3)
     # Only if they were valid signals but we didn't select them.

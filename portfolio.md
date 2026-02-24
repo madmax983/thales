@@ -20,3 +20,16 @@
 | 2026-02-24 16:32:17 | SPICEUSD | crypto:SPICEUSD:buy:1771948800000 | Execution Failed |
 | 2026-02-24 16:46:14 | LOBOUSD | crypto:LOBOUSD:sell:1771948800000 | Execution Failed |
 | 2026-02-24 16:46:14 | PENGUUSD | crypto:PENGUUSD:sell:1771948800000 | Execution Failed |
+| 2026-02-24 17:12:05 | AKEUSD | crypto:AKEUSD:sell:1771952400000 | Conflict: Multiple strategies gave conflicting signals ({'buy', 'sell'}) |
+| 2026-02-24 17:12:05 | AKEUSD | crypto:AKEUSD:buy:1771952400000 | Conflict: Multiple strategies gave conflicting signals ({'buy', 'sell'}) |
+| 2026-02-24 17:12:11 | MOGUSD | crypto:MOGUSD:buy:1771952400000 | Execution Failed: Command failed:  |
+| 2026-02-24 17:12:12 | BONKUSD | crypto:BONKUSD:buy:1771952400000 | Execution Failed: Command failed:  |
+| 2026-02-24 17:12:12 | FLOKIUSD | crypto:FLOKIUSD:buy:1771952400000 | Execution Failed: Command failed:  |
+| 2026-02-24 17:12:12 | BSXUSD | crypto:BSXUSD:buy:1771952400000 | Lower priority/confidence than top 3 |
+| 2026-02-24 17:12:12 | LOBOUSD | crypto:LOBOUSD:sell:1771952400000 | Lower priority/confidence than top 3 |
+| 2026-02-24 17:12:44 | AKEUSD | crypto:AKEUSD:sell:1771952400000 | Conflict: Multiple strategies gave conflicting signals ({'sell', 'buy'}) |
+| 2026-02-24 17:12:44 | AKEUSD | crypto:AKEUSD:buy:1771952400000 | Conflict: Multiple strategies gave conflicting signals ({'sell', 'buy'}) |
+| 2026-02-24 17:12:49 | MOGUSD | crypto:MOGUSD:buy:1771952400000 | Execution Failed: provider error: kraken api error: EOrder:Insufficient funds |
+| 2026-02-24 17:12:50 | BONKUSD | crypto:BONKUSD:buy:1771952400000 | Execution Failed: provider error: kraken api error: EOrder:Insufficient funds |
+| 2026-02-24 17:12:50 | BSXUSD | crypto:BSXUSD:buy:1771952400000 | Execution Failed: provider error: kraken api error: EOrder:Insufficient funds |
+| 2026-02-24 17:12:50 | LOBOUSD | crypto:LOBOUSD:sell:1771952400000 | Lower priority/confidence than top 3 |
