@@ -11,6 +11,7 @@ use strategies::macd::{Macd, MacdConfig};
 use strategies::supertrend::{Supertrend, SupertrendConfig};
 use strategies::donchian_breakout::{DonchianBreakout, DonchianBreakoutConfig};
 use strategies::parabolic_sar::{ParabolicSar, ParabolicSarConfig};
+use strategies::keltner_channel_breakout::{KeltnerChannelBreakout, KeltnerChannelBreakoutConfig};
 use strategies::strategy::{Signal, SignalType, Strategy};
 
 fn resolve_signal_type(signal: &Signal, position: Option<&contracts::Position>) -> (SignalType, String) {
@@ -170,6 +171,15 @@ pub async fn generate_signals(
             symbol: market_analysis.symbol.clone(),
         };
         Box::new(ParabolicSar::new(config))
+    } else if strategy_name == "KeltnerChannelBreakout" {
+        let config = KeltnerChannelBreakoutConfig {
+            ema_period: 20,
+            atr_period: 10,
+            atr_multiplier: 2.0,
+            stop_loss_atr_mult: 2.0,
+            symbol: market_analysis.symbol.clone(),
+        };
+        Box::new(KeltnerChannelBreakout::new(config))
     } else {
         // Fallback or Error
         return Err(anyhow::anyhow!("Unknown strategy: {}", strategy_name));

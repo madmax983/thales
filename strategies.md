@@ -475,3 +475,74 @@ pub struct ParabolicSarConfig {
 ### Performance
 - SAR calculation is O(N) iterative loop.
 - Efficient enough for typical timeframe data.
+
+---
+
+# Trading Strategy: Keltner Channel Breakout
+
+## Strategy Specification
+
+**Name:** KeltnerChannelBreakout
+
+**Description:** A trend-following strategy that uses Keltner Channels (EMA +/- ATR bands) to identify breakouts. It generates buy signals when price closes above the Upper Channel and sell signals when price closes below the Lower Channel.
+
+**Rationale:** Keltner Channels adapt to volatility using ATR. A breakout from the channel often signals the start of a new trend or the continuation of a strong move.
+
+## Requirements
+
+### Implementation Details
+- Uses Polars for data analysis.
+- Implements the `Strategy` trait in Rust.
+- Uses `ema` and `atr` indicators.
+
+### Strategy Type
+Trend Following / Breakout
+
+### Entry Conditions
+- **Long Entry (Buy):** Close Price > Upper Channel (EMA + Multiplier * ATR).
+- **Short Entry (Sell):** Close Price < Lower Channel (EMA - Multiplier * ATR).
+
+### Exit Conditions
+- **Long Exit (Sell):** Close Price < Middle Band (EMA).
+- **Short Exit (Buy):** Close Price > Middle Band (EMA).
+- **Stop Loss:** Entry Price +/- (ATR * `stop_loss_atr_mult`).
+
+### Position Sizing
+- **Size Hint:** "100" (fixed units) or "max" (for exits).
+
+## Code Pattern
+
+```rust
+use crate::strategy::{Strategy, StrategyConfig, Signal, SignalType};
+use crate::indicators::{atr, ema};
+use polars::prelude::*;
+use async_trait::async_trait;
+use anyhow::Result;
+
+pub struct KeltnerChannelBreakout {
+    config: KeltnerChannelBreakoutConfig,
+}
+
+#[derive(Debug, Clone, serde::Deserialize)]
+pub struct KeltnerChannelBreakoutConfig {
+    pub ema_period: usize,
+    pub atr_period: usize,
+    pub atr_multiplier: f64,
+    pub stop_loss_atr_mult: f64,
+    pub symbol: String,
+}
+```
+
+## Critical Considerations
+
+### Risk Management Integration
+- **Stop Loss:** Uses ATR-based stop loss for initial risk control.
+- **Trailing Stop:** The Middle Band (EMA) acts as a trend filter and exit point.
+
+### Backtesting Requirements
+- Accepts `DataFrame` with historical data.
+- Requires data length > `max(ema_period, atr_period)`.
+
+### Performance
+- EMA and ATR calculations are O(N).
+- Signal generation loop is O(N).
