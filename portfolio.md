@@ -41,3 +41,8 @@
 | 2026-02-25 01:34:33 | XBTUSD | crypto:XBTUSD:sell:1771981200000 | Execution Failed |
 | 2026-02-25 01:34:33 | XXBTZUSD | crypto:XXBTZUSD:sell:1771981200000 | Execution Failed |
 | 2026-02-25 01:34:33 | BTCUSD | crypto:BTCUSD:sell:1771981200000 | Execution Failed |
+| 2026-02-25 03:36:16 | AAPL | STALE_SIGNAL | Signal too old (34.8 hours > 24 hours) |
+| 2026-02-25 03:36:21 | BTCUSD | NO_STRATEGY_SIGNAL | No active strategy generated a signal (Strategies: BollingerBands, EmaCrossover, RsiMeanReversion, Macd, Supertrend, DonchianBreakout) |
+| 2026-02-25 03:36:22 | SPY | NO_STRATEGY_SIGNAL | No active strategy generated a signal (Strategies: BollingerBands, EmaCrossover, RsiMeanReversion, Macd, Supertrend, DonchianBreakout) |
+| 2026-02-25 03:36:22 | NVDA | NO_STRATEGY_SIGNAL | No active strategy generated a signal (Strategies: BollingerBands, EmaCrossover, RsiMeanReversion, Macd, Supertrend, DonchianBreakout) |
+| 2026-02-25 03:36:22 | BSXUSD | crypto:BSXUSD:buy:1771988400000 | Execution Failed |
