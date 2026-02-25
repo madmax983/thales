@@ -9,7 +9,53 @@ use strategies::ema_crossover::{EmaCrossover, EmaCrossoverConfig};
 use strategies::rsi_mean_reversion::{RsiMeanReversion, RsiMeanReversionConfig};
 use strategies::macd::{Macd, MacdConfig};
 use strategies::supertrend::{Supertrend, SupertrendConfig};
-use strategies::strategy::{SignalType, Strategy};
+use strategies::strategy::{Signal, SignalType, Strategy};
+
+fn resolve_signal_type(signal: &Signal, position: Option<&contracts::Position>) -> (SignalType, String) {
+    let mut final_signal_type = signal.signal_type.clone();
+    let mut rationale_suffix = String::new();
+
+    if let Some(pos) = position {
+        let signal_side_long = signal.side == "buy";
+        let pos_side_long = pos.side == "long";
+
+        match signal.signal_type {
+            SignalType::Entry | SignalType::ScaleIn => {
+                if signal_side_long == pos_side_long {
+                    // Already have position in same direction -> ScaleIn
+                    final_signal_type = SignalType::ScaleIn;
+                    if signal.signal_type == SignalType::Entry {
+                        rationale_suffix.push_str(" (Scaled into existing position)");
+                    } else {
+                        rationale_suffix.push_str(" (Adding to existing position)");
+                    }
+                } else {
+                    // Opposite direction -> Exit (Close existing)
+                    final_signal_type = SignalType::Exit;
+                    rationale_suffix.push_str(" (Closing opposite position)");
+                }
+            },
+            SignalType::Exit => {
+                // Check if this is a partial exit (ScaleOut)
+                if signal_side_long != pos_side_long {
+                    if let Ok(size) = signal.size_hint.parse::<f64>() {
+                        if size < pos.qty {
+                            final_signal_type = SignalType::ScaleOut;
+                            rationale_suffix.push_str(&format!(" (Partial Exit: {:.2}/{:.2})", size, pos.qty));
+                        } else {
+                            rationale_suffix.push_str(" (Closing position)");
+                        }
+                    } else {
+                        // "max" or invalid -> Full Exit
+                        rationale_suffix.push_str(" (Closing position)");
+                    }
+                }
+            },
+            _ => {}
+        }
+    }
+    (final_signal_type, rationale_suffix)
+}
 
 pub async fn generate_signals(
     bars: &BarSeries,
@@ -209,10 +255,6 @@ pub async fn generate_signals(
                 "day".to_string()
             };
 
-            // Map SignalType and Check Redundancy/Conflicts with Positions
-            let mut final_signal_type = signal.signal_type.clone();
-            let mut rationale_suffix = String::new();
-
             // Find existing position for this symbol
             let existing_pos = positions.iter().find(|p| p.symbol == signal.symbol);
             if existing_pos.is_some() {
@@ -222,29 +264,7 @@ pub async fn generate_signals(
                 println!("DEBUG: Positions available: {:?}", positions);
             }
 
-            if let Some(pos) = existing_pos {
-                let signal_side_long = signal.side == "buy";
-                let pos_side_long = pos.side == "long";
-
-                match signal.signal_type {
-                    SignalType::Entry | SignalType::ScaleIn => {
-                        if signal_side_long == pos_side_long {
-                            // Already have position in same direction -> ScaleIn
-                            final_signal_type = SignalType::ScaleIn;
-                            if signal.signal_type == SignalType::Entry {
-                                rationale_suffix.push_str(" (Scaled into existing position)");
-                            } else {
-                                rationale_suffix.push_str(" (Adding to existing position)");
-                            }
-                        } else {
-                            // Opposite direction -> Exit (Close existing)
-                            final_signal_type = SignalType::Exit;
-                            rationale_suffix.push_str(" (Closing opposite position)");
-                        }
-                    },
-                    _ => {}
-                }
-            }
+            let (final_signal_type, rationale_suffix) = resolve_signal_type(signal, existing_pos);
 
             // Filter out invalid Exits (no position)
             let mut skip = (final_signal_type == SignalType::Exit || final_signal_type == SignalType::ScaleOut) && existing_pos.is_none();
@@ -940,6 +960,59 @@ mod tests {
         assert!(intent.rationale.contains("Strategy: Supertrend"));
 
         Ok(())
+    }
+
+    #[test]
+    fn test_resolve_signal_type_scale_out() {
+        let signal = strategies::strategy::Signal {
+            signal_type: SignalType::Exit,
+            symbol: "AAPL".to_string(),
+            side: "sell".to_string(), // Exit Long
+            size_hint: "0.5".to_string(),
+            confidence: 0.8,
+            stop_loss: None,
+            take_profit: None,
+            reason: "Partial exit".to_string(),
+            timestamp_ms: 1000,
+        };
+
+        let position = contracts::Position {
+            symbol: "AAPL".to_string(),
+            side: "long".to_string(),
+            qty: 1.0,
+            entry_price: Some(100.0),
+        };
+
+        let (signal_type, rationale) = resolve_signal_type(&signal, Some(&position));
+        assert_eq!(signal_type, SignalType::ScaleOut);
+        assert!(rationale.contains("Partial Exit"));
+        assert!(rationale.contains("0.50/1.00"));
+    }
+
+    #[test]
+    fn test_resolve_signal_type_full_exit() {
+        let signal = strategies::strategy::Signal {
+            signal_type: SignalType::Exit,
+            symbol: "AAPL".to_string(),
+            side: "sell".to_string(),
+            size_hint: "max".to_string(),
+            confidence: 0.8,
+            stop_loss: None,
+            take_profit: None,
+            reason: "Full exit".to_string(),
+            timestamp_ms: 1000,
+        };
+
+        let position = contracts::Position {
+            symbol: "AAPL".to_string(),
+            side: "long".to_string(),
+            qty: 1.0,
+            entry_price: Some(100.0),
+        };
+
+        let (signal_type, rationale) = resolve_signal_type(&signal, Some(&position));
+        assert_eq!(signal_type, SignalType::Exit);
+        assert!(rationale.contains("Closing position"));
     }
 
     #[tokio::test]

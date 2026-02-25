@@ -54,15 +54,11 @@ pub fn find_similar_trades(
         return Ok(vec![]);
     }
 
-    let raw = match fs::read_to_string(history_path) {
-        Ok(r) => r,
-        Err(_) => return Ok(vec![]),
-    };
+    let raw = fs::read_to_string(history_path)
+        .map_err(|e| anyhow::anyhow!("Failed to read history file: {}", e))?;
 
-    let history: Vec<HistoryEntry> = match serde_json::from_str(&raw) {
-        Ok(h) => h,
-        Err(_) => return Ok(vec![]),
-    };
+    let history: Vec<HistoryEntry> = serde_json::from_str(&raw)
+        .map_err(|e| anyhow::anyhow!("Failed to parse history JSON: {}", e))?;
 
     let mut similar_trades = Vec::new();
 
@@ -89,15 +85,11 @@ pub fn count_todays_signals(symbol: &str, history_path: &Path, reference_ts: i64
         return Ok(0);
     }
 
-    let raw = match fs::read_to_string(history_path) {
-        Ok(r) => r,
-        Err(_) => return Ok(0),
-    };
+    let raw = fs::read_to_string(history_path)
+        .map_err(|e| anyhow::anyhow!("Failed to read history file: {}", e))?;
 
-    let history: Vec<HistoryEntry> = match serde_json::from_str(&raw) {
-        Ok(h) => h,
-        Err(_) => return Ok(0),
-    };
+    let history: Vec<HistoryEntry> = serde_json::from_str(&raw)
+        .map_err(|e| anyhow::anyhow!("Failed to parse history JSON: {}", e))?;
 
     let ms_per_day = 24 * 60 * 60 * 1000;
     let today_day_num = reference_ts / ms_per_day;
@@ -217,11 +209,11 @@ mod tests {
         write!(history_file, "this is not json")?;
 
         let current_analysis = create_dummy_analysis("AAPL", "Trending Up", "Low");
-        let similar = find_similar_trades(&current_analysis, history_file.path())?;
-        assert!(similar.is_empty());
+        let similar = find_similar_trades(&current_analysis, history_file.path());
+        assert!(similar.is_err());
 
-        let count = count_todays_signals("AAPL", history_file.path(), 1000)?;
-        assert_eq!(count, 0);
+        let count = count_todays_signals("AAPL", history_file.path(), 1000);
+        assert!(count.is_err());
 
         Ok(())
     }
