@@ -193,6 +193,10 @@ impl PaperClient {
             .map_err(|err| PaperProviderError::Clock(err.to_string()))?
             .as_millis() as i64;
 
+        if let Some(algo) = &intent.execution_algo {
+            eprintln!("Paper Executing with Algo: {}", algo);
+        }
+
         Ok(ExecutionResult {
             schema_version: "v0".to_string(),
             intent_id: intent.intent_id.clone(),
@@ -201,6 +205,16 @@ impl PaperClient {
             status: "filled".to_string(),
             submitted_at_unix_ms,
         })
+    }
+
+    pub fn fetch_open_orders(&self) -> Result<Vec<contracts::Order>, PaperProviderError> {
+        // Paper trading executes immediately, so there are no open orders.
+        Ok(Vec::new())
+    }
+
+    pub fn cancel_order(&self, _order_id: &str) -> Result<(), PaperProviderError> {
+        // No open orders to cancel.
+        Ok(())
     }
 
     pub fn get_open_positions(&self) -> Result<Vec<contracts::Position>, PaperProviderError> {

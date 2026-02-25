@@ -60,6 +60,7 @@ fn execute_intent_submits_order_and_maps_response() {
             limit_price: None,
             stop_price: None,
             time_in_force: "day".to_string(),
+            execution_algo: None,
         })
         .expect("execution");
 
@@ -112,6 +113,7 @@ fn execute_intent_returns_error_on_http_failure() {
             limit_price: None,
             stop_price: None,
             time_in_force: "day".to_string(),
+            execution_algo: None,
         })
         .expect_err("expected http error");
 
@@ -165,6 +167,7 @@ fn execute_intent_submits_limit_order() {
             limit_price: Some(150.0),
             stop_price: None,
             time_in_force: "day".to_string(),
+            execution_algo: None,
         })
         .expect("execution");
 
@@ -216,6 +219,7 @@ fn execute_intent_submits_bracket_order() {
             limit_price: None,
             stop_price: None,
             time_in_force: "day".to_string(),
+            execution_algo: None,
         })
         .expect("execution");
 

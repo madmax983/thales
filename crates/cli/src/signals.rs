@@ -434,6 +434,7 @@ pub async fn generate_signals(
                     limit_price: None,
                     stop_price: None,
                     time_in_force,
+                    execution_algo: Some("Market".to_string()),
                 };
 
                 intents.push(intent);

@@ -564,10 +564,45 @@ def verify_risk(intent):
 
     return True, "Approved"
 
+def manage_orders():
+    """Checks and cancels stale orders (> 5 mins)."""
+    providers = []
+    if os.environ.get("SIMULATION") == "true":
+        providers.append("paper")
+    else:
+        providers.append("alpaca")
+        providers.append("kraken")
+
+    for provider in providers:
+        # print(f"Checking open orders on {provider}...")
+        orders = run_command(["get-open-orders", "--provider", provider])
+        if not orders:
+            continue
+
+        now = int(datetime.now().timestamp() * 1000)
+        for order in orders:
+             submitted_at = order.get("submitted_at_unix_ms", 0)
+             age_ms = now - submitted_at
+             if age_ms > 300000: # 5 minutes
+                 age_s = age_ms / 1000.0
+                 print(f"Cancelling stale order {order['id']} ({order['symbol']}) - Age: {age_s:.0f}s")
+                 run_command(["cancel-order", "--provider", provider, "--id", order['id']])
+
+                 # Log cancellation
+                 dummy_intent = {
+                     "symbol": order['symbol'],
+                     "intent_id": f"CANCEL-{order['id']}",
+                     "rationale": f"Stale order ({age_s:.0f}s > 300s) canceled"
+                 }
+                 log_skipped(dummy_intent, "Stale Order Cancellation")
+
 def main():
     if not os.path.exists(CLI_PATH):
         print("Error: thales-cli not found. Run cargo build.")
         return
+
+    # 0. Manage Active Orders (Cancel Stale)
+    manage_orders()
 
     # 1. Identify Strategies
     strategies = get_active_strategies()

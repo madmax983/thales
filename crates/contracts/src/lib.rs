@@ -70,6 +70,9 @@ pub struct TradeIntent {
     pub stop_price: Option<f64>,
     /// The time in force for the order (e.g., "GTC", "IOC", "day").
     pub time_in_force: String,
+    /// The execution algorithm to use (e.g., "Market", "Limit", "TWAP", "VWAP").
+    #[serde(default)]
+    pub execution_algo: Option<String>,
 }
 
 impl Default for TradeIntent {
@@ -92,6 +95,7 @@ impl Default for TradeIntent {
             limit_price: None,
             stop_price: None,
             time_in_force: "day".to_string(),
+            execution_algo: None,
         }
     }
 }
@@ -286,4 +290,25 @@ pub struct Position {
     pub qty: f64,
     /// The average entry price.
     pub entry_price: Option<f64>,
+}
+
+/// Represents an active order.
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct Order {
+    /// The unique order ID.
+    pub id: String,
+    /// The symbol of the order (e.g., "BTCUSD", "AAPL").
+    pub symbol: String,
+    /// The quantity ordered.
+    pub qty: f64,
+    /// The quantity filled.
+    pub filled_qty: f64,
+    /// The side of the order ("buy" or "sell").
+    pub side: String,
+    /// The type of order ("market", "limit", etc.).
+    pub order_type: String,
+    /// The current status of the order (e.g., "new", "filled", "canceled").
+    pub status: String,
+    /// The timestamp when the order was submitted (Unix ms).
+    pub submitted_at_unix_ms: i64,
 }

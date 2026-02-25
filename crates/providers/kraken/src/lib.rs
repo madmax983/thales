@@ -266,6 +266,10 @@ impl KrakenClient {
             .map_err(|err| KrakenProviderError::Clock(err.to_string()))?
             .as_millis() as i64;
 
+        if let Some(algo) = &intent.execution_algo {
+            eprintln!("Executing with Algo: {}", algo);
+        }
+
         Ok(ExecutionResult {
             schema_version: "v0".to_string(),
             intent_id: intent.intent_id.clone(),
@@ -274,6 +278,96 @@ impl KrakenClient {
             status: "submitted".to_string(),
             submitted_at_unix_ms,
         })
+    }
+
+    /// Fetches open orders.
+    pub fn fetch_open_orders(&self) -> Result<Vec<contracts::Order>, KrakenProviderError> {
+        let nonce = now_unix_ms()?.to_string();
+        let body = format!("nonce={}", nonce);
+        let path = "/0/private/OpenOrders";
+        let signature = sign_request(&self.config.api_secret, path, &nonce, &body)?;
+        let url = format!("{}{}", self.config.base_url.trim_end_matches('/'), path);
+
+        let response = self
+            .http
+            .post(url)
+            .header("API-Key", &self.config.api_key)
+            .header("API-Sign", signature)
+            .header("Content-Type", "application/x-www-form-urlencoded")
+            .body(body)
+            .send()?;
+
+        if !response.status().is_success() {
+            let status = response.status().as_u16();
+            let body = response
+                .text()
+                .unwrap_or_else(|_| "unable to decode error body".to_string());
+            return Err(KrakenProviderError::UnexpectedHttpStatus(status, body));
+        }
+
+        let api_response: KrakenOpenOrdersResponse = response.json()?;
+        if !api_response.error.is_empty() {
+            return Err(KrakenProviderError::Api(api_response.error.join(", ")));
+        }
+
+        let mut orders = Vec::new();
+        if let Some(result) = api_response.result {
+            if let Some(open) = result.open {
+                for (txid, info) in open {
+                    let qty = info.vol.parse::<f64>().unwrap_or(0.0);
+                    let filled_qty = info.vol_exec.parse::<f64>().unwrap_or(0.0);
+                    let submitted_at = (info.opentm * 1000.0) as i64;
+
+                    orders.push(contracts::Order {
+                        id: txid,
+                        symbol: info.descr.pair,
+                        qty,
+                        filled_qty,
+                        side: info.descr.type_,
+                        order_type: info.descr.ordertype,
+                        status: info.status,
+                        submitted_at_unix_ms: submitted_at,
+                    });
+                }
+            }
+        }
+
+        Ok(orders)
+    }
+
+    /// Cancels an order.
+    pub fn cancel_order(&self, order_id: &str) -> Result<(), KrakenProviderError> {
+        let nonce = now_unix_ms()?.to_string();
+        let body = format!("nonce={}&txid={}", nonce, order_id);
+        let path = "/0/private/CancelOrder";
+        let signature = sign_request(&self.config.api_secret, path, &nonce, &body)?;
+        let url = format!("{}{}", self.config.base_url.trim_end_matches('/'), path);
+
+        let response = self
+            .http
+            .post(url)
+            .header("API-Key", &self.config.api_key)
+            .header("API-Sign", signature)
+            .header("Content-Type", "application/x-www-form-urlencoded")
+            .body(body)
+            .send()?;
+
+        if !response.status().is_success() {
+             let status = response.status().as_u16();
+             let body = response
+                 .text()
+                 .unwrap_or_else(|_| "unable to decode error body".to_string());
+             return Err(KrakenProviderError::UnexpectedHttpStatus(status, body));
+        }
+
+        let api_response: KrakenApiResponse = response.json()?;
+         if !api_response.error.is_empty() {
+            // "EOrder:Unknown order" is common if already filled/canceled.
+            // We might treat it as Ok or Err.
+            return Err(KrakenProviderError::Api(api_response.error.join(", ")));
+        }
+
+        Ok(())
     }
 
     /// Fetches asset pair information (decimals, etc).
@@ -611,6 +705,34 @@ pub struct KrakenOpenPosition {
     pub vol: String,
     pub vol_closed: String,
     pub margin: String,
+}
+
+#[derive(Debug, Clone, Deserialize)]
+struct KrakenOpenOrdersResponse {
+    error: Vec<String>,
+    result: Option<KrakenOpenOrdersResult>,
+}
+
+#[derive(Debug, Clone, Deserialize)]
+struct KrakenOpenOrdersResult {
+    open: Option<HashMap<String, KrakenOrderInfo>>,
+}
+
+#[derive(Debug, Clone, Deserialize)]
+struct KrakenOrderInfo {
+    status: String,
+    opentm: f64,
+    vol: String,
+    vol_exec: String,
+    descr: KrakenOrderDescription,
+}
+
+#[derive(Debug, Clone, Deserialize)]
+struct KrakenOrderDescription {
+    pair: String,
+    #[serde(rename = "type")]
+    type_: String,
+    ordertype: String,
 }
 
 #[derive(Debug, Error)]

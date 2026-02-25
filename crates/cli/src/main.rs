@@ -65,10 +65,22 @@ enum Commands {
         stop_price: Option<f64>,
         #[arg(long, default_value = "day")]
         time_in_force: String,
+        #[arg(long)]
+        execution_algo: Option<String>,
     },
     ValidateIntent {
         #[arg(long)]
         input: PathBuf,
+    },
+    GetOpenOrders {
+        #[arg(long)]
+        provider: String,
+    },
+    CancelOrder {
+        #[arg(long)]
+        provider: String,
+        #[arg(long)]
+        id: String,
     },
     ExecuteIntent {
         #[arg(long)]
@@ -214,6 +226,7 @@ fn run(command: Commands) -> Result<String, CliError> {
             limit_price,
             stop_price,
             time_in_force,
+            execution_algo,
         } => {
             let intent = TradeIntent {
                 intent_id: format!("{market}:{symbol}:{side}:v0"),
@@ -233,6 +246,7 @@ fn run(command: Commands) -> Result<String, CliError> {
                 limit_price,
                 stop_price,
                 time_in_force,
+                execution_algo,
             };
             ok_envelope(intent)
         }
@@ -393,6 +407,52 @@ fn run(command: Commands) -> Result<String, CliError> {
                     let client = PaperClient::new(cfg);
                     let positions = client.get_open_positions().map_err(|e| CliError::Provider(e.to_string()))?;
                     ok_envelope(positions)
+                }
+                _ => Err(CliError::Validation(format!("Unsupported provider: {}", provider))),
+            }
+        }
+        Commands::GetOpenOrders { provider } => {
+            match provider.as_str() {
+                "kraken" => {
+                    let cfg = KrakenConfig::from_env().map_err(|e| CliError::Provider(e.to_string()))?;
+                    let client = KrakenClient::new(cfg);
+                    let orders = client.fetch_open_orders().map_err(|e| CliError::Provider(e.to_string()))?;
+                    ok_envelope(orders)
+                }
+                "alpaca" => {
+                    let cfg = AlpacaConfig::from_env().map_err(|e| CliError::Provider(e.to_string()))?;
+                    let client = AlpacaClient::new(cfg);
+                    let orders = client.fetch_open_orders().map_err(|e| CliError::Provider(e.to_string()))?;
+                    ok_envelope(orders)
+                }
+                "paper" => {
+                    let cfg = PaperConfig::from_env();
+                    let client = PaperClient::new(cfg);
+                    let orders = client.fetch_open_orders().map_err(|e| CliError::Provider(e.to_string()))?;
+                    ok_envelope(orders)
+                }
+                _ => Err(CliError::Validation(format!("Unsupported provider: {}", provider))),
+            }
+        }
+        Commands::CancelOrder { provider, id } => {
+            match provider.as_str() {
+                "kraken" => {
+                    let cfg = KrakenConfig::from_env().map_err(|e| CliError::Provider(e.to_string()))?;
+                    let client = KrakenClient::new(cfg);
+                    client.cancel_order(&id).map_err(|e| CliError::Provider(e.to_string()))?;
+                    ok_envelope(json!({ "status": "canceled", "id": id }))
+                }
+                "alpaca" => {
+                    let cfg = AlpacaConfig::from_env().map_err(|e| CliError::Provider(e.to_string()))?;
+                    let client = AlpacaClient::new(cfg);
+                    client.cancel_order(&id).map_err(|e| CliError::Provider(e.to_string()))?;
+                    ok_envelope(json!({ "status": "canceled", "id": id }))
+                }
+                "paper" => {
+                    let cfg = PaperConfig::from_env();
+                    let client = PaperClient::new(cfg);
+                    client.cancel_order(&id).map_err(|e| CliError::Provider(e.to_string()))?;
+                    ok_envelope(json!({ "status": "canceled", "id": id }))
                 }
                 _ => Err(CliError::Validation(format!("Unsupported provider: {}", provider))),
             }
