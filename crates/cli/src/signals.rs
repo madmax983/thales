@@ -327,10 +327,10 @@ pub async fn generate_signals(
             // Find existing position for this symbol
             let existing_pos = positions.iter().find(|p| p.symbol == signal.symbol);
             if existing_pos.is_some() {
-                println!("DEBUG: Found position for {}", signal.symbol);
+                eprintln!("DEBUG: Found position for {}", signal.symbol);
             } else {
-                println!("DEBUG: No position for {}", signal.symbol);
-                println!("DEBUG: Positions available: {:?}", positions);
+                eprintln!("DEBUG: No position for {}", signal.symbol);
+                eprintln!("DEBUG: Positions available: {:?}", positions);
             }
 
             let (final_signal_type, rationale_suffix) = resolve_signal_type(signal, existing_pos);
