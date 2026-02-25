@@ -17,6 +17,7 @@ strategies = { path = "../strategies" }
 alpaca-provider = { path = "../providers/alpaca" }
 kraken-provider = { path = "../providers/kraken" }
 paper-provider = { path = "../providers/paper" }
+chrono = "0.4"
 
 [dev-dependencies]
 assert_cmd = "2"

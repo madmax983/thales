@@ -2768,6 +2768,7 @@ dependencies = [
  "alpaca-provider",
  "anyhow",
  "assert_cmd",
+ "chrono",
  "clap",
  "contracts",
  "kraken-provider",

@@ -252,6 +252,10 @@ fn run(command: Commands) -> Result<String, CliError> {
             if !no_report {
                 // Reporting Step
                 let signals_path = PathBuf::from("Signals.md");
+                let regime_path = PathBuf::from("Market_Regime.md");
+                let volatility_path = PathBuf::from("Volatility_Regime.md");
+                let research_path = PathBuf::from("Market_Research.md");
+
                 let similar_trades =
                     rag::find_similar_trades(&analysis, &PathBuf::from("history.json"))
                         .unwrap_or_default();
@@ -265,6 +269,22 @@ fn run(command: Commands) -> Result<String, CliError> {
 
                 if let Err(e) = reporting::append_to_signals_md(&signals_path, &report) {
                     eprintln!("Warning: Failed to write to Signals.md: {}", e);
+                }
+
+                // New reports
+                let regime_report = reporting::generate_regime_report(&analysis);
+                if let Err(e) = reporting::append_to_file(&regime_path, &regime_report) {
+                    eprintln!("Warning: Failed to write to Market_Regime.md: {}", e);
+                }
+
+                let volatility_report = reporting::generate_volatility_report(&analysis);
+                if let Err(e) = reporting::append_to_file(&volatility_path, &volatility_report) {
+                    eprintln!("Warning: Failed to write to Volatility_Regime.md: {}", e);
+                }
+
+                let research_report = reporting::generate_research_report(&analysis);
+                if let Err(e) = reporting::append_to_file(&research_path, &research_report) {
+                    eprintln!("Warning: Failed to write to Market_Research.md: {}", e);
                 }
             }
 
