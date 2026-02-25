@@ -19,7 +19,13 @@ pub struct HistoricalPerformance {
 }
 
 pub fn analyze_performance(entries: &[HistoryEntry]) -> HistoricalPerformance {
-    let count = entries.len();
+    // Only analyze completed trades (where outcome is known)
+    let completed: Vec<&HistoryEntry> = entries
+        .iter()
+        .filter(|e| e.outcome.is_some())
+        .collect();
+
+    let count = completed.len();
     if count == 0 {
         return HistoricalPerformance {
             count: 0,
@@ -28,12 +34,12 @@ pub fn analyze_performance(entries: &[HistoryEntry]) -> HistoricalPerformance {
         };
     }
 
-    let wins = entries
+    let wins = completed
         .iter()
         .filter(|t| t.outcome.unwrap_or(0.0) > 0.0)
         .count();
     let win_rate = (wins as f64 / count as f64) * 100.0;
-    let avg_outcome = entries
+    let avg_outcome = completed
         .iter()
         .map(|t| t.outcome.unwrap_or(0.0))
         .sum::<f64>()
