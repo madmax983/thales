@@ -128,6 +128,23 @@ pub async fn generate_signals(
             };
 
             let historical_context = rag::summarize_history(&similar_trades, &market_analysis.symbol);
+            let performance = rag::analyze_performance(&similar_trades);
+
+            // Adjust confidence based on historical performance
+            let mut confidence_modifier = 1.0;
+            let mut history_msg = String::new();
+
+            if performance.count >= 3 {
+                if performance.win_rate > 60.0 {
+                    confidence_modifier = 1.1;
+                    history_msg = " (Boosted by high win rate)".to_string();
+                } else if performance.win_rate < 40.0 {
+                    confidence_modifier = 0.8;
+                    history_msg = " (Penalized by low win rate)".to_string();
+                }
+            }
+
+            let adjusted_confidence = (signal.confidence * confidence_modifier).min(1.0);
 
             // Position Sizing and SL/TP
             let last_close = bars.bars.last().map(|b| b.close).unwrap_or(100.0);
@@ -262,9 +279,10 @@ pub async fn generate_signals(
                     context_summary.push_str(&format!(" News: {}.", news));
                 }
 
-                let final_rationale = format!("Strategy: {} ({:.0}%). Reason: {}. Market Context: {} ({} Volatility). {}{}{}",
+                let final_rationale = format!("Strategy: {} ({:.0}%{}). Reason: {}. Market Context: {} ({} Volatility). {}{}{}",
                     strategy.name(),
-                    signal.confidence * 100.0,
+                    adjusted_confidence * 100.0,
+                    history_msg,
                     signal.reason,
                     market_analysis.regime,
                     market_analysis.volatility,
@@ -279,7 +297,7 @@ pub async fn generate_signals(
                     symbol: signal.symbol.clone(),
                     side: signal.side.clone(),
                     size_hint,
-                    confidence: signal.confidence,
+                    confidence: adjusted_confidence,
                     horizon: "1d".to_string(),
                     rationale: final_rationale,
                     invalidation: "Price hits Stop Loss".to_string(),
@@ -920,6 +938,92 @@ mod tests {
         let intent = &intents[0];
         assert_eq!(intent.side, "buy");
         assert!(intent.rationale.contains("Strategy: Supertrend"));
+
+        Ok(())
+    }
+
+    #[tokio::test]
+    async fn test_historical_performance_adjustment() -> Result<()> {
+        let now = 1_700_000_000_000; // Use a realistic timestamp
+        let mut bars = Vec::new();
+        // Generate oscillating price to ensure StdDev > 0
+        for i in 0..20 {
+            let close = if i % 2 == 0 { 100.0 } else { 102.0 };
+            bars.push(Bar {
+                symbol: "AAPL".to_string(),
+                market: "equities".to_string(),
+                timeframe: "1m".to_string(),
+                timestamp_unix_ms: now + i * 60000,
+                open: close, high: close + 1.0, low: close - 1.0, close: close, volume: 1000.0,
+            });
+        }
+        // Trigger Buy (Lower Band)
+        bars.push(Bar {
+            symbol: "AAPL".to_string(),
+            market: "equities".to_string(),
+            timeframe: "1m".to_string(),
+            timestamp_unix_ms: now + 20 * 60000,
+            open: 100.0, high: 101.0, low: 90.0, close: 90.0, volume: 1000.0,
+        });
+        let series = BarSeries { schema_version: "v0".to_string(), bars };
+        let positions = vec![];
+
+        // 1. High Win Rate (100%)
+        let mut history_file_high = NamedTempFile::new()?;
+        let mut entries = Vec::new();
+        let analysis_template = MarketAnalysis {
+            symbol: "AAPL".to_string(),
+            market: "equities".to_string(),
+            regime: "Trending Up".to_string(),
+            volatility: "Low".to_string(),
+            sentiment: "Neutral".to_string(),
+            patterns: vec![],
+            key_levels: vec![],
+            atr: None,
+            research_summary: None,
+            news_summary: None,
+            recommendation: None,
+            confidence: 0.5,
+            timestamp_unix_ms: now,
+        };
+
+        for _ in 0..5 {
+            let mut entry = create_dummy_history_entry("AAPL", now - 86400000);
+            entry.outcome = Some(1.0); // Win
+            entry.market_analysis = analysis_template.clone();
+            entry.market_analysis.timestamp_unix_ms = now - 86400000;
+            entries.push(entry);
+        }
+        write!(history_file_high, "{}", serde_json::to_string(&entries)?)?;
+
+        // Run with passed analysis to ensure match
+        let intents = generate_signals(&series, "BollingerBands", Some(history_file_high.path()), 100.0, &positions, Some(analysis_template.clone())).await?;
+        assert!(!intents.is_empty());
+        let intent = &intents[0];
+        assert!(intent.rationale.contains("Boosted"), "Rationale should indicate boost: {}", intent.rationale);
+        assert!(intent.confidence > 0.5, "Confidence should be high"); // Original is likely > 0.5
+
+        // 2. Low Win Rate (0%)
+        let mut history_file_low = NamedTempFile::new()?;
+        let mut entries_low = Vec::new();
+        for _ in 0..5 {
+            let mut entry = create_dummy_history_entry("AAPL", now - 86400000);
+            entry.outcome = Some(-1.0); // Loss
+            entry.market_analysis = analysis_template.clone();
+            entry.market_analysis.timestamp_unix_ms = now - 86400000;
+            entries_low.push(entry);
+        }
+        write!(history_file_low, "{}", serde_json::to_string(&entries_low)?)?;
+
+        let intents_low = generate_signals(&series, "BollingerBands", Some(history_file_low.path()), 100.0, &positions, Some(analysis_template.clone())).await?;
+        assert!(!intents_low.is_empty());
+        let intent_low = &intents_low[0];
+        assert!(intent_low.rationale.contains("Penalized"), "Rationale should indicate penalty: {}", intent_low.rationale);
+
+        // Check relative confidence
+        // intent.confidence should be boosted (approx 1.1x)
+        // intent_low.confidence should be penalized (approx 0.8x)
+        assert!(intent.confidence > intent_low.confidence, "Boosted confidence should be higher than penalized");
 
         Ok(())
     }
