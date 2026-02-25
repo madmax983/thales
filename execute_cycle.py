@@ -22,6 +22,7 @@ TREND_FOLLOWING_STRATEGIES = {
     "DonchianBreakout",
     "ParabolicSar",
     "KeltnerChannelBreakout",
+    "AdxMomentum",
 }
 BREAKOUT_STRATEGIES = {"DonchianBreakout", "KeltnerChannelBreakout", "Supertrend", "ParabolicSar"}
 
@@ -98,6 +99,8 @@ def get_active_strategies():
         strategies.append("KeltnerChannelBreakout")
     if "StochasticOscillator" in content:
         strategies.append("StochasticOscillator")
+    if "AdxMomentum" in content:
+        strategies.append("AdxMomentum")
 
     return strategies
 
