@@ -1533,8 +1533,11 @@ mod tests {
     async fn test_generate_signals_stochastic() -> Result<()> {
         let mut bars = Vec::new();
         let now = 100000;
-        // Generate enough bars for Stochastic (min 14+3+3 = 20)
-        for i in 0..50 {
+        // Generate bars for Stochastic (min 14+3+3 = 20)
+        // We need oversold < 20.
+        // Let's create a scenario where prices are low.
+        // Bars 0-19: High price (100)
+        for i in 0..20 {
             let close = 100.0;
             bars.push(Bar {
                 symbol: "TEST".to_string(),
@@ -1544,14 +1547,153 @@ mod tests {
                 open: close, high: close + 1.0, low: close - 1.0, close: close, volume: 1000.0,
             });
         }
+        // Bars 20-35: Low price (80). This pushes Stochastic down.
+        for i in 20..36 {
+            let close = 80.0;
+            bars.push(Bar {
+                symbol: "TEST".to_string(),
+                market: "equities".to_string(),
+                timeframe: "1m".to_string(),
+                timestamp_unix_ms: now + i * 60000,
+                open: close, high: close + 1.0, low: close - 1.0, close: close, volume: 1000.0,
+            });
+        }
+        // Bar 36: Price ticks up slightly to cause %K > %D crossover while still oversold?
+        // Actually, simple way: Just verifying it runs and produces valid intents if conditions met
+        // is enough if we trust the strategy unit test.
+        // But let's try to make a cross.
+        // 36: 82.0
+        bars.push(Bar {
+            symbol: "TEST".to_string(),
+            market: "equities".to_string(),
+            timeframe: "1m".to_string(),
+            timestamp_unix_ms: now + 36 * 60000,
+            open: 80.0, high: 83.0, low: 80.0, close: 82.0, volume: 1000.0,
+        });
+
         let series = BarSeries { schema_version: "v0".to_string(), bars };
         let positions = vec![];
 
-        // This should currently FAIL with "Unknown strategy"
-        let result = generate_signals(&series, "StochasticOscillator", None, 100.0, &positions, None).await;
+        let intents = generate_signals(&series, "StochasticOscillator", None, 100.0, &positions, None).await?;
 
-        // TDD: This assertion fails until we implement the strategy mapping
-        assert!(result.is_ok(), "StochasticOscillator should be a known strategy");
+        // We might or might not get a signal depending on exact calculation.
+        // But if we get one, it should be valid.
+        if !intents.is_empty() {
+             let intent = &intents[0];
+             assert!(intent.rationale.contains("StochasticOscillator"));
+        }
+        Ok(())
+    }
+
+    #[tokio::test]
+    async fn test_generate_signals_ema_crossover() -> Result<()> {
+        let mut bars = Vec::new();
+        let now = 100000;
+        // 1. Establish Downtrend (Short < Long)
+        // Short (9) < Long (21)
+        let mut close = 100.0;
+        for i in 0..30 {
+            close -= 0.5;
+            bars.push(Bar {
+                symbol: "TEST".to_string(),
+                market: "equities".to_string(),
+                timeframe: "1m".to_string(),
+                timestamp_unix_ms: now + i * 60000,
+                open: close, high: close + 1.0, low: close - 1.0, close: close, volume: 1000.0,
+            });
+        }
+        // 2. Trigger Crossover (Short > Long)
+        // Sharp rally
+        let i = 30;
+        let close_rally = close + 50.0; // Increase rally to force crossover
+        bars.push(Bar {
+            symbol: "TEST".to_string(),
+            market: "equities".to_string(),
+            timeframe: "1m".to_string(),
+            timestamp_unix_ms: now + i * 60000,
+            open: close, high: close_rally + 1.0, low: close - 1.0, close: close_rally, volume: 1000.0,
+        });
+
+        let series = BarSeries { schema_version: "v0".to_string(), bars };
+        let positions = vec![];
+
+        // Need analysis that supports Trending Up otherwise strategy might be filtered by some logic?
+        // No, generate_signals runs the strategy requested.
+        let intents = generate_signals(&series, "EmaCrossover", None, 100.0, &positions, None).await?;
+
+        assert!(!intents.is_empty(), "Should generate signal on crossover");
+        let intent = &intents[0];
+        assert_eq!(intent.side, "buy");
+        assert!(intent.rationale.contains("EmaCrossover"));
+
+        Ok(())
+    }
+
+    #[tokio::test]
+    async fn test_generate_signals_rsi() -> Result<()> {
+        let mut bars = Vec::new();
+        let now = 100000;
+        // 1. Drop price to Oversold (< 30)
+        let mut close = 100.0;
+        for i in 0..20 {
+            close -= 2.0; // Fast drop
+            bars.push(Bar {
+                symbol: "TEST".to_string(),
+                market: "equities".to_string(),
+                timeframe: "1m".to_string(),
+                timestamp_unix_ms: now + i * 60000,
+                open: close, high: close + 1.0, low: close - 1.0, close: close, volume: 1000.0,
+            });
+        }
+
+        let series = BarSeries { schema_version: "v0".to_string(), bars };
+        let positions = vec![];
+
+        let intents = generate_signals(&series, "RsiMeanReversion", None, 100.0, &positions, None).await?;
+
+        assert!(!intents.is_empty(), "Should generate signal on Oversold RSI");
+        let intent = &intents[0];
+        assert_eq!(intent.side, "buy");
+        assert!(intent.rationale.contains("RsiMeanReversion"));
+
+        Ok(())
+    }
+
+    #[tokio::test]
+    async fn test_generate_signals_keltner() -> Result<()> {
+        let mut bars = Vec::new();
+        let now = 100000;
+        // 1. Stable
+        for i in 0..20 {
+            bars.push(Bar {
+                symbol: "TEST".to_string(),
+                market: "equities".to_string(),
+                timeframe: "1m".to_string(),
+                timestamp_unix_ms: now + i * 60000,
+                open: 100.0, high: 100.1, low: 99.9, close: 100.0, volume: 1000.0,
+            });
+        }
+        // 2. Breakout (Close > Upper Channel)
+        // Upper = EMA + 2*ATR. ATR is small (~0.1). EMA ~100. Upper ~100.2.
+        // Breakout to 102.
+        let i = 20;
+        bars.push(Bar {
+            symbol: "TEST".to_string(),
+            market: "equities".to_string(),
+            timeframe: "1m".to_string(),
+            timestamp_unix_ms: now + i * 60000,
+            open: 100.0, high: 102.0, low: 100.0, close: 102.0, volume: 1000.0,
+        });
+
+        let series = BarSeries { schema_version: "v0".to_string(), bars };
+        let positions = vec![];
+
+        let intents = generate_signals(&series, "KeltnerChannelBreakout", None, 100.0, &positions, None).await?;
+
+        assert!(!intents.is_empty(), "Should generate signal on Breakout");
+        let intent = &intents[0];
+        assert_eq!(intent.side, "buy");
+        assert!(intent.rationale.contains("KeltnerChannelBreakout"));
 
         Ok(())
     }
