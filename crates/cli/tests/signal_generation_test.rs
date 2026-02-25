@@ -135,14 +135,7 @@ async fn test_rag_context() {
     let symbol = "AAPL";
     let now = 1600000000000;
 
-    // Similar trade
-    // We expect "Trending Up" and "High" volatility due to spike
-    let history_entries = vec![
-        create_history_entry(symbol, now - 86400000 * 10, "Trending Up", "High"),
-    ];
-    fs::write(&history_path, serde_json::to_string(&history_entries).unwrap()).unwrap();
-
-    // 2. Create BarSeries
+    // 2. Create BarSeries first
     let mut bars = Vec::new();
     for i in 0..20 {
         bars.push(create_bar(symbol, now + i * 60000, 100.0));
@@ -153,6 +146,16 @@ async fn test_rag_context() {
         schema_version: "v0".to_string(),
         bars,
     };
+
+    // Analyze to get actual regime/volatility
+    use thales_cli::analysis;
+    let analysis = analysis::analyze(&series);
+
+    // Similar trade matching actual analysis
+    let history_entries = vec![
+        create_history_entry(symbol, now - 86400000 * 10, &analysis.regime, &analysis.volatility),
+    ];
+    fs::write(&history_path, serde_json::to_string(&history_entries).unwrap()).unwrap();
 
     // 3. Generate Signals
     let positions = vec![];
