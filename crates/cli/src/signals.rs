@@ -259,7 +259,16 @@ pub async fn generate_signals(
                 }
             }
 
-            let adjusted_confidence = (signal.confidence * confidence_modifier).min(1.0);
+            // Combine Strategy Confidence, History Modifier, and Market Analysis Confidence
+            let adjusted_confidence = (signal.confidence * confidence_modifier * market_analysis.confidence).min(1.0);
+
+            let mut skip = false;
+
+            // Filter: Minimum Confidence
+            if adjusted_confidence < 0.5 {
+                skip = true;
+                eprintln!("Skipping {} signal for {} due to low confidence ({:.2})", signal.side, signal.symbol, adjusted_confidence);
+            }
 
             // Position Sizing and SL/TP
             let last_close = bars.bars.last().map(|b| b.close).unwrap_or(100.0);
@@ -336,7 +345,9 @@ pub async fn generate_signals(
             let (final_signal_type, rationale_suffix) = resolve_signal_type(signal, existing_pos);
 
             // Filter out invalid Exits (no position)
-            let mut skip = (final_signal_type == SignalType::Exit || final_signal_type == SignalType::ScaleOut) && existing_pos.is_none();
+            if !skip {
+                skip = (final_signal_type == SignalType::Exit || final_signal_type == SignalType::ScaleOut) && existing_pos.is_none();
+            }
 
             // Filter: Do not chase moves (Entries only)
             // If Buy and Overbought -> Skip
@@ -392,10 +403,11 @@ pub async fn generate_signals(
                     context_summary.push_str(&format!(" News: {}.", news));
                 }
 
-                let final_rationale = format!("Strategy: {} ({:.0}%{}). Reason: {}. Market Context: {} ({} Volatility). {}{}{}",
+                let final_rationale = format!("Strategy: {} ({:.0}%{}, MA: {:.2}). Reason: {}. Market Context: {} ({} Volatility). {}{}{}",
                     strategy.name(),
                     adjusted_confidence * 100.0,
                     history_msg,
+                    market_analysis.confidence,
                     signal.reason,
                     market_analysis.regime,
                     market_analysis.volatility,
@@ -1096,7 +1108,23 @@ mod tests {
         let series = BarSeries { schema_version: "v0".to_string(), bars };
         let positions = vec![];
 
-        let intents = generate_signals(&series, "Supertrend", None, 100.0, &positions, None).await?;
+        let i = 40;
+        let high_conf_analysis = MarketAnalysis {
+            symbol: "TEST".to_string(),
+            market: "equities".to_string(),
+            regime: "Trending Up".to_string(),
+            volatility: "Low".to_string(),
+            sentiment: "Bullish".to_string(),
+            patterns: vec![],
+            key_levels: vec![],
+            atr: None,
+            research_summary: None,
+            news_summary: None,
+            recommendation: None,
+            confidence: 0.8,
+            timestamp_unix_ms: now + i * 60000,
+        };
+        let intents = generate_signals(&series, "Supertrend", None, 100.0, &positions, Some(high_conf_analysis)).await?;
 
         assert!(!intents.is_empty(), "Should generate signal on trend flip");
         let intent = &intents[0];
@@ -1219,7 +1247,7 @@ mod tests {
             research_summary: None,
             news_summary: None,
             recommendation: None,
-            confidence: 0.5,
+            confidence: 0.8,
             timestamp_unix_ms: now,
         };
 
@@ -1303,7 +1331,7 @@ mod tests {
             research_summary: None,
             news_summary: None,
             recommendation: None,
-            confidence: 0.5,
+            confidence: 0.8,
             timestamp_unix_ms: now + 20 * 60000,
         };
 
@@ -1344,7 +1372,7 @@ mod tests {
             research_summary: None,
             news_summary: None,
             recommendation: None,
-            confidence: 0.5,
+            confidence: 0.8,
             timestamp_unix_ms: now + 20 * 60000,
         };
 
@@ -1364,12 +1392,63 @@ mod tests {
             research_summary: None,
             news_summary: None,
             recommendation: None,
-            confidence: 0.5,
+            confidence: 0.8,
             timestamp_unix_ms: now + 20 * 60000,
         };
 
         let intents_allowed = generate_signals(&series, "BollingerBands", None, 100.0, &positions, Some(normal_analysis)).await?;
         assert!(!intents_allowed.is_empty(), "Should allow signal when Neutral");
+
+        Ok(())
+    }
+
+    #[tokio::test]
+    async fn test_generate_signals_low_confidence() -> Result<()> {
+        let mut bars = Vec::new();
+        let now = 100000;
+        // Generate stable price
+        for i in 0..20 {
+            bars.push(Bar {
+                symbol: "AAPL".to_string(),
+                market: "equities".to_string(),
+                timeframe: "1m".to_string(),
+                timestamp_unix_ms: now + i * 60000,
+                open: 100.0, high: 101.0, low: 99.0, close: 100.0, volume: 1000.0,
+            });
+        }
+        // Trigger signal
+        bars.push(Bar {
+            symbol: "AAPL".to_string(),
+            market: "equities".to_string(),
+            timeframe: "1m".to_string(),
+            timestamp_unix_ms: now + 20 * 60000,
+            open: 100.0, high: 101.0, low: 90.0, close: 90.0, volume: 1000.0,
+        });
+
+        let series = BarSeries { schema_version: "v0".to_string(), bars };
+        let positions = vec![];
+
+        // Force low confidence via analysis
+        let low_conf_analysis = MarketAnalysis {
+            symbol: "AAPL".to_string(),
+            market: "equities".to_string(),
+            regime: "Ranging".to_string(),
+            volatility: "Low".to_string(),
+            sentiment: "Neutral".to_string(),
+            patterns: vec![],
+            key_levels: vec![],
+            atr: None,
+            research_summary: None,
+            news_summary: None,
+            recommendation: None,
+            confidence: 0.4, // Low confidence
+            timestamp_unix_ms: now + 20 * 60000,
+        };
+
+        let intents = generate_signals(&series, "BollingerBands", None, 100.0, &positions, Some(low_conf_analysis)).await?;
+
+        // Currently, this SHOULD be empty because we filter < 0.5
+        assert!(intents.is_empty(), "Signals with low confidence should be filtered out");
 
         Ok(())
     }
