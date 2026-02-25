@@ -140,5 +140,83 @@ class TestExecuteCycle(unittest.TestCase):
         self.assertIn("90%", content)
         self.assertIn("Test Signal", content)
 
+    def test_select_strategies_for_ranging_regime(self):
+        active = ["BollingerBands", "EmaCrossover", "RsiMeanReversion", "Macd"]
+        analysis = {"regime": "Ranging", "volatility": "Low"}
+
+        selected = execute_cycle.select_strategies_for_analysis(active, analysis)
+
+        self.assertEqual(selected, ["BollingerBands", "RsiMeanReversion"])
+
+    def test_select_strategies_for_trending_regime(self):
+        active = ["BollingerBands", "EmaCrossover", "RsiMeanReversion", "Macd"]
+        analysis = {"regime": "Trending Up", "volatility": "Low"}
+
+        selected = execute_cycle.select_strategies_for_analysis(active, analysis)
+
+        self.assertEqual(selected, ["EmaCrossover", "Macd"])
+
+    def test_resolve_conflicts_prefers_regime_aligned_side(self):
+        analysis = {"regime": "Trending Up", "volatility": "Low"}
+        intents = [
+            {
+                "intent_id": "buy-ema",
+                "symbol": "AAPL",
+                "side": "buy",
+                "confidence": 0.60,
+                "strategy_used": "EmaCrossover",
+                "_market_analysis": analysis,
+            },
+            {
+                "intent_id": "buy-macd",
+                "symbol": "AAPL",
+                "side": "buy",
+                "confidence": 0.55,
+                "strategy_used": "Macd",
+                "_market_analysis": analysis,
+            },
+            {
+                "intent_id": "sell-bb",
+                "symbol": "AAPL",
+                "side": "sell",
+                "confidence": 0.75,
+                "strategy_used": "BollingerBands",
+                "_market_analysis": analysis,
+            },
+        ]
+
+        resolved = execute_cycle.resolve_conflicts(intents, conflict_margin=0.05)
+
+        self.assertEqual(len(resolved), 1)
+        self.assertEqual(resolved[0]["side"], "buy")
+        self.assertEqual(resolved[0]["strategy_used"], "EmaCrossover")
+
+    @patch("execute_cycle.log_skipped")
+    def test_resolve_conflicts_skips_when_scores_too_close(self, mock_log_skipped):
+        analysis = {"regime": "Unknown", "volatility": "Low"}
+        intents = [
+            {
+                "intent_id": "buy-1",
+                "symbol": "ETHUSD",
+                "side": "buy",
+                "confidence": 0.60,
+                "strategy_used": "BollingerBands",
+                "_market_analysis": analysis,
+            },
+            {
+                "intent_id": "sell-1",
+                "symbol": "ETHUSD",
+                "side": "sell",
+                "confidence": 0.57,
+                "strategy_used": "EmaCrossover",
+                "_market_analysis": analysis,
+            },
+        ]
+
+        resolved = execute_cycle.resolve_conflicts(intents, conflict_margin=0.05)
+
+        self.assertEqual(resolved, [])
+        self.assertEqual(mock_log_skipped.call_count, 2)
+
 if __name__ == '__main__':
     unittest.main()

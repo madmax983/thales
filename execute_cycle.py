@@ -14,34 +14,61 @@ STRATEGIES_PATH = "strategies.md"
 HISTORY_PATH = "history.json"
 SIGNALS_PATH = "Signals.md"
 
+MEAN_REVERSION_STRATEGIES = {"BollingerBands", "RsiMeanReversion"}
+TREND_FOLLOWING_STRATEGIES = {
+    "EmaCrossover",
+    "Macd",
+    "Supertrend",
+    "DonchianBreakout",
+    "ParabolicSar",
+    "KeltnerChannelBreakout",
+}
+BREAKOUT_STRATEGIES = {"DonchianBreakout", "KeltnerChannelBreakout", "Supertrend", "ParabolicSar"}
+
 def run_command(args):
     """Runs a thales-cli command and returns the parsed JSON data."""
     cmd = [CLI_PATH] + args
+    run_command.last_error = None
     try:
-        # print(f"Running: {' '.join(cmd)}")
-        result = subprocess.run(cmd, capture_output=True, text=True, check=True)
-        # Parse envelope
-        output = result.stdout.strip()
-        # Attempt to find JSON start
-        json_start = output.find('{')
-        if json_start != -1:
-            json_str = output[json_start:]
-            try:
-                envelope = json.loads(json_str)
-                if envelope.get("status") == "ok":
-                    return envelope.get("data")
-                else:
-                    print(f"Error executing {args}: {envelope.get('errors')}")
-                    return None
-            except json.JSONDecodeError:
-                pass # Fall through to error reporting
+        result = subprocess.run(cmd, capture_output=True, text=True, check=False)
+        stdout = (result.stdout or "").strip()
+        stderr = (result.stderr or "").strip()
 
+        envelope = None
+        if stdout:
+            json_start = stdout.find("{")
+            if json_start != -1:
+                try:
+                    envelope = json.loads(stdout[json_start:])
+                except json.JSONDecodeError:
+                    envelope = None
+
+        if envelope and envelope.get("status") == "ok":
+            return envelope.get("data")
+
+        if envelope and envelope.get("status") == "error":
+            errors = envelope.get("errors") or []
+            reason = "; ".join(str(err) for err in errors) if errors else "Execution failed"
+            run_command.last_error = reason
+            print(f"Error executing {args}: {reason}")
+            return None
+
+        if result.returncode != 0:
+            run_command.last_error = stderr or stdout or f"Command failed with exit code {result.returncode}"
+            print(f"Command failed: {cmd}\nReason: {run_command.last_error}")
+            return None
+
+        run_command.last_error = "Failed to parse JSON output."
         print(f"Failed to parse JSON output from {args}")
-        print(result.stdout)
+        if stdout:
+            print(stdout)
         return None
-    except subprocess.CalledProcessError as e:
-        print(f"Command failed: {cmd}\nOutput: {e.output}\nError: {e.stderr}")
+    except Exception as e:
+        run_command.last_error = str(e)
+        print(f"Exception running command {cmd}: {e}")
         return None
+
+run_command.last_error = None
 
 def get_active_strategies():
     """Parses strategies.md to find all active strategy names."""
@@ -71,6 +98,72 @@ def get_active_strategies():
         strategies.append("KeltnerChannelBreakout")
 
     return strategies
+
+def _normalize_text(value):
+    return (value or "").strip().lower()
+
+def classify_market_regime(analysis):
+    """Classifies market regime into a small set used for strategy routing."""
+    if not analysis:
+        return "unknown"
+
+    regime = _normalize_text(analysis.get("regime"))
+    volatility = _normalize_text(analysis.get("volatility"))
+
+    if "rang" in regime or "sideway" in regime:
+        return "ranging"
+    if "trend" in regime:
+        if "up" in regime or "bull" in regime:
+            return "trending_up"
+        if "down" in regime or "bear" in regime:
+            return "trending_down"
+        return "trending"
+    if "high" in volatility or "extreme" in volatility:
+        return "volatile"
+    return "unknown"
+
+def select_strategies_for_analysis(active_strategies, analysis):
+    """Selects an active strategy subset that matches the current regime."""
+    if not active_strategies:
+        return []
+
+    regime_class = classify_market_regime(analysis)
+
+    if regime_class == "ranging":
+        selected = [s for s in active_strategies if s in MEAN_REVERSION_STRATEGIES]
+    elif regime_class in {"trending_up", "trending_down", "trending"}:
+        selected = [s for s in active_strategies if s in TREND_FOLLOWING_STRATEGIES]
+    elif regime_class == "volatile":
+        selected = [s for s in active_strategies if s in BREAKOUT_STRATEGIES]
+    else:
+        selected = list(active_strategies)
+
+    # Fallback: never return empty if we have active strategies.
+    if not selected:
+        return list(active_strategies)
+    return selected
+
+def strategy_regime_weight(strategy_name, analysis):
+    """Returns a scoring weight for conflict resolution based on regime fit."""
+    regime_class = classify_market_regime(analysis)
+
+    if regime_class == "ranging":
+        if strategy_name in MEAN_REVERSION_STRATEGIES:
+            return 1.2
+        if strategy_name in TREND_FOLLOWING_STRATEGIES:
+            return 0.9
+    elif regime_class in {"trending_up", "trending_down", "trending"}:
+        if strategy_name in TREND_FOLLOWING_STRATEGIES:
+            return 1.2
+        if strategy_name in MEAN_REVERSION_STRATEGIES:
+            return 0.9
+    elif regime_class == "volatile":
+        if strategy_name in BREAKOUT_STRATEGIES:
+            return 1.2
+        if strategy_name in MEAN_REVERSION_STRATEGIES:
+            return 0.85
+
+    return 1.0
 
 def get_candidates_from_signals():
     """Parses Signals.md for potential candidates."""
@@ -248,12 +341,24 @@ def evaluate_candidate(candidate, strategies, portfolio_path=None):
     with open(temp_bars_file, "w") as f:
         json.dump(bars, f)
 
-    # Generate Analysis (for history)
+    # Generate Analysis (for history + regime mapping)
     analysis = run_command(["analyze-market", "--input", temp_bars_file, "--no-report"])
+    effective_analysis = candidate.get("raw_analysis_json") or analysis
+
+    selected_strategies = select_strategies_for_analysis(strategies, effective_analysis)
+    regime_label = classify_market_regime(effective_analysis)
+    print(
+        f"  {symbol}: regime={regime_label}, using strategies={selected_strategies}"
+    )
 
     all_generated_intents = []
+    temp_analysis_file = None
+    if effective_analysis:
+        temp_analysis_file = f"temp_analysis_{safe_symbol}.json"
+        with open(temp_analysis_file, "w") as f:
+            json.dump(effective_analysis, f)
 
-    for strategy_name in strategies:
+    for strategy_name in selected_strategies:
         # Generate Signals
         args = ["generate-signals", "--input", temp_bars_file, "--strategy", strategy_name]
         if os.path.exists(HISTORY_PATH):
@@ -262,19 +367,11 @@ def evaluate_candidate(candidate, strategies, portfolio_path=None):
         if portfolio_path and os.path.exists(portfolio_path):
             args.extend(["--portfolio", portfolio_path])
 
-        # NEW: Pass enriched analysis if available
-        temp_analysis_file = None
-        if candidate.get("raw_analysis_json"):
-            temp_analysis_file = f"temp_analysis_{safe_symbol}.json"
-            with open(temp_analysis_file, "w") as f:
-                json.dump(candidate["raw_analysis_json"], f)
+        # Pass explicit analysis so each strategy evaluates the same context.
+        if temp_analysis_file and os.path.exists(temp_analysis_file):
             args.extend(["--analysis", temp_analysis_file])
 
         intents = run_command(args)
-
-        # Cleanup temp analysis
-        if temp_analysis_file and os.path.exists(temp_analysis_file):
-            os.remove(temp_analysis_file)
 
         if intents:
             # Enrich intent with provider and strategy info
@@ -289,14 +386,13 @@ def evaluate_candidate(candidate, strategies, portfolio_path=None):
                     intent["provider"] = provider
 
                 intent["strategy_used"] = strategy_name # Keep track of which strategy generated this
-                # If we used raw_analysis_json, it's already "baked into" the signal rationale.
-                # But we might still want to attach it for history.
-                if analysis:
-                    intent["_market_analysis"] = analysis
-                elif candidate.get("raw_analysis_json"):
-                     intent["_market_analysis"] = candidate["raw_analysis_json"]
+                if effective_analysis:
+                    intent["_market_analysis"] = effective_analysis
 
             all_generated_intents.extend(intents)
+
+    if temp_analysis_file and os.path.exists(temp_analysis_file):
+        os.remove(temp_analysis_file)
 
     # Cleanup temp bars
     if os.path.exists(temp_bars_file):
@@ -304,35 +400,67 @@ def evaluate_candidate(candidate, strategies, portfolio_path=None):
 
     return all_generated_intents
 
-def resolve_conflicts(intents):
+def resolve_conflicts(intents, conflict_margin=0.05):
     """
     Resolves conflicts among signals for the same candidate.
-    - If signals conflict (Buy vs Sell), returns empty list and logs warning.
-    - If consistent, returns the single signal with highest confidence.
+    - If signals conflict (Buy vs Sell), selects side using confidence * regime-fit weights.
+    - If side scores are too close, returns empty list and logs warning.
+    - Returns single best intent.
     """
     if not intents:
         return []
 
     # Assume all intents are for the same symbol (caller ensures this)
     symbol = intents[0]["symbol"]
+    analysis = intents[0].get("_market_analysis")
+    regime_label = classify_market_regime(analysis)
+
+    def score_intent(intent):
+        confidence = float(intent.get("confidence", 0.0) or 0.0)
+        strategy_name = intent.get("strategy_used", "")
+        return confidence * strategy_regime_weight(strategy_name, analysis)
 
     sides = set(intent["side"] for intent in intents)
     if len(sides) > 1:
-        # Conflict!
-        strategies_involved = ", ".join([intent.get("strategy_used", "Unknown") for intent in intents])
-        print(f"CONFLICT detected for {symbol}: Strategies ({strategies_involved}) gave conflicting signals ({sides}). Skipping.")
-
-        # Log conflict
+        side_scores = {}
         for intent in intents:
-             log_skipped(intent, f"Conflict: Multiple strategies gave conflicting signals ({sides})")
-        return []
+            side = intent.get("side", "unknown")
+            side_scores[side] = side_scores.get(side, 0.0) + score_intent(intent)
 
-    # No conflict, pick best confidence
-    intents.sort(key=lambda x: x.get("confidence", 0.0), reverse=True)
+        ranked_sides = sorted(side_scores.items(), key=lambda x: x[1], reverse=True)
+        top_side, top_score = ranked_sides[0]
+        second_score = ranked_sides[1][1] if len(ranked_sides) > 1 else 0.0
+
+        if (top_score - second_score) < conflict_margin:
+            side_score_text = ", ".join(
+                f"{side}={score:.3f}" for side, score in sorted(side_scores.items())
+            )
+            reason = (
+                f"Conflict unresolved: regime={regime_label}, side_scores={{{side_score_text}}}"
+            )
+            print(f"CONFLICT detected for {symbol}: {reason}. Skipping.")
+            for intent in intents:
+                log_skipped(intent, reason)
+            return []
+
+        winning_intents = [intent for intent in intents if intent.get("side") == top_side]
+        winning_intents.sort(
+            key=lambda x: (score_intent(x), float(x.get("confidence", 0.0) or 0.0)),
+            reverse=True,
+        )
+        best_intent = winning_intents[0]
+        print(
+            f"CONFLICT resolved for {symbol}: selected '{top_side}' in regime={regime_label} "
+            f"(score={top_score:.3f} vs {second_score:.3f})."
+        )
+        return [best_intent]
+
+    # No side conflict, pick best weighted confidence.
+    intents.sort(
+        key=lambda x: (score_intent(x), float(x.get("confidence", 0.0) or 0.0)),
+        reverse=True,
+    )
     best_intent = intents[0]
-
-    # Optional: If multiple strategies agree, maybe boost confidence?
-    # For now, just taking the max confidence is safe.
 
     return [best_intent]
 
@@ -725,8 +853,9 @@ def main():
             log_trade(intent, exec_res)
             update_history(intent)
         else:
-            print("Execution failed.")
-            log_skipped(intent, "Execution Failed")
+            reason = run_command.last_error or "Execution failed."
+            print(f"Execution failed: {reason}")
+            log_skipped(intent, reason)
 
     # Log skipped signals (signals not selected in top 3)
     # Only if they were valid signals but we didn't select them.
