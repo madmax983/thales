@@ -106,7 +106,10 @@ def get_candidates_from_signals():
         if not symbol:
             continue
 
-        provider = "kraken" if market == "crypto" else "alpaca"
+        if os.environ.get("SIMULATION") == "true":
+            provider = "paper"
+        else:
+            provider = "kraken" if market == "crypto" else "alpaca"
 
         # Extract JSON
         json_match = re.search(r"```json\s*(\{.*?\})\s*```", chunk, re.DOTALL)
@@ -179,13 +182,18 @@ def get_all_positions():
 
     # Try fetching from both providers
     # If one fails (e.g. no creds), it returns empty list or None handled by fetch_positions
-    kraken_pos = fetch_positions("kraken")
-    if kraken_pos:
-        all_positions.extend(kraken_pos)
+    if os.environ.get("SIMULATION") == "true":
+        paper_pos = fetch_positions("paper")
+        if paper_pos:
+            all_positions.extend(paper_pos)
+    else:
+        kraken_pos = fetch_positions("kraken")
+        if kraken_pos:
+            all_positions.extend(kraken_pos)
 
-    alpaca_pos = fetch_positions("alpaca")
-    if alpaca_pos:
-        all_positions.extend(alpaca_pos)
+        alpaca_pos = fetch_positions("alpaca")
+        if alpaca_pos:
+            all_positions.extend(alpaca_pos)
 
     temp_file = "temp_portfolio.json"
     with open(temp_file, "w") as f:
@@ -197,19 +205,28 @@ def scan_markets():
     """Scans markets for candidates."""
     candidates = []
 
-    # Crypto (Kraken)
-    print("Scanning Kraken (Crypto)...")
-    crypto = run_command(["scan-market", "--provider", "kraken", "--top-n", "10", "--min-volatility", "0.01", "--min-momentum", "0.0"])
-    if crypto:
-        for symbol in crypto:
-            candidates.append({"provider": "kraken", "symbol": symbol, "market": "crypto"})
+    if os.environ.get("SIMULATION") == "true":
+        print("Scanning Paper (Simulation)...")
+        paper_scan = run_command(["scan-market", "--provider", "paper"])
+        if paper_scan:
+            for symbol in paper_scan:
+                # Infer market type
+                market = "crypto" if "USD" in symbol and "SPY" not in symbol else "equities"
+                candidates.append({"provider": "paper", "symbol": symbol, "market": market})
+    else:
+        # Crypto (Kraken)
+        print("Scanning Kraken (Crypto)...")
+        crypto = run_command(["scan-market", "--provider", "kraken", "--top-n", "10", "--min-volatility", "0.01", "--min-momentum", "0.0"])
+        if crypto:
+            for symbol in crypto:
+                candidates.append({"provider": "kraken", "symbol": symbol, "market": "crypto"})
 
-    # Equities (Alpaca)
-    print("Scanning Alpaca (Equities)...")
-    equities = run_command(["scan-market", "--provider", "alpaca"])
-    if equities:
-        for symbol in equities:
-            candidates.append({"provider": "alpaca", "symbol": symbol, "market": "equities"})
+        # Equities (Alpaca)
+        print("Scanning Alpaca (Equities)...")
+        equities = run_command(["scan-market", "--provider", "alpaca"])
+        if equities:
+            for symbol in equities:
+                candidates.append({"provider": "alpaca", "symbol": symbol, "market": "equities"})
 
     return candidates
 
@@ -262,7 +279,9 @@ def evaluate_candidate(candidate, strategies, portfolio_path=None):
             for intent in intents:
                 # Use scan provider for intent unless it's equities, then execute on Kraken
                 # We fetch data from Alpaca (provider) but execute on Kraken.
-                if candidate.get("market") == "equities":
+                if provider == "paper":
+                    intent["provider"] = "paper"
+                elif candidate.get("market") == "equities":
                     intent["provider"] = "kraken"
                 else:
                     intent["provider"] = provider

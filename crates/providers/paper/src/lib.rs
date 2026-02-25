@@ -8,7 +8,7 @@ use std::fs;
 use std::path::PathBuf;
 use std::time::{SystemTime, UNIX_EPOCH};
 
-use contracts::{ExecutionResult, TradeIntent};
+use contracts::{Bar, ExecutionResult, TradeIntent};
 use reqwest::blocking::Client;
 use serde::{Deserialize, Serialize};
 use thiserror::Error;
@@ -44,6 +44,70 @@ impl PaperClient {
             config,
             http: Client::new(),
         }
+    }
+
+    /// Fetches mock market data for testing strategies.
+    pub fn fetch_bars(&self, symbol: &str, timeframe: &str) -> Result<Vec<Bar>, PaperProviderError> {
+        let mut bars = Vec::new();
+        let now = SystemTime::now()
+            .duration_since(UNIX_EPOCH)
+            .map_err(|e| PaperProviderError::Clock(e.to_string()))?
+            .as_millis() as i64;
+
+        let interval_ms = match timeframe {
+            "1m" => 60000,
+            "5m" => 300000,
+            "15m" => 900000,
+            "1h" => 3600000,
+            "4h" => 14400000,
+            "1d" => 86400000,
+            _ => 3600000, // Default 1h
+        };
+
+        // Determine trend based on symbol (match Signals.md scenarios)
+        let is_crypto = symbol.contains("BTC") || symbol.contains("ETH") || symbol.contains("XBT");
+        // Downtrend for Crypto, Uptrend for Equities
+        let is_downtrend = is_crypto;
+
+        // Start price
+        let mut price = if is_crypto { 65000.0 } else { 150.0 };
+
+        // Generate 100 bars ending at now
+        for i in (0..100).rev() {
+            let timestamp = now - (i * interval_ms);
+
+            // Trend component: Flat for 95 bars, then strong trend for last 5 bars
+            // to trigger breakdown/breakout without being oversold/overbought for too long.
+            let trend = if i < 5 {
+                if is_downtrend { -0.02 } else { 0.02 }
+            } else {
+                0.0
+            };
+            // Volatility component (sine wave)
+            let vol = (i as f64 * 0.2).sin() * 0.005;
+
+            let change_pct = trend + vol;
+            let open = price;
+            let close = price * (1.0 + change_pct);
+            let high = open.max(close) * 1.002;
+            let low = open.min(close) * 0.998;
+
+            bars.push(Bar {
+                symbol: symbol.to_string(),
+                market: if is_crypto { "crypto".to_string() } else { "equities".to_string() },
+                timeframe: timeframe.to_string(),
+                timestamp_unix_ms: timestamp,
+                open,
+                high,
+                low,
+                close,
+                volume: 1000.0 + (i as f64 * 10.0),
+            });
+
+            price = close;
+        }
+
+        Ok(bars)
     }
 
     /// Executes a trade intent against the local paper portfolio.
