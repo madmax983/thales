@@ -14,7 +14,7 @@ STRATEGIES_PATH = "strategies.md"
 HISTORY_PATH = "history.json"
 SIGNALS_PATH = "Signals.md"
 
-MEAN_REVERSION_STRATEGIES = {"BollingerBands", "RsiMeanReversion"}
+MEAN_REVERSION_STRATEGIES = {"BollingerBands", "RsiMeanReversion", "StochasticOscillator"}
 TREND_FOLLOWING_STRATEGIES = {
     "EmaCrossover",
     "Macd",
@@ -96,6 +96,8 @@ def get_active_strategies():
         strategies.append("ParabolicSar")
     if "KeltnerChannelBreakout" in content:
         strategies.append("KeltnerChannelBreakout")
+    if "StochasticOscillator" in content:
+        strategies.append("StochasticOscillator")
 
     return strategies
 
