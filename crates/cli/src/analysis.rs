@@ -240,7 +240,7 @@ fn identify_levels(bars: &[Bar]) -> Vec<f64> {
         if (l50 - l20).abs() > 0.01 { levels.push(l50); }
     }
 
-    levels.sort_by(|a, b| a.partial_cmp(b).unwrap());
+    levels.sort_by(|a, b| a.partial_cmp(b).unwrap_or(std::cmp::Ordering::Equal));
     levels.dedup();
     levels
 }
