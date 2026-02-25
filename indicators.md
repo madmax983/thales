@@ -194,3 +194,34 @@ let (st_line, st_trend) = supertrend::calculate(&df, period, multiplier)?;
 - Returns `Result<(Series, Series)>` representing `(supertrend_line, trend_direction)`.
 - The output Series are named "supertrend" and "supertrend_trend".
 - The first `period` values (approx) will be null.
+
+## Donchian Channels
+
+**Name:** Donchian Channels
+**Description:** Calculates the Donchian Channels, formed by taking the highest high and the lowest low of the last `period` bars. It includes a middle band which is the average of the upper and lower bands.
+**Rationale:** Trend-following indicator used to identify breakout and breakdown levels.
+
+### Implementation Details
+- Uses `rust_decimal::Decimal` for Middle Band calculation to ensure precision.
+- Implements a rolling max/min window algorithm (O(N)) manually to ensure compatibility and efficiency.
+- Returns a tuple of three Polars `Series` of `f64` values: (Lower, Middle, Upper).
+
+### Usage
+
+```rust
+use strategies::indicators::donchian_channels;
+use polars::prelude::*;
+
+// Assuming df is a DataFrame with "high" and "low" columns
+let period = 20;
+let (lower, middle, upper) = donchian_channels::calculate(&df, period)?;
+```
+
+### Parameters
+- `data`: Reference to a Polars `DataFrame`. Must contain numeric columns "high" and "low".
+- `period`: The lookback period (typically 20).
+
+### Output
+- Returns `Result<(Series, Series, Series)>` representing `(lower_band, middle_band, upper_band)`.
+- The output Series are named "donchian_lower", "donchian_middle", and "donchian_upper".
+- The first `period - 1` values will be null.
