@@ -112,6 +112,12 @@ impl AlpacaClient {
             .map_err(|err| AlpacaProviderError::Clock(err.to_string()))?
             .as_millis() as i64;
 
+        if let Some(algo) = &intent.execution_algo {
+            // Log that we are using a specific algo (though effectively just passing through to Alpaca as standard order for now)
+            // In a real system, this might trigger a specific algo order type if supported.
+            eprintln!("Executing with Algo: {}", algo);
+        }
+
         Ok(ExecutionResult {
             schema_version: "v0".to_string(),
             intent_id: intent.intent_id.clone(),
@@ -120,6 +126,72 @@ impl AlpacaClient {
             status: order.status,
             submitted_at_unix_ms,
         })
+    }
+
+    pub fn fetch_open_orders(&self) -> Result<Vec<contracts::Order>, AlpacaProviderError> {
+        let url = format!("{}/v2/orders?status=open", self.config.base_url.trim_end_matches('/'));
+
+        let response = self
+            .http
+            .get(url)
+            .header("APCA-API-KEY-ID", &self.config.api_key)
+            .header("APCA-API-SECRET-KEY", &self.config.api_secret)
+            .send()?;
+
+        if !response.status().is_success() {
+            let status = response.status().as_u16();
+            let body = response
+                .text()
+                .unwrap_or_else(|_| "unable to decode error body".to_string());
+            return Err(AlpacaProviderError::UnexpectedHttpStatus(status, body));
+        }
+
+        let orders: Vec<AlpacaOrder> = response.json()?;
+        let mut contract_orders = Vec::new();
+
+        for o in orders {
+            let dt = DateTime::parse_from_rfc3339(&o.submitted_at)
+                .map_err(|e| AlpacaProviderError::DateParse(e.to_string()))?;
+
+            let qty = o.qty.unwrap_or_else(|| "0".to_string()).parse::<f64>().unwrap_or(0.0);
+            let filled_qty = o.filled_qty.parse::<f64>().unwrap_or(0.0);
+
+            contract_orders.push(contracts::Order {
+                id: o.id,
+                symbol: o.symbol,
+                qty,
+                filled_qty,
+                side: o.side,
+                order_type: o.order_type,
+                status: o.status,
+                submitted_at_unix_ms: dt.timestamp_millis(),
+            });
+        }
+
+        Ok(contract_orders)
+    }
+
+    pub fn cancel_order(&self, order_id: &str) -> Result<(), AlpacaProviderError> {
+        let url = format!("{}/v2/orders/{}", self.config.base_url.trim_end_matches('/'), order_id);
+
+        let response = self
+            .http
+            .delete(url)
+            .header("APCA-API-KEY-ID", &self.config.api_key)
+            .header("APCA-API-SECRET-KEY", &self.config.api_secret)
+            .send()?;
+
+        if !response.status().is_success() {
+            // 404 means order not found or already done, which implies it's canceled or filled.
+            // But strict API check might want to error. Let's error for now.
+            let status = response.status().as_u16();
+            let body = response
+                .text()
+                .unwrap_or_else(|_| "unable to decode error body".to_string());
+            return Err(AlpacaProviderError::UnexpectedHttpStatus(status, body));
+        }
+
+        Ok(())
     }
 
     pub fn fetch_bars(
@@ -285,6 +357,19 @@ struct AlpacaBar {
     v: u64,
     n: u64,
     vw: f64,
+}
+
+#[derive(Debug, Clone, Deserialize)]
+struct AlpacaOrder {
+    id: String,
+    symbol: String,
+    qty: Option<String>,
+    filled_qty: String,
+    side: String,
+    #[serde(rename = "type")]
+    order_type: String,
+    status: String,
+    submitted_at: String,
 }
 
 #[derive(Debug, Clone, Deserialize)]
