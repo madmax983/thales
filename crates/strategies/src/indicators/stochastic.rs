@@ -7,8 +7,10 @@
 //! %K = 100 * (Close - Lowest Low) / (Highest High - Lowest Low)
 //! %D = SMA(%K, d_period)
 
-use anyhow::Result;
+use anyhow::{Result, Context};
 use polars::prelude::*;
+use rust_decimal::prelude::*;
+use std::collections::VecDeque;
 
 /// Calculate Stochastic Oscillator (%K and %D)
 ///
@@ -20,6 +22,7 @@ use polars::prelude::*;
 ///
 /// # Returns
 /// Tuple of (Series %K, Series %D). First few values will be null.
+/// Series names: "stochastic_k", "stochastic_d"
 pub fn calculate(
     data: &DataFrame,
     k_period: usize,
@@ -34,72 +37,96 @@ pub fn calculate(
         anyhow::bail!("Periods must be greater than 0");
     }
 
-    let close = data.column("close")?;
-    let high = data.column("high")?;
-    let low = data.column("low")?;
+    let high_series = data.column("high").context("Missing 'high' column")?.f64()?;
+    let low_series = data.column("low").context("Missing 'low' column")?.f64()?;
+    let close_series = data.column("close").context("Missing 'close' column")?.f64()?;
 
-    let lowest_low = calculate_rolling_min(low, k_period)?;
-    let highest_high = calculate_rolling_max(high, k_period)?;
+    // Convert to Decimal for precision, treating NaN/Inf as None
+    let highs: Vec<Option<Decimal>> = high_series.into_iter()
+        .map(|v| v.and_then(|f| Decimal::from_f64_retain(f)))
+        .collect();
+    let lows: Vec<Option<Decimal>> = low_series.into_iter()
+        .map(|v| v.and_then(|f| Decimal::from_f64_retain(f)))
+        .collect();
+    let closes: Vec<Option<Decimal>> = close_series.into_iter()
+        .map(|v| v.and_then(|f| Decimal::from_f64_retain(f)))
+        .collect();
 
-    let close_f64 = close.f64()?;
-    let low_f64 = lowest_low.f64()?;
-    let high_f64 = highest_high.f64()?;
+    // 1. Calculate Lowest Low and Highest High over k_period
+    let lowest_low = rolling_min(&lows, k_period);
+    let highest_high = rolling_max(&highs, k_period);
 
-    let mut raw_k_values: Vec<Option<f64>> = Vec::with_capacity(data.height());
+    // 2. Calculate Raw %K
+    // %K = 100 * (Close - Lowest Low) / (Highest High - Lowest Low)
+    let mut raw_k = vec![None; data.height()];
+    let hundred = Decimal::new(100, 0);
 
     for i in 0..data.height() {
-        let c = close_f64.get(i);
-        let l = low_f64.get(i);
-        let h = high_f64.get(i);
-
-        if let (Some(c_val), Some(l_val), Some(h_val)) = (c, l, h) {
-            if (h_val - l_val).abs() < f64::EPSILON {
-                 // Avoid division by zero.
-                 // If High == Low, price is flat. %K is technically 100 or 50 or 0.
-                 // Let's say 50.
-                 raw_k_values.push(Some(50.0));
+        if let (Some(c), Some(ll), Some(hh)) = (closes[i], lowest_low[i], highest_high[i]) {
+            let range = hh - ll;
+            if range.is_zero() {
+                // If High == Low, price is flat. Undefined mathematically.
+                // Convention: 50 (neutral).
+                raw_k[i] = Some(Decimal::new(50, 0));
             } else {
-                let k = 100.0 * (c_val - l_val) / (h_val - l_val);
-                raw_k_values.push(Some(k));
+                let k = hundred * (c - ll) / range;
+                raw_k[i] = Some(k);
             }
-        } else {
-            raw_k_values.push(None);
         }
     }
 
-    let raw_k_series = Series::new("raw_k", raw_k_values);
-
-    // Smooth %K
-    let k_series = if k_smoothing > 1 {
-        // Simple Moving Average of Raw %K
-        calculate_sma(&raw_k_series, k_smoothing)?
+    // 3. Smooth %K (if k_smoothing > 1)
+    let k_values = if k_smoothing > 1 {
+        calculate_sma(&raw_k, k_smoothing)
     } else {
-        raw_k_series
+        raw_k
     };
 
-    // Calculate %D (SMA of %K)
-    let d_series = calculate_sma(&k_series, d_period)?;
+    // 4. Calculate %D (SMA of %K)
+    let d_values = calculate_sma(&k_values, d_period);
+
+    // Convert back to f64 Series
+    let k_f64: Vec<Option<f64>> = k_values.into_iter().map(|d| d.map(|v| v.to_f64().unwrap_or(0.0))).collect();
+    let d_f64: Vec<Option<f64>> = d_values.into_iter().map(|d| d.map(|v| v.to_f64().unwrap_or(0.0))).collect();
+
+    let k_series = Series::new("stochastic_k", k_f64);
+    let d_series = Series::new("stochastic_d", d_f64);
 
     Ok((k_series, d_series))
 }
 
-fn calculate_rolling_min(series: &Series, window: usize) -> Result<Series> {
-    let arr = series.f64()?;
-    let mut result: Vec<Option<f64>> = vec![None; arr.len()];
-    let mut deque: std::collections::VecDeque<usize> = std::collections::VecDeque::new();
+/// Calculate Rolling Min using Monotonic Queue (O(N))
+fn rolling_min(data: &[Option<Decimal>], window: usize) -> Vec<Option<Decimal>> {
+    let mut result = vec![None; data.len()];
+    let mut deque: VecDeque<usize> = VecDeque::new();
+    let mut none_count = 0;
 
-    for i in 0..arr.len() {
+    for i in 0..data.len() {
+        // Leaving window
+        if i >= window {
+             if data[i - window].is_none() {
+                 none_count -= 1;
+             }
+        }
+
+        // Entering window
+        if data[i].is_none() {
+            none_count += 1;
+        }
+
         // Remove indices out of window
-        if let Some(&front) = deque.front() {
+        while let Some(&front) = deque.front() {
             if front + window <= i {
                 deque.pop_front();
+            } else {
+                break;
             }
         }
 
-        if let Some(val) = arr.get(i) {
-            // Maintain monotonic increasing order for Min
+        if let Some(val) = data[i] {
+            // Maintain increasing order
             while let Some(&back) = deque.back() {
-                if let Some(back_val) = arr.get(back) {
+                if let Some(back_val) = data[back] {
                     if back_val >= val {
                         deque.pop_back();
                     } else {
@@ -112,34 +139,52 @@ fn calculate_rolling_min(series: &Series, window: usize) -> Result<Series> {
             deque.push_back(i);
         }
 
-        // Window is valid from index `window - 1`
+        // Result
         if i >= window - 1 {
-             if let Some(&front) = deque.front() {
-                 result[i] = arr.get(front);
-             }
+            if none_count == 0 {
+                if let Some(&front) = deque.front() {
+                    result[i] = data[front];
+                }
+            } else {
+                result[i] = None;
+            }
         }
     }
-
-    Ok(Series::new(series.name(), result))
+    result
 }
 
-fn calculate_rolling_max(series: &Series, window: usize) -> Result<Series> {
-    let arr = series.f64()?;
-    let mut result: Vec<Option<f64>> = vec![None; arr.len()];
-    let mut deque: std::collections::VecDeque<usize> = std::collections::VecDeque::new();
+/// Calculate Rolling Max using Monotonic Queue (O(N))
+fn rolling_max(data: &[Option<Decimal>], window: usize) -> Vec<Option<Decimal>> {
+    let mut result = vec![None; data.len()];
+    let mut deque: VecDeque<usize> = VecDeque::new();
+    let mut none_count = 0;
 
-    for i in 0..arr.len() {
+    for i in 0..data.len() {
+        // Leaving window
+        if i >= window {
+             if data[i - window].is_none() {
+                 none_count -= 1;
+             }
+        }
+
+        // Entering window
+        if data[i].is_none() {
+            none_count += 1;
+        }
+
         // Remove indices out of window
-        if let Some(&front) = deque.front() {
+        while let Some(&front) = deque.front() {
             if front + window <= i {
                 deque.pop_front();
+            } else {
+                break;
             }
         }
 
-        if let Some(val) = arr.get(i) {
-            // Maintain monotonic decreasing order for Max
+        if let Some(val) = data[i] {
+            // Maintain decreasing order
             while let Some(&back) = deque.back() {
-                if let Some(back_val) = arr.get(back) {
+                if let Some(back_val) = data[back] {
                     if back_val <= val {
                         deque.pop_back();
                     } else {
@@ -153,84 +198,162 @@ fn calculate_rolling_max(series: &Series, window: usize) -> Result<Series> {
         }
 
         if i >= window - 1 {
-             if let Some(&front) = deque.front() {
-                 result[i] = arr.get(front);
-             }
-        }
-    }
-
-    Ok(Series::new(series.name(), result))
-}
-
-fn calculate_sma(series: &Series, window: usize) -> Result<Series> {
-    let arr = series.f64()?;
-    let mut result: Vec<Option<f64>> = vec![None; arr.len()];
-
-    let mut sum = 0.0;
-    let mut valid_count = 0;
-    let mut window_vals = std::collections::VecDeque::new();
-
-    for i in 0..arr.len() {
-        let val_opt = arr.get(i);
-        window_vals.push_back(val_opt);
-
-        if let Some(v) = val_opt {
-            sum += v;
-            valid_count += 1;
-        }
-
-        if window_vals.len() > window {
-            let popped = window_vals.pop_front().unwrap();
-            if let Some(v) = popped {
-                sum -= v;
-                valid_count -= 1;
-            }
-        }
-
-        if window_vals.len() == window {
-            if valid_count == window {
-                result[i] = Some(sum / window as f64);
+            if none_count == 0 {
+                if let Some(&front) = deque.front() {
+                    result[i] = data[front];
+                }
             } else {
                 result[i] = None;
             }
         }
     }
+    result
+}
 
-    Ok(Series::new(series.name(), result))
+/// Calculate Simple Moving Average (SMA)
+fn calculate_sma(data: &[Option<Decimal>], window: usize) -> Vec<Option<Decimal>> {
+    let mut result = vec![None; data.len()];
+    let mut sum = Decimal::ZERO;
+    let mut count = 0;
+    let mut queue: VecDeque<Option<Decimal>> = VecDeque::new();
+
+    for i in 0..data.len() {
+        let val_opt = data[i];
+        queue.push_back(val_opt);
+
+        if let Some(val) = val_opt {
+            sum += val;
+            count += 1;
+        }
+
+        if queue.len() > window {
+            let popped = queue.pop_front().unwrap(); // Safe
+            if let Some(val) = popped {
+                sum -= val;
+                count -= 1;
+            }
+        }
+
+        if queue.len() == window {
+            if count == window {
+                // All values valid
+                result[i] = Some(sum / Decimal::from_usize(window).unwrap());
+            } else {
+                // Some values were None
+                result[i] = None;
+            }
+        }
+    }
+    result
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
+    use polars::df;
 
     #[test]
-    fn test_stochastic_calculation() -> Result<()> {
+    fn test_known_values() -> Result<()> {
+        // Simple case:
+        // k_period = 2, k_smoothing = 1, d_period = 2
+
         let df = df!(
-            "high" => &[10.0, 12.0, 11.0, 13.0, 14.0],
-            "low" => &[5.0, 6.0, 7.0, 8.0, 9.0],
-            "close" => &[8.0, 10.0, 9.0, 12.0, 13.0]
+            "high" =>  &[10.0, 10.0, 10.0, 12.0],
+            "low" =>   &[ 0.0,  0.0,  0.0,  2.0],
+            "close" => &[ 5.0, 10.0,  0.0,  7.0]
         )?;
 
-        let (k, d) = calculate(&df, 3, 1, 2)?;
+        let (k, d) = calculate(&df, 2, 1, 2)?;
+        let k_vals = k.f64()?;
+        let d_vals = d.f64()?;
+
+        let val_k1 = k_vals.get(1);
+        if let Some(v) = val_k1 {
+             assert!((v - 100.0).abs() < 0.001, "K[1] expected 100.0, got {}", v);
+        } else {
+             assert!(val_k1.is_some(), "K[1] should be calculated");
+        }
+
+        let val_k2 = k_vals.get(2).unwrap();
+        assert!((val_k2 - 0.0).abs() < 0.001, "K[2] expected 0.0, got {}", val_k2);
+
+        let val_k3 = k_vals.get(3).unwrap();
+        assert!((val_k3 - 58.333).abs() < 0.001, "K[3] expected 58.333, got {}", val_k3);
+
+        let val_d2 = d_vals.get(2).unwrap();
+        assert!((val_d2 - 50.0).abs() < 0.001, "D[2] expected 50.0, got {}", val_d2);
+
+        let val_d3 = d_vals.get(3).unwrap();
+        assert!((val_d3 - 29.166).abs() < 0.001, "D[3] expected 29.166, got {}", val_d3);
+
+        Ok(())
+    }
+
+    #[test]
+    fn test_edge_cases() -> Result<()> {
+        // Empty data
+        let df_empty = DataFrame::default();
+        let res_empty = calculate(&df_empty, 14, 3, 3);
+        assert!(res_empty.is_err());
+
+        // Single point (less than period)
+        let df_single = df!(
+            "high" => &[10.0],
+            "low" => &[10.0],
+            "close" => &[10.0]
+        )?;
+        let (k, _d) = calculate(&df_single, 14, 3, 3)?;
+        let k_vals = k.f64()?;
+        assert_eq!(k_vals.len(), 1);
+        assert!(k_vals.get(0).is_none());
+
+        // Flat price (High == Low) -> Division by Zero check
+        let df_flat = df!(
+            "high" =>  &[10.0, 10.0, 10.0],
+            "low" =>   &[10.0, 10.0, 10.0],
+            "close" => &[10.0, 10.0, 10.0]
+        )?;
+
+        let (k_flat, _) = calculate(&df_flat, 2, 1, 2)?;
+        // Should calculate 50.0 (neutral)
+        let k_flat_vals = k_flat.f64()?;
+        assert_eq!(k_flat_vals.get(1), Some(50.0));
+
+        // NaN Handling
+        let df_nan = df!(
+            "high" =>  &[10.0, 10.0, f64::NAN, 12.0],
+            "low" =>   &[ 0.0,  0.0,  0.0,  2.0],
+            "close" => &[ 5.0, 10.0,  0.0,  7.0]
+        )?;
+        let (k_nan, _) = calculate(&df_nan, 2, 1, 2)?;
+        let k_nan_vals = k_nan.f64()?;
+        // Index 2 has NaN High. Window [1, 2]. Result should be None (Strict).
+        assert!(k_nan_vals.get(2).is_none(), "Index 2 should be None due to NaN in window");
+
+        Ok(())
+    }
+
+    #[test]
+    fn test_realistic_data() -> Result<()> {
+        let values: Vec<f64> = (0..100).map(|i| 100.0 + (i as f64 * 0.1).sin() * 10.0).collect();
+        let highs: Vec<f64> = values.iter().map(|v| v + 1.0).collect();
+        let lows: Vec<f64> = values.iter().map(|v| v - 1.0).collect();
+        let closes = values;
+
+        let df = df!(
+            "high" => highs,
+            "low" => lows,
+            "close" => closes
+        )?;
+
+        let (k, d) = calculate(&df, 14, 3, 3)?;
+        assert_eq!(k.len(), 100);
+        assert_eq!(d.len(), 100);
 
         let k_arr = k.f64()?;
-        let d_arr = d.f64()?;
-
-        assert!(k_arr.get(0).is_none());
-        assert!(k_arr.get(1).is_none());
-
-        // Check K
-        let k2 = k_arr.get(2).unwrap();
-        assert!((k2 - 57.14).abs() < 0.01, "K[2] expected 57.14, got {}", k2);
-
-        let k3 = k_arr.get(3).unwrap();
-        assert!((k3 - 85.71).abs() < 0.01, "K[3] expected 85.71, got {}", k3);
-
-        // Check D
-        assert!(d_arr.get(2).is_none()); // Need 2 values of K (at 2 and 3) to get D at 3
-
-        let d3 = d_arr.get(3).unwrap();
-        assert!((d3 - 71.425).abs() < 0.01, "D[3] expected 71.425, got {}", d3);
+        if let Some(val) = k_arr.get(20) {
+             assert!(val >= 0.0 && val <= 100.0, "K value {} out of range [0, 100]", val);
+        }
 
         Ok(())
     }
