@@ -1,5 +1,6 @@
 use crate::rag::HistoryEntry;
 use anyhow::{Context, Result};
+use chrono::TimeZone;
 use contracts::MarketAnalysis;
 use std::fs::{self, OpenOptions};
 use std::io::Write;
@@ -150,14 +151,76 @@ fn extract_regime_from_block(block: &str) -> Option<String> {
 }
 
 pub fn append_to_signals_md(path: &Path, content: &str) -> Result<()> {
+    append_to_file(path, content)
+}
+
+pub fn append_to_file(path: &Path, content: &str) -> Result<()> {
     let mut file = OpenOptions::new()
         .create(true)
         .append(true)
         .open(path)
-        .context("Failed to open Signals.md for appending")?;
+        .context(format!("Failed to open {} for appending", path.display()))?;
 
-    write!(file, "{}", content).context("Failed to write to Signals.md")?;
+    write!(file, "{}", content).context(format!("Failed to write to {}", path.display()))?;
     Ok(())
+}
+
+pub fn generate_regime_report(analysis: &MarketAnalysis) -> String {
+    let dt = chrono::Utc
+        .timestamp_millis_opt(analysis.timestamp_unix_ms)
+        .unwrap();
+    let formatted_date = dt.format("%Y-%m-%d %H:%M:%S").to_string();
+
+    format!(
+        "\n### {} - {} ({})\n**Regime**: {}\n**Sentiment**: {}\n**Confidence**: {:.2}%\n",
+        formatted_date,
+        analysis.symbol,
+        analysis.market,
+        analysis.regime,
+        analysis.sentiment,
+        analysis.confidence * 100.0
+    )
+}
+
+pub fn generate_volatility_report(analysis: &MarketAnalysis) -> String {
+    let dt = chrono::Utc
+        .timestamp_millis_opt(analysis.timestamp_unix_ms)
+        .unwrap();
+    let formatted_date = dt.format("%Y-%m-%d %H:%M:%S").to_string();
+
+    let atr_display = analysis
+        .atr
+        .map(|a| format!("{:.2}", a))
+        .unwrap_or_else(|| "N/A".to_string());
+    format!(
+        "\n### {} - {} ({})\n**Volatility**: {}\n**ATR**: {}\n**Assessment**: {}\n",
+        formatted_date,
+        analysis.symbol,
+        analysis.market,
+        analysis.volatility,
+        atr_display,
+        analysis.recommendation.clone().unwrap_or_default()
+    )
+}
+
+pub fn generate_research_report(analysis: &MarketAnalysis) -> String {
+    let dt = chrono::Utc
+        .timestamp_millis_opt(analysis.timestamp_unix_ms)
+        .unwrap();
+    let formatted_date = dt.format("%Y-%m-%d %H:%M:%S").to_string();
+
+    let research = analysis
+        .research_summary
+        .clone()
+        .unwrap_or_else(|| "None".to_string());
+    let news = analysis
+        .news_summary
+        .clone()
+        .unwrap_or_else(|| "None".to_string());
+    format!(
+        "\n### {} - {} ({})\n**Research**: {}\n**News**: {}\n",
+        formatted_date, analysis.symbol, analysis.market, research, news
+    )
 }
 
 #[cfg(test)]
