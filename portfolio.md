@@ -67,3 +67,20 @@
 | 2026-02-25 07:34:25 | BSXUSD | crypto:BSXUSD:buy:1772002800000 | Execution Failed |
 | 2026-02-25 07:34:25 | BTCUSD | crypto:BTCUSD:sell:1772002800000 | Lower priority/confidence than top 3 |
 | 2026-02-25 07:34:25 | BTC/USD | crypto:BTC/USD:sell:1772002800000 | Lower priority/confidence than top 3 |
+| 2026-02-25 13:35:53 | AAPL | STALE_SIGNAL | Signal too old (44.8 hours > 24 hours) |
+| 2026-02-25 13:35:56 | BSXUSD | crypto:BSXUSD:sell:1772024400000 | Conflict: Multiple strategies gave conflicting signals ({'sell', 'buy'}) |
+| 2026-02-25 13:35:56 | BSXUSD | crypto:BSXUSD:buy:1772024400000 | Conflict: Multiple strategies gave conflicting signals ({'sell', 'buy'}) |
+| 2026-02-25 13:35:56 | BSXUSD | crypto:BSXUSD:buy:1772024400000 | Conflict: Multiple strategies gave conflicting signals ({'sell', 'buy'}) |
+| 2026-02-25 13:35:56 | BSXUSD | crypto:BSXUSD:buy:1772024400000 | Conflict: Multiple strategies gave conflicting signals ({'sell', 'buy'}) |
+| 2026-02-25 13:35:58 | ETH/USD | crypto:ETH/USD:sell:1772024400000 | Conflict: Multiple strategies gave conflicting signals ({'sell', 'buy'}) |
+| 2026-02-25 13:35:58 | ETH/USD | crypto:ETH/USD:buy:1772024400000 | Conflict: Multiple strategies gave conflicting signals ({'sell', 'buy'}) |
+| 2026-02-25 13:35:58 | ETH/USD | crypto:ETH/USD:buy:1772024400000 | Conflict: Multiple strategies gave conflicting signals ({'sell', 'buy'}) |
+| 2026-02-25 13:35:58 | AAPL | equities:AAPL:sell:1772024400000 | Execution Failed |
+| 2026-02-25 13:35:59 | XBTUSD | crypto:XBTUSD:buy:1772024400000 | Execution Failed |
+| 2026-02-25 13:35:59 | XXBTZUSD | crypto:XXBTZUSD:buy:1772024400000 | Execution Failed |
+| 2026-02-25 13:35:59 | XETHZUSD | crypto:XETHZUSD:sell:1772024400000 | Lower priority/confidence than top 3 |
+| 2026-02-25 13:35:59 | BTCUSD | crypto:BTCUSD:buy:1772024400000 | Lower priority/confidence than top 3 |
+| 2026-02-25 13:35:59 | SPY | equities:SPY:sell:1772024400000 | Lower priority/confidence than top 3 |
+| 2026-02-25 13:35:59 | NVDA | equities:NVDA:sell:1772024400000 | Lower priority/confidence than top 3 |
+| 2026-02-25 13:35:59 | BTC/USD | crypto:BTC/USD:buy:1772024400000 | Lower priority/confidence than top 3 |
+| 2026-02-25 13:35:59 | ETHUSD | crypto:ETHUSD:buy:1772024400000 | Lower priority/confidence than top 3 |
