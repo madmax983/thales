@@ -67,6 +67,8 @@ def get_active_strategies():
         strategies.append("DonchianBreakout")
     if "ParabolicSar" in content:
         strategies.append("ParabolicSar")
+    if "KeltnerChannelBreakout" in content:
+        strategies.append("KeltnerChannelBreakout")
 
     return strategies
 
