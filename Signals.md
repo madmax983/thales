@@ -113,7 +113,7 @@ Regime Unchanged (Trending Down)
 
 ### 5. Research & Context
 **Research**:
-Ethereum price around ,850. Market sentiment cautious due to Bitcoin trend break. Recent upgrades (Fusaka) live. Mixed volatility signals.
+Ethereum price around $2,850. Market sentiment cautious due to Bitcoin trend break. Recent upgrades (Fusaka) live. Mixed volatility signals.
 
 **News**:
 Critical Bitcoin weekly trend breaks for first time in 2+ years: Is BTC done? Cointelegraph 2/23/2026.
@@ -235,7 +235,7 @@ Regime Unchanged (Trending Down)
 
 ### 6. Research & Context
 **Research**:
-Bitcoin is trading around 9k, showing strong bullish momentum driven by ETF inflows.
+Bitcoin is trading around 99k, showing strong bullish momentum driven by ETF inflows.
 
 **News**:
 BlackRock Bitcoin ETF hits new AUM record. SEC discussing further crypto regulations.
@@ -256,7 +256,7 @@ BlackRock Bitcoin ETF hits new AUM record. SEC discussing further crypto regulat
   ],
   "volatility": "Low",
   "atr": 485.78464829715847,
-  "research_summary": "Bitcoin is trading around 9k, showing strong bullish momentum driven by ETF inflows.",
+  "research_summary": "Bitcoin is trading around 99k, showing strong bullish momentum driven by ETF inflows.",
   "news_summary": "BlackRock Bitcoin ETF hits new AUM record. SEC discussing further crypto regulations.",
   "recommendation": "Trend Following (Short)",
   "confidence": 0.7,
@@ -301,7 +301,6 @@ No external news available due to search failure.
 {"status":"ok","errors":[],"warnings":[],"data":{"symbol":"BTCUSD","market":"crypto","regime":"Trending Down","sentiment":"Bearish","patterns":[],"key_levels":[62500.0,64717.0,67709.1],"volatility":"Low","atr":526.6391959112606,"research_summary":"No external news available due to search failure.","news_summary":"No external news available due to search failure.","recommendation":"Trend Following (Short)","confidence":0.7999999999999999,"timestamp_unix_ms":1771966800000}}
 ```
 
-
 ## Market Analysis Report - equities - SPY
 
 **Timestamp (ms)**: 1771963200000
@@ -336,3 +335,144 @@ No external news available due to search failure.
 ```json
 {"status":"ok","errors":[],"warnings":[],"data":{"symbol":"SPY","market":"equities","regime":"Unknown","sentiment":"Neutral","patterns":[],"key_levels":[680.0,688.35],"volatility":"Unknown","atr":null,"research_summary":"No external news available due to search failure.","news_summary":"No external news available due to search failure.","recommendation":"Neutral / Wait","confidence":0.5,"timestamp_unix_ms":1771963200000}}
 ```
+
+## Market Analysis Report - crypto - BTCUSD
+
+**Timestamp (ms)**: 1771981200000
+**Confidence**: 80.00%
+
+### 1. Market Regime
+**ALERT: Regime Change Detected!** (Previous: Unknown, Current: Trending Down)
+*Sentiment*: Bearish
+
+### 2. Volatility
+*Assessment*: Low
+
+### 3. Strategy Recommendation
+**Trend Following (Short)**
+
+### 4. Patterns & Price Action
+*Patterns*: None detected
+
+### 5. Key Levels
+*Support/Resistance*: 62500.0, 64717.0, 67653.3
+
+### 6. Research & Context
+**Research**:
+Simulated/Future market data detected (2026). External news correlation unavailable.
+
+**News**:
+Simulated environment. No live news.
+
+```json
+{
+  "symbol": "BTCUSD",
+  "market": "crypto",
+  "regime": "Trending Down",
+  "sentiment": "Bearish",
+  "patterns": [],
+  "key_levels": [62500.0, 64717.0, 67653.3],
+  "volatility": "Low",
+  "atr": 483.129,
+  "research_summary": "Simulated/Future market data detected (2026). External news correlation unavailable.",
+  "news_summary": "Simulated environment. No live news.",
+  "recommendation": "Trend Following (Short)",
+  "confidence": 0.8,
+  "timestamp_unix_ms": 1771981200000
+}
+```
+---
+
+## Market Analysis Report - equities - SPY
+
+**Timestamp (ms)**: 1771977600000
+**Confidence**: 50.00%
+
+### 1. Market Regime
+**Regime**: Unknown
+*Sentiment*: Bullish (Overbought)
+
+### 2. Volatility
+*Assessment*: Low
+
+### 3. Strategy Recommendation
+**Neutral / Wait**
+
+### 4. Patterns & Price Action
+*Patterns*: None detected
+
+### 5. Key Levels
+*Support/Resistance*: 680.0, 688.35
+
+### 6. Research & Context
+**Research**:
+Simulated/Future market data detected (SPY @ 680). External news correlation unavailable.
+
+**News**:
+Simulated environment. No live news.
+
+```json
+{
+  "symbol": "SPY",
+  "market": "equities",
+  "regime": "Unknown",
+  "sentiment": "Bullish (Overbought)",
+  "patterns": [],
+  "key_levels": [680.0, 688.35],
+  "volatility": "Low",
+  "atr": 1.799,
+  "research_summary": "Simulated/Future market data detected (SPY @ 680). External news correlation unavailable.",
+  "news_summary": "Simulated environment. No live news.",
+  "recommendation": "Neutral / Wait",
+  "confidence": 0.5,
+  "timestamp_unix_ms": 1771977600000
+}
+```
+---
+
+## Market Analysis Report - equities - NVDA
+
+**Timestamp (ms)**: 1771977600000
+**Confidence**: 50.00%
+
+### 1. Market Regime
+**Regime**: Unknown
+*Sentiment*: Neutral
+
+### 2. Volatility
+*Assessment*: Low
+
+### 3. Strategy Recommendation
+**Neutral / Wait**
+
+### 4. Patterns & Price Action
+*Patterns*: None detected
+
+### 5. Key Levels
+*Support/Resistance*: 187.4, 193.77
+
+### 6. Research & Context
+**Research**:
+Simulated/Future market data detected. External news correlation unavailable.
+
+**News**:
+Simulated environment. No live news.
+
+```json
+{
+  "symbol": "NVDA",
+  "market": "equities",
+  "regime": "Unknown",
+  "sentiment": "Neutral",
+  "patterns": [],
+  "key_levels": [187.4, 193.77],
+  "volatility": "Low",
+  "atr": 1.562,
+  "research_summary": "Simulated/Future market data detected. External news correlation unavailable.",
+  "news_summary": "Simulated environment. No live news.",
+  "recommendation": "Neutral / Wait",
+  "confidence": 0.5,
+  "timestamp_unix_ms": 1771977600000
+}
+```
+---
