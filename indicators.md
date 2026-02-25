@@ -260,3 +260,37 @@ let (k, d) = stochastic::calculate(&df, k_period, k_smoothing, d_period)?;
 - Returns `Result<(Series, Series)>` representing `(percent_k, percent_d)`.
 - The output Series are named "stochastic_k" and "stochastic_d".
 - The first few values will be null depending on the periods.
+
+## Keltner Channels
+
+**Name:** Keltner Channels
+**Description:** A volatility-based indicator consisting of a central Exponential Moving Average (EMA) and two outer bands derived from the Average True Range (ATR).
+**Rationale:** Helps identify trend direction and potential breakouts. Price closing outside the bands suggests a strong trend.
+
+### Implementation Details
+- Uses `ema` and `atr` indicators internally.
+- Uses Polars Series arithmetic for efficient calculation.
+- Returns a tuple of three Polars `Series` of `f64` values: (Lower, Middle, Upper).
+
+### Usage
+
+```rust
+use strategies::indicators::keltner_channels;
+use polars::prelude::*;
+
+// Assuming df is a DataFrame with "high", "low", "close" columns
+let ema_period = 20;
+let atr_period = 10;
+let atr_multiplier = 2.0;
+let (lower, middle, upper) = keltner_channels::calculate(&df, ema_period, atr_period, atr_multiplier)?;
+```
+
+### Parameters
+- `data`: Reference to a Polars `DataFrame`. Must contain "high", "low", "close" columns.
+- `ema_period`: Period for the central EMA (typically 20).
+- `atr_period`: Period for the ATR (typically 10).
+- `atr_multiplier`: Multiplier for ATR to set band width (typically 2.0).
+
+### Output
+- Returns `Result<(Series, Series, Series)>` representing `(lower_band, middle_band, upper_band)`.
+- The output Series are named "keltner_lower", "keltner_middle", and "keltner_upper".
