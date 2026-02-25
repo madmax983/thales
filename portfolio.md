@@ -192,3 +192,12 @@
 | 2026-02-25 21:48:30 | ETHUSD | crypto:ETHUSD:buy:1772053200000 | provider error: kraken api error: EOrder:Insufficient funds |
 | 2026-02-25 21:48:30 | XBTUSD | crypto:XBTUSD:buy:1772053200000 | Lower priority/confidence than top 3 |
 | 2026-02-25 21:48:30 | XXBTZUSD | crypto:XXBTZUSD:buy:1772053200000 | Lower priority/confidence than top 3 |
+| 2026-02-25 22:49:50 | AAPL | STALE_SIGNAL | Signal too old (54.1 hours > 24 hours) |
+| 2026-02-25 22:49:50 | BTCUSD | STALE_SIGNAL | Signal too old (27.8 hours > 24 hours) |
+| 2026-02-25 22:49:53 | BTCUSD | NO_STRATEGY_SIGNAL | No active strategy generated a signal (Strategies: BollingerBands, EmaCrossover, RsiMeanReversion, Macd, Supertrend, DonchianBreakout, ParabolicSar, KeltnerChannelBreakout, StochasticOscillator) |
+| 2026-02-25 22:49:53 | SPY | NO_STRATEGY_SIGNAL | No active strategy generated a signal (Strategies: BollingerBands, EmaCrossover, RsiMeanReversion, Macd, Supertrend, DonchianBreakout, ParabolicSar, KeltnerChannelBreakout, StochasticOscillator) |
+| 2026-02-25 22:49:54 | NVDA | NO_STRATEGY_SIGNAL | No active strategy generated a signal (Strategies: BollingerBands, EmaCrossover, RsiMeanReversion, Macd, Supertrend, DonchianBreakout, ParabolicSar, KeltnerChannelBreakout, StochasticOscillator) |
+| 2026-02-25 22:49:54 | BTC/USD | NO_STRATEGY_SIGNAL | No active strategy generated a signal (Strategies: BollingerBands, EmaCrossover, RsiMeanReversion, Macd, Supertrend, DonchianBreakout, ParabolicSar, KeltnerChannelBreakout, StochasticOscillator) |
+| 2026-02-25 22:49:54 | ETH/USD | NO_STRATEGY_SIGNAL | No active strategy generated a signal (Strategies: BollingerBands, EmaCrossover, RsiMeanReversion, Macd, Supertrend, DonchianBreakout, ParabolicSar, KeltnerChannelBreakout, StochasticOscillator) |
+| 2026-02-25 22:49:55 | ETHUSD | crypto:ETHUSD:buy:1772056800000 | provider error: kraken api error: EOrder:Insufficient funds |
+| 2026-02-25 22:49:56 | XETHZUSD | crypto:XETHZUSD:buy:1772056800000 | provider error: kraken api error: EOrder:Insufficient funds |
