@@ -1,1 +1,0 @@
-{"status":"ok","errors":[],"warnings":[],"data":{"schema_version":"v0","bars":[{"symbol":"META","market":"equities","timeframe":"1d","timestamp_unix_ms":1771822800000,"open":652.54,"high":657.7,"low":636.0,"close":637.25,"volume":8714558.0}]}}

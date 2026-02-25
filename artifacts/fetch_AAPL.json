@@ -1,1 +1,0 @@
-{"status":"ok","errors":[],"warnings":[],"data":{"schema_version":"v0","bars":[{"symbol":"AAPL","market":"equities","timeframe":"1d","timestamp_unix_ms":1771822800000,"open":263.49,"high":269.43,"low":263.381,"close":266.18,"volume":37485952.0}]}}

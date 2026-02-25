@@ -1,1 +1,0 @@
-{"status":"ok","errors":[],"warnings":[],"data":{"schema_version":"v0","bars":[{"symbol":"NVDA","market":"equities","timeframe":"1d","timestamp_unix_ms":1771822800000,"open":191.4,"high":193.95,"low":189.575,"close":191.55,"volume":172309100.0}]}}

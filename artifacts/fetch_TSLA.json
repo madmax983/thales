@@ -1,1 +1,0 @@
-{"status":"ok","errors":[],"warnings":[],"data":{"schema_version":"v0","bars":[{"symbol":"TSLA","market":"equities","timeframe":"1d","timestamp_unix_ms":1771822800000,"open":407.285,"high":407.7,"low":394.04,"close":399.83,"volume":70094260.0}]}}

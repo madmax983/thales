@@ -40,3 +40,23 @@ The lack of correlation suggests a risk-off environment in Crypto while Equities
 ### ETH/USD - 2026-02-25 05:08:45
 **Regime**: Ranging
 **Sentiment**: Bullish
+
+### 2026-02-25 13:08:55 - BTCUSD (crypto)
+**Regime**: Trending Down
+**Sentiment**: Bearish (Oversold)
+**Confidence**: 80.00%
+
+### 2026-02-25 13:10:30 - ETHUSD (crypto)
+**Regime**: Trending Down
+**Sentiment**: Bearish (Oversold)
+**Confidence**: 80.00%
+
+### 2026-02-25 13:12:16 - SPY (equities)
+**Regime**: Trending Up
+**Sentiment**: Bullish (Overbought)
+**Confidence**: 80.00%
+
+### ETHUSD - 2026-02-25 13:10:30 (crypto)
+**Regime**: Trending Down
+**Sentiment**: Bearish (Oversold)
+**Confidence**: 80.00%

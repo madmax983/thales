@@ -41,3 +41,23 @@ Low volatility environments often resolve into high volatility breakouts. Trader
 ### ETH/USD - 2026-02-25 05:08:45
 **Assessment**: Medium
 **ATR**: 19.85
+
+### 2026-02-25 13:08:55 - BTCUSD (crypto)
+**Volatility**: Medium
+**ATR**: 764.81
+**Assessment**: Trend Following (Short)
+
+### 2026-02-25 13:10:30 - ETHUSD (crypto)
+**Volatility**: Medium
+**ATR**: 764.81
+**Assessment**: Trend Following (Short)
+
+### 2026-02-25 13:12:16 - SPY (equities)
+**Volatility**: Medium
+**ATR**: 2.03
+**Assessment**: Trend Following (Long)
+
+### ETHUSD - 2026-02-25 13:10:30 (crypto)
+**Volatility**: Medium
+**ATR**: 764.81
+**Assessment**: Trend Following (Short)

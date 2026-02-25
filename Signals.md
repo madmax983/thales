@@ -643,3 +643,214 @@ No relevant news in simulated environment.
 ```
 
 ---
+
+## Market Analysis Report - crypto - BTCUSD
+
+**Timestamp (ms)**: 1772024935688
+**Confidence**: 80.00%
+
+### 1. Market Regime
+**ALERT: Regime Change Detected!** (Previous: Ranging, Current: Trending Down)
+*Sentiment*: Bearish (Oversold)
+
+### 2. Volatility
+*Assessment*: Medium
+
+### 3. Strategy Recommendation
+**Trend Following (Short)**
+
+### 4. Patterns & Price Action
+*Patterns*: None detected
+
+### 5. Key Levels
+*Support/Resistance*: 59348.09299105641, 65294.35478821834, 65927.86201265018
+
+### 6. Research & Context
+**Research**:
+External research unavailable due to tool limitations. Relying on technical analysis.
+
+**News**:
+No recent news available.
+*Historical Context*: No similar past trades found.
+
+```json
+{
+  "symbol": "BTCUSD",
+  "market": "crypto",
+  "regime": "Trending Down",
+  "sentiment": "Bearish (Oversold)",
+  "patterns": [],
+  "key_levels": [
+    59348.09299105641,
+    65294.35478821834,
+    65927.86201265018
+  ],
+  "volatility": "Medium",
+  "atr": 764.8144049226715,
+  "research_summary": "External research unavailable due to tool limitations. Relying on technical analysis.",
+  "news_summary": "No recent news available.",
+  "recommendation": "Trend Following (Short)",
+  "confidence": 0.7999999999999999,
+  "timestamp_unix_ms": 1772024935688
+}
+```
+
+---
+
+## Market Analysis Report - crypto - ETHUSD
+
+**Timestamp (ms)**: 1772025030812
+**Confidence**: 80.00%
+
+### 1. Market Regime
+Regime Unchanged (Trending Down)
+*Sentiment*: Bearish (Oversold)
+
+### 2. Volatility
+*Assessment*: Medium
+
+### 3. Strategy Recommendation
+**Trend Following (Short)**
+
+### 4. Patterns & Price Action
+*Patterns*: None detected
+
+### 5. Key Levels
+*Support/Resistance*: 59348.09299105641, 65294.35478821834, 65927.86201265018
+
+### 6. Research & Context
+**Research**:
+External research unavailable due to tool limitations. Relying on technical analysis.
+
+**News**:
+No recent news available.
+*Historical Context*: No similar past trades found.
+
+```json
+{
+  "symbol": "ETHUSD",
+  "market": "crypto",
+  "regime": "Trending Down",
+  "sentiment": "Bearish (Oversold)",
+  "patterns": [],
+  "key_levels": [
+    59348.09299105641,
+    65294.35478821834,
+    65927.86201265018
+  ],
+  "volatility": "Medium",
+  "atr": 764.8144049226715,
+  "research_summary": "External research unavailable due to tool limitations. Relying on technical analysis.",
+  "news_summary": "No recent news available.",
+  "recommendation": "Trend Following (Short)",
+  "confidence": 0.7999999999999999,
+  "timestamp_unix_ms": 1772025030812
+}
+```
+
+---
+
+## Market Analysis Report - equities - SPY
+
+**Timestamp (ms)**: 1772025136085
+**Confidence**: 80.00%
+
+### 1. Market Regime
+**ALERT: Regime Change Detected!** (Previous: Trending Down, Current: Trending Up)
+*Sentiment*: Bullish (Overbought)
+
+### 2. Volatility
+*Assessment*: Medium
+
+### 3. Strategy Recommendation
+**Trend Following (Long)**
+
+### 4. Patterns & Price Action
+*Patterns*: None detected
+
+### 5. Key Levels
+*Support/Resistance*: 144.1208937259845, 167.8921060064608
+
+### 6. Research & Context
+**Research**:
+External research unavailable due to tool limitations. Relying on technical analysis.
+
+**News**:
+No recent news available.
+*Historical Context*: No similar past trades found.
+
+```json
+{
+  "symbol": "SPY",
+  "market": "equities",
+  "regime": "Trending Up",
+  "sentiment": "Bullish (Overbought)",
+  "patterns": [],
+  "key_levels": [
+    144.1208937259845,
+    167.8921060064608
+  ],
+  "volatility": "Medium",
+  "atr": 2.027590523109508,
+  "research_summary": "External research unavailable due to tool limitations. Relying on technical analysis.",
+  "news_summary": "No recent news available.",
+  "recommendation": "Trend Following (Long)",
+  "confidence": 0.7999999999999999,
+  "timestamp_unix_ms": 1772025136085
+}
+```
+
+---
+
+## Market Analysis Report - crypto - ETHUSD
+
+**Timestamp (ms)**: 1772025030812
+**Confidence**: 80.00%
+
+### 1. Market Regime
+Regime Unchanged (Trending Down)
+*Sentiment*: Bearish (Oversold)
+
+### 2. Volatility
+*Assessment*: Medium
+
+### 3. Strategy Recommendation
+**Trend Following (Short)**
+
+### 4. Patterns & Price Action
+*Patterns*: None detected
+
+### 5. Key Levels
+*Support/Resistance*: 59348.09299105641, 65294.35478821834, 65927.86201265018
+
+### 6. Research & Context
+**Research**:
+Testing fix.
+
+**News**:
+Testing fix.
+*Historical Context*: No similar past trades found.
+
+```json
+{
+  "symbol": "ETHUSD",
+  "market": "crypto",
+  "regime": "Trending Down",
+  "sentiment": "Bearish (Oversold)",
+  "patterns": [],
+  "key_levels": [
+    59348.09299105641,
+    65294.35478821834,
+    65927.86201265018
+  ],
+  "volatility": "Medium",
+  "atr": 764.8144049226715,
+  "research_summary": "Testing fix.",
+  "news_summary": "Testing fix.",
+  "recommendation": "Trend Following (Short)",
+  "confidence": 0.7999999999999999,
+  "timestamp_unix_ms": 1772025030812
+}
+```
+
+---
