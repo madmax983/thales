@@ -1,11 +1,10 @@
 use crate::strategy::{Signal, SignalType, Strategy, StrategyConfig};
-use crate::indicators::atr;
+use crate::indicators::{atr, donchian_channels};
 use anyhow::Result;
 use async_trait::async_trait;
 use polars::prelude::*;
 use rust_decimal::prelude::*;
 use serde::{Deserialize, Serialize};
-use std::collections::VecDeque;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct DonchianBreakoutConfig {
@@ -40,21 +39,21 @@ impl Strategy for DonchianBreakout {
             return Ok(vec![]);
         }
 
-        let high_series = data.column("high")?.f64()?;
-        let low_series = data.column("low")?.f64()?;
         let close_series = data.column("close")?.f64()?;
 
         let time_series = data.column("timestamp_unix_ms")?;
         let time_arr = time_series.cast(&DataType::Int64)?;
         let time_arr = time_arr.i64()?;
 
-        // Convert to Vec<f64> for manual calculation, handling nulls as NaN (or just unwrap)
-        let highs: Vec<f64> = high_series.into_no_null_iter().collect();
-        let lows: Vec<f64> = low_series.into_no_null_iter().collect();
+        // Calculate Channels using new indicator
+        // Entry Channel (Upper) uses entry_period
+        let (_, _, upper_series) = donchian_channels::calculate(data, self.config.entry_period)?;
+        // Exit Channel (Lower) uses exit_period
+        let (lower_series, _, _) = donchian_channels::calculate(data, self.config.exit_period)?;
 
-        // Calculate Channels
-        let upper_channel_vec = rolling_max(&highs, self.config.entry_period);
-        let lower_channel_vec = rolling_min(&lows, self.config.exit_period);
+        // Convert to Vec<Option<f64>> for easy access
+        let upper_channel_vec: Vec<Option<f64>> = upper_series.f64()?.into_iter().map(|v| v).collect();
+        let lower_channel_vec: Vec<Option<f64>> = lower_series.f64()?.into_iter().map(|v| v).collect();
 
         // Calculate ATR for Stop Loss
         let atr_series = atr::calculate(data, 14)?;
@@ -62,9 +61,10 @@ impl Strategy for DonchianBreakout {
 
         let mut signals = Vec::new();
         let stop_loss_mult = Decimal::from_f64_retain(self.config.stop_loss_atr_mult).unwrap_or(Decimal::ZERO);
+        let len = data.height();
 
         // Iterate through data
-        for i in min_period..highs.len() {
+        for i in min_period..len {
             let timestamp = time_arr.get(i).unwrap_or(0);
             let price_opt = close_series.get(i);
 
@@ -129,77 +129,6 @@ impl Strategy for DonchianBreakout {
         self.config = new_config;
         Ok(())
     }
-}
-
-// Helper functions for rolling calculations using Monotonic Queue (O(N))
-fn rolling_max(values: &[f64], window_size: usize) -> Vec<Option<f64>> {
-    if window_size == 0 { return vec![None; values.len()]; }
-    let mut result = Vec::with_capacity(values.len());
-    let mut deque: VecDeque<usize> = VecDeque::new();
-
-    for i in 0..values.len() {
-        // Remove indices out of window
-        while let Some(&front) = deque.front() {
-            if front + window_size <= i {
-                deque.pop_front();
-            } else {
-                break;
-            }
-        }
-
-        let val = values[i];
-        // Maintain decreasing order for Max
-        while let Some(&back) = deque.back() {
-            if values[back] <= val {
-                deque.pop_back();
-            } else {
-                break;
-            }
-        }
-        deque.push_back(i);
-
-        if i >= window_size - 1 {
-            result.push(Some(values[*deque.front().unwrap()]));
-        } else {
-            result.push(None);
-        }
-    }
-    result
-}
-
-fn rolling_min(values: &[f64], window_size: usize) -> Vec<Option<f64>> {
-    if window_size == 0 { return vec![None; values.len()]; }
-    let mut result = Vec::with_capacity(values.len());
-    let mut deque: VecDeque<usize> = VecDeque::new();
-
-    for i in 0..values.len() {
-        // Remove indices out of window
-        while let Some(&front) = deque.front() {
-            if front + window_size <= i {
-                deque.pop_front();
-            } else {
-                break;
-            }
-        }
-
-        let val = values[i];
-        // Maintain increasing order for Min
-        while let Some(&back) = deque.back() {
-            if values[back] >= val {
-                deque.pop_back();
-            } else {
-                break;
-            }
-        }
-        deque.push_back(i);
-
-        if i >= window_size - 1 {
-            result.push(Some(values[*deque.front().unwrap()]));
-        } else {
-            result.push(None);
-        }
-    }
-    result
 }
 
 #[cfg(test)]
