@@ -181,3 +181,14 @@
 | 2026-02-25 20:51:46 | XETHZUSD | crypto:XETHZUSD:buy:1772049600000 | provider error: kraken api error: EOrder:Insufficient funds |
 | 2026-02-25 20:51:46 | BTCUSD | crypto:BTCUSD:buy:1772049600000 | Lower priority/confidence than top 3 |
 | 2026-02-25 20:51:46 | ETHUSD | crypto:ETHUSD:buy:1772049600000 | Lower priority/confidence than top 3 |
+| 2026-02-25 21:48:23 | AAPL | STALE_SIGNAL | Signal too old (53.0 hours > 24 hours) |
+| 2026-02-25 21:48:23 | BTCUSD | STALE_SIGNAL | Signal too old (26.8 hours > 24 hours) |
+| 2026-02-25 21:48:27 | SPY | NO_STRATEGY_SIGNAL | No active strategy generated a signal (Strategies: BollingerBands, EmaCrossover, RsiMeanReversion, Macd, Supertrend, DonchianBreakout, ParabolicSar, KeltnerChannelBreakout, StochasticOscillator) |
+| 2026-02-25 21:48:27 | NVDA | NO_STRATEGY_SIGNAL | No active strategy generated a signal (Strategies: BollingerBands, EmaCrossover, RsiMeanReversion, Macd, Supertrend, DonchianBreakout, ParabolicSar, KeltnerChannelBreakout, StochasticOscillator) |
+| 2026-02-25 21:48:28 | BTC/USD | NO_STRATEGY_SIGNAL | No active strategy generated a signal (Strategies: BollingerBands, EmaCrossover, RsiMeanReversion, Macd, Supertrend, DonchianBreakout, ParabolicSar, KeltnerChannelBreakout, StochasticOscillator) |
+| 2026-02-25 21:48:28 | ETH/USD | NO_STRATEGY_SIGNAL | No active strategy generated a signal (Strategies: BollingerBands, EmaCrossover, RsiMeanReversion, Macd, Supertrend, DonchianBreakout, ParabolicSar, KeltnerChannelBreakout, StochasticOscillator) |
+| 2026-02-25 21:48:29 | XETHZUSD | crypto:XETHZUSD:buy:1772053200000 | provider error: kraken api error: EOrder:Insufficient funds |
+| 2026-02-25 21:48:30 | BTCUSD | crypto:BTCUSD:buy:1772053200000 | provider error: kraken api error: EOrder:Insufficient funds |
+| 2026-02-25 21:48:30 | ETHUSD | crypto:ETHUSD:buy:1772053200000 | provider error: kraken api error: EOrder:Insufficient funds |
+| 2026-02-25 21:48:30 | XBTUSD | crypto:XBTUSD:buy:1772053200000 | Lower priority/confidence than top 3 |
+| 2026-02-25 21:48:30 | XXBTZUSD | crypto:XXBTZUSD:buy:1772053200000 | Lower priority/confidence than top 3 |
