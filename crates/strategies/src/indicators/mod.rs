@@ -5,3 +5,4 @@ pub mod atr;
 pub mod macd;
 pub mod bollinger_bands;
 pub mod supertrend;
+pub mod parabolic_sar;

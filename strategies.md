@@ -407,3 +407,71 @@ pub struct DonchianBreakoutConfig {
 ### Performance
 - Rolling Max/Min calculation is O(N) using Monotonic Queue.
 - Signal generation loop is O(N).
+
+---
+
+# Trading Strategy: Parabolic SAR
+
+## Strategy Specification
+
+**Name:** ParabolicSar
+
+**Description:** A trend-following strategy that uses the Parabolic SAR (Stop and Reverse) indicator. It generates buy signals when the price crosses above the SAR (trend flips to Up) and sell signals when the price crosses below the SAR (trend flips to Down).
+
+**Rationale:** The Parabolic SAR is designed to identify trend direction and reversals. It provides a trailing stop level that tightens as the trend accelerates, locking in profits.
+
+## Requirements
+
+### Implementation Details
+- Uses iterative calculation (stateful) to compute SAR values.
+- Implements the `Strategy` trait in Rust.
+- Uses Polars for data handling but iterates over rows for SAR logic.
+
+### Strategy Type
+Trend Following / Trailing Stop
+
+### Entry Conditions
+- **Long Entry (Buy):** Price crosses above SAR (Trend flips from Down to Up).
+
+### Exit Conditions
+- **Long Exit (Sell):** Price crosses below SAR (Trend flips from Up to Down).
+- **Stop Loss:** The SAR value itself acts as the dynamic trailing stop.
+
+### Position Sizing
+- **Size Hint:** "100" (fixed units) or "max" (for exits).
+
+## Code Pattern
+
+```rust
+use crate::strategy::{Strategy, StrategyConfig, Signal, SignalType};
+use crate::indicators::parabolic_sar;
+use polars::prelude::*;
+use async_trait::async_trait;
+use anyhow::Result;
+
+pub struct ParabolicSar {
+    config: ParabolicSarConfig,
+}
+
+#[derive(Debug, Clone, serde::Deserialize)]
+pub struct ParabolicSarConfig {
+    pub start: f64,
+    pub increment: f64,
+    pub max: f64,
+    pub symbol: String,
+}
+```
+
+## Critical Considerations
+
+### Risk Management Integration
+- **Stop Loss:** The strategy naturally provides a stop loss level (the SAR value).
+- **Trend Filter:** Best used in trending markets. Whipsaws in sideways markets are a known weakness.
+
+### Backtesting Requirements
+- Accepts `DataFrame` with historical data.
+- Requires sufficient data length for the indicator to stabilize (initial SAR depends on start point).
+
+### Performance
+- SAR calculation is O(N) iterative loop.
+- Efficient enough for typical timeframe data.
