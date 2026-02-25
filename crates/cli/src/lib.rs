@@ -12,6 +12,7 @@
 //! - [`signals`]: Signal generation pipeline, connecting strategies to market data.
 
 pub mod analysis;
+pub mod backtest;
 pub mod rag;
 pub mod reporting;
 pub mod signals;

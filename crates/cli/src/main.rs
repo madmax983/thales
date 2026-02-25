@@ -13,7 +13,7 @@ use serde::Serialize;
 use serde_json::json;
 use thiserror::Error;
 
-use thales_cli::{analysis, rag, reporting, signals};
+use thales_cli::{analysis, backtest, rag, reporting, signals};
 
 #[derive(Debug, Parser)]
 #[command(name = "thales-cli", version, about = "Agent trading toolkit CLI")]
@@ -24,6 +24,16 @@ struct Cli {
 
 #[derive(Debug, Subcommand)]
 enum Commands {
+    Backtest {
+        #[arg(long)]
+        input: PathBuf,
+        #[arg(long)]
+        strategy: String,
+        #[arg(long, default_value = "10000.0")]
+        initial_capital: f64,
+        #[arg(long, default_value = "100.0")]
+        risk: f64,
+    },
     FetchMarketData {
         #[arg(long)]
         provider: String,
@@ -121,6 +131,37 @@ fn main() {
 
 fn run(command: Commands) -> Result<String, CliError> {
     match command {
+        Commands::Backtest {
+            input,
+            strategy,
+            initial_capital,
+            risk,
+        } => {
+            let raw = fs::read_to_string(&input)?;
+            let series: BarSeries = match serde_json::from_str::<ResponseEnvelope<BarSeries>>(&raw)
+            {
+                Ok(envelope) => envelope
+                    .data
+                    .ok_or(CliError::Validation("Envelope has no data".to_string()))?,
+                Err(_) => serde_json::from_str::<BarSeries>(&raw)?,
+            };
+
+            let config = backtest::BacktestConfig {
+                initial_capital,
+                risk_per_trade: risk,
+            };
+
+            let rt = tokio::runtime::Builder::new_current_thread()
+                .enable_all()
+                .build()
+                .map_err(|e| CliError::Provider(format!("Failed to create runtime: {}", e)))?;
+
+            let result = rt
+                .block_on(async { backtest::run_backtest(&series, &strategy, config).await })
+                .map_err(|e| CliError::Validation(e.to_string()))?;
+
+            ok_envelope(result)
+        }
         Commands::FetchMarketData {
             provider,
             symbol,
