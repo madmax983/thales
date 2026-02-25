@@ -170,3 +170,14 @@
 | 2026-02-25 20:22:29 | XETHZUSD | crypto:XETHZUSD:buy:1772049600000 | provider error: kraken api error: EOrder:Insufficient funds |
 | 2026-02-25 20:22:29 | BTCUSD | crypto:BTCUSD:buy:1772049600000 | Lower priority/confidence than top 3 |
 | 2026-02-25 20:22:29 | ETHUSD | crypto:ETHUSD:buy:1772049600000 | Lower priority/confidence than top 3 |
+| 2026-02-25 20:51:39 | AAPL | STALE_SIGNAL | Signal too old (52.1 hours > 24 hours) |
+| 2026-02-25 20:51:39 | BTCUSD | STALE_SIGNAL | Signal too old (25.9 hours > 24 hours) |
+| 2026-02-25 20:51:42 | SPY | NO_STRATEGY_SIGNAL | No active strategy generated a signal (Strategies: BollingerBands, EmaCrossover, RsiMeanReversion, Macd, Supertrend, DonchianBreakout, ParabolicSar, KeltnerChannelBreakout, StochasticOscillator) |
+| 2026-02-25 20:51:43 | NVDA | NO_STRATEGY_SIGNAL | No active strategy generated a signal (Strategies: BollingerBands, EmaCrossover, RsiMeanReversion, Macd, Supertrend, DonchianBreakout, ParabolicSar, KeltnerChannelBreakout, StochasticOscillator) |
+| 2026-02-25 20:51:43 | BTC/USD | NO_STRATEGY_SIGNAL | No active strategy generated a signal (Strategies: BollingerBands, EmaCrossover, RsiMeanReversion, Macd, Supertrend, DonchianBreakout, ParabolicSar, KeltnerChannelBreakout, StochasticOscillator) |
+| 2026-02-25 20:51:44 | ETH/USD | NO_STRATEGY_SIGNAL | No active strategy generated a signal (Strategies: BollingerBands, EmaCrossover, RsiMeanReversion, Macd, Supertrend, DonchianBreakout, ParabolicSar, KeltnerChannelBreakout, StochasticOscillator) |
+| 2026-02-25 20:51:45 | XBTUSD | crypto:XBTUSD:buy:1772049600000 | provider error: kraken api error: EOrder:Insufficient funds |
+| 2026-02-25 20:51:45 | XXBTZUSD | crypto:XXBTZUSD:buy:1772049600000 | provider error: kraken api error: EOrder:Insufficient funds |
+| 2026-02-25 20:51:46 | XETHZUSD | crypto:XETHZUSD:buy:1772049600000 | provider error: kraken api error: EOrder:Insufficient funds |
+| 2026-02-25 20:51:46 | BTCUSD | crypto:BTCUSD:buy:1772049600000 | Lower priority/confidence than top 3 |
+| 2026-02-25 20:51:46 | ETHUSD | crypto:ETHUSD:buy:1772049600000 | Lower priority/confidence than top 3 |
