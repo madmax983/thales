@@ -11,6 +11,41 @@ pub struct HistoryEntry {
     pub outcome: Option<f64>, // PnL or score, optional
 }
 
+#[derive(Debug, Clone)]
+pub struct HistoricalPerformance {
+    pub count: usize,
+    pub win_rate: f64,
+    pub avg_pnl: f64,
+}
+
+pub fn analyze_performance(entries: &[HistoryEntry]) -> HistoricalPerformance {
+    let count = entries.len();
+    if count == 0 {
+        return HistoricalPerformance {
+            count: 0,
+            win_rate: 0.0,
+            avg_pnl: 0.0,
+        };
+    }
+
+    let wins = entries
+        .iter()
+        .filter(|t| t.outcome.unwrap_or(0.0) > 0.0)
+        .count();
+    let win_rate = (wins as f64 / count as f64) * 100.0;
+    let avg_outcome = entries
+        .iter()
+        .map(|t| t.outcome.unwrap_or(0.0))
+        .sum::<f64>()
+        / count as f64;
+
+    HistoricalPerformance {
+        count,
+        win_rate,
+        avg_pnl: avg_outcome,
+    }
+}
+
 pub fn find_similar_trades(
     current_analysis: &MarketAnalysis,
     history_path: &Path,
@@ -79,29 +114,20 @@ pub fn count_todays_signals(symbol: &str, history_path: &Path, reference_ts: i64
 }
 
 pub fn summarize_history(entries: &[HistoryEntry], current_symbol: &str) -> String {
-    if entries.is_empty() {
+    let perf = analyze_performance(entries);
+
+    if perf.count == 0 {
         return "No similar past trades found.".to_string();
     }
-    let count = entries.len();
+
     let same_symbol_count = entries
         .iter()
         .filter(|e| e.market_analysis.symbol == current_symbol)
         .count();
 
-    let wins = entries
-        .iter()
-        .filter(|t| t.outcome.unwrap_or(0.0) > 0.0)
-        .count();
-    let win_rate = (wins as f64 / count as f64) * 100.0;
-    let avg_outcome = entries
-        .iter()
-        .map(|t| t.outcome.unwrap_or(0.0))
-        .sum::<f64>()
-        / count as f64;
-
     format!(
         "Found {} similar past trades ({} on same symbol). Win Rate: {:.1}%. Avg PnL: {:.2}",
-        count, same_symbol_count, win_rate, avg_outcome
+        perf.count, same_symbol_count, perf.win_rate, perf.avg_pnl
     )
 }
 
