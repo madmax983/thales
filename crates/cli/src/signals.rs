@@ -380,7 +380,7 @@ pub async fn generate_signals(
                 // Momentum strategies are exempt from this check as they naturally buy strength
                 let is_momentum = matches!(
                     strategy_name,
-                    "DonchianBreakout" | "KeltnerChannelBreakout" | "Supertrend" | "ParabolicSar"
+                    "DonchianBreakout" | "KeltnerChannelBreakout" | "Supertrend" | "ParabolicSar" | "AdxMomentum"
                 );
 
                 if !is_momentum {
@@ -1705,6 +1705,66 @@ mod tests {
         let intent = &intents[0];
         assert_eq!(intent.side, "buy");
         assert!(intent.rationale.contains("KeltnerChannelBreakout"));
+
+        Ok(())
+    }
+
+    #[tokio::test]
+    async fn test_adx_momentum_allows_chasing() -> Result<()> {
+        let mut bars = Vec::new();
+        let now = 100000;
+
+        // 1. Flat Market (ADX ~ 0)
+        let mut p = 100.0;
+        for i in 0..30 {
+            bars.push(Bar {
+                symbol: "TEST".to_string(), market: "equities".to_string(), timeframe: "1m".to_string(),
+                timestamp_unix_ms: now + i * 60000,
+                open: p, high: p+0.1, low: p-0.1, close: p, volume: 1000.0,
+            });
+        }
+
+        // 2. Strong Trend Up (DX ~ 100)
+        // Need approx 4-5 bars to cross ADX 25
+        for i in 0..4 {
+            p += 2.0;
+            let ts = now + (30 + i) * 60000;
+            bars.push(Bar {
+                symbol: "TEST".to_string(), market: "equities".to_string(), timeframe: "1m".to_string(),
+                timestamp_unix_ms: ts,
+                open: p, high: p+2.0, low: p-0.1, close: p+2.0, volume: 1000.0,
+            });
+        }
+
+        let series = BarSeries { schema_version: "v0".to_string(), bars };
+        let positions = vec![];
+
+        let last_ts = series.bars.last().unwrap().timestamp_unix_ms;
+
+        // Force Overbought Sentiment
+        let overbought_analysis = MarketAnalysis {
+            symbol: "TEST".to_string(),
+            market: "equities".to_string(),
+            regime: "Trending Up".to_string(),
+            volatility: "High".to_string(),
+            sentiment: "Bullish (Overbought)".to_string(),
+            patterns: vec![],
+            key_levels: vec![],
+            atr: None,
+            research_summary: None,
+            news_summary: None,
+            recommendation: None,
+            confidence: 0.8,
+            timestamp_unix_ms: last_ts,
+        };
+
+        // Run AdxMomentum
+        let intents = generate_signals(&series, "AdxMomentum", None, 100.0, &positions, Some(overbought_analysis)).await?;
+
+        assert!(!intents.is_empty(), "AdxMomentum should generate signal and allow chasing (Buy when Overbought)");
+        let intent = &intents[0];
+        assert_eq!(intent.side, "buy");
+        assert!(intent.rationale.contains("AdxMomentum"));
 
         Ok(())
     }
