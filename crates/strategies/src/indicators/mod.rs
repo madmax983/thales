@@ -9,3 +9,4 @@ pub mod parabolic_sar;
 pub mod donchian_channels;
 pub mod stochastic;
 pub mod keltner_channels;
+pub mod adx;

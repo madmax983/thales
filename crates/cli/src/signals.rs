@@ -13,6 +13,7 @@ use strategies::donchian_breakout::{DonchianBreakout, DonchianBreakoutConfig};
 use strategies::parabolic_sar::{ParabolicSar, ParabolicSarConfig};
 use strategies::keltner_channel_breakout::{KeltnerChannelBreakout, KeltnerChannelBreakoutConfig};
 use strategies::stochastic_oscillator::{StochasticOscillator, StochasticOscillatorConfig};
+use strategies::adx_momentum::{AdxMomentum, AdxMomentumConfig};
 use strategies::strategy::{Signal, SignalType, Strategy};
 
 fn resolve_signal_type(signal: &Signal, position: Option<&contracts::Position>) -> (SignalType, String) {
@@ -193,6 +194,16 @@ pub async fn generate_signals(
             symbol: market_analysis.symbol.clone(),
         };
         Box::new(StochasticOscillator::new(config))
+    } else if strategy_name == "AdxMomentum" {
+        let config = AdxMomentumConfig {
+            adx_period: 14,
+            adx_threshold: 25.0,
+            di_period: 14,
+            stop_loss_atr_mult: 2.0,
+            atr_period: 14,
+            symbol: market_analysis.symbol.clone(),
+        };
+        Box::new(AdxMomentum::new(config))
     } else {
         // Fallback or Error
         return Err(anyhow::anyhow!("Unknown strategy: {}", strategy_name));

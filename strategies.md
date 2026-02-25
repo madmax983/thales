@@ -618,3 +618,73 @@ pub struct StochasticOscillatorConfig {
 ### Performance
 - Stochastic calculation involves rolling Min/Max (O(N)).
 - Signal generation loop is O(N).
+
+---
+
+# Trading Strategy: ADX Momentum
+
+## Strategy Specification
+
+**Name:** AdxMomentum
+
+**Description:** A trend-following strategy that uses the Average Directional Index (ADX) to determine trend strength and the Directional Movement Index (DMI) for direction. It enters when ADX indicates a strong trend and +DI crosses above -DI.
+
+**Rationale:** Many trend-following strategies fail in ranging markets. ADX filters out weak trends, ensuring that trades are only taken when momentum is sufficient.
+
+## Requirements
+
+### Implementation Details
+- Uses Polars for data analysis.
+- Implements the `Strategy` trait in Rust.
+- Uses `adx` and `atr` indicators.
+
+### Strategy Type
+Trend Following / Momentum
+
+### Entry Conditions
+- **Long Entry (Buy):** ADX > `adx_threshold` (e.g., 25) AND +DI > -DI. (Condition became true in the current bar).
+
+### Exit Conditions
+- **Long Exit (Sell):** +DI < -DI (Trend Reversal) OR ADX < `adx_threshold` (Trend Weakening).
+- **Stop Loss:** Entry Price - (ATR * `stop_loss_atr_mult`).
+
+### Position Sizing
+- **Size Hint:** "100" (fixed units) or "max" (for exits).
+
+## Code Pattern
+
+```rust
+use crate::strategy::{Strategy, StrategyConfig, Signal, SignalType};
+use crate::indicators::{adx, atr};
+use polars::prelude::*;
+use async_trait::async_trait;
+use anyhow::Result;
+
+pub struct AdxMomentum {
+    config: AdxMomentumConfig,
+}
+
+#[derive(Debug, Clone, serde::Deserialize)]
+pub struct AdxMomentumConfig {
+    pub adx_period: usize,
+    pub adx_threshold: f64,
+    pub di_period: usize,
+    pub stop_loss_atr_mult: f64,
+    pub atr_period: usize,
+    pub symbol: String,
+}
+```
+
+## Critical Considerations
+
+### Risk Management Integration
+- **Stop Loss:** Uses ATR-based stop loss for initial risk control.
+- **Trend Filter:** ADX acts as a strong trend filter.
+
+### Backtesting Requirements
+- Accepts `DataFrame` with historical data.
+- Requires data length > `adx_period` * 2 approx.
+
+### Performance
+- ADX calculation involves smoothing (O(N)).
+- Signal generation loop is O(N).
