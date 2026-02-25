@@ -329,6 +329,7 @@ pub async fn generate_signals(
             // Filter out invalid Entries (missing stop loss)
             if !skip && (final_signal_type == SignalType::Entry || final_signal_type == SignalType::ScaleIn) {
                 if stop_loss.is_none() {
+                    eprintln!("Signal Generator: Skipping {} signal for {} due to missing Stop Loss", signal.side, signal.symbol);
                     skip = true;
                 }
             }
@@ -337,10 +338,12 @@ pub async fn generate_signals(
             if !skip && size_hint != "max" {
                  if let Ok(size) = size_hint.parse::<f64>() {
                      if size <= 0.0 || !size.is_finite() {
+                         eprintln!("Signal Generator: Skipping {} signal for {} due to invalid size: {}", signal.side, signal.symbol, size);
                          skip = true;
                      }
                  } else {
                      // Parse error means invalid size (unless "max" which is handled above)
+                     eprintln!("Signal Generator: Skipping {} signal for {} due to parse error on size: {}", signal.side, signal.symbol, size_hint);
                      skip = true;
                  }
             }
