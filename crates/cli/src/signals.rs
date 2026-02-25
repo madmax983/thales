@@ -9,6 +9,7 @@ use strategies::ema_crossover::{EmaCrossover, EmaCrossoverConfig};
 use strategies::rsi_mean_reversion::{RsiMeanReversion, RsiMeanReversionConfig};
 use strategies::macd::{Macd, MacdConfig};
 use strategies::supertrend::{Supertrend, SupertrendConfig};
+use strategies::donchian_breakout::{DonchianBreakout, DonchianBreakoutConfig};
 use strategies::strategy::{Signal, SignalType, Strategy};
 
 fn resolve_signal_type(signal: &Signal, position: Option<&contracts::Position>) -> (SignalType, String) {
@@ -120,6 +121,14 @@ pub async fn generate_signals(
             symbol: market_analysis.symbol.clone(),
         };
         Box::new(Supertrend::new(config))
+    } else if strategy_name == "DonchianBreakout" {
+        let config = DonchianBreakoutConfig {
+            entry_period: 20,
+            exit_period: 10,
+            stop_loss_atr_mult: 2.0,
+            symbol: market_analysis.symbol.clone(),
+        };
+        Box::new(DonchianBreakout::new(config))
     } else {
         // Fallback or Error
         return Err(anyhow::anyhow!("Unknown strategy: {}", strategy_name));
