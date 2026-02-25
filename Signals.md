@@ -854,3 +854,329 @@ Testing fix.
 ```
 
 ---
+
+## Market Analysis Report - crypto - BTCUSD
+
+**Timestamp (ms)**: 1772046000000
+**Confidence**: 70.00%
+
+### 1. Market Regime
+Regime Unchanged (Trending Down)
+*Sentiment*: Bullish (Strong)
+
+### 2. Volatility
+*Assessment*: Low
+
+### 3. Strategy Recommendation
+**Trend Following (Short)**
+
+### 4. Patterns & Price Action
+*Patterns*: Breakout (Upside), Consolidation (Squeeze)
+
+### 5. Key Levels
+*Support/Resistance*: 62500, 63921.3, 66024.95, 66735.6
+
+### 6. Research & Context
+**Research**:
+Bitcoin daily gains near 5% as analysis eyes bullish 'rotation' from gold. Clarity Act risks repeat of Europe's mistakes, crypto lawyer warns.
+
+**News**:
+Bitcoin price today is $66,174.00 (+5.37% in 24h). Solana leads crypto recovery with 10% gain.
+*Historical Context*: No similar past trades found.
+
+```json
+{
+  "symbol": "BTCUSD",
+  "market": "crypto",
+  "regime": "Trending Down",
+  "sentiment": "Bullish (Strong)",
+  "patterns": [
+    "Breakout (Upside)",
+    "Consolidation (Squeeze)"
+  ],
+  "key_levels": [
+    62500.0,
+    63921.3,
+    66024.95,
+    66735.6
+  ],
+  "volatility": "Low",
+  "atr": 663.4495248394084,
+  "research_summary": "Bitcoin daily gains near 5% as analysis eyes bullish 'rotation' from gold. Clarity Act risks repeat of Europe's mistakes, crypto lawyer warns.",
+  "news_summary": "Bitcoin price today is $66,174.00 (+5.37% in 24h). Solana leads crypto recovery with 10% gain.",
+  "recommendation": "Trend Following (Short)",
+  "confidence": 0.7,
+  "timestamp_unix_ms": 1772046000000
+}
+```
+
+---
+
+## Market Analysis Report - crypto - BTCUSD
+
+**Timestamp (ms)**: 1772046000000
+**Confidence**: 70.00%
+
+### 1. Market Regime
+**Regime**: Trending Down
+*Sentiment*: Bullish (Strong)
+
+### 2. Volatility
+*Assessment*: Low
+
+### 3. Strategy Recommendation
+**Trend Following (Short)**
+
+### 4. Patterns & Price Action
+*Patterns*: Breakout (Upside), Consolidation (Squeeze)
+
+### 5. Key Levels
+*Support/Resistance*: 62500.0, 63921.3, 66024.95, 66735.6
+
+### 6. Research & Context
+**Research**:
+Bitcoin daily gains near 5% as analysis eyes bullish 'rotation' from gold. Clarity Act risks repeat of Europe's mistakes, crypto lawyer warns.
+
+**News**:
+Bitcoin price today is $66,174.00 (+5.37% in 24h). Solana leads crypto recovery with 10% gain.
+
+```json
+{
+  "symbol": "BTCUSD",
+  "market": "crypto",
+  "regime": "Trending Down",
+  "sentiment": "Bullish (Strong)",
+  "patterns": [
+    "Breakout (Upside)",
+    "Consolidation (Squeeze)"
+  ],
+  "key_levels": [
+    62500.0,
+    63921.3,
+    66024.95,
+    66735.6
+  ],
+  "volatility": "Low",
+  "atr": 663.4495248394084,
+  "research_summary": "Bitcoin daily gains near 5% as analysis eyes bullish 'rotation' from gold. Clarity Act risks repeat of Europe's mistakes, crypto lawyer warns.",
+  "news_summary": "Bitcoin price today is $66,174.00 (+5.37% in 24h). Solana leads crypto recovery with 10% gain.",
+  "recommendation": "Trend Following (Short)",
+  "confidence": 0.7,
+  "timestamp_unix_ms": 1772046000000
+}
+```
+---
+
+
+## Market Analysis Report - crypto - ETHUSD
+
+**Timestamp (ms)**: 1772046000000
+**Confidence**: 70.00%
+
+### 1. Market Regime
+Regime Unchanged (Trending Down)
+*Sentiment*: Bullish (Strong)
+
+### 2. Volatility
+*Assessment*: Medium
+
+### 3. Strategy Recommendation
+**Trend Following (Short)**
+
+### 4. Patterns & Price Action
+*Patterns*: Breakout (Upside), Consolidation (Squeeze)
+
+### 5. Key Levels
+*Support/Resistance*: 1792.8, 1846.74, 1939.35, 1966.32
+
+### 6. Research & Context
+**Research**:
+Correlated with broader crypto recovery led by Bitcoin and Solana. Market sentiment generally bullish following Bitcoin's 5% gain.
+
+**News**:
+No specific ETH news found. Inferring bullish sentiment from BTC/SOL trends.
+*Historical Context*: No similar past trades found.
+
+```json
+{
+  "symbol": "ETHUSD",
+  "market": "crypto",
+  "regime": "Trending Down",
+  "sentiment": "Bullish (Strong)",
+  "patterns": [
+    "Breakout (Upside)",
+    "Consolidation (Squeeze)"
+  ],
+  "key_levels": [
+    1792.8,
+    1846.74,
+    1939.35,
+    1966.32
+  ],
+  "volatility": "Medium",
+  "atr": 24.39111578133559,
+  "research_summary": "Correlated with broader crypto recovery led by Bitcoin and Solana. Market sentiment generally bullish following Bitcoin's 5% gain.",
+  "news_summary": "No specific ETH news found. Inferring bullish sentiment from BTC/SOL trends.",
+  "recommendation": "Trend Following (Short)",
+  "confidence": 0.7,
+  "timestamp_unix_ms": 1772046000000
+}
+```
+
+---
+
+## Market Analysis Report - crypto - ETHUSD
+
+**Timestamp (ms)**: 1772046000000
+**Confidence**: 70.00%
+
+### 1. Market Regime
+**Regime**: Trending Down
+*Sentiment*: Bullish (Strong)
+
+### 2. Volatility
+*Assessment*: Medium
+
+### 3. Strategy Recommendation
+**Trend Following (Short)**
+
+### 4. Patterns & Price Action
+*Patterns*: Breakout (Upside), Consolidation (Squeeze)
+
+### 5. Key Levels
+*Support/Resistance*: 1792.8, 1846.74, 1939.35, 1966.32
+
+### 6. Research & Context
+**Research**:
+Correlated with broader crypto recovery led by Bitcoin and Solana. Market sentiment generally bullish following Bitcoin's 5% gain.
+
+**News**:
+No specific ETH news found. Inferring bullish sentiment from BTC/SOL trends.
+
+```json
+{
+  "symbol": "ETHUSD",
+  "market": "crypto",
+  "regime": "Trending Down",
+  "sentiment": "Bullish (Strong)",
+  "patterns": [
+    "Breakout (Upside)",
+    "Consolidation (Squeeze)"
+  ],
+  "key_levels": [
+    1792.8,
+    1846.74,
+    1939.35,
+    1966.32
+  ],
+  "volatility": "Medium",
+  "atr": 24.39111578133559,
+  "research_summary": "Correlated with broader crypto recovery led by Bitcoin and Solana. Market sentiment generally bullish following Bitcoin's 5% gain.",
+  "news_summary": "No specific ETH news found. Inferring bullish sentiment from BTC/SOL trends.",
+  "recommendation": "Trend Following (Short)",
+  "confidence": 0.7,
+  "timestamp_unix_ms": 1772046000000
+}
+```
+---
+
+
+## Market Analysis Report - equities - SPY
+
+**Timestamp (ms)**: 1772046000000
+**Confidence**: 50.00%
+
+### 1. Market Regime
+**ALERT: Regime Change Detected!** (Previous: Trending Up, Current: Ranging)
+*Sentiment*: Neutral
+
+### 2. Volatility
+*Assessment*: Unknown
+
+### 3. Strategy Recommendation
+**Mean Reversion**
+
+### 4. Patterns & Price Action
+*Patterns*: Bullish Engulfing
+
+### 5. Key Levels
+*Support/Resistance*: None identified
+
+### 6. Research & Context
+**Research**:
+No specific news found. Analyzing technical structure.
+
+**News**:
+No specific news found.
+*Historical Context*: No similar past trades found.
+
+```json
+{
+  "symbol": "SPY",
+  "market": "equities",
+  "regime": "Ranging",
+  "sentiment": "Neutral",
+  "patterns": [
+    "Bullish Engulfing"
+  ],
+  "key_levels": [],
+  "volatility": "Unknown",
+  "atr": null,
+  "research_summary": "No specific news found. Analyzing technical structure.",
+  "news_summary": "No specific news found.",
+  "recommendation": "Mean Reversion",
+  "confidence": 0.5,
+  "timestamp_unix_ms": 1772046000000
+}
+```
+
+---
+
+## Market Analysis Report - equities - SPY
+
+**Timestamp (ms)**: 1772046000000
+**Confidence**: 50.00%
+
+### 1. Market Regime
+**Regime**: Ranging
+*Sentiment*: Neutral
+
+### 2. Volatility
+*Assessment*: Unknown
+
+### 3. Strategy Recommendation
+**Mean Reversion**
+
+### 4. Patterns & Price Action
+*Patterns*: Bullish Engulfing
+
+### 5. Key Levels
+*Support/Resistance*: None identified
+
+### 6. Research & Context
+**Research**:
+No specific news found. Analyzing technical structure.
+
+**News**:
+No specific news found.
+
+```json
+{
+  "symbol": "SPY",
+  "market": "equities",
+  "regime": "Ranging",
+  "sentiment": "Neutral",
+  "patterns": [
+    "Bullish Engulfing"
+  ],
+  "key_levels": [],
+  "volatility": "Unknown",
+  "atr": null,
+  "research_summary": "No specific news found. Analyzing technical structure.",
+  "news_summary": "No specific news found.",
+  "recommendation": "Mean Reversion",
+  "confidence": 0.5,
+  "timestamp_unix_ms": 1772046000000
+}
+```
+---
