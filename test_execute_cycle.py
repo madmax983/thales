@@ -94,6 +94,7 @@ class TestExecuteCycle(unittest.TestCase):
                     "confidence": 0.9,
                     "rationale": "Test Signal",
                     "stop_loss": 90.0, # Required for risk check
+                    "take_profit": 110.0, # Required for risk check
                     "limit_price": 100.0,
                     "order_type": "limit",
                     "time_in_force": "GTC",
@@ -134,7 +135,7 @@ class TestExecuteCycle(unittest.TestCase):
         print(f"Portfolio Content:\n{content}")
 
         self.assertIn("MOCKUSD", content)
-        self.assertIn("buy", content)
+        self.assertIn("buy (Entry)", content)
         self.assertIn("0.1", content)
         self.assertIn("Test Signal", content)
 

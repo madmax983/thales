@@ -435,7 +435,19 @@ def log_trade(intent, result):
     date_str = datetime.fromtimestamp(result["submitted_at_unix_ms"] / 1000).strftime("%Y-%m-%d %H:%M:%S")
     asset_class = intent.get("market", "-")
     symbol = intent["symbol"]
+
+    # Enrich Action with Signal Type if available
     action = intent["side"]
+    signal_type_raw = intent.get("signal_type", "")
+    # Clean up Rust enum string if present (e.g. SignalType::Entry -> Entry)
+    if "SignalType::" in signal_type_raw:
+        signal_type_clean = signal_type_raw.replace("SignalType::", "")
+    else:
+        signal_type_clean = signal_type_raw
+
+    if signal_type_clean:
+        action = f"{action} ({signal_type_clean})"
+
     size = intent["size_hint"]
     price = str(intent.get("limit_price", "Market"))
     if price == "None": price = "Market"
@@ -508,7 +520,7 @@ def verify_risk(intent):
         except ValueError:
             return False, f"Invalid size format: {size_hint}"
 
-    # 2. Check Stop Loss for Entries
+    # 2. Check Stop Loss and Take Profit for Entries
     # Signal type might be "SignalType::Entry" string from Rust debug format
     # Or just "Entry"
     is_entry = False
@@ -519,6 +531,8 @@ def verify_risk(intent):
     if is_entry:
         if stop_loss is None:
              return False, "Missing Stop Loss for Entry"
+        if intent.get("take_profit") is None:
+             return False, "Missing Take Profit for Entry"
 
     # 3. Check Confidence
     if confidence < 0.5:
