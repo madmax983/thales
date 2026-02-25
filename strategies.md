@@ -546,3 +546,75 @@ pub struct KeltnerChannelBreakoutConfig {
 ### Performance
 - EMA and ATR calculations are O(N).
 - Signal generation loop is O(N).
+
+---
+
+# Trading Strategy: Stochastic Oscillator
+
+## Strategy Specification
+
+**Name:** StochasticOscillator
+
+**Description:** A momentum strategy using the Stochastic Oscillator to identify overbought/oversold conditions and potential reversals. It generates buy signals when the %K line crosses above the %D line in oversold territory, and sell signals when %K crosses below %D in overbought territory.
+
+**Rationale:** The Stochastic Oscillator compares the closing price to the price range over a specific period. It is effective in identifying turning points in a range-bound or trending market by signalling momentum shifts.
+
+## Requirements
+
+### Implementation Details
+- Uses Polars for data analysis.
+- Implements the `Strategy` trait in Rust.
+- Uses `stochastic` indicator (custom implementation of %K and %D).
+
+### Strategy Type
+Momentum / Mean Reversion
+
+### Entry Conditions
+- **Long Entry (Buy):** %K crosses ABOVE %D AND %K < `oversold_threshold`.
+
+### Exit Conditions
+- **Long Exit (Sell):** %K crosses BELOW %D AND %K > `overbought_threshold`.
+- **Stop Loss:** Entry Price - (ATR * `stop_loss_atr_mult`).
+
+### Position Sizing
+- **Size Hint:** "100" (fixed units) or "max" (for exits).
+
+## Code Pattern
+
+```rust
+use crate::strategy::{Strategy, StrategyConfig, Signal, SignalType};
+use crate::indicators::{atr, stochastic};
+use polars::prelude::*;
+use async_trait::async_trait;
+use anyhow::Result;
+
+pub struct StochasticOscillator {
+    config: StochasticOscillatorConfig,
+}
+
+#[derive(Debug, Clone, serde::Deserialize)]
+pub struct StochasticOscillatorConfig {
+    pub k_period: usize,
+    pub k_smoothing: usize,
+    pub d_period: usize,
+    pub oversold_threshold: f64,
+    pub overbought_threshold: f64,
+    pub stop_loss_atr_mult: f64,
+    pub atr_period: usize,
+    pub symbol: String,
+}
+```
+
+## Critical Considerations
+
+### Risk Management Integration
+- **Stop Loss:** Uses ATR-based stop loss.
+- **Take Profit:** Sets a take profit at 2x the risk distance (2 * ATR).
+
+### Backtesting Requirements
+- Accepts `DataFrame` with historical data.
+- Requires data length > `k_period` + smoothing + `d_period`.
+
+### Performance
+- Stochastic calculation involves rolling Min/Max (O(N)).
+- Signal generation loop is O(N).

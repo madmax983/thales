@@ -25,3 +25,4 @@ pub mod supertrend;
 pub mod donchian_breakout;
 pub mod parabolic_sar;
 pub mod keltner_channel_breakout;
+pub mod stochastic_oscillator;
