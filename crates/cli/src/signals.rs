@@ -293,10 +293,10 @@ pub async fn generate_signals(
             if !skip && (final_signal_type == SignalType::Entry || final_signal_type == SignalType::ScaleIn) {
                 if signal.side == "buy" && market_analysis.sentiment.contains("Overbought") {
                     skip = true;
-                    // TODO: Log reason for skipping (Chasing Overbought)
+                    eprintln!("Skipping Buy signal for {} due to Overbought conditions (Chasing)", signal.symbol);
                 } else if signal.side == "sell" && market_analysis.sentiment.contains("Oversold") {
                     skip = true;
-                    // TODO: Log reason for skipping (Chasing Oversold)
+                    eprintln!("Skipping Sell signal for {} due to Oversold conditions (Chasing)", signal.symbol);
                 }
             }
 
