@@ -58,3 +58,12 @@
 | 2026-02-25 05:37:16 | NVDA | NO_STRATEGY_SIGNAL | No active strategy generated a signal (Strategies: BollingerBands, EmaCrossover, RsiMeanReversion, Macd, Supertrend, DonchianBreakout) |
 | 2026-02-25 05:37:16 | BTC/USD | NO_STRATEGY_SIGNAL | No active strategy generated a signal (Strategies: BollingerBands, EmaCrossover, RsiMeanReversion, Macd, Supertrend, DonchianBreakout) |
 | 2026-02-25 05:37:17 | ETH/USD | NO_STRATEGY_SIGNAL | No active strategy generated a signal (Strategies: BollingerBands, EmaCrossover, RsiMeanReversion, Macd, Supertrend, DonchianBreakout) |
+| 2026-02-25 07:34:19 | AAPL | STALE_SIGNAL | Signal too old (38.8 hours > 24 hours) |
+| 2026-02-25 07:34:22 | SPY | NO_STRATEGY_SIGNAL | No active strategy generated a signal (Strategies: BollingerBands, EmaCrossover, RsiMeanReversion, Macd, Supertrend, DonchianBreakout, ParabolicSar) |
+| 2026-02-25 07:34:23 | NVDA | NO_STRATEGY_SIGNAL | No active strategy generated a signal (Strategies: BollingerBands, EmaCrossover, RsiMeanReversion, Macd, Supertrend, DonchianBreakout, ParabolicSar) |
+| 2026-02-25 07:34:24 | ETH/USD | NO_STRATEGY_SIGNAL | No active strategy generated a signal (Strategies: BollingerBands, EmaCrossover, RsiMeanReversion, Macd, Supertrend, DonchianBreakout, ParabolicSar) |
+| 2026-02-25 07:34:24 | XBTUSD | crypto:XBTUSD:sell:1772002800000 | Execution Failed |
+| 2026-02-25 07:34:24 | XXBTZUSD | crypto:XXBTZUSD:sell:1772002800000 | Execution Failed |
+| 2026-02-25 07:34:25 | BSXUSD | crypto:BSXUSD:buy:1772002800000 | Execution Failed |
+| 2026-02-25 07:34:25 | BTCUSD | crypto:BTCUSD:sell:1772002800000 | Lower priority/confidence than top 3 |
+| 2026-02-25 07:34:25 | BTC/USD | crypto:BTC/USD:sell:1772002800000 | Lower priority/confidence than top 3 |
