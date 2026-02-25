@@ -63,6 +63,8 @@ def get_active_strategies():
         strategies.append("Macd")
     if "Supertrend" in content:
         strategies.append("Supertrend")
+    if "DonchianBreakout" in content:
+        strategies.append("DonchianBreakout")
 
     return strategies
 
