@@ -39,7 +39,7 @@ fn create_history_entry(symbol: &str, timestamp: i64, regime: &str, volatility: 
             news_summary: None,
             recommendation: None,
         },
-        outcome: None,
+        outcome: Some(0.0), // Default to 0.0 (Breakeven/Closed) so it counts as a completed trade
     }
 }
 

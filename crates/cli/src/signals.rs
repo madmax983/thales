@@ -342,12 +342,20 @@ pub async fn generate_signals(
             // If Buy and Overbought -> Skip
             // If Sell and Oversold -> Skip
             if !skip && (final_signal_type == SignalType::Entry || final_signal_type == SignalType::ScaleIn) {
-                if signal.side == "buy" && market_analysis.sentiment.contains("Overbought") {
-                    skip = true;
-                    eprintln!("Skipping Buy signal for {} due to Overbought conditions (Chasing)", signal.symbol);
-                } else if signal.side == "sell" && market_analysis.sentiment.contains("Oversold") {
-                    skip = true;
-                    eprintln!("Skipping Sell signal for {} due to Oversold conditions (Chasing)", signal.symbol);
+                // Momentum strategies are exempt from this check as they naturally buy strength
+                let is_momentum = matches!(
+                    strategy_name,
+                    "DonchianBreakout" | "KeltnerChannelBreakout" | "Supertrend" | "ParabolicSar"
+                );
+
+                if !is_momentum {
+                    if signal.side == "buy" && market_analysis.sentiment.contains("Overbought") {
+                        skip = true;
+                        eprintln!("Skipping Buy signal for {} due to Overbought conditions (Chasing)", signal.symbol);
+                    } else if signal.side == "sell" && market_analysis.sentiment.contains("Oversold") {
+                        skip = true;
+                        eprintln!("Skipping Sell signal for {} due to Oversold conditions (Chasing)", signal.symbol);
+                    }
                 }
             }
 
@@ -1362,6 +1370,64 @@ mod tests {
 
         let intents_allowed = generate_signals(&series, "BollingerBands", None, 100.0, &positions, Some(normal_analysis)).await?;
         assert!(!intents_allowed.is_empty(), "Should allow signal when Neutral");
+
+        Ok(())
+    }
+
+    #[tokio::test]
+    async fn test_donchian_breakout_allows_chasing() -> Result<()> {
+        let mut bars = Vec::new();
+        let now = 100000;
+        // 1. Setup bars for Breakout (New High)
+        // 20 bars range 100-105
+        for i in 0..20 {
+            let close = 100.0 + (i % 5) as f64;
+            bars.push(Bar {
+                symbol: "TEST".to_string(),
+                market: "equities".to_string(),
+                timeframe: "1m".to_string(),
+                timestamp_unix_ms: now + i * 60000,
+                open: close, high: close + 1.0, low: close - 1.0, close: close, volume: 1000.0,
+            });
+        }
+        // Breakout!
+        bars.push(Bar {
+            symbol: "TEST".to_string(),
+            market: "equities".to_string(),
+            timeframe: "1m".to_string(),
+            timestamp_unix_ms: now + 20 * 60000,
+            open: 105.0, high: 110.0, low: 105.0, close: 110.0, volume: 5000.0,
+        });
+
+        let series = BarSeries { schema_version: "v0".to_string(), bars };
+        let positions = vec![];
+
+        // 2. Force Overbought Sentiment
+        let overbought_analysis = MarketAnalysis {
+            symbol: "TEST".to_string(),
+            market: "equities".to_string(),
+            regime: "Trending Up".to_string(),
+            volatility: "High".to_string(),
+            sentiment: "Bullish (Overbought)".to_string(), // Overbought!
+            patterns: vec![],
+            key_levels: vec![],
+            atr: None,
+            research_summary: None,
+            news_summary: None,
+            recommendation: None,
+            confidence: 0.8,
+            timestamp_unix_ms: now + 20 * 60000,
+        };
+
+        // 3. Generate Signals with DonchianBreakout
+        let intents = generate_signals(&series, "DonchianBreakout", None, 100.0, &positions, Some(overbought_analysis)).await?;
+
+        // 4. Assert Signal Generated
+        // If "Do Not Chase" was active, this would be empty.
+        assert!(!intents.is_empty(), "DonchianBreakout should allow chasing (Buy when Overbought)");
+        let intent = &intents[0];
+        assert_eq!(intent.side, "buy");
+        assert!(intent.rationale.contains("DonchianBreakout"));
 
         Ok(())
     }
