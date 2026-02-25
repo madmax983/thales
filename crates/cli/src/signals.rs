@@ -1356,4 +1356,60 @@ mod tests {
 
         Ok(())
     }
+
+    #[tokio::test]
+    async fn test_scale_in_chasing_logic() -> Result<()> {
+        let mut bars = Vec::new();
+        let now = 100000;
+        // Generate stable price
+        for i in 0..20 {
+            bars.push(Bar {
+                symbol: "TEST".to_string(),
+                market: "equities".to_string(),
+                timeframe: "1m".to_string(),
+                timestamp_unix_ms: now + i * 60000,
+                open: 100.0, high: 101.0, low: 99.0, close: 100.0, volume: 1000.0,
+            });
+        }
+        // Trigger Buy signal (Drop below Lower Band)
+        bars.push(Bar {
+            symbol: "TEST".to_string(),
+            market: "equities".to_string(),
+            timeframe: "1m".to_string(),
+            timestamp_unix_ms: now + 20 * 60000,
+            open: 100.0, high: 101.0, low: 90.0, close: 90.0, volume: 1000.0,
+        });
+
+        let series = BarSeries { schema_version: "v0".to_string(), bars };
+
+        // Assume we already have a Long position
+        let positions = vec![contracts::Position {
+            symbol: "TEST".to_string(),
+            side: "long".to_string(),
+            qty: 1.0,
+            entry_price: Some(100.0),
+        }];
+
+        // Force Overbought Sentiment -> Should Skip ScaleIn
+        let overbought_analysis = MarketAnalysis {
+            symbol: "TEST".to_string(),
+            market: "equities".to_string(),
+            regime: "Trending Up".to_string(),
+            volatility: "Low".to_string(),
+            sentiment: "Bullish (Overbought)".to_string(), // Forced Overbought
+            patterns: vec![],
+            key_levels: vec![],
+            atr: None,
+            research_summary: None,
+            news_summary: None,
+            recommendation: None,
+            confidence: 0.5,
+            timestamp_unix_ms: now + 20 * 60000,
+        };
+
+        let intents_skipped = generate_signals(&series, "BollingerBands", None, 100.0, &positions, Some(overbought_analysis)).await?;
+        assert!(intents_skipped.is_empty(), "Should skip ScaleIn signal when Overbought (Chasing)");
+
+        Ok(())
+    }
 }

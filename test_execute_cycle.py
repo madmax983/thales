@@ -5,6 +5,9 @@ import os
 import shutil
 import execute_cycle
 
+# Capture real os.path.exists to avoid recursion in mock
+REAL_EXISTS = os.path.exists
+
 class TestExecuteCycle(unittest.TestCase):
     def setUp(self):
         # Backup portfolio.md
@@ -58,8 +61,17 @@ class TestExecuteCycle(unittest.TestCase):
             # shutil.move("portfolio.md.bak", "portfolio.md")
             os.remove("portfolio.md.bak")
 
+    @patch('execute_cycle.os.path.exists')
     @patch('execute_cycle.subprocess.run')
-    def test_full_cycle_execution(self, mock_run):
+    def test_full_cycle_execution(self, mock_run, mock_exists):
+        # Setup mock exists to return True for CLI path
+        # but fallback to real os.path.exists for others
+        def exists_side_effect(path):
+            if path == execute_cycle.CLI_PATH:
+                return True
+            return REAL_EXISTS(path)
+        mock_exists.side_effect = exists_side_effect
+
         # Setup mock behavior
         def side_effect(cmd, **kwargs):
             mock_ret = MagicMock()
