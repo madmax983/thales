@@ -78,3 +78,15 @@ Correlated with broader crypto recovery led by Bitcoin and Solana. Market sentim
 **News**: No specific news found.
 ### SPY - 2026-02-25
 No specific news found. Analyzing technical structure.
+
+### BTCUSD - 2026-02-25 21:24:33 (crypto)
+**Research**: Simulated 2026 environment. No live news feed available.
+**News**: Simulated 2026 environment. No live news feed available.
+
+### ETHUSD - 2026-02-25 21:25:25 (crypto)
+**Research**: Simulated 2026 environment. No live news feed available.
+**News**: Simulated 2026 environment. No live news feed available.
+
+### SPY - 2026-02-25 21:25:51 (equities)
+**Research**: Simulated 2026 environment. No live news feed available.
+**News**: Simulated 2026 environment. No live news feed available.

@@ -78,3 +78,18 @@ The lack of correlation suggests a risk-off environment in Crypto while Equities
 **Sentiment**: Neutral
 **Confidence**: 50.00%
 - **SPY**: Ranging (Neutral)
+
+### BTCUSD - 2026-02-25 21:24:33 (crypto)
+**Regime**: Trending Down (Short Term)
+**Sentiment**: Bearish (Strong)
+**Confidence**: 80.00%
+
+### ETHUSD - 2026-02-25 21:25:25 (crypto)
+**Regime**: Trending Down (Short Term)
+**Sentiment**: Bearish (Strong)
+**Confidence**: 80.00%
+
+### SPY - 2026-02-25 21:25:51 (equities)
+**Regime**: Trending Up (Short Term)
+**Sentiment**: Bullish (Strong)
+**Confidence**: 80.00%
