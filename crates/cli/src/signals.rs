@@ -55,6 +55,12 @@ fn resolve_signal_type(signal: &Signal, position: Option<&contracts::Position>) 
             },
             _ => {}
         }
+    } else {
+        // No existing position
+        if final_signal_type == SignalType::ScaleIn {
+            final_signal_type = SignalType::Entry;
+            rationale_suffix.push_str(" (Opening new position)");
+        }
     }
     (final_signal_type, rationale_suffix)
 }
@@ -1124,6 +1130,25 @@ mod tests {
         let (signal_type, rationale) = resolve_signal_type(&signal, Some(&position));
         assert_eq!(signal_type, SignalType::Exit);
         assert!(rationale.contains("Closing position"));
+    }
+
+    #[test]
+    fn test_resolve_signal_type_no_position_scale_in() {
+        let signal = strategies::strategy::Signal {
+            signal_type: SignalType::ScaleIn,
+            symbol: "AAPL".to_string(),
+            side: "buy".to_string(),
+            size_hint: "1.0".to_string(),
+            confidence: 0.8,
+            stop_loss: None,
+            take_profit: None,
+            reason: "Deep value".to_string(),
+            timestamp_ms: 1000,
+        };
+
+        let (signal_type, rationale) = resolve_signal_type(&signal, None);
+        assert_eq!(signal_type, SignalType::Entry);
+        assert!(rationale.contains("Opening new position"));
     }
 
     #[tokio::test]
