@@ -58,3 +58,23 @@ Simulated 2026 data. External factors neutralized.
 ### ETHUSD - 2026-02-25 13:10:30 (crypto)
 **Research**: Testing fix.
 **News**: Testing fix.
+
+### BTCUSD - 2026-02-25 19:00:00 (crypto)
+**Research**: Bitcoin daily gains near 5% as analysis eyes bullish 'rotation' from gold. Clarity Act risks repeat of Europe's mistakes, crypto lawyer warns.
+**News**: Bitcoin price today is $66,174.00 (+5.37% in 24h). Solana leads crypto recovery with 10% gain.
+### BTCUSD - 2026-02-25
+Bitcoin daily gains near 5% as analysis eyes bullish 'rotation' from gold. Clarity Act risks repeat of Europe's mistakes, crypto lawyer warns.
+
+
+### ETHUSD - 2026-02-25 19:00:00 (crypto)
+**Research**: Correlated with broader crypto recovery led by Bitcoin and Solana. Market sentiment generally bullish following Bitcoin's 5% gain.
+**News**: No specific ETH news found. Inferring bullish sentiment from BTC/SOL trends.
+### ETHUSD - 2026-02-25
+Correlated with broader crypto recovery led by Bitcoin and Solana. Market sentiment generally bullish following Bitcoin's 5% gain.
+
+
+### SPY - 2026-02-25 19:00:00 (equities)
+**Research**: No specific news found. Analyzing technical structure.
+**News**: No specific news found.
+### SPY - 2026-02-25
+No specific news found. Analyzing technical structure.
