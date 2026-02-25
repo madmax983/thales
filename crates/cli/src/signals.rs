@@ -940,15 +940,7 @@ mod tests {
         let mut history_file = NamedTempFile::new()?;
         let now = 100000;
 
-        // The analysis will result in "Trending Down" and "Medium" or "High" volatility due to the sharp drop.
-        // We create a history entry that matches this to ensure it is found.
-        let mut entry = create_dummy_history_entry("AAPL", now - 86400000);
-        entry.market_analysis.regime = "Trending Down".to_string();
-        entry.market_analysis.volatility = "Medium".to_string();
-
-        let entries = vec![entry];
-        write!(history_file, "{}", serde_json::to_string(&entries)?)?;
-
+        // Create the bars first to determine exact analysis output
         let mut bars = Vec::new();
         // Stable price
         for i in 0..20 {
@@ -970,6 +962,18 @@ mod tests {
         });
 
         let series = BarSeries { schema_version: "v0".to_string(), bars };
+
+        // Analyze to get the actual regime/volatility
+        let actual_analysis = analysis::analyze(&series);
+
+        // Create a history entry that matches the actual analysis
+        let mut entry = create_dummy_history_entry("AAPL", now - 86400000);
+        entry.market_analysis.regime = actual_analysis.regime.clone();
+        entry.market_analysis.volatility = actual_analysis.volatility.clone();
+
+        let entries = vec![entry];
+        write!(history_file, "{}", serde_json::to_string(&entries)?)?;
+
         let positions = vec![];
 
         let intents = generate_signals(&series, "BollingerBands", Some(history_file.path()), 100.0, &positions, None).await?;

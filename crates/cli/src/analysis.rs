@@ -1,4 +1,6 @@
 use contracts::{Bar, BarSeries, MarketAnalysis};
+use polars::prelude::*;
+use strategies::indicators::{atr, bollinger_bands, donchian_channels, macd, rsi, sma};
 
 pub fn analyze(series: &BarSeries) -> MarketAnalysis {
     let bars = &series.bars;
@@ -25,36 +27,37 @@ pub fn analyze(series: &BarSeries) -> MarketAnalysis {
         };
     }
 
-    let regime = calculate_regime(bars);
-    let volatility = calculate_volatility(bars);
-    let atr = calculate_atr(bars, 14);
-    let patterns = detect_patterns(bars);
-    let key_levels = identify_levels(bars);
-    let sentiment = calculate_sentiment(bars, &regime);
-    let recommendation = calculate_recommendation(&regime, &volatility, &sentiment);
-
-    let mut confidence: f64 = 0.5;
-    if regime == "Trending Up" || regime == "Trending Down" {
-        confidence += 0.2;
-    }
-    if (regime == "Trending Up" && sentiment.contains("Bullish"))
-        || (regime == "Trending Down" && sentiment.contains("Bearish"))
-    {
-        confidence += 0.1;
-    }
-    if volatility == "Extreme" {
-        confidence -= 0.2;
-    }
-    for pattern in &patterns {
-        if (regime == "Trending Up" && (pattern.contains("Bullish") || pattern == "Hammer"))
-            || (regime == "Trending Down"
-                && (pattern.contains("Bearish") || pattern == "Shooting Star"))
-        {
-            confidence += 0.1;
-            break;
+    // Convert to DataFrame for indicators
+    let df = match bars_to_df(bars) {
+        Ok(d) => d,
+        Err(e) => {
+            eprintln!("Error converting bars to DataFrame: {}", e);
+            return MarketAnalysis {
+                symbol,
+                market,
+                regime: "Error".to_string(),
+                sentiment: "Error".to_string(),
+                patterns: vec![],
+                key_levels: vec![],
+                volatility: "Error".to_string(),
+                atr: None,
+                research_summary: None,
+                news_summary: None,
+                recommendation: None,
+                confidence: 0.0,
+                timestamp_unix_ms: timestamp,
+            };
         }
-    }
-    confidence = confidence.clamp(0.0, 1.0);
+    };
+
+    let regime = calculate_regime(&df);
+    let (volatility, atr_val) = calculate_volatility(&df, bars);
+    let sentiment = calculate_sentiment(&df, &regime);
+    let patterns = detect_patterns(&df, bars);
+    let key_levels = identify_levels(&df);
+
+    let recommendation = calculate_recommendation(&regime, &volatility, &sentiment);
+    let confidence = calculate_confidence(&regime, &volatility, &sentiment, &patterns);
 
     MarketAnalysis {
         symbol,
@@ -64,13 +67,46 @@ pub fn analyze(series: &BarSeries) -> MarketAnalysis {
         patterns,
         key_levels,
         volatility,
-        atr,
+        atr: atr_val,
         research_summary: None,
         news_summary: None,
         recommendation: Some(recommendation),
         confidence,
         timestamp_unix_ms: timestamp,
     }
+}
+
+fn calculate_confidence(regime: &str, volatility: &str, sentiment: &str, patterns: &[String]) -> f64 {
+    let mut score: f64 = 0.5;
+
+    // Regime Alignment
+    if regime.contains("Trending") {
+        score += 0.2;
+    }
+
+    // Sentiment Alignment
+    if (regime.contains("Trending Up") && sentiment.contains("Bullish")) ||
+       (regime.contains("Trending Down") && sentiment.contains("Bearish")) {
+        score += 0.1;
+    }
+
+    // Volatility Penalty
+    if volatility == "Extreme" {
+        score -= 0.2;
+    } else if volatility == "High" {
+        score -= 0.1;
+    }
+
+    // Pattern Bonus
+    for pattern in patterns {
+        if (regime.contains("Trending Up") && (pattern.contains("Bullish") || pattern == "Hammer" || pattern == "Breakout")) ||
+           (regime.contains("Trending Down") && (pattern.contains("Bearish") || pattern == "Shooting Star" || pattern == "Breakout")) {
+            score += 0.1;
+            break; // Cap bonus
+        }
+    }
+
+    score.clamp(0.0, 1.0)
 }
 
 fn calculate_recommendation(regime: &str, volatility: &str, _sentiment: &str) -> String {
@@ -85,89 +121,114 @@ fn calculate_recommendation(regime: &str, volatility: &str, _sentiment: &str) ->
     }
 }
 
-fn calculate_regime(bars: &[Bar]) -> String {
-    if bars.len() < 50 {
-        // Fallback for short history
-        if bars.len() < 20 {
-             return "Unknown".to_string();
-        }
-        let closes: Vec<f64> = bars.iter().map(|b| b.close).collect();
-        let sma20 = calculate_sma(&closes, 20);
-        let last_close = closes.last().unwrap();
+fn calculate_regime(df: &DataFrame) -> String {
+    // SMA 50 vs SMA 200
+    let sma50 = sma::calculate(df, 50).ok();
+    let sma200 = sma::calculate(df, 200).ok();
 
-        if let Some(sma) = sma20 {
-            if *last_close > sma * 1.01 {
+    if let (Some(s50), Some(s200)) = (sma50, sma200) {
+        // Get last valid values
+        let s50_last = s50.f64().ok().and_then(|s| s.last());
+        let s200_last = s200.f64().ok().and_then(|s| s.last());
+
+        if let (Some(v50), Some(v200)) = (s50_last, s200_last) {
+            if v50 > v200 * 1.01 {
                 return "Trending Up".to_string();
-            } else if *last_close < sma * 0.99 {
+            } else if v50 < v200 * 0.99 {
                 return "Trending Down".to_string();
             }
         }
-        return "Ranging".to_string();
     }
 
-    let closes: Vec<f64> = bars.iter().map(|b| b.close).collect();
-    let sma20 = calculate_sma(&closes, 20);
-    let sma50 = calculate_sma(&closes, 50);
+    // Fallback: Price vs SMA 20 (Short term trend)
+    let sma20 = sma::calculate(df, 20).ok();
+    let close = df.column("close").ok().and_then(|c| c.f64().ok());
 
-    match (sma20, sma50) {
-        (Some(s20), Some(s50)) => {
-            if s20 > s50 * 1.005 { // 0.5% buffer
-                "Trending Up".to_string()
-            } else if s20 < s50 * 0.995 {
-                "Trending Down".to_string()
-            } else {
-                "Ranging".to_string()
+    if let (Some(s20), Some(c)) = (sma20, close) {
+        let s20_last = s20.f64().ok().and_then(|s| s.last());
+        let close_last = c.last();
+
+        if let (Some(v20), Some(vc)) = (s20_last, close_last) {
+            if vc > v20 * 1.01 {
+                return "Trending Up (Short Term)".to_string();
+            } else if vc < v20 * 0.99 {
+                return "Trending Down (Short Term)".to_string();
             }
         }
-        _ => "Unknown".to_string(),
     }
+
+    "Ranging".to_string()
 }
 
-fn calculate_volatility(bars: &[Bar]) -> String {
-    let atr = calculate_atr(bars, 14);
+fn calculate_volatility(df: &DataFrame, bars: &[Bar]) -> (String, Option<f64>) {
+    let atr_series = atr::calculate(df, 14).ok();
     let last_close = bars.last().map(|b| b.close).unwrap_or(1.0);
 
-    match atr {
-        Some(val) => {
-            let ratio = val / last_close;
-            if ratio > 0.05 {
-                "Extreme".to_string()
-            } else if ratio > 0.02 {
-                "High".to_string()
-            } else if ratio > 0.01 {
-                "Medium".to_string()
-            } else {
-                "Low".to_string()
-            }
+    let mut atr_val = None;
+
+    if let Some(s) = atr_series {
+         if let Some(last) = s.f64().ok().and_then(|v| v.last()) {
+             atr_val = Some(last);
+             let ratio = last / last_close;
+
+             if ratio > 0.05 {
+                 return ("Extreme".to_string(), atr_val);
+             } else if ratio > 0.02 {
+                 return ("High".to_string(), atr_val);
+             } else if ratio > 0.01 {
+                 return ("Medium".to_string(), atr_val);
+             } else {
+                 return ("Low".to_string(), atr_val);
+             }
+         }
+    }
+
+    ("Unknown".to_string(), atr_val)
+}
+
+fn calculate_sentiment(df: &DataFrame, regime: &str) -> String {
+    let rsi_series = rsi::calculate(df, 14).ok();
+    let macd_res = macd::calculate(df, 12, 26, 9).ok();
+
+    let mut sentiment_score = 0; // -2 to +2
+
+    if let Some(s) = rsi_series {
+        if let Some(val) = s.f64().ok().and_then(|v| v.last()) {
+            if val > 70.0 { sentiment_score += 1; } // Bullish (Overbought in strong trend)
+            else if val < 30.0 { sentiment_score -= 1; } // Bearish
+            else if val > 55.0 { sentiment_score += 1; }
+            else if val < 45.0 { sentiment_score -= 1; }
         }
-        None => "Unknown".to_string(),
+    }
+
+    if let Some((macd_line, signal_line, _hist)) = macd_res {
+        let m = macd_line.f64().ok().and_then(|v| v.last());
+        let s = signal_line.f64().ok().and_then(|v| v.last());
+
+        if let (Some(mv), Some(sv)) = (m, s) {
+            if mv > sv { sentiment_score += 1; }
+            else { sentiment_score -= 1; }
+        }
+    }
+
+    if sentiment_score >= 2 {
+        "Bullish (Strong)".to_string()
+    } else if sentiment_score == 1 {
+        "Bullish".to_string()
+    } else if sentiment_score == -1 {
+        "Bearish".to_string()
+    } else if sentiment_score <= -2 {
+        "Bearish (Strong)".to_string()
+    } else {
+        match regime {
+            "Trending Up" => "Bullish".to_string(),
+            "Trending Down" => "Bearish".to_string(),
+            _ => "Neutral".to_string(),
+        }
     }
 }
 
-fn calculate_sentiment(bars: &[Bar], regime: &str) -> String {
-    let closes: Vec<f64> = bars.iter().map(|b| b.close).collect();
-    let rsi = calculate_rsi(&closes, 14);
-
-    if let Some(val) = rsi {
-        if val > 70.0 {
-            return "Bullish (Overbought)".to_string();
-        } else if val < 30.0 {
-            return "Bearish (Oversold)".to_string();
-        } else if val > 55.0 {
-            return "Bullish".to_string();
-        } else if val < 45.0 {
-            return "Bearish".to_string();
-        }
-    }
-
-    match regime {
-        "Trending Up" => "Bullish".to_string(),
-        "Trending Down" => "Bearish".to_string(),
-        _ => "Neutral".to_string(),
-    }
-}
-
-fn detect_patterns(bars: &[Bar]) -> Vec<String> {
+fn detect_patterns(df: &DataFrame, bars: &[Bar]) -> Vec<String> {
     let mut patterns = Vec::new();
     if bars.len() < 2 {
         return patterns;
@@ -216,109 +277,82 @@ fn detect_patterns(bars: &[Bar]) -> Vec<String> {
         }
     }
 
+    // Structural Patterns
+    // 1. Breakout (Donchian)
+    if let Ok((upper, lower, _mid)) = donchian_channels::calculate(df, 20) {
+        let u = upper.f64().ok().and_then(|s| s.get(bars.len() - 2)); // Previous high
+        let l = lower.f64().ok().and_then(|s| s.get(bars.len() - 2)); // Previous low
+
+        // Note: Donchian implementation usually shifts, so index might be tricky.
+        // Assuming strategies implementation: if i=20, value is max(0..19).
+        // If Price > Upper[prev], it's a breakout.
+
+        if let Some(uv) = u {
+            if curr.close > uv {
+                patterns.push("Breakout (Upside)".to_string());
+            }
+        }
+        if let Some(lv) = l {
+            if curr.close < lv {
+                patterns.push("Breakout (Downside)".to_string());
+            }
+        }
+    }
+
+    // 2. Squeeze (Bollinger Band Width)
+    if let Ok((upper, lower, _mid)) = bollinger_bands::calculate(df, 20, 2.0) {
+        let u = upper.f64().ok().and_then(|s| s.last());
+        let l = lower.f64().ok().and_then(|s| s.last());
+        let m = _mid.f64().ok().and_then(|s| s.last());
+
+        if let (Some(uv), Some(lv), Some(mv)) = (u, l, m) {
+            let width = (uv - lv) / mv;
+            // Heuristic: Width < 0.02 (2%) is tight for many assets, but asset dependent.
+            // Better to compare to historical average width, but simplicity first.
+            if width < 0.015 {
+                patterns.push("Consolidation (Squeeze)".to_string());
+            }
+        }
+    }
+
     patterns
 }
 
-fn identify_levels(bars: &[Bar]) -> Vec<f64> {
+fn identify_levels(df: &DataFrame) -> Vec<f64> {
     let mut levels = Vec::new();
-    if bars.len() < 10 {
-        return levels;
+
+    // Donchian Channels (20, 50)
+    if let Ok((upper, lower, _)) = donchian_channels::calculate(df, 20) {
+        if let Some(v) = upper.f64().ok().and_then(|s| s.last()) { levels.push(v); }
+        if let Some(v) = lower.f64().ok().and_then(|s| s.last()) { levels.push(v); }
+    }
+    if let Ok((upper, lower, _)) = donchian_channels::calculate(df, 50) {
+        if let Some(v) = upper.f64().ok().and_then(|s| s.last()) { levels.push(v); }
+        if let Some(v) = lower.f64().ok().and_then(|s| s.last()) { levels.push(v); }
     }
 
-    let w20 = &bars[bars.len().saturating_sub(20)..];
-    let h20 = w20.iter().map(|b| b.high).fold(f64::NEG_INFINITY, |a, b| a.max(b));
-    let l20 = w20.iter().map(|b| b.low).fold(f64::INFINITY, |a, b| a.min(b));
-
-    levels.push(h20);
-    levels.push(l20);
-
-    if bars.len() >= 50 {
-        let w50 = &bars[bars.len().saturating_sub(50)..];
-        let h50 = w50.iter().map(|b| b.high).fold(f64::NEG_INFINITY, |a, b| a.max(b));
-        let l50 = w50.iter().map(|b| b.low).fold(f64::INFINITY, |a, b| a.min(b));
-        if (h50 - h20).abs() > 0.01 { levels.push(h50); }
-        if (l50 - l20).abs() > 0.01 { levels.push(l50); }
-    }
-
-    levels.sort_by(|a, b| a.partial_cmp(b).unwrap_or(std::cmp::Ordering::Equal));
+    levels.sort_by(|a: &f64, b: &f64| a.partial_cmp(b).unwrap_or(std::cmp::Ordering::Equal));
     levels.dedup();
     levels
 }
 
-fn calculate_sma(data: &[f64], period: usize) -> Option<f64> {
-    if data.len() < period {
-        return None;
-    }
-    let window = &data[data.len() - period..];
-    let sum: f64 = window.iter().sum();
-    Some(sum / period as f64)
-}
+fn bars_to_df(bars: &[Bar]) -> anyhow::Result<DataFrame> {
+    let opens: Vec<f64> = bars.iter().map(|b| b.open).collect();
+    let highs: Vec<f64> = bars.iter().map(|b| b.high).collect();
+    let lows: Vec<f64> = bars.iter().map(|b| b.low).collect();
+    let closes: Vec<f64> = bars.iter().map(|b| b.close).collect();
+    let volumes: Vec<f64> = bars.iter().map(|b| b.volume).collect();
+    let times: Vec<i64> = bars.iter().map(|b| b.timestamp_unix_ms).collect();
 
-fn calculate_rsi(data: &[f64], period: usize) -> Option<f64> {
-    if data.len() <= period {
-        return None;
-    }
-
-    let mut gains = 0.0;
-    let mut losses = 0.0;
-
-    // Initial SMA of gains/losses
-    for i in 1..=period {
-        let change = data[i] - data[i - 1];
-        if change > 0.0 {
-            gains += change;
-        } else {
-            losses -= change;
-        }
-    }
-    let mut avg_gain = gains / period as f64;
-    let mut avg_loss = losses / period as f64;
-
-    for i in (period + 1)..data.len() {
-        let change = data[i] - data[i - 1];
-        let (gain, loss) = if change > 0.0 { (change, 0.0) } else { (0.0, -change) };
-
-        avg_gain = (avg_gain * (period as f64 - 1.0) + gain) / period as f64;
-        avg_loss = (avg_loss * (period as f64 - 1.0) + loss) / period as f64;
-    }
-
-    if avg_loss == 0.0 {
-        return Some(100.0);
-    }
-
-    let rs = avg_gain / avg_loss;
-    Some(100.0 - (100.0 / (1.0 + rs)))
-}
-
-fn calculate_atr(bars: &[Bar], period: usize) -> Option<f64> {
-    if bars.len() < period + 1 {
-        return None;
-    }
-
-    let mut tr_sum = 0.0;
-    // Initial TRs
-    for i in 1..=period {
-        let high = bars[i].high;
-        let low = bars[i].low;
-        let prev_close = bars[i - 1].close;
-
-        let tr = (high - low).max((high - prev_close).abs()).max((low - prev_close).abs());
-        tr_sum += tr;
-    }
-
-    let mut atr = tr_sum / period as f64;
-
-    // Smoothing
-    for i in (period + 1)..bars.len() {
-        let high = bars[i].high;
-        let low = bars[i].low;
-        let prev_close = bars[i - 1].close;
-
-        let tr = (high - low).max((high - prev_close).abs()).max((low - prev_close).abs());
-        atr = (atr * (period as f64 - 1.0) + tr) / period as f64;
-    }
-
-    Some(atr)
+    let df = df!(
+        "open" => opens,
+        "high" => highs,
+        "low" => lows,
+        "close" => closes,
+        "volume" => volumes,
+        "timestamp_unix_ms" => times
+    )?;
+    Ok(df)
 }
 
 #[cfg(test)]
@@ -341,37 +375,26 @@ mod tests {
     }
 
     #[test]
-    fn test_calculate_sma() {
-        let data = vec![1.0, 2.0, 3.0, 4.0, 5.0];
-        assert_eq!(calculate_sma(&data, 3), Some(4.0)); // (3+4+5)/3 = 4
-        assert_eq!(calculate_sma(&data, 5), Some(3.0)); // (1+2+3+4+5)/5 = 3
-        assert_eq!(calculate_sma(&data, 6), None);
-    }
-
-    #[test]
-    fn test_calculate_rsi() {
-        let data = vec![100.0; 20];
-        assert_eq!(calculate_rsi(&data, 14), Some(100.0));
-    }
-
-    #[test]
-    fn test_regime_detection_uptrend() {
+    fn test_analyze_uptrend() {
         let mut bars = Vec::new();
-        for i in 0..100 {
-            let close = 100.0 + i as f64; // Steady uptrend
+        // Generate 200 bars of uptrend
+        for i in 0..200 {
+            let close = 100.0 + (i as f64);
             bars.push(create_bar(close, i));
         }
 
-        let analysis = analyze(&BarSeries {
+        let series = BarSeries {
             schema_version: "v0".to_string(),
             bars,
-        });
+        };
 
-        assert_eq!(analysis.regime, "Trending Up");
+        let analysis = analyze(&series);
+        assert!(analysis.regime.contains("Trending Up"));
+        assert!(analysis.confidence > 0.5);
     }
 
     #[test]
-    fn test_patterns_engulfing() {
+    fn test_analyze_patterns() {
         let mut bars = Vec::new();
         let base_bar = create_bar(100.0, 0);
         // Previous Red
@@ -383,7 +406,31 @@ mod tests {
             open: 94.0, close: 101.0, high: 101.0, low: 94.0, ..base_bar.clone()
         });
 
-        let patterns = detect_patterns(&bars);
-        assert!(patterns.contains(&"Bullish Engulfing".to_string()));
+        let series = BarSeries {
+            schema_version: "v0".to_string(),
+            bars,
+        };
+
+        let analysis = analyze(&series);
+        assert!(analysis.patterns.contains(&"Bullish Engulfing".to_string()));
+    }
+
+    #[test]
+    fn test_volatility_classification() {
+        let mut bars = Vec::new();
+        // Extremely volatile: 10% jumps
+        for i in 0..50 {
+            let close = if i % 2 == 0 { 100.0 } else { 110.0 };
+            bars.push(Bar {
+                open: close, close, high: close * 1.05, low: close * 0.95, ..create_bar(close, i)
+            });
+        }
+
+        let series = BarSeries { schema_version: "v0".to_string(), bars };
+        let analysis = analyze(&series);
+
+        // ATR will be high relative to price (avg price ~105, TR ~15)
+        // Ratio ~ 15/105 ~ 0.14 > 0.05 -> Extreme
+        assert_eq!(analysis.volatility, "Extreme");
     }
 }
