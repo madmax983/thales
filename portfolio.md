@@ -146,3 +146,21 @@
 | 2026-02-25 18:07:35 | ETHUSD | crypto:ETHUSD:buy:1772042854948 | Conflict: Multiple strategies gave conflicting signals ({'buy', 'sell'}) |
 | 2026-02-25 18:07:35 | ETHUSD | crypto:ETHUSD:buy:1772042854948 | Conflict: Multiple strategies gave conflicting signals ({'buy', 'sell'}) |
 | 2026-02-25 18:07:35 | ETHUSD | crypto:ETHUSD:sell:1772042854948 | Conflict: Multiple strategies gave conflicting signals ({'buy', 'sell'}) |
+| 2026-02-25 19:14:05 | AAPL | STALE_SIGNAL | Signal too old (50.5 hours > 24 hours) |
+| 2026-02-25 19:14:05 | BTCUSD | STALE_SIGNAL | Signal too old (24.2 hours > 24 hours) |
+| 2026-02-25 19:14:06 | NVDA | NO_STRATEGY_SIGNAL | No active strategy generated a signal (Strategies: BollingerBandsMeanReversion, EmaCrossover, RsiMeanReversion, Macd, Supertrend, DonchianBreakout, ParabolicSar, KeltnerChannelBreakout, StochasticOscillator) |
+| 2026-02-25 19:14:06 | BTC/USD | NO_STRATEGY_SIGNAL | No active strategy generated a signal (Strategies: BollingerBandsMeanReversion, EmaCrossover, RsiMeanReversion, Macd, Supertrend, DonchianBreakout, ParabolicSar, KeltnerChannelBreakout, StochasticOscillator) |
+| 2026-02-25 19:14:06 | ETH/USD | NO_STRATEGY_SIGNAL | No active strategy generated a signal (Strategies: BollingerBandsMeanReversion, EmaCrossover, RsiMeanReversion, Macd, Supertrend, DonchianBreakout, ParabolicSar, KeltnerChannelBreakout, StochasticOscillator) |
+| 2026-02-25 19:14:07 | XETHZUSD | crypto:XETHZUSD:sell:1772046845921 | Lower priority/confidence than top 3 |
+| 2026-02-25 19:14:07 | BSXUSD | equities:BSXUSD:buy:1772046846028 | Lower priority/confidence than top 3 |
+| 2026-02-25 19:14:07 | BTCUSD | crypto:BTCUSD:sell:1772046846135 | Lower priority/confidence than top 3 |
+| 2026-02-25 19:14:07 | SPY | equities:SPY:buy:1772046846241 | Lower priority/confidence than top 3 |
+| 2026-02-25 19:14:07 | ETHUSD | crypto:ETHUSD:sell:1772046846625 | Lower priority/confidence than top 3 |
+
+## Executed Trades
+
+| Date/Time | Asset Class | Symbol/Contract | Action | Size/Qty | Entry Price | SL | TP | Max Risk | Confidence | Signal Ref | Rationale |
+|---|---|---|---|---|---|---|---|---|---|---|---|
+| 2026-02-25 19:14:06 | equities | AAPL | buy (Entry) | 24.659559 | Market | 163.50176944089972 | 175.6674371854485 | - | 64% | equities:AAPL:buy:1772046845602 | Strategy: DonchianBreakout (64%, MA: 0.80). Reason: Breakout: Close 167.56 > Upper Channel 164.60. Market Context: Trending Up (Short Term) (Medium Volatility). No similar past trades found. |
+| 2026-02-25 19:14:07 | crypto | XBTUSD | sell (Entry) | 0.057993 | Market | 61191.36644146006 | 56407.7334281984 | - | 64% | crypto:XBTUSD:sell:1772046845711 | Strategy: KeltnerChannelBreakout (64%, MA: 0.80). Reason: Keltner Breakdown: Close 59467.03 < Lower 61284.38. Market Context: Trending Down (Short Term) (Medium Volatility). No similar past trades found. |
+| 2026-02-25 19:14:07 | crypto | XXBTZUSD | sell (Entry) | 0.057993 | Market | 61191.36644146006 | 56407.7334281984 | - | 64% | crypto:XXBTZUSD:sell:1772046845816 | Strategy: KeltnerChannelBreakout (64%, MA: 0.80). Reason: Keltner Breakdown: Close 59467.03 < Lower 61284.38. Market Context: Trending Down (Short Term) (Medium Volatility). No similar past trades found. |

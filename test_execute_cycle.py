@@ -141,15 +141,15 @@ class TestExecuteCycle(unittest.TestCase):
         self.assertIn("Test Signal", content)
 
     def test_select_strategies_for_ranging_regime(self):
-        active = ["BollingerBands", "EmaCrossover", "RsiMeanReversion", "Macd"]
+        active = ["BollingerBandsMeanReversion", "EmaCrossover", "RsiMeanReversion", "Macd"]
         analysis = {"regime": "Ranging", "volatility": "Low"}
 
         selected = execute_cycle.select_strategies_for_analysis(active, analysis)
 
-        self.assertEqual(selected, ["BollingerBands", "RsiMeanReversion"])
+        self.assertEqual(selected, ["BollingerBandsMeanReversion", "RsiMeanReversion"])
 
     def test_select_strategies_for_trending_regime(self):
-        active = ["BollingerBands", "EmaCrossover", "RsiMeanReversion", "Macd"]
+        active = ["BollingerBandsMeanReversion", "EmaCrossover", "RsiMeanReversion", "Macd"]
         analysis = {"regime": "Trending Up", "volatility": "Low"}
 
         selected = execute_cycle.select_strategies_for_analysis(active, analysis)
@@ -180,7 +180,7 @@ class TestExecuteCycle(unittest.TestCase):
                 "symbol": "AAPL",
                 "side": "sell",
                 "confidence": 0.75,
-                "strategy_used": "BollingerBands",
+                "strategy_used": "BollingerBandsMeanReversion",
                 "_market_analysis": analysis,
             },
         ]
@@ -200,7 +200,7 @@ class TestExecuteCycle(unittest.TestCase):
                 "symbol": "ETHUSD",
                 "side": "buy",
                 "confidence": 0.60,
-                "strategy_used": "BollingerBands",
+                "strategy_used": "BollingerBandsMeanReversion",
                 "_market_analysis": analysis,
             },
             {
