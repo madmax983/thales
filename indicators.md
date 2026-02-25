@@ -225,3 +225,38 @@ let (lower, middle, upper) = donchian_channels::calculate(&df, period)?;
 - Returns `Result<(Series, Series, Series)>` representing `(lower_band, middle_band, upper_band)`.
 - The output Series are named "donchian_lower", "donchian_middle", and "donchian_upper".
 - The first `period - 1` values will be null.
+
+## Stochastic Oscillator
+
+**Name:** Stochastic Oscillator
+**Description:** A momentum indicator comparing a particular closing price of a security to a range of its prices over a certain period of time.
+**Rationale:** The Stochastic Oscillator is based on the assumption that closing prices should close near the same direction as the current trend.
+
+### Implementation Details
+- Uses `rust_decimal::Decimal` for all internal calculations to ensure precision.
+- Implements Rolling Min/Max using an O(N) Monotonic Queue algorithm.
+- Returns a tuple of two Polars `Series` of `f64` values: (%K, %D).
+
+### Usage
+
+```rust
+use strategies::indicators::stochastic;
+use polars::prelude::*;
+
+// Assuming df is a DataFrame with "high", "low", "close" columns
+let k_period = 14;
+let k_smoothing = 3;
+let d_period = 3;
+let (k, d) = stochastic::calculate(&df, k_period, k_smoothing, d_period)?;
+```
+
+### Parameters
+- `data`: Reference to a Polars `DataFrame`. Must contain numeric columns "high", "low", and "close".
+- `k_period`: The lookback period for %K (typically 14).
+- `k_smoothing`: The smoothing period for %K (typically 3).
+- `d_period`: The smoothing period for %D (typically 3).
+
+### Output
+- Returns `Result<(Series, Series)>` representing `(percent_k, percent_d)`.
+- The output Series are named "stochastic_k" and "stochastic_d".
+- The first few values will be null depending on the periods.
