@@ -12,6 +12,7 @@ use strategies::supertrend::{Supertrend, SupertrendConfig};
 use strategies::donchian_breakout::{DonchianBreakout, DonchianBreakoutConfig};
 use strategies::parabolic_sar::{ParabolicSar, ParabolicSarConfig};
 use strategies::keltner_channel_breakout::{KeltnerChannelBreakout, KeltnerChannelBreakoutConfig};
+use strategies::stochastic_oscillator::{StochasticOscillator, StochasticOscillatorConfig};
 use strategies::strategy::{Signal, SignalType, Strategy};
 
 fn resolve_signal_type(signal: &Signal, position: Option<&contracts::Position>) -> (SignalType, String) {
@@ -180,6 +181,18 @@ pub async fn generate_signals(
             symbol: market_analysis.symbol.clone(),
         };
         Box::new(KeltnerChannelBreakout::new(config))
+    } else if strategy_name == "StochasticOscillator" {
+        let config = StochasticOscillatorConfig {
+            k_period: 14,
+            k_smoothing: 3,
+            d_period: 3,
+            oversold_threshold: 20.0,
+            overbought_threshold: 80.0,
+            stop_loss_atr_mult: 2.0,
+            atr_period: 14,
+            symbol: market_analysis.symbol.clone(),
+        };
+        Box::new(StochasticOscillator::new(config))
     } else {
         // Fallback or Error
         return Err(anyhow::anyhow!("Unknown strategy: {}", strategy_name));
@@ -1512,6 +1525,33 @@ mod tests {
         let intent = &intents[0];
         assert_eq!(intent.side, "buy");
         assert!(intent.rationale.contains("DonchianBreakout"));
+
+        Ok(())
+    }
+
+    #[tokio::test]
+    async fn test_generate_signals_stochastic() -> Result<()> {
+        let mut bars = Vec::new();
+        let now = 100000;
+        // Generate enough bars for Stochastic (min 14+3+3 = 20)
+        for i in 0..50 {
+            let close = 100.0;
+            bars.push(Bar {
+                symbol: "TEST".to_string(),
+                market: "equities".to_string(),
+                timeframe: "1m".to_string(),
+                timestamp_unix_ms: now + i * 60000,
+                open: close, high: close + 1.0, low: close - 1.0, close: close, volume: 1000.0,
+            });
+        }
+        let series = BarSeries { schema_version: "v0".to_string(), bars };
+        let positions = vec![];
+
+        // This should currently FAIL with "Unknown strategy"
+        let result = generate_signals(&series, "StochasticOscillator", None, 100.0, &positions, None).await;
+
+        // TDD: This assertion fails until we implement the strategy mapping
+        assert!(result.is_ok(), "StochasticOscillator should be a known strategy");
 
         Ok(())
     }
