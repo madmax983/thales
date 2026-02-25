@@ -278,6 +278,19 @@ pub async fn generate_signals(
             // Filter out invalid Exits (no position)
             let mut skip = (final_signal_type == SignalType::Exit || final_signal_type == SignalType::ScaleOut) && existing_pos.is_none();
 
+            // Filter: Do not chase moves (Entries only)
+            // If Buy and Overbought -> Skip
+            // If Sell and Oversold -> Skip
+            if !skip && (final_signal_type == SignalType::Entry || final_signal_type == SignalType::ScaleIn) {
+                if signal.side == "buy" && market_analysis.sentiment.contains("Overbought") {
+                    skip = true;
+                    // TODO: Log reason for skipping (Chasing Overbought)
+                } else if signal.side == "sell" && market_analysis.sentiment.contains("Oversold") {
+                    skip = true;
+                    // TODO: Log reason for skipping (Chasing Oversold)
+                }
+            }
+
             // Filter out invalid Entries (missing stop loss)
             if !skip && (final_signal_type == SignalType::Entry || final_signal_type == SignalType::ScaleIn) {
                 if stop_loss.is_none() {
@@ -1106,6 +1119,116 @@ mod tests {
         // intent.confidence should be boosted (approx 1.1x)
         // intent_low.confidence should be penalized (approx 0.8x)
         assert!(intent.confidence > intent_low.confidence, "Boosted confidence should be higher than penalized");
+
+        Ok(())
+    }
+
+    #[tokio::test]
+    async fn test_generate_signals_filter_chasing() -> Result<()> {
+        let mut bars = Vec::new();
+        let now = 100000;
+        // Generate stable price
+        for i in 0..20 {
+            bars.push(Bar {
+                symbol: "TEST".to_string(),
+                market: "equities".to_string(),
+                timeframe: "1m".to_string(),
+                timestamp_unix_ms: now + i * 60000,
+                open: 100.0, high: 101.0, low: 99.0, close: 100.0, volume: 1000.0,
+            });
+        }
+        // Trigger Buy signal (Drop below Lower Band)
+        bars.push(Bar {
+            symbol: "TEST".to_string(),
+            market: "equities".to_string(),
+            timeframe: "1m".to_string(),
+            timestamp_unix_ms: now + 20 * 60000,
+            open: 100.0, high: 101.0, low: 90.0, close: 90.0, volume: 1000.0,
+        });
+
+        let series = BarSeries { schema_version: "v0".to_string(), bars };
+        let positions = vec![];
+
+        // 1. Force Overbought Sentiment -> Should Skip Buy
+        let overbought_analysis = MarketAnalysis {
+            symbol: "TEST".to_string(),
+            market: "equities".to_string(),
+            regime: "Trending Up".to_string(),
+            volatility: "Low".to_string(),
+            sentiment: "Bullish (Overbought)".to_string(), // Forced Overbought
+            patterns: vec![],
+            key_levels: vec![],
+            atr: None,
+            research_summary: None,
+            news_summary: None,
+            recommendation: None,
+            confidence: 0.5,
+            timestamp_unix_ms: now + 20 * 60000,
+        };
+
+        let intents_skipped = generate_signals(&series, "BollingerBands", None, 100.0, &positions, Some(overbought_analysis)).await?;
+        assert!(intents_skipped.is_empty(), "Should skip Buy signal when Overbought");
+
+        // 2. Force Oversold Sentiment -> Should Skip Sell
+        // First we need a Sell signal. Let's make price jump.
+        let mut bars_sell = Vec::new();
+        for i in 0..20 {
+             bars_sell.push(Bar {
+                symbol: "TEST".to_string(),
+                market: "equities".to_string(),
+                timeframe: "1m".to_string(),
+                timestamp_unix_ms: now + i * 60000,
+                open: 100.0, high: 101.0, low: 99.0, close: 100.0, volume: 1000.0,
+            });
+        }
+        // Spike to trigger Sell
+        bars_sell.push(Bar {
+            symbol: "TEST".to_string(),
+            market: "equities".to_string(),
+            timeframe: "1m".to_string(),
+            timestamp_unix_ms: now + 20 * 60000,
+            open: 100.0, high: 120.0, low: 100.0, close: 120.0, volume: 1000.0,
+        });
+        let series_sell = BarSeries { schema_version: "v0".to_string(), bars: bars_sell };
+
+        let oversold_analysis = MarketAnalysis {
+            symbol: "TEST".to_string(),
+            market: "equities".to_string(),
+            regime: "Trending Down".to_string(),
+            volatility: "Low".to_string(),
+            sentiment: "Bearish (Oversold)".to_string(), // Forced Oversold
+            patterns: vec![],
+            key_levels: vec![],
+            atr: None,
+            research_summary: None,
+            news_summary: None,
+            recommendation: None,
+            confidence: 0.5,
+            timestamp_unix_ms: now + 20 * 60000,
+        };
+
+        let intents_skipped_sell = generate_signals(&series_sell, "BollingerBands", None, 100.0, &positions, Some(oversold_analysis)).await?;
+        assert!(intents_skipped_sell.is_empty(), "Should skip Sell signal when Oversold");
+
+        // 3. Normal Sentiment -> Should Allow
+        let normal_analysis = MarketAnalysis {
+            symbol: "TEST".to_string(),
+            market: "equities".to_string(),
+            regime: "Ranging".to_string(),
+            volatility: "Low".to_string(),
+            sentiment: "Neutral".to_string(),
+            patterns: vec![],
+            key_levels: vec![],
+            atr: None,
+            research_summary: None,
+            news_summary: None,
+            recommendation: None,
+            confidence: 0.5,
+            timestamp_unix_ms: now + 20 * 60000,
+        };
+
+        let intents_allowed = generate_signals(&series, "BollingerBands", None, 100.0, &positions, Some(normal_analysis)).await?;
+        assert!(!intents_allowed.is_empty(), "Should allow signal when Neutral");
 
         Ok(())
     }
