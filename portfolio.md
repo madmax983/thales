@@ -84,3 +84,37 @@
 | 2026-02-25 13:35:59 | NVDA | equities:NVDA:sell:1772024400000 | Lower priority/confidence than top 3 |
 | 2026-02-25 13:35:59 | BTC/USD | crypto:BTC/USD:buy:1772024400000 | Lower priority/confidence than top 3 |
 | 2026-02-25 13:35:59 | ETHUSD | crypto:ETHUSD:buy:1772024400000 | Lower priority/confidence than top 3 |
+| 2026-02-25 16:39:27 | AAPL | STALE_SIGNAL | Signal too old (47.9 hours > 24 hours) |
+| 2026-02-25 16:39:27 | AAPL | equities:AAPL:sell:1772037567437 | Conflict: Multiple strategies gave conflicting signals ({'sell', 'buy'}) |
+| 2026-02-25 16:39:27 | AAPL | equities:AAPL:buy:1772037567437 | Conflict: Multiple strategies gave conflicting signals ({'sell', 'buy'}) |
+| 2026-02-25 16:39:27 | AAPL | equities:AAPL:buy:1772037567437 | Conflict: Multiple strategies gave conflicting signals ({'sell', 'buy'}) |
+| 2026-02-25 16:39:27 | XBTUSD | crypto:XBTUSD:buy:1772037567556 | Conflict: Multiple strategies gave conflicting signals ({'sell', 'buy'}) |
+| 2026-02-25 16:39:27 | XBTUSD | crypto:XBTUSD:buy:1772037567556 | Conflict: Multiple strategies gave conflicting signals ({'sell', 'buy'}) |
+| 2026-02-25 16:39:27 | XBTUSD | crypto:XBTUSD:sell:1772037567556 | Conflict: Multiple strategies gave conflicting signals ({'sell', 'buy'}) |
+| 2026-02-25 16:39:27 | XXBTZUSD | crypto:XXBTZUSD:buy:1772037567674 | Conflict: Multiple strategies gave conflicting signals ({'sell', 'buy'}) |
+| 2026-02-25 16:39:27 | XXBTZUSD | crypto:XXBTZUSD:buy:1772037567674 | Conflict: Multiple strategies gave conflicting signals ({'sell', 'buy'}) |
+| 2026-02-25 16:39:27 | XXBTZUSD | crypto:XXBTZUSD:sell:1772037567674 | Conflict: Multiple strategies gave conflicting signals ({'sell', 'buy'}) |
+| 2026-02-25 16:39:27 | XETHZUSD | crypto:XETHZUSD:buy:1772037567790 | Conflict: Multiple strategies gave conflicting signals ({'sell', 'buy'}) |
+| 2026-02-25 16:39:27 | XETHZUSD | crypto:XETHZUSD:buy:1772037567790 | Conflict: Multiple strategies gave conflicting signals ({'sell', 'buy'}) |
+| 2026-02-25 16:39:27 | XETHZUSD | crypto:XETHZUSD:sell:1772037567790 | Conflict: Multiple strategies gave conflicting signals ({'sell', 'buy'}) |
+| 2026-02-25 16:39:28 | BSXUSD | equities:BSXUSD:sell:1772037567905 | Conflict: Multiple strategies gave conflicting signals ({'sell', 'buy'}) |
+| 2026-02-25 16:39:28 | BSXUSD | equities:BSXUSD:buy:1772037567905 | Conflict: Multiple strategies gave conflicting signals ({'sell', 'buy'}) |
+| 2026-02-25 16:39:28 | BSXUSD | equities:BSXUSD:buy:1772037567905 | Conflict: Multiple strategies gave conflicting signals ({'sell', 'buy'}) |
+| 2026-02-25 16:39:28 | BTCUSD | crypto:BTCUSD:buy:1772037568021 | Conflict: Multiple strategies gave conflicting signals ({'sell', 'buy'}) |
+| 2026-02-25 16:39:28 | BTCUSD | crypto:BTCUSD:buy:1772037568021 | Conflict: Multiple strategies gave conflicting signals ({'sell', 'buy'}) |
+| 2026-02-25 16:39:28 | BTCUSD | crypto:BTCUSD:sell:1772037568021 | Conflict: Multiple strategies gave conflicting signals ({'sell', 'buy'}) |
+| 2026-02-25 16:39:28 | SPY | equities:SPY:sell:1772037568141 | Conflict: Multiple strategies gave conflicting signals ({'sell', 'buy'}) |
+| 2026-02-25 16:39:28 | SPY | equities:SPY:buy:1772037568141 | Conflict: Multiple strategies gave conflicting signals ({'sell', 'buy'}) |
+| 2026-02-25 16:39:28 | SPY | equities:SPY:buy:1772037568141 | Conflict: Multiple strategies gave conflicting signals ({'sell', 'buy'}) |
+| 2026-02-25 16:39:28 | NVDA | equities:NVDA:sell:1772037568263 | Conflict: Multiple strategies gave conflicting signals ({'sell', 'buy'}) |
+| 2026-02-25 16:39:28 | NVDA | equities:NVDA:buy:1772037568263 | Conflict: Multiple strategies gave conflicting signals ({'sell', 'buy'}) |
+| 2026-02-25 16:39:28 | NVDA | equities:NVDA:buy:1772037568263 | Conflict: Multiple strategies gave conflicting signals ({'sell', 'buy'}) |
+| 2026-02-25 16:39:28 | BTC/USD | crypto:BTC/USD:buy:1772037568384 | Conflict: Multiple strategies gave conflicting signals ({'sell', 'buy'}) |
+| 2026-02-25 16:39:28 | BTC/USD | crypto:BTC/USD:buy:1772037568384 | Conflict: Multiple strategies gave conflicting signals ({'sell', 'buy'}) |
+| 2026-02-25 16:39:28 | BTC/USD | crypto:BTC/USD:sell:1772037568384 | Conflict: Multiple strategies gave conflicting signals ({'sell', 'buy'}) |
+| 2026-02-25 16:39:28 | ETH/USD | crypto:ETH/USD:buy:1772037568502 | Conflict: Multiple strategies gave conflicting signals ({'sell', 'buy'}) |
+| 2026-02-25 16:39:28 | ETH/USD | crypto:ETH/USD:buy:1772037568502 | Conflict: Multiple strategies gave conflicting signals ({'sell', 'buy'}) |
+| 2026-02-25 16:39:28 | ETH/USD | crypto:ETH/USD:sell:1772037568502 | Conflict: Multiple strategies gave conflicting signals ({'sell', 'buy'}) |
+| 2026-02-25 16:39:28 | ETHUSD | crypto:ETHUSD:buy:1772037568623 | Conflict: Multiple strategies gave conflicting signals ({'sell', 'buy'}) |
+| 2026-02-25 16:39:28 | ETHUSD | crypto:ETHUSD:buy:1772037568623 | Conflict: Multiple strategies gave conflicting signals ({'sell', 'buy'}) |
+| 2026-02-25 16:39:28 | ETHUSD | crypto:ETHUSD:sell:1772037568623 | Conflict: Multiple strategies gave conflicting signals ({'sell', 'buy'}) |
