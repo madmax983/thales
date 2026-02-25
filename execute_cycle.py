@@ -89,14 +89,14 @@ def get_candidates_from_signals():
         symbol = None
 
         # Format 1: Market Analysis Report - <market> - <symbol>
-        match1 = re.match(r"Market Analysis Report - (\w+) - (\w+)", chunk)
+        match1 = re.match(r"Market Analysis Report - (\w+) - ([\w/]+)", chunk)
         if match1:
             market = match1.group(1)
             symbol = match1.group(2)
 
         # Format 2: Symbol: <symbol> (<market>)
         if not symbol:
-            match2 = re.match(r"Symbol: (\w+) \((\w+)\)", chunk)
+            match2 = re.match(r"Symbol: ([\w/]+) \((\w+)\)", chunk)
             if match2:
                 symbol = match2.group(1)
                 market = match2.group(2)
@@ -222,7 +222,8 @@ def evaluate_candidate(candidate, strategies, portfolio_path=None):
         return []
 
     # Save temp bars
-    temp_bars_file = f"temp_bars_{symbol}.json"
+    safe_symbol = symbol.replace("/", "_")
+    temp_bars_file = f"temp_bars_{safe_symbol}.json"
     with open(temp_bars_file, "w") as f:
         json.dump(bars, f)
 
@@ -243,7 +244,7 @@ def evaluate_candidate(candidate, strategies, portfolio_path=None):
         # NEW: Pass enriched analysis if available
         temp_analysis_file = None
         if candidate.get("raw_analysis_json"):
-            temp_analysis_file = f"temp_analysis_{symbol}.json"
+            temp_analysis_file = f"temp_analysis_{safe_symbol}.json"
             with open(temp_analysis_file, "w") as f:
                 json.dump(candidate["raw_analysis_json"], f)
             args.extend(["--analysis", temp_analysis_file])
@@ -632,7 +633,8 @@ def main():
         print(f"Executing {intent['side']} {intent['symbol']} via {provider}...")
 
         # Write intent to file
-        temp_intent_file = f"temp_intent_{intent['symbol']}.json"
+        safe_symbol = intent['symbol'].replace("/", "_")
+        temp_intent_file = f"temp_intent_{safe_symbol}.json"
         with open(temp_intent_file, "w") as f:
             json.dump(intent, f)
 

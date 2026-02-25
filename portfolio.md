@@ -46,3 +46,15 @@
 | 2026-02-25 03:36:22 | SPY | NO_STRATEGY_SIGNAL | No active strategy generated a signal (Strategies: BollingerBands, EmaCrossover, RsiMeanReversion, Macd, Supertrend, DonchianBreakout) |
 | 2026-02-25 03:36:22 | NVDA | NO_STRATEGY_SIGNAL | No active strategy generated a signal (Strategies: BollingerBands, EmaCrossover, RsiMeanReversion, Macd, Supertrend, DonchianBreakout) |
 | 2026-02-25 03:36:22 | BSXUSD | crypto:BSXUSD:buy:1771988400000 | Execution Failed |
+| 2026-02-25 05:35:39 | AAPL | STALE_SIGNAL | Signal too old (36.8 hours > 24 hours) |
+| 2026-02-25 05:35:42 | BTCUSD | NO_STRATEGY_SIGNAL | No active strategy generated a signal (Strategies: BollingerBands, EmaCrossover, RsiMeanReversion, Macd, Supertrend, DonchianBreakout) |
+| 2026-02-25 05:35:42 | SPY | NO_STRATEGY_SIGNAL | No active strategy generated a signal (Strategies: BollingerBands, EmaCrossover, RsiMeanReversion, Macd, Supertrend, DonchianBreakout) |
+| 2026-02-25 05:35:42 | NVDA | NO_STRATEGY_SIGNAL | No active strategy generated a signal (Strategies: BollingerBands, EmaCrossover, RsiMeanReversion, Macd, Supertrend, DonchianBreakout) |
+| 2026-02-25 05:35:42 | BTC | NO_STRATEGY_SIGNAL | No active strategy generated a signal (Strategies: BollingerBands, EmaCrossover, RsiMeanReversion, Macd, Supertrend, DonchianBreakout) |
+| 2026-02-25 05:35:43 | ETH | NO_STRATEGY_SIGNAL | No active strategy generated a signal (Strategies: BollingerBands, EmaCrossover, RsiMeanReversion, Macd, Supertrend, DonchianBreakout) |
+| 2026-02-25 05:37:12 | AAPL | STALE_SIGNAL | Signal too old (36.9 hours > 24 hours) |
+| 2026-02-25 05:37:15 | BTCUSD | NO_STRATEGY_SIGNAL | No active strategy generated a signal (Strategies: BollingerBands, EmaCrossover, RsiMeanReversion, Macd, Supertrend, DonchianBreakout) |
+| 2026-02-25 05:37:15 | SPY | NO_STRATEGY_SIGNAL | No active strategy generated a signal (Strategies: BollingerBands, EmaCrossover, RsiMeanReversion, Macd, Supertrend, DonchianBreakout) |
+| 2026-02-25 05:37:16 | NVDA | NO_STRATEGY_SIGNAL | No active strategy generated a signal (Strategies: BollingerBands, EmaCrossover, RsiMeanReversion, Macd, Supertrend, DonchianBreakout) |
+| 2026-02-25 05:37:16 | BTC/USD | NO_STRATEGY_SIGNAL | No active strategy generated a signal (Strategies: BollingerBands, EmaCrossover, RsiMeanReversion, Macd, Supertrend, DonchianBreakout) |
+| 2026-02-25 05:37:17 | ETH/USD | NO_STRATEGY_SIGNAL | No active strategy generated a signal (Strategies: BollingerBands, EmaCrossover, RsiMeanReversion, Macd, Supertrend, DonchianBreakout) |
