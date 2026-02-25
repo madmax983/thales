@@ -14,6 +14,7 @@
 //! - [`donchian_breakout::DonchianBreakout`] - Trend following using Donchian Channels.
 //! - [`parabolic_sar::ParabolicSar`] - Trend following using Parabolic SAR.
 //! - [`keltner_channel_breakout::KeltnerChannelBreakout`] - Trend following using Keltner Channels.
+//! - [`adx_momentum::AdxMomentum`] - Trend following using ADX and DMI.
 
 pub mod bollinger_bands;
 pub mod ema_crossover;
@@ -26,3 +27,4 @@ pub mod donchian_breakout;
 pub mod parabolic_sar;
 pub mod keltner_channel_breakout;
 pub mod stochastic_oscillator;
+pub mod adx_momentum;
