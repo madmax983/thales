@@ -105,7 +105,7 @@ pub fn generate_report(
     )
 }
 
-pub fn read_last_regime(path: &Path) -> Option<String> {
+pub fn read_last_regime(path: &Path, symbol: &str) -> Option<String> {
     if !path.exists() {
         return None;
     }
@@ -118,6 +118,10 @@ pub fn read_last_regime(path: &Path) -> Option<String> {
     // Iterate backwards to find the last valid block
     for block in blocks.iter().rev() {
         if block.trim().is_empty() {
+            continue;
+        }
+        // Check if block contains symbol
+        if !block.contains(symbol) {
             continue;
         }
         if let Some(regime) = extract_regime_from_block(block) {
@@ -173,8 +177,8 @@ pub fn generate_regime_report(analysis: &MarketAnalysis) -> String {
 
     format!(
         "\n### {} - {} ({})\n**Regime**: {}\n**Sentiment**: {}\n**Confidence**: {:.2}%\n",
-        formatted_date,
         analysis.symbol,
+        formatted_date,
         analysis.market,
         analysis.regime,
         analysis.sentiment,
@@ -194,8 +198,8 @@ pub fn generate_volatility_report(analysis: &MarketAnalysis) -> String {
         .unwrap_or_else(|| "N/A".to_string());
     format!(
         "\n### {} - {} ({})\n**Volatility**: {}\n**ATR**: {}\n**Assessment**: {}\n",
-        formatted_date,
         analysis.symbol,
+        formatted_date,
         analysis.market,
         analysis.volatility,
         atr_display,
@@ -219,7 +223,7 @@ pub fn generate_research_report(analysis: &MarketAnalysis) -> String {
         .unwrap_or_else(|| "None".to_string());
     format!(
         "\n### {} - {} ({})\n**Research**: {}\n**News**: {}\n",
-        formatted_date, analysis.symbol, analysis.market, research, news
+        analysis.symbol, formatted_date, analysis.market, research, news
     )
 }
 

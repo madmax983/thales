@@ -1,1 +1,0 @@
-{"status":"ok","errors":[],"warnings":[],"data":{"schema_version":"v0","bars":[{"symbol":"MSFT","market":"equities","timeframe":"1d","timestamp_unix_ms":1771822800000,"open":395.0,"high":395.36,"low":383.1,"close":384.47,"volume":45015263.0}]}}

@@ -1,1 +1,0 @@
-{"status":"ok","errors":[],"warnings":[],"data":{"schema_version":"v0","bars":[{"symbol":"QQQ","market":"equities","timeframe":"1d","timestamp_unix_ms":1771822800000,"open":606.605,"high":608.01,"low":599.05,"close":601.41,"volume":64081713.0}]}}
