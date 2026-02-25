@@ -67,3 +67,27 @@
 | 2026-02-25 07:34:25 | BSXUSD | crypto:BSXUSD:buy:1772002800000 | Execution Failed |
 | 2026-02-25 07:34:25 | BTCUSD | crypto:BTCUSD:sell:1772002800000 | Lower priority/confidence than top 3 |
 | 2026-02-25 07:34:25 | BTC/USD | crypto:BTC/USD:sell:1772002800000 | Lower priority/confidence than top 3 |
+| 2026-02-25 12:10:13 | AAPL | STALE_SIGNAL | Signal too old (43.4 hours > 24 hours) |
+| 2026-02-25 12:10:13 | BTCUSD | crypto:BTCUSD:buy:1772021413510 | Conflict: Multiple strategies gave conflicting signals ({'buy', 'sell'}) |
+| 2026-02-25 12:10:13 | BTCUSD | crypto:BTCUSD:buy:1772021413510 | Conflict: Multiple strategies gave conflicting signals ({'buy', 'sell'}) |
+| 2026-02-25 12:10:13 | BTCUSD | crypto:BTCUSD:sell:1772021413510 | Conflict: Multiple strategies gave conflicting signals ({'buy', 'sell'}) |
+| 2026-02-25 12:10:13 | NVDA | equities:NVDA:sell:1772021413705 | Conflict: Multiple strategies gave conflicting signals ({'buy', 'sell'}) |
+| 2026-02-25 12:10:13 | NVDA | equities:NVDA:buy:1772021413705 | Conflict: Multiple strategies gave conflicting signals ({'buy', 'sell'}) |
+| 2026-02-25 12:10:13 | NVDA | equities:NVDA:buy:1772021413705 | Conflict: Multiple strategies gave conflicting signals ({'buy', 'sell'}) |
+| 2026-02-25 12:10:13 | BTC/USD | crypto:BTC/USD:buy:1772021413805 | Conflict: Multiple strategies gave conflicting signals ({'buy', 'sell'}) |
+| 2026-02-25 12:10:13 | BTC/USD | crypto:BTC/USD:buy:1772021413805 | Conflict: Multiple strategies gave conflicting signals ({'buy', 'sell'}) |
+| 2026-02-25 12:10:13 | BTC/USD | crypto:BTC/USD:sell:1772021413805 | Conflict: Multiple strategies gave conflicting signals ({'buy', 'sell'}) |
+| 2026-02-25 12:10:14 | ETH/USD | crypto:ETH/USD:buy:1772021413906 | Conflict: Multiple strategies gave conflicting signals ({'buy', 'sell'}) |
+| 2026-02-25 12:10:14 | ETH/USD | crypto:ETH/USD:buy:1772021413906 | Conflict: Multiple strategies gave conflicting signals ({'buy', 'sell'}) |
+| 2026-02-25 12:10:14 | ETH/USD | crypto:ETH/USD:sell:1772021413906 | Conflict: Multiple strategies gave conflicting signals ({'buy', 'sell'}) |
+| 2026-02-25 12:10:14 | XETHZUSD | crypto:XETHZUSD:buy:1772021413316 | Lower priority/confidence than top 3 |
+| 2026-02-25 12:10:14 | BSXUSD | equities:BSXUSD:sell:1772021413413 | Lower priority/confidence than top 3 |
+| 2026-02-25 12:10:14 | SPY | equities:SPY:sell:1772021413607 | Lower priority/confidence than top 3 |
+
+## Executed Trades
+
+| Date/Time | Asset Class | Symbol/Contract | Action | Size/Qty | Entry Price | SL | TP | Max Risk | Signal Ref | Rationale |
+|---|---|---|---|---|---|---|---|---|---|---|
+| 2026-02-25 12:10:14 | equities | AAPL | sell (Entry) | 7.246807 | Market | 181.3561720067012 | 150.03580837740282 | - | equities:AAPL:sell:1772021413026 | Strategy: BollingerBandsMeanReversion (80%). Reason: Close 167.55699202241598300133773588 > Upper Band 163.83. Market Context: Trending Up (Medium Volatility). No similar past trades found. (Opening new position) |
+| 2026-02-25 12:10:14 | crypto | XBTUSD | buy (Entry) | 0.037850 | Market | 56825.01174732183 | 63048.244537893 | - | crypto:XBTUSD:buy:1772021413125 | Strategy: BollingerBandsMeanReversion (80%). Reason: Close 59467.02704514670040225610136 < Lower Band 60406.23. Market Context: Trending Down (Medium Volatility). No similar past trades found. (Opening new position) |
+| 2026-02-25 12:10:14 | crypto | XXBTZUSD | buy (Entry) | 0.037850 | Market | 56825.01174732183 | 63048.244537893 | - | crypto:XXBTZUSD:buy:1772021413221 | Strategy: BollingerBandsMeanReversion (80%). Reason: Close 59467.02704514670040225610136 < Lower Band 60406.23. Market Context: Trending Down (Medium Volatility). No similar past trades found. (Opening new position) |

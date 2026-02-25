@@ -1,1 +1,124 @@
-[]
+[
+  {
+    "intent": {
+      "intent_id": "equities:AAPL:sell:1772021413026",
+      "market": "equities",
+      "symbol": "AAPL",
+      "side": "sell",
+      "size_hint": "7.246807",
+      "confidence": 0.8,
+      "horizon": "1d",
+      "rationale": "Strategy: BollingerBandsMeanReversion (80%). Reason: Close 167.55699202241598300133773588 > Upper Band 163.83. Market Context: Trending Up (Medium Volatility). No similar past trades found. (Opening new position)",
+      "invalidation": "Price hits Stop Loss",
+      "schema_version": "v0",
+      "signal_type": "Entry",
+      "stop_loss": 181.3561720067012,
+      "take_profit": 150.03580837740282,
+      "order_type": "market",
+      "limit_price": null,
+      "stop_price": null,
+      "time_in_force": "day"
+    },
+    "market_analysis": {
+      "symbol": "AAPL",
+      "market": "equities",
+      "regime": "Trending Up",
+      "sentiment": "Bullish (Overbought)",
+      "patterns": [],
+      "key_levels": [
+        144.1208937259845,
+        167.8921060064608
+      ],
+      "volatility": "Medium",
+      "atr": 2.027590523109508,
+      "research_summary": null,
+      "news_summary": null,
+      "recommendation": "Trend Following (Long)",
+      "confidence": 0.7999999999999999,
+      "timestamp_unix_ms": 1772021413026
+    },
+    "outcome": null
+  },
+  {
+    "intent": {
+      "intent_id": "crypto:XBTUSD:buy:1772021413125",
+      "market": "crypto",
+      "symbol": "XBTUSD",
+      "side": "buy",
+      "size_hint": "0.037850",
+      "confidence": 0.8,
+      "horizon": "1d",
+      "rationale": "Strategy: BollingerBandsMeanReversion (80%). Reason: Close 59467.02704514670040225610136 < Lower Band 60406.23. Market Context: Trending Down (Medium Volatility). No similar past trades found. (Opening new position)",
+      "invalidation": "Price hits Stop Loss",
+      "schema_version": "v0",
+      "signal_type": "Entry",
+      "stop_loss": 56825.01174732183,
+      "take_profit": 63048.244537893,
+      "order_type": "market",
+      "limit_price": null,
+      "stop_price": null,
+      "time_in_force": "GTC"
+    },
+    "market_analysis": {
+      "symbol": "XBTUSD",
+      "market": "crypto",
+      "regime": "Trending Down",
+      "sentiment": "Bearish (Oversold)",
+      "patterns": [],
+      "key_levels": [
+        59348.09299105641,
+        65294.35478821834,
+        65927.86201265018
+      ],
+      "volatility": "Medium",
+      "atr": 764.8144049226715,
+      "research_summary": null,
+      "news_summary": null,
+      "recommendation": "Trend Following (Short)",
+      "confidence": 0.7999999999999999,
+      "timestamp_unix_ms": 1772021413125
+    },
+    "outcome": null
+  },
+  {
+    "intent": {
+      "intent_id": "crypto:XXBTZUSD:buy:1772021413221",
+      "market": "crypto",
+      "symbol": "XXBTZUSD",
+      "side": "buy",
+      "size_hint": "0.037850",
+      "confidence": 0.8,
+      "horizon": "1d",
+      "rationale": "Strategy: BollingerBandsMeanReversion (80%). Reason: Close 59467.02704514670040225610136 < Lower Band 60406.23. Market Context: Trending Down (Medium Volatility). No similar past trades found. (Opening new position)",
+      "invalidation": "Price hits Stop Loss",
+      "schema_version": "v0",
+      "signal_type": "Entry",
+      "stop_loss": 56825.01174732183,
+      "take_profit": 63048.244537893,
+      "order_type": "market",
+      "limit_price": null,
+      "stop_price": null,
+      "time_in_force": "GTC"
+    },
+    "market_analysis": {
+      "symbol": "XXBTZUSD",
+      "market": "crypto",
+      "regime": "Trending Down",
+      "sentiment": "Bearish (Oversold)",
+      "patterns": [],
+      "key_levels": [
+        59348.09299105641,
+        65294.35478821834,
+        65927.86201265018
+      ],
+      "volatility": "Medium",
+      "atr": 764.8144049226715,
+      "research_summary": null,
+      "news_summary": null,
+      "recommendation": "Trend Following (Short)",
+      "confidence": 0.7999999999999999,
+      "timestamp_unix_ms": 1772021413221
+    },
+    "outcome": null
+  }
+]
