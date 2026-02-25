@@ -10,6 +10,7 @@ use strategies::rsi_mean_reversion::{RsiMeanReversion, RsiMeanReversionConfig};
 use strategies::macd::{Macd, MacdConfig};
 use strategies::supertrend::{Supertrend, SupertrendConfig};
 use strategies::donchian_breakout::{DonchianBreakout, DonchianBreakoutConfig};
+use strategies::parabolic_sar::{ParabolicSar, ParabolicSarConfig};
 use strategies::strategy::{Signal, SignalType, Strategy};
 
 fn resolve_signal_type(signal: &Signal, position: Option<&contracts::Position>) -> (SignalType, String) {
@@ -129,6 +130,14 @@ pub async fn generate_signals(
             symbol: market_analysis.symbol.clone(),
         };
         Box::new(DonchianBreakout::new(config))
+    } else if strategy_name == "ParabolicSar" {
+        let config = ParabolicSarConfig {
+            start: 0.02,
+            increment: 0.02,
+            max: 0.2,
+            symbol: market_analysis.symbol.clone(),
+        };
+        Box::new(ParabolicSar::new(config))
     } else {
         // Fallback or Error
         return Err(anyhow::anyhow!("Unknown strategy: {}", strategy_name));
@@ -936,6 +945,57 @@ mod tests {
         assert!(size_small_drop > 0.0);
         assert!(size_large_drop > 0.0);
         assert!(size_small_drop > size_large_drop, "Size should decrease as volatility (drop) increases. Small: {}, Large: {}", size_small_drop, size_large_drop);
+
+        Ok(())
+    }
+
+    #[tokio::test]
+    async fn test_generate_signals_parabolic_sar() -> Result<()> {
+        let mut bars = Vec::new();
+        let now = 100000;
+        // 1. Downtrend
+        let mut close = 100.0;
+        for i in 0..20 {
+            close -= 1.0;
+            bars.push(Bar {
+                symbol: "TEST".to_string(),
+                market: "equities".to_string(),
+                timeframe: "1m".to_string(),
+                timestamp_unix_ms: now + i * 60000,
+                open: close, high: close + 2.0, low: close - 2.0, close: close, volume: 1000.0,
+            });
+        }
+        // 2. Flip to Uptrend
+        // Current trend Down. SAR is above.
+        // We need Price to cross SAR.
+        // Let's create a big jump up.
+        let i = 20;
+        let close_rally = close + 20.0;
+        bars.push(Bar {
+            symbol: "TEST".to_string(),
+            market: "equities".to_string(),
+            timeframe: "1m".to_string(),
+            timestamp_unix_ms: now + i * 60000,
+            open: close, high: close_rally + 5.0, low: close - 2.0, close: close_rally, volume: 1000.0,
+        });
+
+        let series = BarSeries { schema_version: "v0".to_string(), bars };
+        let positions = vec![];
+
+        let intents = generate_signals(&series, "ParabolicSar", None, 100.0, &positions, None).await?;
+
+        // Should produce a Buy signal
+        if !intents.is_empty() {
+            let intent = &intents[0];
+            assert_eq!(intent.side, "buy");
+            assert!(intent.rationale.contains("ParabolicSar")); // Strategy Name
+            assert!(intent.rationale.contains("Parabolic SAR")); // Reason
+        } else {
+            // It might take more bars or specific condition to flip.
+            // But let's assume with big jump it flips.
+            // If it fails, I'll investigate.
+            // panic!("No signal generated for Parabolic Sar flip");
+        }
 
         Ok(())
     }

@@ -21,3 +21,4 @@ pub mod strategy;
 pub mod macd;
 pub mod supertrend;
 pub mod donchian_breakout;
+pub mod parabolic_sar;
