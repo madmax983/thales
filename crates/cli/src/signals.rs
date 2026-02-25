@@ -59,6 +59,32 @@ fn resolve_signal_type(signal: &Signal, position: Option<&contracts::Position>) 
     (final_signal_type, rationale_suffix)
 }
 
+/// Generates trade intents based on market data, strategy, and risk parameters.
+///
+/// This function executes the full signal generation pipeline:
+/// 1.  **Market Analysis**: Analyzes the market regime (volatility, trend, sentiment).
+/// 2.  **Strategy Execution**: Runs the selected strategy on the provided data.
+/// 3.  **Signal Filtering**: Filters signals based on:
+///     *   Daily signal limits (max 3 per symbol).
+///     *   "Chasing moves" (buying into overbought / selling into oversold).
+///     *   Validity (positive size, existing stop loss).
+/// 4.  **Signal Enrichment**:
+///     *   Contextualizes with historical performance (RAG).
+///     *   Resolves signal type based on current positions (Entry vs. ScaleIn vs. Exit).
+///     *   Calculates dynamic position sizing based on risk and volatility (ATR).
+///
+/// # Arguments
+///
+/// * `bars` - The OHLCV data for the symbol.
+/// * `strategy_name` - The name of the strategy to run (e.g., "BollingerBands").
+/// * `history_path` - Path to the historical trade database (JSON).
+/// * `risk_per_trade` - The amount of capital to risk per trade.
+/// * `positions` - Current open positions (used for ScaleIn/Exit logic).
+/// * `analysis` - Optional pre-computed market analysis.
+///
+/// # Returns
+///
+/// A vector of `TradeIntent` objects representing valid trading opportunities.
 pub async fn generate_signals(
     bars: &BarSeries,
     strategy_name: &str,

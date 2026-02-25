@@ -12,6 +12,7 @@
 //! - [`macd::Macd`] - Trend following using MACD.
 //! - [`supertrend::Supertrend`] - Trend following using Supertrend.
 //! - [`donchian_breakout::DonchianBreakout`] - Trend following using Donchian Channels.
+//! - [`parabolic_sar::ParabolicSar`] - Trend following using Parabolic SAR.
 
 pub mod bollinger_bands;
 pub mod ema_crossover;
