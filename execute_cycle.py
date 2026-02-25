@@ -14,6 +14,17 @@ STRATEGIES_PATH = "strategies.md"
 HISTORY_PATH = "history.json"
 SIGNALS_PATH = "Signals.md"
 
+def normalize_symbol(symbol):
+    """Normalizes symbol to a standard format for deduplication."""
+    s = symbol.replace("/", "").replace("_", "")
+    if s == "XBTUSD": return "BTCUSD"
+    if s == "XXBTZUSD": return "BTCUSD"
+    if s == "XETHZUSD": return "ETHUSD"
+    if s == "ETHUSD": return "ETHUSD"
+    if s == "BTC": return "BTCUSD"
+    if s == "ETH": return "ETHUSD"
+    return s
+
 def run_command(args):
     """Runs a thales-cli command and returns the parsed JSON data."""
     cmd = [CLI_PATH] + args
@@ -163,12 +174,21 @@ def get_candidates_from_signals():
             if news_text:
                 raw_json["news_summary"] = news_text
 
-        candidates[symbol] = {
-            "provider": provider,
-            "symbol": symbol,
-            "market": market,
-            "raw_analysis_json": raw_json
-        }
+        # Use normalized symbol for deduplication key, but keep original symbol for execution
+        norm_symbol = normalize_symbol(symbol)
+
+        # If we already have this normalized symbol, maybe update it?
+        # Prefer the one with raw_analysis_json
+        if norm_symbol in candidates:
+             if raw_json and not candidates[norm_symbol]["raw_analysis_json"]:
+                 candidates[norm_symbol]["raw_analysis_json"] = raw_json
+        else:
+            candidates[norm_symbol] = {
+                "provider": provider,
+                "symbol": symbol, # Keep original symbol for now
+                "market": market,
+                "raw_analysis_json": raw_json
+            }
 
     return list(candidates.values())
 
@@ -587,19 +607,28 @@ def main():
     # Priority: Signals.md candidates > Scanned candidates
     # We want to limit total analysis to top 3 candidates to follow "Pick the top 1–3 candidates" directive.
 
+    # Use normalized symbols for deduplication
+    candidates_map = {} # norm_symbol -> candidate
+
     # 1. Start with Signal candidates
-    selected_candidates = signal_candidates[:]
+    for c in signal_candidates:
+        norm = normalize_symbol(c["symbol"])
+        candidates_map[norm] = c
+
+    merged_candidates = list(candidates_map.values()) # These are unique signals
 
     # 2. Fill remaining slots with Scanned candidates
     # Scanned candidates are already sorted (Kraken by volume) or static list (Alpaca)
-    existing_symbols = set(c["symbol"] for c in selected_candidates)
-
     for cand in scanned_candidates:
-        if len(selected_candidates) >= 3:
+        if len(merged_candidates) >= 3:
             break
-        if cand["symbol"] not in existing_symbols:
-            selected_candidates.append(cand)
-            existing_symbols.add(cand["symbol"])
+
+        norm = normalize_symbol(cand["symbol"])
+        if norm not in candidates_map:
+            candidates_map[norm] = cand
+            merged_candidates.append(cand)
+
+    selected_candidates = merged_candidates
 
     print(f"Selected {len(selected_candidates)} candidates for deep analysis (from {len(scanned_candidates)} scanned + {len(signal_candidates)} signals).")
     for c in selected_candidates:
