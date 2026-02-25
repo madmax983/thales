@@ -146,3 +146,16 @@
 | 2026-02-25 18:07:35 | ETHUSD | crypto:ETHUSD:buy:1772042854948 | Conflict: Multiple strategies gave conflicting signals ({'buy', 'sell'}) |
 | 2026-02-25 18:07:35 | ETHUSD | crypto:ETHUSD:buy:1772042854948 | Conflict: Multiple strategies gave conflicting signals ({'buy', 'sell'}) |
 | 2026-02-25 18:07:35 | ETHUSD | crypto:ETHUSD:sell:1772042854948 | Conflict: Multiple strategies gave conflicting signals ({'buy', 'sell'}) |
+| 2026-02-25 19:34:34 | XBTUSD | CANCEL-ORA7KX-FTV4X-JBK5XX | Stale Order Cancellation |
+| 2026-02-25 19:34:35 | BSXUSD | CANCEL-OEWGZE-5CLCL-KM43AK | Stale Order Cancellation |
+| 2026-02-25 19:34:35 | AAPL | STALE_SIGNAL | Signal too old (50.8 hours > 24 hours) |
+| 2026-02-25 19:34:35 | BTCUSD | STALE_SIGNAL | Signal too old (24.6 hours > 24 hours) |
+| 2026-02-25 19:34:39 | SPY | NO_STRATEGY_SIGNAL | No active strategy generated a signal (Strategies: BollingerBands, EmaCrossover, RsiMeanReversion, Macd, Supertrend, DonchianBreakout, ParabolicSar, KeltnerChannelBreakout) |
+| 2026-02-25 19:34:39 | NVDA | NO_STRATEGY_SIGNAL | No active strategy generated a signal (Strategies: BollingerBands, EmaCrossover, RsiMeanReversion, Macd, Supertrend, DonchianBreakout, ParabolicSar, KeltnerChannelBreakout) |
+| 2026-02-25 19:34:40 | BTC/USD | NO_STRATEGY_SIGNAL | No active strategy generated a signal (Strategies: BollingerBands, EmaCrossover, RsiMeanReversion, Macd, Supertrend, DonchianBreakout, ParabolicSar, KeltnerChannelBreakout) |
+| 2026-02-25 19:34:40 | ETH/USD | NO_STRATEGY_SIGNAL | No active strategy generated a signal (Strategies: BollingerBands, EmaCrossover, RsiMeanReversion, Macd, Supertrend, DonchianBreakout, ParabolicSar, KeltnerChannelBreakout) |
+| 2026-02-25 19:34:41 | BTCUSD | crypto:BTCUSD:buy:1772046000000 | provider error: kraken api error: EOrder:Insufficient funds |
+| 2026-02-25 19:34:41 | ETHUSD | crypto:ETHUSD:buy:1772046000000 | provider error: kraken api error: EOrder:Insufficient funds |
+| 2026-02-25 19:34:42 | XBTUSD | crypto:XBTUSD:buy:1772046000000 | provider error: kraken api error: EOrder:Insufficient funds |
+| 2026-02-25 19:34:42 | XXBTZUSD | crypto:XXBTZUSD:buy:1772046000000 | Lower priority/confidence than top 3 |
+| 2026-02-25 19:34:42 | XETHZUSD | crypto:XETHZUSD:buy:1772046000000 | Lower priority/confidence than top 3 |
