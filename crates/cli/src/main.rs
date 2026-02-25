@@ -137,6 +137,11 @@ fn run(command: Commands) -> Result<String, CliError> {
                     let client = AlpacaClient::new(cfg);
                     client.fetch_bars(&symbol, &timeframe).map_err(|e| CliError::Provider(e.to_string()))?
                 }
+                "paper" => {
+                    let cfg = PaperConfig::from_env();
+                    let client = PaperClient::new(cfg);
+                    client.fetch_bars(&symbol, &timeframe).map_err(|e| CliError::Provider(e.to_string()))?
+                }
                 _ => return Err(CliError::Validation(format!("Unsupported provider: {}", provider))),
             };
 
@@ -388,6 +393,10 @@ fn scan_market(provider: &str, top_n: usize, min_volatility: f64, min_momentum: 
                 "SPY", "QQQ", "TQQQ", "AAPL", "NVDA", "TSLA", "AMZN", "META", "MSFT", "AMD", "GOOGL"
             ];
             Ok(watchlist.into_iter().map(String::from).collect())
+        }
+        "paper" => {
+            // Return static list for simulation
+            Ok(vec!["BTCUSD".to_string(), "ETHUSD".to_string(), "SPY".to_string()])
         }
         _ => Err(CliError::Validation(format!("Unsupported provider for scanning: {}", provider))),
     }
