@@ -30,3 +30,15 @@
 - Prioritize technical signals over news sentiment due to lack of external validation.
 - Monitor for volatility expansion from current lows.
 - Be cautious of the regime divergence between Crypto and Equities.
+
+### BTC/USD - 2026-02-25 05:06:48
+Simulated 2026 data. External factors neutralized.
+
+### ETH/USD - 2026-02-25 05:06:48
+Simulated 2026 data. External factors neutralized.
+
+### BTC/USD - 2026-02-25 05:08:44
+Simulated 2026 data. External factors neutralized.
+
+### ETH/USD - 2026-02-25 05:08:45
+Simulated 2026 data. External factors neutralized.

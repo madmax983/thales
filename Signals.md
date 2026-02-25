@@ -476,3 +476,170 @@ Simulated environment. No live news.
 }
 ```
 ---
+
+## Market Analysis Report - crypto - BTC/USD
+
+**Timestamp (ms)**: 1771996008092
+**Confidence**: 50.00%
+
+### 1. Market Regime
+**ALERT: Regime Change Detected!** (Previous: Trending Down, Current: Ranging)
+*Sentiment*: Bullish
+
+### 2. Volatility
+*Assessment*: Low
+
+### 3. Strategy Recommendation
+**Mean Reversion**
+
+### 4. Patterns & Price Action
+*Patterns*: None detected
+
+### 5. Key Levels
+*Support/Resistance*: 62500, 66311.8, 66562.5
+
+### 6. Research & Context
+**Research**:
+Simulated 2026 data. External factors neutralized.
+
+**News**:
+No relevant news in simulated environment.
+*Historical Context*: No similar past trades found.
+
+---
+
+## Market Analysis Report - crypto - ETH/USD
+
+**Timestamp (ms)**: 1771996008586
+**Confidence**: 50.00%
+
+### 1. Market Regime
+Regime Unchanged (Ranging)
+*Sentiment*: Bullish
+
+### 2. Volatility
+*Assessment*: Medium
+
+### 3. Strategy Recommendation
+**Mean Reversion**
+
+### 4. Patterns & Price Action
+*Patterns*: Bullish Engulfing
+
+### 5. Key Levels
+*Support/Resistance*: 1792.8, 1946.22
+
+### 6. Research & Context
+**Research**:
+Simulated 2026 data. External factors neutralized.
+
+**News**:
+No relevant news in simulated environment.
+*Historical Context*: No similar past trades found.
+
+---
+
+## Market Analysis Report - crypto - BTC/USD
+
+**Timestamp (ms)**: 1771996124910
+**Confidence**: 50.00%
+
+### 1. Market Regime
+Regime Unchanged (Ranging)
+*Sentiment*: Bullish
+
+### 2. Volatility
+*Assessment*: Low
+
+### 3. Strategy Recommendation
+**Mean Reversion**
+
+### 4. Patterns & Price Action
+*Patterns*: None detected
+
+### 5. Key Levels
+*Support/Resistance*: 62500, 66311.8, 66562.5
+
+### 6. Research & Context
+**Research**:
+Simulated 2026 data. External factors neutralized.
+
+**News**:
+No relevant news in simulated environment.
+*Historical Context*: No similar past trades found.
+
+```json
+{
+  "symbol": "BTC/USD",
+  "market": "crypto",
+  "regime": "Ranging",
+  "sentiment": "Bullish",
+  "patterns": [],
+  "key_levels": [
+    62500.0,
+    66311.8,
+    66562.5
+  ],
+  "volatility": "Low",
+  "atr": 564.7200577705605,
+  "research_summary": "Simulated 2026 data. External factors neutralized.",
+  "news_summary": "No relevant news in simulated environment.",
+  "recommendation": "Mean Reversion",
+  "confidence": 0.5,
+  "timestamp_unix_ms": 1771996124910
+}
+```
+
+---
+
+## Market Analysis Report - crypto - ETH/USD
+
+**Timestamp (ms)**: 1771996125412
+**Confidence**: 50.00%
+
+### 1. Market Regime
+Regime Unchanged (Ranging)
+*Sentiment*: Bullish
+
+### 2. Volatility
+*Assessment*: Medium
+
+### 3. Strategy Recommendation
+**Mean Reversion**
+
+### 4. Patterns & Price Action
+*Patterns*: None detected
+
+### 5. Key Levels
+*Support/Resistance*: 1792.8, 1946.22
+
+### 6. Research & Context
+**Research**:
+Simulated 2026 data. External factors neutralized.
+
+**News**:
+No relevant news in simulated environment.
+*Historical Context*: No similar past trades found.
+
+```json
+{
+  "symbol": "ETH/USD",
+  "market": "crypto",
+  "regime": "Ranging",
+  "sentiment": "Bullish",
+  "patterns": [],
+  "key_levels": [
+    1792.8,
+    1946.22
+  ],
+  "volatility": "Medium",
+  "atr": 19.849091568164557,
+  "research_summary": "Simulated 2026 data. External factors neutralized.",
+  "news_summary": "No relevant news in simulated environment.",
+  "recommendation": "Mean Reversion",
+  "confidence": 0.5,
+  "timestamp_unix_ms": 1771996125412
+}
+```
+
+---

@@ -25,3 +25,19 @@ Volatility is currently assessed as **Low** across both Crypto and Equities mark
 
 ## Implication
 Low volatility environments often resolve into high volatility breakouts. Traders should be prepared for potential expansion, especially given the bearish regime in Crypto.
+
+### BTC/USD - 2026-02-25 05:06:48
+**Assessment**: Low
+**ATR**: 564.72
+
+### ETH/USD - 2026-02-25 05:06:48
+**Assessment**: Medium
+**ATR**: 19.85
+
+### BTC/USD - 2026-02-25 05:08:44
+**Assessment**: Low
+**ATR**: 564.72
+
+### ETH/USD - 2026-02-25 05:08:45
+**Assessment**: Medium
+**ATR**: 19.85

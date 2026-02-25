@@ -24,3 +24,19 @@ The market is currently displaying a significant divergence between asset classe
 
 ## Implication
 The lack of correlation suggests a risk-off environment in Crypto while Equities remain resilient but potentially overextended. Caution is advised.
+
+### BTC/USD - 2026-02-25 05:06:48
+**Regime**: Ranging
+**Sentiment**: Bullish
+
+### ETH/USD - 2026-02-25 05:06:48
+**Regime**: Ranging
+**Sentiment**: Bullish
+
+### BTC/USD - 2026-02-25 05:08:44
+**Regime**: Ranging
+**Sentiment**: Bullish
+
+### ETH/USD - 2026-02-25 05:08:45
+**Regime**: Ranging
+**Sentiment**: Bullish
