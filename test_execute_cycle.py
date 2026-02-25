@@ -81,7 +81,7 @@ class TestExecuteCycle(unittest.TestCase):
                 return ret_json(bars)
 
             elif "analyze-market" in cmd_str:
-                return ret_json({"regime": "Bullish"})
+                return ret_json({"regime": "Trending Up"})
 
             elif "generate-signals" in cmd_str:
                 # Return a valid mock signal
