@@ -37,6 +37,8 @@ Thales CLI follows a pipeline approach where commands output JSON envelopes that
 ### 1. Fetch Market Data
 Fetch OHLCV data from a provider.
 
+> **Note**: If no API keys are provided, this command will return synthetic scaffolding data for testing purposes.
+
 ```bash
 cargo run -p thales-cli -- fetch-market-data \
   --provider kraken \
@@ -44,8 +46,21 @@ cargo run -p thales-cli -- fetch-market-data \
   --timeframe 1h > market_data.json
 ```
 
-### 2. Generate Signals
-Run a strategy on the fetched data to generate trade intents.
+### 2. Verify Strategy (Backtest)
+Run a backtest on the fetched data to see how the strategy performs over time.
+
+```bash
+cargo run -p thales-cli -- backtest \
+  --input market_data.json \
+  --strategy BollingerBandsMeanReversion \
+  --initial-capital 10000 \
+  --risk 0.01 > backtest_results.json
+```
+
+### 3. Generate Signals
+Run a strategy on the fetched data to generate trade intents for the **current** timestamp.
+
+> **Note**: This command outputs signals only if the strategy triggers at the latest available data point. If empty, check `backtest` results to verify strategy logic on historical data.
 
 ```bash
 cargo run -p thales-cli -- generate-signals \
@@ -53,7 +68,7 @@ cargo run -p thales-cli -- generate-signals \
   --strategy BollingerBandsMeanReversion > signals.json
 ```
 
-### 3. Execute Trades
+### 4. Execute Trades
 Execute the generated trade intents.
 
 ```bash
