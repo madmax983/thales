@@ -53,6 +53,7 @@ pub fn generate_report(
     };
 
     let recommendation = analysis.recommendation.clone().unwrap_or_else(|| "None".to_string());
+    let json_block = serde_json::to_string_pretty(analysis).unwrap_or_default();
 
     format!(
         r#"
@@ -81,6 +82,10 @@ pub fn generate_report(
 {}
 *Historical Context*: {}
 
+```json
+{}
+```
+
 ---
 "#,
         analysis.market,
@@ -94,7 +99,8 @@ pub fn generate_report(
         patterns_str,
         levels_str,
         research_section,
-        history_section
+        history_section,
+        json_block
     )
 }
 
@@ -195,5 +201,7 @@ mod tests {
         assert!(report.contains("**ALERT: Regime Change Detected!**"));
         assert!(report.contains("Doji"));
         assert!(report.contains("100, 110"));
+        assert!(report.contains("```json"));
+        assert!(report.contains("\"symbol\": \"AAPL\""));
     }
 }
