@@ -73,20 +73,39 @@ pub struct Signal {
 /// # Examples
 ///
 /// ```rust
-/// use strategies::strategy::{Strategy, Signal};
+/// use strategies::strategy::{Strategy, Signal, SignalType};
 /// use async_trait::async_trait;
 /// use polars::prelude::*;
 /// use anyhow::Result;
 ///
-/// struct MyStrategy;
+/// struct SimpleMovingAverage;
 ///
 /// #[async_trait]
-/// impl Strategy for MyStrategy {
-///     fn name(&self) -> &str { "MyStrategy" }
+/// impl Strategy for SimpleMovingAverage {
+///     fn name(&self) -> &str { "SMA" }
 ///
-///     async fn generate_signals(&self, _data: &DataFrame) -> Result<Vec<Signal>> {
-///         // Logic to check data and return signals
-///         Ok(vec![])
+///     async fn generate_signals(&self, data: &DataFrame) -> Result<Vec<Signal>> {
+///         // Example: Get the last closing price
+///         let close = data.column("close")?.f64()?;
+///         let last_price = close.get(close.len() - 1).unwrap_or(0.0);
+///         let last_ts = data.column("timestamp_unix_ms")?.i64()?.get(close.len() - 1).unwrap_or(0);
+///
+///         // Simple logic: Buy if price > 100
+///         if last_price > 100.0 {
+///             Ok(vec![Signal {
+///                 signal_type: SignalType::Entry,
+///                 symbol: "TEST".to_string(),
+///                 side: "buy".to_string(),
+///                 size_hint: "1.0".to_string(),
+///                 confidence: 1.0,
+///                 stop_loss: None,
+///                 take_profit: None,
+///                 reason: "Price > 100".to_string(),
+///                 timestamp_ms: last_ts,
+///             }])
+///         } else {
+///             Ok(vec![])
+///         }
 ///     }
 ///
 ///     async fn update_params(&mut self, _params: serde_json::Value) -> Result<()> {

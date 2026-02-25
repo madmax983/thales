@@ -211,6 +211,21 @@ pub enum EnvelopeStatus {
 ///
 /// This envelope ensures consistent parsing of results, errors, and warnings
 /// across all commands.
+///
+/// # Examples
+///
+/// ```rust
+/// use contracts::{ResponseEnvelope, EnvelopeStatus};
+///
+/// let envelope = ResponseEnvelope {
+///     status: EnvelopeStatus::Ok,
+///     errors: vec![],
+///     warnings: vec!["Low confidence".to_string()],
+///     data: Some(42),
+/// };
+///
+/// assert_eq!(envelope.data, Some(42));
+/// ```
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct ResponseEnvelope<T> {
     /// The overall status of the operation.
