@@ -192,3 +192,14 @@
 | 2026-02-25 21:48:30 | ETHUSD | crypto:ETHUSD:buy:1772053200000 | provider error: kraken api error: EOrder:Insufficient funds |
 | 2026-02-25 21:48:30 | XBTUSD | crypto:XBTUSD:buy:1772053200000 | Lower priority/confidence than top 3 |
 | 2026-02-25 21:48:30 | XXBTZUSD | crypto:XXBTZUSD:buy:1772053200000 | Lower priority/confidence than top 3 |
+| 2026-02-25 23:47:38 | AAPL | STALE_SIGNAL | Signal too old (55.0 hours > 24 hours) |
+| 2026-02-25 23:47:38 | BTCUSD | STALE_SIGNAL | Signal too old (28.8 hours > 24 hours) |
+| 2026-02-25 23:47:42 | SPY | NO_STRATEGY_SIGNAL | No active strategy generated a signal (Strategies: BollingerBands, EmaCrossover, RsiMeanReversion, Macd, Supertrend, DonchianBreakout, ParabolicSar, KeltnerChannelBreakout, StochasticOscillator, AdxMomentum) |
+| 2026-02-25 23:47:42 | NVDA | NO_STRATEGY_SIGNAL | No active strategy generated a signal (Strategies: BollingerBands, EmaCrossover, RsiMeanReversion, Macd, Supertrend, DonchianBreakout, ParabolicSar, KeltnerChannelBreakout, StochasticOscillator, AdxMomentum) |
+| 2026-02-25 23:47:42 | BTC/USD | NO_STRATEGY_SIGNAL | No active strategy generated a signal (Strategies: BollingerBands, EmaCrossover, RsiMeanReversion, Macd, Supertrend, DonchianBreakout, ParabolicSar, KeltnerChannelBreakout, StochasticOscillator, AdxMomentum) |
+| 2026-02-25 23:47:43 | ETH/USD | NO_STRATEGY_SIGNAL | No active strategy generated a signal (Strategies: BollingerBands, EmaCrossover, RsiMeanReversion, Macd, Supertrend, DonchianBreakout, ParabolicSar, KeltnerChannelBreakout, StochasticOscillator, AdxMomentum) |
+| 2026-02-25 23:47:44 | BTCUSD | crypto:BTCUSD:sell:1772060400000 | provider error: kraken api error: EOrder:Insufficient funds |
+| 2026-02-25 23:47:44 | ETHUSD | crypto:ETHUSD:sell:1772060400000 | provider error: kraken api error: EOrder:Insufficient funds |
+| 2026-02-25 23:47:44 | XBTUSD | crypto:XBTUSD:sell:1772060400000 | provider error: kraken api error: EOrder:Insufficient funds |
+| 2026-02-25 23:47:44 | XXBTZUSD | crypto:XXBTZUSD:sell:1772060400000 | Lower priority/confidence than top 3 |
+| 2026-02-25 23:47:44 | XETHZUSD | crypto:XETHZUSD:sell:1772060400000 | Lower priority/confidence than top 3 |
