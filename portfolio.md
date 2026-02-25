@@ -33,3 +33,11 @@
 | 2026-02-24 23:38:46 | AAPL | STALE_SIGNAL | Signal too old (30.9 hours > 24 hours) |
 | 2026-02-24 23:38:49 | BTCUSD | NO_STRATEGY_SIGNAL | No active strategy generated a signal (Strategies: BollingerBands, EmaCrossover, RsiMeanReversion, Macd, Supertrend) |
 | 2026-02-24 23:38:50 | SPY | NO_STRATEGY_SIGNAL | No active strategy generated a signal (Strategies: BollingerBands, EmaCrossover, RsiMeanReversion, Macd, Supertrend) |
+| 2026-02-25 01:34:28 | AAPL | STALE_SIGNAL | Signal too old (32.8 hours > 24 hours) |
+| 2026-02-25 01:34:31 | XETHZUSD | crypto:XETHZUSD:sell:1771981200000 | Conflict: Multiple strategies gave conflicting signals ({'buy', 'sell'}) |
+| 2026-02-25 01:34:31 | XETHZUSD | crypto:XETHZUSD:buy:1771981200000 | Conflict: Multiple strategies gave conflicting signals ({'buy', 'sell'}) |
+| 2026-02-25 01:34:32 | SPY | NO_STRATEGY_SIGNAL | No active strategy generated a signal (Strategies: BollingerBands, EmaCrossover, RsiMeanReversion, Macd, Supertrend) |
+| 2026-02-25 01:34:32 | NVDA | NO_STRATEGY_SIGNAL | No active strategy generated a signal (Strategies: BollingerBands, EmaCrossover, RsiMeanReversion, Macd, Supertrend) |
+| 2026-02-25 01:34:33 | XBTUSD | crypto:XBTUSD:sell:1771981200000 | Execution Failed |
+| 2026-02-25 01:34:33 | XXBTZUSD | crypto:XXBTZUSD:sell:1771981200000 | Execution Failed |
+| 2026-02-25 01:34:33 | BTCUSD | crypto:BTCUSD:sell:1771981200000 | Execution Failed |
