@@ -7,3 +7,4 @@ pub mod bollinger_bands;
 pub mod supertrend;
 pub mod parabolic_sar;
 pub mod donchian_channels;
+pub mod stochastic;
