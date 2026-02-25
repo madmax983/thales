@@ -1180,3 +1180,170 @@ No specific news found.
 }
 ```
 ---
+
+## Market Analysis Report - crypto - BTCUSD
+
+**Timestamp (ms)**: 1772054673891
+**Confidence**: 80.00%
+
+### 1. Market Regime
+**ALERT: Regime Change Detected!** (Previous: Trending Down, Current: Trending Down (Short Term))
+*Sentiment*: Bearish (Strong)
+
+### 2. Volatility
+*Assessment*: Medium
+
+### 3. Strategy Recommendation
+**Neutral / Wait**
+
+### 4. Patterns & Price Action
+*Patterns*: Breakout (Downside), Consolidation (Squeeze)
+
+### 5. Key Levels
+*Support/Resistance*: 59348.09299105641, 62321.223889637375, 62637.9775018533
+
+### 6. Research & Context
+**Research**:
+Simulated 2026 environment. No live news feed available.
+
+**News**:
+Simulated 2026 environment. No live news feed available.
+*Historical Context*: No similar past trades found.
+
+```json
+{
+  "symbol": "BTCUSD",
+  "market": "crypto",
+  "regime": "Trending Down (Short Term)",
+  "sentiment": "Bearish (Strong)",
+  "patterns": [
+    "Breakout (Downside)",
+    "Consolidation (Squeeze)"
+  ],
+  "key_levels": [
+    59348.09299105641,
+    62321.223889637375,
+    62637.9775018533
+  ],
+  "volatility": "Medium",
+  "atr": 764.8234042370752,
+  "research_summary": "Simulated 2026 environment. No live news feed available.",
+  "news_summary": "Simulated 2026 environment. No live news feed available.",
+  "recommendation": "Neutral / Wait",
+  "confidence": 0.7999999999999999,
+  "timestamp_unix_ms": 1772054673891
+}
+```
+
+---
+
+## Market Analysis Report - crypto - ETHUSD
+
+**Timestamp (ms)**: 1772054725073
+**Confidence**: 80.00%
+
+### 1. Market Regime
+**ALERT: Regime Change Detected!** (Previous: Trending Down, Current: Trending Down (Short Term))
+*Sentiment*: Bearish (Strong)
+
+### 2. Volatility
+*Assessment*: Medium
+
+### 3. Strategy Recommendation
+**Neutral / Wait**
+
+### 4. Patterns & Price Action
+*Patterns*: Breakout (Downside), Consolidation (Squeeze)
+
+### 5. Key Levels
+*Support/Resistance*: 59348.09299105641, 62321.223889637375, 62637.9775018533
+
+### 6. Research & Context
+**Research**:
+Simulated 2026 environment. No live news feed available.
+
+**News**:
+Simulated 2026 environment. No live news feed available.
+*Historical Context*: No similar past trades found.
+
+```json
+{
+  "symbol": "ETHUSD",
+  "market": "crypto",
+  "regime": "Trending Down (Short Term)",
+  "sentiment": "Bearish (Strong)",
+  "patterns": [
+    "Breakout (Downside)",
+    "Consolidation (Squeeze)"
+  ],
+  "key_levels": [
+    59348.09299105641,
+    62321.223889637375,
+    62637.9775018533
+  ],
+  "volatility": "Medium",
+  "atr": 764.8234042370752,
+  "research_summary": "Simulated 2026 environment. No live news feed available.",
+  "news_summary": "Simulated 2026 environment. No live news feed available.",
+  "recommendation": "Neutral / Wait",
+  "confidence": 0.7999999999999999,
+  "timestamp_unix_ms": 1772054725073
+}
+```
+
+---
+
+## Market Analysis Report - equities - SPY
+
+**Timestamp (ms)**: 1772054751613
+**Confidence**: 80.00%
+
+### 1. Market Regime
+**ALERT: Regime Change Detected!** (Previous: Ranging, Current: Trending Up (Short Term))
+*Sentiment*: Bullish (Strong)
+
+### 2. Volatility
+*Assessment*: Medium
+
+### 3. Strategy Recommendation
+**Neutral / Wait**
+
+### 4. Patterns & Price Action
+*Patterns*: Breakout (Upside), Consolidation (Squeeze)
+
+### 5. Key Levels
+*Support/Resistance*: 144.1208937259845, 156.00649986622267
+
+### 6. Research & Context
+**Research**:
+Simulated 2026 environment. No live news feed available.
+
+**News**:
+Simulated 2026 environment. No live news feed available.
+*Historical Context*: No similar past trades found.
+
+```json
+{
+  "symbol": "SPY",
+  "market": "equities",
+  "regime": "Trending Up (Short Term)",
+  "sentiment": "Bullish (Strong)",
+  "patterns": [
+    "Breakout (Upside)",
+    "Consolidation (Squeeze)"
+  ],
+  "key_levels": [
+    144.1208937259845,
+    156.00649986622267
+  ],
+  "volatility": "Medium",
+  "atr": 2.0276112907581316,
+  "research_summary": "Simulated 2026 environment. No live news feed available.",
+  "news_summary": "Simulated 2026 environment. No live news feed available.",
+  "recommendation": "Neutral / Wait",
+  "confidence": 0.7999999999999999,
+  "timestamp_unix_ms": 1772054751613
+}
+```
+
+---
