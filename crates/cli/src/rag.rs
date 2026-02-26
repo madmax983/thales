@@ -52,6 +52,7 @@ pub fn analyze_performance(entries: &[HistoryEntry]) -> HistoricalPerformance {
 pub fn find_similar_trades(
     current_analysis: &MarketAnalysis,
     history_path: &Path,
+    strategy_filter: Option<&str>,
 ) -> Result<Vec<HistoryEntry>> {
     if !history_path.exists() {
         return Ok(vec![]);
@@ -76,6 +77,26 @@ pub fn find_similar_trades(
             && entry.market_analysis.regime == current_analysis.regime
             && entry.market_analysis.volatility == current_analysis.volatility
         {
+            // 5. Strategy Match (if filter provided)
+            if let Some(strategy_name) = strategy_filter {
+                // Check explicit field first
+                if !entry.intent.strategy.is_empty() {
+                    if entry.intent.strategy != strategy_name {
+                        continue;
+                    }
+                } else {
+                    // Fallback: Check rationale for "Strategy: Name"
+                    // Format: "Strategy: {Name} (..."
+                    if !entry
+                        .intent
+                        .rationale
+                        .starts_with(&format!("Strategy: {}", strategy_name))
+                    {
+                        continue;
+                    }
+                }
+            }
+
             similar_trades.push(entry);
         }
     }
@@ -185,7 +206,7 @@ mod tests {
 
         let current_analysis = create_dummy_analysis("AAPL", "Trending Up", "Low");
 
-        let similar = find_similar_trades(&current_analysis, history_file.path())?;
+        let similar = find_similar_trades(&current_analysis, history_file.path(), None)?;
 
         // Should find AAPL (exact match) and GOOG (context match).
         // Should NOT find second AAPL (different regime).
@@ -204,7 +225,7 @@ mod tests {
     fn test_no_history_file() -> Result<()> {
         let current_analysis = create_dummy_analysis("AAPL", "Trending Up", "Low");
         let path = Path::new("non_existent_file.json");
-        let similar = find_similar_trades(&current_analysis, path)?;
+        let similar = find_similar_trades(&current_analysis, path, None)?;
         assert!(similar.is_empty());
         Ok(())
     }
@@ -215,7 +236,7 @@ mod tests {
         write!(history_file, "this is not json")?;
 
         let current_analysis = create_dummy_analysis("AAPL", "Trending Up", "Low");
-        let similar = find_similar_trades(&current_analysis, history_file.path());
+        let similar = find_similar_trades(&current_analysis, history_file.path(), None);
         assert!(similar.is_err());
 
         let count = count_todays_signals("AAPL", history_file.path(), 1000);

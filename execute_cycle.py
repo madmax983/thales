@@ -469,7 +469,6 @@ def evaluate_candidate(candidate, strategies, portfolio_path=None):
                 else:
                     intent["provider"] = provider
 
-                intent["strategy_used"] = strategy_name # Keep track of which strategy generated this
                 if effective_analysis:
                     intent["_market_analysis"] = effective_analysis
 
@@ -501,7 +500,7 @@ def resolve_conflicts(intents, conflict_margin=0.05):
 
     def score_intent(intent):
         confidence = float(intent.get("confidence", 0.0) or 0.0)
-        strategy_name = intent.get("strategy_used", "")
+        strategy_name = intent.get("strategy", "")
         return confidence * strategy_regime_weight(strategy_name, analysis)
 
     sides = set(intent["side"] for intent in intents)
@@ -537,8 +536,6 @@ def update_history(intent):
         del clean_intent["_market_analysis"]
     if "provider" in clean_intent: # provider is also internal
         del clean_intent["provider"]
-    if "strategy_used" in clean_intent:
-        del clean_intent["strategy_used"]
 
     entry = {
         "intent": clean_intent,

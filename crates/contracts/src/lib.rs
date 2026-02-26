@@ -73,6 +73,9 @@ pub struct TradeIntent {
     /// The execution algorithm to use (e.g., "Market", "Limit", "TWAP", "VWAP").
     #[serde(default)]
     pub execution_algo: Option<String>,
+    /// The strategy that generated this intent (e.g., "BollingerBands").
+    #[serde(default)]
+    pub strategy: String,
 }
 
 impl Default for TradeIntent {
@@ -96,6 +99,7 @@ impl Default for TradeIntent {
             stop_price: None,
             time_in_force: "day".to_string(),
             execution_algo: None,
+            strategy: String::new(),
         }
     }
 }

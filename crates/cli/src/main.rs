@@ -73,6 +73,8 @@ enum Commands {
         time_in_force: String,
         #[arg(long)]
         execution_algo: Option<String>,
+        #[arg(long, default_value = "manual")]
+        strategy: String,
     },
     ValidateIntent {
         #[arg(long)]
@@ -296,6 +298,7 @@ fn run(command: Commands) -> Result<String, CliError> {
             stop_price,
             time_in_force,
             execution_algo,
+            strategy,
         } => {
             let intent = TradeIntent {
                 intent_id: format!("{market}:{symbol}:{side}:v0"),
@@ -316,6 +319,7 @@ fn run(command: Commands) -> Result<String, CliError> {
                 stop_price,
                 time_in_force,
                 execution_algo,
+                strategy,
             };
             ok_envelope(intent)
         }
@@ -381,7 +385,7 @@ fn run(command: Commands) -> Result<String, CliError> {
                 let research_path = PathBuf::from("Market_Research.md");
 
                 let similar_trades =
-                    rag::find_similar_trades(&analysis, &PathBuf::from("history.json"))
+                    rag::find_similar_trades(&analysis, &PathBuf::from("history.json"), None)
                         .unwrap_or_default();
                 let previous_regime = reporting::read_last_regime(&signals_path, &analysis.symbol);
 
