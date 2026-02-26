@@ -66,11 +66,21 @@ impl PaperClient {
 
         // Determine trend based on symbol (match Signals.md scenarios)
         let is_crypto = symbol.contains("BTC") || symbol.contains("ETH") || symbol.contains("XBT");
-        // Downtrend for Crypto, Uptrend for Equities
-        let is_downtrend = is_crypto;
+        // Downtrend for BTC, Uptrend for ETH/SPY
+        let is_downtrend = symbol.contains("BTC") || symbol.contains("XBT");
 
         // Start price
-        let mut price = if is_crypto { 65000.0 } else { 150.0 };
+        let mut price = if symbol.contains("BTC") || symbol.contains("XBT") {
+            65000.0
+        } else if symbol.contains("ETH") {
+            3000.0
+        } else if symbol.contains("SPY") {
+            500.0
+        } else if is_crypto {
+            10.0
+        } else {
+            150.0
+        };
 
         // Generate 100 bars ending at now
         for i in (0..100).rev() {
