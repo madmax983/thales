@@ -294,3 +294,43 @@ let (lower, middle, upper) = keltner_channels::calculate(&df, ema_period, atr_pe
 ### Output
 - Returns `Result<(Series, Series, Series)>` representing `(lower_band, middle_band, upper_band)`.
 - The output Series are named "keltner_lower", "keltner_middle", and "keltner_upper".
+
+## Ichimoku Cloud
+
+**Name:** Ichimoku Cloud (Ichimoku Kinko Hyo)
+**Description:** A comprehensive indicator that defines support and resistance, identifies trend direction, gauges momentum, and provides trading signals.
+**Rationale:** It provides a unique perspective on the market by showing the equilibrium of price at a glance.
+
+### Implementation Details
+- Uses `rust_decimal::Decimal` for all internal calculations (averaging) to ensure precision.
+- Implements rolling Max/Min manually (O(N)) for efficiency and compatibility.
+- Returns a tuple of five Polars `Series`: (Tenkan-sen, Kijun-sen, Senkou Span A, Senkou Span B, Chikou Span).
+- Senkou Span A and B are shifted forward by `senkou_span_offset`.
+- Chikou Span is shifted backward by `chikou_span_offset`.
+
+### Usage
+
+```rust
+use strategies::indicators::ichimoku;
+use polars::prelude::*;
+
+// Assuming df is a DataFrame with "high", "low", "close" columns
+let tenkan = 9;
+let kijun = 26;
+let span_b = 52;
+let span_offset = 26;
+let chikou_offset = 26;
+let (tenkan, kijun, span_a, span_b, chikou) = ichimoku::calculate(&df, tenkan, kijun, span_b, span_offset, chikou_offset)?;
+```
+
+### Parameters
+- `data`: Reference to a Polars `DataFrame`. Must contain "high", "low", "close" columns.
+- `tenkan_period`: Lookback period for Tenkan-sen (typically 9).
+- `kijun_period`: Lookback period for Kijun-sen (typically 26).
+- `senkou_span_b_period`: Lookback period for Senkou Span B (typically 52).
+- `senkou_span_offset`: Forward shift for Spans A and B (typically 26).
+- `chikou_span_offset`: Backward shift for Chikou Span (typically 26).
+
+### Output
+- Returns `Result<(Series, Series, Series, Series, Series)>` representing `(tenkan_sen, kijun_sen, senkou_span_a, senkou_span_b, chikou_span)`.
+- The output Series are named accordingly.
