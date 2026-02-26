@@ -6,7 +6,7 @@
 use std::collections::HashMap;
 use std::time::{SystemTime, UNIX_EPOCH};
 
-use base64::{engine::general_purpose::STANDARD, Engine};
+use base64::{Engine, engine::general_purpose::STANDARD};
 use contracts::{Bar, ExecutionResult, TradeIntent};
 use hmac::{Hmac, Mac};
 use reqwest::blocking::Client;
@@ -353,15 +353,15 @@ impl KrakenClient {
             .send()?;
 
         if !response.status().is_success() {
-             let status = response.status().as_u16();
-             let body = response
-                 .text()
-                 .unwrap_or_else(|_| "unable to decode error body".to_string());
-             return Err(KrakenProviderError::UnexpectedHttpStatus(status, body));
+            let status = response.status().as_u16();
+            let body = response
+                .text()
+                .unwrap_or_else(|_| "unable to decode error body".to_string());
+            return Err(KrakenProviderError::UnexpectedHttpStatus(status, body));
         }
 
         let api_response: KrakenApiResponse = response.json()?;
-         if !api_response.error.is_empty() {
+        if !api_response.error.is_empty() {
             // "EOrder:Unknown order" is common if already filled/canceled.
             // We might treat it as Ok or Err.
             return Err(KrakenProviderError::Api(api_response.error.join(", ")));
@@ -481,7 +481,10 @@ impl KrakenClient {
 
     /// Fetches ticker information for all pairs.
     pub fn fetch_tickers(&self) -> Result<HashMap<String, KrakenTickerInfo>, KrakenProviderError> {
-        let url = format!("{}/0/public/Ticker", self.config.base_url.trim_end_matches('/'));
+        let url = format!(
+            "{}/0/public/Ticker",
+            self.config.base_url.trim_end_matches('/')
+        );
         let response = self.http.get(&url).send()?;
 
         if !response.status().is_success() {
@@ -503,7 +506,9 @@ impl KrakenClient {
     /// Fetches all open positions for the account.
     ///
     /// This requires the `OpenPositions` permission on the API key.
-    pub fn fetch_open_positions(&self) -> Result<HashMap<String, KrakenOpenPosition>, KrakenProviderError> {
+    pub fn fetch_open_positions(
+        &self,
+    ) -> Result<HashMap<String, KrakenOpenPosition>, KrakenProviderError> {
         let nonce = now_unix_ms()?.to_string();
         let body = format!("nonce={}", nonce);
         let path = "/0/private/OpenPositions";
@@ -529,7 +534,7 @@ impl KrakenClient {
 
         let api_response: KrakenOpenPositionsResponse = response.json()?;
         if !api_response.error.is_empty() {
-             return Err(KrakenProviderError::Api(api_response.error.join(", ")));
+            return Err(KrakenProviderError::Api(api_response.error.join(", ")));
         }
 
         Ok(api_response.result.unwrap_or_default())
@@ -549,7 +554,9 @@ impl KrakenClient {
             let cost: f64 = pos.cost.parse().unwrap_or(0.0);
 
             let current_qty = vol - vol_closed;
-            if current_qty <= 0.00000001 { continue; } // effectively closed
+            if current_qty <= 0.00000001 {
+                continue;
+            } // effectively closed
 
             // Proportional cost for remaining qty
             // Assuming cost is for initial 'vol'
@@ -567,7 +574,11 @@ impl KrakenClient {
 
         let mut positions = Vec::new();
         for ((pair, side), (qty, total_cost)) in agg {
-            let entry_price = if qty > 0.0 { Some(total_cost / qty) } else { None };
+            let entry_price = if qty > 0.0 {
+                Some(total_cost / qty)
+            } else {
+                None
+            };
             let side = if side == "buy" { "long" } else { "short" }; // Map Kraken "buy"/"sell" to "long"/"short"
 
             positions.push(contracts::Position {

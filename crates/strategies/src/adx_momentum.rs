@@ -1,8 +1,8 @@
-use crate::strategy::{Strategy, Signal, SignalType};
 use crate::indicators::{adx, atr};
-use polars::prelude::*;
+use crate::strategy::{Signal, SignalType, Strategy};
+use anyhow::{Context, Result};
 use async_trait::async_trait;
-use anyhow::{Result, Context};
+use polars::prelude::*;
 use serde::{Deserialize, Serialize};
 
 pub struct AdxMomentum {
@@ -14,9 +14,9 @@ pub struct AdxMomentumConfig {
     pub adx_period: usize,
     pub adx_threshold: f64,
     pub di_period: usize, // Usually same as adx_period, but can be distinct if library supports it.
-                          // Our adx::calculate uses one period for both.
-                          // So we will use adx_period for calculation and ignore this or assume equality.
-                          // To avoid confusion, let's use adx_period for the indicator call.
+    // Our adx::calculate uses one period for both.
+    // So we will use adx_period for calculation and ignore this or assume equality.
+    // To avoid confusion, let's use adx_period for the indicator call.
     pub stop_loss_atr_mult: f64,
     pub atr_period: usize,
     pub symbol: String,
@@ -35,11 +35,11 @@ impl Strategy for AdxMomentum {
     }
 
     async fn generate_signals(&self, data: &DataFrame) -> Result<Vec<Signal>> {
-        let (adx_s, p_di_s, m_di_s) = adx::calculate(data, self.config.adx_period)
-            .context("Failed to calculate ADX")?;
+        let (adx_s, p_di_s, m_di_s) =
+            adx::calculate(data, self.config.adx_period).context("Failed to calculate ADX")?;
 
-        let atr_s = atr::calculate(data, self.config.atr_period)
-            .context("Failed to calculate ATR")?;
+        let atr_s =
+            atr::calculate(data, self.config.atr_period).context("Failed to calculate ATR")?;
 
         let close_s = data.column("close")?.f64()?;
         let time_s = data.column("timestamp_unix_ms")?.i64()?;
@@ -59,10 +59,24 @@ impl Strategy for AdxMomentum {
         // But for Entry, we want "Condition became true".
 
         for i in 1..len {
-            if let (Some(adx_val), Some(p_di), Some(m_di), Some(prev_adx), Some(prev_p_di), Some(prev_m_di), Some(close), Some(atr)) = (
-                adx_v[i], p_di_v[i], m_di_v[i],
-                adx_v[i-1], p_di_v[i-1], m_di_v[i-1],
-                close_s.get(i), atr_v[i]
+            if let (
+                Some(adx_val),
+                Some(p_di),
+                Some(m_di),
+                Some(prev_adx),
+                Some(prev_p_di),
+                Some(prev_m_di),
+                Some(close),
+                Some(atr),
+            ) = (
+                adx_v[i],
+                p_di_v[i],
+                m_di_v[i],
+                adx_v[i - 1],
+                p_di_v[i - 1],
+                m_di_v[i - 1],
+                close_s.get(i),
+                atr_v[i],
             ) {
                 let timestamp = time_s.get(i).unwrap_or(0);
 
@@ -90,10 +104,13 @@ impl Strategy for AdxMomentum {
                         symbol: self.config.symbol.clone(),
                         side: "buy".to_string(),
                         size_hint: "100".to_string(), // Will be overridden by risk manager
-                        confidence: 0.8, // High confidence for trend
+                        confidence: 0.8,              // High confidence for trend
                         stop_loss: Some(stop_loss),
                         take_profit: Some(take_profit),
-                        reason: format!("ADX ({:.2}) > {:.0} and +DI > -DI", adx_val, self.config.adx_threshold),
+                        reason: format!(
+                            "ADX ({:.2}) > {:.0} and +DI > -DI",
+                            adx_val, self.config.adx_threshold
+                        ),
                         timestamp_ms: timestamp,
                     });
                 }
@@ -101,7 +118,7 @@ impl Strategy for AdxMomentum {
                 // Exit Signal
                 // 1. Trend Reversal: +DI crosses below -DI
                 if !is_bullish && was_bullish {
-                     signals.push(Signal {
+                    signals.push(Signal {
                         signal_type: SignalType::Exit,
                         symbol: self.config.symbol.clone(),
                         side: "sell".to_string(), // Exit Long
@@ -117,7 +134,7 @@ impl Strategy for AdxMomentum {
                 // 2. Trend Weakening: ADX drops below threshold
                 // Only if we were strong before.
                 if !is_strong && was_strong {
-                     signals.push(Signal {
+                    signals.push(Signal {
                         signal_type: SignalType::Exit,
                         symbol: self.config.symbol.clone(),
                         side: "sell".to_string(),
@@ -125,7 +142,10 @@ impl Strategy for AdxMomentum {
                         confidence: 0.6,
                         stop_loss: None,
                         take_profit: None,
-                        reason: format!("Trend Weakening (ADX {:.2} < {:.0})", adx_val, self.config.adx_threshold),
+                        reason: format!(
+                            "Trend Weakening (ADX {:.2} < {:.0})",
+                            adx_val, self.config.adx_threshold
+                        ),
                         timestamp_ms: timestamp,
                     });
                 }
@@ -160,26 +180,28 @@ mod tests {
         // 30 bars of ranging/noise (flat price)
         for i in 0..30 {
             let p = 100.0 + (i % 2) as f64; // 100, 101, 100...
-            bars.push((p, p+1.0, p-1.0));
+            bars.push((p, p + 1.0, p - 1.0));
         }
 
         // 20 bars of strong uptrend
         // Price increases by 2 every bar
         for i in 30..50 {
             let p = 100.0 + (i - 30) as f64 * 2.0;
-            bars.push((p, p+1.0, p-1.0));
+            bars.push((p, p + 1.0, p - 1.0));
         }
 
         // 10 bars of sharp drop (Reversal)
         for i in 50..60 {
-             let p = 140.0 - (i - 50) as f64 * 3.0;
-             bars.push((p, p+1.0, p-1.0));
+            let p = 140.0 - (i - 50) as f64 * 3.0;
+            bars.push((p, p + 1.0, p - 1.0));
         }
 
         let closes: Vec<f64> = bars.iter().map(|b| b.0).collect();
         let highs: Vec<f64> = bars.iter().map(|b| b.1).collect();
         let lows: Vec<f64> = bars.iter().map(|b| b.2).collect();
-        let times: Vec<i64> = (0..bars.len()).map(|i| start_ts + i as i64 * 60000).collect();
+        let times: Vec<i64> = (0..bars.len())
+            .map(|i| start_ts + i as i64 * 60000)
+            .collect();
 
         let df = df!(
             "close" => closes,
@@ -204,8 +226,14 @@ mod tests {
         // 1. Entry signal when trend starts (somewhere after index 30+14?)
         // 2. Exit signal when trend reverses (index 50+)
 
-        let entries: Vec<_> = signals.iter().filter(|s| s.signal_type == SignalType::Entry).collect();
-        let exits: Vec<_> = signals.iter().filter(|s| s.signal_type == SignalType::Exit).collect();
+        let entries: Vec<_> = signals
+            .iter()
+            .filter(|s| s.signal_type == SignalType::Entry)
+            .collect();
+        let exits: Vec<_> = signals
+            .iter()
+            .filter(|s| s.signal_type == SignalType::Exit)
+            .collect();
 
         assert!(!entries.is_empty(), "Should generate entry signals");
         assert!(!exits.is_empty(), "Should generate exit signals");

@@ -54,7 +54,8 @@ pub fn calculate(
     let mut sum_x = Decimal::ZERO;
     let mut sum_x2 = Decimal::ZERO; // Sum of x^2
 
-    let period_dec = Decimal::from_usize(period).context("Invalid period for Decimal conversion")?;
+    let period_dec =
+        Decimal::from_usize(period).context("Invalid period for Decimal conversion")?;
     let k_dec = Decimal::from_f64_retain(std_dev_multiplier).unwrap_or(Decimal::ZERO);
 
     for i in 0..close.len() {
@@ -192,8 +193,16 @@ mod tests {
         let u_val = u.get(2).unwrap();
         let l_val = l.get(2).unwrap();
 
-        assert!((u_val - 15.26598).abs() < eps, "Upper band mismatch: {} vs 15.26598", u_val);
-        assert!((l_val - 8.73402).abs() < eps, "Lower band mismatch: {} vs 8.73402", l_val);
+        assert!(
+            (u_val - 15.26598).abs() < eps,
+            "Upper band mismatch: {} vs 15.26598",
+            u_val
+        );
+        assert!(
+            (l_val - 8.73402).abs() < eps,
+            "Lower band mismatch: {} vs 8.73402",
+            l_val
+        );
 
         Ok(())
     }

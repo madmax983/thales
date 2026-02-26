@@ -1,11 +1,11 @@
-use anyhow::Result;
-use contracts::BarSeries;
 use crate::backtest::{self, BacktestConfig};
 use crate::strategy_factory;
+use anyhow::Result;
+use contracts::BarSeries;
 use rand::Rng;
 use serde::{Deserialize, Serialize};
-use std::collections::HashMap;
 use serde_json::Value;
+use std::collections::HashMap;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct OptimizationConfig {
@@ -81,7 +81,10 @@ pub async fn optimize(
             };
             genes.insert(name.clone(), value);
         }
-        population.push(Genome { genes, fitness: -f64::INFINITY });
+        population.push(Genome {
+            genes,
+            fitness: -f64::INFINITY,
+        });
     }
 
     // 2. Evolution Loop
@@ -117,14 +120,30 @@ pub async fn optimize(
             // Let's rely on user provided params + symbol.
             // If a required field is missing, update_params will fail. We'll catch it and give poor fitness.
 
-            let fitness = evaluate_genome(&request.strategy, request.initial_capital, request.risk_per_trade, Value::Object(params_json), bars).await.unwrap_or(-1000.0);
+            let fitness = evaluate_genome(
+                &request.strategy,
+                request.initial_capital,
+                request.risk_per_trade,
+                Value::Object(params_json),
+                bars,
+            )
+            .await
+            .unwrap_or(-1000.0);
             genome.fitness = fitness;
         }
 
         // Sort by fitness (descending)
-        population.sort_by(|a, b| b.fitness.partial_cmp(&a.fitness).unwrap_or(std::cmp::Ordering::Equal));
+        population.sort_by(|a, b| {
+            b.fitness
+                .partial_cmp(&a.fitness)
+                .unwrap_or(std::cmp::Ordering::Equal)
+        });
 
-        println!("Generation {}: Best Fitness = {:.2}%", generation + 1, population[0].fitness);
+        println!(
+            "Generation {}: Best Fitness = {:.2}%",
+            generation + 1,
+            population[0].fitness
+        );
 
         if generation == request.config.generations - 1 {
             break;
@@ -139,9 +158,17 @@ pub async fn optimize(
             let parent2 = tournament_select(&population, &mut rng);
 
             let mut child_genes = crossover(&parent1.genes, &parent2.genes, &mut rng);
-            mutate(&mut child_genes, &request.params, request.config.mutation_rate, &mut rng);
+            mutate(
+                &mut child_genes,
+                &request.params,
+                request.config.mutation_rate,
+                &mut rng,
+            );
 
-            new_population.push(Genome { genes: child_genes, fitness: -f64::INFINITY });
+            new_population.push(Genome {
+                genes: child_genes,
+                fitness: -f64::INFINITY,
+            });
         }
 
         population = new_population;
@@ -197,7 +224,7 @@ async fn evaluate_genome(
                 Ok(result) => Ok(result.metrics.total_return_pct),
                 Err(_) => Ok(-1000.0), // Backtest failed
             }
-        },
+        }
         Err(_) => {
             // Parameter update failed (e.g. invalid config)
             Ok(-1000.0)
@@ -208,7 +235,7 @@ async fn evaluate_genome(
 fn tournament_select<'a>(population: &'a [Genome], rng: &mut impl Rng) -> &'a Genome {
     let k = 3;
     let mut best = &population[rng.gen_range(0..population.len())];
-    for _ in 0..k-1 {
+    for _ in 0..k - 1 {
         let contender = &population[rng.gen_range(0..population.len())];
         if contender.fitness > best.fitness {
             best = contender;
@@ -217,7 +244,11 @@ fn tournament_select<'a>(population: &'a [Genome], rng: &mut impl Rng) -> &'a Ge
     best
 }
 
-fn crossover(p1: &HashMap<String, GeneValue>, p2: &HashMap<String, GeneValue>, rng: &mut impl Rng) -> HashMap<String, GeneValue> {
+fn crossover(
+    p1: &HashMap<String, GeneValue>,
+    p2: &HashMap<String, GeneValue>,
+    rng: &mut impl Rng,
+) -> HashMap<String, GeneValue> {
     let mut child = HashMap::new();
     for (k, v1) in p1 {
         if let Some(v2) = p2.get(k) {
@@ -231,7 +262,12 @@ fn crossover(p1: &HashMap<String, GeneValue>, p2: &HashMap<String, GeneValue>, r
     child
 }
 
-fn mutate(genes: &mut HashMap<String, GeneValue>, params: &HashMap<String, ParamType>, rate: f64, rng: &mut impl Rng) {
+fn mutate(
+    genes: &mut HashMap<String, GeneValue>,
+    params: &HashMap<String, ParamType>,
+    rate: f64,
+    rng: &mut impl Rng,
+) {
     for (k, v) in genes.iter_mut() {
         if rng.gen_bool(rate) {
             if let Some(param_type) = params.get(k) {
@@ -259,13 +295,22 @@ mod tests {
             let t = i as f64 / 10.0;
             let close = 100.0 + t.sin() * 10.0;
             bars.push(Bar {
-                symbol: "TEST".to_string(), market: "crypto".to_string(), timeframe: "1h".to_string(),
+                symbol: "TEST".to_string(),
+                market: "crypto".to_string(),
+                timeframe: "1h".to_string(),
                 timestamp_unix_ms: now + i * 3600000,
-                open: close, high: close + 1.0, low: close - 1.0, close: close, volume: 100.0
+                open: close,
+                high: close + 1.0,
+                low: close - 1.0,
+                close: close,
+                volume: 100.0,
             });
         }
 
-        let series = BarSeries { schema_version: "v0".to_string(), bars };
+        let series = BarSeries {
+            schema_version: "v0".to_string(),
+            bars,
+        };
 
         let config = OptimizationConfig {
             population_size: 5,
@@ -275,10 +320,28 @@ mod tests {
 
         let mut params = HashMap::new();
         params.insert("period".to_string(), ParamType::Int { min: 2, max: 20 });
-        params.insert("oversold_threshold".to_string(), ParamType::Float { min: 10.0, max: 40.0 });
-        params.insert("overbought_threshold".to_string(), ParamType::Float { min: 60.0, max: 90.0 });
+        params.insert(
+            "oversold_threshold".to_string(),
+            ParamType::Float {
+                min: 10.0,
+                max: 40.0,
+            },
+        );
+        params.insert(
+            "overbought_threshold".to_string(),
+            ParamType::Float {
+                min: 60.0,
+                max: 90.0,
+            },
+        );
         // RsiMeanReversion also needs stop_loss_pct, let's include it to avoid failure
-        params.insert("stop_loss_pct".to_string(), ParamType::Float { min: 0.01, max: 0.1 });
+        params.insert(
+            "stop_loss_pct".to_string(),
+            ParamType::Float {
+                min: 0.01,
+                max: 0.1,
+            },
+        );
 
         let request = OptimizationRequest {
             strategy: "RsiMeanReversion".to_string(),

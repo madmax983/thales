@@ -1,5 +1,5 @@
-use crate::strategy::{Signal, SignalType, Strategy, StrategyConfig};
 use crate::indicators::macd;
+use crate::strategy::{Signal, SignalType, Strategy, StrategyConfig};
 use anyhow::Result;
 use async_trait::async_trait;
 use polars::prelude::*;
@@ -54,7 +54,8 @@ impl Strategy for Macd {
         let signal_arr = signal_series.f64()?;
 
         let mut signals = Vec::new();
-        let stop_loss_pct_dec = Decimal::from_f64_retain(self.config.stop_loss_pct).unwrap_or(Decimal::ZERO);
+        let stop_loss_pct_dec =
+            Decimal::from_f64_retain(self.config.stop_loss_pct).unwrap_or(Decimal::ZERO);
         let one_dec = Decimal::ONE;
 
         // Iterate through data
@@ -64,10 +65,16 @@ impl Strategy for Macd {
 
             let m_curr_opt = macd_arr.get(i).and_then(|v| Decimal::from_f64_retain(v));
             let s_curr_opt = signal_arr.get(i).and_then(|v| Decimal::from_f64_retain(v));
-            let m_prev_opt = macd_arr.get(i - 1).and_then(|v| Decimal::from_f64_retain(v));
-            let s_prev_opt = signal_arr.get(i - 1).and_then(|v| Decimal::from_f64_retain(v));
+            let m_prev_opt = macd_arr
+                .get(i - 1)
+                .and_then(|v| Decimal::from_f64_retain(v));
+            let s_prev_opt = signal_arr
+                .get(i - 1)
+                .and_then(|v| Decimal::from_f64_retain(v));
 
-            if let (Some(mc), Some(sc), Some(mp), Some(sp), Some(price)) = (m_curr_opt, s_curr_opt, m_prev_opt, s_prev_opt, price_opt) {
+            if let (Some(mc), Some(sc), Some(mp), Some(sp), Some(price)) =
+                (m_curr_opt, s_curr_opt, m_prev_opt, s_prev_opt, price_opt)
+            {
                 // Bearish Crossover (Exit) - Stateless
                 // MACD crosses BELOW Signal
                 if mc < sc && mp >= sp {
@@ -79,7 +86,11 @@ impl Strategy for Macd {
                         confidence: 0.8,
                         stop_loss: None,
                         take_profit: None,
-                        reason: format!("Bearish Crossover: MACD {} < Signal {}", mc.round_dp(2), sc.round_dp(2)),
+                        reason: format!(
+                            "Bearish Crossover: MACD {} < Signal {}",
+                            mc.round_dp(2),
+                            sc.round_dp(2)
+                        ),
                         timestamp_ms: timestamp,
                     });
                 }
@@ -97,7 +108,11 @@ impl Strategy for Macd {
                         confidence: 0.8,
                         stop_loss: Some(sl.to_f64().unwrap_or(0.0)),
                         take_profit: None, // Let trend run
-                        reason: format!("Bullish Crossover: MACD {} > Signal {}", mc.round_dp(2), sc.round_dp(2)),
+                        reason: format!(
+                            "Bullish Crossover: MACD {} > Signal {}",
+                            mc.round_dp(2),
+                            sc.round_dp(2)
+                        ),
                         timestamp_ms: timestamp,
                     });
                 }
@@ -147,8 +162,14 @@ mod tests {
         let signals = strategy.generate_signals(&df).await?;
 
         // Should have independent Entry and Exit signals
-        let entries: Vec<_> = signals.iter().filter(|s| s.signal_type == SignalType::Entry).collect();
-        let exits: Vec<_> = signals.iter().filter(|s| s.signal_type == SignalType::Exit).collect();
+        let entries: Vec<_> = signals
+            .iter()
+            .filter(|s| s.signal_type == SignalType::Entry)
+            .collect();
+        let exits: Vec<_> = signals
+            .iter()
+            .filter(|s| s.signal_type == SignalType::Exit)
+            .collect();
 
         assert!(!entries.is_empty());
         assert!(!exits.is_empty());
@@ -158,10 +179,10 @@ mod tests {
 
     #[tokio::test]
     async fn test_stateless_crossover_exit_only() -> Result<()> {
-         // Create data that STARTS with MACD > Signal, then crosses down immediately.
-         // No Entry signal should be generated, only Exit.
+        // Create data that STARTS with MACD > Signal, then crosses down immediately.
+        // No Entry signal should be generated, only Exit.
 
-         let config = MacdConfig {
+        let config = MacdConfig {
             fast_period: 2,
             slow_period: 5,
             signal_period: 2,
@@ -194,9 +215,15 @@ mod tests {
 
         let signals = strategy.generate_signals(&df).await?;
 
-        let exits: Vec<_> = signals.iter().filter(|s| s.signal_type == SignalType::Exit).collect();
+        let exits: Vec<_> = signals
+            .iter()
+            .filter(|s| s.signal_type == SignalType::Exit)
+            .collect();
 
-        assert!(!exits.is_empty(), "Should generate exit signal on bearish crossover");
+        assert!(
+            !exits.is_empty(),
+            "Should generate exit signal on bearish crossover"
+        );
 
         Ok(())
     }

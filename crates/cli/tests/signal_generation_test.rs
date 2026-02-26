@@ -1,8 +1,8 @@
-use contracts::{Bar, BarSeries, TradeIntent, MarketAnalysis};
+use contracts::{Bar, BarSeries, MarketAnalysis, TradeIntent};
 use std::fs;
 use tempfile::tempdir;
-use thales_cli::signals;
 use thales_cli::rag::HistoryEntry;
+use thales_cli::signals;
 
 fn create_bar(symbol: &str, timestamp: i64, close: f64) -> Bar {
     Bar {
@@ -18,7 +18,12 @@ fn create_bar(symbol: &str, timestamp: i64, close: f64) -> Bar {
     }
 }
 
-fn create_history_entry(symbol: &str, timestamp: i64, regime: &str, volatility: &str) -> HistoryEntry {
+fn create_history_entry(
+    symbol: &str,
+    timestamp: i64,
+    regime: &str,
+    volatility: &str,
+) -> HistoryEntry {
     HistoryEntry {
         intent: TradeIntent {
             symbol: symbol.to_string(),
@@ -58,7 +63,11 @@ async fn test_signal_generation_limit() {
         create_history_entry(symbol, now - 3000, "Unknown", "Unknown"),
     ];
 
-    fs::write(&history_path, serde_json::to_string(&history_entries).unwrap()).unwrap();
+    fs::write(
+        &history_path,
+        serde_json::to_string(&history_entries).unwrap(),
+    )
+    .unwrap();
 
     // 2. Create BarSeries that triggers a signal
     let mut bars = Vec::new();
@@ -76,7 +85,16 @@ async fn test_signal_generation_limit() {
 
     // 3. Generate Signals
     let positions = vec![];
-    let intents = signals::generate_signals(&series, "BollingerBands", Some(&history_path), 100.0, &positions, None).await.unwrap();
+    let intents = signals::generate_signals(
+        &series,
+        "BollingerBands",
+        Some(&history_path),
+        100.0,
+        &positions,
+        None,
+    )
+    .await
+    .unwrap();
 
     // 4. Assert Limit Reached (should be empty because signals_today=3)
     // Actually rag::count_todays_signals might depend on timestamp matching exactly "today"
@@ -85,7 +103,10 @@ async fn test_signal_generation_limit() {
 
     // Note: The original test expected success or failure depending on the limit logic.
     // If the limit is 3, and we have 3, we expect 0 new signals.
-    assert!(intents.is_empty(), "Should not generate signal if 3 already exist for today");
+    assert!(
+        intents.is_empty(),
+        "Should not generate signal if 3 already exist for today"
+    );
 }
 
 #[tokio::test]
@@ -113,7 +134,16 @@ async fn test_signal_generation_success() {
 
     // 3. Generate Signals
     let positions = vec![];
-    let intents = signals::generate_signals(&series, "BollingerBands", Some(&history_path), 100.0, &positions, None).await.unwrap();
+    let intents = signals::generate_signals(
+        &series,
+        "BollingerBands",
+        Some(&history_path),
+        100.0,
+        &positions,
+        None,
+    )
+    .await
+    .unwrap();
 
     // 4. Assert Signal Generated
     assert!(!intents.is_empty());
@@ -152,14 +182,30 @@ async fn test_rag_context() {
     let analysis = analysis::analyze(&series);
 
     // Similar trade matching actual analysis
-    let history_entries = vec![
-        create_history_entry(symbol, now - 86400000 * 10, &analysis.regime, &analysis.volatility),
-    ];
-    fs::write(&history_path, serde_json::to_string(&history_entries).unwrap()).unwrap();
+    let history_entries = vec![create_history_entry(
+        symbol,
+        now - 86400000 * 10,
+        &analysis.regime,
+        &analysis.volatility,
+    )];
+    fs::write(
+        &history_path,
+        serde_json::to_string(&history_entries).unwrap(),
+    )
+    .unwrap();
 
     // 3. Generate Signals
     let positions = vec![];
-    let intents = signals::generate_signals(&series, "BollingerBands", Some(&history_path), 100.0, &positions, None).await.unwrap();
+    let intents = signals::generate_signals(
+        &series,
+        "BollingerBands",
+        Some(&history_path),
+        100.0,
+        &positions,
+        None,
+    )
+    .await
+    .unwrap();
 
     // 4. Assert Context
     assert!(!intents.is_empty());

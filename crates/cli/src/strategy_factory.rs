@@ -1,6 +1,7 @@
 use anyhow::Result;
 use strategies::adx_momentum::{AdxMomentum, AdxMomentumConfig};
 use strategies::bollinger_bands::{BollingerBandsConfig, BollingerBandsMeanReversion};
+use strategies::cci_momentum::{CciMomentum, CciMomentumConfig};
 use strategies::donchian_breakout::{DonchianBreakout, DonchianBreakoutConfig};
 use strategies::ema_crossover::{EmaCrossover, EmaCrossoverConfig};
 use strategies::ichimoku_cloud::{IchimokuCloud, IchimokuCloudConfig};
@@ -123,6 +124,17 @@ pub fn create_strategy(name: &str, symbol: &str) -> Result<Box<dyn Strategy>> {
             };
             Ok(Box::new(IchimokuCloud::new(config)))
         }
+        "CciMomentum" => {
+            let config = CciMomentumConfig {
+                period: 20,
+                buy_threshold: 100.0,
+                sell_threshold: 0.0,
+                stop_loss_atr_mult: 2.0,
+                atr_period: 14,
+                symbol: symbol.to_string(),
+            };
+            Ok(Box::new(CciMomentum::new(config)))
+        }
         _ => Err(anyhow::anyhow!("Unknown strategy: {}", name)),
     }
 }
@@ -140,5 +152,6 @@ pub fn list_strategies() -> Vec<&'static str> {
         "StochasticOscillator",
         "AdxMomentum",
         "IchimokuCloud",
+        "CciMomentum",
     ]
 }

@@ -64,13 +64,20 @@ impl AlpacaClient {
         let qty = if intent.size_hint == "max" {
             // Fetch positions to find size
             let positions = self.fetch_positions()?;
-            let pos = positions.into_iter().find(|p| p.symbol == intent.symbol)
-                .ok_or_else(|| AlpacaProviderError::InvalidSizeHint(format!("No open position found for max exit for {}", intent.symbol)))?;
+            let pos = positions
+                .into_iter()
+                .find(|p| p.symbol == intent.symbol)
+                .ok_or_else(|| {
+                    AlpacaProviderError::InvalidSizeHint(format!(
+                        "No open position found for max exit for {}",
+                        intent.symbol
+                    ))
+                })?;
             // We need to return abs value of qty because Alpaca positions can be negative (short)
             // But qty in order must be positive.
             pos.qty.abs().to_string()
         } else {
-             intent.size_hint.clone()
+            intent.size_hint.clone()
         };
 
         let request = AlpacaOrderRequest {
@@ -82,7 +89,9 @@ impl AlpacaClient {
             client_order_id: intent.intent_id.clone(),
             limit_price: intent.limit_price,
             stop_price: intent.stop_price,
-            take_profit: intent.take_profit.map(|p| TakeProfitSpec { limit_price: p }),
+            take_profit: intent
+                .take_profit
+                .map(|p| TakeProfitSpec { limit_price: p }),
             stop_loss: intent.stop_loss.map(|p| StopLossSpec {
                 stop_price: p,
                 limit_price: None,
@@ -129,7 +138,10 @@ impl AlpacaClient {
     }
 
     pub fn fetch_open_orders(&self) -> Result<Vec<contracts::Order>, AlpacaProviderError> {
-        let url = format!("{}/v2/orders?status=open", self.config.base_url.trim_end_matches('/'));
+        let url = format!(
+            "{}/v2/orders?status=open",
+            self.config.base_url.trim_end_matches('/')
+        );
 
         let response = self
             .http
@@ -153,7 +165,11 @@ impl AlpacaClient {
             let dt = DateTime::parse_from_rfc3339(&o.submitted_at)
                 .map_err(|e| AlpacaProviderError::DateParse(e.to_string()))?;
 
-            let qty = o.qty.unwrap_or_else(|| "0".to_string()).parse::<f64>().unwrap_or(0.0);
+            let qty = o
+                .qty
+                .unwrap_or_else(|| "0".to_string())
+                .parse::<f64>()
+                .unwrap_or(0.0);
             let filled_qty = o.filled_qty.parse::<f64>().unwrap_or(0.0);
 
             contract_orders.push(contracts::Order {
@@ -172,7 +188,11 @@ impl AlpacaClient {
     }
 
     pub fn cancel_order(&self, order_id: &str) -> Result<(), AlpacaProviderError> {
-        let url = format!("{}/v2/orders/{}", self.config.base_url.trim_end_matches('/'), order_id);
+        let url = format!(
+            "{}/v2/orders/{}",
+            self.config.base_url.trim_end_matches('/'),
+            order_id
+        );
 
         let response = self
             .http
@@ -260,7 +280,10 @@ impl AlpacaClient {
     }
 
     pub fn fetch_positions(&self) -> Result<Vec<AlpacaPosition>, AlpacaProviderError> {
-        let url = format!("{}/v2/positions", self.config.base_url.trim_end_matches('/'));
+        let url = format!(
+            "{}/v2/positions",
+            self.config.base_url.trim_end_matches('/')
+        );
 
         let response = self
             .http

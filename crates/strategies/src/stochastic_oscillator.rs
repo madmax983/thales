@@ -1,5 +1,5 @@
-use crate::strategy::{Signal, SignalType, Strategy, StrategyConfig};
 use crate::indicators::{atr, stochastic};
+use crate::strategy::{Signal, SignalType, Strategy, StrategyConfig};
 use anyhow::Result;
 use async_trait::async_trait;
 use polars::prelude::*;
@@ -48,7 +48,7 @@ impl Strategy for StochasticOscillator {
             data,
             self.config.k_period,
             self.config.k_smoothing,
-            self.config.d_period
+            self.config.d_period,
         )?;
         let k_arr = k_series.f64()?;
         let d_arr = d_series.f64()?;
@@ -71,8 +71,9 @@ impl Strategy for StochasticOscillator {
             let price_opt = close_arr.get(i);
             let atr_opt = atr_arr.get(i);
 
-            if let (Some(k), Some(d), Some(pk), Some(pd), Some(price)) = (k_curr, d_curr, k_prev, d_prev, price_opt) {
-
+            if let (Some(k), Some(d), Some(pk), Some(pd), Some(price)) =
+                (k_curr, d_curr, k_prev, d_prev, price_opt)
+            {
                 // Entry Condition: Bullish Crossover in Oversold Zone
                 // Cross: Previous K < Previous D AND Current K > Current D
                 // Zone: Current K < Oversold Threshold
@@ -100,7 +101,10 @@ impl Strategy for StochasticOscillator {
                         confidence: 0.8,
                         stop_loss: Some(stop_loss),
                         take_profit: Some(take_profit),
-                        reason: format!("Stochastic Buy: K({:.2}) crossed above D({:.2}) in oversold zone", k, d),
+                        reason: format!(
+                            "Stochastic Buy: K({:.2}) crossed above D({:.2}) in oversold zone",
+                            k, d
+                        ),
                         timestamp_ms: timestamp,
                     });
                 }
@@ -112,7 +116,7 @@ impl Strategy for StochasticOscillator {
                 let overbought = k > self.config.overbought_threshold;
 
                 if bearish_cross && overbought {
-                     signals.push(Signal {
+                    signals.push(Signal {
                         signal_type: SignalType::Exit,
                         symbol: self.config.symbol.clone(),
                         side: "sell".to_string(), // Exit Long
@@ -120,7 +124,10 @@ impl Strategy for StochasticOscillator {
                         confidence: 0.8,
                         stop_loss: None,
                         take_profit: None,
-                        reason: format!("Stochastic Sell: K({:.2}) crossed below D({:.2}) in overbought zone", k, d),
+                        reason: format!(
+                            "Stochastic Sell: K({:.2}) crossed below D({:.2}) in overbought zone",
+                            k, d
+                        ),
                         timestamp_ms: timestamp,
                     });
                 }
@@ -211,7 +218,10 @@ mod tests {
         let signals = strategy.generate_signals(&df).await?;
 
         // Expect Entry at i=4 (ts=5000)
-        let entries: Vec<_> = signals.iter().filter(|s| s.signal_type == SignalType::Entry).collect();
+        let entries: Vec<_> = signals
+            .iter()
+            .filter(|s| s.signal_type == SignalType::Entry)
+            .collect();
         assert_eq!(entries.len(), 1);
         assert_eq!(entries[0].timestamp_ms, 5000);
         assert!(entries[0].reason.contains("Stochastic Buy"));

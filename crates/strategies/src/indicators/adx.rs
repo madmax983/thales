@@ -35,7 +35,8 @@ pub fn calculate(data: &DataFrame, period: usize) -> Result<(Series, Series, Ser
     let mut plus_di_values: Vec<Option<f64>> = vec![None; len];
     let mut minus_di_values: Vec<Option<f64>> = vec![None; len];
 
-    if len < period * 2 { // Need enough data for ADX smoothing (approx 2*period)
+    if len < period * 2 {
+        // Need enough data for ADX smoothing (approx 2*period)
         return Ok((
             Series::new("adx", adx_values),
             Series::new("plus_di", plus_di_values),
@@ -65,11 +66,16 @@ pub fn calculate(data: &DataFrame, period: usize) -> Result<(Series, Series, Ser
     minus_dm_vec.push(Decimal::ZERO);
 
     for i in 1..len {
-        let h_curr = Decimal::from_f64_retain(high.get(i).unwrap_or(f64::NAN)).unwrap_or(Decimal::ZERO);
-        let l_curr = Decimal::from_f64_retain(low.get(i).unwrap_or(f64::NAN)).unwrap_or(Decimal::ZERO);
-        let h_prev = Decimal::from_f64_retain(high.get(i-1).unwrap_or(f64::NAN)).unwrap_or(Decimal::ZERO);
-        let l_prev = Decimal::from_f64_retain(low.get(i-1).unwrap_or(f64::NAN)).unwrap_or(Decimal::ZERO);
-        let c_prev = Decimal::from_f64_retain(close.get(i-1).unwrap_or(f64::NAN)).unwrap_or(Decimal::ZERO);
+        let h_curr =
+            Decimal::from_f64_retain(high.get(i).unwrap_or(f64::NAN)).unwrap_or(Decimal::ZERO);
+        let l_curr =
+            Decimal::from_f64_retain(low.get(i).unwrap_or(f64::NAN)).unwrap_or(Decimal::ZERO);
+        let h_prev =
+            Decimal::from_f64_retain(high.get(i - 1).unwrap_or(f64::NAN)).unwrap_or(Decimal::ZERO);
+        let l_prev =
+            Decimal::from_f64_retain(low.get(i - 1).unwrap_or(f64::NAN)).unwrap_or(Decimal::ZERO);
+        let c_prev =
+            Decimal::from_f64_retain(close.get(i - 1).unwrap_or(f64::NAN)).unwrap_or(Decimal::ZERO);
 
         // TR
         let hl = h_curr - l_curr;
@@ -133,11 +139,15 @@ pub fn calculate(data: &DataFrame, period: usize) -> Result<(Series, Series, Ser
     // DX = 100 * |+DI - -DI| / (+DI + -DI)
     // DI = 100 * SmoothedDM / SmoothedTR
     let calc_dx = |p_dm: Decimal, m_dm: Decimal, tr: Decimal| -> Option<Decimal> {
-        if tr == Decimal::ZERO { return None; }
+        if tr == Decimal::ZERO {
+            return None;
+        }
         let p_di = (p_dm / tr) * Decimal::from(100);
         let m_di = (m_dm / tr) * Decimal::from(100);
         let sum = p_di + m_di;
-        if sum == Decimal::ZERO { return Some(Decimal::ZERO); }
+        if sum == Decimal::ZERO {
+            return Some(Decimal::ZERO);
+        }
         Some(((p_di - m_di).abs() / sum) * Decimal::from(100))
     };
 
@@ -146,8 +156,16 @@ pub fn calculate(data: &DataFrame, period: usize) -> Result<(Series, Series, Ser
 
         // Output DIs for this index
         if smoothed_tr != Decimal::ZERO {
-            plus_di_values[period - 1] = Some(((smoothed_plus_dm / smoothed_tr) * Decimal::from(100)).to_f64().unwrap_or(0.0));
-            minus_di_values[period - 1] = Some(((smoothed_minus_dm / smoothed_tr) * Decimal::from(100)).to_f64().unwrap_or(0.0));
+            plus_di_values[period - 1] = Some(
+                ((smoothed_plus_dm / smoothed_tr) * Decimal::from(100))
+                    .to_f64()
+                    .unwrap_or(0.0),
+            );
+            minus_di_values[period - 1] = Some(
+                ((smoothed_minus_dm / smoothed_tr) * Decimal::from(100))
+                    .to_f64()
+                    .unwrap_or(0.0),
+            );
         }
     }
 
@@ -167,9 +185,17 @@ pub fn calculate(data: &DataFrame, period: usize) -> Result<(Series, Series, Ser
             dx_vec[i] = Some(dx);
 
             // Output DIs
-             if smoothed_tr != Decimal::ZERO {
-                plus_di_values[i] = Some(((smoothed_plus_dm / smoothed_tr) * Decimal::from(100)).to_f64().unwrap_or(0.0));
-                minus_di_values[i] = Some(((smoothed_minus_dm / smoothed_tr) * Decimal::from(100)).to_f64().unwrap_or(0.0));
+            if smoothed_tr != Decimal::ZERO {
+                plus_di_values[i] = Some(
+                    ((smoothed_plus_dm / smoothed_tr) * Decimal::from(100))
+                        .to_f64()
+                        .unwrap_or(0.0),
+                );
+                minus_di_values[i] = Some(
+                    ((smoothed_minus_dm / smoothed_tr) * Decimal::from(100))
+                        .to_f64()
+                        .unwrap_or(0.0),
+                );
             }
         }
     }
@@ -187,7 +213,7 @@ pub fn calculate(data: &DataFrame, period: usize) -> Result<(Series, Series, Ser
     let adx_start_idx = dx_start_idx + period - 1;
 
     if len <= adx_start_idx {
-         return Ok((
+        return Ok((
             Series::new("adx", adx_values),
             Series::new("plus_di", plus_di_values),
             Series::new("minus_di", minus_di_values),
@@ -211,10 +237,10 @@ pub fn calculate(data: &DataFrame, period: usize) -> Result<(Series, Series, Ser
         // Subsequent ADXs
         for i in (adx_start_idx + 1)..len {
             if let Some(dx) = dx_vec[i] {
-                 // Wilder's Smoothing for ADX
-                 // ADX[i] = (ADX[i-1] * (n-1) + DX[i]) / n
-                 smoothed_adx = (smoothed_adx * period_minus_one + dx) / period_dec;
-                 adx_values[i] = Some(smoothed_adx.to_f64().unwrap_or(0.0));
+                // Wilder's Smoothing for ADX
+                // ADX[i] = (ADX[i-1] * (n-1) + DX[i]) / n
+                smoothed_adx = (smoothed_adx * period_minus_one + dx) / period_dec;
+                adx_values[i] = Some(smoothed_adx.to_f64().unwrap_or(0.0));
             }
         }
     }

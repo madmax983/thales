@@ -179,8 +179,12 @@ fn execute_intent_submits_bracket_order() {
     let mut server = mockito::Server::new();
     let mock = server
         .mock("POST", "/v2/orders")
-        .match_body(Matcher::Regex("\"take_profit\":\\{\"limit_price\":160.0\\}".to_string()))
-        .match_body(Matcher::Regex("\"stop_loss\":\\{\"stop_price\":140.0\\}".to_string()))
+        .match_body(Matcher::Regex(
+            "\"take_profit\":\\{\"limit_price\":160.0\\}".to_string(),
+        ))
+        .match_body(Matcher::Regex(
+            "\"stop_loss\":\\{\"stop_price\":140.0\\}".to_string(),
+        ))
         .with_status(200)
         .with_body(
             json!({

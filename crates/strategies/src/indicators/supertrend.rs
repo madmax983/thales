@@ -21,11 +21,11 @@
 //!         Else If Previous Trend was Down and Close > Final Upper Band Then Up
 //!         Else Previous Trend
 
+use crate::indicators::atr;
 use anyhow::{Context, Result};
 use polars::prelude::*;
 use rust_decimal::prelude::*;
 use rust_decimal::Decimal;
-use crate::indicators::atr;
 
 /// Calculate Supertrend
 ///
@@ -48,7 +48,8 @@ pub fn calculate(data: &DataFrame, period: usize, multiplier: f64) -> Result<(Se
     }
 
     // 1. Calculate ATR
-    let atr_series = atr::calculate(data, period).context("Failed to calculate ATR for Supertrend")?;
+    let atr_series =
+        atr::calculate(data, period).context("Failed to calculate ATR for Supertrend")?;
     let atr_values: Vec<Option<f64>> = atr_series.f64()?.into_iter().collect();
 
     // 2. Get OHLC columns
@@ -82,7 +83,11 @@ pub fn calculate(data: &DataFrame, period: usize, multiplier: f64) -> Result<(Se
         // Initial trend based on close vs lower band
         let mut prev_trend = if c < basic_lower { -1 } else { 1 };
 
-        let st = if prev_trend == 1 { prev_final_lower } else { prev_final_upper };
+        let st = if prev_trend == 1 {
+            prev_final_lower
+        } else {
+            prev_final_upper
+        };
         supertrend_values[start_idx] = st.to_f64();
         trend_values[start_idx] = Some(prev_trend);
 
@@ -91,7 +96,8 @@ pub fn calculate(data: &DataFrame, period: usize, multiplier: f64) -> Result<(Se
             let l = Decimal::from_f64(low.get(i).unwrap_or(0.0)).unwrap_or(Decimal::ZERO);
             let c = Decimal::from_f64(close.get(i).unwrap_or(0.0)).unwrap_or(Decimal::ZERO);
             // Previous close is needed for the logic: "Previous Close > Previous Final Upper Band"
-            let prev_c = Decimal::from_f64(close.get(i-1).unwrap_or(0.0)).unwrap_or(Decimal::ZERO);
+            let prev_c =
+                Decimal::from_f64(close.get(i - 1).unwrap_or(0.0)).unwrap_or(Decimal::ZERO);
 
             let atr_val = match atr_values[i] {
                 Some(v) => Decimal::from_f64(v).unwrap_or(Decimal::ZERO),
@@ -152,18 +158,9 @@ mod tests {
     fn test_supertrend_known_values() -> Result<()> {
         // Data from a known Supertrend calculation
         // High, Low, Close
-        let highs = vec![
-            10.0, 10.5, 11.0, 10.8, 10.2,
-            9.8, 9.5, 9.2, 9.6, 10.0
-        ];
-        let lows = vec![
-            9.0, 9.5, 10.0, 9.8, 9.2,
-            8.8, 8.5, 8.2, 8.6, 9.0
-        ];
-        let closes = vec![
-            9.5, 10.0, 10.5, 10.0, 9.5,
-            9.0, 8.8, 8.5, 9.0, 9.5
-        ];
+        let highs = vec![10.0, 10.5, 11.0, 10.8, 10.2, 9.8, 9.5, 9.2, 9.6, 10.0];
+        let lows = vec![9.0, 9.5, 10.0, 9.8, 9.2, 8.8, 8.5, 8.2, 8.6, 9.0];
+        let closes = vec![9.5, 10.0, 10.5, 10.0, 9.5, 9.0, 8.8, 8.5, 9.0, 9.5];
 
         let df = df!(
             "high" => highs,
@@ -196,7 +193,7 @@ mod tests {
 
     #[test]
     fn test_edge_case_single_point() -> Result<()> {
-         let df = df!(
+        let df = df!(
             "high" => vec![10.0],
             "low" => vec![9.0],
             "close" => vec![9.5],

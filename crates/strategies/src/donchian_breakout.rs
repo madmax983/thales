@@ -1,5 +1,5 @@
-use crate::strategy::{Signal, SignalType, Strategy, StrategyConfig};
 use crate::indicators::{atr, donchian_channels};
+use crate::strategy::{Signal, SignalType, Strategy, StrategyConfig};
 use anyhow::Result;
 use async_trait::async_trait;
 use polars::prelude::*;
@@ -52,15 +52,18 @@ impl Strategy for DonchianBreakout {
         let (lower_series, _, _) = donchian_channels::calculate(data, self.config.exit_period)?;
 
         // Convert to Vec<Option<f64>> for easy access
-        let upper_channel_vec: Vec<Option<f64>> = upper_series.f64()?.into_iter().map(|v| v).collect();
-        let lower_channel_vec: Vec<Option<f64>> = lower_series.f64()?.into_iter().map(|v| v).collect();
+        let upper_channel_vec: Vec<Option<f64>> =
+            upper_series.f64()?.into_iter().map(|v| v).collect();
+        let lower_channel_vec: Vec<Option<f64>> =
+            lower_series.f64()?.into_iter().map(|v| v).collect();
 
         // Calculate ATR for Stop Loss
         let atr_series = atr::calculate(data, 14)?;
         let atr_arr = atr_series.f64()?;
 
         let mut signals = Vec::new();
-        let stop_loss_mult = Decimal::from_f64_retain(self.config.stop_loss_atr_mult).unwrap_or(Decimal::ZERO);
+        let stop_loss_mult =
+            Decimal::from_f64_retain(self.config.stop_loss_atr_mult).unwrap_or(Decimal::ZERO);
         let len = data.height();
 
         // Iterate through data
@@ -69,8 +72,16 @@ impl Strategy for DonchianBreakout {
             let price_opt = close_series.get(i);
 
             // Shifted check: We need channel value from i-1
-            let upper_val_prev = if i > 0 { upper_channel_vec.get(i-1).copied().flatten() } else { None };
-            let lower_val_prev = if i > 0 { lower_channel_vec.get(i-1).copied().flatten() } else { None };
+            let upper_val_prev = if i > 0 {
+                upper_channel_vec.get(i - 1).copied().flatten()
+            } else {
+                None
+            };
+            let lower_val_prev = if i > 0 {
+                lower_channel_vec.get(i - 1).copied().flatten()
+            } else {
+                None
+            };
             let atr_opt = atr_arr.get(i);
 
             if let Some(price) = price_opt {
@@ -79,13 +90,18 @@ impl Strategy for DonchianBreakout {
                 // Entry Condition: Close > Upper Channel (from previous bar)
                 if let Some(upper) = upper_val_prev {
                     if price > upper {
-                         let sl = if let Some(atr_val) = atr_opt {
-                            let atr_dec = Decimal::from_f64_retain(atr_val).unwrap_or(Decimal::ZERO);
-                            Some((price_dec - (atr_dec * stop_loss_mult)).to_f64().unwrap_or(0.0))
+                        let sl = if let Some(atr_val) = atr_opt {
+                            let atr_dec =
+                                Decimal::from_f64_retain(atr_val).unwrap_or(Decimal::ZERO);
+                            Some(
+                                (price_dec - (atr_dec * stop_loss_mult))
+                                    .to_f64()
+                                    .unwrap_or(0.0),
+                            )
                         } else {
                             // Fallback stop loss if ATR is not available
                             // Use Lower Channel as strict stop if available
-                             lower_val_prev.or(Some(upper * 0.95)) // 5% fallback if no lower channel
+                            lower_val_prev.or(Some(upper * 0.95)) // 5% fallback if no lower channel
                         };
 
                         signals.push(Signal {
@@ -96,7 +112,10 @@ impl Strategy for DonchianBreakout {
                             confidence: 0.8,
                             stop_loss: sl,
                             take_profit: None,
-                            reason: format!("Breakout: Close {:.2} > Upper Channel {:.2}", price, upper),
+                            reason: format!(
+                                "Breakout: Close {:.2} > Upper Channel {:.2}",
+                                price, upper
+                            ),
                             timestamp_ms: timestamp,
                         });
                     }
@@ -113,7 +132,10 @@ impl Strategy for DonchianBreakout {
                             confidence: 0.8,
                             stop_loss: None,
                             take_profit: None,
-                            reason: format!("Breakdown: Close {:.2} < Lower Channel {:.2}", price, lower),
+                            reason: format!(
+                                "Breakdown: Close {:.2} < Lower Channel {:.2}",
+                                price, lower
+                            ),
                             timestamp_ms: timestamp,
                         });
                     }
@@ -163,7 +185,10 @@ mod tests {
 
         let signals = strategy.generate_signals(&df).await?;
 
-        let entries: Vec<_> = signals.iter().filter(|s| s.signal_type == SignalType::Entry).collect();
+        let entries: Vec<_> = signals
+            .iter()
+            .filter(|s| s.signal_type == SignalType::Entry)
+            .collect();
         assert_eq!(entries.len(), 1);
         let entry = entries[0];
         assert_eq!(entry.timestamp_ms, 4000);
@@ -198,7 +223,10 @@ mod tests {
 
         let signals = strategy.generate_signals(&df).await?;
 
-        let exits: Vec<_> = signals.iter().filter(|s| s.signal_type == SignalType::Exit).collect();
+        let exits: Vec<_> = signals
+            .iter()
+            .filter(|s| s.signal_type == SignalType::Exit)
+            .collect();
         assert_eq!(exits.len(), 1);
         let exit = exits[0];
         assert_eq!(exit.timestamp_ms, 3000);
@@ -257,10 +285,16 @@ mod tests {
 
         let signals = strategy.generate_signals(&df).await?;
 
-        let exits: Vec<_> = signals.iter().filter(|s| s.signal_type == SignalType::Exit).collect();
+        let exits: Vec<_> = signals
+            .iter()
+            .filter(|s| s.signal_type == SignalType::Exit)
+            .collect();
         assert_eq!(exits.len(), 1);
 
-        let entries: Vec<_> = signals.iter().filter(|s| s.signal_type == SignalType::Entry).collect();
+        let entries: Vec<_> = signals
+            .iter()
+            .filter(|s| s.signal_type == SignalType::Entry)
+            .collect();
         assert_eq!(entries.len(), 0);
 
         Ok(())

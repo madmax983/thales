@@ -14,10 +14,7 @@ use std::collections::VecDeque;
 ///
 /// # Returns
 /// Tuple of (Lower Band, Middle Band, Upper Band) Series.
-pub fn calculate(
-    data: &DataFrame,
-    period: usize,
-) -> Result<(Series, Series, Series)> {
+pub fn calculate(data: &DataFrame, period: usize) -> Result<(Series, Series, Series)> {
     // Validate inputs
     if data.height() == 0 {
         anyhow::bail!("Data cannot be empty");
@@ -61,7 +58,9 @@ pub fn calculate(
     for i in 0..high.len() {
         match (upper_vals[i], lower_vals[i]) {
             (Some(u), Some(l)) => {
-                 if let (Some(u_dec), Some(l_dec)) = (Decimal::from_f64_retain(u), Decimal::from_f64_retain(l)) {
+                if let (Some(u_dec), Some(l_dec)) =
+                    (Decimal::from_f64_retain(u), Decimal::from_f64_retain(l))
+                {
                     let m = (u_dec + l_dec) / two;
                     middle_vals.push(m.to_f64());
                 } else {
@@ -82,7 +81,9 @@ pub fn calculate(
 // Helper functions for rolling calculations using Monotonic Queue (O(N))
 // Adapted to handle Option<f64>
 fn rolling_max_opt(values: &[Option<f64>], window_size: usize) -> Vec<Option<f64>> {
-    if window_size == 0 { return vec![None; values.len()]; }
+    if window_size == 0 {
+        return vec![None; values.len()];
+    }
     let mut result = Vec::with_capacity(values.len());
     let mut deque: VecDeque<usize> = VecDeque::new();
 
@@ -120,7 +121,7 @@ fn rolling_max_opt(values: &[Option<f64>], window_size: usize) -> Vec<Option<f64
         if i >= window_size - 1 {
             // Check if we have a valid max in the window
             if let Some(&front) = deque.front() {
-                 result.push(values[front]);
+                result.push(values[front]);
             } else {
                 // All None in window
                 result.push(None);
@@ -133,7 +134,9 @@ fn rolling_max_opt(values: &[Option<f64>], window_size: usize) -> Vec<Option<f64
 }
 
 fn rolling_min_opt(values: &[Option<f64>], window_size: usize) -> Vec<Option<f64>> {
-    if window_size == 0 { return vec![None; values.len()]; }
+    if window_size == 0 {
+        return vec![None; values.len()];
+    }
     let mut result = Vec::with_capacity(values.len());
     let mut deque: VecDeque<usize> = VecDeque::new();
 
@@ -157,7 +160,7 @@ fn rolling_min_opt(values: &[Option<f64>], window_size: usize) -> Vec<Option<f64
                         break;
                     }
                 } else {
-                     deque.pop_back();
+                    deque.pop_back();
                 }
             }
             deque.push_back(i);
@@ -165,7 +168,7 @@ fn rolling_min_opt(values: &[Option<f64>], window_size: usize) -> Vec<Option<f64
 
         if i >= window_size - 1 {
             if let Some(&front) = deque.front() {
-                 result.push(values[front]);
+                result.push(values[front]);
             } else {
                 result.push(None);
             }
