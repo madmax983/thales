@@ -22,3 +22,15 @@
 ### SPY - 2026-02-26 05:11:15 (equities)
 **Research**: Equities market showing resilience. Tech sector leading.
 **News**: GDP growth exceeds expectations.
+
+### XXBTZUSD - 2026-02-26 09:00:00 (crypto)
+**Research**: Consolidating near recent highs. Institutional interest remains strong. Watching for breakout above key resistance.
+**News**: ETF approvals and inflows.
+
+### MOGUSD - 2026-02-26 09:00:00 (crypto)
+**Research**: High volatility, speculative interest.
+**News**: Meme coin hype cycle.
+
+### SPY - 2026-02-26 09:15:16 (equities)
+**Research**: Market maintaining uptrend near all-time highs.
+**News**: Monitoring economic data for potential volatility.

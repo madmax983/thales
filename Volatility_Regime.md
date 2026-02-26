@@ -28,3 +28,18 @@
 **Volatility**: Medium
 **ATR**: 6.76
 **Assessment**: Neutral / Wait
+
+### XXBTZUSD - 2026-02-26 09:00:00 (crypto)
+**Volatility**: Low
+**ATR**: 613.17
+**Assessment**: Mean Reversion
+
+### MOGUSD - 2026-02-26 09:00:00 (crypto)
+**Volatility**: Medium
+**ATR**: 0.00
+**Assessment**: Trend Following (Short)
+
+### SPY - 2026-02-26 09:15:16 (equities)
+**Volatility**: Medium
+**ATR**: 6.76
+**Assessment**: Neutral / Wait
