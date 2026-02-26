@@ -13,7 +13,7 @@ use serde::Serialize;
 use serde_json::json;
 use thiserror::Error;
 
-use thales_cli::{analysis, backtest, benchmark, history, rag, reporting, signals};
+use thales_cli::{analysis, backtest, benchmark, history, optimizer, rag, reporting, signals};
 
 #[derive(Debug, Parser)]
 #[command(name = "thales-cli", version, about = "Agent trading toolkit CLI")]
@@ -141,6 +141,12 @@ enum Commands {
     GetPositions {
         #[arg(long)]
         provider: String,
+    },
+    OptimizeStrategy {
+        #[arg(long)]
+        input: PathBuf,
+        #[arg(long)]
+        config: PathBuf,
     },
 }
 
@@ -533,6 +539,29 @@ fn run(command: Commands) -> Result<String, CliError> {
                 }
                 _ => Err(CliError::Validation(format!("Unsupported provider: {}", provider))),
             }
+        }
+        Commands::OptimizeStrategy { input, config } => {
+            let raw_bars = fs::read_to_string(&input)?;
+            let series: BarSeries = match serde_json::from_str::<ResponseEnvelope<BarSeries>>(&raw_bars) {
+                Ok(envelope) => envelope
+                    .data
+                    .ok_or(CliError::Validation("Envelope has no data".to_string()))?,
+                Err(_) => serde_json::from_str::<BarSeries>(&raw_bars)?,
+            };
+
+            let raw_config = fs::read_to_string(&config)?;
+            let request: optimizer::OptimizationRequest = serde_json::from_str(&raw_config)?;
+
+            let rt = tokio::runtime::Builder::new_current_thread()
+                .enable_all()
+                .build()
+                .map_err(|e| CliError::Provider(format!("Failed to create runtime: {}", e)))?;
+
+            let result = rt
+                .block_on(async { optimizer::optimize(&request, &series).await })
+                .map_err(|e| CliError::Validation(e.to_string()))?;
+
+            ok_envelope(result)
         }
     }
 }
