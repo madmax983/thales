@@ -171,6 +171,7 @@ impl AlpacaClient {
                 .parse::<f64>()
                 .unwrap_or(0.0);
             let filled_qty = o.filled_qty.parse::<f64>().unwrap_or(0.0);
+            let avg_fill_price = o.filled_avg_price.and_then(|p| p.parse::<f64>().ok());
 
             contract_orders.push(contracts::Order {
                 id: o.id,
@@ -181,10 +182,58 @@ impl AlpacaClient {
                 order_type: o.order_type,
                 status: o.status,
                 submitted_at_unix_ms: dt.timestamp_millis(),
+                average_fill_price: avg_fill_price,
             });
         }
 
         Ok(contract_orders)
+    }
+
+    pub fn fetch_order(&self, order_id: &str) -> Result<contracts::Order, AlpacaProviderError> {
+        let url = format!(
+            "{}/v2/orders/{}",
+            self.config.base_url.trim_end_matches('/'),
+            order_id
+        );
+
+        let response = self
+            .http
+            .get(url)
+            .header("APCA-API-KEY-ID", &self.config.api_key)
+            .header("APCA-API-SECRET-KEY", &self.config.api_secret)
+            .send()?;
+
+        if !response.status().is_success() {
+            let status = response.status().as_u16();
+            let body = response
+                .text()
+                .unwrap_or_else(|_| "unable to decode error body".to_string());
+            return Err(AlpacaProviderError::UnexpectedHttpStatus(status, body));
+        }
+
+        let o: AlpacaOrder = response.json()?;
+        let dt = DateTime::parse_from_rfc3339(&o.submitted_at)
+            .map_err(|e| AlpacaProviderError::DateParse(e.to_string()))?;
+
+        let qty = o
+            .qty
+            .unwrap_or_else(|| "0".to_string())
+            .parse::<f64>()
+            .unwrap_or(0.0);
+        let filled_qty = o.filled_qty.parse::<f64>().unwrap_or(0.0);
+        let avg_fill_price = o.filled_avg_price.and_then(|p| p.parse::<f64>().ok());
+
+        Ok(contracts::Order {
+            id: o.id,
+            symbol: o.symbol,
+            qty,
+            filled_qty,
+            side: o.side,
+            order_type: o.order_type,
+            status: o.status,
+            submitted_at_unix_ms: dt.timestamp_millis(),
+            average_fill_price: avg_fill_price,
+        })
     }
 
     pub fn cancel_order(&self, order_id: &str) -> Result<(), AlpacaProviderError> {
@@ -388,6 +437,7 @@ struct AlpacaOrder {
     symbol: String,
     qty: Option<String>,
     filled_qty: String,
+    filled_avg_price: Option<String>,
     side: String,
     #[serde(rename = "type")]
     order_type: String,

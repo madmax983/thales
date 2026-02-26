@@ -78,6 +78,12 @@ enum Commands {
         #[arg(long)]
         input: PathBuf,
     },
+    GetOrder {
+        #[arg(long)]
+        provider: String,
+        #[arg(long)]
+        id: String,
+    },
     GetOpenOrders {
         #[arg(long)]
         provider: String,
@@ -540,6 +546,38 @@ fn run(command: Commands) -> Result<String, CliError> {
                     .get_open_positions()
                     .map_err(|e| CliError::Provider(e.to_string()))?;
                 ok_envelope(positions)
+            }
+            _ => Err(CliError::Validation(format!(
+                "Unsupported provider: {}",
+                provider
+            ))),
+        },
+        Commands::GetOrder { provider, id } => match provider.as_str() {
+            "kraken" => {
+                let cfg =
+                    KrakenConfig::from_env().map_err(|e| CliError::Provider(e.to_string()))?;
+                let client = KrakenClient::new(cfg);
+                let order = client
+                    .fetch_order(&id)
+                    .map_err(|e| CliError::Provider(e.to_string()))?;
+                ok_envelope(order)
+            }
+            "alpaca" => {
+                let cfg =
+                    AlpacaConfig::from_env().map_err(|e| CliError::Provider(e.to_string()))?;
+                let client = AlpacaClient::new(cfg);
+                let order = client
+                    .fetch_order(&id)
+                    .map_err(|e| CliError::Provider(e.to_string()))?;
+                ok_envelope(order)
+            }
+            "paper" => {
+                let cfg = PaperConfig::from_env();
+                let client = PaperClient::new(cfg);
+                let order = client
+                    .fetch_order(&id)
+                    .map_err(|e| CliError::Provider(e.to_string()))?;
+                ok_envelope(order)
             }
             _ => Err(CliError::Validation(format!(
                 "Unsupported provider: {}",
