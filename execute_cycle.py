@@ -149,21 +149,9 @@ def select_strategies_for_analysis(active_strategies, analysis):
     if not active_strategies:
         return []
 
-    regime_class = classify_market_regime(analysis)
-
-    if regime_class == "ranging":
-        selected = [s for s in active_strategies if s in MEAN_REVERSION_STRATEGIES]
-    elif regime_class in {"trending_up", "trending_down", "trending"}:
-        selected = [s for s in active_strategies if s in TREND_FOLLOWING_STRATEGIES]
-    elif regime_class == "volatile":
-        selected = [s for s in active_strategies if s in BREAKOUT_STRATEGIES]
-    else:
-        selected = list(active_strategies)
-
-    # Fallback: never return empty if we have active strategies.
-    if not selected:
-        return list(active_strategies)
-    return selected
+    # Per user request: Evaluate candidate against EVERY active strategy.
+    # Regime filtering is disabled to allow all strategies to run.
+    return list(active_strategies)
 
 def strategy_regime_weight(strategy_name, analysis):
     """Returns a scoring weight for conflict resolution based on regime fit."""
