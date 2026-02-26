@@ -72,6 +72,8 @@ struct OpenPosition {
     take_profit: Option<f64>,
 }
 
+use strategies::strategy::Strategy;
+
 pub async fn run_backtest(
     bars: &BarSeries,
     strategy_name: &str,
@@ -80,17 +82,28 @@ pub async fn run_backtest(
     if bars.bars.is_empty() {
         return Err(anyhow::anyhow!("No bars provided for backtest"));
     }
+    let symbol = bars.bars[0].symbol.clone();
+    let strategy = strategy_factory::create_strategy(strategy_name, &symbol)?;
+    run_backtest_with_strategy(bars, strategy, config).await
+}
+
+pub async fn run_backtest_with_strategy(
+    bars: &BarSeries,
+    strategy: Box<dyn Strategy>,
+    config: BacktestConfig,
+) -> Result<BacktestResult> {
+    if bars.bars.is_empty() {
+        return Err(anyhow::anyhow!("No bars provided for backtest"));
+    }
 
     let symbol = bars.bars[0].symbol.clone();
     let timeframe = bars.bars[0].timeframe.clone();
+    let strategy_name = strategy.name().to_string();
 
     // 1. Prepare Data
     let df = bars_to_dataframe(bars)?;
 
-    // 2. Instantiate Strategy
-    let strategy = strategy_factory::create_strategy(strategy_name, &symbol)?;
-
-    // 3. Generate All Signals
+    // 2. Generate All Signals
     let raw_signals = strategy.generate_signals(&df).await?;
 
     // Group signals by timestamp for efficient lookup

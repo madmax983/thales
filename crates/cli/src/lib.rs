@@ -19,3 +19,4 @@ pub mod signals;
 pub mod history;
 pub mod strategy_factory;
 pub mod benchmark;
+pub mod optimizer;
