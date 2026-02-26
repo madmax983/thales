@@ -25,8 +25,17 @@ TREND_FOLLOWING_STRATEGIES = {
     "ParabolicSar",
     "KeltnerChannelBreakout",
     "AdxMomentum",
+    "IchimokuCloud",
+    "LinearRegressionTrend",
+    "CciMomentum",
 }
-BREAKOUT_STRATEGIES = {"DonchianBreakout", "KeltnerChannelBreakout", "Supertrend", "ParabolicSar"}
+BREAKOUT_STRATEGIES = {
+    "DonchianBreakout",
+    "KeltnerChannelBreakout",
+    "Supertrend",
+    "ParabolicSar",
+    "CciMomentum",
+}
 
 def run_command(args):
     """Runs a thales-cli command and returns the parsed JSON data."""
@@ -103,6 +112,12 @@ def get_active_strategies():
         strategies.append("StochasticOscillator")
     if "AdxMomentum" in content:
         strategies.append("AdxMomentum")
+    if "IchimokuCloud" in content:
+        strategies.append("IchimokuCloud")
+    if "CciMomentum" in content:
+        strategies.append("CciMomentum")
+    if "LinearRegressionTrend" in content:
+        strategies.append("LinearRegressionTrend")
 
     return strategies
 
@@ -484,7 +499,7 @@ def evaluate_candidate(candidate, strategies, portfolio_path=None):
 def resolve_conflicts(intents, conflict_margin=0.05):
     """
     Resolves conflicts among signals for the same candidate.
-    - If signals conflict (Buy vs Sell), selects side using confidence * regime-fit weights.
+    - If signals conflict (Buy vs Sell), strictly REJECTS execution for that asset.
     - If side scores are too close, returns empty list and logs warning.
     - Returns single best intent.
     """
@@ -503,38 +518,12 @@ def resolve_conflicts(intents, conflict_margin=0.05):
 
     sides = set(intent["side"] for intent in intents)
     if len(sides) > 1:
-        side_scores = {}
+        # STRICT CONFLICT RESOLUTION: If both Buy and Sell signals exist, do not trade.
+        reason = f"CONFLICT: Conflicting signals (Buy and Sell) detected for {symbol}. Trading halted for this asset."
+        print(reason)
         for intent in intents:
-            side = intent.get("side", "unknown")
-            side_scores[side] = side_scores.get(side, 0.0) + score_intent(intent)
-
-        ranked_sides = sorted(side_scores.items(), key=lambda x: x[1], reverse=True)
-        top_side, top_score = ranked_sides[0]
-        second_score = ranked_sides[1][1] if len(ranked_sides) > 1 else 0.0
-
-        if (top_score - second_score) < conflict_margin:
-            side_score_text = ", ".join(
-                f"{side}={score:.3f}" for side, score in sorted(side_scores.items())
-            )
-            reason = (
-                f"Conflict unresolved: regime={regime_label}, side_scores={{{side_score_text}}}"
-            )
-            print(f"CONFLICT detected for {symbol}: {reason}. Skipping.")
-            for intent in intents:
-                log_skipped(intent, reason)
-            return []
-
-        winning_intents = [intent for intent in intents if intent.get("side") == top_side]
-        winning_intents.sort(
-            key=lambda x: (score_intent(x), float(x.get("confidence", 0.0) or 0.0)),
-            reverse=True,
-        )
-        best_intent = winning_intents[0]
-        print(
-            f"CONFLICT resolved for {symbol}: selected '{top_side}' in regime={regime_label} "
-            f"(score={top_score:.3f} vs {second_score:.3f})."
-        )
-        return [best_intent]
+            log_skipped(intent, reason)
+        return []
 
     # No side conflict, pick best weighted confidence.
     intents.sort(
