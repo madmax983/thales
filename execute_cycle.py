@@ -318,17 +318,17 @@ def get_candidates_from_signals():
         research_text = None
         res_match = re.search(r"\*\*Research\*\*:\s*(.*?)(?=\n\n|\n\*\*|\n###|$)", chunk, re.DOTALL)
         if res_match:
-            research_text = res_match.group(1).strip()
+            research_text = res_match.group(1).strip().replace("\n", " ")
         else:
              res_match_alt = re.search(r"\*External Research\*:\s*(.*?)(?=\n\n|\n\*\*|\n###|$)", chunk, re.DOTALL)
              if res_match_alt:
-                 research_text = res_match_alt.group(1).strip()
+                 research_text = res_match_alt.group(1).strip().replace("\n", " ")
 
         # Extract News
         news_text = None
         news_match = re.search(r"\*\*News\*\*:\s*(.*?)(?=\n\n|\n\*\*|\n###|$)", chunk, re.DOTALL)
         if news_match:
-            news_text = news_match.group(1).strip()
+            news_text = news_match.group(1).strip().replace("\n", " ")
 
         if raw_json:
             if research_text:
@@ -701,7 +701,7 @@ def log_trade(intent, result):
              pass
 
     signal_ref = intent["intent_id"]
-    rationale = intent["rationale"]
+    rationale = intent["rationale"].replace("\n", " ")
     # confidence = f"{intent.get('confidence', 0.0) * 100:.0f}%"
 
     header = "| Date/Time | Asset Class | Symbol/Contract | Action | Size/Qty | Entry Price | SL | TP | Max Risk | Signal Ref | Rationale |"
