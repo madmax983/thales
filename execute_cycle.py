@@ -702,10 +702,10 @@ def log_trade(intent, result):
 
     signal_ref = intent["intent_id"]
     rationale = intent["rationale"].replace("\n", " ")
-    # confidence = f"{intent.get('confidence', 0.0) * 100:.0f}%"
+    confidence = f"{intent.get('confidence', 0.0) * 100:.0f}%"
 
-    header = "| Date/Time | Asset Class | Symbol/Contract | Action | Size/Qty | Entry Price | SL | TP | Max Risk | Signal Ref | Rationale |"
-    row = f"| {date_str} | {asset_class} | {symbol} | {action} | {size} | {price} | {sl} | {tp} | {max_risk} | {signal_ref} | {rationale} |"
+    header = "| Date/Time | Asset Class | Symbol/Contract | Action | Size/Qty | Entry Price | SL | TP | Max Risk | Confidence | Signal Ref | Rationale |"
+    row = f"| {date_str} | {asset_class} | {symbol} | {action} | {size} | {price} | {sl} | {tp} | {max_risk} | {confidence} | {signal_ref} | {rationale} |"
 
     append_to_section(PORTFOLIO_PATH, "## Executed Trades", header, row)
 
