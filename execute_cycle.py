@@ -8,7 +8,7 @@ import math
 from datetime import datetime
 
 # Paths
-CLI_PATH = "./target/debug/thales-cli"
+CLI_PATH = "./target/release/thales-cli"
 PORTFOLIO_PATH = "portfolio.md"
 STRATEGIES_PATH = "strategies.md"
 HISTORY_PATH = "history.json"
