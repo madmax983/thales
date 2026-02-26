@@ -28,3 +28,4 @@ pub mod parabolic_sar;
 pub mod keltner_channel_breakout;
 pub mod stochastic_oscillator;
 pub mod adx_momentum;
+pub mod ichimoku_cloud;
