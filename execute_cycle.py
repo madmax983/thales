@@ -316,19 +316,19 @@ def get_candidates_from_signals():
 
         # Extract Research
         research_text = None
-        res_match = re.search(r"\*\*Research\*\*:\s*(.*?)(?=\n\n|\n\*\*|\n###|$)", chunk, re.DOTALL)
+        res_match = re.search(r"\*\*Research\*\*:\s*(.*?)(?=\n\n|\n\*\*|\n###|\n\*Historical Context\*|$)", chunk, re.DOTALL)
         if res_match:
-            research_text = res_match.group(1).strip().replace("\n", " ")
+            research_text = res_match.group(1).strip().replace("\n", " ").replace("\r", " ")
         else:
-             res_match_alt = re.search(r"\*External Research\*:\s*(.*?)(?=\n\n|\n\*\*|\n###|$)", chunk, re.DOTALL)
+             res_match_alt = re.search(r"\*External Research\*:\s*(.*?)(?=\n\n|\n\*\*|\n###|\n\*Historical Context\*|$)", chunk, re.DOTALL)
              if res_match_alt:
-                 research_text = res_match_alt.group(1).strip().replace("\n", " ")
+                 research_text = res_match_alt.group(1).strip().replace("\n", " ").replace("\r", " ")
 
         # Extract News
         news_text = None
-        news_match = re.search(r"\*\*News\*\*:\s*(.*?)(?=\n\n|\n\*\*|\n###|$)", chunk, re.DOTALL)
+        news_match = re.search(r"\*\*News\*\*:\s*(.*?)(?=\n\n|\n\*\*|\n###|\n\*Historical Context\*|$)", chunk, re.DOTALL)
         if news_match:
-            news_text = news_match.group(1).strip().replace("\n", " ")
+            news_text = news_match.group(1).strip().replace("\n", " ").replace("\r", " ")
 
         if raw_json:
             if research_text:
@@ -701,7 +701,7 @@ def log_trade(intent, result):
              pass
 
     signal_ref = intent["intent_id"]
-    rationale = intent["rationale"].replace("\n", " ")
+    rationale = intent["rationale"].replace("\n", " ").replace("\r", " ")
     confidence = f"{intent.get('confidence', 0.0) * 100:.0f}%"
 
     header = "| Date/Time | Asset Class | Symbol/Contract | Action | Size/Qty | Entry Price | SL | TP | Max Risk | Confidence | Signal Ref | Rationale |"
