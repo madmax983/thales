@@ -58,3 +58,18 @@
 **Volatility**: Unknown
 **ATR**: N/A
 **Assessment**: Mean Reversion
+
+### BTCUSD - 2026-02-26 17:35:15 (crypto)
+**Volatility**: Medium
+**ATR**: 764.82
+**Assessment**: Trend Following (Short)
+
+### ETHUSD - 2026-02-26 17:36:20 (crypto)
+**Volatility**: Medium
+**ATR**: 40.55
+**Assessment**: Trend Following (Long)
+
+### SPY - 2026-02-26 17:37:02 (equities)
+**Volatility**: Medium
+**ATR**: 6.76
+**Assessment**: Trend Following (Long)
