@@ -28,3 +28,18 @@
 **Regime**: Trending Up (Short Term)
 **Sentiment**: Bullish (Strong)
 **Confidence**: 80.00%
+
+### XXBTZUSD - 2026-02-26 09:00:00 (crypto)
+**Regime**: Ranging
+**Sentiment**: Neutral
+**Confidence**: 50.00%
+
+### MOGUSD - 2026-02-26 09:00:00 (crypto)
+**Regime**: Trending Down
+**Sentiment**: Bearish
+**Confidence**: 80.00%
+
+### SPY - 2026-02-26 09:15:16 (equities)
+**Regime**: Trending Up (Short Term)
+**Sentiment**: Bullish (Strong)
+**Confidence**: 80.00%
