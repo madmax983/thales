@@ -13,3 +13,18 @@
 **Volatility**: Medium
 **ATR**: 6.76
 **Assessment**: Neutral / Wait
+
+### BTCUSD - 2026-02-26 05:11:15 (crypto)
+**Volatility**: Medium
+**ATR**: 764.82
+**Assessment**: Neutral / Wait
+
+### ETHUSD - 2026-02-26 05:11:15 (crypto)
+**Volatility**: Medium
+**ATR**: 40.55
+**Assessment**: Neutral / Wait
+
+### SPY - 2026-02-26 05:11:15 (equities)
+**Volatility**: Medium
+**ATR**: 6.76
+**Assessment**: Neutral / Wait
