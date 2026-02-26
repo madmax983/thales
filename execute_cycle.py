@@ -679,6 +679,11 @@ def log_trade(intent, result):
     if signal_type_clean:
         action = f"{action} ({signal_type_clean})"
 
+    # Escape pipes in string fields to prevent markdown table corruption
+    asset_class = asset_class.replace("|", "\\|")
+    symbol = symbol.replace("|", "\\|")
+    action = action.replace("|", "\\|")
+
     size = intent["size_hint"]
     price = str(intent.get("limit_price", "Market"))
     if price == "None": price = "Market"
@@ -700,8 +705,8 @@ def log_trade(intent, result):
         except:
              pass
 
-    signal_ref = intent["intent_id"]
-    rationale = intent["rationale"].replace("\n", " ").replace("\r", " ")
+    signal_ref = intent["intent_id"].replace("|", "\\|")
+    rationale = intent["rationale"].replace("\n", " ").replace("\r", " ").replace("|", "\\|")
     confidence = f"{intent.get('confidence', 0.0) * 100:.0f}%"
 
     header = "| Date/Time | Asset Class | Symbol/Contract | Action | Size/Qty | Entry Price | SL | TP | Max Risk | Confidence | Signal Ref | Rationale |"
@@ -712,8 +717,9 @@ def log_trade(intent, result):
 def log_skipped(intent, reason):
     """Logs skipped trade."""
     date_str = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    symbol = intent["symbol"]
-    signal_ref = intent["intent_id"]
+    symbol = intent["symbol"].replace("|", "\\|")
+    signal_ref = intent["intent_id"].replace("|", "\\|")
+    reason = str(reason).replace("|", "\\|")
 
     header = "| Date/Time | Symbol | Signal Ref | Rejection Reason |"
     row = f"| {date_str} | {symbol} | {signal_ref} | {reason} |"

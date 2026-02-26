@@ -218,5 +218,46 @@ class TestExecuteCycle(unittest.TestCase):
         self.assertEqual(resolved, [])
         self.assertEqual(mock_log_skipped.call_count, 2)
 
+    def test_log_trade_escapes_pipes(self):
+        intent = {
+            "intent_id": "test|id",
+            "market": "crypto",
+            "symbol": "BTC|USD",
+            "side": "buy",
+            "size_hint": "0.1",
+            "confidence": 0.9,
+            "rationale": "Test | Rationale",
+            "stop_loss": 90.0,
+            "take_profit": 110.0,
+            "limit_price": 100.0,
+            "order_type": "limit",
+            "time_in_force": "GTC",
+            "signal_type": "Entry"
+        }
+        result = {"submitted_at_unix_ms": 1000}
+
+        execute_cycle.log_trade(intent, result)
+
+        with open("temp_portfolio.md", "r") as f:
+            content = f.read()
+
+        # Check for escaped pipes
+        self.assertIn("BTC\\|USD", content)
+        self.assertIn("Test \\| Rationale", content)
+        self.assertIn("test\\|id", content)
+        # Ensure row structure is preserved (count pipes)
+        # Expected row format: | ... | ... | ... | ... | ... | ... | ... | ... | ... | ... | ... | ... |
+        # 12 columns means 13 pipes + extra escaped ones.
+        lines = content.strip().split('\n')
+        last_line = lines[-1]
+        self.assertTrue(last_line.startswith("|"))
+        self.assertTrue(last_line.endswith("|"))
+
+        # Count unescaped pipes
+        # We can replace \| with something else to count strict separators
+        cleaned_line = last_line.replace("\\|", "PIPE")
+        pipe_count = cleaned_line.count("|")
+        self.assertEqual(pipe_count, 13, f"Expected 13 pipe separators for 12 columns, got {pipe_count}. Line: {last_line}")
+
 if __name__ == '__main__':
     unittest.main()
