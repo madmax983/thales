@@ -1837,11 +1837,10 @@ mod tests {
     async fn test_generate_signals_ema_crossover() -> Result<()> {
         let mut bars = Vec::new();
         let now = 100000;
-        // 1. Establish Downtrend (Short < Long)
-        // Short (9) < Long (21)
-        let mut close = 100.0;
-        for i in 0..30 {
-            close -= 0.5;
+        // 1. Establish Flat/Oscillating Trend (EMAs converged)
+        // Short (9) ~ Long (21)
+        for i in 0..50 {
+            let close = if i % 2 == 0 { 100.0 } else { 99.0 };
             bars.push(Bar {
                 symbol: "TEST".to_string(),
                 market: "equities".to_string(),
@@ -1855,17 +1854,17 @@ mod tests {
             });
         }
         // 2. Trigger Crossover (Short > Long)
-        // Sharp rally
-        let i = 30;
-        let close_rally = close + 50.0; // Increase rally to force crossover
+        // Moderate rally to trigger crossover but NOT overbought
+        let i = 50;
+        let close_rally = 105.0;
         bars.push(Bar {
             symbol: "TEST".to_string(),
             market: "equities".to_string(),
             timeframe: "1m".to_string(),
             timestamp_unix_ms: now + i * 60000,
-            open: close,
+            open: 100.0,
             high: close_rally + 1.0,
-            low: close - 1.0,
+            low: 99.0,
             close: close_rally,
             volume: 1000.0,
         });
