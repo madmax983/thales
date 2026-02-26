@@ -28,6 +28,7 @@ TREND_FOLLOWING_STRATEGIES = {
     "IchimokuCloud",
     "LinearRegressionTrend",
     "CciMomentum",
+    "ObvTrendFollowing",
 }
 BREAKOUT_STRATEGIES = {
     "DonchianBreakout",
@@ -118,6 +119,8 @@ def get_active_strategies():
         strategies.append("CciMomentum")
     if "LinearRegressionTrend" in content:
         strategies.append("LinearRegressionTrend")
+    if "ObvTrendFollowing" in content:
+        strategies.append("ObvTrendFollowing")
 
     return strategies
 

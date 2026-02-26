@@ -305,6 +305,8 @@ pub async fn generate_signals(
                         | "AdxMomentum"
                         | "IchimokuCloud"
                         | "CciMomentum"
+                        | "LinearRegressionTrend"
+                        | "ObvTrendFollowing"
                 );
 
                 if !is_momentum {
