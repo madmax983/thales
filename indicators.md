@@ -334,3 +334,31 @@ let (tenkan, kijun, span_a, span_b, chikou) = ichimoku::calculate(&df, tenkan, k
 ### Output
 - Returns `Result<(Series, Series, Series, Series, Series)>` representing `(tenkan_sen, kijun_sen, senkou_span_a, senkou_span_b, chikou_span)`.
 - The output Series are named accordingly.
+
+## On-Balance Volume (OBV)
+
+**Name:** On-Balance Volume (OBV)
+**Description:** A cumulative indicator that adds volume on up days and subtracts volume on down days.
+**Rationale:** Volume precedes price. Changes in OBV can signal trend strength and potential reversals.
+
+### Implementation Details
+- Uses `rust_decimal::Decimal` for precision.
+- Cumulative calculation.
+- Returns a Polars `Series` of `f64` values.
+
+### Usage
+
+```rust
+use strategies::indicators::obv;
+use polars::prelude::*;
+
+// Assuming df is a DataFrame with "close" and "volume" columns
+let obv_series = obv::calculate(&df)?;
+```
+
+### Parameters
+- `data`: Reference to a Polars `DataFrame`. Must contain numeric columns "close" and "volume".
+
+### Output
+- Returns `Result<Series>`.
+- The output Series is named "obv".

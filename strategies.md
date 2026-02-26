@@ -902,3 +902,74 @@ pub struct LinearRegressionTrendConfig {
 ### Performance
 - Linear Regression calculation is O(N) using optimized incremental updates.
 - Signal generation loop is O(N).
+
+---
+
+# Trading Strategy: OBV Trend Following
+
+## Strategy Specification
+
+**Name:** ObvTrendFollowing
+
+**Description:** A trend-following strategy that uses the On-Balance Volume (OBV) indicator. It generates signals when the OBV line crosses its Simple Moving Average (Signal Line). A crossover above the Signal Line indicates buying pressure (accumulation), while a crossover below indicates selling pressure (distribution).
+
+**Rationale:** Volume often precedes price. Changes in the flow of volume (OBV) can signal a potential trend change before it becomes apparent in the price action alone.
+
+## Requirements
+
+### Implementation Details
+- Uses Polars for data analysis.
+- Implements the `Strategy` trait in Rust.
+- Uses `obv` indicator and `sma` (on OBV series) for signal generation.
+- Uses `atr` for stop loss calculation.
+
+### Strategy Type
+Trend Following / Momentum
+
+### Entry Conditions
+- **Long Entry (Buy):** OBV crosses ABOVE OBV-SMA.
+- **Short Entry (Sell):** OBV crosses BELOW OBV-SMA.
+
+### Exit Conditions
+- **Long Exit (Sell):** OBV crosses BELOW OBV-SMA.
+- **Short Exit (Buy):** OBV crosses ABOVE OBV-SMA.
+- **Stop Loss:** Entry Price +/- (ATR * `stop_loss_atr_mult`).
+
+### Position Sizing
+- **Size Hint:** "100" (fixed units) or "max" (for exits).
+
+## Code Pattern
+
+```rust
+use crate::strategy::{Strategy, StrategyConfig, Signal, SignalType};
+use crate::indicators::{atr, obv, sma};
+use polars::prelude::*;
+use async_trait::async_trait;
+use anyhow::Result;
+
+pub struct ObvTrendFollowing {
+    config: ObvTrendFollowingConfig,
+}
+
+#[derive(Debug, Clone, serde::Deserialize)]
+pub struct ObvTrendFollowingConfig {
+    pub obv_sma_period: usize,
+    pub stop_loss_atr_mult: f64,
+    pub atr_period: usize,
+    pub symbol: String,
+}
+```
+
+## Critical Considerations
+
+### Risk Management Integration
+- **Stop Loss:** Uses ATR-based stop loss to adapt to volatility.
+- **Reversal:** The strategy assumes a "Stop and Reverse" approach if constantly in the market, but individual signals are generated for entry and exit.
+
+### Backtesting Requirements
+- Accepts `DataFrame` with historical data including "volume".
+- Requires data length > `obv_sma_period`.
+
+### Performance
+- OBV calculation is O(N).
+- Signal generation loop is O(N).
