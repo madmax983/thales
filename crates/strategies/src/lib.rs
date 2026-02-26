@@ -15,6 +15,7 @@
 //! - [`parabolic_sar::ParabolicSar`] - Trend following using Parabolic SAR.
 //! - [`keltner_channel_breakout::KeltnerChannelBreakout`] - Trend following using Keltner Channels.
 //! - [`adx_momentum::AdxMomentum`] - Trend following using ADX and DMI.
+//! - [`linear_regression_trend::LinearRegressionTrend`] - Trend following using Linear Regression Slope.
 
 pub mod adx_momentum;
 pub mod bollinger_bands;
@@ -24,6 +25,7 @@ pub mod ema_crossover;
 pub mod ichimoku_cloud;
 pub mod indicators;
 pub mod keltner_channel_breakout;
+pub mod linear_regression_trend;
 pub mod macd;
 pub mod parabolic_sar;
 pub mod rsi_mean_reversion;

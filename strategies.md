@@ -830,3 +830,75 @@ pub struct CciMomentumConfig {
 ### Performance
 - CCI calculation is O(N).
 - Signal generation loop is O(N).
+
+---
+
+# Trading Strategy: Linear Regression Trend
+
+## Strategy Specification
+
+**Name:** LinearRegressionTrend
+
+**Description:** A trend-following strategy that uses the slope of a Linear Regression line calculated on the logarithmic prices. It enters long when the slope is significantly positive and short when the slope is significantly negative.
+
+**Rationale:** Linear Regression fits a straight line to the price data, providing a robust measure of the trend direction and strength. Using logarithmic prices makes the slope represent the exponential growth rate (percentage change), which is scale-invariant.
+
+## Requirements
+
+### Implementation Details
+- Uses Polars for data analysis.
+- Implements the `Strategy` trait in Rust.
+- Uses `linear_regression` indicator for slope calculation.
+- Uses `atr` indicator for stop loss calculation.
+
+### Strategy Type
+Trend Following
+
+### Entry Conditions
+- **Long Entry (Buy):** Slope > `slope_threshold`.
+- **Short Entry (Sell):** Slope < -`slope_threshold`.
+
+### Exit Conditions
+- **Long Exit (Sell):** Slope < 0.0 (Trend Reversal) OR Price <= Stop Loss.
+- **Short Exit (Buy):** Slope > 0.0 (Trend Reversal) OR Price >= Stop Loss.
+- **Stop Loss:** Entry Price +/- (ATR * `stop_loss_atr_mult`).
+
+### Position Sizing
+- **Size Hint:** "100" (fixed units) or "max" (for exits).
+
+## Code Pattern
+
+```rust
+use crate::strategy::{Strategy, StrategyConfig, Signal, SignalType};
+use crate::indicators::{atr, linear_regression};
+use polars::prelude::*;
+use async_trait::async_trait;
+use anyhow::Result;
+
+pub struct LinearRegressionTrend {
+    config: LinearRegressionTrendConfig,
+}
+
+#[derive(Debug, Clone, serde::Deserialize)]
+pub struct LinearRegressionTrendConfig {
+    pub period: usize,
+    pub slope_threshold: f64,
+    pub stop_loss_atr_mult: f64,
+    pub atr_period: usize,
+    pub symbol: String,
+}
+```
+
+## Critical Considerations
+
+### Risk Management Integration
+- **Stop Loss:** Uses ATR-based stop loss to adapt to volatility.
+- **Trend Reversal:** Exits immediately if the trend slope flips direction.
+
+### Backtesting Requirements
+- Accepts `DataFrame` with historical data.
+- Requires data length > `period`.
+
+### Performance
+- Linear Regression calculation is O(N) using optimized incremental updates.
+- Signal generation loop is O(N).

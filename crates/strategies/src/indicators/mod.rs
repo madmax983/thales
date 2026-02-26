@@ -6,6 +6,7 @@ pub mod donchian_channels;
 pub mod ema;
 pub mod ichimoku;
 pub mod keltner_channels;
+pub mod linear_regression;
 pub mod macd;
 pub mod parabolic_sar;
 pub mod rsi;

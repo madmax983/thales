@@ -6,6 +6,7 @@ use strategies::donchian_breakout::{DonchianBreakout, DonchianBreakoutConfig};
 use strategies::ema_crossover::{EmaCrossover, EmaCrossoverConfig};
 use strategies::ichimoku_cloud::{IchimokuCloud, IchimokuCloudConfig};
 use strategies::keltner_channel_breakout::{KeltnerChannelBreakout, KeltnerChannelBreakoutConfig};
+use strategies::linear_regression_trend::{LinearRegressionTrend, LinearRegressionTrendConfig};
 use strategies::macd::{Macd, MacdConfig};
 use strategies::parabolic_sar::{ParabolicSar, ParabolicSarConfig};
 use strategies::rsi_mean_reversion::{RsiMeanReversion, RsiMeanReversionConfig};
@@ -135,6 +136,16 @@ pub fn create_strategy(name: &str, symbol: &str) -> Result<Box<dyn Strategy>> {
             };
             Ok(Box::new(CciMomentum::new(config)))
         }
+        "LinearRegressionTrend" => {
+            let config = LinearRegressionTrendConfig {
+                period: 20,
+                slope_threshold: 0.0005, // 0.05% per bar approx
+                stop_loss_atr_mult: 2.0,
+                atr_period: 14,
+                symbol: symbol.to_string(),
+            };
+            Ok(Box::new(LinearRegressionTrend::new(config)))
+        }
         _ => Err(anyhow::anyhow!("Unknown strategy: {}", name)),
     }
 }
@@ -153,5 +164,6 @@ pub fn list_strategies() -> Vec<&'static str> {
         "AdxMomentum",
         "IchimokuCloud",
         "CciMomentum",
+        "LinearRegressionTrend",
     ]
 }
