@@ -150,21 +150,23 @@ class TestExecuteCycle(unittest.TestCase):
         self.assertIn("0.1", content)
         self.assertIn("Test Signal", content)
 
-    def test_select_strategies_for_ranging_regime(self):
+    def test_select_strategies_returns_all_active_strategies(self):
+        # Now returns all strategies regardless of regime
         active = ["BollingerBands", "EmaCrossover", "RsiMeanReversion", "Macd"]
         analysis = {"regime": "Ranging", "volatility": "Low"}
 
         selected = execute_cycle.select_strategies_for_analysis(active, analysis)
 
-        self.assertEqual(selected, ["BollingerBands", "RsiMeanReversion"])
+        self.assertEqual(selected, active)
 
-    def test_select_strategies_for_trending_regime(self):
+    def test_select_strategies_returns_all_for_trending(self):
+        # Now returns all strategies regardless of regime
         active = ["BollingerBands", "EmaCrossover", "RsiMeanReversion", "Macd"]
         analysis = {"regime": "Trending Up", "volatility": "Low"}
 
         selected = execute_cycle.select_strategies_for_analysis(active, analysis)
 
-        self.assertEqual(selected, ["EmaCrossover", "Macd"])
+        self.assertEqual(selected, active)
 
     def test_resolve_conflicts_prefers_regime_aligned_side(self):
         analysis = {"regime": "Trending Up", "volatility": "Low"}
