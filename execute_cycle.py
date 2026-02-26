@@ -920,6 +920,17 @@ def main():
 
     # 5. Execute
     for intent in top_signals:
+        print("\n--- NEW SIGNAL ---")
+        print(f"Symbol: {intent['symbol']} ({intent.get('market', 'unknown')})")
+        print(f"Direction: {intent['side'].upper()}")
+        print(f"Signal Type: {intent.get('signal_type', 'Unknown')}")
+        print(f"Confidence: {intent.get('confidence', 0.0) * 100:.1f}%")
+        print(f"Size Hint: {intent.get('size_hint', '0')}")
+        print(f"Stop Loss: {intent.get('stop_loss', 'None')}")
+        print(f"Take Profit: {intent.get('take_profit', 'None')}")
+        print(f"Reasoning: {intent.get('rationale', 'None')}")
+        print("------------------\n")
+
         # Risk Agent Check
         risk_ok, risk_reason = verify_risk(intent)
         if not risk_ok:
