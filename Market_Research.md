@@ -46,3 +46,15 @@
 ### SPY - 2026-02-26 13:00:00 (equities)
 **Research**: Equity markets remain resilient near all-time highs. Fed policy expectations stabilize.
 **News**: Corporate earnings season concludes with mixed results.
+
+### BTCUSD - 2026-02-26 17:35:15 (crypto)
+**Research**: Simulated Market: BTC showing bearish divergence in synthetic data. Global macro factors neutral.
+**News**: Crypto markets remain cautious ahead of simulated economic data release.
+
+### ETHUSD - 2026-02-26 17:36:20 (crypto)
+**Research**: ETH showing strong bullish momentum in synthetic data. On-chain metrics positive.
+**News**: Upcoming protocol upgrade successfully tested on testnet.
+
+### SPY - 2026-02-26 17:37:02 (equities)
+**Research**: S&P 500 breaks new highs in synthetic data. Tech sector leading.
+**News**: Simulated Fed meeting minutes hint at rate cuts.

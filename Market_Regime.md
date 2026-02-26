@@ -58,3 +58,18 @@
 **Regime**: Ranging
 **Sentiment**: Neutral
 **Confidence**: 50.00%
+
+### BTCUSD - 2026-02-26 17:35:15 (crypto)
+**Regime**: Trending Down (Short Term)
+**Sentiment**: Bearish (Strong) (Oversold)
+**Confidence**: 80.00%
+
+### ETHUSD - 2026-02-26 17:36:20 (crypto)
+**Regime**: Trending Up (Short Term)
+**Sentiment**: Bullish (Strong) (Overbought)
+**Confidence**: 80.00%
+
+### SPY - 2026-02-26 17:37:02 (equities)
+**Regime**: Trending Up (Short Term)
+**Sentiment**: Bullish (Strong) (Overbought)
+**Confidence**: 80.00%
