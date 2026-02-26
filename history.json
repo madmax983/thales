@@ -399,5 +399,271 @@
       "timestamp_unix_ms": 1772068973368
     },
     "outcome": null
+  },
+  {
+    "intent": {
+      "intent_id": "crypto:BTCUSD:sell:1772090143234",
+      "market": "crypto",
+      "symbol": "BTCUSD",
+      "side": "sell",
+      "size_hint": "0.057993",
+      "confidence": 0.64,
+      "horizon": "1d",
+      "rationale": "Strategy: KeltnerChannelBreakout (64%, MA: 0.80). Reason: Keltner Breakdown: Close 59467.03 < Lower 61284.38. Market Context: Trending Down (Short Term) (Medium Volatility). No similar past trades found. Research: Bitcoin consolidates after hitting new highs. Institutional flows remain strong.. News: Global bank announces crypto custody service. *Historical Context*: No similar past trades found..",
+      "invalidation": "Price hits Stop Loss",
+      "schema_version": "v0",
+      "signal_type": "Entry",
+      "stop_loss": 61191.36644146006,
+      "take_profit": 56407.7334281984,
+      "order_type": "market",
+      "limit_price": null,
+      "stop_price": null,
+      "time_in_force": "GTC",
+      "execution_algo": "Market"
+    },
+    "market_analysis": {
+      "symbol": "BTCUSD",
+      "market": "crypto",
+      "regime": "Trending Down (Short Term)",
+      "sentiment": "Bearish (Strong)",
+      "patterns": [
+        "Breakout (Downside)",
+        "Consolidation (Squeeze)"
+      ],
+      "key_levels": [
+        59348.09299105641,
+        62321.223889637375,
+        62637.9775018533
+      ],
+      "volatility": "Medium",
+      "atr": 764.8234042370752,
+      "research_summary": "Bitcoin consolidates after hitting new highs. Institutional flows remain strong.",
+      "news_summary": "Global bank announces crypto custody service. *Historical Context*: No similar past trades found.",
+      "recommendation": "Neutral / Wait",
+      "confidence": 0.7999999999999999,
+      "timestamp_unix_ms": 1772082675378
+    },
+    "outcome": null
+  },
+  {
+    "intent": {
+      "intent_id": "crypto:ETHUSD:buy:1772090143274",
+      "market": "crypto",
+      "symbol": "ETHUSD",
+      "side": "buy",
+      "size_hint": "1.232978",
+      "confidence": 0.64,
+      "horizon": "1d",
+      "rationale": "Strategy: DonchianBreakout (64%, MA: 0.80). Reason: Breakout: Close 3351.14 > Upper Channel 3292.00. Market Context: Trending Up (Short Term) (Medium Volatility). No similar past trades found. Research: Ethereum network activity high. L2 adoption growing.. News: Major protocol upgrade successful. *Historical Context*: No similar past trades found..",
+      "invalidation": "Price hits Stop Loss",
+      "schema_version": "v0",
+      "signal_type": "Entry",
+      "stop_loss": 3270.0353888179957,
+      "take_profit": 3513.348743708972,
+      "order_type": "market",
+      "limit_price": null,
+      "stop_price": null,
+      "time_in_force": "GTC",
+      "execution_algo": "Market"
+    },
+    "market_analysis": {
+      "symbol": "ETHUSD",
+      "market": "crypto",
+      "regime": "Trending Up (Short Term)",
+      "sentiment": "Bullish (Strong)",
+      "patterns": [
+        "Breakout (Upside)",
+        "Consolidation (Squeeze)"
+      ],
+      "key_levels": [
+        2882.4178745196914,
+        3120.1299973244545
+      ],
+      "volatility": "Medium",
+      "atr": 40.552225815162686,
+      "research_summary": "Ethereum network activity high. L2 adoption growing.",
+      "news_summary": "Major protocol upgrade successful. *Historical Context*: No similar past trades found.",
+      "recommendation": "Neutral / Wait",
+      "confidence": 0.7999999999999999,
+      "timestamp_unix_ms": 1772082675392
+    },
+    "outcome": null
+  },
+  {
+    "intent": {
+      "intent_id": "equities:SPY:buy:1772090143312",
+      "market": "equities",
+      "symbol": "SPY",
+      "side": "buy",
+      "size_hint": "7.397868",
+      "confidence": 0.64,
+      "horizon": "1d",
+      "rationale": "Strategy: DonchianBreakout (64%, MA: 0.80). Reason: Breakout: Close 558.52 > Upper Channel 548.67. Market Context: Trending Up (Short Term) (Medium Volatility). No similar past trades found. Research: Equities market showing resilience. Tech sector leading.. News: GDP growth exceeds expectations. *Historical Context*: No similar past trades found..",
+      "invalidation": "Price hits Stop Loss",
+      "schema_version": "v0",
+      "signal_type": "Entry",
+      "stop_loss": 545.0058981363323,
+      "take_profit": 585.5581239514951,
+      "order_type": "market",
+      "limit_price": null,
+      "stop_price": null,
+      "time_in_force": "day",
+      "execution_algo": "Market"
+    },
+    "market_analysis": {
+      "symbol": "SPY",
+      "market": "equities",
+      "regime": "Trending Up (Short Term)",
+      "sentiment": "Bullish (Strong)",
+      "patterns": [
+        "Breakout (Upside)",
+        "Consolidation (Squeeze)"
+      ],
+      "key_levels": [
+        480.40297908661506,
+        520.0216662207422
+      ],
+      "volatility": "Medium",
+      "atr": 6.758704302527127,
+      "research_summary": "Equities market showing resilience. Tech sector leading.",
+      "news_summary": "GDP growth exceeds expectations. *Historical Context*: No similar past trades found.",
+      "recommendation": "Neutral / Wait",
+      "confidence": 0.7999999999999999,
+      "timestamp_unix_ms": 1772082675403
+    },
+    "outcome": null
+  },
+  {
+    "intent": {
+      "intent_id": "crypto:BTCUSD:sell:1772090496606",
+      "market": "crypto",
+      "symbol": "BTCUSD",
+      "side": "sell",
+      "size_hint": "max",
+      "confidence": 0.64,
+      "horizon": "1d",
+      "rationale": "Strategy: DonchianBreakout (64%, MA: 0.80). Reason: Breakdown: Close 59467.03 < Lower Channel 60559.28. Market Context: Trending Down (Short Term) (Medium Volatility). No similar past trades found. Research: Bitcoin consolidates after hitting new highs. Institutional flows remain strong.. News: Global bank announces crypto custody service..",
+      "invalidation": "Price hits Stop Loss",
+      "schema_version": "v0",
+      "signal_type": "Exit",
+      "stop_loss": null,
+      "take_profit": null,
+      "order_type": "market",
+      "limit_price": null,
+      "stop_price": null,
+      "time_in_force": "GTC",
+      "execution_algo": "Market"
+    },
+    "market_analysis": {
+      "symbol": "BTCUSD",
+      "market": "crypto",
+      "regime": "Trending Down (Short Term)",
+      "sentiment": "Bearish (Strong)",
+      "patterns": [
+        "Breakout (Downside)",
+        "Consolidation (Squeeze)"
+      ],
+      "key_levels": [
+        59348.09299105641,
+        62321.223889637375,
+        62637.9775018533
+      ],
+      "volatility": "Medium",
+      "atr": 764.8234042370752,
+      "research_summary": "Bitcoin consolidates after hitting new highs. Institutional flows remain strong.",
+      "news_summary": "Global bank announces crypto custody service.",
+      "recommendation": "Neutral / Wait",
+      "confidence": 0.7999999999999999,
+      "timestamp_unix_ms": 1772082675378
+    },
+    "outcome": null
+  },
+  {
+    "intent": {
+      "intent_id": "crypto:ETHUSD:buy:1772090496656",
+      "market": "crypto",
+      "symbol": "ETHUSD",
+      "side": "buy",
+      "size_hint": "1.232978",
+      "confidence": 0.64,
+      "horizon": "1d",
+      "rationale": "Strategy: DonchianBreakout (64%, MA: 0.80). Reason: Breakout: Close 3351.14 > Upper Channel 3292.00. Market Context: Trending Up (Short Term) (Medium Volatility). No similar past trades found. Research: Ethereum network activity high. L2 adoption growing.. News: Major protocol upgrade successful.. (Scaled into existing position)",
+      "invalidation": "Price hits Stop Loss",
+      "schema_version": "v0",
+      "signal_type": "ScaleIn",
+      "stop_loss": 3270.0353888179957,
+      "take_profit": 3513.348743708972,
+      "order_type": "market",
+      "limit_price": null,
+      "stop_price": null,
+      "time_in_force": "GTC",
+      "execution_algo": "Market"
+    },
+    "market_analysis": {
+      "symbol": "ETHUSD",
+      "market": "crypto",
+      "regime": "Trending Up (Short Term)",
+      "sentiment": "Bullish (Strong)",
+      "patterns": [
+        "Breakout (Upside)",
+        "Consolidation (Squeeze)"
+      ],
+      "key_levels": [
+        2882.4178745196914,
+        3120.1299973244545
+      ],
+      "volatility": "Medium",
+      "atr": 40.552225815162686,
+      "research_summary": "Ethereum network activity high. L2 adoption growing.",
+      "news_summary": "Major protocol upgrade successful.",
+      "recommendation": "Neutral / Wait",
+      "confidence": 0.7999999999999999,
+      "timestamp_unix_ms": 1772082675392
+    },
+    "outcome": null
+  },
+  {
+    "intent": {
+      "intent_id": "equities:SPY:buy:1772090496747",
+      "market": "equities",
+      "symbol": "SPY",
+      "side": "buy",
+      "size_hint": "7.397868",
+      "confidence": 0.64,
+      "horizon": "1d",
+      "rationale": "Strategy: DonchianBreakout (64%, MA: 0.80). Reason: Breakout: Close 558.52 > Upper Channel 548.67. Market Context: Trending Up (Short Term) (Medium Volatility). No similar past trades found. Research: Equities market showing resilience. Tech sector leading.. News: GDP growth exceeds expectations.. (Scaled into existing position)",
+      "invalidation": "Price hits Stop Loss",
+      "schema_version": "v0",
+      "signal_type": "ScaleIn",
+      "stop_loss": 545.0058981363323,
+      "take_profit": 585.5581239514951,
+      "order_type": "market",
+      "limit_price": null,
+      "stop_price": null,
+      "time_in_force": "day",
+      "execution_algo": "Market"
+    },
+    "market_analysis": {
+      "symbol": "SPY",
+      "market": "equities",
+      "regime": "Trending Up (Short Term)",
+      "sentiment": "Bullish (Strong)",
+      "patterns": [
+        "Breakout (Upside)",
+        "Consolidation (Squeeze)"
+      ],
+      "key_levels": [
+        480.40297908661506,
+        520.0216662207422
+      ],
+      "volatility": "Medium",
+      "atr": 6.758704302527127,
+      "research_summary": "Equities market showing resilience. Tech sector leading.",
+      "news_summary": "GDP growth exceeds expectations.",
+      "recommendation": "Neutral / Wait",
+      "confidence": 0.7999999999999999,
+      "timestamp_unix_ms": 1772082675403
+    },
+    "outcome": null
   }
 ]
