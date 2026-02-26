@@ -74,3 +74,15 @@
 ### SPY - 2026-02-26 19:00:00 (equities)
 **Research**: SPY continues to show resilience amidst mixed economic data. Inflation concerns persist but earnings remain strong.
 **News**: US Economy shows signs of soft landing. Federal Reserve likely to maintain current rate policy.
+
+### XXBTZUSD - 2026-02-26 21:00:00 (crypto)
+**Research**: Bitcoin outlook for 2026 is mixed. Some analysts see a bear phase into late 2026 after a peak in 2025. Support levels at 62k and 59k are critical. Short-term selling pressure observed.
+**News**: 2026 Outlook suggests potential for shorter-term trades. Regulatory environment and ETF inflows remain key drivers.
+
+### XETHZUSD - 2026-02-26 21:00:00 (crypto)
+**Research**: Ethereum fundamentals remain strong with high network activity and L2 growth. However, price action shows mild stabilization after a decline. Key support near 850. Potential for recovery if institutional capital returns.
+**News**: Ethereum 2026 protocol updates focus on scalability. ETF inflows and staking yield are positive catalysts.
+
+### SPY - 2026-02-26 21:00:00 (equities)
+**Research**: SPY shows strong development within a rising trend channel. 'Golden Star' signal observed recently suggesting potential for gains. Some consolidation near all-time highs.
+**News**: Earnings engine projected to grow 15% in 2026. Fed policy remains a key watch item with potential rate cuts.

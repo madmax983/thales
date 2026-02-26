@@ -93,3 +93,18 @@
 **Regime**: Ranging
 **Sentiment**: Neutral
 **Confidence**: 50.00%
+
+### XXBTZUSD - 2026-02-26 21:00:00 (crypto)
+**Regime**: Ranging
+**Sentiment**: Bearish
+**Confidence**: 50.00%
+
+### XETHZUSD - 2026-02-26 21:00:00 (crypto)
+**Regime**: Trending Up
+**Sentiment**: Bearish
+**Confidence**: 70.00%
+
+### SPY - 2026-02-26 21:00:00 (equities)
+**Regime**: Ranging
+**Sentiment**: Neutral
+**Confidence**: 50.00%
