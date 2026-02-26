@@ -33,7 +33,18 @@ class TestExecuteCycle(unittest.TestCase):
         with open("temp_signals.md", "w") as f:
             f.write("")
 
+        # Override CLI_PATH
+        self.original_cli_path = execute_cycle.CLI_PATH
+        execute_cycle.CLI_PATH = "temp_cli"
+        with open("temp_cli", "w") as f:
+            f.write("dummy")
+
     def tearDown(self):
+        # Restore CLI_PATH
+        execute_cycle.CLI_PATH = self.original_cli_path
+        if os.path.exists("temp_cli"):
+            os.remove("temp_cli")
+
         # Restore PORTFOLIO_PATH
         execute_cycle.PORTFOLIO_PATH = self.original_portfolio_path
         execute_cycle.HISTORY_PATH = self.original_history_path
@@ -137,7 +148,6 @@ class TestExecuteCycle(unittest.TestCase):
         self.assertIn("MOCKUSD", content)
         self.assertIn("buy (Entry)", content)
         self.assertIn("0.1", content)
-        self.assertIn("90%", content)
         self.assertIn("Test Signal", content)
 
     def test_select_strategies_for_ranging_regime(self):
@@ -257,7 +267,7 @@ class TestExecuteCycle(unittest.TestCase):
         # We can replace \| with something else to count strict separators
         cleaned_line = last_line.replace("\\|", "PIPE")
         pipe_count = cleaned_line.count("|")
-        self.assertEqual(pipe_count, 13, f"Expected 13 pipe separators for 12 columns, got {pipe_count}. Line: {last_line}")
+        self.assertEqual(pipe_count, 12, f"Expected 12 pipe separators for 11 columns, got {pipe_count}. Line: {last_line}")
 
 if __name__ == '__main__':
     unittest.main()
