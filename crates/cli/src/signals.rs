@@ -14,6 +14,7 @@ use strategies::parabolic_sar::{ParabolicSar, ParabolicSarConfig};
 use strategies::keltner_channel_breakout::{KeltnerChannelBreakout, KeltnerChannelBreakoutConfig};
 use strategies::stochastic_oscillator::{StochasticOscillator, StochasticOscillatorConfig};
 use strategies::adx_momentum::{AdxMomentum, AdxMomentumConfig};
+use strategies::ichimoku_cloud::{IchimokuCloud, IchimokuCloudConfig};
 use strategies::strategy::{Signal, SignalType, Strategy};
 
 fn resolve_signal_type(signal: &Signal, position: Option<&contracts::Position>) -> (SignalType, String) {
@@ -204,6 +205,17 @@ pub async fn generate_signals(
             symbol: market_analysis.symbol.clone(),
         };
         Box::new(AdxMomentum::new(config))
+    } else if strategy_name == "IchimokuCloud" {
+        let config = IchimokuCloudConfig {
+            tenkan_period: 9,
+            kijun_period: 26,
+            senkou_b_period: 52,
+            displacement: 26,
+            stop_loss_atr_mult: 2.0,
+            atr_period: 14,
+            symbol: market_analysis.symbol.clone(),
+        };
+        Box::new(IchimokuCloud::new(config))
     } else {
         // Fallback or Error
         return Err(anyhow::anyhow!("Unknown strategy: {}", strategy_name));
@@ -380,7 +392,7 @@ pub async fn generate_signals(
                 // Momentum strategies are exempt from this check as they naturally buy strength
                 let is_momentum = matches!(
                     strategy_name,
-                    "DonchianBreakout" | "KeltnerChannelBreakout" | "Supertrend" | "ParabolicSar" | "AdxMomentum"
+                    "DonchianBreakout" | "KeltnerChannelBreakout" | "Supertrend" | "ParabolicSar" | "AdxMomentum" | "IchimokuCloud"
                 );
 
                 if !is_momentum {
@@ -1765,6 +1777,75 @@ mod tests {
         let intent = &intents[0];
         assert_eq!(intent.side, "buy");
         assert!(intent.rationale.contains("AdxMomentum"));
+
+        Ok(())
+    }
+
+    #[tokio::test]
+    async fn test_ichimoku_wired() -> Result<()> {
+        let mut bars = Vec::new();
+        let now = 100000;
+
+        // 0-70: Uptrend
+        for i in 0..70 {
+            let p = 100.0 + (i as f64 * 0.2);
+            bars.push(Bar {
+                symbol: "TEST".to_string(), market: "equities".to_string(), timeframe: "1m".to_string(),
+                timestamp_unix_ms: now + i * 60000,
+                open: p, high: p+1.0, low: p-1.0, close: p, volume: 1000.0,
+            });
+        }
+        // 70-80: Downtrend (Drop to 100)
+        for i in 70..80 {
+            let p = 114.0 - ((i - 70) as f64 * 1.4); // 114 - 14 = 100
+            bars.push(Bar {
+                symbol: "TEST".to_string(), market: "equities".to_string(), timeframe: "1m".to_string(),
+                timestamp_unix_ms: now + i * 60000,
+                open: p, high: p+1.0, low: p-1.0, close: p, volume: 1000.0,
+            });
+        }
+        // 80-90: Recovery (Rise to 105) - Ensures Min(9) > Min(26)
+        for i in 80..90 {
+            let p = 100.0 + ((i - 80) as f64 * 0.5);
+            bars.push(Bar {
+                symbol: "TEST".to_string(), market: "equities".to_string(), timeframe: "1m".to_string(),
+                timestamp_unix_ms: now + i * 60000,
+                open: p, high: p+1.0, low: p-1.0, close: p, volume: 1000.0,
+            });
+        }
+
+        // 90: Spike
+        let i = 90;
+        let spike = 150.0;
+        bars.push(Bar {
+             symbol: "TEST".to_string(), market: "equities".to_string(), timeframe: "1m".to_string(),
+             timestamp_unix_ms: now + i * 60000,
+             open: 140.0, high: spike + 5.0, low: spike - 2.0, close: spike, volume: 1000.0,
+        });
+
+        let series = BarSeries { schema_version: "v0".to_string(), bars };
+        let positions = vec![];
+
+        let high_conf_analysis = MarketAnalysis {
+            symbol: "TEST".to_string(),
+            market: "equities".to_string(),
+            regime: "Trending Up".to_string(),
+            volatility: "High".to_string(),
+            sentiment: "Bullish".to_string(),
+            patterns: vec![],
+            key_levels: vec![],
+            atr: None,
+            research_summary: None,
+            news_summary: None,
+            recommendation: None,
+            confidence: 1.0,
+            timestamp_unix_ms: now + 90 * 60000,
+        };
+
+        let intents = generate_signals(&series, "IchimokuCloud", None, 100.0, &positions, Some(high_conf_analysis)).await?;
+
+        assert!(!intents.is_empty(), "Ichimoku should produce signal on massive breakout");
+        assert!(intents[0].rationale.contains("IchimokuCloud"));
 
         Ok(())
     }
