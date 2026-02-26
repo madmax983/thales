@@ -13,6 +13,7 @@ PORTFOLIO_PATH = "portfolio.md"
 STRATEGIES_PATH = "strategies.md"
 HISTORY_PATH = "history.json"
 SIGNALS_PATH = "Signals.md"
+ARCHIVE_PATH = "Signals_Archive.md"
 
 MEAN_REVERSION_STRATEGIES = {"BollingerBands", "RsiMeanReversion", "StochasticOscillator"}
 TREND_FOLLOWING_STRATEGIES = {
@@ -169,6 +170,80 @@ def strategy_regime_weight(strategy_name, analysis):
             return 0.85
 
     return 1.0
+
+def archive_signals(days=2):
+    """Moves signals older than `days` from Signals.md to Signals_Archive.md."""
+    if not os.path.exists(SIGNALS_PATH):
+        return
+
+    with open(SIGNALS_PATH, "r") as f:
+        content = f.read()
+
+    # Split using same logic as parsing
+    # First chunk is usually header/preamble
+    chunks = re.split(r"\n## ", content)
+
+    keep_chunks = []
+    archive_chunks = []
+
+    now = int(datetime.now().timestamp() * 1000)
+    cutoff_ms = days * 24 * 60 * 60 * 1000
+
+    # Process chunks
+    for i, chunk in enumerate(chunks):
+        # Reconstruct full chunk text for writing back
+        # If i > 0, it was split by "\n## ", so we need to add "## " back
+        full_chunk_text = f"\n## {chunk}" if i > 0 else chunk
+
+        # Check timestamp in JSON
+        json_match = re.search(r"```json\s*(\{.*?\})\s*```", chunk, re.DOTALL)
+        is_stale = False
+
+        if json_match:
+            try:
+                data = json.loads(json_match.group(1))
+                ts = data.get("timestamp_unix_ms", 0)
+                if (now - ts) > cutoff_ms:
+                    is_stale = True
+            except:
+                pass
+
+        # Also check header timestamp if JSON missing/parse error?
+        # Header format: **Timestamp (ms)**: 1771870472944
+        if not is_stale and not json_match:
+             ts_match = re.search(r"\*\*Timestamp \(ms\)\*\*:\s*(\d+)", chunk)
+             if ts_match:
+                 ts = int(ts_match.group(1))
+                 if (now - ts) > cutoff_ms:
+                     is_stale = True
+
+        if is_stale:
+            archive_chunks.append(full_chunk_text)
+        else:
+            keep_chunks.append(full_chunk_text)
+
+    if archive_chunks:
+        print(f"Archiving {len(archive_chunks)} stale signals to {ARCHIVE_PATH}...")
+
+        # Append to archive
+        with open(ARCHIVE_PATH, "a") as f:
+            for chunk in archive_chunks:
+                f.write(chunk)
+
+        # Rewrite active signals
+        with open(SIGNALS_PATH, "w") as f:
+            # Join chunks. First chunk doesn't have newline prefix if it was original start
+            # But keep_chunks[0] might be the original start OR a later chunk.
+            # If keep_chunks[0] starts with "\n## ", and we write it, it might add extra newline at start of file?
+            # Actually full_chunk_text includes "\n## " for i > 0.
+            # If i=0 was kept, it has no prefix.
+            # If i=0 was archived, keep_chunks[0] will have prefix "\n## ".
+            # We should probably trim the first one if it starts with newline?
+
+            output = "".join(keep_chunks)
+            if output.startswith("\n"):
+                output = output.lstrip("\n")
+            f.write(output)
 
 def get_candidates_from_signals():
     """Parses Signals.md for potential candidates."""
@@ -736,6 +811,9 @@ def main():
 
     # 0. Manage Active Orders (Cancel Stale)
     manage_orders()
+
+    # 0b. Archive Stale Signals
+    archive_signals(days=2)
 
     # 1. Identify Strategies
     strategies = get_active_strategies()
