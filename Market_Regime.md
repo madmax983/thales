@@ -13,3 +13,18 @@
 **Regime**: Trending Up (Short Term)
 **Sentiment**: Bullish (Strong)
 **Confidence**: 80.00%
+
+### BTCUSD - 2026-02-26 05:11:15 (crypto)
+**Regime**: Trending Down (Short Term)
+**Sentiment**: Bearish (Strong)
+**Confidence**: 80.00%
+
+### ETHUSD - 2026-02-26 05:11:15 (crypto)
+**Regime**: Trending Up (Short Term)
+**Sentiment**: Bullish (Strong)
+**Confidence**: 80.00%
+
+### SPY - 2026-02-26 05:11:15 (equities)
+**Regime**: Trending Up (Short Term)
+**Sentiment**: Bullish (Strong)
+**Confidence**: 80.00%
