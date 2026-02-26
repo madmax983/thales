@@ -16,3 +16,4 @@ pub mod backtest;
 pub mod rag;
 pub mod reporting;
 pub mod signals;
+pub mod history;

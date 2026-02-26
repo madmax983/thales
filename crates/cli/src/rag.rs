@@ -124,8 +124,8 @@ pub fn summarize_history(entries: &[HistoryEntry], current_symbol: &str) -> Stri
         .count();
 
     format!(
-        "Found {} similar past trades ({} on same symbol). Win Rate: {:.1}%. Avg PnL: {:.2}",
-        perf.count, same_symbol_count, perf.win_rate, perf.avg_pnl
+        "Found {} similar past trades ({} on same symbol). Win Rate: {:.1}%. Avg Return: {:.2}%",
+        perf.count, same_symbol_count, perf.win_rate, perf.avg_pnl * 100.0
     )
 }
 
@@ -230,12 +230,12 @@ mod tests {
             HistoryEntry {
                 intent: create_dummy_intent("AAPL"),
                 market_analysis: create_dummy_analysis("AAPL", "Trending Up", "Low"),
-                outcome: Some(10.0), // Win
+                outcome: Some(0.10), // Win 10%
             },
             HistoryEntry {
                 intent: create_dummy_intent("GOOG"),
                 market_analysis: create_dummy_analysis("GOOG", "Trending Up", "Low"),
-                outcome: Some(-5.0), // Loss
+                outcome: Some(-0.05), // Loss 5%
             },
         ];
 
@@ -243,6 +243,6 @@ mod tests {
         assert!(summary.contains("Found 2 similar past trades"));
         assert!(summary.contains("(1 on same symbol)"));
         assert!(summary.contains("Win Rate: 50.0%"));
-        assert!(summary.contains("Avg PnL: 2.50")); // (10 - 5) / 2 = 2.5
+        assert!(summary.contains("Avg Return: 2.50%")); // (0.10 - 0.05) / 2 = 0.025 = 2.5%
     }
 }

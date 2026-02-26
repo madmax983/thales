@@ -13,7 +13,7 @@ use serde::Serialize;
 use serde_json::json;
 use thiserror::Error;
 
-use thales_cli::{analysis, backtest, rag, reporting, signals};
+use thales_cli::{analysis, backtest, history, rag, reporting, signals};
 
 #[derive(Debug, Parser)]
 #[command(name = "thales-cli", version, about = "Agent trading toolkit CLI")]
@@ -111,6 +111,12 @@ enum Commands {
         portfolio: Option<PathBuf>,
         #[arg(long)]
         analysis: Option<PathBuf>,
+    },
+    UpdateSignalHistory {
+        #[arg(long)]
+        input: PathBuf,
+        #[arg(long)]
+        provider: String,
     },
     ScanMarket {
         #[arg(long)]
@@ -383,6 +389,35 @@ fn run(command: Commands) -> Result<String, CliError> {
             }).map_err(|e| CliError::Validation(e.to_string()))?;
 
             ok_envelope(intents)
+        }
+        Commands::UpdateSignalHistory { input, provider } => {
+            let count = match provider.as_str() {
+                "kraken" => {
+                    let cfg = KrakenConfig::from_env().map_err(|e| CliError::Provider(e.to_string()))?;
+                    let client = KrakenClient::new(cfg);
+                    history::update_history(&input, |sym, tf| {
+                        client.fetch_bars(sym, tf).map_err(|e| anyhow::anyhow!(e))
+                    })
+                }
+                "alpaca" => {
+                    let cfg = AlpacaConfig::from_env().map_err(|e| CliError::Provider(e.to_string()))?;
+                    let client = AlpacaClient::new(cfg);
+                    history::update_history(&input, |sym, tf| {
+                         client.fetch_bars(sym, tf).map_err(|e| anyhow::anyhow!(e))
+                    })
+                }
+                "paper" => {
+                    let cfg = PaperConfig::from_env();
+                    let client = PaperClient::new(cfg);
+                    history::update_history(&input, |sym, tf| {
+                         client.fetch_bars(sym, tf).map_err(|e| anyhow::anyhow!(e))
+                    })
+                }
+                _ => return Err(CliError::Validation(format!("Unsupported provider: {}", provider))),
+            }
+            .map_err(|e| CliError::Validation(e.to_string()))?;
+
+            ok_envelope(json!({ "updated_count": count }))
         }
         Commands::ScanMarket { provider, top_n, min_volatility, min_momentum } => {
             let symbols = scan_market(&provider, top_n, min_volatility, min_momentum)?;

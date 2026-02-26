@@ -815,6 +815,14 @@ def main():
     # 0b. Archive Stale Signals
     archive_signals(days=2)
 
+    # 0c. Update Signal History
+    if os.environ.get("SIMULATION") == "true":
+        run_command(["update-signal-history", "--input", "history.json", "--provider", "paper"])
+    else:
+        # Run for both providers to cover all assets
+        run_command(["update-signal-history", "--input", "history.json", "--provider", "kraken"])
+        run_command(["update-signal-history", "--input", "history.json", "--provider", "alpaca"])
+
     # 1. Identify Strategies
     strategies = get_active_strategies()
     if not strategies:
