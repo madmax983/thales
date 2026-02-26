@@ -93,3 +93,18 @@
 **Volatility**: Unknown
 **ATR**: N/A
 **Assessment**: Mean Reversion
+
+### XXBTZUSD - 2026-02-26 21:00:00 (crypto)
+**Volatility**: Low
+**ATR**: 607.42
+**Assessment**: Mean Reversion
+
+### XETHZUSD - 2026-02-26 21:00:00 (crypto)
+**Volatility**: Medium
+**ATR**: 25.83
+**Assessment**: Trend Following (Long)
+
+### SPY - 2026-02-26 21:00:00 (equities)
+**Volatility**: Unknown
+**ATR**: N/A
+**Assessment**: Mean Reversion
