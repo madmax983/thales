@@ -204,9 +204,11 @@ fn calculate_sentiment(df: &DataFrame, regime: &str) -> String {
     let macd_res = macd::calculate(df, 12, 26, 9).ok();
 
     let mut sentiment_score = 0; // -2 to +2
+    let mut last_rsi_val = None;
 
     if let Some(s) = rsi_series {
         if let Some(val) = s.f64().ok().and_then(|v| v.last()) {
+            last_rsi_val = Some(val);
             if val > 70.0 {
                 sentiment_score += 1;
             }
@@ -236,7 +238,7 @@ fn calculate_sentiment(df: &DataFrame, regime: &str) -> String {
         }
     }
 
-    if sentiment_score >= 2 {
+    let mut sentiment_str = if sentiment_score >= 2 {
         "Bullish (Strong)".to_string()
     } else if sentiment_score == 1 {
         "Bullish".to_string()
@@ -250,7 +252,17 @@ fn calculate_sentiment(df: &DataFrame, regime: &str) -> String {
             "Trending Down" => "Bearish".to_string(),
             _ => "Neutral".to_string(),
         }
+    };
+
+    if let Some(val) = last_rsi_val {
+        if val > 70.0 {
+            sentiment_str.push_str(" (Overbought)");
+        } else if val < 30.0 {
+            sentiment_str.push_str(" (Oversold)");
+        }
     }
+
+    sentiment_str
 }
 
 fn detect_patterns(df: &DataFrame, bars: &[Bar]) -> Vec<String> {
@@ -480,5 +492,44 @@ mod tests {
         // ATR will be high relative to price (avg price ~105, TR ~15)
         // Ratio ~ 15/105 ~ 0.14 > 0.05 -> Extreme
         assert_eq!(analysis.volatility, "Extreme");
+    }
+
+    #[test]
+    fn test_sentiment_overbought_oversold() {
+        let mut bars = Vec::new();
+        // Generate Overbought (RSI > 70)
+        // Steep uptrend usually causes high RSI
+        for i in 0..50 {
+            let close = 100.0 + (i as f64) * 2.0; // Steep climb
+            bars.push(create_bar(close, i));
+        }
+
+        let series = BarSeries {
+            schema_version: "v0".to_string(),
+            bars,
+        };
+        let analysis = analyze(&series);
+        assert!(
+            analysis.sentiment.contains("(Overbought)"),
+            "Sentiment '{}' should contain (Overbought)",
+            analysis.sentiment
+        );
+
+        // Generate Oversold (RSI < 30)
+        let mut bars_down = Vec::new();
+        for i in 0..50 {
+            let close = 200.0 - (i as f64) * 2.0; // Steep drop
+            bars_down.push(create_bar(close, i));
+        }
+        let series_down = BarSeries {
+            schema_version: "v0".to_string(),
+            bars: bars_down,
+        };
+        let analysis_down = analyze(&series_down);
+        assert!(
+            analysis_down.sentiment.contains("(Oversold)"),
+            "Sentiment '{}' should contain (Oversold)",
+            analysis_down.sentiment
+        );
     }
 }
