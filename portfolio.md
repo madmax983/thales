@@ -203,3 +203,33 @@
 | 2026-02-25 23:47:44 | XBTUSD | crypto:XBTUSD:sell:1772060400000 | provider error: kraken api error: EOrder:Insufficient funds |
 | 2026-02-25 23:47:44 | XXBTZUSD | crypto:XXBTZUSD:sell:1772060400000 | Lower priority/confidence than top 3 |
 | 2026-02-25 23:47:44 | XETHZUSD | crypto:XETHZUSD:sell:1772060400000 | Lower priority/confidence than top 3 |
+| 2026-02-26 00:16:45 | AAPL | STALE_SIGNAL | Signal too old (55.5 hours > 24 hours) |
+| 2026-02-26 00:16:45 | BTCUSD | STALE_SIGNAL | Signal too old (29.3 hours > 24 hours) |
+| 2026-02-26 00:16:45 | SPY | STALE_SIGNAL | Signal too old (24.3 hours > 24 hours) |
+| 2026-02-26 00:16:45 | NVDA | STALE_SIGNAL | Signal too old (24.3 hours > 24 hours) |
+| 2026-02-26 00:16:46 | BTC/USD | NO_STRATEGY_SIGNAL | No active strategy generated a signal (Strategies: BollingerBands, EmaCrossover, RsiMeanReversion, Macd, Supertrend, DonchianBreakout, ParabolicSar, KeltnerChannelBreakout, StochasticOscillator, AdxMomentum) |
+| 2026-02-26 00:16:46 | ETH/USD | NO_STRATEGY_SIGNAL | No active strategy generated a signal (Strategies: BollingerBands, EmaCrossover, RsiMeanReversion, Macd, Supertrend, DonchianBreakout, ParabolicSar, KeltnerChannelBreakout, StochasticOscillator, AdxMomentum) |
+| 2026-02-26 00:16:46 | XETHZUSD | crypto:XETHZUSD:sell:1772065005758 | Lower priority/confidence than top 3 |
+| 2026-02-26 00:16:46 | BSXUSD | equities:BSXUSD:buy:1772065005867 | Lower priority/confidence than top 3 |
+| 2026-02-26 00:16:46 | BTCUSD | crypto:BTCUSD:sell:1772065005978 | Lower priority/confidence than top 3 |
+| 2026-02-26 00:16:46 | SPY | equities:SPY:buy:1772065006085 | Lower priority/confidence than top 3 |
+| 2026-02-26 00:16:46 | ETHUSD | crypto:ETHUSD:sell:1772065006318 | Lower priority/confidence than top 3 |
+| 2026-02-26 00:20:12 | BTCUSD | STALE_SIGNAL | Signal too old (29.3 hours > 24 hours) |
+| 2026-02-26 00:20:12 | SPY | STALE_SIGNAL | Signal too old (24.3 hours > 24 hours) |
+| 2026-02-26 00:20:12 | NVDA | STALE_SIGNAL | Signal too old (24.3 hours > 24 hours) |
+| 2026-02-26 00:20:13 | BTC/USD | NO_STRATEGY_SIGNAL | No active strategy generated a signal (Strategies: BollingerBands, EmaCrossover, RsiMeanReversion, Macd, Supertrend, DonchianBreakout, ParabolicSar, KeltnerChannelBreakout, StochasticOscillator, AdxMomentum) |
+| 2026-02-26 00:20:13 | ETH/USD | NO_STRATEGY_SIGNAL | No active strategy generated a signal (Strategies: BollingerBands, EmaCrossover, RsiMeanReversion, Macd, Supertrend, DonchianBreakout, ParabolicSar, KeltnerChannelBreakout, StochasticOscillator, AdxMomentum) |
+| 2026-02-26 00:20:13 | ETHUSD | crypto:ETHUSD:sell:1772065213101 | Lower priority/confidence than top 3 |
+| 2026-02-26 00:20:13 | SPY | equities:SPY:buy:1772065213210 | Lower priority/confidence than top 3 |
+
+## Executed Trades
+
+| Date/Time | Asset Class | Symbol/Contract | Action | Size/Qty | Entry Price | SL | TP | Max Risk | Confidence | Signal Ref | Rationale |
+|---|---|---|---|---|---|---|---|---|---|---|---|
+| 2026-02-26 00:16:46 | equities | AAPL | buy (Entry) | 24.659559 | Market | 163.50176944089972 | 175.6674371854485 | - | 64% | equities:AAPL:buy:1772065005429 | Strategy: DonchianBreakout (64%, MA: 0.80). Reason: Breakout: Close 167.56 > Upper Channel 164.60. Market Context: Trending Up (Short Term) (Medium Volatility). No similar past trades found. |
+| 2026-02-26 00:16:46 | crypto | XBTUSD | sell (Entry) | 0.057993 | Market | 61191.36644146006 | 56407.7334281984 | - | 64% | crypto:XBTUSD:sell:1772065005541 | Strategy: KeltnerChannelBreakout (64%, MA: 0.80). Reason: Keltner Breakdown: Close 59467.03 < Lower 61284.38. Market Context: Trending Down (Short Term) (Medium Volatility). No similar past trades found. |
+| 2026-02-26 00:16:46 | crypto | XXBTZUSD | sell (Entry) | 0.057993 | Market | 61191.36644146006 | 56407.7334281984 | - | 64% | crypto:XXBTZUSD:sell:1772065005649 | Strategy: KeltnerChannelBreakout (64%, MA: 0.80). Reason: Keltner Breakdown: Close 59467.03 < Lower 61284.38. Market Context: Trending Down (Short Term) (Medium Volatility). No similar past trades found. |
+| 2026-02-26 00:20:13 | crypto | XBTUSD | sell (Exit) | max | Market | - | - | - | 64% | crypto:XBTUSD:sell:1772065212564 | Strategy: DonchianBreakout (64%, MA: 0.80). Reason: Breakdown: Close 59467.03 < Lower Channel 60559.28. Market Context: Trending Down (Short Term) (Medium Volatility). No similar past trades found. |
+| 2026-02-26 00:20:13 | equities | BSXUSD | buy (Entry) | 24.659559 | Market | 163.50176944089972 | 175.6674371854485 | - | 64% | equities:BSXUSD:buy:1772065212688 | Strategy: DonchianBreakout (64%, MA: 0.80). Reason: Breakout: Close 167.56 > Upper Channel 164.60. Market Context: Trending Up (Short Term) (Medium Volatility). No similar past trades found. |
+| 2026-02-26 00:20:13 | crypto | BTCUSD | sell (Entry) | 0.057993 | Market | 61191.36644146006 | 56407.7334281984 | - | 64% | crypto:BTCUSD:sell:1772065212867 | Strategy: KeltnerChannelBreakout (64%, MA: 0.80). Reason: Keltner Breakdown: Close 59467.03 < Lower 61284.38. Market Context: Trending Down (Short Term) (Medium Volatility). No similar past trades found. Research: Simulated 2026 environment. No live news feed available.. News: Simulated 2026 environment. No live news feed available.
+*Historical Context*: No similar past trades found.. |

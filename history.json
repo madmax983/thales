@@ -1,1 +1,270 @@
-[]
+[
+  {
+    "intent": {
+      "intent_id": "equities:AAPL:buy:1772065005429",
+      "market": "equities",
+      "symbol": "AAPL",
+      "side": "buy",
+      "size_hint": "24.659559",
+      "confidence": 0.64,
+      "horizon": "1d",
+      "rationale": "Strategy: DonchianBreakout (64%, MA: 0.80). Reason: Breakout: Close 167.56 > Upper Channel 164.60. Market Context: Trending Up (Short Term) (Medium Volatility). No similar past trades found.",
+      "invalidation": "Price hits Stop Loss",
+      "schema_version": "v0",
+      "signal_type": "Entry",
+      "stop_loss": 163.50176944089972,
+      "take_profit": 175.6674371854485,
+      "order_type": "market",
+      "limit_price": null,
+      "stop_price": null,
+      "time_in_force": "day",
+      "execution_algo": "Market"
+    },
+    "market_analysis": {
+      "symbol": "AAPL",
+      "market": "equities",
+      "regime": "Trending Up (Short Term)",
+      "sentiment": "Bullish (Strong)",
+      "patterns": [
+        "Breakout (Upside)",
+        "Consolidation (Squeeze)"
+      ],
+      "key_levels": [
+        144.1208937259845,
+        156.00649986622267
+      ],
+      "volatility": "Medium",
+      "atr": 2.0276112907581316,
+      "research_summary": null,
+      "news_summary": null,
+      "recommendation": "Neutral / Wait",
+      "confidence": 0.7999999999999999,
+      "timestamp_unix_ms": 1772065005429
+    },
+    "outcome": null
+  },
+  {
+    "intent": {
+      "intent_id": "crypto:XBTUSD:sell:1772065005541",
+      "market": "crypto",
+      "symbol": "XBTUSD",
+      "side": "sell",
+      "size_hint": "0.057993",
+      "confidence": 0.64,
+      "horizon": "1d",
+      "rationale": "Strategy: KeltnerChannelBreakout (64%, MA: 0.80). Reason: Keltner Breakdown: Close 59467.03 < Lower 61284.38. Market Context: Trending Down (Short Term) (Medium Volatility). No similar past trades found.",
+      "invalidation": "Price hits Stop Loss",
+      "schema_version": "v0",
+      "signal_type": "Entry",
+      "stop_loss": 61191.36644146006,
+      "take_profit": 56407.7334281984,
+      "order_type": "market",
+      "limit_price": null,
+      "stop_price": null,
+      "time_in_force": "GTC",
+      "execution_algo": "Market"
+    },
+    "market_analysis": {
+      "symbol": "XBTUSD",
+      "market": "crypto",
+      "regime": "Trending Down (Short Term)",
+      "sentiment": "Bearish (Strong)",
+      "patterns": [
+        "Breakout (Downside)",
+        "Consolidation (Squeeze)"
+      ],
+      "key_levels": [
+        59348.09299105641,
+        62321.223889637375,
+        62637.9775018533
+      ],
+      "volatility": "Medium",
+      "atr": 764.8234042370752,
+      "research_summary": null,
+      "news_summary": null,
+      "recommendation": "Neutral / Wait",
+      "confidence": 0.7999999999999999,
+      "timestamp_unix_ms": 1772065005541
+    },
+    "outcome": null
+  },
+  {
+    "intent": {
+      "intent_id": "crypto:XXBTZUSD:sell:1772065005649",
+      "market": "crypto",
+      "symbol": "XXBTZUSD",
+      "side": "sell",
+      "size_hint": "0.057993",
+      "confidence": 0.64,
+      "horizon": "1d",
+      "rationale": "Strategy: KeltnerChannelBreakout (64%, MA: 0.80). Reason: Keltner Breakdown: Close 59467.03 < Lower 61284.38. Market Context: Trending Down (Short Term) (Medium Volatility). No similar past trades found.",
+      "invalidation": "Price hits Stop Loss",
+      "schema_version": "v0",
+      "signal_type": "Entry",
+      "stop_loss": 61191.36644146006,
+      "take_profit": 56407.7334281984,
+      "order_type": "market",
+      "limit_price": null,
+      "stop_price": null,
+      "time_in_force": "GTC",
+      "execution_algo": "Market"
+    },
+    "market_analysis": {
+      "symbol": "XXBTZUSD",
+      "market": "crypto",
+      "regime": "Trending Down (Short Term)",
+      "sentiment": "Bearish (Strong)",
+      "patterns": [
+        "Breakout (Downside)",
+        "Consolidation (Squeeze)"
+      ],
+      "key_levels": [
+        59348.09299105641,
+        62321.223889637375,
+        62637.9775018533
+      ],
+      "volatility": "Medium",
+      "atr": 764.8234042370752,
+      "research_summary": null,
+      "news_summary": null,
+      "recommendation": "Neutral / Wait",
+      "confidence": 0.7999999999999999,
+      "timestamp_unix_ms": 1772065005649
+    },
+    "outcome": null
+  },
+  {
+    "intent": {
+      "intent_id": "crypto:XBTUSD:sell:1772065212564",
+      "market": "crypto",
+      "symbol": "XBTUSD",
+      "side": "sell",
+      "size_hint": "max",
+      "confidence": 0.64,
+      "horizon": "1d",
+      "rationale": "Strategy: DonchianBreakout (64%, MA: 0.80). Reason: Breakdown: Close 59467.03 < Lower Channel 60559.28. Market Context: Trending Down (Short Term) (Medium Volatility). No similar past trades found.",
+      "invalidation": "Price hits Stop Loss",
+      "schema_version": "v0",
+      "signal_type": "Exit",
+      "stop_loss": null,
+      "take_profit": null,
+      "order_type": "market",
+      "limit_price": null,
+      "stop_price": null,
+      "time_in_force": "GTC",
+      "execution_algo": "Market"
+    },
+    "market_analysis": {
+      "symbol": "XBTUSD",
+      "market": "crypto",
+      "regime": "Trending Down (Short Term)",
+      "sentiment": "Bearish (Strong)",
+      "patterns": [
+        "Breakout (Downside)",
+        "Consolidation (Squeeze)"
+      ],
+      "key_levels": [
+        59348.09299105641,
+        62321.223889637375,
+        62637.9775018533
+      ],
+      "volatility": "Medium",
+      "atr": 764.8234042370752,
+      "research_summary": null,
+      "news_summary": null,
+      "recommendation": "Neutral / Wait",
+      "confidence": 0.7999999999999999,
+      "timestamp_unix_ms": 1772065212564
+    },
+    "outcome": null
+  },
+  {
+    "intent": {
+      "intent_id": "equities:BSXUSD:buy:1772065212688",
+      "market": "equities",
+      "symbol": "BSXUSD",
+      "side": "buy",
+      "size_hint": "24.659559",
+      "confidence": 0.64,
+      "horizon": "1d",
+      "rationale": "Strategy: DonchianBreakout (64%, MA: 0.80). Reason: Breakout: Close 167.56 > Upper Channel 164.60. Market Context: Trending Up (Short Term) (Medium Volatility). No similar past trades found.",
+      "invalidation": "Price hits Stop Loss",
+      "schema_version": "v0",
+      "signal_type": "Entry",
+      "stop_loss": 163.50176944089972,
+      "take_profit": 175.6674371854485,
+      "order_type": "market",
+      "limit_price": null,
+      "stop_price": null,
+      "time_in_force": "day",
+      "execution_algo": "Market"
+    },
+    "market_analysis": {
+      "symbol": "BSXUSD",
+      "market": "equities",
+      "regime": "Trending Up (Short Term)",
+      "sentiment": "Bullish (Strong)",
+      "patterns": [
+        "Breakout (Upside)",
+        "Consolidation (Squeeze)"
+      ],
+      "key_levels": [
+        144.1208937259845,
+        156.00649986622267
+      ],
+      "volatility": "Medium",
+      "atr": 2.0276112907581316,
+      "research_summary": null,
+      "news_summary": null,
+      "recommendation": "Neutral / Wait",
+      "confidence": 0.7999999999999999,
+      "timestamp_unix_ms": 1772065212688
+    },
+    "outcome": null
+  },
+  {
+    "intent": {
+      "intent_id": "crypto:BTCUSD:sell:1772065212867",
+      "market": "crypto",
+      "symbol": "BTCUSD",
+      "side": "sell",
+      "size_hint": "0.057993",
+      "confidence": 0.64,
+      "horizon": "1d",
+      "rationale": "Strategy: KeltnerChannelBreakout (64%, MA: 0.80). Reason: Keltner Breakdown: Close 59467.03 < Lower 61284.38. Market Context: Trending Down (Short Term) (Medium Volatility). No similar past trades found. Research: Simulated 2026 environment. No live news feed available.. News: Simulated 2026 environment. No live news feed available.\n*Historical Context*: No similar past trades found..",
+      "invalidation": "Price hits Stop Loss",
+      "schema_version": "v0",
+      "signal_type": "Entry",
+      "stop_loss": 61191.36644146006,
+      "take_profit": 56407.7334281984,
+      "order_type": "market",
+      "limit_price": null,
+      "stop_price": null,
+      "time_in_force": "GTC",
+      "execution_algo": "Market"
+    },
+    "market_analysis": {
+      "symbol": "BTCUSD",
+      "market": "crypto",
+      "regime": "Trending Down (Short Term)",
+      "sentiment": "Bearish (Strong)",
+      "patterns": [
+        "Breakout (Downside)",
+        "Consolidation (Squeeze)"
+      ],
+      "key_levels": [
+        59348.09299105641,
+        62321.223889637375,
+        62637.9775018533
+      ],
+      "volatility": "Medium",
+      "atr": 764.8234042370752,
+      "research_summary": "Simulated 2026 environment. No live news feed available.",
+      "news_summary": "Simulated 2026 environment. No live news feed available.\n*Historical Context*: No similar past trades found.",
+      "recommendation": "Neutral / Wait",
+      "confidence": 0.7999999999999999,
+      "timestamp_unix_ms": 1772054673891
+    },
+    "outcome": null
+  }
+]
