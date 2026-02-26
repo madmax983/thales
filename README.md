@@ -57,7 +57,18 @@ cargo run -p thales-cli -- backtest \
   --risk 0.01 > backtest_results.json
 ```
 
-### 3. Generate Signals
+### 3. Benchmark Strategies
+Compare all available strategies on a dataset to find the best performer.
+
+```bash
+cargo run -p thales-cli -- benchmark \
+  --input market_data.json \
+  --initial-capital 10000 \
+  --risk 100 \
+  --sort-by total_return > benchmark_results.json
+```
+
+### 4. Generate Signals
 Run a strategy on the fetched data to generate trade intents for the **current** timestamp.
 
 > **Note**: This command outputs signals only if the strategy triggers at the latest available data point. If empty, check `backtest` results to verify strategy logic on historical data.
@@ -68,7 +79,7 @@ cargo run -p thales-cli -- generate-signals \
   --strategy BollingerBandsMeanReversion > signals.json
 ```
 
-### 4. Execute Trades
+### 5. Execute Trades
 Execute the generated trade intents.
 
 ```bash

@@ -1,21 +1,11 @@
 use crate::analysis;
 use crate::rag;
+use crate::strategy_factory;
 use anyhow::Result;
 use contracts::{BarSeries, TradeIntent, MarketAnalysis};
 use polars::prelude::*;
 use std::path::Path;
-use strategies::bollinger_bands::{BollingerBandsConfig, BollingerBandsMeanReversion};
-use strategies::ema_crossover::{EmaCrossover, EmaCrossoverConfig};
-use strategies::rsi_mean_reversion::{RsiMeanReversion, RsiMeanReversionConfig};
-use strategies::macd::{Macd, MacdConfig};
-use strategies::supertrend::{Supertrend, SupertrendConfig};
-use strategies::donchian_breakout::{DonchianBreakout, DonchianBreakoutConfig};
-use strategies::parabolic_sar::{ParabolicSar, ParabolicSarConfig};
-use strategies::keltner_channel_breakout::{KeltnerChannelBreakout, KeltnerChannelBreakoutConfig};
-use strategies::stochastic_oscillator::{StochasticOscillator, StochasticOscillatorConfig};
-use strategies::adx_momentum::{AdxMomentum, AdxMomentumConfig};
-use strategies::ichimoku_cloud::{IchimokuCloud, IchimokuCloudConfig};
-use strategies::strategy::{Signal, SignalType, Strategy};
+use strategies::strategy::{Signal, SignalType};
 
 fn resolve_signal_type(signal: &Signal, position: Option<&contracts::Position>) -> (SignalType, String) {
     let mut final_signal_type = signal.signal_type.clone();
@@ -116,109 +106,7 @@ pub async fn generate_signals(
     let latest_timestamp = bars.bars.last().map(|b| b.timestamp_unix_ms).unwrap_or(0);
 
     // 3. Run Strategy
-    // For now, hardcode BollingerBandsMeanReversion. In future, use factory.
-    let strategy: Box<dyn Strategy> = if strategy_name == "BollingerBands" || strategy_name == "BollingerBandsMeanReversion" {
-        let config = BollingerBandsConfig {
-            window_size: 20,
-            num_std_dev: 2.0,
-            stop_loss_pct: 0.05, // Strategy config default, but we'll override or use for initial filtering
-            symbol: market_analysis.symbol.clone(),
-        };
-        Box::new(BollingerBandsMeanReversion::new(config))
-    } else if strategy_name == "EmaCrossover" {
-        let config = EmaCrossoverConfig {
-            short_window: 9,
-            long_window: 21,
-            stop_loss_pct: 0.05,
-            symbol: market_analysis.symbol.clone(),
-        };
-        Box::new(EmaCrossover::new(config))
-    } else if strategy_name == "RsiMeanReversion" {
-        let config = RsiMeanReversionConfig {
-            period: 14,
-            oversold_threshold: 30.0,
-            overbought_threshold: 70.0,
-            stop_loss_pct: 0.05,
-            symbol: market_analysis.symbol.clone(),
-        };
-        Box::new(RsiMeanReversion::new(config))
-    } else if strategy_name == "Macd" {
-        let config = MacdConfig {
-            fast_period: 12,
-            slow_period: 26,
-            signal_period: 9,
-            stop_loss_pct: 0.05,
-            symbol: market_analysis.symbol.clone(),
-        };
-        Box::new(Macd::new(config))
-    } else if strategy_name == "Supertrend" {
-        let config = SupertrendConfig {
-            period: 10,
-            factor: 3.0,
-            symbol: market_analysis.symbol.clone(),
-        };
-        Box::new(Supertrend::new(config))
-    } else if strategy_name == "DonchianBreakout" {
-        let config = DonchianBreakoutConfig {
-            entry_period: 20,
-            exit_period: 10,
-            stop_loss_atr_mult: 2.0,
-            symbol: market_analysis.symbol.clone(),
-        };
-        Box::new(DonchianBreakout::new(config))
-    } else if strategy_name == "ParabolicSar" {
-        let config = ParabolicSarConfig {
-            start: 0.02,
-            increment: 0.02,
-            max: 0.2,
-            symbol: market_analysis.symbol.clone(),
-        };
-        Box::new(ParabolicSar::new(config))
-    } else if strategy_name == "KeltnerChannelBreakout" {
-        let config = KeltnerChannelBreakoutConfig {
-            ema_period: 20,
-            atr_period: 10,
-            atr_multiplier: 2.0,
-            stop_loss_atr_mult: 2.0,
-            symbol: market_analysis.symbol.clone(),
-        };
-        Box::new(KeltnerChannelBreakout::new(config))
-    } else if strategy_name == "StochasticOscillator" {
-        let config = StochasticOscillatorConfig {
-            k_period: 14,
-            k_smoothing: 3,
-            d_period: 3,
-            oversold_threshold: 20.0,
-            overbought_threshold: 80.0,
-            stop_loss_atr_mult: 2.0,
-            atr_period: 14,
-            symbol: market_analysis.symbol.clone(),
-        };
-        Box::new(StochasticOscillator::new(config))
-    } else if strategy_name == "AdxMomentum" {
-        let config = AdxMomentumConfig {
-            adx_period: 14,
-            adx_threshold: 25.0,
-            di_period: 14,
-            stop_loss_atr_mult: 2.0,
-            atr_period: 14,
-            symbol: market_analysis.symbol.clone(),
-        };
-        Box::new(AdxMomentum::new(config))
-    } else if strategy_name == "IchimokuCloud" {
-        let config = IchimokuCloudConfig {
-            tenkan_period: 9,
-            kijun_period: 26,
-            senkou_span_b_period: 52,
-            senkou_span_offset: 26,
-            chikou_span_offset: 26,
-            symbol: market_analysis.symbol.clone(),
-        };
-        Box::new(IchimokuCloud::new(config))
-    } else {
-        // Fallback or Error
-        return Err(anyhow::anyhow!("Unknown strategy: {}", strategy_name));
-    };
+    let strategy = strategy_factory::create_strategy(strategy_name, &market_analysis.symbol)?;
 
     let raw_signals = strategy.generate_signals(&df).await?;
     let raw_signals_count = raw_signals.len();
