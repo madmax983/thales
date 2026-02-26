@@ -34,3 +34,15 @@
 ### SPY - 2026-02-26 09:15:16 (equities)
 **Research**: Market maintaining uptrend near all-time highs.
 **News**: Monitoring economic data for potential volatility.
+
+### XXBTZUSD - 2026-02-26 13:00:00 (crypto)
+**Research**: Bitcoin consolidates below key 70k resistance. Market remains cautiously optimistic but mindful of macroeconomic headwinds.
+**News**: No major breaking news specific to crypto markets at this moment.
+
+### XETHZUSD - 2026-02-26 13:00:00 (crypto)
+**Research**: Ethereum shows strength against Bitcoin, driven by network activity and L2 growth. Testing 2150 resistance.
+**News**: Ethereum developers discuss upcoming upgrade schedule.
+
+### SPY - 2026-02-26 13:00:00 (equities)
+**Research**: Equity markets remain resilient near all-time highs. Fed policy expectations stabilize.
+**News**: Corporate earnings season concludes with mixed results.
