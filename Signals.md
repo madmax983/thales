@@ -665,3 +665,224 @@ Simulated Fed meeting minutes hint at rate cuts.
 ```
 
 ---
+
+## Market Analysis Report - crypto - XXBTZUSD
+
+**Timestamp (ms)**: 1772132400000
+**Confidence**: 50.00%
+
+### 1. Market Regime
+Regime Unchanged (Ranging)
+*Sentiment*: Bearish
+
+### 2. Volatility
+*Assessment*: Low
+
+### 3. Strategy Recommendation
+**Mean Reversion**
+
+### 4. Patterns & Price Action
+*Patterns*: Breakout (Upside), Consolidation (Squeeze)
+
+### 5. Key Levels
+*Support/Resistance*: 63835, 66513, 66917.5, 67684.2
+
+### 6. Research & Context
+**Research**:
+Bitcoin is currently facing resistance at 8K, with some analysts suggesting the bear market might not be over. There are rumors of Jane Street selling impacting price, but a 0.5B options expiry could be a catalyst for change. Price recently bounced to 6K.
+
+**News**:
+Coin Bureau CEO discusses Bitcoin cycles in 2026. US President Trump's influence on Bitcoin price is being analyzed.
+*Historical Context*: No similar past trades found.
+
+```json
+{
+  "symbol": "XXBTZUSD",
+  "market": "crypto",
+  "regime": "Ranging",
+  "sentiment": "Bearish",
+  "patterns": [
+    "Breakout (Upside)",
+    "Consolidation (Squeeze)"
+  ],
+  "key_levels": [
+    63835.0,
+    66513.0,
+    66917.5,
+    67684.2
+  ],
+  "volatility": "Low",
+  "atr": 637.6381935095839,
+  "research_summary": "Bitcoin is currently facing resistance at 8K, with some analysts suggesting the bear market might not be over. There are rumors of Jane Street selling impacting price, but a 0.5B options expiry could be a catalyst for change. Price recently bounced to 6K.",
+  "news_summary": "Coin Bureau CEO discusses Bitcoin cycles in 2026. US President Trump's influence on Bitcoin price is being analyzed.",
+  "recommendation": "Mean Reversion",
+  "confidence": 0.5,
+  "timestamp_unix_ms": 1772132400000
+}
+```
+
+---
+
+## Market Analysis Report - crypto - XXBTZUSD
+
+**Timestamp (ms)**: 1772132400000
+**Confidence**: 50.00%
+
+### 1. Market Regime
+Regime Unchanged (Ranging)
+*Sentiment*: Bearish
+
+### 2. Volatility
+*Assessment*: Low
+
+### 3. Strategy Recommendation
+**Mean Reversion**
+
+### 4. Patterns & Price Action
+*Patterns*: Breakout (Upside), Consolidation (Squeeze)
+
+### 5. Key Levels
+*Support/Resistance*: 63835, 66513, 66917.5, 67684.2
+
+### 6. Research & Context
+**Research**:
+Bitcoin is currently facing resistance at $68K, with some analysts suggesting the bear market might not be over. There are rumors of Jane Street selling impacting price, but a $10.5B options expiry could be a catalyst for change. Price recently bounced to $66K.
+
+**News**:
+Coin Bureau CEO discusses Bitcoin cycles in 2026. US President Trump's influence on Bitcoin price is being analyzed.
+*Historical Context*: No similar past trades found.
+
+```json
+{
+  "symbol": "XXBTZUSD",
+  "market": "crypto",
+  "regime": "Ranging",
+  "sentiment": "Bearish",
+  "patterns": [
+    "Breakout (Upside)",
+    "Consolidation (Squeeze)"
+  ],
+  "key_levels": [
+    63835.0,
+    66513.0,
+    66917.5,
+    67684.2
+  ],
+  "volatility": "Low",
+  "atr": 637.6381935095839,
+  "research_summary": "Bitcoin is currently facing resistance at $68K, with some analysts suggesting the bear market might not be over. There are rumors of Jane Street selling impacting price, but a $10.5B options expiry could be a catalyst for change. Price recently bounced to $66K.",
+  "news_summary": "Coin Bureau CEO discusses Bitcoin cycles in 2026. US President Trump's influence on Bitcoin price is being analyzed.",
+  "recommendation": "Mean Reversion",
+  "confidence": 0.5,
+  "timestamp_unix_ms": 1772132400000
+}
+```
+
+---
+
+## Market Analysis Report - crypto - XETHZUSD
+
+**Timestamp (ms)**: 1772132400000
+**Confidence**: 70.00%
+
+### 1. Market Regime
+Regime Unchanged (Trending Up)
+*Sentiment*: Bearish
+
+### 2. Volatility
+*Assessment*: Medium
+
+### 3. Strategy Recommendation
+**Trend Following (Long)**
+
+### 4. Patterns & Price Action
+*Patterns*: Breakout (Upside), Breakout (Downside), Consolidation (Squeeze)
+
+### 5. Key Levels
+*Support/Resistance*: 1845.77, 1975.33, 2002.185, 2029.225
+
+### 6. Research & Context
+**Research**:
+Ethereum recently reclaimed the $2K level amidst increased volatility. On-chain data suggests a potential macro bottom as key support holds.
+
+**News**:
+Volatility spike observed in ETH markets supporting price recovery.
+*Historical Context*: No similar past trades found.
+
+```json
+{
+  "symbol": "XETHZUSD",
+  "market": "crypto",
+  "regime": "Trending Up",
+  "sentiment": "Bearish",
+  "patterns": [
+    "Breakout (Upside)",
+    "Breakout (Downside)",
+    "Consolidation (Squeeze)"
+  ],
+  "key_levels": [
+    1845.77,
+    1975.33,
+    2002.185,
+    2029.225
+  ],
+  "volatility": "Medium",
+  "atr": 27.441984732228843,
+  "research_summary": "Ethereum recently reclaimed the $2K level amidst increased volatility. On-chain data suggests a potential macro bottom as key support holds.",
+  "news_summary": "Volatility spike observed in ETH markets supporting price recovery.",
+  "recommendation": "Trend Following (Long)",
+  "confidence": 0.7,
+  "timestamp_unix_ms": 1772132400000
+}
+```
+
+---
+
+## Market Analysis Report - equities - SPY
+
+**Timestamp (ms)**: 1772132400000
+**Confidence**: 50.00%
+
+### 1. Market Regime
+**ALERT: Regime Change Detected!** (Previous: Trending Up (Short Term), Current: Ranging)
+*Sentiment*: Neutral
+
+### 2. Volatility
+*Assessment*: Unknown
+
+### 3. Strategy Recommendation
+**Mean Reversion**
+
+### 4. Patterns & Price Action
+*Patterns*: None detected
+
+### 5. Key Levels
+*Support/Resistance*: None identified
+
+### 6. Research & Context
+**Research**:
+SPY continues to show resilience amidst mixed economic data. Inflation concerns persist but earnings remain strong.
+
+**News**:
+US Economy shows signs of soft landing. Federal Reserve likely to maintain current rate policy.
+*Historical Context*: No similar past trades found.
+
+```json
+{
+  "symbol": "SPY",
+  "market": "equities",
+  "regime": "Ranging",
+  "sentiment": "Neutral",
+  "patterns": [],
+  "key_levels": [],
+  "volatility": "Unknown",
+  "atr": null,
+  "research_summary": "SPY continues to show resilience amidst mixed economic data. Inflation concerns persist but earnings remain strong.",
+  "news_summary": "US Economy shows signs of soft landing. Federal Reserve likely to maintain current rate policy.",
+  "recommendation": "Mean Reversion",
+  "confidence": 0.5,
+  "timestamp_unix_ms": 1772132400000
+}
+```
+
+---
