@@ -1,10 +1,10 @@
 //! Keltner Channels - A volatility-based channel indicator using EMA and ATR.
 
+use super::{atr, ema};
 use anyhow::{Context, Result};
 use polars::prelude::*;
 use rust_decimal::prelude::*;
 use rust_decimal::Decimal;
-use super::{ema, atr};
 
 /// Calculate Keltner Channels
 ///
@@ -77,7 +77,7 @@ pub fn calculate(
                     upper_vals.push(None);
                     lower_vals.push(None);
                 }
-            },
+            }
             _ => {
                 // Missing data
                 upper_vals.push(None);
@@ -132,15 +132,27 @@ mod tests {
 
         // Check values after warmup (index 10 to be safe)
         if let Some(val) = m.get(10) {
-            assert!((val - 100.0).abs() < 1e-10, "Middle band mismatch: {} != 100.0", val);
+            assert!(
+                (val - 100.0).abs() < 1e-10,
+                "Middle band mismatch: {} != 100.0",
+                val
+            );
         }
 
         if let Some(val) = u.get(10) {
-             assert!((val - 104.0).abs() < 1e-10, "Upper band mismatch: {} != 104.0", val);
+            assert!(
+                (val - 104.0).abs() < 1e-10,
+                "Upper band mismatch: {} != 104.0",
+                val
+            );
         }
 
         if let Some(val) = l.get(10) {
-             assert!((val - 96.0).abs() < 1e-10, "Lower band mismatch: {} != 96.0", val);
+            assert!(
+                (val - 96.0).abs() < 1e-10,
+                "Lower band mismatch: {} != 96.0",
+                val
+            );
         }
 
         Ok(())
@@ -204,10 +216,10 @@ mod tests {
         let u = upper.f64()?;
 
         for i in 20..n {
-             if let (Some(lv), Some(mv), Some(uv)) = (l.get(i), m.get(i), u.get(i)) {
-                 assert!(lv < mv, "Lower {} not less than Middle {}", lv, mv);
-                 assert!(mv < uv, "Middle {} not less than Upper {}", mv, uv);
-             }
+            if let (Some(lv), Some(mv), Some(uv)) = (l.get(i), m.get(i), u.get(i)) {
+                assert!(lv < mv, "Lower {} not less than Middle {}", lv, mv);
+                assert!(mv < uv, "Middle {} not less than Upper {}", mv, uv);
+            }
         }
 
         Ok(())

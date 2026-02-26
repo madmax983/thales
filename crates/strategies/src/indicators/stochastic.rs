@@ -7,7 +7,7 @@
 //! %K = 100 * (Close - Lowest Low) / (Highest High - Lowest Low)
 //! %D = SMA(%K, d_period)
 
-use anyhow::{Result, Context};
+use anyhow::{Context, Result};
 use polars::prelude::*;
 use rust_decimal::prelude::*;
 use std::collections::VecDeque;
@@ -37,18 +37,27 @@ pub fn calculate(
         anyhow::bail!("Periods must be greater than 0");
     }
 
-    let high_series = data.column("high").context("Missing 'high' column")?.f64()?;
+    let high_series = data
+        .column("high")
+        .context("Missing 'high' column")?
+        .f64()?;
     let low_series = data.column("low").context("Missing 'low' column")?.f64()?;
-    let close_series = data.column("close").context("Missing 'close' column")?.f64()?;
+    let close_series = data
+        .column("close")
+        .context("Missing 'close' column")?
+        .f64()?;
 
     // Convert to Decimal for precision, treating NaN/Inf as None
-    let highs: Vec<Option<Decimal>> = high_series.into_iter()
+    let highs: Vec<Option<Decimal>> = high_series
+        .into_iter()
         .map(|v| v.and_then(|f| Decimal::from_f64_retain(f)))
         .collect();
-    let lows: Vec<Option<Decimal>> = low_series.into_iter()
+    let lows: Vec<Option<Decimal>> = low_series
+        .into_iter()
         .map(|v| v.and_then(|f| Decimal::from_f64_retain(f)))
         .collect();
-    let closes: Vec<Option<Decimal>> = close_series.into_iter()
+    let closes: Vec<Option<Decimal>> = close_series
+        .into_iter()
         .map(|v| v.and_then(|f| Decimal::from_f64_retain(f)))
         .collect();
 
@@ -86,8 +95,14 @@ pub fn calculate(
     let d_values = calculate_sma(&k_values, d_period);
 
     // Convert back to f64 Series
-    let k_f64: Vec<Option<f64>> = k_values.into_iter().map(|d| d.map(|v| v.to_f64().unwrap_or(0.0))).collect();
-    let d_f64: Vec<Option<f64>> = d_values.into_iter().map(|d| d.map(|v| v.to_f64().unwrap_or(0.0))).collect();
+    let k_f64: Vec<Option<f64>> = k_values
+        .into_iter()
+        .map(|d| d.map(|v| v.to_f64().unwrap_or(0.0)))
+        .collect();
+    let d_f64: Vec<Option<f64>> = d_values
+        .into_iter()
+        .map(|d| d.map(|v| v.to_f64().unwrap_or(0.0)))
+        .collect();
 
     let k_series = Series::new("stochastic_k", k_f64);
     let d_series = Series::new("stochastic_d", d_f64);
@@ -104,9 +119,9 @@ fn rolling_min(data: &[Option<Decimal>], window: usize) -> Vec<Option<Decimal>> 
     for i in 0..data.len() {
         // Leaving window
         if i >= window {
-             if data[i - window].is_none() {
-                 none_count -= 1;
-             }
+            if data[i - window].is_none() {
+                none_count -= 1;
+            }
         }
 
         // Entering window
@@ -162,9 +177,9 @@ fn rolling_max(data: &[Option<Decimal>], window: usize) -> Vec<Option<Decimal>> 
     for i in 0..data.len() {
         // Leaving window
         if i >= window {
-             if data[i - window].is_none() {
-                 none_count -= 1;
-             }
+            if data[i - window].is_none() {
+                none_count -= 1;
+            }
         }
 
         // Entering window
@@ -269,22 +284,38 @@ mod tests {
 
         let val_k1 = k_vals.get(1);
         if let Some(v) = val_k1 {
-             assert!((v - 100.0).abs() < 0.001, "K[1] expected 100.0, got {}", v);
+            assert!((v - 100.0).abs() < 0.001, "K[1] expected 100.0, got {}", v);
         } else {
-             assert!(val_k1.is_some(), "K[1] should be calculated");
+            assert!(val_k1.is_some(), "K[1] should be calculated");
         }
 
         let val_k2 = k_vals.get(2).unwrap();
-        assert!((val_k2 - 0.0).abs() < 0.001, "K[2] expected 0.0, got {}", val_k2);
+        assert!(
+            (val_k2 - 0.0).abs() < 0.001,
+            "K[2] expected 0.0, got {}",
+            val_k2
+        );
 
         let val_k3 = k_vals.get(3).unwrap();
-        assert!((val_k3 - 58.333).abs() < 0.001, "K[3] expected 58.333, got {}", val_k3);
+        assert!(
+            (val_k3 - 58.333).abs() < 0.001,
+            "K[3] expected 58.333, got {}",
+            val_k3
+        );
 
         let val_d2 = d_vals.get(2).unwrap();
-        assert!((val_d2 - 50.0).abs() < 0.001, "D[2] expected 50.0, got {}", val_d2);
+        assert!(
+            (val_d2 - 50.0).abs() < 0.001,
+            "D[2] expected 50.0, got {}",
+            val_d2
+        );
 
         let val_d3 = d_vals.get(3).unwrap();
-        assert!((val_d3 - 29.166).abs() < 0.001, "D[3] expected 29.166, got {}", val_d3);
+        assert!(
+            (val_d3 - 29.166).abs() < 0.001,
+            "D[3] expected 29.166, got {}",
+            val_d3
+        );
 
         Ok(())
     }
@@ -328,14 +359,19 @@ mod tests {
         let (k_nan, _) = calculate(&df_nan, 2, 1, 2)?;
         let k_nan_vals = k_nan.f64()?;
         // Index 2 has NaN High. Window [1, 2]. Result should be None (Strict).
-        assert!(k_nan_vals.get(2).is_none(), "Index 2 should be None due to NaN in window");
+        assert!(
+            k_nan_vals.get(2).is_none(),
+            "Index 2 should be None due to NaN in window"
+        );
 
         Ok(())
     }
 
     #[test]
     fn test_realistic_data() -> Result<()> {
-        let values: Vec<f64> = (0..100).map(|i| 100.0 + (i as f64 * 0.1).sin() * 10.0).collect();
+        let values: Vec<f64> = (0..100)
+            .map(|i| 100.0 + (i as f64 * 0.1).sin() * 10.0)
+            .collect();
         let highs: Vec<f64> = values.iter().map(|v| v + 1.0).collect();
         let lows: Vec<f64> = values.iter().map(|v| v - 1.0).collect();
         let closes = values;
@@ -352,7 +388,11 @@ mod tests {
 
         let k_arr = k.f64()?;
         if let Some(val) = k_arr.get(20) {
-             assert!(val >= 0.0 && val <= 100.0, "K value {} out of range [0, 100]", val);
+            assert!(
+                val >= 0.0 && val <= 100.0,
+                "K value {} out of range [0, 100]",
+                val
+            );
         }
 
         Ok(())

@@ -759,3 +759,74 @@ pub struct IchimokuCloudConfig {
 ### Performance
 - Ichimoku calculation involves rolling Max/Min (O(N)).
 - Signal generation loop is O(N).
+
+---
+
+# Trading Strategy: CCI Momentum
+
+## Strategy Specification
+
+**Name:** CciMomentum
+
+**Description:** A momentum strategy using the Commodity Channel Index (CCI) to identify breakouts and strong trends. It enters long when CCI crosses above a buy threshold (e.g. 100) and exits when it crosses below a sell threshold (e.g. 0).
+
+**Rationale:** CCI measures the current price level relative to an average price level over a given period of time. High positive values indicate that prices are unusually high relative to the average, which in momentum trading signals strong upside strength.
+
+## Requirements
+
+### Implementation Details
+- Uses Polars for data analysis.
+- Implements the `Strategy` trait in Rust.
+- Uses `cci` and `atr` indicators.
+- Uses O(N) calculation for indicators.
+
+### Strategy Type
+Momentum / Breakout
+
+### Entry Conditions
+- **Long Entry (Buy):** CCI > `buy_threshold` (default 100) AND Prev CCI <= `buy_threshold`.
+
+### Exit Conditions
+- **Long Exit (Sell):** CCI < `sell_threshold` (default 0) AND Prev CCI >= `sell_threshold`.
+- **Stop Loss:** Entry Price - (ATR * `stop_loss_atr_mult`).
+
+### Position Sizing
+- **Size Hint:** "100" (fixed units) or "max" (for exits).
+
+## Code Pattern
+
+```rust
+use crate::strategy::{Strategy, StrategyConfig, Signal, SignalType};
+use crate::indicators::{atr, cci};
+use polars::prelude::*;
+use async_trait::async_trait;
+use anyhow::Result;
+
+pub struct CciMomentum {
+    config: CciMomentumConfig,
+}
+
+#[derive(Debug, Clone, serde::Deserialize)]
+pub struct CciMomentumConfig {
+    pub period: usize,
+    pub buy_threshold: f64,
+    pub sell_threshold: f64,
+    pub stop_loss_atr_mult: f64,
+    pub atr_period: usize,
+    pub symbol: String,
+}
+```
+
+## Critical Considerations
+
+### Risk Management Integration
+- **Stop Loss:** Uses ATR-based stop loss to adapt to volatility.
+- **Trend Filter:** CCI > 100 itself acts as a strong momentum filter.
+
+### Backtesting Requirements
+- Accepts `DataFrame` with historical data.
+- Requires data length > `period`.
+
+### Performance
+- CCI calculation is O(N).
+- Signal generation loop is O(N).

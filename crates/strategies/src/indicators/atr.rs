@@ -93,11 +93,15 @@ pub fn calculate(data: &DataFrame, period: usize) -> Result<Series> {
     for i in 1..period {
         let h = Decimal::from_f64_retain(high.get(i).unwrap_or(f64::NAN)).unwrap_or(Decimal::ZERO);
         let l = Decimal::from_f64_retain(low.get(i).unwrap_or(f64::NAN)).unwrap_or(Decimal::ZERO);
-        let cp = Decimal::from_f64_retain(close.get(i - 1).unwrap_or(f64::NAN)).unwrap_or(Decimal::ZERO);
+        let cp =
+            Decimal::from_f64_retain(close.get(i - 1).unwrap_or(f64::NAN)).unwrap_or(Decimal::ZERO);
 
-        if high.get(i).unwrap_or(f64::NAN).is_nan() || low.get(i).unwrap_or(f64::NAN).is_nan() || close.get(i-1).unwrap_or(f64::NAN).is_nan() {
-             valid_start = false;
-             break;
+        if high.get(i).unwrap_or(f64::NAN).is_nan()
+            || low.get(i).unwrap_or(f64::NAN).is_nan()
+            || close.get(i - 1).unwrap_or(f64::NAN).is_nan()
+        {
+            valid_start = false;
+            break;
         }
 
         let tr = calculate_tr(h, l, cp);
@@ -117,11 +121,13 @@ pub fn calculate(data: &DataFrame, period: usize) -> Result<Series> {
     for i in period..len {
         let h = Decimal::from_f64_retain(high.get(i).unwrap_or(f64::NAN)).unwrap_or(Decimal::ZERO);
         let l = Decimal::from_f64_retain(low.get(i).unwrap_or(f64::NAN)).unwrap_or(Decimal::ZERO);
-        let cp = Decimal::from_f64_retain(close.get(i - 1).unwrap_or(f64::NAN)).unwrap_or(Decimal::ZERO);
+        let cp =
+            Decimal::from_f64_retain(close.get(i - 1).unwrap_or(f64::NAN)).unwrap_or(Decimal::ZERO);
 
         if high.get(i).unwrap_or(f64::NAN).is_nan()
             || low.get(i).unwrap_or(f64::NAN).is_nan()
-            || close.get(i-1).unwrap_or(f64::NAN).is_nan() {
+            || close.get(i - 1).unwrap_or(f64::NAN).is_nan()
+        {
             atr_values[i] = None;
             // Strategy: if missing data, we can't easily continue smoothing.
             // We could reset, or just emit None.
@@ -196,7 +202,11 @@ mod tests {
         assert!((val3 - 2.625).abs() < 1e-6, "Expected 2.625, got {}", val3);
 
         let val4 = out.get(4).unwrap();
-        assert!((val4 - 2.3125).abs() < 1e-6, "Expected 2.3125, got {}", val4);
+        assert!(
+            (val4 - 2.3125).abs() < 1e-6,
+            "Expected 2.3125, got {}",
+            val4
+        );
 
         Ok(())
     }
@@ -240,7 +250,9 @@ mod tests {
 
     #[test]
     fn test_realistic_data() -> Result<()> {
-        let values: Vec<f64> = (0..100).map(|i| 100.0 + (i as f64 * 0.1).sin() * 10.0).collect();
+        let values: Vec<f64> = (0..100)
+            .map(|i| 100.0 + (i as f64 * 0.1).sin() * 10.0)
+            .collect();
         let highs: Vec<f64> = values.iter().map(|v| v + 1.0).collect();
         let lows: Vec<f64> = values.iter().map(|v| v - 1.0).collect();
 

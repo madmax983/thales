@@ -32,7 +32,8 @@ pub fn calculate(
     // We need to create a temporary DataFrame with "close" column from MACD Line
     // to reuse ema::calculate.
     let temp_df = DataFrame::new(vec![Series::new("close", &macd_line)])?;
-    let signal_line = ema::calculate(&temp_df, signal_period).context("Failed to calculate Signal Line")?;
+    let signal_line =
+        ema::calculate(&temp_df, signal_period).context("Failed to calculate Signal Line")?;
 
     // 5. Calculate Histogram = MACD Line - Signal Line
     let histogram = &macd_line - &signal_line;
@@ -99,12 +100,10 @@ mod tests {
         let hist_vals = hist.f64()?;
 
         // Helper for float comparison
-        let assert_approx = |a: Option<f64>, b: Option<f64>| {
-            match (a, b) {
-                (Some(v1), Some(v2)) => assert!((v1 - v2).abs() < 1e-10, "{} != {}", v1, v2),
-                (None, None) => {},
-                _ => panic!("Mismatch: {:?} != {:?}", a, b),
-            }
+        let assert_approx = |a: Option<f64>, b: Option<f64>| match (a, b) {
+            (Some(v1), Some(v2)) => assert!((v1 - v2).abs() < 1e-10, "{} != {}", v1, v2),
+            (None, None) => {}
+            _ => panic!("Mismatch: {:?} != {:?}", a, b),
         };
 
         // Verify MACD Line
