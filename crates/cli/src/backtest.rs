@@ -2,14 +2,8 @@ use anyhow::Result;
 use contracts::{BarSeries};
 use polars::prelude::*;
 use serde::{Deserialize, Serialize};
-use strategies::strategy::{Signal, SignalType, Strategy};
-use strategies::bollinger_bands::{BollingerBandsConfig, BollingerBandsMeanReversion};
-use strategies::ema_crossover::{EmaCrossover, EmaCrossoverConfig};
-use strategies::rsi_mean_reversion::{RsiMeanReversion, RsiMeanReversionConfig};
-use strategies::macd::{Macd, MacdConfig};
-use strategies::supertrend::{Supertrend, SupertrendConfig};
-use strategies::donchian_breakout::{DonchianBreakout, DonchianBreakoutConfig};
-use strategies::parabolic_sar::{ParabolicSar, ParabolicSarConfig};
+use strategies::strategy::{Signal, SignalType};
+use crate::strategy_factory;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct BacktestConfig {
@@ -94,7 +88,7 @@ pub async fn run_backtest(
     let df = bars_to_dataframe(bars)?;
 
     // 2. Instantiate Strategy
-    let strategy = create_strategy(strategy_name, &symbol)?;
+    let strategy = strategy_factory::create_strategy(strategy_name, &symbol)?;
 
     // 3. Generate All Signals
     let raw_signals = strategy.generate_signals(&df).await?;
@@ -385,69 +379,6 @@ pub async fn run_backtest(
     })
 }
 
-fn create_strategy(name: &str, symbol: &str) -> Result<Box<dyn Strategy>> {
-    if name == "BollingerBands" || name == "BollingerBandsMeanReversion" {
-        let config = BollingerBandsConfig {
-            window_size: 20,
-            num_std_dev: 2.0,
-            stop_loss_pct: 0.05,
-            symbol: symbol.to_string(),
-        };
-        Ok(Box::new(BollingerBandsMeanReversion::new(config)))
-    } else if name == "EmaCrossover" {
-        let config = EmaCrossoverConfig {
-            short_window: 9,
-            long_window: 21,
-            stop_loss_pct: 0.05,
-            symbol: symbol.to_string(),
-        };
-        Ok(Box::new(EmaCrossover::new(config)))
-    } else if name == "RsiMeanReversion" {
-        let config = RsiMeanReversionConfig {
-            period: 14,
-            oversold_threshold: 30.0,
-            overbought_threshold: 70.0,
-            stop_loss_pct: 0.05,
-            symbol: symbol.to_string(),
-        };
-        Ok(Box::new(RsiMeanReversion::new(config)))
-    } else if name == "Macd" {
-        let config = MacdConfig {
-            fast_period: 12,
-            slow_period: 26,
-            signal_period: 9,
-            stop_loss_pct: 0.05,
-            symbol: symbol.to_string(),
-        };
-        Ok(Box::new(Macd::new(config)))
-    } else if name == "Supertrend" {
-        let config = SupertrendConfig {
-            period: 10,
-            factor: 3.0,
-            symbol: symbol.to_string(),
-        };
-        Ok(Box::new(Supertrend::new(config)))
-    } else if name == "DonchianBreakout" {
-        let config = DonchianBreakoutConfig {
-            entry_period: 20,
-            exit_period: 10,
-            stop_loss_atr_mult: 2.0,
-            symbol: symbol.to_string(),
-        };
-        Ok(Box::new(DonchianBreakout::new(config)))
-    } else if name == "ParabolicSar" {
-        let config = ParabolicSarConfig {
-            start: 0.02,
-            increment: 0.02,
-            max: 0.2,
-            symbol: symbol.to_string(),
-        };
-        Ok(Box::new(ParabolicSar::new(config)))
-    } else {
-        Err(anyhow::anyhow!("Unknown strategy: {}", name))
-    }
-}
-
 fn bars_to_dataframe(series: &BarSeries) -> Result<DataFrame> {
     let opens: Vec<f64> = series.bars.iter().map(|b| b.open).collect();
     let highs: Vec<f64> = series.bars.iter().map(|b| b.high).collect();
@@ -487,7 +418,7 @@ mod tests {
             bars.push(Bar {
                 symbol: "TEST".to_string(), market: "equities".to_string(), timeframe: "1m".to_string(),
                 timestamp_unix_ms: now + i * 60000,
-                open: close, high: close + 1.0, low: close - 1.0, close: close, volume: 1000.0
+                open: close, high: close + 1.0, low: close - 1.0, close: close, volume: 1000.0,
             });
         }
 
@@ -497,7 +428,7 @@ mod tests {
              bars.push(Bar {
                 symbol: "TEST".to_string(), market: "equities".to_string(), timeframe: "1m".to_string(),
                 timestamp_unix_ms: now + i * 60000,
-                open: close, high: close + 1.0, low: close - 1.0, close: close, volume: 1000.0
+                open: close, high: close + 1.0, low: close - 1.0, close: close, volume: 1000.0,
             });
         }
 
