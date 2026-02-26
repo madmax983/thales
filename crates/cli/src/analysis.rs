@@ -76,7 +76,12 @@ pub fn analyze(series: &BarSeries) -> MarketAnalysis {
     }
 }
 
-fn calculate_confidence(regime: &str, volatility: &str, sentiment: &str, patterns: &[String]) -> f64 {
+fn calculate_confidence(
+    regime: &str,
+    volatility: &str,
+    sentiment: &str,
+    patterns: &[String],
+) -> f64 {
     let mut score: f64 = 0.5;
 
     // Regime Alignment
@@ -85,8 +90,9 @@ fn calculate_confidence(regime: &str, volatility: &str, sentiment: &str, pattern
     }
 
     // Sentiment Alignment
-    if (regime.contains("Trending Up") && sentiment.contains("Bullish")) ||
-       (regime.contains("Trending Down") && sentiment.contains("Bearish")) {
+    if (regime.contains("Trending Up") && sentiment.contains("Bullish"))
+        || (regime.contains("Trending Down") && sentiment.contains("Bearish"))
+    {
         score += 0.1;
     }
 
@@ -99,8 +105,13 @@ fn calculate_confidence(regime: &str, volatility: &str, sentiment: &str, pattern
 
     // Pattern Bonus
     for pattern in patterns {
-        if (regime.contains("Trending Up") && (pattern.contains("Bullish") || pattern == "Hammer" || pattern == "Breakout")) ||
-           (regime.contains("Trending Down") && (pattern.contains("Bearish") || pattern == "Shooting Star" || pattern == "Breakout")) {
+        if (regime.contains("Trending Up")
+            && (pattern.contains("Bullish") || pattern == "Hammer" || pattern == "Breakout"))
+            || (regime.contains("Trending Down")
+                && (pattern.contains("Bearish")
+                    || pattern == "Shooting Star"
+                    || pattern == "Breakout"))
+        {
             score += 0.1;
             break; // Cap bonus
         }
@@ -167,20 +178,20 @@ fn calculate_volatility(df: &DataFrame, bars: &[Bar]) -> (String, Option<f64>) {
     let mut atr_val = None;
 
     if let Some(s) = atr_series {
-         if let Some(last) = s.f64().ok().and_then(|v| v.last()) {
-             atr_val = Some(last);
-             let ratio = last / last_close;
+        if let Some(last) = s.f64().ok().and_then(|v| v.last()) {
+            atr_val = Some(last);
+            let ratio = last / last_close;
 
-             if ratio > 0.05 {
-                 return ("Extreme".to_string(), atr_val);
-             } else if ratio > 0.02 {
-                 return ("High".to_string(), atr_val);
-             } else if ratio > 0.01 {
-                 return ("Medium".to_string(), atr_val);
-             } else {
-                 return ("Low".to_string(), atr_val);
-             }
-         }
+            if ratio > 0.05 {
+                return ("Extreme".to_string(), atr_val);
+            } else if ratio > 0.02 {
+                return ("High".to_string(), atr_val);
+            } else if ratio > 0.01 {
+                return ("Medium".to_string(), atr_val);
+            } else {
+                return ("Low".to_string(), atr_val);
+            }
+        }
     }
 
     ("Unknown".to_string(), atr_val)
@@ -194,10 +205,19 @@ fn calculate_sentiment(df: &DataFrame, regime: &str) -> String {
 
     if let Some(s) = rsi_series {
         if let Some(val) = s.f64().ok().and_then(|v| v.last()) {
-            if val > 70.0 { sentiment_score += 1; } // Bullish (Overbought in strong trend)
-            else if val < 30.0 { sentiment_score -= 1; } // Bearish
-            else if val > 55.0 { sentiment_score += 1; }
-            else if val < 45.0 { sentiment_score -= 1; }
+            if val > 70.0 {
+                sentiment_score += 1;
+            }
+            // Bullish (Overbought in strong trend)
+            else if val < 30.0 {
+                sentiment_score -= 1;
+            }
+            // Bearish
+            else if val > 55.0 {
+                sentiment_score += 1;
+            } else if val < 45.0 {
+                sentiment_score -= 1;
+            }
         }
     }
 
@@ -206,8 +226,11 @@ fn calculate_sentiment(df: &DataFrame, regime: &str) -> String {
         let s = signal_line.f64().ok().and_then(|v| v.last());
 
         if let (Some(mv), Some(sv)) = (m, s) {
-            if mv > sv { sentiment_score += 1; }
-            else { sentiment_score -= 1; }
+            if mv > sv {
+                sentiment_score += 1;
+            } else {
+                sentiment_score -= 1;
+            }
         }
     }
 
@@ -254,7 +277,7 @@ fn detect_patterns(df: &DataFrame, bars: &[Bar]) -> Vec<String> {
         }
         // Doji
         if curr_body <= curr_range * 0.05 {
-             patterns.push("Doji".to_string());
+            patterns.push("Doji".to_string());
         }
     }
 
@@ -263,9 +286,9 @@ fn detect_patterns(df: &DataFrame, bars: &[Bar]) -> Vec<String> {
     let curr_is_green = curr.close > curr.open;
 
     if prev_is_red && curr_is_green {
-         if curr.open <= prev.close && curr.close >= prev.open && curr_body > prev_body {
-             patterns.push("Bullish Engulfing".to_string());
-         }
+        if curr.open <= prev.close && curr.close >= prev.open && curr_body > prev_body {
+            patterns.push("Bullish Engulfing".to_string());
+        }
     }
 
     let prev_is_green = prev.close > prev.open;
@@ -323,12 +346,20 @@ fn identify_levels(df: &DataFrame) -> Vec<f64> {
 
     // Donchian Channels (20, 50)
     if let Ok((upper, lower, _)) = donchian_channels::calculate(df, 20) {
-        if let Some(v) = upper.f64().ok().and_then(|s| s.last()) { levels.push(v); }
-        if let Some(v) = lower.f64().ok().and_then(|s| s.last()) { levels.push(v); }
+        if let Some(v) = upper.f64().ok().and_then(|s| s.last()) {
+            levels.push(v);
+        }
+        if let Some(v) = lower.f64().ok().and_then(|s| s.last()) {
+            levels.push(v);
+        }
     }
     if let Ok((upper, lower, _)) = donchian_channels::calculate(df, 50) {
-        if let Some(v) = upper.f64().ok().and_then(|s| s.last()) { levels.push(v); }
-        if let Some(v) = lower.f64().ok().and_then(|s| s.last()) { levels.push(v); }
+        if let Some(v) = upper.f64().ok().and_then(|s| s.last()) {
+            levels.push(v);
+        }
+        if let Some(v) = lower.f64().ok().and_then(|s| s.last()) {
+            levels.push(v);
+        }
     }
 
     levels.sort_by(|a: &f64, b: &f64| a.partial_cmp(b).unwrap_or(std::cmp::Ordering::Equal));
@@ -399,11 +430,19 @@ mod tests {
         let base_bar = create_bar(100.0, 0);
         // Previous Red
         bars.push(Bar {
-            open: 100.0, close: 95.0, high: 100.0, low: 95.0, ..base_bar.clone()
+            open: 100.0,
+            close: 95.0,
+            high: 100.0,
+            low: 95.0,
+            ..base_bar.clone()
         });
         // Current Green Engulfing
         bars.push(Bar {
-            open: 94.0, close: 101.0, high: 101.0, low: 94.0, ..base_bar.clone()
+            open: 94.0,
+            close: 101.0,
+            high: 101.0,
+            low: 94.0,
+            ..base_bar.clone()
         });
 
         let series = BarSeries {
@@ -422,11 +461,18 @@ mod tests {
         for i in 0..50 {
             let close = if i % 2 == 0 { 100.0 } else { 110.0 };
             bars.push(Bar {
-                open: close, close, high: close * 1.05, low: close * 0.95, ..create_bar(close, i)
+                open: close,
+                close,
+                high: close * 1.05,
+                low: close * 0.95,
+                ..create_bar(close, i)
             });
         }
 
-        let series = BarSeries { schema_version: "v0".to_string(), bars };
+        let series = BarSeries {
+            schema_version: "v0".to_string(),
+            bars,
+        };
         let analysis = analyze(&series);
 
         // ATR will be high relative to price (avg price ~105, TR ~15)

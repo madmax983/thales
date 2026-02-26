@@ -50,7 +50,8 @@ impl Strategy for BollingerBandsMeanReversion {
         let mut current_sum = Decimal::ZERO;
         let mut current_sum_sq = Decimal::ZERO;
         let window_size_dec = Decimal::from_usize(window_size).unwrap_or(Decimal::ONE);
-        let num_std_dev_dec = Decimal::from_f64_retain(self.config.num_std_dev).unwrap_or(Decimal::ZERO);
+        let num_std_dev_dec =
+            Decimal::from_f64_retain(self.config.num_std_dev).unwrap_or(Decimal::ZERO);
         let half_dec = Decimal::new(5, 1); // 0.5
         let two_dec = Decimal::new(2, 0); // 2.0
 
@@ -89,13 +90,13 @@ impl Strategy for BollingerBandsMeanReversion {
             if let (Some(close_val), Some(ts)) = (close_arr.get(i), time_arr.get(i)) {
                 if let Some(close) = Decimal::from_f64_retain(close_val) {
                     // Initial window signal check
-                     if close < lower {
+                    if close < lower {
                         // Check for ScaleIn depth
-                         let signal_type = if close < lower - (half_dec * std_dev) {
-                             SignalType::ScaleIn
-                         } else {
-                             SignalType::Entry
-                         };
+                        let signal_type = if close < lower - (half_dec * std_dev) {
+                            SignalType::ScaleIn
+                        } else {
+                            SignalType::Entry
+                        };
 
                         // Calculate SL/TP
                         // Buy: SL below close (e.g. 2 std dev further down?) or just use config SL pct
@@ -115,11 +116,11 @@ impl Strategy for BollingerBandsMeanReversion {
                             timestamp_ms: ts,
                         });
                     } else if close > upper {
-                         let signal_type = if close > upper + (half_dec * std_dev) {
-                             SignalType::ScaleIn
-                         } else {
-                             SignalType::Entry
-                         };
+                        let signal_type = if close > upper + (half_dec * std_dev) {
+                            SignalType::ScaleIn
+                        } else {
+                            SignalType::Entry
+                        };
 
                         let sl = close + (two_dec * std_dev);
                         let tp = mean;
@@ -143,10 +144,10 @@ impl Strategy for BollingerBandsMeanReversion {
         // Slide window
         for i in window_size..close_arr.len() {
             if let Some(old_val) = close_arr.get(i - window_size) {
-                 if let Some(old_d) = Decimal::from_f64_retain(old_val) {
+                if let Some(old_d) = Decimal::from_f64_retain(old_val) {
                     current_sum -= old_d;
                     current_sum_sq -= old_d * old_d;
-                 }
+                }
             }
 
             if let Some(new_val) = close_arr.get(i) {
@@ -165,16 +166,19 @@ impl Strategy for BollingerBandsMeanReversion {
                     let upper = mean + (std_dev * num_std_dev_dec);
                     let lower = mean - (std_dev * num_std_dev_dec);
 
-                    let prev_close = close_arr.get(i-1).and_then(|v| Decimal::from_f64_retain(v)).unwrap_or(prev_mean); // Fallback to mean if prev missing (shouldn't happen)
+                    let prev_close = close_arr
+                        .get(i - 1)
+                        .and_then(|v| Decimal::from_f64_retain(v))
+                        .unwrap_or(prev_mean); // Fallback to mean if prev missing (shouldn't happen)
 
                     if let Some(ts) = time_arr.get(i) {
                         // Entry / ScaleIn Logic
                         if new_d < lower {
-                             let signal_type = if new_d < lower - (half_dec * std_dev) {
-                                 SignalType::ScaleIn
-                             } else {
-                                 SignalType::Entry
-                             };
+                            let signal_type = if new_d < lower - (half_dec * std_dev) {
+                                SignalType::ScaleIn
+                            } else {
+                                SignalType::Entry
+                            };
 
                             let sl = new_d - (two_dec * std_dev);
                             let tp = mean;
@@ -187,15 +191,19 @@ impl Strategy for BollingerBandsMeanReversion {
                                 confidence: 0.8,
                                 stop_loss: Some(sl.to_f64().unwrap_or(0.0)),
                                 take_profit: Some(tp.to_f64().unwrap_or(0.0)),
-                                reason: format!("Close {} < Lower Band {}", new_d, lower.round_dp(2)),
+                                reason: format!(
+                                    "Close {} < Lower Band {}",
+                                    new_d,
+                                    lower.round_dp(2)
+                                ),
                                 timestamp_ms: ts,
                             });
                         } else if new_d > upper {
-                             let signal_type = if new_d > upper + (half_dec * std_dev) {
-                                 SignalType::ScaleIn
-                             } else {
-                                 SignalType::Entry
-                             };
+                            let signal_type = if new_d > upper + (half_dec * std_dev) {
+                                SignalType::ScaleIn
+                            } else {
+                                SignalType::Entry
+                            };
 
                             let sl = new_d + (two_dec * std_dev);
                             let tp = mean;
@@ -208,7 +216,11 @@ impl Strategy for BollingerBandsMeanReversion {
                                 confidence: 0.8,
                                 stop_loss: Some(sl.to_f64().unwrap_or(0.0)),
                                 take_profit: Some(tp.to_f64().unwrap_or(0.0)),
-                                reason: format!("Close {} > Upper Band {}", new_d, upper.round_dp(2)),
+                                reason: format!(
+                                    "Close {} > Upper Band {}",
+                                    new_d,
+                                    upper.round_dp(2)
+                                ),
                                 timestamp_ms: ts,
                             });
                         }
@@ -217,7 +229,7 @@ impl Strategy for BollingerBandsMeanReversion {
                         // Exit Long (Sell): Price crosses SMA from below
                         // if prev_close < prev_mean && new_d >= mean
                         if prev_close < prev_mean && new_d >= mean {
-                             signals.push(Signal {
+                            signals.push(Signal {
                                 signal_type: SignalType::Exit,
                                 symbol: self.config.symbol.clone(),
                                 side: "sell".to_string(), // Exit Long
@@ -225,7 +237,12 @@ impl Strategy for BollingerBandsMeanReversion {
                                 confidence: 0.6,
                                 stop_loss: None,
                                 take_profit: None,
-                                reason: format!("Price crossed SMA from below ({} -> {}, Mean {})", prev_close, new_d, mean.round_dp(2)),
+                                reason: format!(
+                                    "Price crossed SMA from below ({} -> {}, Mean {})",
+                                    prev_close,
+                                    new_d,
+                                    mean.round_dp(2)
+                                ),
                                 timestamp_ms: ts,
                             });
                         }
@@ -233,7 +250,7 @@ impl Strategy for BollingerBandsMeanReversion {
                         // Exit Short (Buy): Price crosses SMA from above
                         // if prev_close > prev_mean && new_d <= mean
                         if prev_close > prev_mean && new_d <= mean {
-                             signals.push(Signal {
+                            signals.push(Signal {
                                 signal_type: SignalType::Exit,
                                 symbol: self.config.symbol.clone(),
                                 side: "buy".to_string(), // Exit Short
@@ -241,7 +258,12 @@ impl Strategy for BollingerBandsMeanReversion {
                                 confidence: 0.6,
                                 stop_loss: None,
                                 take_profit: None,
-                                reason: format!("Price crossed SMA from above ({} -> {}, Mean {})", prev_close, new_d, mean.round_dp(2)),
+                                reason: format!(
+                                    "Price crossed SMA from above ({} -> {}, Mean {})",
+                                    prev_close,
+                                    new_d,
+                                    mean.round_dp(2)
+                                ),
                                 timestamp_ms: ts,
                             });
                         }

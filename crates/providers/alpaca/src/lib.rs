@@ -1,3 +1,8 @@
+//! Alpaca API provider implementation.
+//!
+//! This crate provides an adapter for the Alpaca trading platform.
+//! It handles authentication, order execution, and market data retrieval.
+
 use std::collections::HashMap;
 use std::time::{SystemTime, UNIX_EPOCH};
 
@@ -7,18 +12,32 @@ use reqwest::blocking::Client;
 use serde::{Deserialize, Serialize};
 use thiserror::Error;
 
+/// Configuration for the Alpaca API client.
+///
+/// Use [`AlpacaConfig::from_env`] to load from environment variables.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct AlpacaConfig {
+    /// The API Key ID.
     pub api_key: String,
+    /// The API Secret Key.
     pub api_secret: String,
+    /// The base URL (e.g., "<https://paper-api.alpaca.markets>").
     pub base_url: String,
 }
 
 impl AlpacaConfig {
+    /// Loads configuration from environment variables.
+    ///
+    /// # Required Variables
+    ///
+    /// - `ALPACA_API_KEY`
+    /// - `ALPACA_API_SECRET`
+    /// - `ALPACA_BASE_URL`
     pub fn from_env() -> Result<Self, AlpacaProviderError> {
         Self::from_env_with(|key| std::env::var(key).ok())
     }
 
+    /// Helper to load configuration from a custom source.
     pub fn from_env_with<F>(get: F) -> Result<Self, AlpacaProviderError>
     where
         F: Fn(&str) -> Option<String>,
@@ -38,6 +57,23 @@ where
     get(name).ok_or(AlpacaProviderError::MissingEnvVar(name))
 }
 
+/// A synchronous client for the Alpaca API.
+///
+/// This client handles authentication and data normalization for Alpaca.
+///
+/// # Examples
+///
+/// ```rust
+/// use alpaca_provider::{AlpacaClient, AlpacaConfig};
+///
+/// let config = AlpacaConfig {
+///     api_key: "key".to_string(),
+///     api_secret: "secret".to_string(),
+///     base_url: "https://paper-api.alpaca.markets".to_string(),
+/// };
+///
+/// let client = AlpacaClient::new(config);
+/// ```
 #[derive(Debug, Clone)]
 pub struct AlpacaClient {
     pub config: AlpacaConfig,
@@ -45,6 +81,7 @@ pub struct AlpacaClient {
 }
 
 impl AlpacaClient {
+    /// Creates a new Alpaca client.
     pub fn new(config: AlpacaConfig) -> Self {
         Self {
             config,
@@ -52,6 +89,10 @@ impl AlpacaClient {
         }
     }
 
+    /// Executes a trade intent on Alpaca.
+    ///
+    /// Translates the generic `TradeIntent` into an Alpaca specific order.
+    /// Supports "max" size hint by checking current positions.
     pub fn execute_intent(
         &self,
         intent: &TradeIntent,
@@ -64,13 +105,20 @@ impl AlpacaClient {
         let qty = if intent.size_hint == "max" {
             // Fetch positions to find size
             let positions = self.fetch_positions()?;
-            let pos = positions.into_iter().find(|p| p.symbol == intent.symbol)
-                .ok_or_else(|| AlpacaProviderError::InvalidSizeHint(format!("No open position found for max exit for {}", intent.symbol)))?;
+            let pos = positions
+                .into_iter()
+                .find(|p| p.symbol == intent.symbol)
+                .ok_or_else(|| {
+                    AlpacaProviderError::InvalidSizeHint(format!(
+                        "No open position found for max exit for {}",
+                        intent.symbol
+                    ))
+                })?;
             // We need to return abs value of qty because Alpaca positions can be negative (short)
             // But qty in order must be positive.
             pos.qty.abs().to_string()
         } else {
-             intent.size_hint.clone()
+            intent.size_hint.clone()
         };
 
         let request = AlpacaOrderRequest {
@@ -82,7 +130,9 @@ impl AlpacaClient {
             client_order_id: intent.intent_id.clone(),
             limit_price: intent.limit_price,
             stop_price: intent.stop_price,
-            take_profit: intent.take_profit.map(|p| TakeProfitSpec { limit_price: p }),
+            take_profit: intent
+                .take_profit
+                .map(|p| TakeProfitSpec { limit_price: p }),
             stop_loss: intent.stop_loss.map(|p| StopLossSpec {
                 stop_price: p,
                 limit_price: None,
@@ -128,8 +178,12 @@ impl AlpacaClient {
         })
     }
 
+    /// Fetches all open orders.
     pub fn fetch_open_orders(&self) -> Result<Vec<contracts::Order>, AlpacaProviderError> {
-        let url = format!("{}/v2/orders?status=open", self.config.base_url.trim_end_matches('/'));
+        let url = format!(
+            "{}/v2/orders?status=open",
+            self.config.base_url.trim_end_matches('/')
+        );
 
         let response = self
             .http
@@ -153,7 +207,11 @@ impl AlpacaClient {
             let dt = DateTime::parse_from_rfc3339(&o.submitted_at)
                 .map_err(|e| AlpacaProviderError::DateParse(e.to_string()))?;
 
-            let qty = o.qty.unwrap_or_else(|| "0".to_string()).parse::<f64>().unwrap_or(0.0);
+            let qty = o
+                .qty
+                .unwrap_or_else(|| "0".to_string())
+                .parse::<f64>()
+                .unwrap_or(0.0);
             let filled_qty = o.filled_qty.parse::<f64>().unwrap_or(0.0);
 
             contract_orders.push(contracts::Order {
@@ -171,8 +229,13 @@ impl AlpacaClient {
         Ok(contract_orders)
     }
 
+    /// Cancels a specific order by ID.
     pub fn cancel_order(&self, order_id: &str) -> Result<(), AlpacaProviderError> {
-        let url = format!("{}/v2/orders/{}", self.config.base_url.trim_end_matches('/'), order_id);
+        let url = format!(
+            "{}/v2/orders/{}",
+            self.config.base_url.trim_end_matches('/'),
+            order_id
+        );
 
         let response = self
             .http
@@ -194,6 +257,12 @@ impl AlpacaClient {
         Ok(())
     }
 
+    /// Fetches historical bars (OHLCV) for a symbol.
+    ///
+    /// # Arguments
+    ///
+    /// * `symbol` - The symbol to fetch (e.g., "AAPL").
+    /// * `timeframe` - The bar duration ("1m", "5m", "15m", "1h", "1d").
     pub fn fetch_bars(
         &self,
         symbol: &str,
@@ -259,8 +328,12 @@ impl AlpacaClient {
         Ok(bars)
     }
 
+    /// Fetches all open positions (raw Alpaca format).
     pub fn fetch_positions(&self) -> Result<Vec<AlpacaPosition>, AlpacaProviderError> {
-        let url = format!("{}/v2/positions", self.config.base_url.trim_end_matches('/'));
+        let url = format!(
+            "{}/v2/positions",
+            self.config.base_url.trim_end_matches('/')
+        );
 
         let response = self
             .http
@@ -281,6 +354,7 @@ impl AlpacaClient {
         Ok(positions)
     }
 
+    /// Fetches all open positions (normalized to `contracts::Position`).
     pub fn get_open_positions(&self) -> Result<Vec<contracts::Position>, AlpacaProviderError> {
         let positions = self.fetch_positions()?;
         Ok(positions
@@ -344,6 +418,7 @@ struct AlpacaOrderResponse {
 #[derive(Debug, Clone, Deserialize)]
 struct AlpacaBarsResponse {
     bars: HashMap<String, Vec<AlpacaBar>>,
+    #[allow(dead_code)]
     next_page_token: Option<String>,
 }
 
@@ -355,7 +430,9 @@ struct AlpacaBar {
     l: f64,
     c: f64,
     v: u64,
+    #[allow(dead_code)]
     n: u64,
+    #[allow(dead_code)]
     vw: f64,
 }
 
@@ -372,14 +449,21 @@ struct AlpacaOrder {
     submitted_at: String,
 }
 
+/// A position held in Alpaca.
 #[derive(Debug, Clone, Deserialize)]
 pub struct AlpacaPosition {
+    /// The symbol of the asset.
     pub symbol: String,
+    /// The quantity held.
     #[serde(deserialize_with = "deserialize_number_from_string")]
     pub qty: f64,
+    /// The side of the position ("long" or "short").
     pub side: String,
+    /// The current market value.
     pub market_value: Option<String>,
+    /// The cost basis.
     pub cost_basis: String,
+    /// Unrealized profit/loss.
     pub unrealized_pl: Option<String>,
 }
 
@@ -409,6 +493,7 @@ fn validate_side(side: &str) -> Result<(), AlpacaProviderError> {
     }
 }
 
+/// Errors returned by the Alpaca provider.
 #[derive(Debug, Error)]
 pub enum AlpacaProviderError {
     #[error("missing required environment variable: {0}")]

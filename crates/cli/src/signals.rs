@@ -1,22 +1,25 @@
 use crate::analysis;
 use crate::rag;
 use anyhow::Result;
-use contracts::{BarSeries, TradeIntent, MarketAnalysis};
+use contracts::{BarSeries, MarketAnalysis, TradeIntent};
 use polars::prelude::*;
 use std::path::Path;
-use strategies::bollinger_bands::{BollingerBandsConfig, BollingerBandsMeanReversion};
-use strategies::ema_crossover::{EmaCrossover, EmaCrossoverConfig};
-use strategies::rsi_mean_reversion::{RsiMeanReversion, RsiMeanReversionConfig};
-use strategies::macd::{Macd, MacdConfig};
-use strategies::supertrend::{Supertrend, SupertrendConfig};
-use strategies::donchian_breakout::{DonchianBreakout, DonchianBreakoutConfig};
-use strategies::parabolic_sar::{ParabolicSar, ParabolicSarConfig};
-use strategies::keltner_channel_breakout::{KeltnerChannelBreakout, KeltnerChannelBreakoutConfig};
-use strategies::stochastic_oscillator::{StochasticOscillator, StochasticOscillatorConfig};
 use strategies::adx_momentum::{AdxMomentum, AdxMomentumConfig};
+use strategies::bollinger_bands::{BollingerBandsConfig, BollingerBandsMeanReversion};
+use strategies::donchian_breakout::{DonchianBreakout, DonchianBreakoutConfig};
+use strategies::ema_crossover::{EmaCrossover, EmaCrossoverConfig};
+use strategies::keltner_channel_breakout::{KeltnerChannelBreakout, KeltnerChannelBreakoutConfig};
+use strategies::macd::{Macd, MacdConfig};
+use strategies::parabolic_sar::{ParabolicSar, ParabolicSarConfig};
+use strategies::rsi_mean_reversion::{RsiMeanReversion, RsiMeanReversionConfig};
+use strategies::stochastic_oscillator::{StochasticOscillator, StochasticOscillatorConfig};
 use strategies::strategy::{Signal, SignalType, Strategy};
+use strategies::supertrend::{Supertrend, SupertrendConfig};
 
-fn resolve_signal_type(signal: &Signal, position: Option<&contracts::Position>) -> (SignalType, String) {
+fn resolve_signal_type(
+    signal: &Signal,
+    position: Option<&contracts::Position>,
+) -> (SignalType, String) {
     let mut final_signal_type = signal.signal_type.clone();
     let mut rationale_suffix = String::new();
 
@@ -39,14 +42,15 @@ fn resolve_signal_type(signal: &Signal, position: Option<&contracts::Position>) 
                     final_signal_type = SignalType::Exit;
                     rationale_suffix.push_str(" (Closing opposite position)");
                 }
-            },
+            }
             SignalType::Exit => {
                 // Check if this is a partial exit (ScaleOut)
                 if signal_side_long != pos_side_long {
                     if let Ok(size) = signal.size_hint.parse::<f64>() {
                         if size < pos.qty {
                             final_signal_type = SignalType::ScaleOut;
-                            rationale_suffix.push_str(&format!(" (Partial Exit: {:.2}/{:.2})", size, pos.qty));
+                            rationale_suffix
+                                .push_str(&format!(" (Partial Exit: {:.2}/{:.2})", size, pos.qty));
                         } else {
                             rationale_suffix.push_str(" (Closing position)");
                         }
@@ -55,7 +59,7 @@ fn resolve_signal_type(signal: &Signal, position: Option<&contracts::Position>) 
                         rationale_suffix.push_str(" (Closing position)");
                     }
                 }
-            },
+            }
             _ => {}
         }
     } else {
@@ -116,98 +120,99 @@ pub async fn generate_signals(
 
     // 3. Run Strategy
     // For now, hardcode BollingerBandsMeanReversion. In future, use factory.
-    let strategy: Box<dyn Strategy> = if strategy_name == "BollingerBands" || strategy_name == "BollingerBandsMeanReversion" {
-        let config = BollingerBandsConfig {
-            window_size: 20,
-            num_std_dev: 2.0,
-            stop_loss_pct: 0.05, // Strategy config default, but we'll override or use for initial filtering
-            symbol: market_analysis.symbol.clone(),
+    let strategy: Box<dyn Strategy> =
+        if strategy_name == "BollingerBands" || strategy_name == "BollingerBandsMeanReversion" {
+            let config = BollingerBandsConfig {
+                window_size: 20,
+                num_std_dev: 2.0,
+                stop_loss_pct: 0.05, // Strategy config default, but we'll override or use for initial filtering
+                symbol: market_analysis.symbol.clone(),
+            };
+            Box::new(BollingerBandsMeanReversion::new(config))
+        } else if strategy_name == "EmaCrossover" {
+            let config = EmaCrossoverConfig {
+                short_window: 9,
+                long_window: 21,
+                stop_loss_pct: 0.05,
+                symbol: market_analysis.symbol.clone(),
+            };
+            Box::new(EmaCrossover::new(config))
+        } else if strategy_name == "RsiMeanReversion" {
+            let config = RsiMeanReversionConfig {
+                period: 14,
+                oversold_threshold: 30.0,
+                overbought_threshold: 70.0,
+                stop_loss_pct: 0.05,
+                symbol: market_analysis.symbol.clone(),
+            };
+            Box::new(RsiMeanReversion::new(config))
+        } else if strategy_name == "Macd" {
+            let config = MacdConfig {
+                fast_period: 12,
+                slow_period: 26,
+                signal_period: 9,
+                stop_loss_pct: 0.05,
+                symbol: market_analysis.symbol.clone(),
+            };
+            Box::new(Macd::new(config))
+        } else if strategy_name == "Supertrend" {
+            let config = SupertrendConfig {
+                period: 10,
+                factor: 3.0,
+                symbol: market_analysis.symbol.clone(),
+            };
+            Box::new(Supertrend::new(config))
+        } else if strategy_name == "DonchianBreakout" {
+            let config = DonchianBreakoutConfig {
+                entry_period: 20,
+                exit_period: 10,
+                stop_loss_atr_mult: 2.0,
+                symbol: market_analysis.symbol.clone(),
+            };
+            Box::new(DonchianBreakout::new(config))
+        } else if strategy_name == "ParabolicSar" {
+            let config = ParabolicSarConfig {
+                start: 0.02,
+                increment: 0.02,
+                max: 0.2,
+                symbol: market_analysis.symbol.clone(),
+            };
+            Box::new(ParabolicSar::new(config))
+        } else if strategy_name == "KeltnerChannelBreakout" {
+            let config = KeltnerChannelBreakoutConfig {
+                ema_period: 20,
+                atr_period: 10,
+                atr_multiplier: 2.0,
+                stop_loss_atr_mult: 2.0,
+                symbol: market_analysis.symbol.clone(),
+            };
+            Box::new(KeltnerChannelBreakout::new(config))
+        } else if strategy_name == "StochasticOscillator" {
+            let config = StochasticOscillatorConfig {
+                k_period: 14,
+                k_smoothing: 3,
+                d_period: 3,
+                oversold_threshold: 20.0,
+                overbought_threshold: 80.0,
+                stop_loss_atr_mult: 2.0,
+                atr_period: 14,
+                symbol: market_analysis.symbol.clone(),
+            };
+            Box::new(StochasticOscillator::new(config))
+        } else if strategy_name == "AdxMomentum" {
+            let config = AdxMomentumConfig {
+                adx_period: 14,
+                adx_threshold: 25.0,
+                di_period: 14,
+                stop_loss_atr_mult: 2.0,
+                atr_period: 14,
+                symbol: market_analysis.symbol.clone(),
+            };
+            Box::new(AdxMomentum::new(config))
+        } else {
+            // Fallback or Error
+            return Err(anyhow::anyhow!("Unknown strategy: {}", strategy_name));
         };
-        Box::new(BollingerBandsMeanReversion::new(config))
-    } else if strategy_name == "EmaCrossover" {
-        let config = EmaCrossoverConfig {
-            short_window: 9,
-            long_window: 21,
-            stop_loss_pct: 0.05,
-            symbol: market_analysis.symbol.clone(),
-        };
-        Box::new(EmaCrossover::new(config))
-    } else if strategy_name == "RsiMeanReversion" {
-        let config = RsiMeanReversionConfig {
-            period: 14,
-            oversold_threshold: 30.0,
-            overbought_threshold: 70.0,
-            stop_loss_pct: 0.05,
-            symbol: market_analysis.symbol.clone(),
-        };
-        Box::new(RsiMeanReversion::new(config))
-    } else if strategy_name == "Macd" {
-        let config = MacdConfig {
-            fast_period: 12,
-            slow_period: 26,
-            signal_period: 9,
-            stop_loss_pct: 0.05,
-            symbol: market_analysis.symbol.clone(),
-        };
-        Box::new(Macd::new(config))
-    } else if strategy_name == "Supertrend" {
-        let config = SupertrendConfig {
-            period: 10,
-            factor: 3.0,
-            symbol: market_analysis.symbol.clone(),
-        };
-        Box::new(Supertrend::new(config))
-    } else if strategy_name == "DonchianBreakout" {
-        let config = DonchianBreakoutConfig {
-            entry_period: 20,
-            exit_period: 10,
-            stop_loss_atr_mult: 2.0,
-            symbol: market_analysis.symbol.clone(),
-        };
-        Box::new(DonchianBreakout::new(config))
-    } else if strategy_name == "ParabolicSar" {
-        let config = ParabolicSarConfig {
-            start: 0.02,
-            increment: 0.02,
-            max: 0.2,
-            symbol: market_analysis.symbol.clone(),
-        };
-        Box::new(ParabolicSar::new(config))
-    } else if strategy_name == "KeltnerChannelBreakout" {
-        let config = KeltnerChannelBreakoutConfig {
-            ema_period: 20,
-            atr_period: 10,
-            atr_multiplier: 2.0,
-            stop_loss_atr_mult: 2.0,
-            symbol: market_analysis.symbol.clone(),
-        };
-        Box::new(KeltnerChannelBreakout::new(config))
-    } else if strategy_name == "StochasticOscillator" {
-        let config = StochasticOscillatorConfig {
-            k_period: 14,
-            k_smoothing: 3,
-            d_period: 3,
-            oversold_threshold: 20.0,
-            overbought_threshold: 80.0,
-            stop_loss_atr_mult: 2.0,
-            atr_period: 14,
-            symbol: market_analysis.symbol.clone(),
-        };
-        Box::new(StochasticOscillator::new(config))
-    } else if strategy_name == "AdxMomentum" {
-        let config = AdxMomentumConfig {
-            adx_period: 14,
-            adx_threshold: 25.0,
-            di_period: 14,
-            stop_loss_atr_mult: 2.0,
-            atr_period: 14,
-            symbol: market_analysis.symbol.clone(),
-        };
-        Box::new(AdxMomentum::new(config))
-    } else {
-        // Fallback or Error
-        return Err(anyhow::anyhow!("Unknown strategy: {}", strategy_name));
-    };
 
     let raw_signals = strategy.generate_signals(&df).await?;
     let raw_signals_count = raw_signals.len();
@@ -234,7 +239,10 @@ pub async fn generate_signals(
 
     if valid_signals.is_empty() {
         if raw_signals_count > 0 {
-            eprintln!("No signals generated for the latest timestamp. (Found {} signals in historical data)", raw_signals_count);
+            eprintln!(
+                "No signals generated for the latest timestamp. (Found {} signals in historical data)",
+                raw_signals_count
+            );
         } else {
             eprintln!("No signals generated by the strategy.");
         }
@@ -247,7 +255,9 @@ pub async fn generate_signals(
         if p_a != p_b {
             p_a.cmp(&p_b)
         } else {
-            b.confidence.partial_cmp(&a.confidence).unwrap_or(std::cmp::Ordering::Equal)
+            b.confidence
+                .partial_cmp(&a.confidence)
+                .unwrap_or(std::cmp::Ordering::Equal)
         }
     });
 
@@ -259,14 +269,15 @@ pub async fn generate_signals(
         // We check `signals_today` count from history. If we have 0, 1, or 2, we allow a new one.
         // If we have 3 or more, we skip.
         if signals_today < 3 {
-             // RAG Step: Check history
+            // RAG Step: Check history
             let similar_trades = if let Some(path) = history_path {
                 rag::find_similar_trades(&market_analysis, path).unwrap_or_default()
             } else {
                 Vec::new()
             };
 
-            let historical_context = rag::summarize_history(&similar_trades, &market_analysis.symbol);
+            let historical_context =
+                rag::summarize_history(&similar_trades, &market_analysis.symbol);
             let performance = rag::analyze_performance(&similar_trades);
 
             // Adjust confidence based on historical performance
@@ -284,14 +295,18 @@ pub async fn generate_signals(
             }
 
             // Combine Strategy Confidence, History Modifier, and Market Analysis Confidence
-            let adjusted_confidence = (signal.confidence * confidence_modifier * market_analysis.confidence).min(1.0);
+            let adjusted_confidence =
+                (signal.confidence * confidence_modifier * market_analysis.confidence).min(1.0);
 
             let mut skip = false;
 
             // Filter: Minimum Confidence
             if adjusted_confidence < 0.5 {
                 skip = true;
-                eprintln!("Skipping {} signal for {} due to low confidence ({:.2})", signal.side, signal.symbol, adjusted_confidence);
+                eprintln!(
+                    "Skipping {} signal for {} due to low confidence ({:.2})",
+                    signal.side, signal.symbol, adjusted_confidence
+                );
             }
 
             // Position Sizing and SL/TP
@@ -341,14 +356,12 @@ pub async fn generate_signals(
                             "0".to_string()
                         }
                     } else {
-                         signal.size_hint.clone()
+                        signal.size_hint.clone()
                     };
 
                     (sl, tp, size)
-                },
-                SignalType::Exit | SignalType::ScaleOut => {
-                    (None, None, signal.size_hint.clone())
                 }
+                SignalType::Exit | SignalType::ScaleOut => (None, None, signal.size_hint.clone()),
             };
 
             let time_in_force = if market_analysis.market == "crypto" {
@@ -370,50 +383,79 @@ pub async fn generate_signals(
 
             // Filter out invalid Exits (no position)
             if !skip {
-                skip = (final_signal_type == SignalType::Exit || final_signal_type == SignalType::ScaleOut) && existing_pos.is_none();
+                skip = (final_signal_type == SignalType::Exit
+                    || final_signal_type == SignalType::ScaleOut)
+                    && existing_pos.is_none();
             }
 
             // Filter: Do not chase moves (Entries only)
             // If Buy and Overbought -> Skip
             // If Sell and Oversold -> Skip
-            if !skip && (final_signal_type == SignalType::Entry || final_signal_type == SignalType::ScaleIn) {
+            if !skip
+                && (final_signal_type == SignalType::Entry
+                    || final_signal_type == SignalType::ScaleIn)
+            {
                 // Momentum strategies are exempt from this check as they naturally buy strength
                 let is_momentum = matches!(
                     strategy_name,
-                    "DonchianBreakout" | "KeltnerChannelBreakout" | "Supertrend" | "ParabolicSar" | "AdxMomentum"
+                    "DonchianBreakout"
+                        | "KeltnerChannelBreakout"
+                        | "Supertrend"
+                        | "ParabolicSar"
+                        | "AdxMomentum"
                 );
 
                 if !is_momentum {
                     if signal.side == "buy" && market_analysis.sentiment.contains("Overbought") {
                         skip = true;
-                        eprintln!("Skipping Buy signal for {} due to Overbought conditions (Chasing)", signal.symbol);
-                    } else if signal.side == "sell" && market_analysis.sentiment.contains("Oversold") {
+                        eprintln!(
+                            "Skipping Buy signal for {} due to Overbought conditions (Chasing)",
+                            signal.symbol
+                        );
+                    } else if signal.side == "sell"
+                        && market_analysis.sentiment.contains("Oversold")
+                    {
                         skip = true;
-                        eprintln!("Skipping Sell signal for {} due to Oversold conditions (Chasing)", signal.symbol);
+                        eprintln!(
+                            "Skipping Sell signal for {} due to Oversold conditions (Chasing)",
+                            signal.symbol
+                        );
                     }
                 }
             }
 
             // Filter out invalid Entries (missing stop loss)
-            if !skip && (final_signal_type == SignalType::Entry || final_signal_type == SignalType::ScaleIn) {
+            if !skip
+                && (final_signal_type == SignalType::Entry
+                    || final_signal_type == SignalType::ScaleIn)
+            {
                 if stop_loss.is_none() {
-                    eprintln!("Signal Generator: Skipping {} signal for {} due to missing Stop Loss", signal.side, signal.symbol);
+                    eprintln!(
+                        "Signal Generator: Skipping {} signal for {} due to missing Stop Loss",
+                        signal.side, signal.symbol
+                    );
                     skip = true;
                 }
             }
 
             // Filter out invalid sizes (0, NaN, Inf)
             if !skip && size_hint != "max" {
-                 if let Ok(size) = size_hint.parse::<f64>() {
-                     if size <= 0.0 || !size.is_finite() {
-                         eprintln!("Signal Generator: Skipping {} signal for {} due to invalid size: {}", signal.side, signal.symbol, size);
-                         skip = true;
-                     }
-                 } else {
-                     // Parse error means invalid size (unless "max" which is handled above)
-                     eprintln!("Signal Generator: Skipping {} signal for {} due to parse error on size: {}", signal.side, signal.symbol, size_hint);
-                     skip = true;
-                 }
+                if let Ok(size) = size_hint.parse::<f64>() {
+                    if size <= 0.0 || !size.is_finite() {
+                        eprintln!(
+                            "Signal Generator: Skipping {} signal for {} due to invalid size: {}",
+                            signal.side, signal.symbol, size
+                        );
+                        skip = true;
+                    }
+                } else {
+                    // Parse error means invalid size (unless "max" which is handled above)
+                    eprintln!(
+                        "Signal Generator: Skipping {} signal for {} due to parse error on size: {}",
+                        signal.side, signal.symbol, size_hint
+                    );
+                    skip = true;
+                }
             }
 
             if !skip {
@@ -427,7 +469,8 @@ pub async fn generate_signals(
                     context_summary.push_str(&format!(" News: {}.", news));
                 }
 
-                let final_rationale = format!("Strategy: {} ({:.0}%{}, MA: {:.2}). Reason: {}. Market Context: {} ({} Volatility). {}{}{}",
+                let final_rationale = format!(
+                    "Strategy: {} ({:.0}%{}, MA: {:.2}). Reason: {}. Market Context: {} ({} Volatility). {}{}{}",
                     strategy.name(),
                     adjusted_confidence * 100.0,
                     history_msg,
@@ -441,7 +484,10 @@ pub async fn generate_signals(
                 );
 
                 let intent = TradeIntent {
-                    intent_id: format!("{}:{}:{}:{}", market_analysis.market, signal.symbol, signal.side, signal.timestamp_ms),
+                    intent_id: format!(
+                        "{}:{}:{}:{}",
+                        market_analysis.market, signal.symbol, signal.side, signal.timestamp_ms
+                    ),
                     market: market_analysis.market.clone(),
                     symbol: signal.symbol.clone(),
                     side: signal.side.clone(),
@@ -500,8 +546,8 @@ fn bars_to_dataframe(series: &BarSeries) -> Result<DataFrame> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use contracts::{Bar, MarketAnalysis, TradeIntent};
     use crate::rag::HistoryEntry;
+    use contracts::{Bar, MarketAnalysis, TradeIntent};
     use std::io::Write;
     use tempfile::NamedTempFile;
 
@@ -572,7 +618,8 @@ mod tests {
         };
 
         let positions = vec![];
-        let intents = generate_signals(&series, "BollingerBands", None, 100.0, &positions, None).await?;
+        let intents =
+            generate_signals(&series, "BollingerBands", None, 100.0, &positions, None).await?;
 
         assert!(!intents.is_empty());
         let intent = &intents[0];
@@ -632,7 +679,8 @@ mod tests {
         };
 
         let positions = vec![];
-        let intents = generate_signals(&series, "BollingerBands", None, 100.0, &positions, None).await?;
+        let intents =
+            generate_signals(&series, "BollingerBands", None, 100.0, &positions, None).await?;
 
         assert!(!intents.is_empty());
         let intent = &intents[0];
@@ -704,7 +752,8 @@ mod tests {
         };
 
         let positions = vec![];
-        let intents = generate_signals(&series, "BollingerBands", None, 100.0, &positions, None).await?;
+        let intents =
+            generate_signals(&series, "BollingerBands", None, 100.0, &positions, None).await?;
         assert!(!intents.is_empty());
         let intent = &intents[0];
 
@@ -745,13 +794,21 @@ mod tests {
             volume: 5000.0,
         });
 
-        let series = BarSeries { schema_version: "v0".to_string(), bars };
+        let series = BarSeries {
+            schema_version: "v0".to_string(),
+            bars,
+        };
         let positions = vec![];
-        let intents = generate_signals(&series, "BollingerBands", None, 100.0, &positions, None).await?;
+        let intents =
+            generate_signals(&series, "BollingerBands", None, 100.0, &positions, None).await?;
         let intent = &intents[0];
 
         // "Strategy: {}. Reason: {}. Market Context: {} ({} Volatility). {}"
-        assert!(intent.rationale.contains("Strategy: BollingerBandsMeanReversion"));
+        assert!(
+            intent
+                .rationale
+                .contains("Strategy: BollingerBandsMeanReversion")
+        );
         assert!(intent.rationale.contains("Market Context:"));
         assert!(intent.rationale.contains("Volatility"));
         assert!(intent.rationale.contains("No similar past trades found")); // Default history context
@@ -790,7 +847,10 @@ mod tests {
             volume: 1000.0,
         });
 
-        let series = BarSeries { schema_version: "v0".to_string(), bars };
+        let series = BarSeries {
+            schema_version: "v0".to_string(),
+            bars,
+        };
 
         // Case 1: Existing Long Position -> Should result in ScaleIn
         let positions = vec![contracts::Position {
@@ -800,7 +860,8 @@ mod tests {
             entry_price: Some(100.0),
         }];
 
-        let intents = generate_signals(&series, "BollingerBands", None, 100.0, &positions, None).await?;
+        let intents =
+            generate_signals(&series, "BollingerBands", None, 100.0, &positions, None).await?;
         assert!(!intents.is_empty());
         let intent = &intents[0];
         assert_eq!(intent.side, "buy");
@@ -815,7 +876,8 @@ mod tests {
             entry_price: Some(100.0),
         }];
 
-        let intents = generate_signals(&series, "BollingerBands", None, 100.0, &positions, None).await?;
+        let intents =
+            generate_signals(&series, "BollingerBands", None, 100.0, &positions, None).await?;
         assert!(!intents.is_empty());
         let intent = &intents[0];
         assert_eq!(intent.side, "buy");
@@ -846,7 +908,10 @@ mod tests {
             });
         }
 
-        let series = BarSeries { schema_version: "v0".to_string(), bars };
+        let series = BarSeries {
+            schema_version: "v0".to_string(),
+            bars,
+        };
         let positions = vec![];
 
         // Strategy Name "Macd"
@@ -857,7 +922,7 @@ mod tests {
         // And if we get an intent, rationale should mention Macd.
 
         if !intents.is_empty() {
-             assert!(intents[0].rationale.contains("Strategy: Macd"));
+            assert!(intents[0].rationale.contains("Strategy: Macd"));
         }
 
         Ok(())
@@ -895,11 +960,15 @@ mod tests {
             volume: 1000.0,
         });
 
-        let series = BarSeries { schema_version: "v0".to_string(), bars };
+        let series = BarSeries {
+            schema_version: "v0".to_string(),
+            bars,
+        };
         let positions = vec![];
 
         // risk = 0.0 should result in size = 0.0 -> Filtered
-        let intents = generate_signals(&series, "BollingerBands", None, 0.0, &positions, None).await?;
+        let intents =
+            generate_signals(&series, "BollingerBands", None, 0.0, &positions, None).await?;
 
         // Should be empty because size is 0
         assert!(intents.is_empty(), "Signals with 0 size should be filtered");
@@ -928,7 +997,11 @@ mod tests {
                 market: "equities".to_string(),
                 timeframe: "1m".to_string(),
                 timestamp_unix_ms: now + i * 60000,
-                open: 100.0, high: 101.0, low: 99.0, close: 100.0, volume: 1000.0,
+                open: 100.0,
+                high: 101.0,
+                low: 99.0,
+                close: 100.0,
+                volume: 1000.0,
             });
         }
         // Trigger Buy
@@ -937,14 +1010,32 @@ mod tests {
             market: "equities".to_string(),
             timeframe: "1m".to_string(),
             timestamp_unix_ms: now + 20 * 60000,
-            open: 100.0, high: 101.0, low: 90.0, close: 90.0, volume: 1000.0,
+            open: 100.0,
+            high: 101.0,
+            low: 90.0,
+            close: 90.0,
+            volume: 1000.0,
         });
-        let series = BarSeries { schema_version: "v0".to_string(), bars };
+        let series = BarSeries {
+            schema_version: "v0".to_string(),
+            bars,
+        };
         let positions = vec![];
 
         // Should return empty because limit (3) reached
-        let intents = generate_signals(&series, "BollingerBands", Some(history_file.path()), 100.0, &positions, None).await?;
-        assert!(intents.is_empty(), "Should not generate signal if limit reached");
+        let intents = generate_signals(
+            &series,
+            "BollingerBands",
+            Some(history_file.path()),
+            100.0,
+            &positions,
+            None,
+        )
+        .await?;
+        assert!(
+            intents.is_empty(),
+            "Should not generate signal if limit reached"
+        );
 
         // Now try with < 3 entries
         let mut history_file_2 = NamedTempFile::new()?;
@@ -954,8 +1045,19 @@ mod tests {
         ];
         write!(history_file_2, "{}", serde_json::to_string(&entries_2)?)?;
 
-        let intents_2 = generate_signals(&series, "BollingerBands", Some(history_file_2.path()), 100.0, &positions, None).await?;
-        assert!(!intents_2.is_empty(), "Should generate signal if limit not reached");
+        let intents_2 = generate_signals(
+            &series,
+            "BollingerBands",
+            Some(history_file_2.path()),
+            100.0,
+            &positions,
+            None,
+        )
+        .await?;
+        assert!(
+            !intents_2.is_empty(),
+            "Should generate signal if limit not reached"
+        );
 
         Ok(())
     }
@@ -974,7 +1076,11 @@ mod tests {
                 market: "equities".to_string(),
                 timeframe: "1m".to_string(),
                 timestamp_unix_ms: now + i * 60000,
-                open: 100.0, high: 100.1, low: 99.9, close: 100.0, volume: 1000.0,
+                open: 100.0,
+                high: 100.1,
+                low: 99.9,
+                close: 100.0,
+                volume: 1000.0,
             });
         }
         // Trigger Buy with Drop (triggers Trending Down)
@@ -983,10 +1089,17 @@ mod tests {
             market: "equities".to_string(),
             timeframe: "1m".to_string(),
             timestamp_unix_ms: now + 20 * 60000,
-            open: 100.0, high: 100.1, low: 90.0, close: 90.0, volume: 1000.0,
+            open: 100.0,
+            high: 100.1,
+            low: 90.0,
+            close: 90.0,
+            volume: 1000.0,
         });
 
-        let series = BarSeries { schema_version: "v0".to_string(), bars };
+        let series = BarSeries {
+            schema_version: "v0".to_string(),
+            bars,
+        };
 
         // Analyze to get the actual regime/volatility
         let actual_analysis = analysis::analyze(&series);
@@ -1001,11 +1114,23 @@ mod tests {
 
         let positions = vec![];
 
-        let intents = generate_signals(&series, "BollingerBands", Some(history_file.path()), 100.0, &positions, None).await?;
+        let intents = generate_signals(
+            &series,
+            "BollingerBands",
+            Some(history_file.path()),
+            100.0,
+            &positions,
+            None,
+        )
+        .await?;
         assert!(!intents.is_empty());
         let intent = &intents[0];
 
-        assert!(intent.rationale.contains("Found 1 similar past trades"), "Rationale should include history context: {}", intent.rationale);
+        assert!(
+            intent.rationale.contains("Found 1 similar past trades"),
+            "Rationale should include history context: {}",
+            intent.rationale
+        );
 
         Ok(())
     }
@@ -1025,7 +1150,11 @@ mod tests {
                     market: "equities".to_string(),
                     timeframe: "1m".to_string(),
                     timestamp_unix_ms: now + i * 60000,
-                    open: 100.0, high: 101.0, low: 99.0, close: 100.0, volume: 1000.0,
+                    open: 100.0,
+                    high: 101.0,
+                    low: 99.0,
+                    close: 100.0,
+                    volume: 1000.0,
                 });
             }
             bars.push(Bar {
@@ -1033,12 +1162,24 @@ mod tests {
                 market: "equities".to_string(),
                 timeframe: "1m".to_string(),
                 timestamp_unix_ms: now + 30 * 60000,
-                open: 100.0, high: 101.0, low: drop_to, close: drop_to, volume: 1000.0,
+                open: 100.0,
+                high: 101.0,
+                low: drop_to,
+                close: drop_to,
+                volume: 1000.0,
             });
-            let series = BarSeries { schema_version: "v0".to_string(), bars };
+            let series = BarSeries {
+                schema_version: "v0".to_string(),
+                bars,
+            };
             let positions = vec![];
-            let intents = generate_signals(&series, "BollingerBands", None, 100.0, &positions, None).await.unwrap();
-            if intents.is_empty() { return 0.0; }
+            let intents =
+                generate_signals(&series, "BollingerBands", None, 100.0, &positions, None)
+                    .await
+                    .unwrap();
+            if intents.is_empty() {
+                return 0.0;
+            }
             intents[0].size_hint.parse().unwrap()
         }
 
@@ -1047,7 +1188,12 @@ mod tests {
 
         assert!(size_small_drop > 0.0);
         assert!(size_large_drop > 0.0);
-        assert!(size_small_drop > size_large_drop, "Size should decrease as volatility (drop) increases. Small: {}, Large: {}", size_small_drop, size_large_drop);
+        assert!(
+            size_small_drop > size_large_drop,
+            "Size should decrease as volatility (drop) increases. Small: {}, Large: {}",
+            size_small_drop,
+            size_large_drop
+        );
 
         Ok(())
     }
@@ -1065,7 +1211,11 @@ mod tests {
                 market: "equities".to_string(),
                 timeframe: "1m".to_string(),
                 timestamp_unix_ms: now + i * 60000,
-                open: close, high: close + 2.0, low: close - 2.0, close: close, volume: 1000.0,
+                open: close,
+                high: close + 2.0,
+                low: close - 2.0,
+                close: close,
+                volume: 1000.0,
             });
         }
         // 2. Flip to Uptrend
@@ -1079,13 +1229,21 @@ mod tests {
             market: "equities".to_string(),
             timeframe: "1m".to_string(),
             timestamp_unix_ms: now + i * 60000,
-            open: close, high: close_rally + 5.0, low: close - 2.0, close: close_rally, volume: 1000.0,
+            open: close,
+            high: close_rally + 5.0,
+            low: close - 2.0,
+            close: close_rally,
+            volume: 1000.0,
         });
 
-        let series = BarSeries { schema_version: "v0".to_string(), bars };
+        let series = BarSeries {
+            schema_version: "v0".to_string(),
+            bars,
+        };
         let positions = vec![];
 
-        let intents = generate_signals(&series, "ParabolicSar", None, 100.0, &positions, None).await?;
+        let intents =
+            generate_signals(&series, "ParabolicSar", None, 100.0, &positions, None).await?;
 
         // Should produce a Buy signal
         if !intents.is_empty() {
@@ -1119,7 +1277,11 @@ mod tests {
                 market: "equities".to_string(),
                 timeframe: "1m".to_string(),
                 timestamp_unix_ms: now + i * 60000,
-                open: close, high: close + 2.0, low: close - 2.0, close: close, volume: 1000.0,
+                open: close,
+                high: close + 2.0,
+                low: close - 2.0,
+                close: close,
+                volume: 1000.0,
             });
         }
 
@@ -1131,10 +1293,17 @@ mod tests {
             market: "equities".to_string(),
             timeframe: "1m".to_string(),
             timestamp_unix_ms: now + i * 60000,
-            open: close, high: close_rally + 2.0, low: close - 2.0, close: close_rally, volume: 1000.0,
+            open: close,
+            high: close_rally + 2.0,
+            low: close - 2.0,
+            close: close_rally,
+            volume: 1000.0,
         });
 
-        let series = BarSeries { schema_version: "v0".to_string(), bars };
+        let series = BarSeries {
+            schema_version: "v0".to_string(),
+            bars,
+        };
         let positions = vec![];
 
         let i = 40;
@@ -1153,7 +1322,15 @@ mod tests {
             confidence: 0.8,
             timestamp_unix_ms: now + i * 60000,
         };
-        let intents = generate_signals(&series, "Supertrend", None, 100.0, &positions, Some(high_conf_analysis)).await?;
+        let intents = generate_signals(
+            &series,
+            "Supertrend",
+            None,
+            100.0,
+            &positions,
+            Some(high_conf_analysis),
+        )
+        .await?;
 
         assert!(!intents.is_empty(), "Should generate signal on trend flip");
         let intent = &intents[0];
@@ -1247,7 +1424,11 @@ mod tests {
                 market: "equities".to_string(),
                 timeframe: "1m".to_string(),
                 timestamp_unix_ms: now + i * 60000,
-                open: close, high: close + 1.0, low: close - 1.0, close: close, volume: 1000.0,
+                open: close,
+                high: close + 1.0,
+                low: close - 1.0,
+                close: close,
+                volume: 1000.0,
             });
         }
         // Trigger Buy (Lower Band)
@@ -1256,9 +1437,16 @@ mod tests {
             market: "equities".to_string(),
             timeframe: "1m".to_string(),
             timestamp_unix_ms: now + 20 * 60000,
-            open: 100.0, high: 101.0, low: 90.0, close: 90.0, volume: 1000.0,
+            open: 100.0,
+            high: 101.0,
+            low: 90.0,
+            close: 90.0,
+            volume: 1000.0,
         });
-        let series = BarSeries { schema_version: "v0".to_string(), bars };
+        let series = BarSeries {
+            schema_version: "v0".to_string(),
+            bars,
+        };
         let positions = vec![];
 
         // 1. High Win Rate (100%)
@@ -1290,10 +1478,22 @@ mod tests {
         write!(history_file_high, "{}", serde_json::to_string(&entries)?)?;
 
         // Run with passed analysis to ensure match
-        let intents = generate_signals(&series, "BollingerBands", Some(history_file_high.path()), 100.0, &positions, Some(analysis_template.clone())).await?;
+        let intents = generate_signals(
+            &series,
+            "BollingerBands",
+            Some(history_file_high.path()),
+            100.0,
+            &positions,
+            Some(analysis_template.clone()),
+        )
+        .await?;
         assert!(!intents.is_empty());
         let intent = &intents[0];
-        assert!(intent.rationale.contains("Boosted"), "Rationale should indicate boost: {}", intent.rationale);
+        assert!(
+            intent.rationale.contains("Boosted"),
+            "Rationale should indicate boost: {}",
+            intent.rationale
+        );
         assert!(intent.confidence > 0.5, "Confidence should be high"); // Original is likely > 0.5
 
         // 2. Low Win Rate (0%)
@@ -1308,15 +1508,30 @@ mod tests {
         }
         write!(history_file_low, "{}", serde_json::to_string(&entries_low)?)?;
 
-        let intents_low = generate_signals(&series, "BollingerBands", Some(history_file_low.path()), 100.0, &positions, Some(analysis_template.clone())).await?;
+        let intents_low = generate_signals(
+            &series,
+            "BollingerBands",
+            Some(history_file_low.path()),
+            100.0,
+            &positions,
+            Some(analysis_template.clone()),
+        )
+        .await?;
         assert!(!intents_low.is_empty());
         let intent_low = &intents_low[0];
-        assert!(intent_low.rationale.contains("Penalized"), "Rationale should indicate penalty: {}", intent_low.rationale);
+        assert!(
+            intent_low.rationale.contains("Penalized"),
+            "Rationale should indicate penalty: {}",
+            intent_low.rationale
+        );
 
         // Check relative confidence
         // intent.confidence should be boosted (approx 1.1x)
         // intent_low.confidence should be penalized (approx 0.8x)
-        assert!(intent.confidence > intent_low.confidence, "Boosted confidence should be higher than penalized");
+        assert!(
+            intent.confidence > intent_low.confidence,
+            "Boosted confidence should be higher than penalized"
+        );
 
         Ok(())
     }
@@ -1332,7 +1547,11 @@ mod tests {
                 market: "equities".to_string(),
                 timeframe: "1m".to_string(),
                 timestamp_unix_ms: now + i * 60000,
-                open: 100.0, high: 101.0, low: 99.0, close: 100.0, volume: 1000.0,
+                open: 100.0,
+                high: 101.0,
+                low: 99.0,
+                close: 100.0,
+                volume: 1000.0,
             });
         }
         // Trigger Buy signal (Drop below Lower Band)
@@ -1341,10 +1560,17 @@ mod tests {
             market: "equities".to_string(),
             timeframe: "1m".to_string(),
             timestamp_unix_ms: now + 20 * 60000,
-            open: 100.0, high: 101.0, low: 90.0, close: 90.0, volume: 1000.0,
+            open: 100.0,
+            high: 101.0,
+            low: 90.0,
+            close: 90.0,
+            volume: 1000.0,
         });
 
-        let series = BarSeries { schema_version: "v0".to_string(), bars };
+        let series = BarSeries {
+            schema_version: "v0".to_string(),
+            bars,
+        };
         let positions = vec![];
 
         // 1. Force Overbought Sentiment -> Should Skip Buy
@@ -1364,19 +1590,34 @@ mod tests {
             timestamp_unix_ms: now + 20 * 60000,
         };
 
-        let intents_skipped = generate_signals(&series, "BollingerBands", None, 100.0, &positions, Some(overbought_analysis)).await?;
-        assert!(intents_skipped.is_empty(), "Should skip Buy signal when Overbought");
+        let intents_skipped = generate_signals(
+            &series,
+            "BollingerBands",
+            None,
+            100.0,
+            &positions,
+            Some(overbought_analysis),
+        )
+        .await?;
+        assert!(
+            intents_skipped.is_empty(),
+            "Should skip Buy signal when Overbought"
+        );
 
         // 2. Force Oversold Sentiment -> Should Skip Sell
         // First we need a Sell signal. Let's make price jump.
         let mut bars_sell = Vec::new();
         for i in 0..20 {
-             bars_sell.push(Bar {
+            bars_sell.push(Bar {
                 symbol: "TEST".to_string(),
                 market: "equities".to_string(),
                 timeframe: "1m".to_string(),
                 timestamp_unix_ms: now + i * 60000,
-                open: 100.0, high: 101.0, low: 99.0, close: 100.0, volume: 1000.0,
+                open: 100.0,
+                high: 101.0,
+                low: 99.0,
+                close: 100.0,
+                volume: 1000.0,
             });
         }
         // Spike to trigger Sell
@@ -1385,9 +1626,16 @@ mod tests {
             market: "equities".to_string(),
             timeframe: "1m".to_string(),
             timestamp_unix_ms: now + 20 * 60000,
-            open: 100.0, high: 120.0, low: 100.0, close: 120.0, volume: 1000.0,
+            open: 100.0,
+            high: 120.0,
+            low: 100.0,
+            close: 120.0,
+            volume: 1000.0,
         });
-        let series_sell = BarSeries { schema_version: "v0".to_string(), bars: bars_sell };
+        let series_sell = BarSeries {
+            schema_version: "v0".to_string(),
+            bars: bars_sell,
+        };
 
         let oversold_analysis = MarketAnalysis {
             symbol: "TEST".to_string(),
@@ -1405,8 +1653,19 @@ mod tests {
             timestamp_unix_ms: now + 20 * 60000,
         };
 
-        let intents_skipped_sell = generate_signals(&series_sell, "BollingerBands", None, 100.0, &positions, Some(oversold_analysis)).await?;
-        assert!(intents_skipped_sell.is_empty(), "Should skip Sell signal when Oversold");
+        let intents_skipped_sell = generate_signals(
+            &series_sell,
+            "BollingerBands",
+            None,
+            100.0,
+            &positions,
+            Some(oversold_analysis),
+        )
+        .await?;
+        assert!(
+            intents_skipped_sell.is_empty(),
+            "Should skip Sell signal when Oversold"
+        );
 
         // 3. Normal Sentiment -> Should Allow
         let normal_analysis = MarketAnalysis {
@@ -1425,8 +1684,19 @@ mod tests {
             timestamp_unix_ms: now + 20 * 60000,
         };
 
-        let intents_allowed = generate_signals(&series, "BollingerBands", None, 100.0, &positions, Some(normal_analysis)).await?;
-        assert!(!intents_allowed.is_empty(), "Should allow signal when Neutral");
+        let intents_allowed = generate_signals(
+            &series,
+            "BollingerBands",
+            None,
+            100.0,
+            &positions,
+            Some(normal_analysis),
+        )
+        .await?;
+        assert!(
+            !intents_allowed.is_empty(),
+            "Should allow signal when Neutral"
+        );
 
         Ok(())
     }
@@ -1442,7 +1712,11 @@ mod tests {
                 market: "equities".to_string(),
                 timeframe: "1m".to_string(),
                 timestamp_unix_ms: now + i * 60000,
-                open: 100.0, high: 101.0, low: 99.0, close: 100.0, volume: 1000.0,
+                open: 100.0,
+                high: 101.0,
+                low: 99.0,
+                close: 100.0,
+                volume: 1000.0,
             });
         }
         // Trigger signal
@@ -1451,10 +1725,17 @@ mod tests {
             market: "equities".to_string(),
             timeframe: "1m".to_string(),
             timestamp_unix_ms: now + 20 * 60000,
-            open: 100.0, high: 101.0, low: 90.0, close: 90.0, volume: 1000.0,
+            open: 100.0,
+            high: 101.0,
+            low: 90.0,
+            close: 90.0,
+            volume: 1000.0,
         });
 
-        let series = BarSeries { schema_version: "v0".to_string(), bars };
+        let series = BarSeries {
+            schema_version: "v0".to_string(),
+            bars,
+        };
         let positions = vec![];
 
         // Force low confidence via analysis
@@ -1474,10 +1755,21 @@ mod tests {
             timestamp_unix_ms: now + 20 * 60000,
         };
 
-        let intents = generate_signals(&series, "BollingerBands", None, 100.0, &positions, Some(low_conf_analysis)).await?;
+        let intents = generate_signals(
+            &series,
+            "BollingerBands",
+            None,
+            100.0,
+            &positions,
+            Some(low_conf_analysis),
+        )
+        .await?;
 
         // Currently, this SHOULD be empty because we filter < 0.5
-        assert!(intents.is_empty(), "Signals with low confidence should be filtered out");
+        assert!(
+            intents.is_empty(),
+            "Signals with low confidence should be filtered out"
+        );
 
         Ok(())
     }
@@ -1495,7 +1787,11 @@ mod tests {
                 market: "equities".to_string(),
                 timeframe: "1m".to_string(),
                 timestamp_unix_ms: now + i * 60000,
-                open: close, high: close + 1.0, low: close - 1.0, close: close, volume: 1000.0,
+                open: close,
+                high: close + 1.0,
+                low: close - 1.0,
+                close: close,
+                volume: 1000.0,
             });
         }
         // Breakout!
@@ -1504,10 +1800,17 @@ mod tests {
             market: "equities".to_string(),
             timeframe: "1m".to_string(),
             timestamp_unix_ms: now + 20 * 60000,
-            open: 105.0, high: 110.0, low: 105.0, close: 110.0, volume: 5000.0,
+            open: 105.0,
+            high: 110.0,
+            low: 105.0,
+            close: 110.0,
+            volume: 5000.0,
         });
 
-        let series = BarSeries { schema_version: "v0".to_string(), bars };
+        let series = BarSeries {
+            schema_version: "v0".to_string(),
+            bars,
+        };
         let positions = vec![];
 
         // 2. Force Overbought Sentiment
@@ -1528,11 +1831,22 @@ mod tests {
         };
 
         // 3. Generate Signals with DonchianBreakout
-        let intents = generate_signals(&series, "DonchianBreakout", None, 100.0, &positions, Some(overbought_analysis)).await?;
+        let intents = generate_signals(
+            &series,
+            "DonchianBreakout",
+            None,
+            100.0,
+            &positions,
+            Some(overbought_analysis),
+        )
+        .await?;
 
         // 4. Assert Signal Generated
         // If "Do Not Chase" was active, this would be empty.
-        assert!(!intents.is_empty(), "DonchianBreakout should allow chasing (Buy when Overbought)");
+        assert!(
+            !intents.is_empty(),
+            "DonchianBreakout should allow chasing (Buy when Overbought)"
+        );
         let intent = &intents[0];
         assert_eq!(intent.side, "buy");
         assert!(intent.rationale.contains("DonchianBreakout"));
@@ -1555,7 +1869,11 @@ mod tests {
                 market: "equities".to_string(),
                 timeframe: "1m".to_string(),
                 timestamp_unix_ms: now + i * 60000,
-                open: close, high: close + 1.0, low: close - 1.0, close: close, volume: 1000.0,
+                open: close,
+                high: close + 1.0,
+                low: close - 1.0,
+                close: close,
+                volume: 1000.0,
             });
         }
         // Bars 20-35: Low price (80). This pushes Stochastic down.
@@ -1566,7 +1884,11 @@ mod tests {
                 market: "equities".to_string(),
                 timeframe: "1m".to_string(),
                 timestamp_unix_ms: now + i * 60000,
-                open: close, high: close + 1.0, low: close - 1.0, close: close, volume: 1000.0,
+                open: close,
+                high: close + 1.0,
+                low: close - 1.0,
+                close: close,
+                volume: 1000.0,
             });
         }
         // Bar 36: Price ticks up slightly to cause %K > %D crossover while still oversold?
@@ -1579,19 +1901,34 @@ mod tests {
             market: "equities".to_string(),
             timeframe: "1m".to_string(),
             timestamp_unix_ms: now + 36 * 60000,
-            open: 80.0, high: 83.0, low: 80.0, close: 82.0, volume: 1000.0,
+            open: 80.0,
+            high: 83.0,
+            low: 80.0,
+            close: 82.0,
+            volume: 1000.0,
         });
 
-        let series = BarSeries { schema_version: "v0".to_string(), bars };
+        let series = BarSeries {
+            schema_version: "v0".to_string(),
+            bars,
+        };
         let positions = vec![];
 
-        let intents = generate_signals(&series, "StochasticOscillator", None, 100.0, &positions, None).await?;
+        let intents = generate_signals(
+            &series,
+            "StochasticOscillator",
+            None,
+            100.0,
+            &positions,
+            None,
+        )
+        .await?;
 
         // We might or might not get a signal depending on exact calculation.
         // But if we get one, it should be valid.
         if !intents.is_empty() {
-             let intent = &intents[0];
-             assert!(intent.rationale.contains("StochasticOscillator"));
+            let intent = &intents[0];
+            assert!(intent.rationale.contains("StochasticOscillator"));
         }
         Ok(())
     }
@@ -1610,7 +1947,11 @@ mod tests {
                 market: "equities".to_string(),
                 timeframe: "1m".to_string(),
                 timestamp_unix_ms: now + i * 60000,
-                open: close, high: close + 1.0, low: close - 1.0, close: close, volume: 1000.0,
+                open: close,
+                high: close + 1.0,
+                low: close - 1.0,
+                close: close,
+                volume: 1000.0,
             });
         }
         // 2. Trigger Crossover (Short > Long)
@@ -1622,15 +1963,23 @@ mod tests {
             market: "equities".to_string(),
             timeframe: "1m".to_string(),
             timestamp_unix_ms: now + i * 60000,
-            open: close, high: close_rally + 1.0, low: close - 1.0, close: close_rally, volume: 1000.0,
+            open: close,
+            high: close_rally + 1.0,
+            low: close - 1.0,
+            close: close_rally,
+            volume: 1000.0,
         });
 
-        let series = BarSeries { schema_version: "v0".to_string(), bars };
+        let series = BarSeries {
+            schema_version: "v0".to_string(),
+            bars,
+        };
         let positions = vec![];
 
         // Need analysis that supports Trending Up otherwise strategy might be filtered by some logic?
         // No, generate_signals runs the strategy requested.
-        let intents = generate_signals(&series, "EmaCrossover", None, 100.0, &positions, None).await?;
+        let intents =
+            generate_signals(&series, "EmaCrossover", None, 100.0, &positions, None).await?;
 
         assert!(!intents.is_empty(), "Should generate signal on crossover");
         let intent = &intents[0];
@@ -1653,16 +2002,27 @@ mod tests {
                 market: "equities".to_string(),
                 timeframe: "1m".to_string(),
                 timestamp_unix_ms: now + i * 60000,
-                open: close, high: close + 1.0, low: close - 1.0, close: close, volume: 1000.0,
+                open: close,
+                high: close + 1.0,
+                low: close - 1.0,
+                close: close,
+                volume: 1000.0,
             });
         }
 
-        let series = BarSeries { schema_version: "v0".to_string(), bars };
+        let series = BarSeries {
+            schema_version: "v0".to_string(),
+            bars,
+        };
         let positions = vec![];
 
-        let intents = generate_signals(&series, "RsiMeanReversion", None, 100.0, &positions, None).await?;
+        let intents =
+            generate_signals(&series, "RsiMeanReversion", None, 100.0, &positions, None).await?;
 
-        assert!(!intents.is_empty(), "Should generate signal on Oversold RSI");
+        assert!(
+            !intents.is_empty(),
+            "Should generate signal on Oversold RSI"
+        );
         let intent = &intents[0];
         assert_eq!(intent.side, "buy");
         assert!(intent.rationale.contains("RsiMeanReversion"));
@@ -1681,7 +2041,11 @@ mod tests {
                 market: "equities".to_string(),
                 timeframe: "1m".to_string(),
                 timestamp_unix_ms: now + i * 60000,
-                open: 100.0, high: 100.1, low: 99.9, close: 100.0, volume: 1000.0,
+                open: 100.0,
+                high: 100.1,
+                low: 99.9,
+                close: 100.0,
+                volume: 1000.0,
             });
         }
         // 2. Breakout (Close > Upper Channel)
@@ -1693,13 +2057,28 @@ mod tests {
             market: "equities".to_string(),
             timeframe: "1m".to_string(),
             timestamp_unix_ms: now + i * 60000,
-            open: 100.0, high: 102.0, low: 100.0, close: 102.0, volume: 1000.0,
+            open: 100.0,
+            high: 102.0,
+            low: 100.0,
+            close: 102.0,
+            volume: 1000.0,
         });
 
-        let series = BarSeries { schema_version: "v0".to_string(), bars };
+        let series = BarSeries {
+            schema_version: "v0".to_string(),
+            bars,
+        };
         let positions = vec![];
 
-        let intents = generate_signals(&series, "KeltnerChannelBreakout", None, 100.0, &positions, None).await?;
+        let intents = generate_signals(
+            &series,
+            "KeltnerChannelBreakout",
+            None,
+            100.0,
+            &positions,
+            None,
+        )
+        .await?;
 
         assert!(!intents.is_empty(), "Should generate signal on Breakout");
         let intent = &intents[0];
@@ -1718,9 +2097,15 @@ mod tests {
         let mut p = 100.0;
         for i in 0..30 {
             bars.push(Bar {
-                symbol: "TEST".to_string(), market: "equities".to_string(), timeframe: "1m".to_string(),
+                symbol: "TEST".to_string(),
+                market: "equities".to_string(),
+                timeframe: "1m".to_string(),
                 timestamp_unix_ms: now + i * 60000,
-                open: p, high: p+0.1, low: p-0.1, close: p, volume: 1000.0,
+                open: p,
+                high: p + 0.1,
+                low: p - 0.1,
+                close: p,
+                volume: 1000.0,
             });
         }
 
@@ -1730,13 +2115,22 @@ mod tests {
             p += 2.0;
             let ts = now + (30 + i) * 60000;
             bars.push(Bar {
-                symbol: "TEST".to_string(), market: "equities".to_string(), timeframe: "1m".to_string(),
+                symbol: "TEST".to_string(),
+                market: "equities".to_string(),
+                timeframe: "1m".to_string(),
                 timestamp_unix_ms: ts,
-                open: p, high: p+2.0, low: p-0.1, close: p+2.0, volume: 1000.0,
+                open: p,
+                high: p + 2.0,
+                low: p - 0.1,
+                close: p + 2.0,
+                volume: 1000.0,
             });
         }
 
-        let series = BarSeries { schema_version: "v0".to_string(), bars };
+        let series = BarSeries {
+            schema_version: "v0".to_string(),
+            bars,
+        };
         let positions = vec![];
 
         let last_ts = series.bars.last().unwrap().timestamp_unix_ms;
@@ -1759,9 +2153,20 @@ mod tests {
         };
 
         // Run AdxMomentum
-        let intents = generate_signals(&series, "AdxMomentum", None, 100.0, &positions, Some(overbought_analysis)).await?;
+        let intents = generate_signals(
+            &series,
+            "AdxMomentum",
+            None,
+            100.0,
+            &positions,
+            Some(overbought_analysis),
+        )
+        .await?;
 
-        assert!(!intents.is_empty(), "AdxMomentum should generate signal and allow chasing (Buy when Overbought)");
+        assert!(
+            !intents.is_empty(),
+            "AdxMomentum should generate signal and allow chasing (Buy when Overbought)"
+        );
         let intent = &intents[0];
         assert_eq!(intent.side, "buy");
         assert!(intent.rationale.contains("AdxMomentum"));

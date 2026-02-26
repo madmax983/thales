@@ -174,6 +174,19 @@ pub struct BarSeries {
 }
 
 /// A request to execute a specific trade intent.
+///
+/// # Examples
+///
+/// ```rust
+/// use contracts::{ExecutionRequest, TradeIntent};
+///
+/// let request = ExecutionRequest {
+///     schema_version: "v0".to_string(),
+///     provider: "kraken".to_string(),
+///     intent: TradeIntent::default(),
+/// };
+/// assert_eq!(request.provider, "kraken");
+/// ```
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct ExecutionRequest {
     /// The schema version.
@@ -185,6 +198,23 @@ pub struct ExecutionRequest {
 }
 
 /// The result of an execution attempt.
+///
+/// # Examples
+///
+/// ```rust
+/// use contracts::ExecutionResult;
+///
+/// let result = ExecutionResult {
+///     schema_version: "v0".to_string(),
+///     intent_id: "test:1".to_string(),
+///     provider: "paper".to_string(),
+///     provider_order_id: "order_123".to_string(),
+///     status: "filled".to_string(),
+///     submitted_at_unix_ms: 1622505600000,
+/// };
+///
+/// assert_eq!(result.status, "filled");
+/// ```
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct ExecutionResult {
     /// The schema version.
@@ -245,6 +275,30 @@ pub struct ResponseEnvelope<T> {
 /// Detailed market analysis data.
 ///
 /// This struct holds the result of technical and sentiment analysis on market data.
+///
+/// # Examples
+///
+/// ```rust
+/// use contracts::MarketAnalysis;
+///
+/// let analysis = MarketAnalysis {
+///     symbol: "BTCUSD".to_string(),
+///     market: "crypto".to_string(),
+///     regime: "Trending".to_string(),
+///     sentiment: "Bullish".to_string(),
+///     patterns: vec![],
+///     key_levels: vec![50000.0],
+///     volatility: "High".to_string(),
+///     atr: Some(1000.0),
+///     research_summary: None,
+///     news_summary: None,
+///     recommendation: Some("Buy".to_string()),
+///     confidence: 0.85,
+///     timestamp_unix_ms: 1622505600000,
+/// };
+///
+/// assert_eq!(analysis.sentiment, "Bullish");
+/// ```
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct MarketAnalysis {
     /// The symbol analyzed.
@@ -280,6 +334,21 @@ pub struct MarketAnalysis {
 }
 
 /// Represents an open position.
+///
+/// # Examples
+///
+/// ```rust
+/// use contracts::Position;
+///
+/// let pos = Position {
+///     symbol: "BTCUSD".to_string(),
+///     side: "long".to_string(),
+///     qty: 0.5,
+///     entry_price: Some(40000.0),
+/// };
+///
+/// assert_eq!(pos.qty, 0.5);
+/// ```
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct Position {
     /// The symbol of the position (e.g., "BTCUSD", "AAPL").
@@ -293,6 +362,25 @@ pub struct Position {
 }
 
 /// Represents an active order.
+///
+/// # Examples
+///
+/// ```rust
+/// use contracts::Order;
+///
+/// let order = Order {
+///     id: "123".to_string(),
+///     symbol: "AAPL".to_string(),
+///     qty: 10.0,
+///     filled_qty: 0.0,
+///     side: "buy".to_string(),
+///     order_type: "limit".to_string(),
+///     status: "new".to_string(),
+///     submitted_at_unix_ms: 1622505600000,
+/// };
+///
+/// assert_eq!(order.status, "new");
+/// ```
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct Order {
     /// The unique order ID.

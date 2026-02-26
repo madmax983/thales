@@ -1,5 +1,5 @@
-use crate::strategy::{Signal, SignalType, Strategy, StrategyConfig};
 use crate::indicators::{atr, ema};
+use crate::strategy::{Signal, SignalType, Strategy, StrategyConfig};
 use anyhow::Result;
 use async_trait::async_trait;
 use polars::prelude::*;
@@ -67,7 +67,9 @@ impl Strategy for KeltnerChannelBreakout {
             let ema_val_opt = ema_vec.get(i).copied().flatten();
             let atr_val_opt = atr_vec.get(i).copied().flatten();
 
-            if let (Some(price), Some(ema_val), Some(atr_val)) = (price_opt, ema_val_opt, atr_val_opt) {
+            if let (Some(price), Some(ema_val), Some(atr_val)) =
+                (price_opt, ema_val_opt, atr_val_opt)
+            {
                 let upper = ema_val + (atr_mult * atr_val);
                 let lower = ema_val - (atr_mult * atr_val);
 
@@ -82,7 +84,10 @@ impl Strategy for KeltnerChannelBreakout {
                         confidence: 0.8,
                         stop_loss: Some(sl),
                         take_profit: None,
-                        reason: format!("Keltner Breakout: Close {:.2} > Upper {:.2}", price, upper),
+                        reason: format!(
+                            "Keltner Breakout: Close {:.2} > Upper {:.2}",
+                            price, upper
+                        ),
                         timestamp_ms: timestamp,
                     });
                 }
@@ -113,7 +118,10 @@ impl Strategy for KeltnerChannelBreakout {
                         confidence: 0.8,
                         stop_loss: Some(sl),
                         take_profit: None,
-                        reason: format!("Keltner Breakdown: Close {:.2} < Lower {:.2}", price, lower),
+                        reason: format!(
+                            "Keltner Breakdown: Close {:.2} < Lower {:.2}",
+                            price, lower
+                        ),
                         timestamp_ms: timestamp,
                     });
                 }
@@ -163,11 +171,11 @@ mod tests {
 
         // Generate data that triggers a breakout
         let mut closes = vec![100.0; 30]; // Stable price
-        // At index 29 (last one), spike up to 120.
-        // EMA(20) ~ 100. ATR(10) ~ 0 (if flat).
-        // Let's make ATR non-zero by having previous volatility.
-        // Or just trust the indicator logic handles flat line (ATR=0).
-        // If ATR=0, Upper=EMA.
+                                          // At index 29 (last one), spike up to 120.
+                                          // EMA(20) ~ 100. ATR(10) ~ 0 (if flat).
+                                          // Let's make ATR non-zero by having previous volatility.
+                                          // Or just trust the indicator logic handles flat line (ATR=0).
+                                          // If ATR=0, Upper=EMA.
         closes[29] = 101.0;
 
         let timestamps: Vec<i64> = (0..30).map(|i| 1000 + i as i64 * 1000).collect();
@@ -206,7 +214,10 @@ mod tests {
         )?;
 
         let signals_2 = strategy.generate_signals(&df_2).await?;
-        let entries: Vec<_> = signals_2.iter().filter(|s| s.signal_type == SignalType::Entry && s.side == "buy").collect();
+        let entries: Vec<_> = signals_2
+            .iter()
+            .filter(|s| s.signal_type == SignalType::Entry && s.side == "buy")
+            .collect();
 
         assert_eq!(entries.len(), 1);
         assert!(entries[0].reason.contains("Keltner Breakout"));
@@ -244,7 +255,10 @@ mod tests {
 
         let signals = strategy.generate_signals(&df).await?;
 
-        let exits: Vec<_> = signals.iter().filter(|s| s.signal_type == SignalType::Exit && s.side == "sell").collect();
+        let exits: Vec<_> = signals
+            .iter()
+            .filter(|s| s.signal_type == SignalType::Exit && s.side == "sell")
+            .collect();
         assert_eq!(exits.len(), 1);
         assert!(exits[0].reason.contains("Trend Change"));
 

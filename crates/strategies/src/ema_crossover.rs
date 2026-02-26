@@ -1,5 +1,5 @@
-use crate::strategy::{Signal, SignalType, Strategy, StrategyConfig};
 use crate::indicators::ema;
+use crate::strategy::{Signal, SignalType, Strategy, StrategyConfig};
 use anyhow::Result;
 use async_trait::async_trait;
 use polars::prelude::*;
@@ -49,7 +49,8 @@ impl Strategy for EmaCrossover {
 
         let mut signals = Vec::new();
         let mut entry_price: Option<Decimal> = None;
-        let stop_loss_pct_dec = Decimal::from_f64_retain(self.config.stop_loss_pct).unwrap_or(Decimal::ZERO);
+        let stop_loss_pct_dec =
+            Decimal::from_f64_retain(self.config.stop_loss_pct).unwrap_or(Decimal::ZERO);
         let one_dec = Decimal::ONE;
 
         // Iterate through data
@@ -60,10 +61,16 @@ impl Strategy for EmaCrossover {
             // Ensure we have EMA values
             let s_curr_opt = short_ema.get(i).and_then(|v| Decimal::from_f64_retain(v));
             let l_curr_opt = long_ema.get(i).and_then(|v| Decimal::from_f64_retain(v));
-            let s_prev_opt = short_ema.get(i - 1).and_then(|v| Decimal::from_f64_retain(v));
-            let l_prev_opt = long_ema.get(i - 1).and_then(|v| Decimal::from_f64_retain(v));
+            let s_prev_opt = short_ema
+                .get(i - 1)
+                .and_then(|v| Decimal::from_f64_retain(v));
+            let l_prev_opt = long_ema
+                .get(i - 1)
+                .and_then(|v| Decimal::from_f64_retain(v));
 
-            if let (Some(sc), Some(lc), Some(sp), Some(lp), Some(price)) = (s_curr_opt, l_curr_opt, s_prev_opt, l_prev_opt, price_opt) {
+            if let (Some(sc), Some(lc), Some(sp), Some(lp), Some(price)) =
+                (s_curr_opt, l_curr_opt, s_prev_opt, l_prev_opt, price_opt)
+            {
                 // Check for Exit first (Stop Loss or Reverse Crossover)
                 if let Some(entry) = entry_price {
                     // Stop Loss
@@ -77,7 +84,11 @@ impl Strategy for EmaCrossover {
                             confidence: 1.0,
                             stop_loss: None,
                             take_profit: None,
-                            reason: format!("Stop Loss hit: {} <= {}", price, stop_price.round_dp(2)),
+                            reason: format!(
+                                "Stop Loss hit: {} <= {}",
+                                price,
+                                stop_price.round_dp(2)
+                            ),
                             timestamp_ms: timestamp,
                         });
                         entry_price = None;
@@ -94,7 +105,11 @@ impl Strategy for EmaCrossover {
                             confidence: 0.8,
                             stop_loss: None,
                             take_profit: None,
-                            reason: format!("Bearish Crossover: Short {} < Long {}", sc.round_dp(2), lc.round_dp(2)),
+                            reason: format!(
+                                "Bearish Crossover: Short {} < Long {}",
+                                sc.round_dp(2),
+                                lc.round_dp(2)
+                            ),
                             timestamp_ms: timestamp,
                         });
                         entry_price = None;
@@ -117,7 +132,11 @@ impl Strategy for EmaCrossover {
                             confidence: 0.8,
                             stop_loss: Some(sl.to_f64().unwrap_or(0.0)),
                             take_profit: None,
-                            reason: format!("Bullish Crossover: Short {} > Long {}", sc.round_dp(2), lc.round_dp(2)),
+                            reason: format!(
+                                "Bullish Crossover: Short {} > Long {}",
+                                sc.round_dp(2),
+                                lc.round_dp(2)
+                            ),
                             timestamp_ms: timestamp,
                         });
                         entry_price = Some(price);
@@ -191,7 +210,6 @@ mod tests {
         assert_eq!(entry.timestamp_ms, 4000); // Index 3
         assert!(entry.stop_loss.is_some());
         assert!(entry.take_profit.is_none());
-
 
         let exit = &signals[1];
         assert_eq!(exit.signal_type, SignalType::Exit);

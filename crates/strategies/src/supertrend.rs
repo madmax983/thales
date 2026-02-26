@@ -1,5 +1,5 @@
-use crate::strategy::{Signal, SignalType, Strategy};
 use crate::indicators::supertrend;
+use crate::strategy::{Signal, SignalType, Strategy};
 use anyhow::Result;
 use async_trait::async_trait;
 use polars::prelude::*;
@@ -81,7 +81,10 @@ impl Strategy for Supertrend {
                             confidence: 0.8,
                             stop_loss: None,
                             take_profit: None,
-                            reason: format!("Supertrend Flip Down (Price {:.2} < Lower Band)", close),
+                            reason: format!(
+                                "Supertrend Flip Down (Price {:.2} < Lower Band)",
+                                close
+                            ),
                             timestamp_ms: timestamp,
                         });
                     }
@@ -111,9 +114,9 @@ mod tests {
         // Period 2, Factor 1.0 (for simplicity)
 
         let closes = vec![100.0, 102.0, 104.0, 102.0, 98.0, 96.0, 100.0, 105.0];
-        let highs  = vec![101.0, 103.0, 105.0, 103.0, 99.0, 97.0, 101.0, 106.0];
-        let lows   = vec![99.0,  101.0, 103.0, 101.0, 97.0, 95.0, 99.0,  104.0];
-        let times: Vec<i64> = vec![1000,  2000,  3000,  4000,  5000, 6000, 7000,  8000];
+        let highs = vec![101.0, 103.0, 105.0, 103.0, 99.0, 97.0, 101.0, 106.0];
+        let lows = vec![99.0, 101.0, 103.0, 101.0, 97.0, 95.0, 99.0, 104.0];
+        let times: Vec<i64> = vec![1000, 2000, 3000, 4000, 5000, 6000, 7000, 8000];
 
         let df = df!(
             "close" => closes,

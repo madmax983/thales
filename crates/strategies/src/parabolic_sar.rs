@@ -1,8 +1,8 @@
-use crate::strategy::{Strategy, Signal, SignalType};
 use crate::indicators::parabolic_sar::parabolic_sar;
-use polars::prelude::*;
-use async_trait::async_trait;
+use crate::strategy::{Signal, SignalType, Strategy};
 use anyhow::Result;
+use async_trait::async_trait;
+use polars::prelude::*;
 
 pub struct ParabolicSar {
     config: ParabolicSarConfig,
@@ -39,7 +39,13 @@ impl Strategy for ParabolicSar {
             data.column("timestamp")?
         };
 
-        let (sar_values, trend_values) = parabolic_sar(high, low, self.config.start, self.config.max, self.config.increment)?;
+        let (sar_values, trend_values) = parabolic_sar(
+            high,
+            low,
+            self.config.start,
+            self.config.max,
+            self.config.increment,
+        )?;
 
         let mut signals = Vec::new();
         let len = high.len();
@@ -54,7 +60,7 @@ impl Strategy for ParabolicSar {
 
         for i in 1..len {
             let t_curr = trend_values[i];
-            let t_prev = trend_values[i-1];
+            let t_prev = trend_values[i - 1];
 
             if t_curr.is_none() || t_prev.is_none() {
                 continue;

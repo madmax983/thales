@@ -16,7 +16,7 @@ fn parse_horizon(h: &str) -> i64 {
             return v * 86_400_000;
         }
     } else if h.ends_with('m') {
-         if let Ok(v) = h.trim_end_matches('m').parse::<i64>() {
+        if let Ok(v) = h.trim_end_matches('m').parse::<i64>() {
             return v * 60_000;
         }
     }
@@ -33,7 +33,8 @@ where
     }
 
     let raw = fs::read_to_string(history_path).context("Failed to read history file")?;
-    let mut history: Vec<HistoryEntry> = serde_json::from_str(&raw).context("Failed to parse history JSON")?;
+    let mut history: Vec<HistoryEntry> =
+        serde_json::from_str(&raw).context("Failed to parse history JSON")?;
 
     let now = SystemTime::now()
         .duration_since(UNIX_EPOCH)
@@ -65,25 +66,38 @@ where
                 }
 
                 // Find entry price (closest bar to entry_ts)
-                let entry_bar = bars.iter().min_by_key(|b| (b.timestamp_unix_ms - entry_ts).abs());
+                let entry_bar = bars
+                    .iter()
+                    .min_by_key(|b| (b.timestamp_unix_ms - entry_ts).abs());
                 // Find exit price (closest bar to exit_ts)
-                let exit_bar = bars.iter().min_by_key(|b| (b.timestamp_unix_ms - exit_ts).abs());
+                let exit_bar = bars
+                    .iter()
+                    .min_by_key(|b| (b.timestamp_unix_ms - exit_ts).abs());
 
                 if let (Some(start), Some(end)) = (entry_bar, exit_bar) {
                     // Check if bars are reasonably close to desired timestamps (e.g. within 2 hours)
                     let tolerance = 7200_000; // 2 hours
-                    if (start.timestamp_unix_ms - entry_ts).abs() < tolerance &&
-                       (end.timestamp_unix_ms - exit_ts).abs() < tolerance {
-
+                    if (start.timestamp_unix_ms - entry_ts).abs() < tolerance
+                        && (end.timestamp_unix_ms - exit_ts).abs() < tolerance
+                    {
                         let entry_price = start.open; // Assume open of the bar closest to signal time
                         let exit_price = end.close; // Assume close of the bar closest to exit time
 
-                        let direction = if entry.intent.side == "buy" { 1.0 } else { -1.0 };
+                        let direction = if entry.intent.side == "buy" {
+                            1.0
+                        } else {
+                            -1.0
+                        };
                         let ret = (exit_price - entry_price) / entry_price * direction;
 
                         entry.outcome = Some(ret);
                         updated_count += 1;
-                        println!("Updated history for {} ({}): Return {:.2}%", entry.intent.symbol, entry.intent.side, ret * 100.0);
+                        println!(
+                            "Updated history for {} ({}): Return {:.2}%",
+                            entry.intent.symbol,
+                            entry.intent.side,
+                            ret * 100.0
+                        );
                     }
                 }
             }
@@ -102,8 +116,8 @@ where
 mod tests {
     use super::*;
     use contracts::{MarketAnalysis, TradeIntent};
-    use tempfile::NamedTempFile;
     use std::io::Write;
+    use tempfile::NamedTempFile;
 
     #[test]
     fn test_update_history_calculation() -> Result<()> {
@@ -148,15 +162,23 @@ mod tests {
                     market: "crypto".to_string(),
                     timeframe: "1h".to_string(),
                     timestamp_unix_ms: entry_ts,
-                    open: 100.0, high: 101.0, low: 99.0, close: 100.0, volume: 1.0
+                    open: 100.0,
+                    high: 101.0,
+                    low: 99.0,
+                    close: 100.0,
+                    volume: 1.0,
                 },
                 Bar {
                     symbol: "BTCUSD".to_string(),
                     market: "crypto".to_string(),
                     timeframe: "1h".to_string(),
                     timestamp_unix_ms: entry_ts + 86_400_000,
-                    open: 109.0, high: 111.0, low: 109.0, close: 110.0, volume: 1.0
-                }
+                    open: 109.0,
+                    high: 111.0,
+                    low: 109.0,
+                    close: 110.0,
+                    volume: 1.0,
+                },
             ])
         };
 

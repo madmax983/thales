@@ -47,7 +47,11 @@ impl PaperClient {
     }
 
     /// Fetches mock market data for testing strategies.
-    pub fn fetch_bars(&self, symbol: &str, timeframe: &str) -> Result<Vec<Bar>, PaperProviderError> {
+    pub fn fetch_bars(
+        &self,
+        symbol: &str,
+        timeframe: &str,
+    ) -> Result<Vec<Bar>, PaperProviderError> {
         let mut bars = Vec::new();
         let now = SystemTime::now()
             .duration_since(UNIX_EPOCH)
@@ -104,7 +108,11 @@ impl PaperClient {
 
             bars.push(Bar {
                 symbol: symbol.to_string(),
-                market: if is_crypto { "crypto".to_string() } else { "equities".to_string() },
+                market: if is_crypto {
+                    "crypto".to_string()
+                } else {
+                    "equities".to_string()
+                },
                 timeframe: timeframe.to_string(),
                 timestamp_unix_ms: timestamp,
                 open,
@@ -139,31 +147,43 @@ impl PaperClient {
         // Determine Quantity to trade
         // Note: Intent quantity is always positive. Side determines direction.
         let intent_qty = if intent.size_hint == "max" {
-             // If max, we want to close the entire position.
-             // So qty matches the absolute value of current position.
-             if let Some(pos) = portfolio.positions.get(&symbol) {
-                 pos.qty.abs()
-             } else {
-                 return Err(PaperProviderError::InvalidSizeHint(format!("No open position found for max exit for {}", symbol)));
-             }
+            // If max, we want to close the entire position.
+            // So qty matches the absolute value of current position.
+            if let Some(pos) = portfolio.positions.get(&symbol) {
+                pos.qty.abs()
+            } else {
+                return Err(PaperProviderError::InvalidSizeHint(format!(
+                    "No open position found for max exit for {}",
+                    symbol
+                )));
+            }
         } else {
             intent.size_hint.parse::<f64>().unwrap_or(0.0)
         };
 
         if intent_qty <= 0.0 {
-             return Err(PaperProviderError::InvalidSizeHint("Quantity must be positive".to_string()));
+            return Err(PaperProviderError::InvalidSizeHint(
+                "Quantity must be positive".to_string(),
+            ));
         }
 
         // Update Portfolio
-        let position = portfolio.positions.entry(symbol.clone()).or_insert(PaperPosition {
-            symbol: symbol.clone(),
-            qty: 0.0,
-            avg_price: 0.0,
-        });
+        let position = portfolio
+            .positions
+            .entry(symbol.clone())
+            .or_insert(PaperPosition {
+                symbol: symbol.clone(),
+                qty: 0.0,
+                avg_price: 0.0,
+            });
 
         // Calculate trade impact
         // Trade Amount (signed): Buy -> +qty, Sell -> -qty
-        let trade_amount = if intent.side == "buy" { intent_qty } else { -intent_qty };
+        let trade_amount = if intent.side == "buy" {
+            intent_qty
+        } else {
+            -intent_qty
+        };
 
         // Update Average Price only if increasing position size (absolute)
         // or flipping side.
@@ -229,24 +249,32 @@ impl PaperClient {
 
     pub fn get_open_positions(&self) -> Result<Vec<contracts::Position>, PaperProviderError> {
         let portfolio = self.load_portfolio()?;
-        Ok(portfolio.positions.values().map(|p| {
-            let side = if p.qty >= 0.0 { "long" } else { "short" };
-            contracts::Position {
-                symbol: p.symbol.clone(),
-                side: side.to_string(),
-                qty: p.qty.abs(),
-                entry_price: Some(p.avg_price),
-            }
-        }).collect())
+        Ok(portfolio
+            .positions
+            .values()
+            .map(|p| {
+                let side = if p.qty >= 0.0 { "long" } else { "short" };
+                contracts::Position {
+                    symbol: p.symbol.clone(),
+                    side: side.to_string(),
+                    qty: p.qty.abs(),
+                    entry_price: Some(p.avg_price),
+                }
+            })
+            .collect())
     }
 
     fn load_portfolio(&self) -> Result<PaperPortfolio, PaperProviderError> {
         if !self.config.portfolio_path.exists() {
-            return Ok(PaperPortfolio { positions: HashMap::new() });
+            return Ok(PaperPortfolio {
+                positions: HashMap::new(),
+            });
         }
         let content = fs::read_to_string(&self.config.portfolio_path)?;
         if content.trim().is_empty() {
-            return Ok(PaperPortfolio { positions: HashMap::new() });
+            return Ok(PaperPortfolio {
+                positions: HashMap::new(),
+            });
         }
         let portfolio: PaperPortfolio = serde_json::from_str(&content)?;
         Ok(portfolio)
@@ -273,7 +301,10 @@ impl PaperClient {
         }
 
         // Fallback
-        eprintln!("Warning: Using dummy price 100.0 for paper trade {}", intent.symbol);
+        eprintln!(
+            "Warning: Using dummy price 100.0 for paper trade {}",
+            intent.symbol
+        );
         Ok(100.0)
     }
 
@@ -283,20 +314,20 @@ impl PaperClient {
 
         let resp = self.http.get(&url).send()?;
         if !resp.status().is_success() {
-             return Err(PaperProviderError::Api("Kraken request failed".to_string()));
+            return Err(PaperProviderError::Api("Kraken request failed".to_string()));
         }
 
         let json: serde_json::Value = resp.json()?;
         if let Some(result) = json.get("result") {
             if let Some(obj) = result.as_object() {
                 if let Some(ticker) = obj.values().next() {
-                     if let Some(c) = ticker.get("c") {
-                         if let Some(price_str) = c.get(0).and_then(|v| v.as_str()) {
-                             if let Ok(price) = price_str.parse::<f64>() {
-                                 return Ok(price);
-                             }
-                         }
-                     }
+                    if let Some(c) = ticker.get("c") {
+                        if let Some(price_str) = c.get(0).and_then(|v| v.as_str()) {
+                            if let Ok(price) = price_str.parse::<f64>() {
+                                return Ok(price);
+                            }
+                        }
+                    }
                 }
             }
         }

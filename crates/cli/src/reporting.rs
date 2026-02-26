@@ -13,7 +13,10 @@ pub fn generate_report(
 ) -> String {
     let regime_change = if let Some(prev) = previous_regime {
         if prev != analysis.regime {
-            format!("**ALERT: Regime Change Detected!** (Previous: {prev}, Current: {})", analysis.regime)
+            format!(
+                "**ALERT: Regime Change Detected!** (Previous: {prev}, Current: {})",
+                analysis.regime
+            )
         } else {
             format!("Regime Unchanged ({})", analysis.regime)
         }
@@ -42,7 +45,9 @@ pub fn generate_report(
         (Some(r), Some(n)) => format!("**Research**:\n{}\n\n**News**:\n{}", r, n),
         (Some(r), None) => format!("**Research**:\n{}", r),
         (None, Some(n)) => format!("**News**:\n{}", n),
-        (None, None) => "No external research available. (Placeholder for search_research)".to_string(),
+        (None, None) => {
+            "No external research available. (Placeholder for search_research)".to_string()
+        }
     };
 
     let history_section = crate::rag::summarize_history(similar_trades, &analysis.symbol);
@@ -53,7 +58,10 @@ pub fn generate_report(
         analysis.volatility.clone()
     };
 
-    let recommendation = analysis.recommendation.clone().unwrap_or_else(|| "None".to_string());
+    let recommendation = analysis
+        .recommendation
+        .clone()
+        .unwrap_or_else(|| "None".to_string());
     let json_block = serde_json::to_string_pretty(analysis).unwrap_or_default();
 
     format!(
@@ -136,15 +144,15 @@ fn extract_regime_from_block(block: &str) -> Option<String> {
         let trimmed = line.trim();
         // Case 1: "Regime: Trending Up"
         if trimmed.starts_with("Regime:") {
-             return Some(trimmed.trim_start_matches("Regime:").trim().to_string());
+            return Some(trimmed.trim_start_matches("Regime:").trim().to_string());
         }
         // Case 2: "Regime Unchanged (Trending Up)"
         if trimmed.starts_with("Regime Unchanged (") {
-             let inner = trimmed.trim_start_matches("Regime Unchanged (");
-             if inner.ends_with(')') {
-                 return Some(inner[..inner.len() - 1].to_string());
-             }
-             return Some(inner.to_string());
+            let inner = trimmed.trim_start_matches("Regime Unchanged (");
+            if inner.ends_with(')') {
+                return Some(inner[..inner.len() - 1].to_string());
+            }
+            return Some(inner.to_string());
         }
         // Case 3: "**ALERT: Regime Change Detected!** (Previous: X, Current: Y)"
         if trimmed.starts_with("**ALERT: Regime Change Detected!**") {
@@ -240,16 +248,29 @@ mod tests {
     #[test]
     fn test_extract_regime() {
         let block1 = "Regime: Trending Up";
-        assert_eq!(extract_regime_from_block(block1), Some("Trending Up".to_string()));
+        assert_eq!(
+            extract_regime_from_block(block1),
+            Some("Trending Up".to_string())
+        );
 
-        let block2 = "**ALERT: Regime Change Detected!** (Previous: Ranging, Current: Trending Down)";
-        assert_eq!(extract_regime_from_block(block2), Some("Trending Down".to_string()));
+        let block2 =
+            "**ALERT: Regime Change Detected!** (Previous: Ranging, Current: Trending Down)";
+        assert_eq!(
+            extract_regime_from_block(block2),
+            Some("Trending Down".to_string())
+        );
 
         let block3 = "Regime Unchanged (Trending Up)";
-        assert_eq!(extract_regime_from_block(block3), Some("Trending Up".to_string()));
+        assert_eq!(
+            extract_regime_from_block(block3),
+            Some("Trending Up".to_string())
+        );
 
         let block_multiline = "\nHeader\nRegime: Trending Up\nFooter";
-        assert_eq!(extract_regime_from_block(block_multiline), Some("Trending Up".to_string()));
+        assert_eq!(
+            extract_regime_from_block(block_multiline),
+            Some("Trending Up".to_string())
+        );
     }
 
     #[test]

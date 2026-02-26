@@ -1,5 +1,5 @@
-use crate::strategy::{Signal, SignalType, Strategy, StrategyConfig};
 use crate::indicators::{rsi, sma};
+use crate::strategy::{Signal, SignalType, Strategy, StrategyConfig};
 use anyhow::Result;
 use async_trait::async_trait;
 use polars::prelude::*;
@@ -51,7 +51,8 @@ impl Strategy for RsiMeanReversion {
         let sma_arr = sma_series.f64()?;
 
         let mut signals = Vec::new();
-        let stop_loss_pct_dec = Decimal::from_f64_retain(self.config.stop_loss_pct).unwrap_or(Decimal::ZERO);
+        let stop_loss_pct_dec =
+            Decimal::from_f64_retain(self.config.stop_loss_pct).unwrap_or(Decimal::ZERO);
         let one_dec = Decimal::ONE;
 
         // Iterate through data
@@ -72,7 +73,10 @@ impl Strategy for RsiMeanReversion {
                         confidence: 0.8,
                         stop_loss: None,
                         take_profit: None,
-                        reason: format!("RSI Overbought: {:.2} > {:.2}", rsi_val, self.config.overbought_threshold),
+                        reason: format!(
+                            "RSI Overbought: {:.2} > {:.2}",
+                            rsi_val, self.config.overbought_threshold
+                        ),
                         timestamp_ms: timestamp,
                     });
                 }
@@ -90,7 +94,10 @@ impl Strategy for RsiMeanReversion {
                         confidence: 0.8,
                         stop_loss: Some(sl.to_f64().unwrap_or(0.0)),
                         take_profit: Some(tp),
-                        reason: format!("RSI Oversold: {:.2} < {:.2}", rsi_val, self.config.oversold_threshold),
+                        reason: format!(
+                            "RSI Oversold: {:.2} < {:.2}",
+                            rsi_val, self.config.oversold_threshold
+                        ),
                         timestamp_ms: timestamp,
                     });
                 }
@@ -140,8 +147,14 @@ mod tests {
         // Should have 2 signals: Entry at 3000, Exit at 5000.
         // Even if we process them in one go, they are independent.
 
-        let entries: Vec<_> = signals.iter().filter(|s| s.signal_type == SignalType::Entry).collect();
-        let exits: Vec<_> = signals.iter().filter(|s| s.signal_type == SignalType::Exit).collect();
+        let entries: Vec<_> = signals
+            .iter()
+            .filter(|s| s.signal_type == SignalType::Entry)
+            .collect();
+        let exits: Vec<_> = signals
+            .iter()
+            .filter(|s| s.signal_type == SignalType::Exit)
+            .collect();
 
         assert_eq!(entries.len(), 1);
         assert_eq!(exits.len(), 1);
