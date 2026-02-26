@@ -58,3 +58,19 @@
 ### SPY - 2026-02-26 17:37:02 (equities)
 **Research**: S&P 500 breaks new highs in synthetic data. Tech sector leading.
 **News**: Simulated Fed meeting minutes hint at rate cuts.
+
+### XXBTZUSD - 2026-02-26 19:00:00 (crypto)
+**Research**: Bitcoin is currently facing resistance at 8K, with some analysts suggesting the bear market might not be over. There are rumors of Jane Street selling impacting price, but a 0.5B options expiry could be a catalyst for change. Price recently bounced to 6K.
+**News**: Coin Bureau CEO discusses Bitcoin cycles in 2026. US President Trump's influence on Bitcoin price is being analyzed.
+
+### XXBTZUSD - 2026-02-26 19:00:00 (crypto)
+**Research**: Bitcoin is currently facing resistance at $68K, with some analysts suggesting the bear market might not be over. There are rumors of Jane Street selling impacting price, but a $10.5B options expiry could be a catalyst for change. Price recently bounced to $66K.
+**News**: Coin Bureau CEO discusses Bitcoin cycles in 2026. US President Trump's influence on Bitcoin price is being analyzed.
+
+### XETHZUSD - 2026-02-26 19:00:00 (crypto)
+**Research**: Ethereum recently reclaimed the $2K level amidst increased volatility. On-chain data suggests a potential macro bottom as key support holds.
+**News**: Volatility spike observed in ETH markets supporting price recovery.
+
+### SPY - 2026-02-26 19:00:00 (equities)
+**Research**: SPY continues to show resilience amidst mixed economic data. Inflation concerns persist but earnings remain strong.
+**News**: US Economy shows signs of soft landing. Federal Reserve likely to maintain current rate policy.
