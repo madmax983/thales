@@ -79,6 +79,7 @@ fn validate_intent_rejects_invalid_payload() {
         stop_price: None,
         time_in_force: "gtc".to_string(),
         execution_algo: None,
+        strategy: "manual".to_string(),
     };
     fs::write(
         tmp.path(),
@@ -139,6 +140,7 @@ fn execute_intent_returns_provider_result() {
         stop_price: None,
         time_in_force: "gtc".to_string(),
         execution_algo: None,
+        strategy: "manual".to_string(),
     };
     fs::write(
         tmp.path(),
@@ -227,6 +229,7 @@ fn execute_intent_returns_kraken_provider_result() {
         stop_price: None,
         time_in_force: "gtc".to_string(),
         execution_algo: None,
+        strategy: "manual".to_string(),
     };
     fs::write(
         tmp.path(),

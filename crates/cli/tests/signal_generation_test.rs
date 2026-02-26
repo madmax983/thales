@@ -182,12 +182,15 @@ async fn test_rag_context() {
     let analysis = analysis::analyze(&series);
 
     // Similar trade matching actual analysis
-    let history_entries = vec![create_history_entry(
+    let mut entry = create_history_entry(
         symbol,
         now - 86400000 * 10,
         &analysis.regime,
         &analysis.volatility,
-    )];
+    );
+    entry.intent.strategy = "BollingerBandsMeanReversion".to_string();
+
+    let history_entries = vec![entry];
     fs::write(
         &history_path,
         serde_json::to_string(&history_entries).unwrap(),
