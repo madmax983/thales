@@ -8,6 +8,7 @@ pub mod ichimoku;
 pub mod keltner_channels;
 pub mod linear_regression;
 pub mod macd;
+pub mod obv;
 pub mod parabolic_sar;
 pub mod rsi;
 pub mod sma;
