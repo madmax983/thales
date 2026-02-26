@@ -128,6 +128,8 @@ fn calculate_recommendation(regime: &str, volatility: &str, _sentiment: &str) ->
         "Trending Up" => "Trend Following (Long)".to_string(),
         "Trending Down" => "Trend Following (Short)".to_string(),
         "Ranging" => "Mean Reversion".to_string(),
+        r if r.contains("Trending Up") => "Trend Following (Long)".to_string(),
+        r if r.contains("Trending Down") => "Trend Following (Short)".to_string(),
         _ => "Neutral / Wait".to_string(),
     }
 }
