@@ -242,6 +242,30 @@ impl PaperClient {
         Ok(Vec::new())
     }
 
+    pub fn fetch_order(&self, order_id: &str) -> Result<contracts::Order, PaperProviderError> {
+        // Paper trading executes immediately, so we can mock a filled order response.
+        // We'll try to parse the timestamp from the ID if it matches our format: paper-{symbol}-{timestamp}
+        let parts: Vec<&str> = order_id.split('-').collect();
+        let (symbol, timestamp) = if parts.len() >= 3 {
+            (parts[1].to_string(), parts[2].parse::<i64>().unwrap_or(0))
+        } else {
+            ("UNKNOWN".to_string(), 0)
+        };
+
+        // Mock a filled order
+        Ok(contracts::Order {
+            id: order_id.to_string(),
+            symbol,
+            qty: 0.0, // Unknown without looking up history (which we don't persist for orders)
+            filled_qty: 0.0,
+            side: "buy".to_string(),
+            order_type: "market".to_string(),
+            status: "filled".to_string(),
+            submitted_at_unix_ms: timestamp,
+            average_fill_price: None, // Can't recover without persistence
+        })
+    }
+
     pub fn cancel_order(&self, _order_id: &str) -> Result<(), PaperProviderError> {
         // No open orders to cancel.
         Ok(())

@@ -316,6 +316,13 @@ impl KrakenClient {
                 for (txid, info) in open {
                     let qty = info.vol.parse::<f64>().unwrap_or(0.0);
                     let filled_qty = info.vol_exec.parse::<f64>().unwrap_or(0.0);
+                    let cost = info.cost.parse::<f64>().unwrap_or(0.0);
+                    let avg_fill_price = if filled_qty > 0.0 {
+                        Some(cost / filled_qty)
+                    } else {
+                        None
+                    };
+
                     let submitted_at = (info.opentm * 1000.0) as i64;
 
                     orders.push(contracts::Order {
@@ -327,12 +334,71 @@ impl KrakenClient {
                         order_type: info.descr.ordertype,
                         status: info.status,
                         submitted_at_unix_ms: submitted_at,
+                        average_fill_price: avg_fill_price,
                     });
                 }
             }
         }
 
         Ok(orders)
+    }
+
+    pub fn fetch_order(&self, order_id: &str) -> Result<contracts::Order, KrakenProviderError> {
+        let nonce = now_unix_ms()?.to_string();
+        let body = format!("nonce={}&txid={}", nonce, order_id);
+        let path = "/0/private/QueryOrders";
+        let signature = sign_request(&self.config.api_secret, path, &nonce, &body)?;
+        let url = format!("{}{}", self.config.base_url.trim_end_matches('/'), path);
+
+        let response = self
+            .http
+            .post(url)
+            .header("API-Key", &self.config.api_key)
+            .header("API-Sign", signature)
+            .header("Content-Type", "application/x-www-form-urlencoded")
+            .body(body)
+            .send()?;
+
+        if !response.status().is_success() {
+            let status = response.status().as_u16();
+            let body = response
+                .text()
+                .unwrap_or_else(|_| "unable to decode error body".to_string());
+            return Err(KrakenProviderError::UnexpectedHttpStatus(status, body));
+        }
+
+        let api_response: KrakenQueryOrdersResponse = response.json()?;
+        if !api_response.error.is_empty() {
+            return Err(KrakenProviderError::Api(api_response.error.join(", ")));
+        }
+
+        let info = api_response
+            .result
+            .and_then(|res| res.get(order_id).cloned())
+            .ok_or_else(|| KrakenProviderError::Api(format!("Order {} not found", order_id)))?;
+
+        let qty = info.vol.parse::<f64>().unwrap_or(0.0);
+        let filled_qty = info.vol_exec.parse::<f64>().unwrap_or(0.0);
+        let cost = info.cost.parse::<f64>().unwrap_or(0.0);
+        let avg_fill_price = if filled_qty > 0.0 {
+            Some(cost / filled_qty)
+        } else {
+            None
+        };
+
+        let submitted_at = (info.opentm * 1000.0) as i64;
+
+        Ok(contracts::Order {
+            id: order_id.to_string(),
+            symbol: info.descr.pair,
+            qty,
+            filled_qty,
+            side: info.descr.type_,
+            order_type: info.descr.ordertype,
+            status: info.status,
+            submitted_at_unix_ms: submitted_at,
+            average_fill_price: avg_fill_price,
+        })
     }
 
     /// Cancels an order.
@@ -730,11 +796,18 @@ struct KrakenOpenOrdersResult {
 }
 
 #[derive(Debug, Clone, Deserialize)]
+struct KrakenQueryOrdersResponse {
+    error: Vec<String>,
+    result: Option<HashMap<String, KrakenOrderInfo>>,
+}
+
+#[derive(Debug, Clone, Deserialize)]
 struct KrakenOrderInfo {
     status: String,
     opentm: f64,
     vol: String,
     vol_exec: String,
+    cost: String,
     descr: KrakenOrderDescription,
 }
 

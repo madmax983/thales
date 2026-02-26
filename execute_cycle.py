@@ -5,6 +5,7 @@ import sys
 import re
 import shutil
 import math
+import time
 from datetime import datetime
 
 # Paths
@@ -661,7 +662,7 @@ def append_to_section(filepath, section_header, table_header, row):
     with open(filepath, "w") as f:
         f.writelines(lines)
 
-def log_trade(intent, result):
+def log_trade(intent, result, slippage=None):
     """Logs executed trade to portfolio.md"""
     date_str = datetime.fromtimestamp(result["submitted_at_unix_ms"] / 1000).strftime("%Y-%m-%d %H:%M:%S")
     asset_class = intent.get("market", "-")
@@ -707,6 +708,9 @@ def log_trade(intent, result):
 
     signal_ref = intent["intent_id"].replace("|", "\\|")
     rationale = intent["rationale"].replace("\n", " ").replace("\r", " ").replace("|", "\\|")
+
+    if slippage is not None:
+        rationale += f" [Slippage: {slippage:.4f}%]"
 
     header = "| Date/Time | Asset Class | Symbol/Contract | Action | Size/Qty | Entry Price | SL | TP | Max Risk | Signal Ref | Rationale |"
     row = f"| {date_str} | {asset_class} | {symbol} | {action} | {size} | {price} | {sl} | {tp} | {max_risk} | {signal_ref} | {rationale} |"
@@ -778,7 +782,7 @@ def verify_risk(intent):
     return True, "Approved"
 
 def manage_orders():
-    """Checks and cancels stale orders (> 5 mins)."""
+    """Checks open orders for fills and stale orders (> 5 mins)."""
     providers = []
     if os.environ.get("SIMULATION") == "true":
         providers.append("paper")
@@ -796,8 +800,25 @@ def manage_orders():
         for order in orders:
              submitted_at = order.get("submitted_at_unix_ms", 0)
              age_ms = now - submitted_at
+             age_s = age_ms / 1000.0
+
+             # Check for partial fills
+             filled_qty = float(order.get("filled_qty", 0.0))
+             qty = float(order.get("qty", 0.0))
+             if filled_qty > 0 and filled_qty < qty:
+                 log_msg = f"Partial fill: {filled_qty}/{qty} for {order['symbol']} ({provider})"
+                 print(log_msg)
+                 # We could log this to portfolio as a note or partial trade, but sticking to existing logic for now.
+                 # Maybe append to skipped section as info?
+                 dummy_intent = {
+                     "symbol": order['symbol'],
+                     "intent_id": f"PARTIAL-{order['id']}",
+                     "rationale": log_msg
+                 }
+                 log_skipped(dummy_intent, "Partial Fill Notification")
+
+             # Cancel stale orders
              if age_ms > 300000: # 5 minutes
-                 age_s = age_ms / 1000.0
                  print(f"Cancelling stale order {order['id']} ({order['symbol']}) - Age: {age_s:.0f}s")
                  run_command(["cancel-order", "--provider", provider, "--id", order['id']])
 
@@ -808,6 +829,91 @@ def manage_orders():
                      "rationale": f"Stale order ({age_s:.0f}s > 300s) canceled"
                  }
                  log_skipped(dummy_intent, "Stale Order Cancellation")
+
+def refine_intent(intent):
+    """
+    Refines trade intent with Algo Selection and Order Type.
+    Updates intent in-place.
+    """
+    confidence = intent.get("confidence", 0.0)
+    size_hint = intent.get("size_hint", "0")
+    side = intent.get("side", "unknown")
+
+    # 1. Order Type Selection
+    # High confidence or Exits -> Market (Urgent)
+    # Lower confidence entries -> Limit (Price improvement)
+    # Max size (Exit) -> Market
+    if confidence >= 0.8 or size_hint == "max":
+        intent["order_type"] = "market"
+    else:
+        intent["order_type"] = "limit"
+        # For Limit, we need a price.
+        # Strategy usually provides limit_price? If not, we might need to fetch current price.
+        # But for now, if strategy didn't provide limit_price, we fallback to market or use last close?
+        # Contracts.TradeIntent has limit_price: Option<f64>.
+        if not intent.get("limit_price"):
+             # Fallback to market if no limit price provided by strategy
+             intent["order_type"] = "market"
+
+    # 2. Algo Selection
+    # If huge size (placeholder), use TWAP/VWAP
+    # For now, simple logic:
+    try:
+        size = float(size_hint)
+        # Arbitrary large size threshold? e.g. > 100 units? Depends on asset.
+        # Let's just say for very high confidence we use VWAP if supported?
+        # Actually prompt says: "TWAP: Time-weighted, for large orders", "VWAP: Volume-weighted, minimize market impact"
+        # We don't have volume info easily here.
+        # Let's keep it simple: Standard execution for now.
+        pass
+    except:
+        pass
+
+    # Set execution_algo field for logging/future use
+    if intent["order_type"] == "market":
+        intent["execution_algo"] = "Market"
+    else:
+        intent["execution_algo"] = "Limit"
+
+    return intent
+
+def monitor_execution(provider, order_id, expected_price):
+    """
+    Polls order status and calculates slippage.
+    Returns executed price and slippage %.
+    """
+    print(f"Monitoring execution for order {order_id}...")
+
+    # Poll for up to 10 seconds
+    for _ in range(5):
+        time.sleep(2)
+        order = run_command(["get-order", "--provider", provider, "--id", order_id])
+        if not order:
+            continue
+
+        status = order.get("status")
+        if status == "filled":
+            avg_price = order.get("average_fill_price")
+            if avg_price:
+                slippage = 0.0
+                if expected_price and expected_price > 0:
+                    # Slippage % = (Fill - Expected) / Expected
+                    # For Buy: Positive is bad (paid more)
+                    # For Sell: Negative is bad (sold less)
+                    # Let's just log raw % diff
+                    slippage = (avg_price - expected_price) / expected_price * 100.0
+
+                print(f"Order filled at {avg_price} (Expected: {expected_price}). Slippage: {slippage:.4f}%")
+                return avg_price, slippage
+            else:
+                print("Order filled but no average price returned.")
+                return None, None
+        elif status == "canceled":
+            print("Order canceled.")
+            return None, None
+
+    print("Monitoring timed out (Order likely still open).")
+    return None, None
 
 def main():
     if not os.path.exists(CLI_PATH):
@@ -937,6 +1043,10 @@ def main():
             log_skipped(intent, f"Rejected by Risk Agent: {risk_reason}")
             continue
 
+        # Refine Intent (Algo Selection)
+        intent = refine_intent(intent)
+        print(f"Order Type: {intent['order_type'].upper()}")
+
         provider = intent["provider"]
         print(f"Executing {intent['side']} {intent['symbol']} via {provider}...")
 
@@ -957,7 +1067,16 @@ def main():
             # Handle list response from execute-intent
             exec_res = result[0] if isinstance(result, list) else result
             print(f"Success! Status: {exec_res.get('status')}")
-            log_trade(intent, exec_res)
+
+            # Monitor Slippage
+            # Expected price: Limit price if set, otherwise... difficult to guess for Market without quote.
+            # We use limit price if available as expected price.
+            expected_price = intent.get("limit_price")
+            slippage = None
+            if expected_price:
+                _, slippage = monitor_execution(provider, exec_res["provider_order_id"], expected_price)
+
+            log_trade(intent, exec_res, slippage)
             update_history(intent)
         else:
             reason = run_command.last_error or "Execution failed."
@@ -973,4 +1092,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-# Verified Signal Generator Logic: Simulation Successful

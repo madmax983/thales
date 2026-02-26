@@ -311,4 +311,6 @@ pub struct Order {
     pub status: String,
     /// The timestamp when the order was submitted (Unix ms).
     pub submitted_at_unix_ms: i64,
+    /// The average price at which the order was filled, if any.
+    pub average_fill_price: Option<f64>,
 }
