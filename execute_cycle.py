@@ -503,38 +503,12 @@ def resolve_conflicts(intents, conflict_margin=0.05):
 
     sides = set(intent["side"] for intent in intents)
     if len(sides) > 1:
-        side_scores = {}
+        # Strict rule: If strategies conflict (Buy vs Sell), do not trade.
+        reason = f"Conflict: Multiple strategies gave conflicting signals ({sides})"
+        print(f"CONFLICT detected for {symbol}: {reason}. Skipping.")
         for intent in intents:
-            side = intent.get("side", "unknown")
-            side_scores[side] = side_scores.get(side, 0.0) + score_intent(intent)
-
-        ranked_sides = sorted(side_scores.items(), key=lambda x: x[1], reverse=True)
-        top_side, top_score = ranked_sides[0]
-        second_score = ranked_sides[1][1] if len(ranked_sides) > 1 else 0.0
-
-        if (top_score - second_score) < conflict_margin:
-            side_score_text = ", ".join(
-                f"{side}={score:.3f}" for side, score in sorted(side_scores.items())
-            )
-            reason = (
-                f"Conflict unresolved: regime={regime_label}, side_scores={{{side_score_text}}}"
-            )
-            print(f"CONFLICT detected for {symbol}: {reason}. Skipping.")
-            for intent in intents:
-                log_skipped(intent, reason)
-            return []
-
-        winning_intents = [intent for intent in intents if intent.get("side") == top_side]
-        winning_intents.sort(
-            key=lambda x: (score_intent(x), float(x.get("confidence", 0.0) or 0.0)),
-            reverse=True,
-        )
-        best_intent = winning_intents[0]
-        print(
-            f"CONFLICT resolved for {symbol}: selected '{top_side}' in regime={regime_label} "
-            f"(score={top_score:.3f} vs {second_score:.3f})."
-        )
-        return [best_intent]
+            log_skipped(intent, reason)
+        return []
 
     # No side conflict, pick best weighted confidence.
     intents.sort(

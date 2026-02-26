@@ -166,7 +166,8 @@ class TestExecuteCycle(unittest.TestCase):
 
         self.assertEqual(selected, ["EmaCrossover", "Macd"])
 
-    def test_resolve_conflicts_prefers_regime_aligned_side(self):
+    @patch("execute_cycle.log_skipped")
+    def test_resolve_conflicts_rejects_mixed_signals(self, mock_log_skipped):
         analysis = {"regime": "Trending Up", "volatility": "Low"}
         intents = [
             {
@@ -197,9 +198,10 @@ class TestExecuteCycle(unittest.TestCase):
 
         resolved = execute_cycle.resolve_conflicts(intents, conflict_margin=0.05)
 
-        self.assertEqual(len(resolved), 1)
-        self.assertEqual(resolved[0]["side"], "buy")
-        self.assertEqual(resolved[0]["strategy_used"], "EmaCrossover")
+        # Expect empty list due to conflict (Buy vs Sell)
+        self.assertEqual(resolved, [])
+        # Expect 3 calls to log_skipped (one for each intent)
+        self.assertEqual(mock_log_skipped.call_count, 3)
 
     @patch("execute_cycle.log_skipped")
     def test_resolve_conflicts_skips_when_scores_too_close(self, mock_log_skipped):
