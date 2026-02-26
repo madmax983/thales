@@ -221,6 +221,9 @@
 | 2026-02-26 00:20:13 | ETH/USD | NO_STRATEGY_SIGNAL | No active strategy generated a signal (Strategies: BollingerBands, EmaCrossover, RsiMeanReversion, Macd, Supertrend, DonchianBreakout, ParabolicSar, KeltnerChannelBreakout, StochasticOscillator, AdxMomentum) |
 | 2026-02-26 00:20:13 | ETHUSD | crypto:ETHUSD:sell:1772065213101 | Lower priority/confidence than top 3 |
 | 2026-02-26 00:20:13 | SPY | equities:SPY:buy:1772065213210 | Lower priority/confidence than top 3 |
+| 2026-02-26 01:59:26 | BTCUSD | NO_STRATEGY_SIGNAL | No active strategy generated a signal (Strategies: BollingerBands, EmaCrossover, RsiMeanReversion, Macd, Supertrend, DonchianBreakout, ParabolicSar, KeltnerChannelBreakout, StochasticOscillator, AdxMomentum) |
+| 2026-02-26 01:59:27 | ETHUSD | NO_STRATEGY_SIGNAL | No active strategy generated a signal (Strategies: BollingerBands, EmaCrossover, RsiMeanReversion, Macd, Supertrend, DonchianBreakout, ParabolicSar, KeltnerChannelBreakout, StochasticOscillator, AdxMomentum) |
+| 2026-02-26 01:59:27 | SPY | NO_STRATEGY_SIGNAL | No active strategy generated a signal (Strategies: BollingerBands, EmaCrossover, RsiMeanReversion, Macd, Supertrend, DonchianBreakout, ParabolicSar, KeltnerChannelBreakout, StochasticOscillator, AdxMomentum) |
 
 ## Executed Trades
 

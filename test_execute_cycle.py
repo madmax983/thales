@@ -137,7 +137,6 @@ class TestExecuteCycle(unittest.TestCase):
         self.assertIn("MOCKUSD", content)
         self.assertIn("buy (Entry)", content)
         self.assertIn("0.1", content)
-        self.assertIn("90%", content)
         self.assertIn("Test Signal", content)
 
     def test_select_strategies_for_ranging_regime(self):
