@@ -334,3 +334,168 @@ Monitoring economic data for potential volatility.
 ```
 
 ---
+
+## Market Analysis Report - crypto - XXBTZUSD
+
+**Timestamp (ms)**: 1772110800000
+**Confidence**: 50.00%
+
+### 1. Market Regime
+Regime Unchanged (Ranging)
+*Sentiment*: Neutral
+
+### 2. Volatility
+*Assessment*: Low
+
+### 3. Strategy Recommendation
+**Mean Reversion**
+
+### 4. Patterns & Price Action
+*Patterns*: Breakout (Upside), Breakout (Downside), Consolidation (Squeeze)
+
+### 5. Key Levels
+*Support/Resistance*: 62500, 66250, 67620, 68810
+
+### 6. Research & Context
+**Research**:
+Bitcoin consolidates below key 70k resistance. Market remains cautiously optimistic but mindful of macroeconomic headwinds.
+
+**News**:
+No major breaking news specific to crypto markets at this moment.
+*Historical Context*: No similar past trades found.
+
+```json
+{
+  "symbol": "XXBTZUSD",
+  "market": "crypto",
+  "regime": "Ranging",
+  "sentiment": "Neutral",
+  "patterns": [
+    "Breakout (Upside)",
+    "Breakout (Downside)",
+    "Consolidation (Squeeze)"
+  ],
+  "key_levels": [
+    62500.0,
+    66250.0,
+    67620.0,
+    68810.0
+  ],
+  "volatility": "Low",
+  "atr": 553.0790660554932,
+  "research_summary": "Bitcoin consolidates below key 70k resistance. Market remains cautiously optimistic but mindful of macroeconomic headwinds.",
+  "news_summary": "No major breaking news specific to crypto markets at this moment.",
+  "recommendation": "Mean Reversion",
+  "confidence": 0.5,
+  "timestamp_unix_ms": 1772110800000
+}
+```
+
+---
+
+## Market Analysis Report - crypto - XETHZUSD
+
+**Timestamp (ms)**: 1772110800000
+**Confidence**: 80.00%
+
+### 1. Market Regime
+Regime: Trending Up
+*Sentiment*: Bullish
+
+### 2. Volatility
+*Assessment*: Medium
+
+### 3. Strategy Recommendation
+**Trend Following (Long)**
+
+### 4. Patterns & Price Action
+*Patterns*: Breakout (Upside), Breakout (Downside), Consolidation (Squeeze)
+
+### 5. Key Levels
+*Support/Resistance*: 1792.8, 1975.6999999999998, 2035.07, 2096.835
+
+### 6. Research & Context
+**Research**:
+Ethereum shows strength against Bitcoin, driven by network activity and L2 growth. Testing 2150 resistance.
+
+**News**:
+Ethereum developers discuss upcoming upgrade schedule.
+*Historical Context*: No similar past trades found.
+
+```json
+{
+  "symbol": "XETHZUSD",
+  "market": "crypto",
+  "regime": "Trending Up",
+  "sentiment": "Bullish",
+  "patterns": [
+    "Breakout (Upside)",
+    "Breakout (Downside)",
+    "Consolidation (Squeeze)"
+  ],
+  "key_levels": [
+    1792.8,
+    1975.6999999999998,
+    2035.07,
+    2096.835
+  ],
+  "volatility": "Medium",
+  "atr": 22.340163736076445,
+  "research_summary": "Ethereum shows strength against Bitcoin, driven by network activity and L2 growth. Testing 2150 resistance.",
+  "news_summary": "Ethereum developers discuss upcoming upgrade schedule.",
+  "recommendation": "Trend Following (Long)",
+  "confidence": 0.7999999999999999,
+  "timestamp_unix_ms": 1772110800000
+}
+```
+
+---
+
+## Market Analysis Report - equities - SPY
+
+**Timestamp (ms)**: 1772110800000
+**Confidence**: 50.00%
+
+### 1. Market Regime
+**ALERT: Regime Change Detected!** (Previous: Trending Up (Short Term), Current: Ranging)
+*Sentiment*: Neutral
+
+### 2. Volatility
+*Assessment*: Unknown
+
+### 3. Strategy Recommendation
+**Mean Reversion**
+
+### 4. Patterns & Price Action
+*Patterns*: None detected
+
+### 5. Key Levels
+*Support/Resistance*: None identified
+
+### 6. Research & Context
+**Research**:
+Equity markets remain resilient near all-time highs. Fed policy expectations stabilize.
+
+**News**:
+Corporate earnings season concludes with mixed results.
+*Historical Context*: No similar past trades found.
+
+```json
+{
+  "symbol": "SPY",
+  "market": "equities",
+  "regime": "Ranging",
+  "sentiment": "Neutral",
+  "patterns": [],
+  "key_levels": [],
+  "volatility": "Unknown",
+  "atr": null,
+  "research_summary": "Equity markets remain resilient near all-time highs. Fed policy expectations stabilize.",
+  "news_summary": "Corporate earnings season concludes with mixed results.",
+  "recommendation": "Mean Reversion",
+  "confidence": 0.5,
+  "timestamp_unix_ms": 1772110800000
+}
+```
+
+---
