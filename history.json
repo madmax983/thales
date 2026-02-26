@@ -759,5 +759,146 @@
       "timestamp_unix_ms": 1772096400000
     },
     "outcome": null
+  },
+  {
+    "intent": {
+      "intent_id": "crypto:MOGUSD:buy:1772123344675",
+      "market": "crypto",
+      "symbol": "MOGUSD",
+      "side": "buy",
+      "size_hint": "24.659559",
+      "confidence": 0.64,
+      "horizon": "1d",
+      "rationale": "Strategy: DonchianBreakout (64%, MA: 0.80). Reason: Breakout: Close 167.56 > Upper Channel 164.60. Market Context: Trending Down (Medium Volatility). No similar past trades found. Research: High volatility, speculative interest.. News: Meme coin hype cycle..",
+      "invalidation": "Price hits Stop Loss",
+      "schema_version": "v0",
+      "signal_type": "Entry",
+      "stop_loss": 163.50176944089972,
+      "take_profit": 167.5569920311469,
+      "order_type": "market",
+      "limit_price": null,
+      "stop_price": null,
+      "time_in_force": "GTC",
+      "execution_algo": "Market"
+    },
+    "market_analysis": {
+      "symbol": "MOGUSD",
+      "market": "crypto",
+      "regime": "Trending Down",
+      "sentiment": "Bearish",
+      "patterns": [
+        "Breakout (Upside)",
+        "Breakout (Downside)",
+        "Consolidation (Squeeze)"
+      ],
+      "key_levels": [
+        1.521e-07,
+        1.6615000000000002e-07,
+        1.668e-07,
+        1.735e-07
+      ],
+      "volatility": "Medium",
+      "atr": 2.182728796137914e-09,
+      "research_summary": "High volatility, speculative interest.",
+      "news_summary": "Meme coin hype cycle.",
+      "recommendation": "Trend Following (Short)",
+      "confidence": 0.7999999999999999,
+      "timestamp_unix_ms": 1772096400000
+    },
+    "outcome": null
+  },
+  {
+    "intent": {
+      "intent_id": "crypto:XETHZUSD:buy:1772123344714",
+      "market": "crypto",
+      "symbol": "XETHZUSD",
+      "side": "buy",
+      "size_hint": "1.232978",
+      "confidence": 0.64,
+      "horizon": "1d",
+      "rationale": "Strategy: DonchianBreakout (64%, MA: 0.80). Reason: Breakout: Close 3351.14 > Upper Channel 3292.00. Market Context: Trending Up (Medium Volatility). No similar past trades found. Research: Ethereum shows strength against Bitcoin, driven by network activity and L2 growth. Testing 2150 resistance.. News: Ethereum developers discuss upcoming upgrade schedule..",
+      "invalidation": "Price hits Stop Loss",
+      "schema_version": "v0",
+      "signal_type": "Entry",
+      "stop_loss": 3270.0353888179957,
+      "take_profit": 3440.500495392627,
+      "order_type": "market",
+      "limit_price": null,
+      "stop_price": null,
+      "time_in_force": "GTC",
+      "execution_algo": "Market"
+    },
+    "market_analysis": {
+      "symbol": "XETHZUSD",
+      "market": "crypto",
+      "regime": "Trending Up",
+      "sentiment": "Bullish",
+      "patterns": [
+        "Breakout (Upside)",
+        "Breakout (Downside)",
+        "Consolidation (Squeeze)"
+      ],
+      "key_levels": [
+        1792.8,
+        1975.6999999999998,
+        2035.07,
+        2096.835
+      ],
+      "volatility": "Medium",
+      "atr": 22.340163736076445,
+      "research_summary": "Ethereum shows strength against Bitcoin, driven by network activity and L2 growth. Testing 2150 resistance.",
+      "news_summary": "Ethereum developers discuss upcoming upgrade schedule.",
+      "recommendation": "Trend Following (Long)",
+      "confidence": 0.7999999999999999,
+      "timestamp_unix_ms": 1772110800000
+    },
+    "outcome": null
+  },
+  {
+    "intent": {
+      "intent_id": "crypto:XETHZUSD:buy:1772123489776",
+      "market": "crypto",
+      "symbol": "XETHZUSD",
+      "side": "buy",
+      "size_hint": "1.232978",
+      "confidence": 0.64,
+      "horizon": "1d",
+      "rationale": "Strategy: DonchianBreakout (64%, MA: 0.80). Reason: Breakout: Close 3351.14 > Upper Channel 3292.00. Market Context: Trending Up (Medium Volatility). No similar past trades found. Research: Ethereum shows strength against Bitcoin, driven by network activity and L2 growth. Testing 2150 resistance.. News: Ethereum developers discuss upcoming upgrade schedule.. (Scaled into existing position)",
+      "invalidation": "Price hits Stop Loss",
+      "schema_version": "v0",
+      "signal_type": "ScaleIn",
+      "stop_loss": 3270.0353888179957,
+      "take_profit": 3440.500495392627,
+      "order_type": "market",
+      "limit_price": null,
+      "stop_price": null,
+      "time_in_force": "GTC",
+      "execution_algo": "Market"
+    },
+    "market_analysis": {
+      "symbol": "XETHZUSD",
+      "market": "crypto",
+      "regime": "Trending Up",
+      "sentiment": "Bullish",
+      "patterns": [
+        "Breakout (Upside)",
+        "Breakout (Downside)",
+        "Consolidation (Squeeze)"
+      ],
+      "key_levels": [
+        1792.8,
+        1975.6999999999998,
+        2035.07,
+        2096.835
+      ],
+      "volatility": "Medium",
+      "atr": 22.340163736076445,
+      "research_summary": "Ethereum shows strength against Bitcoin, driven by network activity and L2 growth. Testing 2150 resistance.",
+      "news_summary": "Ethereum developers discuss upcoming upgrade schedule.",
+      "recommendation": "Trend Following (Long)",
+      "confidence": 0.7999999999999999,
+      "timestamp_unix_ms": 1772110800000
+    },
+    "outcome": null
   }
 ]
