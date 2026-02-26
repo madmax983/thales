@@ -61,17 +61,18 @@ fn resolve_signal_type(signal: &Signal, position: Option<&contracts::Position>) 
 
 /// Generates trade intents based on market data, strategy, and risk parameters.
 ///
-/// This function executes the full signal generation pipeline:
+/// This function executes the full **Signal Generator Agent** pipeline as defined in `AGENTS.md`:
+///
 /// 1.  **Market Analysis**: Analyzes the market regime (volatility, trend, sentiment).
-/// 2.  **Strategy Execution**: Runs the selected strategy on the provided data.
-/// 3.  **Signal Filtering**: Filters signals based on:
-///     *   Daily signal limits (max 3 per symbol).
-///     *   "Chasing moves" (buying into overbought / selling into oversold).
-///     *   Validity (positive size, existing stop loss).
+/// 2.  **Strategy Execution**: Runs the selected strategy on the provided data (Entry/Exit signals).
+/// 3.  **Signal Filtering**: Applies critical rules:
+///     *   Limit to 1-3 signals per symbol per day.
+///     *   Do not chase moves (wait for pullbacks, unless momentum strategy).
+///     *   Avoid redundant or conflicting signals.
 /// 4.  **Signal Enrichment**:
-///     *   Contextualizes with historical performance (RAG).
-///     *   Resolves signal type based on current positions (Entry vs. ScaleIn vs. Exit).
-///     *   Calculates dynamic position sizing based on risk and volatility (ATR).
+///     *   **Learn from History**: Uses RAG tools to find similar past trades.
+///     *   **Position Sizing**: Calculates size based on volatility (Risk / |Entry - SL|).
+///     *   **Stop Losses & Take Profits**: Sets protective SL/TP levels if not provided.
 ///
 /// # Arguments
 ///
@@ -154,17 +155,18 @@ pub async fn generate_signals(
     // We assume the strategy output is for the single symbol we analyzed.
     // If there are multiple signals (e.g. conflicting or redundant), the top one wins.
     if let Some(signal) = valid_signals.first() {
-        // SIGNAL FILTERING: Limit to 3 signals per symbol per day.
+        // Critical Rule: Limit to 1-3 signals per symbol per day.
         // We check `signals_today` count from history. If we have 0, 1, or 2, we allow a new one.
         // If we have 3 or more, we skip.
         if signals_today < 3 {
-             // RAG Step: Check history
+             // Critical Rule: Check historical trades before generating new signals (RAG).
             let similar_trades = if let Some(path) = history_path {
                 rag::find_similar_trades(&market_analysis, path).unwrap_or_default()
             } else {
                 Vec::new()
             };
 
+            // Critical Rule: Learn from History (Contextualize with past performance)
             let historical_context = rag::summarize_history(&similar_trades, &market_analysis.symbol);
             let performance = rag::analyze_performance(&similar_trades);
 
@@ -195,16 +197,19 @@ pub async fn generate_signals(
 
             // Position Sizing and SL/TP
             let last_close = bars.bars.last().map(|b| b.close).unwrap_or(100.0);
-            let atr = market_analysis.atr.unwrap_or(last_close * 0.01); // Fallback to 1% if ATR missing
+            // Ensure ATR is strictly positive to avoid division by zero or invalid ranges
+            let atr = market_analysis.atr.filter(|&a| a > 0.0).unwrap_or(last_close * 0.01);
 
             // Calculate SL/TP
             let (stop_loss, take_profit, size_hint) = match signal.signal_type {
                 SignalType::Entry | SignalType::ScaleIn => {
+                    let is_buy = signal.side.eq_ignore_ascii_case("buy");
+
                     // Use Strategy SL if provided, else ATR fallback (2.0 ATR)
                     let sl = if let Some(s) = signal.stop_loss {
                         Some(s)
                     } else {
-                        if signal.side == "buy" {
+                        if is_buy {
                             Some(last_close - (2.0 * atr))
                         } else {
                             Some(last_close + (2.0 * atr))
@@ -212,15 +217,26 @@ pub async fn generate_signals(
                     };
 
                     // Use Strategy TP if provided, else ATR fallback (4.0 ATR)
-                    let tp = if let Some(t) = signal.take_profit {
+                    let mut tp = if let Some(t) = signal.take_profit {
                         Some(t)
                     } else {
-                        if signal.side == "buy" {
+                        if is_buy {
                             Some(last_close + (4.0 * atr))
                         } else {
                             Some(last_close - (4.0 * atr))
                         }
                     };
+
+                    // Sanity Check: Ensure TP is on the profitable side of Entry
+                    if let Some(t) = tp {
+                        if is_buy && t <= last_close {
+                             eprintln!("Warning: TP {:.4} <= Entry {:.4} for Buy. Adjusting.", t, last_close);
+                             tp = Some(last_close + (4.0 * atr));
+                        } else if !is_buy && t >= last_close {
+                             eprintln!("Warning: TP {:.4} >= Entry {:.4} for Sell. Adjusting.", t, last_close);
+                             tp = Some(last_close - (4.0 * atr));
+                        }
+                    }
 
                     // Calculate Size based on Risk and SL Distance
                     // Size = Risk / |Entry - SL|
@@ -272,11 +288,11 @@ pub async fn generate_signals(
                 skip = (final_signal_type == SignalType::Exit || final_signal_type == SignalType::ScaleOut) && existing_pos.is_none();
             }
 
-            // Filter: Do not chase moves (Entries only)
+            // Critical Rule: Do not chase moves - wait for pullbacks.
             // If Buy and Overbought -> Skip
             // If Sell and Oversold -> Skip
             if !skip && (final_signal_type == SignalType::Entry || final_signal_type == SignalType::ScaleIn) {
-                // Momentum strategies are exempt from this check as they naturally buy strength
+                // Momentum strategies are exempt from this check as they naturally buy into strength.
                 let is_momentum = matches!(
                     strategy_name,
                     "DonchianBreakout" | "KeltnerChannelBreakout" | "Supertrend" | "ParabolicSar" | "AdxMomentum" | "IchimokuCloud"
