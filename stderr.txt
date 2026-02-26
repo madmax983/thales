@@ -1,0 +1,2 @@
+DEBUG: No position for BTCUSD
+DEBUG: Positions available: []
