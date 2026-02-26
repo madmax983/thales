@@ -688,3 +688,74 @@ pub struct AdxMomentumConfig {
 ### Performance
 - ADX calculation involves smoothing (O(N)).
 - Signal generation loop is O(N).
+
+---
+
+# Trading Strategy: Ichimoku Cloud
+
+## Strategy Specification
+
+**Name:** IchimokuCloud
+
+**Description:** A trend-following strategy that uses the Ichimoku Kinko Hyo system. It generates signals based on the Tenkan-sen / Kijun-sen crossover, filtered by the Price's position relative to the Cloud (Kumo).
+
+**Rationale:** The Ichimoku Cloud provides a comprehensive view of support/resistance, trend direction, and momentum. The Tenkan-Kijun crossover is a classic signal, and the Cloud filter ensures trades are taken in the direction of the major trend.
+
+## Requirements
+
+### Implementation Details
+- Uses Polars for data analysis.
+- Implements the `Strategy` trait in Rust.
+- Uses `ichimoku` indicator for component calculation.
+
+### Strategy Type
+Trend Following / Momentum
+
+### Entry Conditions
+- **Long Entry (Buy):** Tenkan-sen crosses ABOVE Kijun-sen AND Price > Span A AND Price > Span B.
+- **Short Entry (Sell):** Tenkan-sen crosses BELOW Kijun-sen AND Price < Span A AND Price < Span B.
+
+### Exit Conditions
+- **Stop Loss:** Kijun-sen (Dynamic Trailing Stop).
+- **Take Profit:** Entry +/- 2 * Risk (where Risk = |Entry - Kijun-sen|).
+
+### Position Sizing
+- **Size Hint:** "100" (fixed units) or "max" (for exits).
+
+## Code Pattern
+
+```rust
+use crate::strategy::{Strategy, StrategyConfig, Signal, SignalType};
+use crate::indicators::ichimoku;
+use polars::prelude::*;
+use async_trait::async_trait;
+use anyhow::Result;
+
+pub struct IchimokuCloud {
+    config: IchimokuCloudConfig,
+}
+
+#[derive(Debug, Clone, serde::Deserialize)]
+pub struct IchimokuCloudConfig {
+    pub tenkan_period: usize,
+    pub kijun_period: usize,
+    pub senkou_span_b_period: usize,
+    pub senkou_span_offset: usize,
+    pub chikou_span_offset: usize,
+    pub symbol: String,
+}
+```
+
+## Critical Considerations
+
+### Risk Management Integration
+- **Stop Loss:** Uses the Kijun-sen as a hard stop loss level.
+- **Trend Filter:** The Cloud (Kumo) acts as a strict trend filter.
+
+### Backtesting Requirements
+- Accepts `DataFrame` with historical data.
+- Requires data length > `senkou_span_b_period` + `senkou_span_offset` (approx 78 bars) for full Cloud validity.
+
+### Performance
+- Ichimoku calculation involves rolling Max/Min (O(N)).
+- Signal generation loop is O(N).

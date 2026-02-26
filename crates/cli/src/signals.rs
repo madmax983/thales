@@ -14,6 +14,7 @@ use strategies::parabolic_sar::{ParabolicSar, ParabolicSarConfig};
 use strategies::keltner_channel_breakout::{KeltnerChannelBreakout, KeltnerChannelBreakoutConfig};
 use strategies::stochastic_oscillator::{StochasticOscillator, StochasticOscillatorConfig};
 use strategies::adx_momentum::{AdxMomentum, AdxMomentumConfig};
+use strategies::ichimoku_cloud::{IchimokuCloud, IchimokuCloudConfig};
 use strategies::strategy::{Signal, SignalType, Strategy};
 
 fn resolve_signal_type(signal: &Signal, position: Option<&contracts::Position>) -> (SignalType, String) {
@@ -204,6 +205,16 @@ pub async fn generate_signals(
             symbol: market_analysis.symbol.clone(),
         };
         Box::new(AdxMomentum::new(config))
+    } else if strategy_name == "IchimokuCloud" {
+        let config = IchimokuCloudConfig {
+            tenkan_period: 9,
+            kijun_period: 26,
+            senkou_span_b_period: 52,
+            senkou_span_offset: 26,
+            chikou_span_offset: 26,
+            symbol: market_analysis.symbol.clone(),
+        };
+        Box::new(IchimokuCloud::new(config))
     } else {
         // Fallback or Error
         return Err(anyhow::anyhow!("Unknown strategy: {}", strategy_name));
@@ -380,7 +391,7 @@ pub async fn generate_signals(
                 // Momentum strategies are exempt from this check as they naturally buy strength
                 let is_momentum = matches!(
                     strategy_name,
-                    "DonchianBreakout" | "KeltnerChannelBreakout" | "Supertrend" | "ParabolicSar" | "AdxMomentum"
+                    "DonchianBreakout" | "KeltnerChannelBreakout" | "Supertrend" | "ParabolicSar" | "AdxMomentum" | "IchimokuCloud"
                 );
 
                 if !is_momentum {
