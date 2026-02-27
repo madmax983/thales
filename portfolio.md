@@ -375,6 +375,19 @@
 | 2026-02-27 16:09:50 | BTCUSD | NO_STRATEGY_SIGNAL | No active strategy generated a signal (Strategies: BollingerBands, EmaCrossover, RsiMeanReversion, Macd, Supertrend, DonchianBreakout, ParabolicSar, KeltnerChannelBreakout, StochasticOscillator, AdxMomentum, IchimokuCloud, CciMomentum, LinearRegressionTrend, ObvTrendFollowing, MoneyFlowIndex) |
 | 2026-02-27 16:09:50 | SPY | NO_STRATEGY_SIGNAL | No active strategy generated a signal (Strategies: BollingerBands, EmaCrossover, RsiMeanReversion, Macd, Supertrend, DonchianBreakout, ParabolicSar, KeltnerChannelBreakout, StochasticOscillator, AdxMomentum, IchimokuCloud, CciMomentum, LinearRegressionTrend, ObvTrendFollowing, MoneyFlowIndex) |
 | 2026-02-27 16:09:51 | ETHUSD | crypto:ETHUSD:sell:1772208000000 | provider error: kraken api error: EOrder:Insufficient funds |
+| 2026-02-27 16:50:16 | BTCUSD | STALE_SIGNAL | Signal too old (35.7 hours > 24 hours) |
+| 2026-02-27 16:50:16 | ETHUSD | STALE_SIGNAL | Signal too old (35.7 hours > 24 hours) |
+| 2026-02-27 16:50:16 | SPY | STALE_SIGNAL | Signal too old (35.7 hours > 24 hours) |
+| 2026-02-27 16:50:16 | XXBTZUSD | STALE_SIGNAL | Signal too old (31.8 hours > 24 hours) |
+| 2026-02-27 16:50:16 | MOGUSD | STALE_SIGNAL | Signal too old (31.8 hours > 24 hours) |
+| 2026-02-27 16:50:16 | SPY | STALE_SIGNAL | Signal too old (31.6 hours > 24 hours) |
+| 2026-02-27 16:50:16 | XXBTZUSD | STALE_SIGNAL | Signal too old (27.8 hours > 24 hours) |
+| 2026-02-27 16:50:16 | XETHZUSD | STALE_SIGNAL | Signal too old (27.8 hours > 24 hours) |
+| 2026-02-27 16:50:16 | SPY | STALE_SIGNAL | Signal too old (27.8 hours > 24 hours) |
+| 2026-02-27 16:50:16 | BTCUSD | crypto:BTCUSD:buy:1772208000000 | CONFLICT: Conflicting signals (Buy and Sell) detected for BTCUSD. Trading halted for this asset. |
+| 2026-02-27 16:50:16 | BTCUSD | crypto:BTCUSD:sell:1772208000000 | CONFLICT: Conflicting signals (Buy and Sell) detected for BTCUSD. Trading halted for this asset. |
+| 2026-02-27 16:50:17 | SPY | NO_STRATEGY_SIGNAL | No active strategy generated a signal (Strategies: BollingerBands, EmaCrossover, RsiMeanReversion, Macd, Supertrend, DonchianBreakout, ParabolicSar, KeltnerChannelBreakout, StochasticOscillator, AdxMomentum, IchimokuCloud, CciMomentum, LinearRegressionTrend, ObvTrendFollowing, MoneyFlowIndex) |
+| 2026-02-27 16:50:18 | ETHUSD | crypto:ETHUSD:sell:1772208000000 | provider error: kraken api error: EOrder:Insufficient funds |
 
 ## Executed Trades
 
