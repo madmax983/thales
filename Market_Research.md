@@ -117,3 +117,11 @@
 ### SPY - 2026-02-27 09:00:00 (equities)
 **Research**: SPY showing resilience near all-time highs. Tech sector leading. Market sentiment remains cautiously optimistic awaiting Fed cues.
 **News**: US Economy shows signs of soft landing. Federal Reserve likely to maintain current rate policy.
+
+### SPY - 2026-02-27 13:38:26 (equities)
+**Research**: Simulated Environment: Strong uptrend detected (10% rise over last 5 hours). Market sentiment appears extremely bullish, likely driven by simulated positive macroeconomic news or sector rotation into large caps.
+**News**: Simulated News: Major indices hit new highs. Tech sector leads rally.
+
+### XXBTZUSD - 2026-02-27 13:40:22 (crypto)
+**Research**: Simulated Environment: Sharp correction underway (10% decline over last 5 hours). Bearish sentiment dominant. High volume selling suggests institutional liquidation.
+**News**: Simulated News: Regulatory concerns resurface. Major exchange outflow detected.

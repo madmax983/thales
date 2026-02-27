@@ -147,3 +147,13 @@
 **Volatility**: Unknown
 **ATR**: N/A
 **Assessment**: Mean Reversion
+
+### SPY - 2026-02-27 13:38:26 (equities)
+**Volatility**: Medium
+**ATR**: 6.76
+**Assessment**: Trend Following (Long)
+
+### XXBTZUSD - 2026-02-27 13:40:22 (crypto)
+**Volatility**: Medium
+**ATR**: 764.82
+**Assessment**: Trend Following (Short)

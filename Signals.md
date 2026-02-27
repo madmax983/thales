@@ -1500,3 +1500,114 @@ US Economy shows signs of soft landing. Federal Reserve likely to maintain curre
 ```
 
 ---
+
+## Market Analysis Report - equities - SPY
+
+**Timestamp (ms)**: 1772199506210
+**Confidence**: 80.00%
+
+### 1. Market Regime
+**ALERT: Regime Change Detected!** (Previous: Ranging, Current: Trending Up (Short Term))
+*Sentiment*: Bullish (Strong) (Overbought)
+
+### 2. Volatility
+*Assessment*: Medium
+
+### 3. Strategy Recommendation
+**Trend Following (Long)**
+
+### 4. Patterns & Price Action
+*Patterns*: Breakout (Upside), Consolidation (Squeeze)
+
+### 5. Key Levels
+*Support/Resistance*: 480.40297908661506, 520.0216662207422
+
+### 6. Research & Context
+**Research**:
+Simulated Environment: Strong uptrend detected (10% rise over last 5 hours). Market sentiment appears extremely bullish, likely driven by simulated positive macroeconomic news or sector rotation into large caps.
+
+**News**:
+Simulated News: Major indices hit new highs. Tech sector leads rally.
+*Historical Context*: Found 1 similar past trades (3 on same symbol). Win Rate: 0.0%. Avg Return: -3.23%
+
+```json
+{
+  "symbol": "SPY",
+  "market": "equities",
+  "regime": "Trending Up (Short Term)",
+  "sentiment": "Bullish (Strong) (Overbought)",
+  "patterns": [
+    "Breakout (Upside)",
+    "Consolidation (Squeeze)"
+  ],
+  "key_levels": [
+    480.40297908661506,
+    520.0216662207422
+  ],
+  "volatility": "Medium",
+  "atr": 6.758704302527127,
+  "research_summary": "Simulated Environment: Strong uptrend detected (10% rise over last 5 hours). Market sentiment appears extremely bullish, likely driven by simulated positive macroeconomic news or sector rotation into large caps.",
+  "news_summary": "Simulated News: Major indices hit new highs. Tech sector leads rally.",
+  "recommendation": "Trend Following (Long)",
+  "confidence": 0.7999999999999999,
+  "timestamp_unix_ms": 1772199506210
+}
+```
+
+---
+
+## Market Analysis Report - crypto - XXBTZUSD
+
+**Timestamp (ms)**: 1772199622987
+**Confidence**: 80.00%
+
+### 1. Market Regime
+**ALERT: Regime Change Detected!** (Previous: Trending Up, Current: Trending Down (Short Term))
+*Sentiment*: Bearish (Strong) (Oversold)
+
+### 2. Volatility
+*Assessment*: Medium
+
+### 3. Strategy Recommendation
+**Trend Following (Short)**
+
+### 4. Patterns & Price Action
+*Patterns*: Breakout (Downside), Consolidation (Squeeze)
+
+### 5. Key Levels
+*Support/Resistance*: 59348.09299105641, 62321.223889637375, 62637.9775018533
+
+### 6. Research & Context
+**Research**:
+Simulated Environment: Sharp correction underway (10% decline over last 5 hours). Bearish sentiment dominant. High volume selling suggests institutional liquidation.
+
+**News**:
+Simulated News: Regulatory concerns resurface. Major exchange outflow detected.
+*Historical Context*: Found 7 similar past trades (1 on same symbol). Win Rate: 100.0%. Avg Return: 1.96%
+
+```json
+{
+  "symbol": "XXBTZUSD",
+  "market": "crypto",
+  "regime": "Trending Down (Short Term)",
+  "sentiment": "Bearish (Strong) (Oversold)",
+  "patterns": [
+    "Breakout (Downside)",
+    "Consolidation (Squeeze)"
+  ],
+  "key_levels": [
+    59348.09299105641,
+    62321.223889637375,
+    62637.9775018533
+  ],
+  "volatility": "Medium",
+  "atr": 764.8234042370752,
+  "research_summary": "Simulated Environment: Sharp correction underway (10% decline over last 5 hours). Bearish sentiment dominant. High volume selling suggests institutional liquidation.",
+  "news_summary": "Simulated News: Regulatory concerns resurface. Major exchange outflow detected.",
+  "recommendation": "Trend Following (Short)",
+  "confidence": 0.7999999999999999,
+  "timestamp_unix_ms": 1772199622987
+}
+```
+
+---
