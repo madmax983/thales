@@ -118,7 +118,7 @@ class TestExecuteCycle(unittest.TestCase):
                     "schema_version": "v0",
                     "intent_id": "test_id",
                     "provider": "kraken",
-                    "status": "submitted",
+                    "status": "filled",
                     "provider_order_id": "123",
                     "submitted_at_unix_ms": 1234567890000
                 }]
@@ -149,6 +149,47 @@ class TestExecuteCycle(unittest.TestCase):
         self.assertIn("buy (Entry)", content)
         self.assertIn("0.1", content)
         self.assertIn("Test Signal", content)
+
+    def test_classify_execution_outcome(self):
+        self.assertEqual(
+            execute_cycle.classify_execution_outcome({"status": "filled"}),
+            "executed",
+        )
+        self.assertEqual(
+            execute_cycle.classify_execution_outcome({"status": "submitted"}),
+            "submitted",
+        )
+        self.assertEqual(
+            execute_cycle.classify_execution_outcome({"status": "rejected"}),
+            "rejected",
+        )
+        self.assertEqual(
+            execute_cycle.classify_execution_outcome({"status": "mystery_status"}),
+            "unknown",
+        )
+
+    def test_log_submitted_writes_submitted_orders_section(self):
+        intent = {
+            "intent_id": "intent-submitted-1",
+            "symbol": "BTCUSD",
+            "side": "buy",
+            "provider": "kraken",
+        }
+        result = {
+            "provider": "kraken",
+            "provider_order_id": "oid-123",
+            "status": "submitted",
+            "submitted_at_unix_ms": 1234567890000,
+        }
+
+        execute_cycle.log_submitted(intent, result)
+
+        with open("temp_portfolio.md", "r") as f:
+            content = f.read()
+
+        self.assertIn("## Submitted Orders", content)
+        self.assertIn("intent-submitted-1", content)
+        self.assertIn("submitted", content)
 
     def test_select_strategies_returns_all_active_strategies(self):
         # Now returns all strategies regardless of regime

@@ -37,6 +37,17 @@ BREAKOUT_STRATEGIES = {
     "ParabolicSar",
     "CciMomentum",
 }
+EXECUTED_STATUSES = {"filled", "executed", "closed"}
+SUBMITTED_STATUSES = {
+    "submitted",
+    "accepted",
+    "new",
+    "open",
+    "pending",
+    "partially_filled",
+    "partially-filled",
+}
+REJECTED_STATUSES = {"rejected", "failed", "error", "canceled", "cancelled", "expired", "invalid"}
 
 def run_command(args):
     """Runs a thales-cli command and returns the parsed JSON data."""
@@ -639,6 +650,19 @@ def append_to_section(filepath, section_header, table_header, row):
     with open(filepath, "w") as f:
         f.writelines(lines)
 
+def normalize_execution_status(exec_result):
+    return str(exec_result.get("status", "")).strip().lower()
+
+def classify_execution_outcome(exec_result):
+    status = normalize_execution_status(exec_result)
+    if status in EXECUTED_STATUSES:
+        return "executed"
+    if status in SUBMITTED_STATUSES:
+        return "submitted"
+    if status in REJECTED_STATUSES:
+        return "rejected"
+    return "unknown"
+
 def log_trade(intent, result, slippage=None):
     """Logs executed trade to portfolio.md"""
     date_str = datetime.fromtimestamp(result["submitted_at_unix_ms"] / 1000).strftime("%Y-%m-%d %H:%M:%S")
@@ -693,6 +717,20 @@ def log_trade(intent, result, slippage=None):
     row = f"| {date_str} | {asset_class} | {symbol} | {action} | {size} | {price} | {sl} | {tp} | {max_risk} | {signal_ref} | {rationale} |"
 
     append_to_section(PORTFOLIO_PATH, "## Executed Trades", header, row)
+
+def log_submitted(intent, result):
+    """Logs accepted/submitted orders that are not yet filled."""
+    date_str = datetime.fromtimestamp(result.get("submitted_at_unix_ms", int(datetime.now().timestamp() * 1000)) / 1000).strftime("%Y-%m-%d %H:%M:%S")
+    symbol = intent.get("symbol", "-").replace("|", "\\|")
+    side = intent.get("side", "-").replace("|", "\\|")
+    status = str(result.get("status", "unknown")).replace("|", "\\|")
+    provider = str(result.get("provider", intent.get("provider", "-"))).replace("|", "\\|")
+    order_id = str(result.get("provider_order_id", "-")).replace("|", "\\|")
+    signal_ref = intent.get("intent_id", "-").replace("|", "\\|")
+
+    header = "| Date/Time | Symbol | Side | Provider | Provider Order ID | Status | Signal Ref |"
+    row = f"| {date_str} | {symbol} | {side} | {provider} | {order_id} | {status} | {signal_ref} |"
+    append_to_section(PORTFOLIO_PATH, "## Submitted Orders", header, row)
 
 def log_skipped(intent, reason):
     """Logs skipped trade."""
@@ -1043,18 +1081,32 @@ def main():
         if result:
             # Handle list response from execute-intent
             exec_res = result[0] if isinstance(result, list) else result
-            print(f"Success! Status: {exec_res.get('status')}")
+            outcome = classify_execution_outcome(exec_res)
+            status = exec_res.get("status", "unknown")
 
-            # Monitor Slippage
-            # Expected price: Limit price if set, otherwise... difficult to guess for Market without quote.
-            # We use limit price if available as expected price.
-            expected_price = intent.get("limit_price")
-            slippage = None
-            if expected_price:
-                _, slippage = monitor_execution(provider, exec_res["provider_order_id"], expected_price)
+            if outcome == "executed":
+                print(f"Execution filled. Status: {status}")
+                # Monitor Slippage when we have an expected limit price.
+                expected_price = intent.get("limit_price")
+                slippage = None
+                if expected_price and exec_res.get("provider_order_id"):
+                    _, slippage = monitor_execution(
+                        provider, exec_res["provider_order_id"], expected_price
+                    )
 
-            log_trade(intent, exec_res, slippage)
-            update_history(intent)
+                log_trade(intent, exec_res, slippage)
+                update_history(intent)
+            elif outcome == "submitted":
+                print(f"Order submitted (not filled yet). Status: {status}")
+                log_submitted(intent, exec_res)
+            elif outcome == "rejected":
+                reason = f"Order rejected with status '{status}'"
+                print(reason)
+                log_skipped(intent, reason)
+            else:
+                reason = f"Unknown execution status '{status}'"
+                print(reason)
+                log_skipped(intent, reason)
         else:
             reason = run_command.last_error or "Execution failed."
             print(f"Execution failed: {reason}")
