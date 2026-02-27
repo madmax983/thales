@@ -1,5 +1,5 @@
 use crate::indicators::parabolic_sar::parabolic_sar;
-use crate::strategy::{Signal, SignalType, Strategy};
+use crate::strategy::{Signal, SignalType, Strategy, StrategyType};
 use anyhow::Result;
 use async_trait::async_trait;
 use polars::prelude::*;
@@ -28,10 +28,14 @@ impl Strategy for ParabolicSar {
         "ParabolicSar"
     }
 
+    fn strategy_type(&self) -> StrategyType {
+        StrategyType::TrendFollowing
+    }
+
     async fn generate_signals(&self, data: &DataFrame) -> Result<Vec<Signal>> {
         let high = data.column("high")?;
         let low = data.column("low")?;
-        let close = data.column("close")?;
+        let _close = data.column("close")?;
         // Check for timestamp column name, generic bar data usually has timestamp_unix_ms
         let timestamp = if let Ok(ts) = data.column("timestamp_unix_ms") {
             ts
@@ -55,13 +59,12 @@ impl Strategy for ParabolicSar {
         }
 
         let timestamp_iter = timestamp.i64()?;
-        // close is used? Not strictly for signal generation (trend flip is enough), but maybe for checking logic
-        let _close_iter = close.f64()?;
 
         for i in 1..len {
             let t_curr = trend_values[i];
             let t_prev = trend_values[i - 1];
 
+            // If trend is None (initialization), skip
             if t_curr.is_none() || t_prev.is_none() {
                 continue;
             }
@@ -82,7 +85,7 @@ impl Strategy for ParabolicSar {
                     confidence: 0.8,
                     stop_loss: Some(sar),
                     take_profit: None,
-                    reason: "Parabolic SAR Trend Flip to Up".to_string(),
+                    reason: format!("Parabolic SAR Trend Flip to Up (SAR {:.2})", sar),
                     timestamp_ms: ts,
                 });
             } else if was_up && !is_up {
@@ -95,7 +98,7 @@ impl Strategy for ParabolicSar {
                     confidence: 0.8,
                     stop_loss: Some(sar),
                     take_profit: None,
-                    reason: "Parabolic SAR Trend Flip to Down".to_string(),
+                    reason: format!("Parabolic SAR Trend Flip to Down (SAR {:.2})", sar),
                     timestamp_ms: ts,
                 });
             }

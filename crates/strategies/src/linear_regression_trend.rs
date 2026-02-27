@@ -1,5 +1,5 @@
 use crate::indicators::{atr, linear_regression};
-use crate::strategy::{Signal, SignalType, Strategy};
+use crate::strategy::{Signal, SignalType, Strategy, StrategyConfig, StrategyType};
 use anyhow::{Context, Result};
 use async_trait::async_trait;
 use polars::prelude::*;
@@ -34,6 +34,10 @@ impl LinearRegressionTrend {
 impl Strategy for LinearRegressionTrend {
     fn name(&self) -> &str {
         "LinearRegressionTrend"
+    }
+
+    fn strategy_type(&self) -> StrategyType {
+        StrategyType::TrendFollowing
     }
 
     async fn generate_signals(&self, data: &DataFrame) -> Result<Vec<Signal>> {

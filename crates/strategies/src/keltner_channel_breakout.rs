@@ -1,5 +1,5 @@
 use crate::indicators::{atr, ema};
-use crate::strategy::{Signal, SignalType, Strategy, StrategyConfig};
+use crate::strategy::{Signal, SignalType, Strategy, StrategyConfig, StrategyType};
 use anyhow::Result;
 use async_trait::async_trait;
 use polars::prelude::*;
@@ -30,6 +30,10 @@ impl KeltnerChannelBreakout {
 impl Strategy for KeltnerChannelBreakout {
     fn name(&self) -> &str {
         "KeltnerChannelBreakout"
+    }
+
+    fn strategy_type(&self) -> StrategyType {
+        StrategyType::Breakout
     }
 
     async fn generate_signals(&self, data: &DataFrame) -> Result<Vec<Signal>> {

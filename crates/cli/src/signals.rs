@@ -5,7 +5,7 @@ use anyhow::Result;
 use contracts::{BarSeries, MarketAnalysis, TradeIntent};
 use polars::prelude::*;
 use std::path::Path;
-use strategies::strategy::{Signal, SignalType};
+use strategies::strategy::{Signal, SignalType, StrategyType};
 
 fn resolve_signal_type(
     signal: &Signal,
@@ -214,6 +214,17 @@ pub async fn generate_signals(
             let atr = market_analysis.atr.unwrap_or(last_close * 0.01); // Fallback to 1% if ATR missing
 
             // Some strategies use fixed % SL which violates volatility sizing rules. Override them.
+            // Specifically, Mean Reversion strategies often assume a reversion which might need tighter
+            // or different stops than trend followers. But historically we've overridden
+            // EmaCrossover, RsiMeanReversion, Macd.
+            // With new types, we can apply logic generally or stick to specifics if needed.
+            // For now, let's keep the specific override or expand it.
+            // Actually, the instruction says "exempt from 'Do not chase' checks if not MeanReversion".
+            // It doesn't explicitly say to change the SL override logic, but consistency is good.
+            // Let's stick to the current list for SL override unless instructed otherwise,
+            // or perhaps check if strategy_type is TrendFollowing?
+            // The existing code has explicit check: matches!(strategy_name, "EmaCrossover" | "RsiMeanReversion" | "Macd")
+            // Let's leave this part alone to minimize regression risk unless requested.
             let use_atr_sl_override =
                 matches!(strategy_name, "EmaCrossover" | "RsiMeanReversion" | "Macd");
 
@@ -306,27 +317,17 @@ pub async fn generate_signals(
                 && (final_signal_type == SignalType::Entry
                     || final_signal_type == SignalType::ScaleIn)
             {
-                // Momentum strategies are exempt from this check as they naturally buy strength
-                let is_momentum = matches!(
-                    strategy_name,
-                    "DonchianBreakout"
-                        | "KeltnerChannelBreakout"
-                        | "Supertrend"
-                        | "ParabolicSar"
-                        | "AdxMomentum"
-                        | "IchimokuCloud"
-                        | "CciMomentum"
-                        | "LinearRegressionTrend"
-                        | "ObvTrendFollowing"
-                        | "EmaCrossover"
-                        | "Macd"
-                );
+                // We use the new strategy_type() to check for exemption.
+                // MeanReversion strategies SHOULD respect Overbought/Oversold checks (don't chase).
+                // TrendFollowing, Momentum, Breakout strategies ARE exempt (can buy strength).
+                let strategy_type = strategy.strategy_type();
+                let can_chase = strategy_type != StrategyType::MeanReversion;
 
-                if !is_momentum {
+                if !can_chase {
                     if signal.side == "buy" && market_analysis.sentiment.contains("Overbought") {
                         skip = true;
                         eprintln!(
-                            "Skipping Buy signal for {} due to Overbought conditions (Chasing)",
+                            "Skipping Buy signal for {} due to Overbought conditions (Mean Reversion - Chasing)",
                             signal.symbol
                         );
                     } else if signal.side == "sell"
@@ -334,7 +335,7 @@ pub async fn generate_signals(
                     {
                         skip = true;
                         eprintln!(
-                            "Skipping Sell signal for {} due to Oversold conditions (Chasing)",
+                            "Skipping Sell signal for {} due to Oversold conditions (Mean Reversion - Chasing)",
                             signal.symbol
                         );
                     }
@@ -1494,7 +1495,24 @@ mod tests {
         };
         let positions = vec![];
 
-        // 1. Force Overbought Sentiment -> Should Skip Buy
+        // 1. Force Overbought Sentiment -> Should Skip Buy (BollingerBands is MeanReversion, should NOT chase?)
+        // Wait, Mean Reversion strategies BUY when OVERSOLD and SELL when OVERBOUGHT (mostly).
+        // If Sentiment is "Overbought", price is High. BB Strategy would typically signal SELL.
+        // If BB signals BUY, it means price is Low (below lower band).
+        // It's contradictory for sentiment to be "Overbought" (RSI>70) while BB signals Buy (Price < Low Band).
+        // But if it happens (divergence), should we skip?
+        //
+        // The rule "Do not chase moves":
+        // "If Buy and Overbought -> Skip".
+        // For Mean Reversion: Buying when Overbought is definitely bad (chasing a top?).
+        // Actually, Mean Reversion usually sells when Overbought.
+        //
+        // The test sets up a BUY signal (Price < Lower Band).
+        // And forces Sentiment = Overbought.
+        // Logic: if Buy & Overbought -> Skip.
+        // Since BollingerBands is MeanReversion, `can_chase` is false.
+        // So it should skip.
+
         let overbought_analysis = MarketAnalysis {
             symbol: "TEST".to_string(),
             market: "equities".to_string(),
@@ -1522,7 +1540,7 @@ mod tests {
         .await?;
         assert!(
             intents_skipped.is_empty(),
-            "Should skip Buy signal when Overbought"
+            "Should skip Buy signal when Overbought (Mean Reversion)"
         );
 
         // 2. Force Oversold Sentiment -> Should Skip Sell
@@ -1763,7 +1781,7 @@ mod tests {
         .await?;
 
         // 4. Assert Signal Generated
-        // If "Do Not Chase" was active, this would be empty.
+        // DonchianBreakout is StrategyType::Breakout, so it should be allowed to chase.
         assert!(
             !intents.is_empty(),
             "DonchianBreakout should allow chasing (Buy when Overbought)"

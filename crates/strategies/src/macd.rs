@@ -1,5 +1,5 @@
 use crate::indicators::macd;
-use crate::strategy::{Signal, SignalType, Strategy, StrategyConfig};
+use crate::strategy::{Signal, SignalType, Strategy, StrategyConfig, StrategyType};
 use anyhow::Result;
 use async_trait::async_trait;
 use polars::prelude::*;
@@ -32,6 +32,10 @@ impl Macd {
 impl Strategy for Macd {
     fn name(&self) -> &str {
         "Macd"
+    }
+
+    fn strategy_type(&self) -> StrategyType {
+        StrategyType::Momentum
     }
 
     async fn generate_signals(&self, data: &DataFrame) -> Result<Vec<Signal>> {
