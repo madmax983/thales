@@ -973,3 +973,72 @@ pub struct ObvTrendFollowingConfig {
 ### Performance
 - OBV calculation is O(N).
 - Signal generation loop is O(N).
+
+---
+
+# Trading Strategy: Money Flow Index
+
+## Strategy Specification
+
+**Name:** MoneyFlowIndex
+
+**Description:** A mean reversion strategy that uses the Money Flow Index (MFI) to identify overbought and oversold conditions by combining price and volume. It buys when the MFI falls below a lower threshold (Oversold) and sells when the MFI rises above an upper threshold (Overbought).
+
+**Rationale:** MFI is a volume-weighted RSI. It accounts for trading volume, providing a more robust measure of buying and selling pressure than price alone. Extreme values indicate potential reversals.
+
+## Requirements
+
+### Implementation Details
+- Uses Polars for data analysis.
+- Implements the `Strategy` trait in Rust.
+- Uses `mfi` indicator.
+
+### Strategy Type
+Mean Reversion
+
+### Entry Conditions
+- **Long Entry (Buy):** MFI < `oversold_threshold` (e.g., 20).
+
+### Exit Conditions
+- **Long Exit (Sell):** MFI > `overbought_threshold` (e.g., 80).
+- **Stop Loss:** Close Price <= Entry Price * (1 - `stop_loss_pct`).
+
+### Position Sizing
+- **Size Hint:** "100" (fixed units) or "max" (for exits).
+
+## Code Pattern
+
+```rust
+use crate::strategy::{Strategy, StrategyConfig, Signal, SignalType};
+use crate::indicators::mfi;
+use polars::prelude::*;
+use async_trait::async_trait;
+use anyhow::Result;
+
+pub struct MoneyFlowIndex {
+    config: MoneyFlowIndexConfig,
+}
+
+#[derive(Debug, Clone, serde::Deserialize)]
+pub struct MoneyFlowIndexConfig {
+    pub period: usize,
+    pub oversold_threshold: f64,
+    pub overbought_threshold: f64,
+    pub stop_loss_pct: f64,
+    pub symbol: String,
+}
+```
+
+## Critical Considerations
+
+### Risk Management Integration
+- **Stop Loss:** Fixed percentage stop loss.
+- **Volume Confirmation:** MFI naturally integrates volume, acting as its own confirmation.
+
+### Backtesting Requirements
+- Accepts `DataFrame` with historical data including "volume".
+- Requires data length > `period`.
+
+### Performance
+- MFI calculation is O(N).
+- Signal generation loop is O(N).

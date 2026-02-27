@@ -8,6 +8,7 @@ use strategies::ichimoku_cloud::{IchimokuCloud, IchimokuCloudConfig};
 use strategies::keltner_channel_breakout::{KeltnerChannelBreakout, KeltnerChannelBreakoutConfig};
 use strategies::linear_regression_trend::{LinearRegressionTrend, LinearRegressionTrendConfig};
 use strategies::macd::{Macd, MacdConfig};
+use strategies::money_flow_index::{MoneyFlowIndex, MoneyFlowIndexConfig};
 use strategies::obv_trend::{ObvTrendFollowing, ObvTrendFollowingConfig};
 use strategies::parabolic_sar::{ParabolicSar, ParabolicSarConfig};
 use strategies::rsi_mean_reversion::{RsiMeanReversion, RsiMeanReversionConfig};
@@ -156,6 +157,16 @@ pub fn create_strategy(name: &str, symbol: &str) -> Result<Box<dyn Strategy>> {
             };
             Ok(Box::new(ObvTrendFollowing::new(config)))
         }
+        "MoneyFlowIndex" => {
+            let config = MoneyFlowIndexConfig {
+                period: 14,
+                oversold_threshold: 20.0,
+                overbought_threshold: 80.0,
+                stop_loss_pct: 0.05,
+                symbol: symbol.to_string(),
+            };
+            Ok(Box::new(MoneyFlowIndex::new(config)))
+        }
         _ => Err(anyhow::anyhow!("Unknown strategy: {}", name)),
     }
 }
@@ -176,5 +187,6 @@ pub fn list_strategies() -> Vec<&'static str> {
         "CciMomentum",
         "LinearRegressionTrend",
         "ObvTrendFollowing",
+        "MoneyFlowIndex",
     ]
 }

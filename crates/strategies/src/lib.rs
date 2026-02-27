@@ -17,6 +17,7 @@
 //! - [`adx_momentum::AdxMomentum`] - Trend following using ADX and DMI.
 //! - [`linear_regression_trend::LinearRegressionTrend`] - Trend following using Linear Regression Slope.
 //! - [`obv_trend::ObvTrendFollowing`] - Trend following using On-Balance Volume (OBV).
+//! - [`money_flow_index::MoneyFlowIndex`] - Mean reversion using Money Flow Index (MFI).
 
 pub mod adx_momentum;
 pub mod bollinger_bands;
@@ -28,6 +29,7 @@ pub mod indicators;
 pub mod keltner_channel_breakout;
 pub mod linear_regression_trend;
 pub mod macd;
+pub mod money_flow_index;
 pub mod obv_trend;
 pub mod parabolic_sar;
 pub mod rsi_mean_reversion;
