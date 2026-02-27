@@ -1,5 +1,6 @@
 use anyhow::Result;
 use strategies::adx_momentum::{AdxMomentum, AdxMomentumConfig};
+use strategies::awesome_oscillator::{AwesomeOscillator, AwesomeOscillatorConfig};
 use strategies::bollinger_bands::{BollingerBandsConfig, BollingerBandsMeanReversion};
 use strategies::cci_momentum::{CciMomentum, CciMomentumConfig};
 use strategies::connors_rsi_mean_reversion::{ConnorsRsiMeanReversion, ConnorsRsiMeanReversionConfig};
@@ -19,6 +20,16 @@ use strategies::supertrend::{Supertrend, SupertrendConfig};
 
 pub fn create_strategy(name: &str, symbol: &str) -> Result<Box<dyn Strategy>> {
     match name {
+        "AwesomeOscillator" => {
+            let config = AwesomeOscillatorConfig {
+                fast_period: 5,
+                slow_period: 34,
+                stop_loss_atr_mult: 2.0,
+                atr_period: 14,
+                symbol: symbol.to_string(),
+            };
+            Ok(Box::new(AwesomeOscillator::new(config)))
+        }
         "BollingerBands" | "BollingerBandsMeanReversion" => {
             let config = BollingerBandsConfig {
                 window_size: 20,
@@ -210,5 +221,6 @@ pub fn list_strategies() -> Vec<&'static str> {
         "ObvTrendFollowing",
         "MoneyFlowIndex",
         "ConnorsRsiMeanReversion",
+        "AwesomeOscillator",
     ]
 }

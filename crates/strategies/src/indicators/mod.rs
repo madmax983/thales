@@ -1,5 +1,6 @@
 pub mod adx;
 pub mod atr;
+pub mod awesome_oscillator;
 pub mod bollinger_bands;
 pub mod cci;
 pub mod connors_rsi;
