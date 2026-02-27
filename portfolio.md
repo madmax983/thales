@@ -351,6 +351,18 @@
 | 2026-02-27 11:52:33 | BTCUSD | crypto:BTCUSD:buy:1772190000000 | CONFLICT: Conflicting signals (Buy and Sell) detected for BTCUSD. Trading halted for this asset. |
 | 2026-02-27 11:52:33 | BTCUSD | crypto:BTCUSD:sell:1772190000000 | CONFLICT: Conflicting signals (Buy and Sell) detected for BTCUSD. Trading halted for this asset. |
 | 2026-02-27 11:52:34 | ETHUSD | crypto:ETHUSD:sell:1772190000000 | provider error: kraken api error: EOrder:Insufficient funds |
+| 2026-02-27 14:13:04 | BTCUSD | STALE_SIGNAL | Signal too old (33.0 hours > 24 hours) |
+| 2026-02-27 14:13:04 | ETHUSD | STALE_SIGNAL | Signal too old (33.0 hours > 24 hours) |
+| 2026-02-27 14:13:04 | SPY | STALE_SIGNAL | Signal too old (33.0 hours > 24 hours) |
+| 2026-02-27 14:13:04 | XXBTZUSD | STALE_SIGNAL | Signal too old (29.2 hours > 24 hours) |
+| 2026-02-27 14:13:04 | MOGUSD | STALE_SIGNAL | Signal too old (29.2 hours > 24 hours) |
+| 2026-02-27 14:13:04 | SPY | STALE_SIGNAL | Signal too old (29.0 hours > 24 hours) |
+| 2026-02-27 14:13:04 | XXBTZUSD | STALE_SIGNAL | Signal too old (25.2 hours > 24 hours) |
+| 2026-02-27 14:13:04 | XETHZUSD | STALE_SIGNAL | Signal too old (25.2 hours > 24 hours) |
+| 2026-02-27 14:13:04 | SPY | STALE_SIGNAL | Signal too old (25.2 hours > 24 hours) |
+| 2026-02-27 14:13:05 | BTCUSD | NO_STRATEGY_SIGNAL | No active strategy generated a signal (Strategies: BollingerBands, EmaCrossover, RsiMeanReversion, Macd, Supertrend, DonchianBreakout, ParabolicSar, KeltnerChannelBreakout, StochasticOscillator, AdxMomentum, IchimokuCloud, CciMomentum, LinearRegressionTrend, ObvTrendFollowing, MoneyFlowIndex) |
+| 2026-02-27 14:13:05 | SPY | NO_STRATEGY_SIGNAL | No active strategy generated a signal (Strategies: BollingerBands, EmaCrossover, RsiMeanReversion, Macd, Supertrend, DonchianBreakout, ParabolicSar, KeltnerChannelBreakout, StochasticOscillator, AdxMomentum, IchimokuCloud, CciMomentum, LinearRegressionTrend, ObvTrendFollowing, MoneyFlowIndex) |
+| 2026-02-27 14:13:06 | ETHUSD | crypto:ETHUSD:sell:1772200800000 | provider error: kraken api error: EOrder:Insufficient funds |
 
 ## Executed Trades
 
