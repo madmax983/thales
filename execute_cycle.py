@@ -859,50 +859,72 @@ def manage_orders():
                  }
                  log_skipped(dummy_intent, "Stale Order Cancellation")
 
-def refine_intent(intent):
+def get_latest_price(provider, symbol):
+    """Fetches the latest close price for a symbol."""
+    print(f"Fetching latest price for {symbol} on {provider}...")
+    bars = run_command(["fetch-market-data", "--provider", provider, "--symbol", symbol, "--timeframe", "1m"])
+    if bars and isinstance(bars, list) and len(bars) > 0:
+        # Sort by timestamp just in case, though usually sorted
+        bars.sort(key=lambda x: x.get("timestamp_unix_ms", 0))
+        last_bar = bars[-1]
+        price = last_bar.get("close")
+        print(f"Latest price for {symbol}: {price}")
+        return price
+    print(f"Failed to fetch latest price for {symbol}")
+    return None
+
+def refine_intent(intent, current_price=None):
     """
     Refines trade intent with Algo Selection and Order Type.
     Updates intent in-place.
     """
     confidence = intent.get("confidence", 0.0)
     size_hint = intent.get("size_hint", "0")
-    side = intent.get("side", "unknown")
 
-    # 1. Order Type Selection
-    # High confidence or Exits -> Market (Urgent)
-    # Lower confidence entries -> Limit (Price improvement)
-    # Max size (Exit) -> Market
-    if confidence >= 0.8 or size_hint == "max":
-        intent["order_type"] = "market"
-    else:
-        intent["order_type"] = "limit"
-        # For Limit, we need a price.
-        # Strategy usually provides limit_price? If not, we might need to fetch current price.
-        # But for now, if strategy didn't provide limit_price, we fallback to market or use last close?
-        # Contracts.TradeIntent has limit_price: Option<f64>.
-        if not intent.get("limit_price"):
-             # Fallback to market if no limit price provided by strategy
-             intent["order_type"] = "market"
+    # 1. Algo Selection & Order Type
+    # Default to Limit
+    algo = "Limit"
+    order_type = "limit"
 
-    # 2. Algo Selection
-    # If huge size (placeholder), use TWAP/VWAP
-    # For now, simple logic:
+    # Check for Large Size -> TWAP
+    is_large = False
     try:
-        size = float(size_hint)
-        # Arbitrary large size threshold? e.g. > 100 units? Depends on asset.
-        # Let's just say for very high confidence we use VWAP if supported?
-        # Actually prompt says: "TWAP: Time-weighted, for large orders", "VWAP: Volume-weighted, minimize market impact"
-        # We don't have volume info easily here.
-        # Let's keep it simple: Standard execution for now.
-        pass
+        if size_hint != "max":
+            size = float(size_hint)
+            # Simple heuristic: > 1000 units is "large".
+            # In production this would depend on asset price and volume.
+            if size > 1000.0:
+                is_large = True
     except:
         pass
 
-    # Set execution_algo field for logging/future use
-    if intent["order_type"] == "market":
-        intent["execution_algo"] = "Market"
+    if is_large:
+        algo = "TWAP"
+        order_type = "limit" # Simulate TWAP with Limit for now, provider logs Algo
+        print("Selected TWAP algorithm for large order.")
+    elif confidence >= 0.8 or size_hint == "max":
+        # High confidence or Exits -> Market (Urgent)
+        algo = "Market"
+        order_type = "market"
     else:
-        intent["execution_algo"] = "Limit"
+        # Standard Entry -> Limit
+        algo = "Limit"
+        order_type = "limit"
+
+    intent["execution_algo"] = algo
+    intent["order_type"] = order_type
+
+    # 2. Slippage Control (Set Limit Price)
+    if order_type == "limit":
+        # Prefer strategy price if valid, else use current price
+        if not intent.get("limit_price") and current_price:
+             intent["limit_price"] = current_price
+
+        if not intent.get("limit_price"):
+            # Fallback if no current price and no strategy price
+            print("Warning: No limit price available for Limit order. Falling back to Market.")
+            intent["order_type"] = "market"
+            intent["execution_algo"] = "Market"
 
     return intent
 
@@ -913,8 +935,8 @@ def monitor_execution(provider, order_id, expected_price):
     """
     print(f"Monitoring execution for order {order_id}...")
 
-    # Poll for up to 10 seconds
-    for _ in range(5):
+    # Poll for up to 30 seconds (15 * 2s) to allow for fills
+    for _ in range(15):
         time.sleep(2)
         order = run_command(["get-order", "--provider", provider, "--id", order_id])
         if not order:
@@ -1081,9 +1103,14 @@ def main():
             log_skipped(intent, f"Rejected by Risk Agent: {risk_reason}")
             continue
 
+        # Fetch latest price for execution logic
+        current_price = get_latest_price(intent["provider"], intent["symbol"])
+
         # Refine Intent (Algo Selection)
-        intent = refine_intent(intent)
+        intent = refine_intent(intent, current_price)
         print(f"Order Type: {intent['order_type'].upper()}")
+        if intent.get("execution_algo"):
+            print(f"Algorithm: {intent['execution_algo']}")
 
         provider = intent["provider"]
         print(f"Executing {intent['side']} {intent['symbol']} via {provider}...")
