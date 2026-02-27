@@ -1611,3 +1611,162 @@ Simulated News: Regulatory concerns resurface. Major exchange outflow detected.
 ```
 
 ---
+
+## Market Analysis Report - crypto - XXBTZUSD
+
+**Timestamp (ms)**: 1772193600000
+**Confidence**: 70.00%
+
+### 1. Market Regime
+**ALERT: Regime Change Detected!** (Previous: Trending Down (Short Term), Current: Trending Up)
+*Sentiment*: Bearish (Strong)
+
+### 2. Volatility
+*Assessment*: Low
+
+### 3. Strategy Recommendation
+**Trend Following (Long)**
+
+### 4. Patterns & Price Action
+*Patterns*: Breakout (Downside), Consolidation (Squeeze)
+
+### 5. Key Levels
+*Support/Resistance*: 65165, 65910.2, 67056.25, 67582.5
+
+### 6. Research & Context
+No external research available. (Placeholder for search_research)
+*Historical Context*: No similar past trades found.
+
+```json
+{
+  "symbol": "XXBTZUSD",
+  "market": "crypto",
+  "regime": "Trending Up",
+  "sentiment": "Bearish (Strong)",
+  "patterns": [
+    "Breakout (Downside)",
+    "Consolidation (Squeeze)"
+  ],
+  "key_levels": [
+    65165.0,
+    65910.2,
+    67056.25,
+    67582.5
+  ],
+  "volatility": "Low",
+  "atr": 532.300740169106,
+  "research_summary": null,
+  "news_summary": null,
+  "recommendation": "Trend Following (Long)",
+  "confidence": 0.7,
+  "timestamp_unix_ms": 1772193600000
+}
+```
+
+---
+
+## Market Analysis Report - crypto - XXBTZUSD
+
+**Timestamp (ms)**: 1772193600000
+**Confidence**: 70.00%
+
+### 1. Market Regime
+Regime Unchanged (Trending Up)
+*Sentiment*: Bearish (Strong)
+
+### 2. Volatility
+*Assessment*: Low
+
+### 3. Strategy Recommendation
+**Trend Following (Long)**
+
+### 4. Patterns & Price Action
+*Patterns*: Breakout (Downside), Consolidation (Squeeze)
+
+### 5. Key Levels
+*Support/Resistance*: 65165, 65910.2, 67056.25, 67582.5
+
+### 6. Research & Context
+No external research available. (Placeholder for search_research)
+*Historical Context*: No similar past trades found.
+
+```json
+{
+  "symbol": "XXBTZUSD",
+  "market": "crypto",
+  "regime": "Trending Up",
+  "sentiment": "Bearish (Strong)",
+  "patterns": [
+    "Breakout (Downside)",
+    "Consolidation (Squeeze)"
+  ],
+  "key_levels": [
+    65165.0,
+    65910.2,
+    67056.25,
+    67582.5
+  ],
+  "volatility": "Low",
+  "atr": 532.300740169106,
+  "research_summary": null,
+  "news_summary": null,
+  "recommendation": "Trend Following (Long)",
+  "confidence": 0.7,
+  "timestamp_unix_ms": 1772193600000
+}
+```
+
+---
+
+## Market Analysis Report - crypto - XXBTZUSD
+
+**Timestamp (ms)**: 1772193600000
+**Confidence**: 70.00%
+
+### 1. Market Regime
+**ALERT: Regime Change Detected!** (Previous: Trending Down (Short Term), Current: Trending Up)
+*Sentiment*: Bearish (Strong)
+
+### 2. Volatility
+*Assessment*: Low
+
+### 3. Strategy Recommendation
+**Trend Following (Long)**
+
+### 4. Patterns & Price Action
+*Patterns*: Breakout (Downside), Consolidation (Squeeze)
+
+### 5. Key Levels
+*Support/Resistance*: 65165, 65910.2, 67056.25, 67582.5
+
+### 6. Research & Context
+No external research available. (Placeholder for search_research)
+*Historical Context*: No similar past trades found.
+
+```json
+{
+  "symbol": "XXBTZUSD",
+  "market": "crypto",
+  "regime": "Trending Up",
+  "sentiment": "Bearish (Strong)",
+  "patterns": [
+    "Breakout (Downside)",
+    "Consolidation (Squeeze)"
+  ],
+  "key_levels": [
+    65165.0,
+    65910.2,
+    67056.25,
+    67582.5
+  ],
+  "volatility": "Low",
+  "atr": 532.300740169106,
+  "research_summary": null,
+  "news_summary": null,
+  "recommendation": "Trend Following (Long)",
+  "confidence": 0.7,
+  "timestamp_unix_ms": 1772193600000
+}
+```
+
+---
