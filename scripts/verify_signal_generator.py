@@ -5,7 +5,7 @@ import tempfile
 import time
 from datetime import datetime
 
-CLI_PATH = "./target/debug/thales-cli"
+CLI_PATH = "./target/release/thales-cli"
 
 def create_bars(symbol="BTCUSD", timeframe="1h", count=50, pattern="breakout"):
     bars = []
@@ -175,41 +175,44 @@ def test_rag_context():
 
     # We need the analysis of the CURRENT bars to match the HISTORY bars for RAG to pick it up.
     # The synthetic bars create "Trending Up" (due to spike) and likely "Medium" or "High" volatility.
-    # Let's create history entries that match "Trending Up" to ensure they are found.
+    # Also "Trending Up (Short Term)" might be returned if data < 200 bars.
 
-    analysis_mock = {
-        "symbol": "BTCUSD", "market": "crypto", "regime": "Trending Up", "volatility": "Low", # Assuming Low/Medium match
+    analysis_template = {
+        "symbol": "BTCUSD", "market": "crypto", "volatility": "Low",
         "sentiment": "Neutral", "patterns": [], "key_levels": [], "confidence": 0.5,
         "timestamp_unix_ms": now - 86400000 # Yesterday
     }
 
-    # Note: RAG finds trades with Same Market, Regime, Volatility.
-    # Our synthetic data might produce "High" volatility due to spike.
-    # Let's try to match what the CLI produces.
-    # Ideally we'd run analyze-market first, but let's just create diverse history to cover bases.
+    # Generate diverse history to maximize match chance
+    regimes = ["Trending Up", "Trending Up (Short Term)"]
+    volatilities = ["Low", "Medium", "High", "Extreme"]
 
-    for vol in ["Low", "Medium", "High"]:
-        for i in range(2):
-            hist_item = analysis_mock.copy()
-            hist_item["volatility"] = vol
-            history.append({
-                "intent": {
-                    "symbol": "BTCUSD",
-                    "intent_id": f"test_{vol}_{i}",
-                    "market": "crypto",
-                    "side": "buy",
-                    "size_hint": "1",
-                    "rationale": "test",
-                    "schema_version": "v0",
-                    "horizon": "1d",
-                    "invalidation": "none",
-                    "order_type": "market",
-                "time_in_force": "day",
-                "confidence": 0.5
-                },
-                "market_analysis": hist_item,
-                "outcome": 100.0 # WIN
-            })
+    for regime in regimes:
+        for vol in volatilities:
+            for i in range(3): # Require at least 3 for boost
+                hist_item = analysis_template.copy()
+                hist_item["regime"] = regime
+                hist_item["volatility"] = vol
+
+                history.append({
+                    "intent": {
+                        "symbol": "BTCUSD",
+                        "intent_id": f"test_{regime}_{vol}_{i}",
+                        "market": "crypto",
+                        "side": "buy",
+                        "size_hint": "1",
+                        "rationale": "test",
+                        "strategy": "BollingerBands",
+                        "schema_version": "v0",
+                        "horizon": "1d",
+                        "invalidation": "none",
+                        "order_type": "market",
+                    "time_in_force": "day",
+                    "confidence": 0.5
+                    },
+                    "market_analysis": hist_item,
+                    "outcome": 100.0 # WIN
+                })
 
     output = run_cli(bars, history_data=history)
     signals = output.get("data", [])
@@ -226,15 +229,13 @@ def test_rag_context():
         if "Boosted" in sig["rationale"] or "Penalized" in sig["rationale"]:
             print("PASS: Confidence adjusted based on history.")
         else:
-            # It might not boost if win rate isn't perfect for the *specific* matched subset
-            # But with 100% wins in history, it should boost if it finds any.
-            print(f"WARN: Confidence might not have been adjusted (Check matches).")
+            print(f"WARN: Confidence might not have been adjusted (Check matches). Rationale: {sig['rationale']}")
     else:
         print("FAIL: No signal generated.")
 
 if __name__ == "__main__":
     if not os.path.exists(CLI_PATH):
-        print("Please build thales-cli first: cargo build -p thales-cli")
+        print("Please build thales-cli first: cargo build --release -p thales-cli")
         exit(1)
 
     test_breakout_signal()
