@@ -331,6 +331,15 @@
 | 2026-02-27 09:12:45 | XXBTZUSD | crypto:XXBTZUSD:buy:1772182800000 | provider error: kraken api error: EOrder:Insufficient funds |
 | 2026-02-27 09:12:46 | XETHZUSD | crypto:XETHZUSD:buy:1772182800000 | provider error: kraken api error: EOrder:Insufficient funds |
 | 2026-02-27 09:12:46 | BTCUSD | crypto:BTCUSD:buy:1772182800000 | provider error: kraken api error: EOrder:Insufficient funds |
+| 2026-02-27 09:45:11 | BTCUSD | STALE_SIGNAL | Signal too old (28.6 hours > 24 hours) |
+| 2026-02-27 09:45:11 | ETHUSD | STALE_SIGNAL | Signal too old (28.6 hours > 24 hours) |
+| 2026-02-27 09:45:11 | SPY | STALE_SIGNAL | Signal too old (28.6 hours > 24 hours) |
+| 2026-02-27 09:45:11 | XXBTZUSD | STALE_SIGNAL | Signal too old (24.8 hours > 24 hours) |
+| 2026-02-27 09:45:11 | MOGUSD | STALE_SIGNAL | Signal too old (24.8 hours > 24 hours) |
+| 2026-02-27 09:45:11 | SPY | STALE_SIGNAL | Signal too old (24.5 hours > 24 hours) |
+| 2026-02-27 09:45:12 | XXBTZUSD | NO_STRATEGY_SIGNAL | No active strategy generated a signal (Strategies: BollingerBands, EmaCrossover, RsiMeanReversion, Macd, Supertrend, DonchianBreakout, ParabolicSar, KeltnerChannelBreakout, StochasticOscillator, AdxMomentum, IchimokuCloud, CciMomentum, LinearRegressionTrend, ObvTrendFollowing, MoneyFlowIndex) |
+| 2026-02-27 09:45:12 | BTCUSD | NO_STRATEGY_SIGNAL | No active strategy generated a signal (Strategies: BollingerBands, EmaCrossover, RsiMeanReversion, Macd, Supertrend, DonchianBreakout, ParabolicSar, KeltnerChannelBreakout, StochasticOscillator, AdxMomentum, IchimokuCloud, CciMomentum, LinearRegressionTrend, ObvTrendFollowing, MoneyFlowIndex) |
+| 2026-02-27 09:45:12 | ETHUSD | NO_STRATEGY_SIGNAL | No active strategy generated a signal (Strategies: BollingerBands, EmaCrossover, RsiMeanReversion, Macd, Supertrend, DonchianBreakout, ParabolicSar, KeltnerChannelBreakout, StochasticOscillator, AdxMomentum, IchimokuCloud, CciMomentum, LinearRegressionTrend, ObvTrendFollowing, MoneyFlowIndex) |
 
 ## Executed Trades
 
