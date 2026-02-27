@@ -162,7 +162,8 @@ pub fn create_strategy(name: &str, symbol: &str) -> Result<Box<dyn Strategy>> {
                 period: 14,
                 oversold_threshold: 20.0,
                 overbought_threshold: 80.0,
-                stop_loss_pct: 0.05,
+                stop_loss_atr_mult: 2.0,
+                atr_period: 14,
                 symbol: symbol.to_string(),
             };
             Ok(Box::new(MoneyFlowIndex::new(config)))

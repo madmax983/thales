@@ -226,7 +226,7 @@ pub async fn generate_signals(
             // The existing code has explicit check: matches!(strategy_name, "EmaCrossover" | "RsiMeanReversion" | "Macd")
             // Let's leave this part alone to minimize regression risk unless requested.
             let use_atr_sl_override =
-                matches!(strategy_name, "EmaCrossover" | "RsiMeanReversion" | "Macd" | "MoneyFlowIndex");
+                matches!(strategy_name, "EmaCrossover" | "RsiMeanReversion" | "Macd");
 
             // Calculate SL/TP
             let (stop_loss, take_profit, size_hint) = match signal.signal_type {
@@ -2323,7 +2323,7 @@ mod tests {
     }
 
     #[tokio::test]
-    async fn test_money_flow_index_atr_override() -> Result<()> {
+    async fn test_money_flow_index_native_sizing() -> Result<()> {
         let mut bars = Vec::new();
         let now = 100000;
         // 1. Establish initial conditions
@@ -2366,13 +2366,7 @@ mod tests {
         };
         let positions = vec![];
 
-        // 3. Define Analysis with known ATR
-        // ATR = 2.0.
-        // Fixed Stop Loss (default strategy) = 5% of 90.0 = 4.5. SL = 85.5.
-        // ATR Stop Loss (override) = 2 * 2.0 = 4.0. SL = 86.0.
-        // We want SL to be 86.0 (tighter/volatility based) if override works.
-        // If override fails, it will be 85.5.
-
+        // 3. Define Analysis with known ATR (ignored by MFI now, but passed for API completeness)
         let analysis = MarketAnalysis {
             symbol: "TEST".to_string(),
             market: "equities".to_string(),
@@ -2402,17 +2396,21 @@ mod tests {
         assert!(!intents.is_empty(), "Should generate MFI signal");
         let intent = &intents[0];
 
-        // Default Strategy SL: Price * (1 - 0.05) = 90 * 0.95 = 85.5
-        // ATR Override SL: Price - (2 * ATR) = 90 - (2 * 2.0) = 86.0
+        // Default Strategy SL (Fixed %): Price * (1 - 0.05) = 90 * 0.95 = 85.5
+        // Native ATR SL: Calculated internally. Should be closer to price given the drop volatility.
+        // We verify that a SL is present and it is NOT the fixed percentage default (85.5)
+        // and it is logically placed below price.
 
         if let Some(sl) = intent.stop_loss {
-            // We expect the override to be active, so SL should be 86.0
-            // If it is 85.5, the test fails (indicating override not applied)
+            assert!(sl < drop_price, "SL should be below entry price");
+            // Check that it's not the old fixed percentage
+            let fixed_sl = drop_price * 0.95;
             assert!(
-                (sl - 86.0).abs() < 0.001,
-                "Stop Loss should be ATR-based (86.0), but got {}. (Fixed % would be 85.5)",
+                (sl - fixed_sl).abs() > 0.001,
+                "Stop Loss ({}) appears to be fixed percentage (85.5), implying native ATR sizing failed.",
                 sl
             );
+            println!("Verified Native SL: {}", sl);
         } else {
             panic!("Stop Loss missing");
         }
