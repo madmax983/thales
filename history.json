@@ -18,7 +18,8 @@
       "limit_price": null,
       "stop_price": null,
       "time_in_force": "day",
-      "execution_algo": "Market"
+      "execution_algo": "Market",
+      "strategy": ""
     },
     "market_analysis": {
       "symbol": "AAPL",
@@ -62,7 +63,8 @@
       "limit_price": null,
       "stop_price": null,
       "time_in_force": "GTC",
-      "execution_algo": "Market"
+      "execution_algo": "Market",
+      "strategy": ""
     },
     "market_analysis": {
       "symbol": "XBTUSD",
@@ -86,7 +88,7 @@
       "confidence": 0.7999999999999999,
       "timestamp_unix_ms": 1772065005541
     },
-    "outcome": null
+    "outcome": 0.011097610130247
   },
   {
     "intent": {
@@ -107,7 +109,8 @@
       "limit_price": null,
       "stop_price": null,
       "time_in_force": "GTC",
-      "execution_algo": "Market"
+      "execution_algo": "Market",
+      "strategy": ""
     },
     "market_analysis": {
       "symbol": "XXBTZUSD",
@@ -131,7 +134,7 @@
       "confidence": 0.7999999999999999,
       "timestamp_unix_ms": 1772065005649
     },
-    "outcome": null
+    "outcome": 0.011097610130247
   },
   {
     "intent": {
@@ -152,7 +155,8 @@
       "limit_price": null,
       "stop_price": null,
       "time_in_force": "GTC",
-      "execution_algo": "Market"
+      "execution_algo": "Market",
+      "strategy": ""
     },
     "market_analysis": {
       "symbol": "XBTUSD",
@@ -176,7 +180,7 @@
       "confidence": 0.7999999999999999,
       "timestamp_unix_ms": 1772065212564
     },
-    "outcome": null
+    "outcome": 0.011097610130247
   },
   {
     "intent": {
@@ -197,7 +201,8 @@
       "limit_price": null,
       "stop_price": null,
       "time_in_force": "day",
-      "execution_algo": "Market"
+      "execution_algo": "Market",
+      "strategy": ""
     },
     "market_analysis": {
       "symbol": "BSXUSD",
@@ -220,7 +225,7 @@
       "confidence": 0.7999999999999999,
       "timestamp_unix_ms": 1772065212688
     },
-    "outcome": null
+    "outcome": -0.032258064516129066
   },
   {
     "intent": {
@@ -241,7 +246,8 @@
       "limit_price": null,
       "stop_price": null,
       "time_in_force": "GTC",
-      "execution_algo": "Market"
+      "execution_algo": "Market",
+      "strategy": ""
     },
     "market_analysis": {
       "symbol": "BTCUSD",
@@ -286,7 +292,8 @@
       "limit_price": null,
       "stop_price": null,
       "time_in_force": "GTC",
-      "execution_algo": "Market"
+      "execution_algo": "Market",
+      "strategy": ""
     },
     "market_analysis": {
       "symbol": "BTCUSD",
@@ -310,7 +317,7 @@
       "confidence": 0.7999999999999999,
       "timestamp_unix_ms": 1772068943404
     },
-    "outcome": null
+    "outcome": 0.0145092290225548
   },
   {
     "intent": {
@@ -331,7 +338,8 @@
       "limit_price": null,
       "stop_price": null,
       "time_in_force": "GTC",
-      "execution_algo": "Market"
+      "execution_algo": "Market",
+      "strategy": ""
     },
     "market_analysis": {
       "symbol": "ETHUSD",
@@ -354,7 +362,7 @@
       "confidence": 0.7999999999999999,
       "timestamp_unix_ms": 1772068958478
     },
-    "outcome": null
+    "outcome": -0.020113340540330912
   },
   {
     "intent": {
@@ -375,7 +383,8 @@
       "limit_price": null,
       "stop_price": null,
       "time_in_force": "day",
-      "execution_algo": "Market"
+      "execution_algo": "Market",
+      "strategy": ""
     },
     "market_analysis": {
       "symbol": "SPY",
@@ -419,7 +428,8 @@
       "limit_price": null,
       "stop_price": null,
       "time_in_force": "GTC",
-      "execution_algo": "Market"
+      "execution_algo": "Market",
+      "strategy": ""
     },
     "market_analysis": {
       "symbol": "BTCUSD",
@@ -464,7 +474,8 @@
       "limit_price": null,
       "stop_price": null,
       "time_in_force": "GTC",
-      "execution_algo": "Market"
+      "execution_algo": "Market",
+      "strategy": ""
     },
     "market_analysis": {
       "symbol": "ETHUSD",
@@ -508,7 +519,8 @@
       "limit_price": null,
       "stop_price": null,
       "time_in_force": "day",
-      "execution_algo": "Market"
+      "execution_algo": "Market",
+      "strategy": ""
     },
     "market_analysis": {
       "symbol": "SPY",
@@ -552,7 +564,8 @@
       "limit_price": null,
       "stop_price": null,
       "time_in_force": "GTC",
-      "execution_algo": "Market"
+      "execution_algo": "Market",
+      "strategy": ""
     },
     "market_analysis": {
       "symbol": "BTCUSD",
@@ -597,7 +610,8 @@
       "limit_price": null,
       "stop_price": null,
       "time_in_force": "GTC",
-      "execution_algo": "Market"
+      "execution_algo": "Market",
+      "strategy": ""
     },
     "market_analysis": {
       "symbol": "ETHUSD",
@@ -641,7 +655,8 @@
       "limit_price": null,
       "stop_price": null,
       "time_in_force": "day",
-      "execution_algo": "Market"
+      "execution_algo": "Market",
+      "strategy": ""
     },
     "market_analysis": {
       "symbol": "SPY",
@@ -685,7 +700,8 @@
       "limit_price": null,
       "stop_price": null,
       "time_in_force": "GTC",
-      "execution_algo": "Market"
+      "execution_algo": "Market",
+      "strategy": ""
     },
     "market_analysis": {
       "symbol": "MOGUSD",
@@ -732,7 +748,8 @@
       "limit_price": null,
       "stop_price": null,
       "time_in_force": "GTC",
-      "execution_algo": "Market"
+      "execution_algo": "Market",
+      "strategy": ""
     },
     "market_analysis": {
       "symbol": "MOGUSD",
@@ -779,7 +796,8 @@
       "limit_price": null,
       "stop_price": null,
       "time_in_force": "GTC",
-      "execution_algo": "Market"
+      "execution_algo": "Market",
+      "strategy": ""
     },
     "market_analysis": {
       "symbol": "MOGUSD",
@@ -826,7 +844,8 @@
       "limit_price": null,
       "stop_price": null,
       "time_in_force": "GTC",
-      "execution_algo": "Market"
+      "execution_algo": "Market",
+      "strategy": ""
     },
     "market_analysis": {
       "symbol": "XETHZUSD",
@@ -873,7 +892,8 @@
       "limit_price": null,
       "stop_price": null,
       "time_in_force": "GTC",
-      "execution_algo": "Market"
+      "execution_algo": "Market",
+      "strategy": ""
     },
     "market_analysis": {
       "symbol": "XETHZUSD",
@@ -920,7 +940,8 @@
       "limit_price": null,
       "stop_price": null,
       "time_in_force": "GTC",
-      "execution_algo": "Market"
+      "execution_algo": "Market",
+      "strategy": ""
     },
     "market_analysis": {
       "symbol": "XETHZUSD",
