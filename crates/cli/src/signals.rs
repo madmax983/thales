@@ -2419,4 +2419,131 @@ mod tests {
 
         Ok(())
     }
+
+    #[tokio::test]
+    async fn test_short_entry_sizing_logic() -> Result<()> {
+        // Goal: Verify Short Entry SL/TP/Size logic.
+        // Strategy: BollingerBands (Generates Sell when Price > Upper Band)
+        // Price: 110. Upper Band: 100. StdDev: 2.5 (implied).
+        // ATR: 2.0.
+        // Short SL should be ABOVE Price (Price + 2*ATR).
+        // Short TP should be BELOW Price (Price - 4*ATR).
+
+        let mut bars = Vec::new();
+        let now = 100000;
+
+        // Stable history to set Bands around 100
+        for i in 0..20 {
+            bars.push(Bar {
+                symbol: "TEST".to_string(),
+                market: "equities".to_string(),
+                timeframe: "1m".to_string(),
+                timestamp_unix_ms: now + i * 60000,
+                open: 100.0,
+                high: 101.0,
+                low: 99.0,
+                close: 100.0,
+                volume: 1000.0,
+            });
+        }
+
+        // Trigger Sell (Price Spike)
+        let i = 20;
+        let spike_price = 110.0;
+        bars.push(Bar {
+            symbol: "TEST".to_string(),
+            market: "equities".to_string(),
+            timeframe: "1m".to_string(),
+            timestamp_unix_ms: now + i * 60000,
+            open: 100.0,
+            high: spike_price,
+            low: 100.0,
+            close: spike_price,
+            volume: 5000.0,
+        });
+
+        let series = BarSeries {
+            schema_version: "v0".to_string(),
+            bars,
+        };
+        let positions = vec![];
+
+        let analysis = MarketAnalysis {
+            symbol: "TEST".to_string(),
+            market: "equities".to_string(),
+            regime: "Trending Up".to_string(),
+            volatility: "High".to_string(),
+            sentiment: "Bullish".to_string(), // Avoid "Overbought" to pass chasing filter
+            patterns: vec![],
+            key_levels: vec![],
+            atr: Some(2.0),
+            research_summary: None,
+            news_summary: None,
+            recommendation: None,
+            confidence: 0.8,
+            timestamp_unix_ms: now + i * 60000,
+        };
+
+        let intents = generate_signals(
+            &series,
+            "BollingerBands", // Note: BB generates Sell on Upper Band Break
+            None,
+            100.0, // Risk $100
+            &positions,
+            Some(analysis),
+        )
+        .await?;
+
+        assert!(!intents.is_empty(), "Should generate Sell signal");
+        let intent = &intents[0];
+
+        assert_eq!(intent.side, "sell");
+
+        let price = spike_price;
+        let atr = 2.0;
+
+        // Verify SL
+        // Logic: if side == "sell" -> SL = Price + (2.0 * ATR) = 110 + 4 = 114.
+        if let Some(sl) = intent.stop_loss {
+            assert!(
+                sl > price,
+                "Short SL ({}) must be above entry price ({})",
+                sl,
+                price
+            );
+            // Check approx value (allowing for minor precision diffs or internal strategy override logic)
+            // BB Strategy internal SL: Price + 2*StdDev.
+            // Signals.rs override: Price + 2*ATR (if strategy doesn't provide or we force it).
+            // BB Strategy provides SL.
+            // Signals.rs check: `if let Some(s) = signal.stop_loss { Some(s) } else { ... fallback ... }`
+            // But wait, BB Strategy uses StdDev based SL.
+            // StdDev here? 20 bars of 100. 1 bar of 110. Mean ~ 100.5. StdDev ~ 2.2?
+            // SL = 110 + 2*StdDev.
+            // Let's just verify it exists and is > Price.
+            assert!(sl > price + 1.0, "SL should provide buffer");
+        } else {
+            panic!("SL missing");
+        }
+
+        // Verify TP
+        // Logic: if side == "sell" -> TP = Price - (4.0 * ATR) = 110 - 8 = 102.
+        if let Some(tp) = intent.take_profit {
+            assert!(
+                tp < price,
+                "Short TP ({}) must be below entry price ({})",
+                tp,
+                price
+            );
+        } else {
+            panic!("TP missing");
+        }
+
+        // Verify Size
+        // Size = Risk / |Price - SL|
+        // Should be positive
+        let size: f64 = intent.size_hint.parse().unwrap();
+        assert!(size > 0.0, "Size must be positive");
+
+        Ok(())
+    }
 }
