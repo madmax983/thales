@@ -86,3 +86,18 @@
 ### SPY - 2026-02-26 21:00:00 (equities)
 **Research**: SPY shows strong development within a rising trend channel. 'Golden Star' signal observed recently suggesting potential for gains. Some consolidation near all-time highs.
 **News**: Earnings engine projected to grow 15% in 2026. Fed policy remains a key watch item with potential rate cuts.
+
+### XXBTZUSD - 2026-02-27 05:00:00 (crypto)
+**Research**: Bitcoin consolidates above $67k. Institutional interest remains high with ETF inflows. Technicals show potential for continuation if resistance at $68k is broken. Downside support at $64k is critical.
+**News**: Global crypto adoption increasing. Regulatory clarity improving in key jurisdictions.
+
+### XETHZUSD - 2026-02-27 05:00:00 (crypto)
+**Research**: Ethereum trading above $2000, showing resilience. Network activity is stable. Layer 2 adoption continues to grow. Key resistance at $2150.
+**News**: Major protocol upgrades planned for Q2. DeFi TVL stabilizing.
+### XXBTZUSD - 2026-02-27 05:23:48 (crypto)
+**Research**: Bitcoin consolidates above $67k. Institutional interest remains high with ETF inflows. Technicals show potential for continuation if resistance at $68k is broken. Downside support at $64k is critical.
+**News**: Global crypto adoption increasing. Regulatory clarity improving in key jurisdictions.
+
+### XETHZUSD - 2026-02-27 05:23:48 (crypto)
+**Research**: Ethereum trading above $2000, showing resilience. Network activity is stable. Layer 2 adoption continues to grow. Key resistance at $2150.
+**News**: Major protocol upgrades planned for Q2. DeFi TVL stabilizing.

@@ -108,3 +108,22 @@
 **Regime**: Ranging
 **Sentiment**: Neutral
 **Confidence**: 50.00%
+
+### XXBTZUSD - 2026-02-27 05:00:00 (crypto)
+**Regime**: Trending Up
+**Sentiment**: Bullish
+**Confidence**: 80.00%
+
+### XETHZUSD - 2026-02-27 05:00:00 (crypto)
+**Regime**: Trending Up
+**Sentiment**: Bullish (Strong)
+**Confidence**: 80.00%
+### XXBTZUSD - 2026-02-27 05:23:48 (crypto)
+**Regime**: Trending Up
+**Sentiment**: Bullish
+**Confidence**: 80.00%
+
+### XETHZUSD - 2026-02-27 05:23:48 (crypto)
+**Regime**: Trending Up
+**Sentiment**: Bullish (Strong)
+**Confidence**: 80.00%
