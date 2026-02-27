@@ -29,7 +29,7 @@ impl BollingerBandsMeanReversion {
 #[async_trait]
 impl Strategy for BollingerBandsMeanReversion {
     fn name(&self) -> &str {
-        "BollingerBandsMeanReversion"
+        "BollingerBands"
     }
 
     fn strategy_type(&self) -> StrategyType {

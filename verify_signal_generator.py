@@ -61,7 +61,7 @@ def create_dummy_history():
             "market": "equities",
             "side": "buy",
             "confidence": 0.8,
-            "strategy": "BollingerBandsMeanReversion",
+            "strategy": "BollingerBands",
             "intent_id": "test_hist",
             "size_hint": "100",
             "horizon": "1d",

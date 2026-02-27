@@ -81,17 +81,22 @@ pub fn find_similar_trades(
             if let Some(strategy_name) = strategy_filter {
                 // Check explicit field first
                 if !entry.intent.strategy.is_empty() {
-                    if entry.intent.strategy != strategy_name {
+                    if !strategies_match(&entry.intent.strategy, strategy_name) {
                         continue;
                     }
                 } else {
                     // Fallback: Check rationale for "Strategy: Name"
                     // Format: "Strategy: {Name} (..."
-                    if !entry
-                        .intent
-                        .rationale
-                        .starts_with(&format!("Strategy: {}", strategy_name))
-                    {
+                    // We check if rationale starts with either the strategy name or its aliases
+                    let aliases = get_strategy_aliases(strategy_name);
+                    let mut match_found = false;
+                    for name in aliases {
+                        if entry.intent.rationale.starts_with(&format!("Strategy: {}", name)) {
+                            match_found = true;
+                            break;
+                        }
+                    }
+                    if !match_found {
                         continue;
                     }
                 }
@@ -148,6 +153,31 @@ pub fn summarize_history(entries: &[HistoryEntry], current_symbol: &str) -> Stri
         perf.win_rate,
         perf.avg_pnl * 100.0
     )
+}
+
+fn get_strategy_aliases(name: &str) -> Vec<&str> {
+    match name {
+        "BollingerBands" => vec!["BollingerBands", "BollingerBandsMeanReversion"],
+        "BollingerBandsMeanReversion" => vec!["BollingerBands", "BollingerBandsMeanReversion"],
+        _ => vec![name],
+    }
+}
+
+fn strategies_match(name1: &str, name2: &str) -> bool {
+    if name1 == name2 {
+        return true;
+    }
+    let aliases1 = get_strategy_aliases(name1);
+    let aliases2 = get_strategy_aliases(name2);
+
+    for a1 in &aliases1 {
+        for a2 in &aliases2 {
+            if a1 == a2 {
+                return true;
+            }
+        }
+    }
+    false
 }
 
 #[cfg(test)]
@@ -217,6 +247,31 @@ mod tests {
         let has_goog = similar.iter().any(|e| e.market_analysis.symbol == "GOOG");
         assert!(has_aapl);
         assert!(has_goog);
+
+        Ok(())
+    }
+
+    #[test]
+    fn test_find_similar_trades_alias_matching() -> Result<()> {
+        let mut history_file = NamedTempFile::new()?;
+        let mut entry = HistoryEntry {
+            intent: create_dummy_intent("AAPL"),
+            market_analysis: create_dummy_analysis("AAPL", "Trending Up", "Low"),
+            outcome: Some(1.0),
+        };
+        // Old name in history
+        entry.intent.strategy = "BollingerBandsMeanReversion".to_string();
+
+        let history_data = vec![entry];
+        write!(history_file, "{}", serde_json::to_string(&history_data)?)?;
+
+        let current_analysis = create_dummy_analysis("AAPL", "Trending Up", "Low");
+
+        // New name in search
+        let similar = find_similar_trades(&current_analysis, history_file.path(), Some("BollingerBands"))?;
+
+        assert_eq!(similar.len(), 1, "Should find trade despite name change");
+        assert_eq!(similar[0].intent.strategy, "BollingerBandsMeanReversion");
 
         Ok(())
     }

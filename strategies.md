@@ -1,8 +1,8 @@
-# Trading Strategy: Bollinger Bands Mean Reversion
+# Trading Strategy: Bollinger Bands
 
 ## Strategy Specification
 
-**Name:** BollingerBandsMeanReversion
+**Name:** BollingerBands
 
 **Description:** A mean reversion strategy that uses Bollinger Bands to identify overbought and oversold conditions. It buys when the price closes below the lower band and sells when the price closes above the upper band.
 

@@ -748,7 +748,7 @@ mod tests {
         assert!(
             intent
                 .rationale
-                .contains("Strategy: BollingerBandsMeanReversion")
+                .contains("Strategy: BollingerBands")
         );
         assert!(intent.rationale.contains("Market Context:"));
         assert!(intent.rationale.contains("Volatility"));
@@ -1049,7 +1049,7 @@ mod tests {
         let mut entry = create_dummy_history_entry("AAPL", now - 86400000);
         entry.market_analysis.regime = actual_analysis.regime.clone();
         entry.market_analysis.volatility = actual_analysis.volatility.clone();
-        entry.intent.strategy = "BollingerBandsMeanReversion".to_string();
+        entry.intent.strategy = "BollingerBands".to_string();
 
         let entries = vec![entry];
         write!(history_file, "{}", serde_json::to_string(&entries)?)?;
@@ -1415,7 +1415,7 @@ mod tests {
             entry.outcome = Some(1.0); // Win
             entry.market_analysis = analysis_template.clone();
             entry.market_analysis.timestamp_unix_ms = now - 86400000;
-            entry.intent.strategy = "BollingerBandsMeanReversion".to_string();
+            entry.intent.strategy = "BollingerBands".to_string();
             entries.push(entry);
         }
         write!(history_file_high, "{}", serde_json::to_string(&entries)?)?;
@@ -1447,7 +1447,7 @@ mod tests {
             entry.outcome = Some(-1.0); // Loss
             entry.market_analysis = analysis_template.clone();
             entry.market_analysis.timestamp_unix_ms = now - 86400000;
-            entry.intent.strategy = "BollingerBandsMeanReversion".to_string();
+            entry.intent.strategy = "BollingerBands".to_string();
             entries_low.push(entry);
         }
         write!(history_file_low, "{}", serde_json::to_string(&entries_low)?)?;
