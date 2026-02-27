@@ -65,8 +65,10 @@ pub struct TradeIntent {
     /// The type of order to place ("market", "limit", "stop", "stop_limit").
     pub order_type: String,
     /// The limit price for Limit and Stop-Limit orders.
+    #[serde(default)]
     pub limit_price: Option<f64>,
     /// The stop price for Stop and Stop-Limit orders.
+    #[serde(default)]
     pub stop_price: Option<f64>,
     /// The time in force for the order (e.g., "GTC", "IOC", "day").
     pub time_in_force: String,
