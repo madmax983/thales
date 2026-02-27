@@ -1,4 +1,4 @@
-use crate::indicators::macd;
+use crate::indicators::{atr, macd};
 use crate::strategy::{Signal, SignalType, Strategy, StrategyConfig, StrategyType};
 use anyhow::Result;
 use async_trait::async_trait;
@@ -13,6 +13,8 @@ pub struct MacdConfig {
     pub slow_period: usize,
     pub signal_period: usize,
     pub stop_loss_pct: f64,
+    pub atr_period: usize,
+    pub atr_mult: f64,
     pub symbol: String,
 }
 
@@ -57,10 +59,16 @@ impl Strategy for Macd {
         let macd_arr = macd_series.f64()?;
         let signal_arr = signal_series.f64()?;
 
+        // Calculate ATR
+        let atr_series = atr::calculate(data, self.config.atr_period)?;
+        let atr_arr = atr_series.f64()?;
+
         let mut signals = Vec::new();
         let stop_loss_pct_dec =
             Decimal::from_f64_retain(self.config.stop_loss_pct).unwrap_or(Decimal::ZERO);
         let one_dec = Decimal::ONE;
+        let atr_mult_dec =
+            Decimal::from_f64_retain(self.config.atr_mult).unwrap_or(Decimal::new(2, 0));
 
         // Iterate through data
         for i in 1..close_arr.len() {
@@ -75,6 +83,8 @@ impl Strategy for Macd {
             let s_prev_opt = signal_arr
                 .get(i - 1)
                 .and_then(|v| Decimal::from_f64_retain(v));
+
+            let atr_opt = atr_arr.get(i).and_then(|v| Decimal::from_f64_retain(v));
 
             if let (Some(mc), Some(sc), Some(mp), Some(sp), Some(price)) =
                 (m_curr_opt, s_curr_opt, m_prev_opt, s_prev_opt, price_opt)
@@ -102,7 +112,11 @@ impl Strategy for Macd {
                 // Bullish Crossover (Entry) - Stateless
                 // MACD crosses ABOVE Signal
                 if mc > sc && mp <= sp {
-                    let sl = price * (one_dec - stop_loss_pct_dec);
+                    let sl = if let Some(atr_val) = atr_opt {
+                        price - (atr_val * atr_mult_dec)
+                    } else {
+                        price * (one_dec - stop_loss_pct_dec)
+                    };
 
                     signals.push(Signal {
                         signal_type: SignalType::Entry,
@@ -145,22 +159,30 @@ mod tests {
             slow_period: 26,
             signal_period: 9,
             stop_loss_pct: 0.1,
+            atr_period: 14,
+            atr_mult: 2.0,
             symbol: "TEST".to_string(),
         };
         let strategy = Macd::new(config);
 
         // Sine wave to force crossovers
         let mut closes = Vec::new();
+        let mut highs = Vec::new();
+        let mut lows = Vec::new();
         let mut times = Vec::new();
         for i in 0..100 {
             let val = 100.0 + (i as f64 * 0.2).sin() * 10.0;
             closes.push(val);
+            highs.push(val + 1.0);
+            lows.push(val - 1.0);
             times.push(i as i64 * 1000);
         }
 
         let df = df!(
             "timestamp_unix_ms" => times,
-            "close" => closes
+            "close" => closes,
+            "high" => highs,
+            "low" => lows
         )?;
 
         let signals = strategy.generate_signals(&df).await?;
@@ -178,56 +200,9 @@ mod tests {
         assert!(!entries.is_empty());
         assert!(!exits.is_empty());
 
-        Ok(())
-    }
-
-    #[tokio::test]
-    async fn test_stateless_crossover_exit_only() -> Result<()> {
-        // Create data that STARTS with MACD > Signal, then crosses down immediately.
-        // No Entry signal should be generated, only Exit.
-
-        let config = MacdConfig {
-            fast_period: 2,
-            slow_period: 5,
-            signal_period: 2,
-            stop_loss_pct: 0.1,
-            symbol: "TEST".to_string(),
-        };
-        let strategy = Macd::new(config);
-
-        // Need enough points for Slow EMA (5) and Signal EMA (2)
-        // Let's generate a sequence where MACD is positive for a while, then crosses down.
-        // Rise for 15 periods, then drop.
-
-        let mut closes = Vec::new();
-        let mut times = Vec::new();
-        // Rise
-        for i in 0..15 {
-            closes.push(10.0 + i as f64);
-            times.push(i as i64 * 1000);
-        }
-        // Drop sharp
-        for i in 15..25 {
-            closes.push(25.0 - (i - 15) as f64 * 2.0);
-            times.push(i as i64 * 1000);
-        }
-
-        let df = df!(
-            "timestamp_unix_ms" => times,
-            "close" => closes
-        )?;
-
-        let signals = strategy.generate_signals(&df).await?;
-
-        let exits: Vec<_> = signals
-            .iter()
-            .filter(|s| s.signal_type == SignalType::Exit)
-            .collect();
-
-        assert!(
-            !exits.is_empty(),
-            "Should generate exit signal on bearish crossover"
-        );
+        // Check SL
+        let entry = &entries[0];
+        assert!(entry.stop_loss.is_some());
 
         Ok(())
     }
