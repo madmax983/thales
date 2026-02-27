@@ -375,6 +375,41 @@
 | 2026-02-27 16:09:50 | BTCUSD | NO_STRATEGY_SIGNAL | No active strategy generated a signal (Strategies: BollingerBands, EmaCrossover, RsiMeanReversion, Macd, Supertrend, DonchianBreakout, ParabolicSar, KeltnerChannelBreakout, StochasticOscillator, AdxMomentum, IchimokuCloud, CciMomentum, LinearRegressionTrend, ObvTrendFollowing, MoneyFlowIndex) |
 | 2026-02-27 16:09:50 | SPY | NO_STRATEGY_SIGNAL | No active strategy generated a signal (Strategies: BollingerBands, EmaCrossover, RsiMeanReversion, Macd, Supertrend, DonchianBreakout, ParabolicSar, KeltnerChannelBreakout, StochasticOscillator, AdxMomentum, IchimokuCloud, CciMomentum, LinearRegressionTrend, ObvTrendFollowing, MoneyFlowIndex) |
 | 2026-02-27 16:09:51 | ETHUSD | crypto:ETHUSD:sell:1772208000000 | provider error: kraken api error: EOrder:Insufficient funds |
+| 2026-02-27 17:49:32 | BTCUSD | STALE_SIGNAL | Signal too old (36.6 hours > 24 hours) |
+| 2026-02-27 17:49:32 | ETHUSD | STALE_SIGNAL | Signal too old (36.6 hours > 24 hours) |
+| 2026-02-27 17:49:32 | SPY | STALE_SIGNAL | Signal too old (36.6 hours > 24 hours) |
+| 2026-02-27 17:49:32 | XXBTZUSD | STALE_SIGNAL | Signal too old (32.8 hours > 24 hours) |
+| 2026-02-27 17:49:32 | MOGUSD | STALE_SIGNAL | Signal too old (32.8 hours > 24 hours) |
+| 2026-02-27 17:49:32 | SPY | STALE_SIGNAL | Signal too old (32.6 hours > 24 hours) |
+| 2026-02-27 17:49:32 | XXBTZUSD | STALE_SIGNAL | Signal too old (28.8 hours > 24 hours) |
+| 2026-02-27 17:49:32 | XETHZUSD | STALE_SIGNAL | Signal too old (28.8 hours > 24 hours) |
+| 2026-02-27 17:49:32 | SPY | STALE_SIGNAL | Signal too old (28.8 hours > 24 hours) |
+| 2026-02-27 17:49:32 | BTCUSD | STALE_SIGNAL | Signal too old (24.2 hours > 24 hours) |
+| 2026-02-27 17:49:32 | ETHUSD | STALE_SIGNAL | Signal too old (24.2 hours > 24 hours) |
+| 2026-02-27 17:49:32 | SPY | STALE_SIGNAL | Signal too old (24.2 hours > 24 hours) |
+| 2026-02-27 17:49:32 | SPY | NO_STRATEGY_SIGNAL | No active strategy generated a signal (Strategies: BollingerBands, EmaCrossover, RsiMeanReversion, Macd, Supertrend, DonchianBreakout, ParabolicSar, KeltnerChannelBreakout, StochasticOscillator, AdxMomentum, IchimokuCloud, CciMomentum, LinearRegressionTrend, ObvTrendFollowing, MoneyFlowIndex, ConnorsRsiMeanReversion) |
+| 2026-02-27 17:49:33 | XETHZUSD | crypto:XETHZUSD:buy:1772211600000 | CONFLICT: Conflicting signals (Buy and Sell) detected for XETHZUSD. Trading halted for this asset. |
+| 2026-02-27 17:49:33 | XETHZUSD | crypto:XETHZUSD:sell:1772211600000 | CONFLICT: Conflicting signals (Buy and Sell) detected for XETHZUSD. Trading halted for this asset. |
+| 2026-02-27 17:49:33 | XETHZUSD | crypto:XETHZUSD:buy:1772211600000 | CONFLICT: Conflicting signals (Buy and Sell) detected for XETHZUSD. Trading halted for this asset. |
+| 2026-02-27 17:49:33 | XXBTZUSD | crypto:XXBTZUSD:sell:1772211600000 | provider error: kraken api error: EOrder:Insufficient funds |
+| 2026-02-27 17:54:28 | BTCUSD | STALE_SIGNAL | Signal too old (36.7 hours > 24 hours) |
+| 2026-02-27 17:54:28 | ETHUSD | STALE_SIGNAL | Signal too old (36.7 hours > 24 hours) |
+| 2026-02-27 17:54:28 | SPY | STALE_SIGNAL | Signal too old (36.7 hours > 24 hours) |
+| 2026-02-27 17:54:28 | XXBTZUSD | STALE_SIGNAL | Signal too old (32.9 hours > 24 hours) |
+| 2026-02-27 17:54:28 | MOGUSD | STALE_SIGNAL | Signal too old (32.9 hours > 24 hours) |
+| 2026-02-27 17:54:28 | SPY | STALE_SIGNAL | Signal too old (32.7 hours > 24 hours) |
+| 2026-02-27 17:54:28 | XXBTZUSD | STALE_SIGNAL | Signal too old (28.9 hours > 24 hours) |
+| 2026-02-27 17:54:28 | XETHZUSD | STALE_SIGNAL | Signal too old (28.9 hours > 24 hours) |
+| 2026-02-27 17:54:28 | SPY | STALE_SIGNAL | Signal too old (28.9 hours > 24 hours) |
+| 2026-02-27 17:54:28 | BTCUSD | STALE_SIGNAL | Signal too old (24.3 hours > 24 hours) |
+| 2026-02-27 17:54:28 | ETHUSD | STALE_SIGNAL | Signal too old (24.3 hours > 24 hours) |
+| 2026-02-27 17:54:28 | SPY | STALE_SIGNAL | Signal too old (24.3 hours > 24 hours) |
+| 2026-02-27 17:54:28 | SPY | NO_STRATEGY_SIGNAL | No active strategy generated a signal (Strategies: BollingerBands, EmaCrossover, RsiMeanReversion, Macd, Supertrend, DonchianBreakout, ParabolicSar, KeltnerChannelBreakout, StochasticOscillator, AdxMomentum, IchimokuCloud, CciMomentum, LinearRegressionTrend, ObvTrendFollowing, MoneyFlowIndex, ConnorsRsiMeanReversion) |
+| 2026-02-27 17:54:29 | XETHZUSD | crypto:XETHZUSD:buy:1772211600000 | CONFLICT: Conflicting signals (Buy and Sell) detected for XETHZUSD. Trading halted for this asset. |
+| 2026-02-27 17:54:29 | XETHZUSD | crypto:XETHZUSD:sell:1772211600000 | CONFLICT: Conflicting signals (Buy and Sell) detected for XETHZUSD. Trading halted for this asset. |
+| 2026-02-27 17:54:29 | XETHZUSD | crypto:XETHZUSD:buy:1772211600000 | CONFLICT: Conflicting signals (Buy and Sell) detected for XETHZUSD. Trading halted for this asset. |
+| 2026-02-27 17:54:29 | XETHZUSD | crypto:XETHZUSD:buy:1772211600000 | CONFLICT: Conflicting signals (Buy and Sell) detected for XETHZUSD. Trading halted for this asset. |
+| 2026-02-27 17:54:30 | XXBTZUSD | crypto:XXBTZUSD:sell:1772211600000 | provider error: kraken api error: EOrder:Insufficient funds |
 
 ## Executed Trades
 
