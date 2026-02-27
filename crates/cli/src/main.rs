@@ -11,6 +11,9 @@ use thiserror::Error;
 
 use thales_cli::{analysis, backtest, benchmark, history, optimizer, rag, reporting, signals};
 
+#[cfg(feature = "nova")]
+use thales_cli::monte_carlo;
+
 #[derive(Debug, Parser)]
 #[command(name = "thales-cli", version, about = "Agent trading toolkit CLI")]
 struct Cli {
@@ -151,6 +154,17 @@ enum Commands {
         input: PathBuf,
         #[arg(long)]
         config: PathBuf,
+    },
+    #[cfg(feature = "nova")]
+    MonteCarlo {
+        #[arg(long)]
+        input: PathBuf,
+        #[arg(long, default_value = "1000")]
+        iterations: usize,
+        #[arg(long)]
+        horizon: Option<usize>,
+        #[arg(long)]
+        initial_capital: Option<f64>,
     },
 }
 
@@ -675,6 +689,33 @@ fn run(command: Commands) -> Result<String, CliError> {
                 .map_err(|e| CliError::Validation(e.to_string()))?;
 
             ok_envelope(result)
+        }
+        #[cfg(feature = "nova")]
+        Commands::MonteCarlo {
+            input,
+            iterations,
+            horizon,
+            initial_capital,
+        } => {
+            let raw = fs::read_to_string(&input)?;
+            let backtest: backtest::BacktestResult =
+                match serde_json::from_str::<ResponseEnvelope<backtest::BacktestResult>>(&raw) {
+                    Ok(envelope) => envelope
+                        .data
+                        .ok_or(CliError::Validation("Envelope has no data".to_string()))?,
+                    Err(_) => serde_json::from_str::<backtest::BacktestResult>(&raw)?,
+                };
+
+            let config = monte_carlo::MonteCarloConfig {
+                iterations,
+                horizon,
+                initial_capital,
+            };
+
+            let report = monte_carlo::run_simulation(&backtest, config)
+                .map_err(|e| CliError::Validation(e.to_string()))?;
+
+            ok_envelope(report)
         }
     }
 }

@@ -4,6 +4,9 @@ edition.workspace = true
 version.workspace = true
 license.workspace = true
 
+[features]
+nova = []
+
 [dependencies]
 clap.workspace = true
 serde.workspace = true
