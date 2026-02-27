@@ -225,8 +225,10 @@ pub async fn generate_signals(
             // or perhaps check if strategy_type is TrendFollowing?
             // The existing code has explicit check: matches!(strategy_name, "EmaCrossover" | "RsiMeanReversion" | "Macd")
             // Let's leave this part alone to minimize regression risk unless requested.
-            let use_atr_sl_override =
-                matches!(strategy_name, "EmaCrossover" | "RsiMeanReversion" | "Macd");
+            let use_atr_sl_override = matches!(
+                strategy_name,
+                "EmaCrossover" | "RsiMeanReversion" | "Macd" | "ConnorsRsiMeanReversion"
+            );
 
             // Calculate SL/TP
             let (stop_loss, take_profit, size_hint) = match signal.signal_type {
@@ -2541,6 +2543,106 @@ mod tests {
         // Should be positive
         let size: f64 = intent.size_hint.parse().unwrap();
         assert!(size > 0.0, "Size must be positive");
+
+        Ok(())
+    }
+
+    #[tokio::test]
+    async fn test_connors_rsi_sl_override() -> Result<()> {
+        let mut bars = Vec::new();
+        let now = 100000;
+
+        // 1. Generate History: Flat price 100.0 for 100 bars (fills rank lookback)
+        for i in 0..100 {
+            bars.push(Bar {
+                symbol: "TEST".to_string(),
+                market: "equities".to_string(),
+                timeframe: "1m".to_string(),
+                timestamp_unix_ms: now + i * 60000,
+                open: 100.0,
+                high: 100.1,
+                low: 99.9,
+                close: 100.0,
+                volume: 1000.0,
+            });
+        }
+
+        // 2. Trigger Drop to create Oversold CRSI
+        // Drop 100 -> 90 -> 80 -> 70.
+        // RSI(3) will be low. Streak will be negative. Rank will be 0.
+        let prices = vec![90.0, 80.0, 70.0];
+        for (i, p) in prices.iter().enumerate() {
+            bars.push(Bar {
+                symbol: "TEST".to_string(),
+                market: "equities".to_string(),
+                timeframe: "1m".to_string(),
+                timestamp_unix_ms: now + (100 + i as i64) * 60000,
+                open: *p + 1.0,
+                high: *p + 2.0,
+                low: *p - 2.0,
+                close: *p,
+                volume: 5000.0,
+            });
+        }
+
+        let series = BarSeries {
+            schema_version: "v0".to_string(),
+            bars,
+        };
+        let positions = vec![];
+
+        // 3. Define Analysis with explicit ATR
+        // Price at trigger = 70.0.
+        // Fixed SL (5%) = 70.0 * 0.95 = 66.5.
+        // Let's force ATR = 1.0.
+        // ATR SL (2.0 * ATR) = 70.0 - 2.0 = 68.0.
+        // So ATR SL (68.0) > Fixed SL (66.5).
+        // If override works, SL should be 68.0.
+
+        let analysis = MarketAnalysis {
+            symbol: "TEST".to_string(),
+            market: "equities".to_string(),
+            regime: "Trending Down".to_string(),
+            volatility: "High".to_string(),
+            sentiment: "Bearish (Oversold)".to_string(),
+            patterns: vec![],
+            key_levels: vec![],
+            atr: Some(1.0), // Force ATR
+            research_summary: None,
+            news_summary: None,
+            recommendation: None,
+            confidence: 0.8,
+            timestamp_unix_ms: now + (100 + 2) * 60000,
+        };
+
+        let intents = generate_signals(
+            &series,
+            "ConnorsRsiMeanReversion",
+            None,
+            100.0,
+            &positions,
+            Some(analysis),
+        )
+        .await?;
+
+        assert!(!intents.is_empty(), "Should generate CRSI signal");
+        let intent = &intents[0];
+
+        assert_eq!(intent.side, "buy");
+
+        if let Some(sl) = intent.stop_loss {
+            println!("Debug: SL = {}", sl);
+            // Expected ATR SL = 68.0. Fixed SL = 66.5.
+            // Check if SL is closer to 68.0 than 66.5
+            // Or just check > 67.0
+            assert!(sl > 67.0, "SL should be ATR based (approx 68.0), got {}", sl);
+            assert!(
+                (sl - 68.0).abs() < 0.001,
+                "SL should match 2.0 * ATR exactly"
+            );
+        } else {
+            panic!("SL missing");
+        }
 
         Ok(())
     }
