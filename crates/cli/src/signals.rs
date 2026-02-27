@@ -318,29 +318,32 @@ pub async fn generate_signals(
                     || final_signal_type == SignalType::ScaleIn)
             {
                 // We use the new strategy_type() to check for exemption.
-                // MeanReversion strategies SHOULD respect Overbought/Oversold checks (don't chase).
-                // TrendFollowing, Momentum, Breakout strategies ARE exempt (can buy strength).
+                // Only Breakout and Momentum strategies ARE exempt (can chase).
+                // TrendFollowing and MeanReversion strategies SHOULD respect Overbought/Oversold checks (don't chase).
                 let strategy_type = strategy.strategy_type();
-                let can_chase = strategy_type != StrategyType::MeanReversion;
+                let can_chase = matches!(
+                    strategy_type,
+                    StrategyType::Breakout | StrategyType::Momentum
+                );
 
                 if !can_chase {
                     if signal.side == "buy" && market_analysis.sentiment.contains("Overbought") {
                         skip = true;
                         eprintln!(
-                            "Skipping Buy signal for {} due to Overbought conditions (Mean Reversion - Chasing)",
-                            signal.symbol
+                            "Skipping Buy signal for {} due to Overbought conditions (Strategy Type {:?} - Chasing)",
+                            signal.symbol, strategy_type
                         );
                     } else if signal.side == "sell"
                         && market_analysis.sentiment.contains("Oversold")
                     {
                         skip = true;
                         eprintln!(
-                            "Skipping Sell signal for {} due to Oversold conditions (Mean Reversion - Chasing)",
-                            signal.symbol
+                            "Skipping Sell signal for {} due to Oversold conditions (Strategy Type {:?} - Chasing)",
+                            signal.symbol, strategy_type
                         );
                     }
                 } else {
-                    // Trend/Momentum/Breakout - Allowed to chase, but add rationale
+                    // Momentum/Breakout - Allowed to chase, but add rationale
                     if signal.side == "buy" && market_analysis.sentiment.contains("Overbought") {
                         rationale_suffix
                             .push_str(" (Buying strength in Overbought conditions)");
@@ -2176,19 +2179,129 @@ mod tests {
         };
         let positions = vec![];
 
-        let intents = generate_signals(&series, "EmaCrossover", None, 100.0, &positions, None).await?;
+        // Provide analysis to force Neutral sentiment (so we don't skip due to Overbought)
+        // and ATR ~ 0.2 (from manual calc)
+        let analysis = MarketAnalysis {
+            symbol: "TEST".to_string(),
+            market: "equities".to_string(),
+            regime: "Trending Up".to_string(),
+            volatility: "Low".to_string(),
+            sentiment: "Bullish".to_string(), // Neutral or just Bullish but NOT Overbought
+            patterns: vec![],
+            key_levels: vec![],
+            atr: Some(0.2), // Force ATR to match our calculation expectation
+            research_summary: None,
+            news_summary: None,
+            recommendation: None,
+            confidence: 0.8,
+            timestamp_unix_ms: now + i * 60000,
+        };
 
-        assert!(!intents.is_empty(), "Should generate signal on crossover (EmaCrossover is now exempt from Overbought check)");
+        let intents = generate_signals(
+            &series,
+            "EmaCrossover",
+            None,
+            100.0,
+            &positions,
+            Some(analysis),
+        )
+        .await?;
+
+        assert!(
+            !intents.is_empty(),
+            "Should generate signal on crossover (provided analysis allows it)"
+        );
         let intent = &intents[0];
 
         if let Some(sl) = intent.stop_loss {
             println!("Debug: SL = {}, Price = {}", sl, close_rally);
             // We want SL to be ATR based (Tight ~103.89), not Fixed % (Loose ~99.75)
-            // 2 * ATR (0.557) = 1.114. SL = 105 - 1.114 = 103.886
+            // 2 * ATR (0.4) = 0.8. SL = 105 - 0.8 = 104.2
             assert!(sl > 103.0, "SL should be tight (ATR based). Got: {}", sl);
         } else {
             panic!("SL missing");
         }
+
+        Ok(())
+    }
+
+    #[tokio::test]
+    async fn test_trend_following_respects_no_chasing() -> Result<()> {
+        let mut bars = Vec::new();
+        let now = 100000;
+        // 1. Establish Flat Trend
+        // Short (9) ~ Long (21)
+        for i in 0..50 {
+            let close = if i % 2 == 0 { 100.0 } else { 99.9 };
+            bars.push(Bar {
+                symbol: "TEST".to_string(),
+                market: "equities".to_string(),
+                timeframe: "1m".to_string(),
+                timestamp_unix_ms: now + i * 60000,
+                open: close,
+                high: close + 0.1,
+                low: close - 0.1,
+                close: close,
+                volume: 1000.0,
+            });
+        }
+
+        // 2. Trigger Crossover (Short > Long)
+        // Price jump to 105.
+        let i = 50;
+        let close_rally = 105.0;
+        bars.push(Bar {
+            symbol: "TEST".to_string(),
+            market: "equities".to_string(),
+            timeframe: "1m".to_string(),
+            timestamp_unix_ms: now + i * 60000,
+            open: 100.0,
+            high: close_rally + 0.1,
+            low: 99.9,
+            close: close_rally,
+            volume: 1000.0,
+        });
+
+        let series = BarSeries {
+            schema_version: "v0".to_string(),
+            bars,
+        };
+        let positions = vec![];
+
+        // 3. Force Overbought Sentiment
+        let overbought_analysis = MarketAnalysis {
+            symbol: "TEST".to_string(),
+            market: "equities".to_string(),
+            regime: "Trending Up".to_string(),
+            volatility: "High".to_string(),
+            sentiment: "Bullish (Overbought)".to_string(), // Overbought!
+            patterns: vec![],
+            key_levels: vec![],
+            atr: None,
+            research_summary: None,
+            news_summary: None,
+            recommendation: None,
+            confidence: 0.8,
+            timestamp_unix_ms: now + i * 60000,
+        };
+
+        // 4. Generate Signals with EmaCrossover (TrendFollowing)
+        let intents = generate_signals(
+            &series,
+            "EmaCrossover",
+            None,
+            100.0,
+            &positions,
+            Some(overbought_analysis),
+        )
+        .await?;
+
+        // 5. Assert Signal SKIPPED
+        // Because TrendFollowing should NOT chase Overbought conditions.
+        assert!(
+            intents.is_empty(),
+            "EmaCrossover (TrendFollowing) should NOT chase (Buy when Overbought)"
+        );
 
         Ok(())
     }
