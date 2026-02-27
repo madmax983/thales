@@ -1,5 +1,5 @@
 use crate::indicators::{adx, atr};
-use crate::strategy::{Signal, SignalType, Strategy};
+use crate::strategy::{Signal, SignalType, Strategy, StrategyType};
 use anyhow::{Context, Result};
 use async_trait::async_trait;
 use polars::prelude::*;
@@ -32,6 +32,10 @@ impl AdxMomentum {
 impl Strategy for AdxMomentum {
     fn name(&self) -> &str {
         "AdxMomentum"
+    }
+
+    fn strategy_type(&self) -> StrategyType {
+        StrategyType::Momentum
     }
 
     async fn generate_signals(&self, data: &DataFrame) -> Result<Vec<Signal>> {

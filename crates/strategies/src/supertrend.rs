@@ -1,5 +1,5 @@
 use crate::indicators::supertrend;
-use crate::strategy::{Signal, SignalType, Strategy};
+use crate::strategy::{Signal, SignalType, Strategy, StrategyConfig, StrategyType};
 use anyhow::Result;
 use async_trait::async_trait;
 use polars::prelude::*;
@@ -11,6 +11,8 @@ pub struct SupertrendConfig {
     pub factor: f64,
     pub symbol: String,
 }
+
+impl StrategyConfig for SupertrendConfig {}
 
 pub struct Supertrend {
     config: SupertrendConfig,
@@ -26,6 +28,10 @@ impl Supertrend {
 impl Strategy for Supertrend {
     fn name(&self) -> &str {
         "Supertrend"
+    }
+
+    fn strategy_type(&self) -> StrategyType {
+        StrategyType::TrendFollowing
     }
 
     async fn generate_signals(&self, data: &DataFrame) -> Result<Vec<Signal>> {
@@ -68,7 +74,10 @@ impl Strategy for Supertrend {
                             confidence: 0.8,
                             stop_loss: Some(st_val),
                             take_profit: None,
-                            reason: format!("Supertrend Flip Up (Price {:.2} > Upper Band)", close), // Simplified reason as we don't have previous band easily accessible here without extra lookups
+                            reason: format!(
+                                "Supertrend Flip Up (Price {:.2} > Upper Band)",
+                                close
+                            ), // Simplified reason as we don't have previous band easily accessible here without extra lookups
                             timestamp_ms: timestamp,
                         });
                     } else if trend == -1 {

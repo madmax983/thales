@@ -1,5 +1,5 @@
 use crate::indicators::{atr, donchian_channels};
-use crate::strategy::{Signal, SignalType, Strategy, StrategyConfig};
+use crate::strategy::{Signal, SignalType, Strategy, StrategyConfig, StrategyType};
 use anyhow::Result;
 use async_trait::async_trait;
 use polars::prelude::*;
@@ -30,6 +30,10 @@ impl DonchianBreakout {
 impl Strategy for DonchianBreakout {
     fn name(&self) -> &str {
         "DonchianBreakout"
+    }
+
+    fn strategy_type(&self) -> StrategyType {
+        StrategyType::Breakout
     }
 
     async fn generate_signals(&self, data: &DataFrame) -> Result<Vec<Signal>> {

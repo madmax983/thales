@@ -1,5 +1,5 @@
 use crate::indicators::ichimoku;
-use crate::strategy::{Signal, SignalType, Strategy};
+use crate::strategy::{Signal, SignalType, Strategy, StrategyType};
 use anyhow::Result;
 use async_trait::async_trait;
 use polars::prelude::*;
@@ -28,6 +28,10 @@ impl IchimokuCloud {
 impl Strategy for IchimokuCloud {
     fn name(&self) -> &str {
         "IchimokuCloud"
+    }
+
+    fn strategy_type(&self) -> StrategyType {
+        StrategyType::TrendFollowing
     }
 
     async fn generate_signals(&self, data: &DataFrame) -> Result<Vec<Signal>> {

@@ -1,5 +1,5 @@
 use crate::indicators::{atr, stochastic};
-use crate::strategy::{Signal, SignalType, Strategy, StrategyConfig};
+use crate::strategy::{Signal, SignalType, Strategy, StrategyConfig, StrategyType};
 use anyhow::Result;
 use async_trait::async_trait;
 use polars::prelude::*;
@@ -35,6 +35,10 @@ impl Strategy for StochasticOscillator {
         "StochasticOscillator"
     }
 
+    fn strategy_type(&self) -> StrategyType {
+        StrategyType::MeanReversion
+    }
+
     async fn generate_signals(&self, data: &DataFrame) -> Result<Vec<Signal>> {
         let close_series = data.column("close")?.clone();
         let close_arr = close_series.f64()?;
@@ -63,16 +67,17 @@ impl Strategy for StochasticOscillator {
         for i in 1..close_arr.len() {
             let timestamp = time_arr.get(i).unwrap_or(0);
 
-            let k_curr = k_arr.get(i);
-            let d_curr = d_arr.get(i);
-            let k_prev = k_arr.get(i - 1);
-            let d_prev = d_arr.get(i - 1);
+            // Fetch current and previous values safely
+            let k_curr_opt = k_arr.get(i);
+            let d_curr_opt = d_arr.get(i);
+            let k_prev_opt = k_arr.get(i - 1);
+            let d_prev_opt = d_arr.get(i - 1);
 
             let price_opt = close_arr.get(i);
             let atr_opt = atr_arr.get(i);
 
             if let (Some(k), Some(d), Some(pk), Some(pd), Some(price)) =
-                (k_curr, d_curr, k_prev, d_prev, price_opt)
+                (k_curr_opt, d_curr_opt, k_prev_opt, d_prev_opt, price_opt)
             {
                 // Entry Condition: Bullish Crossover in Oversold Zone
                 // Cross: Previous K < Previous D AND Current K > Current D
