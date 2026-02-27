@@ -410,6 +410,24 @@
 | 2026-02-27 17:54:29 | XETHZUSD | crypto:XETHZUSD:buy:1772211600000 | CONFLICT: Conflicting signals (Buy and Sell) detected for XETHZUSD. Trading halted for this asset. |
 | 2026-02-27 17:54:29 | XETHZUSD | crypto:XETHZUSD:buy:1772211600000 | CONFLICT: Conflicting signals (Buy and Sell) detected for XETHZUSD. Trading halted for this asset. |
 | 2026-02-27 17:54:30 | XXBTZUSD | crypto:XXBTZUSD:sell:1772211600000 | provider error: kraken api error: EOrder:Insufficient funds |
+| 2026-02-27 18:57:23 | BTCUSD | STALE_SIGNAL | Signal too old (37.8 hours > 24 hours) |
+| 2026-02-27 18:57:23 | ETHUSD | STALE_SIGNAL | Signal too old (37.8 hours > 24 hours) |
+| 2026-02-27 18:57:23 | SPY | STALE_SIGNAL | Signal too old (37.8 hours > 24 hours) |
+| 2026-02-27 18:57:23 | XXBTZUSD | STALE_SIGNAL | Signal too old (34.0 hours > 24 hours) |
+| 2026-02-27 18:57:23 | MOGUSD | STALE_SIGNAL | Signal too old (34.0 hours > 24 hours) |
+| 2026-02-27 18:57:23 | SPY | STALE_SIGNAL | Signal too old (33.7 hours > 24 hours) |
+| 2026-02-27 18:57:23 | XXBTZUSD | STALE_SIGNAL | Signal too old (30.0 hours > 24 hours) |
+| 2026-02-27 18:57:23 | XETHZUSD | STALE_SIGNAL | Signal too old (30.0 hours > 24 hours) |
+| 2026-02-27 18:57:23 | SPY | STALE_SIGNAL | Signal too old (30.0 hours > 24 hours) |
+| 2026-02-27 18:57:23 | BTCUSD | STALE_SIGNAL | Signal too old (25.4 hours > 24 hours) |
+| 2026-02-27 18:57:23 | ETHUSD | STALE_SIGNAL | Signal too old (25.4 hours > 24 hours) |
+| 2026-02-27 18:57:23 | SPY | STALE_SIGNAL | Signal too old (25.3 hours > 24 hours) |
+| 2026-02-27 18:57:24 | SPY | NO_STRATEGY_SIGNAL | No active strategy generated a signal (Strategies: BollingerBands, EmaCrossover, RsiMeanReversion, Macd, Supertrend, DonchianBreakout, ParabolicSar, KeltnerChannelBreakout, StochasticOscillator, AdxMomentum, IchimokuCloud, CciMomentum, LinearRegressionTrend, ObvTrendFollowing, MoneyFlowIndex, ConnorsRsiMeanReversion) |
+| 2026-02-27 18:57:24 | XXBTZUSD | crypto:XXBTZUSD:sell:1772215200000 | CONFLICT: Conflicting signals (Buy and Sell) detected for XXBTZUSD. Trading halted for this asset. |
+| 2026-02-27 18:57:24 | XXBTZUSD | crypto:XXBTZUSD:buy:1772215200000 | CONFLICT: Conflicting signals (Buy and Sell) detected for XXBTZUSD. Trading halted for this asset. |
+| 2026-02-27 18:57:24 | XETHZUSD | crypto:XETHZUSD:buy:1772215200000 | CONFLICT: Conflicting signals (Buy and Sell) detected for XETHZUSD. Trading halted for this asset. |
+| 2026-02-27 18:57:24 | XETHZUSD | crypto:XETHZUSD:sell:1772215200000 | CONFLICT: Conflicting signals (Buy and Sell) detected for XETHZUSD. Trading halted for this asset. |
+| 2026-02-27 18:57:24 | XETHZUSD | crypto:XETHZUSD:buy:1772215200000 | CONFLICT: Conflicting signals (Buy and Sell) detected for XETHZUSD. Trading halted for this asset. |
 
 ## Executed Trades
 
