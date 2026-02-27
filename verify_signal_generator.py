@@ -3,6 +3,7 @@ import subprocess
 import os
 import math
 
+# Verifies the Signal Generator Agent Persona implementation
 CLI_PATH = "./target/release/thales-cli"
 BARS_FILE = "verify_bars.json"
 HISTORY_FILE = "verify_history.json"
