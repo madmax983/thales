@@ -471,6 +471,10 @@ def evaluate_candidate(candidate, strategies, portfolio_path=None):
         if temp_analysis_file and os.path.exists(temp_analysis_file):
             args.extend(["--analysis", temp_analysis_file])
 
+        # Dynamic Risk Config
+        risk_per_trade = os.environ.get("RISK_PER_TRADE", "100.0")
+        args.extend(["--risk", risk_per_trade])
+
         intents = run_command(args)
 
         if intents:
