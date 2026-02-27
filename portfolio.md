@@ -340,6 +340,17 @@
 | 2026-02-27 09:45:12 | XXBTZUSD | NO_STRATEGY_SIGNAL | No active strategy generated a signal (Strategies: BollingerBands, EmaCrossover, RsiMeanReversion, Macd, Supertrend, DonchianBreakout, ParabolicSar, KeltnerChannelBreakout, StochasticOscillator, AdxMomentum, IchimokuCloud, CciMomentum, LinearRegressionTrend, ObvTrendFollowing, MoneyFlowIndex) |
 | 2026-02-27 09:45:12 | BTCUSD | NO_STRATEGY_SIGNAL | No active strategy generated a signal (Strategies: BollingerBands, EmaCrossover, RsiMeanReversion, Macd, Supertrend, DonchianBreakout, ParabolicSar, KeltnerChannelBreakout, StochasticOscillator, AdxMomentum, IchimokuCloud, CciMomentum, LinearRegressionTrend, ObvTrendFollowing, MoneyFlowIndex) |
 | 2026-02-27 09:45:12 | ETHUSD | NO_STRATEGY_SIGNAL | No active strategy generated a signal (Strategies: BollingerBands, EmaCrossover, RsiMeanReversion, Macd, Supertrend, DonchianBreakout, ParabolicSar, KeltnerChannelBreakout, StochasticOscillator, AdxMomentum, IchimokuCloud, CciMomentum, LinearRegressionTrend, ObvTrendFollowing, MoneyFlowIndex) |
+| 2026-02-27 11:52:32 | BTCUSD | STALE_SIGNAL | Signal too old (30.7 hours > 24 hours) |
+| 2026-02-27 11:52:32 | ETHUSD | STALE_SIGNAL | Signal too old (30.7 hours > 24 hours) |
+| 2026-02-27 11:52:32 | SPY | STALE_SIGNAL | Signal too old (30.7 hours > 24 hours) |
+| 2026-02-27 11:52:32 | XXBTZUSD | STALE_SIGNAL | Signal too old (26.9 hours > 24 hours) |
+| 2026-02-27 11:52:32 | MOGUSD | STALE_SIGNAL | Signal too old (26.9 hours > 24 hours) |
+| 2026-02-27 11:52:32 | SPY | STALE_SIGNAL | Signal too old (26.6 hours > 24 hours) |
+| 2026-02-27 11:52:32 | XXBTZUSD | crypto:XXBTZUSD:buy:1772190000000 | CONFLICT: Conflicting signals (Buy and Sell) detected for XXBTZUSD. Trading halted for this asset. |
+| 2026-02-27 11:52:32 | XXBTZUSD | crypto:XXBTZUSD:sell:1772190000000 | CONFLICT: Conflicting signals (Buy and Sell) detected for XXBTZUSD. Trading halted for this asset. |
+| 2026-02-27 11:52:33 | BTCUSD | crypto:BTCUSD:buy:1772190000000 | CONFLICT: Conflicting signals (Buy and Sell) detected for BTCUSD. Trading halted for this asset. |
+| 2026-02-27 11:52:33 | BTCUSD | crypto:BTCUSD:sell:1772190000000 | CONFLICT: Conflicting signals (Buy and Sell) detected for BTCUSD. Trading halted for this asset. |
+| 2026-02-27 11:52:34 | ETHUSD | crypto:ETHUSD:sell:1772190000000 | provider error: kraken api error: EOrder:Insufficient funds |
 
 ## Executed Trades
 
