@@ -226,7 +226,7 @@ pub async fn generate_signals(
             // The existing code has explicit check: matches!(strategy_name, "EmaCrossover" | "RsiMeanReversion" | "Macd")
             // Let's leave this part alone to minimize regression risk unless requested.
             let use_atr_sl_override =
-                matches!(strategy_name, "EmaCrossover" | "RsiMeanReversion" | "Macd");
+                matches!(strategy_name, "EmaCrossover" | "RsiMeanReversion" | "Macd" | "MoneyFlowIndex");
 
             // Calculate SL/TP
             let (stop_loss, take_profit, size_hint) = match signal.signal_type {
@@ -2302,6 +2302,104 @@ mod tests {
             intents.is_empty(),
             "EmaCrossover (TrendFollowing) should NOT chase (Buy when Overbought)"
         );
+
+        Ok(())
+    }
+
+    #[tokio::test]
+    async fn test_money_flow_index_atr_override() -> Result<()> {
+        let mut bars = Vec::new();
+        let now = 100000;
+        // 1. Establish initial conditions
+        // We want MFI < 20 to trigger a buy.
+        // MFI uses Typical Price and Volume.
+
+        // Initial setup
+        for i in 0..20 {
+            bars.push(Bar {
+                symbol: "TEST".to_string(),
+                market: "equities".to_string(),
+                timeframe: "1m".to_string(),
+                timestamp_unix_ms: now + i * 60000,
+                open: 100.0,
+                high: 100.1,
+                low: 99.9,
+                close: 100.0,
+                volume: 1000.0,
+            });
+        }
+
+        // 2. Drop Price drastically to trigger Oversold MFI
+        let i = 20;
+        let drop_price = 90.0;
+        bars.push(Bar {
+            symbol: "TEST".to_string(),
+            market: "equities".to_string(),
+            timeframe: "1m".to_string(),
+            timestamp_unix_ms: now + i * 60000,
+            open: 100.0,
+            high: 100.0,
+            low: drop_price,
+            close: drop_price,
+            volume: 5000.0, // High volume on drop
+        });
+
+        let series = BarSeries {
+            schema_version: "v0".to_string(),
+            bars,
+        };
+        let positions = vec![];
+
+        // 3. Define Analysis with known ATR
+        // ATR = 2.0.
+        // Fixed Stop Loss (default strategy) = 5% of 90.0 = 4.5. SL = 85.5.
+        // ATR Stop Loss (override) = 2 * 2.0 = 4.0. SL = 86.0.
+        // We want SL to be 86.0 (tighter/volatility based) if override works.
+        // If override fails, it will be 85.5.
+
+        let analysis = MarketAnalysis {
+            symbol: "TEST".to_string(),
+            market: "equities".to_string(),
+            regime: "Trending Down".to_string(),
+            volatility: "High".to_string(),
+            sentiment: "Bearish (Oversold)".to_string(),
+            patterns: vec![],
+            key_levels: vec![],
+            atr: Some(2.0),
+            research_summary: None,
+            news_summary: None,
+            recommendation: None,
+            confidence: 0.8,
+            timestamp_unix_ms: now + i * 60000,
+        };
+
+        let intents = generate_signals(
+            &series,
+            "MoneyFlowIndex",
+            None,
+            100.0,
+            &positions,
+            Some(analysis),
+        )
+        .await?;
+
+        assert!(!intents.is_empty(), "Should generate MFI signal");
+        let intent = &intents[0];
+
+        // Default Strategy SL: Price * (1 - 0.05) = 90 * 0.95 = 85.5
+        // ATR Override SL: Price - (2 * ATR) = 90 - (2 * 2.0) = 86.0
+
+        if let Some(sl) = intent.stop_loss {
+            // We expect the override to be active, so SL should be 86.0
+            // If it is 85.5, the test fails (indicating override not applied)
+            assert!(
+                (sl - 86.0).abs() < 0.001,
+                "Stop Loss should be ATR-based (86.0), but got {}. (Fixed % would be 85.5)",
+                sl
+            );
+        } else {
+            panic!("Stop Loss missing");
+        }
 
         Ok(())
     }
