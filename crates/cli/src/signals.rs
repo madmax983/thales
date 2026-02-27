@@ -409,8 +409,15 @@ pub async fn generate_signals(
                     context_summary.push_str(&format!(" News: {}.", news));
                 }
 
+                let risk_rationale = if let Some(sl_price) = stop_loss {
+                    let dist = (last_close - sl_price).abs();
+                    format!(" (Risk: ${:.0}, SL Dist: {:.2})", risk_per_trade, dist)
+                } else {
+                    String::new()
+                };
+
                 let final_rationale = format!(
-                    "Strategy: {} ({:.0}%{}, MA: {:.2}). Reason: {}. Market Context: {} ({} Volatility). {}{}{}",
+                    "Strategy: {} ({:.0}%{}, MA: {:.2}). Reason: {}. Market Context: {} ({} Volatility). {}{}{}{}",
                     strategy.name(),
                     adjusted_confidence * 100.0,
                     history_msg,
@@ -420,7 +427,8 @@ pub async fn generate_signals(
                     market_analysis.volatility,
                     historical_context,
                     context_summary,
-                    rationale_suffix
+                    rationale_suffix,
+                    risk_rationale
                 );
 
                 let intent = TradeIntent {
