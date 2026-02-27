@@ -213,11 +213,22 @@ pub async fn generate_signals(
             let last_close = bars.bars.last().map(|b| b.close).unwrap_or(100.0);
             let atr = market_analysis.atr.unwrap_or(last_close * 0.01); // Fallback to 1% if ATR missing
 
+            // Some strategies use fixed % SL which violates volatility sizing rules. Override them.
+            let use_atr_sl_override =
+                matches!(strategy_name, "EmaCrossover" | "RsiMeanReversion" | "Macd");
+
             // Calculate SL/TP
             let (stop_loss, take_profit, size_hint) = match signal.signal_type {
                 SignalType::Entry | SignalType::ScaleIn => {
                     // Use Strategy SL if provided, else ATR fallback (2.0 ATR)
-                    let sl = if let Some(s) = signal.stop_loss {
+                    // If use_atr_sl_override is true, ignore strategy SL and force ATR based.
+                    let sl = if use_atr_sl_override {
+                        if signal.side == "buy" {
+                            Some(last_close - (2.0 * atr))
+                        } else {
+                            Some(last_close + (2.0 * atr))
+                        }
+                    } else if let Some(s) = signal.stop_loss {
                         Some(s)
                     } else {
                         if signal.side == "buy" {
@@ -307,6 +318,8 @@ pub async fn generate_signals(
                         | "CciMomentum"
                         | "LinearRegressionTrend"
                         | "ObvTrendFollowing"
+                        | "EmaCrossover"
+                        | "Macd"
                 );
 
                 if !is_momentum {
@@ -2077,6 +2090,74 @@ mod tests {
         let intent = &intents[0];
         assert_eq!(intent.side, "buy");
         assert!(intent.rationale.contains("AdxMomentum"));
+
+        Ok(())
+    }
+
+    #[tokio::test]
+    async fn test_ema_crossover_sl_override() -> Result<()> {
+        let mut bars = Vec::new();
+        let now = 100000;
+        // 1. Establish Flat Trend
+        // Short (9) ~ Long (21)
+        // Price 100.0. Low volatility (High 100.1, Low 99.9).
+        // ATR should be approx 0.2.
+        for i in 0..50 {
+            let close = if i % 2 == 0 { 100.0 } else { 99.9 }; // Tiny oscillation
+            bars.push(Bar {
+                symbol: "TEST".to_string(),
+                market: "equities".to_string(),
+                timeframe: "1m".to_string(),
+                timestamp_unix_ms: now + i * 60000,
+                open: close,
+                high: close + 0.1,
+                low: close - 0.1,
+                close: close,
+                volume: 1000.0,
+            });
+        }
+
+        // 2. Trigger Crossover (Short > Long)
+        // Need to jump up to cross.
+        // EmaCrossover uses 5% fixed SL.
+        // Price jump to 105.
+        // Fixed SL = 105 * 0.95 = 99.75. Dist ~ 5.25.
+        // ATR ~ 0.2. 2*ATR ~ 0.4.
+        // ATR SL = 105 - 0.4 = 104.6. Dist ~ 0.4.
+
+        let i = 50;
+        let close_rally = 105.0;
+        bars.push(Bar {
+            symbol: "TEST".to_string(),
+            market: "equities".to_string(),
+            timeframe: "1m".to_string(),
+            timestamp_unix_ms: now + i * 60000,
+            open: 100.0,
+            high: close_rally + 0.1,
+            low: 99.9,
+            close: close_rally,
+            volume: 1000.0,
+        });
+
+        let series = BarSeries {
+            schema_version: "v0".to_string(),
+            bars,
+        };
+        let positions = vec![];
+
+        let intents = generate_signals(&series, "EmaCrossover", None, 100.0, &positions, None).await?;
+
+        assert!(!intents.is_empty(), "Should generate signal on crossover (EmaCrossover is now exempt from Overbought check)");
+        let intent = &intents[0];
+
+        if let Some(sl) = intent.stop_loss {
+            println!("Debug: SL = {}, Price = {}", sl, close_rally);
+            // We want SL to be ATR based (Tight ~103.89), not Fixed % (Loose ~99.75)
+            // 2 * ATR (0.557) = 1.114. SL = 105 - 1.114 = 103.886
+            assert!(sl > 103.0, "SL should be tight (ATR based). Got: {}", sl);
+        } else {
+            panic!("SL missing");
+        }
 
         Ok(())
     }
