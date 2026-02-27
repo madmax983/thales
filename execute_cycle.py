@@ -35,6 +35,7 @@ TREND_FOLLOWING_STRATEGIES = {
     "LinearRegressionTrend",
     "CciMomentum",
     "ObvTrendFollowing",
+    "AwesomeOscillator",
 }
 BREAKOUT_STRATEGIES = {
     "DonchianBreakout",
@@ -142,6 +143,8 @@ def get_active_strategies():
         strategies.append("MoneyFlowIndex")
     if "ConnorsRsiMeanReversion" in content:
         strategies.append("ConnorsRsiMeanReversion")
+    if "AwesomeOscillator" in content:
+        strategies.append("AwesomeOscillator")
 
     return strategies
 

@@ -1113,3 +1113,74 @@ pub struct ConnorsRsiMeanReversionConfig {
 ### Performance
 - CRSI calculation involves Percent Rank (O(N) window).
 - Signal generation loop is O(N).
+
+---
+
+# Trading Strategy: Awesome Oscillator
+
+## Strategy Specification
+
+**Name:** AwesomeOscillator
+
+**Description:** A momentum strategy using the Awesome Oscillator (AO) to identify momentum shifts. It enters long when the AO crosses above the zero line and enters short when the AO crosses below the zero line.
+
+**Rationale:** The Awesome Oscillator measures market momentum by comparing a 5-period SMA of the median price with a 34-period SMA of the median price. A crossover of the zero line indicates a shift in momentum direction.
+
+## Requirements
+
+### Implementation Details
+- Uses Polars for data analysis.
+- Implements the `Strategy` trait in Rust.
+- Uses `awesome_oscillator` and `atr` indicators.
+
+### Strategy Type
+Momentum
+
+### Entry Conditions
+- **Long Entry (Buy):** AO crosses ABOVE 0.0.
+- **Short Entry (Sell):** AO crosses BELOW 0.0.
+
+### Exit Conditions
+- **Long Exit (Sell):** AO crosses BELOW 0.0.
+- **Short Exit (Buy):** AO crosses ABOVE 0.0.
+- **Stop Loss:** Entry Price +/- (ATR * `stop_loss_atr_mult`).
+
+### Position Sizing
+- **Size Hint:** "100" (fixed units) or "max" (for exits).
+
+## Code Pattern
+
+```rust
+use crate::strategy::{Strategy, StrategyConfig, Signal, SignalType};
+use crate::indicators::{atr, awesome_oscillator};
+use polars::prelude::*;
+use async_trait::async_trait;
+use anyhow::Result;
+
+pub struct AwesomeOscillator {
+    config: AwesomeOscillatorConfig,
+}
+
+#[derive(Debug, Clone, serde::Deserialize)]
+pub struct AwesomeOscillatorConfig {
+    pub fast_period: usize,
+    pub slow_period: usize,
+    pub stop_loss_atr_mult: f64,
+    pub atr_period: usize,
+    pub symbol: String,
+}
+```
+
+## Critical Considerations
+
+### Risk Management Integration
+- **Stop Loss:** Uses ATR-based stop loss to adapt to volatility.
+- **Take Profit:** Sets a take profit at 2x the risk distance (2 * ATR).
+
+### Backtesting Requirements
+- Accepts `DataFrame` with historical data.
+- Requires data length > `slow_period`.
+
+### Performance
+- AO calculation is O(N).
+- Signal generation loop is O(N).

@@ -19,8 +19,10 @@
 //! - [`obv_trend::ObvTrendFollowing`] - Trend following using On-Balance Volume (OBV).
 //! - [`money_flow_index::MoneyFlowIndex`] - Mean reversion using Money Flow Index (MFI).
 //! - [`connors_rsi_mean_reversion::ConnorsRsiMeanReversion`] - Mean reversion using Connors RSI (CRSI).
+//! - [`awesome_oscillator::AwesomeOscillator`] - Momentum strategy using Awesome Oscillator (AO).
 
 pub mod adx_momentum;
+pub mod awesome_oscillator;
 pub mod bollinger_bands;
 pub mod cci_momentum;
 pub mod connors_rsi_mean_reversion;
