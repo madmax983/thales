@@ -52,7 +52,6 @@ impl Strategy for EmaCrossover {
         let long_ema = long_ema_series.f64()?;
 
         let mut signals = Vec::new();
-        let mut entry_price: Option<Decimal> = None;
         let stop_loss_pct_dec =
             Decimal::from_f64_retain(self.config.stop_loss_pct).unwrap_or(Decimal::ZERO);
         let one_dec = Decimal::ONE;
@@ -75,76 +74,45 @@ impl Strategy for EmaCrossover {
             if let (Some(sc), Some(lc), Some(sp), Some(lp), Some(price)) =
                 (s_curr_opt, l_curr_opt, s_prev_opt, l_prev_opt, price_opt)
             {
-                // Check for Exit first (Stop Loss or Reverse Crossover)
-                if let Some(entry) = entry_price {
-                    // Stop Loss
-                    let stop_price = entry * (one_dec - stop_loss_pct_dec);
-                    if price <= stop_price {
-                        signals.push(Signal {
-                            signal_type: SignalType::Exit,
-                            symbol: self.config.symbol.clone(),
-                            side: "sell".to_string(),
-                            size_hint: "max".to_string(),
-                            confidence: 1.0,
-                            stop_loss: None,
-                            take_profit: None,
-                            reason: format!(
-                                "Stop Loss hit: {} <= {}",
-                                price,
-                                stop_price.round_dp(2)
-                            ),
-                            timestamp_ms: timestamp,
-                        });
-                        entry_price = None;
-                        continue; // Processed for this bar
-                    }
-
-                    // Bearish Crossover (Exit)
-                    if sc < lc && sp >= lp {
-                        signals.push(Signal {
-                            signal_type: SignalType::Exit,
-                            symbol: self.config.symbol.clone(),
-                            side: "sell".to_string(),
-                            size_hint: "max".to_string(),
-                            confidence: 0.8,
-                            stop_loss: None,
-                            take_profit: None,
-                            reason: format!(
-                                "Bearish Crossover: Short {} < Long {}",
-                                sc.round_dp(2),
-                                lc.round_dp(2)
-                            ),
-                            timestamp_ms: timestamp,
-                        });
-                        entry_price = None;
-                        continue;
-                    }
+                // Bearish Crossover (Exit) - Stateless
+                if sc < lc && sp >= lp {
+                    signals.push(Signal {
+                        signal_type: SignalType::Exit,
+                        symbol: self.config.symbol.clone(),
+                        side: "sell".to_string(),
+                        size_hint: "max".to_string(),
+                        confidence: 0.8,
+                        stop_loss: None,
+                        take_profit: None,
+                        reason: format!(
+                            "Bearish Crossover: Short {} < Long {}",
+                            sc.round_dp(2),
+                            lc.round_dp(2)
+                        ),
+                        timestamp_ms: timestamp,
+                    });
                 }
 
-                // Check for Entry
-                if entry_price.is_none() {
-                    // Bullish Crossover (Entry)
-                    if sc > lc && sp <= lp {
-                        let sl = price * (one_dec - stop_loss_pct_dec);
-                        // TP None for trend following
+                // Bullish Crossover (Entry) - Stateless
+                if sc > lc && sp <= lp {
+                    let sl = price * (one_dec - stop_loss_pct_dec);
+                    // TP None for trend following
 
-                        signals.push(Signal {
-                            signal_type: SignalType::Entry,
-                            symbol: self.config.symbol.clone(),
-                            side: "buy".to_string(),
-                            size_hint: "100".to_string(),
-                            confidence: 0.8,
-                            stop_loss: Some(sl.to_f64().unwrap_or(0.0)),
-                            take_profit: None,
-                            reason: format!(
-                                "Bullish Crossover: Short {} > Long {}",
-                                sc.round_dp(2),
-                                lc.round_dp(2)
-                            ),
-                            timestamp_ms: timestamp,
-                        });
-                        entry_price = Some(price);
-                    }
+                    signals.push(Signal {
+                        signal_type: SignalType::Entry,
+                        symbol: self.config.symbol.clone(),
+                        side: "buy".to_string(),
+                        size_hint: "100".to_string(),
+                        confidence: 0.8,
+                        stop_loss: Some(sl.to_f64().unwrap_or(0.0)),
+                        take_profit: None,
+                        reason: format!(
+                            "Bullish Crossover: Short {} > Long {}",
+                            sc.round_dp(2),
+                            lc.round_dp(2)
+                        ),
+                        timestamp_ms: timestamp,
+                    });
                 }
             }
         }
@@ -224,30 +192,48 @@ mod tests {
     }
 
     #[tokio::test]
-    async fn test_stop_loss() -> Result<()> {
+    async fn test_stateless_exit() -> Result<()> {
+        // Test that Exit is generated even without prior Entry in data
+        // Data starts with Short > Long (Bullish), then crosses Down (Bearish).
+
+        // Start high, then drop.
         let config = EmaCrossoverConfig {
             short_window: 2,
             long_window: 3,
-            stop_loss_pct: 0.1, // 10% SL
+            stop_loss_pct: 0.1,
             symbol: "TEST".to_string(),
         };
         let strategy = EmaCrossover::new(config);
 
-        // Prices: 10, 10, 10, 12, 10 (SL hit)
-        // Entry at index 3 (Price 12).
-        // SL Price = 12 * 0.9 = 10.8.
-        // Index 4 Price 10 <= 10.8. Exit.
+        // Prices: 12, 12, 12, 10
+        // S(2):
+        // 1: 12
+        // 2: 12
+        // 3: 10*2/3 + 12*1/3 = 6.66 + 4 = 10.66
+
+        // L(3):
+        // 2: 12
+        // 3: 10*0.5 + 12*0.5 = 11.0
+
+        // 2: S=12, L=12. S <= L (Actually equal).
+        // 3: S=10.66, L=11.0. S < L. Bearish X?
+        // Wait, at 2: S=12, L=12. S < L is False. S >= L is True.
+        // At 3: S < L.
+        // So Bearish Crossover condition: S < L && PrevS >= PrevL.
+        // 10.66 < 11.0 && 12 >= 12. True.
 
         let df = df!(
-            "timestamp_unix_ms" => &[1000i64, 2000, 3000, 4000, 5000],
-            "close" => &[10.0, 10.0, 10.0, 12.0, 10.0]
+            "timestamp_unix_ms" => &[1000i64, 2000, 3000, 4000],
+            "close" => &[12.0, 12.0, 12.0, 10.0]
         )?;
 
         let signals = strategy.generate_signals(&df).await?;
 
-        assert_eq!(signals.len(), 2);
-        assert_eq!(signals[1].signal_type, SignalType::Exit);
-        assert!(signals[1].reason.contains("Stop Loss"));
+        // Should produce Exit signal at index 3 (4000)
+        assert_eq!(signals.len(), 1);
+        let exit = &signals[0];
+        assert_eq!(exit.signal_type, SignalType::Exit);
+        assert_eq!(exit.timestamp_ms, 4000);
 
         Ok(())
     }
