@@ -52,7 +52,7 @@ Run a backtest on the fetched data to see how the strategy performs over time.
 ```bash
 cargo run -p thales-cli -- backtest \
   --input market_data.json \
-  --strategy BollingerBandsMeanReversion \
+  --strategy BollingerBands \
   --initial-capital 10000 \
   --risk 0.01 > backtest_results.json
 ```
@@ -71,13 +71,19 @@ cargo run -p thales-cli -- benchmark \
 ### 4. Generate Signals
 Run a strategy on the fetched data to generate trade intents for the **current** timestamp.
 
-> **Note**: This command outputs signals only if the strategy triggers at the latest available data point. If empty, check `backtest` results to verify strategy logic on historical data.
+> **Note**: This command outputs signals **only if** the strategy triggers at the latest available data point (the last candle in your input file). If the output is empty (`[]`), it means no trading condition was met at that specific time. Use `backtest` to verify strategy logic on historical data.
 
 ```bash
 cargo run -p thales-cli -- generate-signals \
   --input market_data.json \
-  --strategy BollingerBandsMeanReversion > signals.json
+  --strategy BollingerBands > signals.json
 ```
+
+**Troubleshooting Empty Signals:**
+If you get `{"status":"ok", "data":[], "warnings": ["No signals triggered..."]}`:
+1.  **Check Backtest:** Run the backtest command (step 2) to ensure the strategy actually trades this asset on historical data.
+2.  **Check Data Freshness:** Ensure your `market_data.json` includes the most recent candle.
+3.  **Market Conditions:** The strategy simply might not have a setup right now. This is normal.
 
 ### 5. Execute Trades
 Execute the generated trade intents.
