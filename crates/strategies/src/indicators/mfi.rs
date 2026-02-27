@@ -116,7 +116,7 @@ pub fn calculate(data: &DataFrame, period: usize) -> Result<Series> {
         let mfi = if sum_neg.is_zero() {
             hundred
         } else {
-            let mfr = sum_pos / sum_neg;
+            let mfr = sum_pos.checked_div(sum_neg).unwrap_or(Decimal::ZERO);
             hundred - (hundred / (Decimal::ONE + mfr))
         };
         mfi_values[period] = mfi.to_f64();
@@ -139,8 +139,13 @@ pub fn calculate(data: &DataFrame, period: usize) -> Result<Series> {
         let mfi = if sum_neg.is_zero() {
             hundred
         } else {
-            let mfr = sum_pos / sum_neg;
-            hundred - (hundred / (Decimal::ONE + mfr))
+            let mfr = sum_pos.checked_div(sum_neg).unwrap_or(Decimal::ZERO);
+            let denominator = Decimal::ONE + mfr;
+            if denominator.is_zero() {
+                hundred
+            } else {
+                hundred - (hundred.checked_div(denominator).unwrap_or(Decimal::ZERO))
+            }
         };
         mfi_values[i] = mfi.to_f64();
     }
