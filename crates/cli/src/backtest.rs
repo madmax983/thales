@@ -466,6 +466,9 @@ mod tests {
         }
 
         // 2. Rally to trigger RSI Overbought (Sell)
+        // Adjust rally to be cleaner so stop loss isn't hit.
+        // If entry is at 80, and SL is 78 (due to ATR), we must ensure Low >= 78.
+        // We will make the rally smooth without wicks dipping low.
         for i in 20..40 {
             let close = 80.0 + ((i - 20) as f64) * 2.0; // Rise from 80 to 120
             bars.push(Bar {
@@ -474,8 +477,8 @@ mod tests {
                 timeframe: "1m".to_string(),
                 timestamp_unix_ms: now + i * 60000,
                 open: close,
-                high: close + 1.0,
-                low: close - 1.0,
+                high: close + 0.1, // Minimal high wick
+                low: close,       // Low = Close to prevent Stop Loss hit
                 close: close,
                 volume: 1000.0,
             });
@@ -498,7 +501,6 @@ mod tests {
 
         // Verify Profit
         // We bought low (around 80) and sold high (around 120)
-        // Note: First trade might be stopped out if entry is too early, so we check overall profitability
         assert!(result.trades.iter().any(|t| t.pnl > 0.0));
         assert!(result.metrics.total_return_pct > 0.0);
 

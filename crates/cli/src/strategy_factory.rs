@@ -32,6 +32,8 @@ pub fn create_strategy(name: &str, symbol: &str) -> Result<Box<dyn Strategy>> {
                 short_window: 9,
                 long_window: 21,
                 stop_loss_pct: 0.05,
+                atr_period: 14,
+                atr_mult: 2.0,
                 symbol: symbol.to_string(),
             };
             Ok(Box::new(EmaCrossover::new(config)))
@@ -42,6 +44,8 @@ pub fn create_strategy(name: &str, symbol: &str) -> Result<Box<dyn Strategy>> {
                 oversold_threshold: 30.0,
                 overbought_threshold: 70.0,
                 stop_loss_pct: 0.05,
+                atr_period: 14,
+                atr_mult: 2.0,
                 symbol: symbol.to_string(),
             };
             Ok(Box::new(RsiMeanReversion::new(config)))
@@ -52,6 +56,8 @@ pub fn create_strategy(name: &str, symbol: &str) -> Result<Box<dyn Strategy>> {
                 slow_period: 26,
                 signal_period: 9,
                 stop_loss_pct: 0.05,
+                atr_period: 14,
+                atr_mult: 2.0,
                 symbol: symbol.to_string(),
             };
             Ok(Box::new(Macd::new(config)))
