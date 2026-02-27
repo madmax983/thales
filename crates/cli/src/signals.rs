@@ -301,7 +301,7 @@ pub async fn generate_signals(
                 eprintln!("DEBUG: Positions available: {:?}", positions);
             }
 
-            let (final_signal_type, rationale_suffix) = resolve_signal_type(signal, existing_pos);
+            let (final_signal_type, mut rationale_suffix) = resolve_signal_type(signal, existing_pos);
 
             // Filter out invalid Exits (no position)
             if !skip {
@@ -338,6 +338,17 @@ pub async fn generate_signals(
                             "Skipping Sell signal for {} due to Oversold conditions (Mean Reversion - Chasing)",
                             signal.symbol
                         );
+                    }
+                } else {
+                    // Trend/Momentum/Breakout - Allowed to chase, but add rationale
+                    if signal.side == "buy" && market_analysis.sentiment.contains("Overbought") {
+                        rationale_suffix
+                            .push_str(" (Buying strength in Overbought conditions)");
+                    } else if signal.side == "sell"
+                        && market_analysis.sentiment.contains("Oversold")
+                    {
+                        rationale_suffix
+                            .push_str(" (Selling weakness in Oversold conditions)");
                     }
                 }
             }
@@ -2108,6 +2119,8 @@ mod tests {
         let intent = &intents[0];
         assert_eq!(intent.side, "buy");
         assert!(intent.rationale.contains("AdxMomentum"));
+        assert!(intent.rationale.contains("Buying strength in Overbought conditions"),
+            "Rationale should explain why chasing is allowed: {}", intent.rationale);
 
         Ok(())
     }
