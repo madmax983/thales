@@ -362,3 +362,36 @@ let obv_series = obv::calculate(&df)?;
 ### Output
 - Returns `Result<Series>`.
 - The output Series is named "obv".
+
+## Money Flow Index (MFI)
+
+**Name:** Money Flow Index (MFI)
+**Description:** Calculates the Money Flow Index, a momentum indicator that uses both price and volume to measure buying and selling pressure. It is often referred to as volume-weighted RSI.
+**Rationale:** MFI provides a more complete picture of market sentiment than price-only indicators by incorporating volume. It helps identify overbought and oversold conditions.
+
+### Implementation Details
+- Uses `rust_decimal::Decimal` for precision.
+- Calculates Typical Price (High + Low + Close) / 3.
+- Calculates Raw Money Flow (Typical Price * Volume).
+- Uses rolling window sums of Positive and Negative Money Flows.
+- Returns a Polars `Series` of `f64` values (0-100).
+
+### Usage
+
+```rust
+use strategies::indicators::mfi;
+use polars::prelude::*;
+
+// Assuming df is a DataFrame with "high", "low", "close", "volume" columns
+let period = 14;
+let mfi_series = mfi::calculate(&df, period)?;
+```
+
+### Parameters
+- `data`: Reference to a Polars `DataFrame`. Must contain numeric columns "high", "low", "close", "volume".
+- `period`: The lookback period (typically 14).
+
+### Output
+- Returns `Result<Series>`.
+- The output Series is named "mfi".
+- The first `period` values will be null.
