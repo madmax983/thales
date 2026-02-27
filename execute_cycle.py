@@ -969,6 +969,14 @@ def main():
     # We want to limit total analysis to top 3 candidates to follow "Pick the top 1–3 candidates" directive.
 
     # 1. Start with Signal candidates
+    # Sort by confidence descending
+    def get_confidence(c):
+        raw = c.get("raw_analysis_json")
+        if not raw:
+            return 0.0
+        return float(raw.get("confidence", 0.0) or 0.0)
+
+    signal_candidates.sort(key=get_confidence, reverse=True)
     selected_candidates = signal_candidates[:]
 
     # 2. Fill remaining slots with Scanned candidates
@@ -976,11 +984,12 @@ def main():
     existing_symbols = set(c["symbol"] for c in selected_candidates)
 
     for cand in scanned_candidates:
-        if len(selected_candidates) >= 3:
-            break
         if cand["symbol"] not in existing_symbols:
             selected_candidates.append(cand)
             existing_symbols.add(cand["symbol"])
+
+    # 3. Limit to top 3
+    selected_candidates = selected_candidates[:3]
 
     print(f"Selected {len(selected_candidates)} candidates for deep analysis (from {len(scanned_candidates)} scanned + {len(signal_candidates)} signals).")
     for c in selected_candidates:
