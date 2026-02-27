@@ -147,3 +147,13 @@
 **Regime**: Ranging
 **Sentiment**: Neutral
 **Confidence**: 50.00%
+
+### SPY - 2026-02-27 13:38:26 (equities)
+**Regime**: Trending Up (Short Term)
+**Sentiment**: Bullish (Strong) (Overbought)
+**Confidence**: 80.00%
+
+### XXBTZUSD - 2026-02-27 13:40:22 (crypto)
+**Regime**: Trending Down (Short Term)
+**Sentiment**: Bearish (Strong) (Oversold)
+**Confidence**: 80.00%
