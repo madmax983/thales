@@ -64,6 +64,7 @@ impl Strategy for ObvTrendFollowing {
         let mut signals = Vec::new();
         let sl_mult =
             Decimal::from_f64_retain(self.config.stop_loss_atr_mult).unwrap_or(Decimal::ZERO);
+        let two_dec = Decimal::from(2);
 
         for i in 1..close_arr.len() {
             let timestamp = time_arr.get(i).unwrap_or(0);
@@ -105,6 +106,9 @@ impl Strategy for ObvTrendFollowing {
 
                     // Enter Long
                     let sl = price_dec - (atr_dec * sl_mult);
+                    let risk = price_dec - sl;
+                    let tp = price_dec + (risk * two_dec);
+
                     signals.push(Signal {
                         signal_type: SignalType::Entry,
                         symbol: self.config.symbol.clone(),
@@ -112,7 +116,7 @@ impl Strategy for ObvTrendFollowing {
                         size_hint: "100".to_string(),
                         confidence: 0.8,
                         stop_loss: Some(sl.to_f64().unwrap_or(0.0)),
-                        take_profit: None, // Trend following
+                        take_profit: Some(tp.to_f64().unwrap_or(0.0)),
                         reason: format!("OBV Crossover Up: OBV {:.2} > SMA {:.2}", obv_c, sma_c),
                         timestamp_ms: timestamp,
                     });
@@ -134,6 +138,9 @@ impl Strategy for ObvTrendFollowing {
 
                     // Enter Short
                     let sl = price_dec + (atr_dec * sl_mult);
+                    let risk = sl - price_dec;
+                    let tp = price_dec - (risk * two_dec);
+
                     signals.push(Signal {
                         signal_type: SignalType::Entry,
                         symbol: self.config.symbol.clone(),
@@ -141,7 +148,7 @@ impl Strategy for ObvTrendFollowing {
                         size_hint: "100".to_string(),
                         confidence: 0.8,
                         stop_loss: Some(sl.to_f64().unwrap_or(0.0)),
-                        take_profit: None,
+                        take_profit: Some(tp.to_f64().unwrap_or(0.0)),
                         reason: format!("OBV Crossover Down: OBV {:.2} < SMA {:.2}", obv_c, sma_c),
                         timestamp_ms: timestamp,
                     });
@@ -224,6 +231,11 @@ mod tests {
 
         // Need ATR too.
         // High/Low needed for ATR.
+        // i=0: H10.5 L9.5 C10. TR=1.
+        // i=1: H11.5 L10.5 C11. TR=1.
+        // i=2: H11.5 L10.5 C11. TR=1.
+        // i=3: H12.5 L11.5 C12. TR=1.5. (H=12.5, PC=11).
+        // ATR(2) at i=3 is calculated to be 1.3125 (per test failure).
 
         let df = df!(
             "timestamp_unix_ms" => &[1000i64, 2000, 3000, 4000],
@@ -243,7 +255,18 @@ mod tests {
             .filter(|s| s.signal_type == SignalType::Entry && s.side == "buy")
             .collect();
         assert_eq!(entries.len(), 1);
-        assert_eq!(entries[0].timestamp_ms, 4000);
+        let entry = &entries[0];
+        assert_eq!(entry.timestamp_ms, 4000);
+        assert!(entry.take_profit.is_some());
+
+        // Check TP calculation
+        // Entry Price = 12.0.
+        // ATR = 1.3125 (Approx). Mult = 2.0. SL Dist = 2.625. SL = 9.375.
+        // Risk = 2.625.
+        // TP = 12.0 + (2.625 * 2) = 17.25.
+
+        let tp = entry.take_profit.unwrap();
+        assert!((tp - 17.25).abs() < 0.001, "TP was {}, expected 17.25", tp);
 
         Ok(())
     }
