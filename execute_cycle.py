@@ -16,7 +16,13 @@ HISTORY_PATH = "history.json"
 SIGNALS_PATH = "Signals.md"
 ARCHIVE_PATH = "Signals_Archive.md"
 
-MEAN_REVERSION_STRATEGIES = {"BollingerBands", "RsiMeanReversion", "StochasticOscillator", "MoneyFlowIndex"}
+MEAN_REVERSION_STRATEGIES = {
+    "BollingerBands",
+    "RsiMeanReversion",
+    "StochasticOscillator",
+    "MoneyFlowIndex",
+    "ConnorsRsiMeanReversion",
+}
 TREND_FOLLOWING_STRATEGIES = {
     "EmaCrossover",
     "Macd",
@@ -134,6 +140,8 @@ def get_active_strategies():
         strategies.append("ObvTrendFollowing")
     if "MoneyFlowIndex" in content:
         strategies.append("MoneyFlowIndex")
+    if "ConnorsRsiMeanReversion" in content:
+        strategies.append("ConnorsRsiMeanReversion")
 
     return strategies
 

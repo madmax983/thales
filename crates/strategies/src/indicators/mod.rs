@@ -2,6 +2,7 @@ pub mod adx;
 pub mod atr;
 pub mod bollinger_bands;
 pub mod cci;
+pub mod connors_rsi;
 pub mod donchian_channels;
 pub mod ema;
 pub mod ichimoku;

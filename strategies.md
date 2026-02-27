@@ -1042,3 +1042,74 @@ pub struct MoneyFlowIndexConfig {
 ### Performance
 - MFI calculation is O(N).
 - Signal generation loop is O(N).
+
+---
+
+# Trading Strategy: Connors RSI Mean Reversion
+
+## Strategy Specification
+
+**Name:** ConnorsRsiMeanReversion
+
+**Description:** A short-term mean reversion strategy using the Connors RSI (CRSI), which combines three components: 3-period RSI, 2-period Streak RSI, and 100-period Percent Rank of Returns. It identifies short-term pullbacks in trending markets.
+
+**Rationale:** CRSI is more responsive than traditional RSI and uses streak duration and magnitude of moves to identify high-probability reversal points.
+
+## Requirements
+
+### Implementation Details
+- Uses Polars for data analysis.
+- Implements the `Strategy` trait in Rust.
+- Uses `connors_rsi` indicator (composite).
+
+### Strategy Type
+Mean Reversion
+
+### Entry Conditions
+- **Long Entry (Buy):** CRSI < `oversold_threshold` (default 10).
+
+### Exit Conditions
+- **Long Exit (Sell):** CRSI > `overbought_threshold` (default 90) OR Price > SMA(5) (if configured).
+- **Stop Loss:** Close Price <= Entry Price * (1 - `stop_loss_pct`).
+
+### Position Sizing
+- **Size Hint:** "100" (fixed units) or "max" (for exits).
+
+## Code Pattern
+
+```rust
+use crate::strategy::{Strategy, StrategyConfig, Signal, SignalType};
+use crate::indicators::{connors_rsi, sma};
+use polars::prelude::*;
+use async_trait::async_trait;
+use anyhow::Result;
+
+pub struct ConnorsRsiMeanReversion {
+    config: ConnorsRsiMeanReversionConfig,
+}
+
+#[derive(Debug, Clone, serde::Deserialize)]
+pub struct ConnorsRsiMeanReversionConfig {
+    pub rsi_period: usize,
+    pub streak_rsi_period: usize,
+    pub rank_lookback: usize,
+    pub oversold_threshold: f64,
+    pub overbought_threshold: f64,
+    pub stop_loss_pct: f64,
+    pub exit_sma_period: Option<usize>,
+    pub symbol: String,
+}
+```
+
+## Critical Considerations
+
+### Risk Management Integration
+- **Stop Loss:** Uses fixed percentage stop loss, but typically exits on short-term mean reversion (SMA crossing).
+
+### Backtesting Requirements
+- Accepts `DataFrame` with historical data.
+- Requires data length > `rank_lookback` (default 100).
+
+### Performance
+- CRSI calculation involves Percent Rank (O(N) window).
+- Signal generation loop is O(N).
