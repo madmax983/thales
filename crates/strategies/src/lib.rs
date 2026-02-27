@@ -18,10 +18,12 @@
 //! - [`linear_regression_trend::LinearRegressionTrend`] - Trend following using Linear Regression Slope.
 //! - [`obv_trend::ObvTrendFollowing`] - Trend following using On-Balance Volume (OBV).
 //! - [`money_flow_index::MoneyFlowIndex`] - Mean reversion using Money Flow Index (MFI).
+//! - [`connors_rsi_mean_reversion::ConnorsRsiMeanReversion`] - Mean reversion using Connors RSI (CRSI).
 
 pub mod adx_momentum;
 pub mod bollinger_bands;
 pub mod cci_momentum;
+pub mod connors_rsi_mean_reversion;
 pub mod donchian_breakout;
 pub mod ema_crossover;
 pub mod ichimoku_cloud;

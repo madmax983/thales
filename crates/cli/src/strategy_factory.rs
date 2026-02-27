@@ -2,6 +2,7 @@ use anyhow::Result;
 use strategies::adx_momentum::{AdxMomentum, AdxMomentumConfig};
 use strategies::bollinger_bands::{BollingerBandsConfig, BollingerBandsMeanReversion};
 use strategies::cci_momentum::{CciMomentum, CciMomentumConfig};
+use strategies::connors_rsi_mean_reversion::{ConnorsRsiMeanReversion, ConnorsRsiMeanReversionConfig};
 use strategies::donchian_breakout::{DonchianBreakout, DonchianBreakoutConfig};
 use strategies::ema_crossover::{EmaCrossover, EmaCrossoverConfig};
 use strategies::ichimoku_cloud::{IchimokuCloud, IchimokuCloudConfig};
@@ -174,6 +175,19 @@ pub fn create_strategy(name: &str, symbol: &str) -> Result<Box<dyn Strategy>> {
             };
             Ok(Box::new(MoneyFlowIndex::new(config)))
         }
+        "ConnorsRsiMeanReversion" => {
+            let config = ConnorsRsiMeanReversionConfig {
+                rsi_period: 3,
+                streak_rsi_period: 2,
+                rank_lookback: 100,
+                oversold_threshold: 10.0,
+                overbought_threshold: 90.0,
+                stop_loss_pct: 0.05,
+                exit_sma_period: Some(5), // Exit when Price > SMA(5)
+                symbol: symbol.to_string(),
+            };
+            Ok(Box::new(ConnorsRsiMeanReversion::new(config)))
+        }
         _ => Err(anyhow::anyhow!("Unknown strategy: {}", name)),
     }
 }
@@ -195,5 +209,6 @@ pub fn list_strategies() -> Vec<&'static str> {
         "LinearRegressionTrend",
         "ObvTrendFollowing",
         "MoneyFlowIndex",
+        "ConnorsRsiMeanReversion",
     ]
 }
