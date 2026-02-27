@@ -157,3 +157,18 @@
 **Volatility**: Medium
 **ATR**: 764.82
 **Assessment**: Trend Following (Short)
+
+### XXBTZUSD - 2026-02-27 12:00:00 (crypto)
+**Volatility**: Low
+**ATR**: 532.30
+**Assessment**: Trend Following (Long)
+
+### XXBTZUSD - 2026-02-27 12:00:00 (crypto)
+**Volatility**: Low
+**ATR**: 532.30
+**Assessment**: Trend Following (Long)
+
+### XXBTZUSD - 2026-02-27 12:00:00 (crypto)
+**Volatility**: Low
+**ATR**: 532.30
+**Assessment**: Trend Following (Long)
