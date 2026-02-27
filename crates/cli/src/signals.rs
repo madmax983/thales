@@ -281,6 +281,14 @@ pub async fn generate_signals(
                         signal.size_hint.clone()
                     };
 
+                    // Log sizing details for observability
+                    if let Some(sl_price) = sl {
+                        let dist = (last_close - sl_price).abs();
+                        eprintln!(
+                            "Risk-based Sizing: Risk=${:.2}, SL Dist={:.4} (Price={:.4}, SL={:.4}), Calc Size={}",
+                            risk_per_trade, dist, last_close, sl_price, size
+                        );
+                    }
                     (sl, tp, size)
                 }
                 SignalType::Exit | SignalType::ScaleOut => (None, None, signal.size_hint.clone()),
