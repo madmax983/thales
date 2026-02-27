@@ -101,3 +101,19 @@
 ### XETHZUSD - 2026-02-27 05:23:48 (crypto)
 **Research**: Ethereum trading above $2000, showing resilience. Network activity is stable. Layer 2 adoption continues to grow. Key resistance at $2150.
 **News**: Major protocol upgrades planned for Q2. DeFi TVL stabilizing.
+
+### XXBTZUSD - 2026-02-27 09:00:00 (crypto)
+**Research**: None
+**News**: None
+
+### XXBTZUSD - 2026-02-27 09:00:00 (crypto)
+**Research**: Bitcoin shows strong bullish sentiment with 77% investor confidence. ETFs seeing major inflows (BlackRock 97.4M). Options expiry on Feb 27 may cause volatility. Key resistance at 2k and 5k.
+**News**: BlackRock iShares attracts 97.4M inflows. Trading volumes surpass .3B. Bitcoin options expiry involves over .8B in contracts.
+
+### XETHZUSD - 2026-02-27 09:00:00 (crypto)
+**Research**: Ethereum sentiment is bullish (84% investor confidence). Recent sell-off by FG Nexus (7,550 ETH) caused dip, but ETFs returned to inflows (57M). Facing resistance near ,108 and 20-day EMA.
+**News**: Ethereum ETFs pull in 57M. FG Nexus distributes 7,550 ETH. Major protocol upgrades planned for Q2.
+
+### SPY - 2026-02-27 09:00:00 (equities)
+**Research**: SPY showing resilience near all-time highs. Tech sector leading. Market sentiment remains cautiously optimistic awaiting Fed cues.
+**News**: US Economy shows signs of soft landing. Federal Reserve likely to maintain current rate policy.

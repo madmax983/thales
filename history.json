@@ -727,7 +727,7 @@
       "confidence": 0.7999999999999999,
       "timestamp_unix_ms": 1772096400000
     },
-    "outcome": null
+    "outcome": -0.016850668216153435
   },
   {
     "intent": {
@@ -775,7 +775,7 @@
       "confidence": 0.7999999999999999,
       "timestamp_unix_ms": 1772096400000
     },
-    "outcome": null
+    "outcome": -0.016850668216153435
   },
   {
     "intent": {
@@ -823,7 +823,7 @@
       "confidence": 0.7999999999999999,
       "timestamp_unix_ms": 1772096400000
     },
-    "outcome": null
+    "outcome": -0.016850668216153435
   },
   {
     "intent": {

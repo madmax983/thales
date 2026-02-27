@@ -1,0 +1,1 @@
+{"status":"ok","errors":[],"warnings":[],"data":{"schema_version":"v0","bars":[{"symbol":"SPY","market":"equities","timeframe":"1h","timestamp_unix_ms":1772182800000,"open":687.51,"high":688.76,"low":687.51,"close":688.56,"volume":32453.0}]}}
