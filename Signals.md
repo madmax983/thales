@@ -1913,3 +1913,59 @@ Major indices are hitting new highs, with Bitcoin showing resilience against rec
 ```
 
 ---
+
+## Market Analysis Report - crypto - XXBTZUSD
+
+**Timestamp (ms)**: 1772199842362
+**Confidence**: 80.00%
+
+### 1. Market Regime
+**ALERT: Regime Change Detected!** (Previous: Trending Up, Current: Trending Down (Short Term))
+*Sentiment*: Bearish (Strong) (Oversold)
+
+### 2. Volatility
+*Assessment*: Medium
+
+### 3. Strategy Recommendation
+**Trend Following (Short)**
+
+### 4. Patterns & Price Action
+*Patterns*: Breakout (Downside), Consolidation (Squeeze)
+
+### 5. Key Levels
+*Support/Resistance*: 59348.09299105641, 62321.223889637375, 62637.9775018533
+
+### 6. Research & Context
+**Research**:
+Bitcoin ETFs are seeing strong institutional inflows following SEC approvals. Analysts remain bullish due to positive macroeconomic indicators and recent halving events.
+
+**News**:
+Major indices are hitting new highs, with Bitcoin showing resilience against recent regulatory concerns.
+*Historical Context*: Found 7 similar past trades (1 on same symbol). Win Rate: 100.0%. Avg Return: 1.96%
+
+```json
+{
+  "symbol": "XXBTZUSD",
+  "market": "crypto",
+  "regime": "Trending Down (Short Term)",
+  "sentiment": "Bearish (Strong) (Oversold)",
+  "patterns": [
+    "Breakout (Downside)",
+    "Consolidation (Squeeze)"
+  ],
+  "key_levels": [
+    59348.09299105641,
+    62321.223889637375,
+    62637.9775018533
+  ],
+  "volatility": "Medium",
+  "atr": 764.8234042370752,
+  "research_summary": "Bitcoin ETFs are seeing strong institutional inflows following SEC approvals. Analysts remain bullish due to positive macroeconomic indicators and recent halving events.",
+  "news_summary": "Major indices are hitting new highs, with Bitcoin showing resilience against recent regulatory concerns.",
+  "recommendation": "Trend Following (Short)",
+  "confidence": 0.7999999999999999,
+  "timestamp_unix_ms": 1772199842362
+}
+```
+
+---
