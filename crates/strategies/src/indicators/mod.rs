@@ -17,3 +17,4 @@ pub mod rsi;
 pub mod sma;
 pub mod stochastic;
 pub mod supertrend;
+pub mod williams_r;

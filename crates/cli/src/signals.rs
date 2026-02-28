@@ -227,7 +227,7 @@ pub async fn generate_signals(
             // Let's leave this part alone to minimize regression risk unless requested.
             let use_atr_sl_override = matches!(
                 strategy_name,
-                "EmaCrossover" | "RsiMeanReversion" | "Macd" | "ConnorsRsiMeanReversion"
+                "EmaCrossover" | "RsiMeanReversion" | "Macd" | "ConnorsRsiMeanReversion" | "WilliamsR"
             );
 
             // Calculate SL/TP
