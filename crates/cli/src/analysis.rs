@@ -180,20 +180,21 @@ fn calculate_volatility(df: &DataFrame, bars: &[Bar]) -> (String, Option<f64>) {
     let mut atr_val = None;
 
     if let Some(s) = atr_series
-        && let Some(last) = s.f64().ok().and_then(|v| v.last()) {
-            atr_val = Some(last);
-            let ratio = last / last_close;
+        && let Some(last) = s.f64().ok().and_then(|v| v.last())
+    {
+        atr_val = Some(last);
+        let ratio = last / last_close;
 
-            if ratio > 0.05 {
-                return ("Extreme".to_string(), atr_val);
-            } else if ratio > 0.02 {
-                return ("High".to_string(), atr_val);
-            } else if ratio > 0.01 {
-                return ("Medium".to_string(), atr_val);
-            } else {
-                return ("Low".to_string(), atr_val);
-            }
+        if ratio > 0.05 {
+            return ("Extreme".to_string(), atr_val);
+        } else if ratio > 0.02 {
+            return ("High".to_string(), atr_val);
+        } else if ratio > 0.01 {
+            return ("Medium".to_string(), atr_val);
+        } else {
+            return ("Low".to_string(), atr_val);
         }
+    }
 
     ("Unknown".to_string(), atr_val)
 }
@@ -206,22 +207,23 @@ fn calculate_sentiment(df: &DataFrame, regime: &str) -> String {
     let mut last_rsi_val = None;
 
     if let Some(s) = rsi_series
-        && let Some(val) = s.f64().ok().and_then(|v| v.last()) {
-            last_rsi_val = Some(val);
-            if val > 70.0 {
-                sentiment_score += 1;
-            }
-            // Bullish (Overbought in strong trend)
-            else if val < 30.0 {
-                sentiment_score -= 1;
-            }
-            // Bearish
-            else if val > 55.0 {
-                sentiment_score += 1;
-            } else if val < 45.0 {
-                sentiment_score -= 1;
-            }
+        && let Some(val) = s.f64().ok().and_then(|v| v.last())
+    {
+        last_rsi_val = Some(val);
+        if val > 70.0 {
+            sentiment_score += 1;
         }
+        // Bullish (Overbought in strong trend)
+        else if val < 30.0 {
+            sentiment_score -= 1;
+        }
+        // Bearish
+        else if val > 55.0 {
+            sentiment_score += 1;
+        } else if val < 45.0 {
+            sentiment_score -= 1;
+        }
+    }
 
     if let Some((macd_line, signal_line, _hist)) = macd_res {
         let m = macd_line.f64().ok().and_then(|v| v.last());
@@ -297,18 +299,26 @@ fn detect_patterns(df: &DataFrame, bars: &[Bar]) -> Vec<String> {
     let prev_is_red = prev.close < prev.open;
     let curr_is_green = curr.close > curr.open;
 
-    if prev_is_red && curr_is_green
-        && curr.open <= prev.close && curr.close >= prev.open && curr_body > prev_body {
-            patterns.push("Bullish Engulfing".to_string());
-        }
+    if prev_is_red
+        && curr_is_green
+        && curr.open <= prev.close
+        && curr.close >= prev.open
+        && curr_body > prev_body
+    {
+        patterns.push("Bullish Engulfing".to_string());
+    }
 
     let prev_is_green = prev.close > prev.open;
     let curr_is_red = curr.close < curr.open;
 
-    if prev_is_green && curr_is_red
-        && curr.open >= prev.close && curr.close <= prev.open && curr_body > prev_body {
-            patterns.push("Bearish Engulfing".to_string());
-        }
+    if prev_is_green
+        && curr_is_red
+        && curr.open >= prev.close
+        && curr.close <= prev.open
+        && curr_body > prev_body
+    {
+        patterns.push("Bearish Engulfing".to_string());
+    }
 
     // Structural Patterns
     // 1. Breakout (Donchian)
@@ -321,13 +331,15 @@ fn detect_patterns(df: &DataFrame, bars: &[Bar]) -> Vec<String> {
         // If Price > Upper[prev], it's a breakout.
 
         if let Some(uv) = u
-            && curr.close > uv {
-                patterns.push("Breakout (Upside)".to_string());
-            }
+            && curr.close > uv
+        {
+            patterns.push("Breakout (Upside)".to_string());
+        }
         if let Some(lv) = l
-            && curr.close < lv {
-                patterns.push("Breakout (Downside)".to_string());
-            }
+            && curr.close < lv
+        {
+            patterns.push("Breakout (Downside)".to_string());
+        }
     }
 
     // 2. Squeeze (Bollinger Band Width)

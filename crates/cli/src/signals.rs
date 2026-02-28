@@ -369,13 +369,14 @@ pub async fn generate_signals(
             if !skip
                 && (final_signal_type == SignalType::Entry
                     || final_signal_type == SignalType::ScaleIn)
-                && stop_loss.is_none() {
-                    eprintln!(
-                        "Signal Generator: Skipping {} signal for {} due to missing Stop Loss",
-                        signal.side, signal.symbol
-                    );
-                    skip = true;
-                }
+                && stop_loss.is_none()
+            {
+                eprintln!(
+                    "Signal Generator: Skipping {} signal for {} due to missing Stop Loss",
+                    signal.side, signal.symbol
+                );
+                skip = true;
+            }
 
             // Filter out invalid sizes (0, NaN, Inf)
             if !skip && size_hint != "max" {

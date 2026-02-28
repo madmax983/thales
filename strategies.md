@@ -1255,3 +1255,74 @@ pub struct WilliamsRConfig {
 ### Performance
 - Williams %R calculation is O(N).
 - Signal generation loop is O(N).
+
+---
+
+# Trading Strategy: VWMA Crossover
+
+## Strategy Specification
+
+**Name:** VwmaCrossover
+
+**Description:** A trend-following strategy that generates signals based on the crossover between a Volume Weighted Moving Average (VWMA) and a Simple Moving Average (SMA). It enters long when the VWMA crosses above the SMA, indicating that volume is supporting the upward price movement.
+
+**Rationale:** Moving averages alone can lag and do not account for volume. By comparing a volume-weighted average (VWMA) with a standard moving average (SMA) of the same period, traders can identify situations where volume is confirming a price trend. When VWMA > SMA, it means higher volume occurred on up days, which is bullish.
+
+## Requirements
+
+### Implementation Details
+- Uses Polars for data analysis.
+- Implements the `Strategy` trait in Rust.
+- Uses `vwma`, `sma`, and `atr` indicators.
+
+### Strategy Type
+Trend Following
+
+### Entry Conditions
+- **Long Entry (Buy):** VWMA crosses ABOVE SMA.
+- **Short Entry (Sell):** VWMA crosses BELOW SMA.
+
+### Exit Conditions
+- **Long Exit (Sell):** VWMA crosses BELOW SMA.
+- **Short Exit (Buy):** VWMA crosses ABOVE SMA.
+- **Stop Loss:** Entry Price +/- (ATR * `stop_loss_atr_mult`).
+
+### Position Sizing
+- **Size Hint:** "100" (fixed units) or "max" (for exits).
+
+## Code Pattern
+
+```rust
+use crate::strategy::{Strategy, StrategyConfig, Signal, SignalType};
+use crate::indicators::{atr, sma, vwma};
+use polars::prelude::*;
+use async_trait::async_trait;
+use anyhow::Result;
+
+pub struct VwmaCrossover {
+    config: VwmaCrossoverConfig,
+}
+
+#[derive(Debug, Clone, serde::Deserialize)]
+pub struct VwmaCrossoverConfig {
+    pub vwma_period: usize,
+    pub sma_period: usize,
+    pub stop_loss_atr_mult: f64,
+    pub atr_period: usize,
+    pub symbol: String,
+}
+```
+
+## Critical Considerations
+
+### Risk Management Integration
+- **Stop Loss:** Uses ATR-based stop loss to adapt to volatility.
+- **Take Profit:** Sets a take profit at 2x the risk distance (2 * ATR).
+
+### Backtesting Requirements
+- Accepts `DataFrame` with historical data containing "close" and "volume".
+- Requires data length > `max(vwma_period, sma_period)`.
+
+### Performance
+- VWMA calculation is O(N).
+- Signal generation loop is O(N).

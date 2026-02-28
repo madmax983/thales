@@ -270,12 +270,13 @@ fn mutate(
 ) {
     for (k, v) in genes.iter_mut() {
         if rng.gen_bool(rate)
-            && let Some(param_type) = params.get(k) {
-                *v = match param_type {
-                    ParamType::Int { min, max } => GeneValue::Int(rng.gen_range(*min..=*max)),
-                    ParamType::Float { min, max } => GeneValue::Float(rng.gen_range(*min..=*max)),
-                };
-            }
+            && let Some(param_type) = params.get(k)
+        {
+            *v = match param_type {
+                ParamType::Int { min, max } => GeneValue::Int(rng.gen_range(*min..=*max)),
+                ParamType::Float { min, max } => GeneValue::Float(rng.gen_range(*min..=*max)),
+            };
+        }
     }
 }
 

@@ -37,6 +37,7 @@ TREND_FOLLOWING_STRATEGIES = {
     "CciMomentum",
     "ObvTrendFollowing",
     "AwesomeOscillator",
+    "VwmaCrossover",
 }
 BREAKOUT_STRATEGIES = {
     "DonchianBreakout",
@@ -148,6 +149,8 @@ def get_active_strategies():
         strategies.append("AwesomeOscillator")
     if "WilliamsR" in content:
         strategies.append("WilliamsR")
+    if "VwmaCrossover" in content:
+        strategies.append("VwmaCrossover")
 
     return strategies
 
