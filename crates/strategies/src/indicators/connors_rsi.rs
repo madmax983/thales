@@ -238,7 +238,12 @@ mod tests {
         // Verify range 0-100
         for i in 10..arr.len() {
             if let Some(v) = arr.get(i) {
-                assert!((0.0..=100.0).contains(&v), "CRSI {} out of bounds at {}", v, i);
+                assert!(
+                    (0.0..=100.0).contains(&v),
+                    "CRSI {} out of bounds at {}",
+                    v,
+                    i
+                );
             }
         }
 

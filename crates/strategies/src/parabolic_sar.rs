@@ -163,7 +163,7 @@ mod tests {
 
         // Let's rely on the indicator test for logic, and just check signal generation structure here.
 
-        assert!(signals.len() >= 0); // Always true, but ensures no panic
+        let _ = signals.len();
 
         Ok(())
     }

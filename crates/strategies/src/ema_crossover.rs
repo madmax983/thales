@@ -72,12 +72,8 @@ impl Strategy for EmaCrossover {
             // Ensure we have EMA values
             let s_curr_opt = short_ema.get(i).and_then(Decimal::from_f64_retain);
             let l_curr_opt = long_ema.get(i).and_then(Decimal::from_f64_retain);
-            let s_prev_opt = short_ema
-                .get(i - 1)
-                .and_then(Decimal::from_f64_retain);
-            let l_prev_opt = long_ema
-                .get(i - 1)
-                .and_then(Decimal::from_f64_retain);
+            let s_prev_opt = short_ema.get(i - 1).and_then(Decimal::from_f64_retain);
+            let l_prev_opt = long_ema.get(i - 1).and_then(Decimal::from_f64_retain);
 
             let atr_opt = atr_arr.get(i).and_then(Decimal::from_f64_retain);
 

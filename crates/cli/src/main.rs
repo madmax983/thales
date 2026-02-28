@@ -954,9 +954,10 @@ where
 {
     let raw = fs::read_to_string(path)?;
     if let Ok(envelope) = serde_json::from_str::<ResponseEnvelope<T>>(&raw)
-        && let Some(data) = envelope.data {
-            return Ok(data);
-        }
+        && let Some(data) = envelope.data
+    {
+        return Ok(data);
+    }
     let parsed = serde_json::from_str::<T>(&raw)?;
     Ok(parsed)
 }

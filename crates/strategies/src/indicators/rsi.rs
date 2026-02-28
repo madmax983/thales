@@ -249,7 +249,12 @@ mod tests {
         let series = s.f64()?;
         for i in 14..100 {
             if let Some(v) = series.get(i) {
-                assert!((0.0..=100.0).contains(&v), "RSI {} out of bounds at {}", v, i);
+                assert!(
+                    (0.0..=100.0).contains(&v),
+                    "RSI {} out of bounds at {}",
+                    v,
+                    i
+                );
             }
         }
 

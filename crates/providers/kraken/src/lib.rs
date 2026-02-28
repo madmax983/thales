@@ -750,10 +750,8 @@ fn parse_balance_for_currency(balances: &HashMap<String, String>, currency: &str
     }
 
     for key in keys {
-        if let Some(raw) = balances.get(&key) {
-            if let Ok(parsed) = raw.parse::<f64>() {
-                return Some(parsed);
-            }
+        if let Some(raw) = balances.get(&key).and_then(|r| r.parse::<f64>().ok()) {
+            return Some(raw);
         }
     }
 

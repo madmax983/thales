@@ -118,10 +118,9 @@ fn rolling_min(data: &[Option<Decimal>], window: usize) -> Vec<Option<Decimal>> 
 
     for i in 0..data.len() {
         // Leaving window
-        if i >= window
-            && data[i - window].is_none() {
-                none_count -= 1;
-            }
+        if i >= window && data[i - window].is_none() {
+            none_count -= 1;
+        }
 
         // Entering window
         if data[i].is_none() {
@@ -175,10 +174,9 @@ fn rolling_max(data: &[Option<Decimal>], window: usize) -> Vec<Option<Decimal>> 
 
     for i in 0..data.len() {
         // Leaving window
-        if i >= window
-            && data[i - window].is_none() {
-                none_count -= 1;
-            }
+        if i >= window && data[i - window].is_none() {
+            none_count -= 1;
+        }
 
         // Entering window
         if data[i].is_none() {
