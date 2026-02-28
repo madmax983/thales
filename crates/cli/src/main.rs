@@ -151,6 +151,12 @@ enum Commands {
         #[arg(long)]
         provider: String,
     },
+    GetBuyingPower {
+        #[arg(long)]
+        provider: String,
+        #[arg(long)]
+        symbol: Option<String>,
+    },
     OptimizeStrategy {
         #[arg(long)]
         input: PathBuf,
@@ -580,6 +586,41 @@ fn run(command: Commands) -> Result<String, CliError> {
                     .get_open_positions()
                     .map_err(|e| CliError::Provider(e.to_string()))?;
                 ok_envelope(positions, vec![])
+            }
+            _ => Err(CliError::Validation(format!(
+                "Unsupported provider: {}",
+                provider
+            ))),
+        },
+        Commands::GetBuyingPower { provider, symbol } => match provider.as_str() {
+            "kraken" => {
+                let symbol = symbol.ok_or(CliError::Validation(
+                    "symbol is required for kraken buying power lookup".to_string(),
+                ))?;
+                let cfg =
+                    KrakenConfig::from_env().map_err(|e| CliError::Provider(e.to_string()))?;
+                let client = KrakenClient::new(cfg);
+                let (currency, amount) = client
+                    .get_buying_power_for_symbol(&symbol)
+                    .map_err(|e| CliError::Provider(e.to_string()))?;
+                ok_envelope(json!({ "currency": currency, "amount": amount }), vec![])
+            }
+            "alpaca" => {
+                let cfg =
+                    AlpacaConfig::from_env().map_err(|e| CliError::Provider(e.to_string()))?;
+                let client = AlpacaClient::new(cfg);
+                let amount = client
+                    .get_buying_power()
+                    .map_err(|e| CliError::Provider(e.to_string()))?;
+                ok_envelope(json!({ "currency": "USD", "amount": amount }), vec![])
+            }
+            "paper" => {
+                let cfg = PaperConfig::from_env();
+                let client = PaperClient::new(cfg);
+                let amount = client
+                    .get_buying_power()
+                    .map_err(|e| CliError::Provider(e.to_string()))?;
+                ok_envelope(json!({ "currency": "USD", "amount": amount }), vec![])
             }
             _ => Err(CliError::Validation(format!(
                 "Unsupported provider: {}",

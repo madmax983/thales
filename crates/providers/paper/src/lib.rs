@@ -288,6 +288,12 @@ impl PaperClient {
             .collect())
     }
 
+    pub fn get_buying_power(&self) -> Result<f64, PaperProviderError> {
+        let raw = std::env::var("PAPER_BUYING_POWER").unwrap_or_else(|_| "1000000.0".to_string());
+        raw.parse::<f64>()
+            .map_err(|_| PaperProviderError::InvalidBuyingPower(raw))
+    }
+
     fn load_portfolio(&self) -> Result<PaperPortfolio, PaperProviderError> {
         if !self.config.portfolio_path.exists() {
             return Ok(PaperPortfolio {
@@ -398,6 +404,8 @@ pub enum PaperProviderError {
     InvalidSide(String),
     #[error("invalid size hint: {0}")]
     InvalidSizeHint(String),
+    #[error("invalid buying power: {0}")]
+    InvalidBuyingPower(String),
     #[error("system clock error: {0}")]
     Clock(String),
     #[error("api error: {0}")]
@@ -470,5 +478,17 @@ mod tests {
         assert_eq!(positions.len(), 1);
         assert_eq!(positions[0].qty, 0.5);
         assert_eq!(positions[0].entry_price, Some(50000.0)); // FIFO: entry price unchanged
+    }
+
+    #[test]
+    fn test_get_buying_power_returns_positive_value() {
+        let temp_file = NamedTempFile::new().unwrap();
+        let config = PaperConfig {
+            portfolio_path: temp_file.path().to_path_buf(),
+        };
+        let client = PaperClient::new(config);
+
+        let buying_power = client.get_buying_power().unwrap();
+        assert!(buying_power > 0.0);
     }
 }

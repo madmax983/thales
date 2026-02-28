@@ -604,6 +604,53 @@ impl KrakenClient {
         Ok(api_response.result.unwrap_or_default())
     }
 
+    /// Fetches account balances.
+    pub fn fetch_balance(&self) -> Result<HashMap<String, String>, KrakenProviderError> {
+        let nonce = now_unix_ms()?.to_string();
+        let body = format!("nonce={}", nonce);
+        let path = "/0/private/Balance";
+        let signature = sign_request(&self.config.api_secret, path, &nonce, &body)?;
+        let url = format!("{}{}", self.config.base_url.trim_end_matches('/'), path);
+
+        let response = self
+            .http
+            .post(url)
+            .header("API-Key", &self.config.api_key)
+            .header("API-Sign", signature)
+            .header("Content-Type", "application/x-www-form-urlencoded")
+            .body(body)
+            .send()?;
+
+        if !response.status().is_success() {
+            let status = response.status().as_u16();
+            let body = response
+                .text()
+                .unwrap_or_else(|_| "unable to decode error body".to_string());
+            return Err(KrakenProviderError::UnexpectedHttpStatus(status, body));
+        }
+
+        let api_response: KrakenBalanceResponse = response.json()?;
+        if !api_response.error.is_empty() {
+            return Err(KrakenProviderError::Api(api_response.error.join(", ")));
+        }
+
+        Ok(api_response.result.unwrap_or_default())
+    }
+
+    /// Returns available quote-currency balance for a trading symbol.
+    pub fn get_buying_power_for_symbol(
+        &self,
+        symbol: &str,
+    ) -> Result<(String, f64), KrakenProviderError> {
+        let pair = normalize_pair(symbol);
+        let quote = quote_currency_from_pair(&pair)
+            .ok_or_else(|| KrakenProviderError::UnsupportedQuoteCurrency(pair.clone()))?;
+        let balances = self.fetch_balance()?;
+        let amount = parse_balance_for_currency(&balances, quote)
+            .ok_or_else(|| KrakenProviderError::MissingBalanceForCurrency(quote.to_string()))?;
+        Ok((quote.to_string(), amount))
+    }
+
     pub fn get_open_positions(&self) -> Result<Vec<contracts::Position>, KrakenProviderError> {
         let open_positions = self.fetch_open_positions()?;
 
@@ -684,6 +731,33 @@ fn validate_size_hint(size_hint: &str) -> Result<(), KrakenProviderError> {
 
 fn normalize_pair(symbol: &str) -> String {
     symbol.replace('/', "").to_uppercase()
+}
+
+fn quote_currency_from_pair(pair: &str) -> Option<&'static str> {
+    // Longest suffixes first.
+    const KNOWN_QUOTES: [&str; 11] = [
+        "USDT", "USDC", "USD", "EUR", "GBP", "JPY", "AUD", "CAD", "CHF", "BTC", "ETH",
+    ];
+    KNOWN_QUOTES.into_iter().find(|quote| pair.ends_with(quote))
+}
+
+fn parse_balance_for_currency(balances: &HashMap<String, String>, currency: &str) -> Option<f64> {
+    let upper = currency.to_uppercase();
+    let mut keys = vec![upper.clone(), format!("Z{}", upper), format!("X{}", upper)];
+    if upper == "BTC" {
+        keys.push("XBT".to_string());
+        keys.push("XXBT".to_string());
+    }
+
+    for key in keys {
+        if let Some(raw) = balances.get(&key) {
+            if let Ok(parsed) = raw.parse::<f64>() {
+                return Some(parsed);
+            }
+        }
+    }
+
+    None
 }
 
 fn sign_request(
@@ -768,6 +842,12 @@ struct KrakenOpenPositionsResponse {
 }
 
 #[derive(Debug, Clone, Deserialize)]
+struct KrakenBalanceResponse {
+    error: Vec<String>,
+    result: Option<HashMap<String, String>>,
+}
+
+#[derive(Debug, Clone, Deserialize)]
 pub struct KrakenOpenPosition {
     pub ordertxid: String,
     pub pair: String,
@@ -827,6 +907,10 @@ pub enum KrakenProviderError {
     InvalidSide(String),
     #[error("invalid volume: {0}")]
     InvalidVolume(String),
+    #[error("unsupported quote currency for pair: {0}")]
+    UnsupportedQuoteCurrency(String),
+    #[error("missing balance for quote currency: {0}")]
+    MissingBalanceForCurrency(String),
     #[error("invalid kraken api secret encoding: {0}")]
     SecretDecode(#[from] base64::DecodeError),
     #[error("kraken request signing error: {0}")]

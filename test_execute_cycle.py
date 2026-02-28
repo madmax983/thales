@@ -91,6 +91,9 @@ class TestExecuteCycle(unittest.TestCase):
                 bars = [{"close": 100.0, "timestamp_unix_ms": 1000}]
                 return ret_json(bars)
 
+            elif "get-buying-power" in cmd_str:
+                return ret_json({"amount": 10000.0, "currency": "USD"})
+
             elif "analyze-market" in cmd_str:
                 return ret_json({"regime": "Trending Up"})
 
@@ -314,6 +317,61 @@ class TestExecuteCycle(unittest.TestCase):
         cleaned_line = last_line.replace("\\|", "PIPE")
         pipe_count = cleaned_line.count("|")
         self.assertEqual(pipe_count, 12, f"Expected 12 pipe separators for 11 columns, got {pipe_count}. Line: {last_line}")
+
+    @patch("execute_cycle.run_command")
+    def test_adjust_buy_size_to_buying_power_caps_size(self, mock_run_command):
+        mock_run_command.return_value = {"amount": 100.0, "currency": "USD"}
+
+        intent = {
+            "provider": "kraken",
+            "symbol": "BTCUSD",
+            "side": "buy",
+            "size_hint": "1.0",
+            "intent_id": "buy-1",
+            "rationale": "test",
+        }
+
+        ok, reason = execute_cycle.adjust_buy_size_to_buying_power(intent, current_price=200.0)
+
+        self.assertTrue(ok, f"Expected clamp success, got reason: {reason}")
+        self.assertLess(float(intent["size_hint"]), 1.0)
+        self.assertAlmostEqual(float(intent["size_hint"]), 0.495, places=3)
+
+    @patch("execute_cycle.run_command")
+    def test_adjust_buy_size_to_buying_power_rejects_when_no_funds(self, mock_run_command):
+        mock_run_command.return_value = {"amount": 0.0, "currency": "USD"}
+
+        intent = {
+            "provider": "kraken",
+            "symbol": "ETHUSD",
+            "side": "buy",
+            "size_hint": "0.25",
+            "intent_id": "buy-2",
+            "rationale": "test",
+        }
+
+        ok, reason = execute_cycle.adjust_buy_size_to_buying_power(intent, current_price=2500.0)
+
+        self.assertFalse(ok)
+        self.assertIn("No buying power", reason)
+
+    @patch("execute_cycle.run_command")
+    def test_adjust_buy_size_to_buying_power_ignores_non_buys(self, mock_run_command):
+        intent = {
+            "provider": "kraken",
+            "symbol": "BTCUSD",
+            "side": "sell",
+            "size_hint": "1.0",
+            "intent_id": "sell-1",
+            "rationale": "test",
+        }
+
+        ok, reason = execute_cycle.adjust_buy_size_to_buying_power(intent, current_price=90000.0)
+
+        self.assertTrue(ok)
+        self.assertEqual(reason, "Not a buy signal")
+        self.assertEqual(intent["size_hint"], "1.0")
+        mock_run_command.assert_not_called()
 
 if __name__ == '__main__':
     unittest.main()

@@ -353,6 +353,37 @@ impl AlpacaClient {
         Ok(positions)
     }
 
+    pub fn fetch_account(&self) -> Result<AlpacaAccount, AlpacaProviderError> {
+        let url = format!("{}/v2/account", self.config.base_url.trim_end_matches('/'));
+
+        let response = self
+            .http
+            .get(url)
+            .header("APCA-API-KEY-ID", &self.config.api_key)
+            .header("APCA-API-SECRET-KEY", &self.config.api_secret)
+            .send()?;
+
+        if !response.status().is_success() {
+            let status = response.status().as_u16();
+            let body = response
+                .text()
+                .unwrap_or_else(|_| "unable to decode error body".to_string());
+            return Err(AlpacaProviderError::UnexpectedHttpStatus(status, body));
+        }
+
+        let account: AlpacaAccount = response.json()?;
+        Ok(account)
+    }
+
+    pub fn get_buying_power(&self) -> Result<f64, AlpacaProviderError> {
+        let account = self.fetch_account()?;
+        account
+            .buying_power
+            .parse::<f64>()
+            .or_else(|_| account.cash.parse::<f64>())
+            .map_err(|_| AlpacaProviderError::InvalidBuyingPower(account.buying_power))
+    }
+
     pub fn get_open_positions(&self) -> Result<Vec<contracts::Position>, AlpacaProviderError> {
         let positions = self.fetch_positions()?;
         Ok(positions
@@ -449,6 +480,12 @@ struct AlpacaOrder {
 }
 
 #[derive(Debug, Clone, Deserialize)]
+pub struct AlpacaAccount {
+    pub cash: String,
+    pub buying_power: String,
+}
+
+#[derive(Debug, Clone, Deserialize)]
 pub struct AlpacaPosition {
     pub symbol: String,
     #[serde(deserialize_with = "deserialize_number_from_string")]
@@ -493,6 +530,8 @@ pub enum AlpacaProviderError {
     Clock(String),
     #[error("invalid size hint: {0}")]
     InvalidSizeHint(String),
+    #[error("invalid buying power: {0}")]
+    InvalidBuyingPower(String),
     #[error("invalid side: {0}")]
     InvalidSide(String),
     #[error("http transport error: {0}")]

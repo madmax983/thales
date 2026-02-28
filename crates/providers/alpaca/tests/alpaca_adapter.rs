@@ -233,3 +233,34 @@ fn execute_intent_submits_bracket_order() {
 
     mock.assert();
 }
+
+#[test]
+fn get_buying_power_reads_account_endpoint() {
+    let mut server = mockito::Server::new();
+    let mock = server
+        .mock("GET", "/v2/account")
+        .match_header("APCA-API-KEY-ID", "k")
+        .match_header("APCA-API-SECRET-KEY", "s")
+        .with_status(200)
+        .with_body(
+            json!({
+                "cash": "500.00",
+                "buying_power": "1234.56"
+            })
+            .to_string(),
+        )
+        .create();
+
+    let cfg = AlpacaConfig::from_env_with(|key| match key {
+        "ALPACA_API_KEY" => Some("k".to_string()),
+        "ALPACA_API_SECRET" => Some("s".to_string()),
+        "ALPACA_BASE_URL" => Some(server.url()),
+        _ => None,
+    })
+    .expect("config");
+    let client = AlpacaClient::new(cfg);
+
+    let buying_power = client.get_buying_power().expect("buying power");
+    assert!((buying_power - 1234.56).abs() < 1e-6);
+    mock.assert();
+}

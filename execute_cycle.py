@@ -764,6 +764,103 @@ def log_skipped(intent, reason):
 
     append_to_section(PORTFOLIO_PATH, "## Skipped Signals", header, row)
 
+def fetch_buying_power(provider, symbol):
+    """Fetches provider buying power for sizing buy orders."""
+    args = ["get-buying-power", "--provider", provider]
+    if symbol:
+        args.extend(["--symbol", symbol])
+
+    data = run_command(args)
+    if not isinstance(data, dict):
+        return None, None
+
+    amount_raw = data.get("amount")
+    currency = str(data.get("currency", "USD"))
+    try:
+        amount = float(amount_raw)
+    except (TypeError, ValueError):
+        return None, None
+
+    if not math.isfinite(amount):
+        return None, None
+
+    return amount, currency
+
+def format_size_hint(size):
+    """Formats a numeric size as a compact decimal string."""
+    formatted = f"{size:.8f}".rstrip("0").rstrip(".")
+    return formatted if formatted else "0"
+
+def adjust_buy_size_to_buying_power(intent, current_price, safety_buffer=0.99):
+    """
+    Caps buy size by available buying power.
+    Returns (bool, reason). False means skip execution.
+    """
+    if not isinstance(intent, dict):
+        return False, "Invalid intent format"
+
+    if intent.get("side") != "buy":
+        return True, "Not a buy signal"
+
+    size_hint = intent.get("size_hint", "0")
+    if size_hint == "max":
+        return True, "Max sizing handled by provider"
+
+    try:
+        requested_size = float(size_hint)
+    except (TypeError, ValueError):
+        return False, f"Invalid size format: {size_hint}"
+
+    if requested_size <= 0 or not math.isfinite(requested_size):
+        return False, f"Invalid size: {size_hint}"
+
+    if current_price is None:
+        return False, "Unable to fetch current price for size validation"
+    try:
+        price = float(current_price)
+    except (TypeError, ValueError):
+        return False, "Invalid current price for size validation"
+
+    if price <= 0 or not math.isfinite(price):
+        return False, "Invalid current price for size validation"
+
+    provider = intent.get("provider", "")
+    symbol = intent.get("symbol", "")
+    buying_power, currency = fetch_buying_power(provider, symbol)
+
+    if buying_power is None:
+        return False, f"Unable to determine buying power for {provider}:{symbol}"
+    if buying_power <= 0:
+        return False, f"No buying power available ({currency} {buying_power:.2f})"
+
+    max_affordable_size = (buying_power * safety_buffer) / price
+    if max_affordable_size <= 0 or not math.isfinite(max_affordable_size):
+        return False, "Computed affordable size is invalid"
+
+    if requested_size <= max_affordable_size:
+        return True, "Size within buying power"
+
+    adjusted_size = format_size_hint(max_affordable_size)
+    if adjusted_size == "0":
+        return False, f"No buying power available after buffer ({currency} {buying_power:.2f})"
+
+    intent["size_hint"] = adjusted_size
+    old_rationale = intent.get("rationale", "").strip()
+    sizing_note = (
+        f"Size adjusted from {size_hint} to {adjusted_size} based on "
+        f"{currency} buying power ({buying_power:.2f})"
+    )
+    if old_rationale:
+        intent["rationale"] = f"{old_rationale} [{sizing_note}]"
+    else:
+        intent["rationale"] = f"[{sizing_note}]"
+
+    print(
+        f"Adjusted buy size for {symbol}: {size_hint} -> {adjusted_size} "
+        f"(buying power: {currency} {buying_power:.2f})"
+    )
+    return True, "Size adjusted to available buying power"
+
 def verify_risk(intent):
     """
     Risk Agent logic to verify trade intent before execution.
@@ -1133,6 +1230,13 @@ def main():
 
         # Fetch latest price for execution logic
         current_price = get_latest_price(intent["provider"], intent["symbol"])
+
+        # Cap buy size to available account funds before execution.
+        size_ok, size_reason = adjust_buy_size_to_buying_power(intent, current_price)
+        if not size_ok:
+            print(f"Skipping {intent['symbol']}: {size_reason}")
+            log_skipped(intent, size_reason)
+            continue
 
         # Refine Intent (Algo Selection)
         intent = refine_intent(intent, current_price)

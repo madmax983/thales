@@ -11,7 +11,7 @@ fn fetch_market_data_returns_ok_envelope() {
         .args([
             "fetch-market-data",
             "--provider",
-            "alpaca",
+            "paper",
             "--symbol",
             "AAPL",
             "--timeframe",
@@ -260,4 +260,85 @@ fn execute_intent_returns_kraken_provider_result() {
     assert_eq!(json["data"][0]["provider"], "kraken");
     assert_eq!(json["data"][0]["provider_order_id"], "kraken-cli-1");
     mock.assert();
+}
+
+#[test]
+fn get_buying_power_returns_kraken_quote_balance() {
+    let mut server = mockito::Server::new();
+    let balance_mock = server
+        .mock("POST", "/0/private/Balance")
+        .match_header("API-Key", "k")
+        .match_header("API-Sign", Matcher::Regex(".+".to_string()))
+        .match_body(Matcher::Regex("nonce=\\d+".to_string()))
+        .with_status(200)
+        .with_body(
+            serde_json::json!({
+                "error": [],
+                "result": {
+                    "ZUSD": "321.5"
+                }
+            })
+            .to_string(),
+        )
+        .create();
+
+    let output = Command::new(assert_cmd::cargo::cargo_bin!("thales-cli"))
+        .env("KRAKEN_API_KEY", "k")
+        .env("KRAKEN_API_SECRET", "YWJj")
+        .env("KRAKEN_BASE_URL", server.url())
+        .args([
+            "get-buying-power",
+            "--provider",
+            "kraken",
+            "--symbol",
+            "XBT/USD",
+        ])
+        .assert()
+        .success()
+        .get_output()
+        .stdout
+        .clone();
+
+    let body = String::from_utf8(output).expect("utf8");
+    let json: serde_json::Value = serde_json::from_str(&body).expect("json");
+    assert_eq!(json["status"], "ok");
+    assert_eq!(json["data"]["currency"], "USD");
+    assert_eq!(json["data"]["amount"], 321.5);
+    balance_mock.assert();
+}
+
+#[test]
+fn get_buying_power_returns_alpaca_buying_power() {
+    let mut server = mockito::Server::new();
+    let account_mock = server
+        .mock("GET", "/v2/account")
+        .match_header("APCA-API-KEY-ID", "k")
+        .match_header("APCA-API-SECRET-KEY", "s")
+        .with_status(200)
+        .with_body(
+            serde_json::json!({
+                "cash": "500.00",
+                "buying_power": "1500.25"
+            })
+            .to_string(),
+        )
+        .create();
+
+    let output = Command::new(assert_cmd::cargo::cargo_bin!("thales-cli"))
+        .env("ALPACA_API_KEY", "k")
+        .env("ALPACA_API_SECRET", "s")
+        .env("ALPACA_BASE_URL", server.url())
+        .args(["get-buying-power", "--provider", "alpaca"])
+        .assert()
+        .success()
+        .get_output()
+        .stdout
+        .clone();
+
+    let body = String::from_utf8(output).expect("utf8");
+    let json: serde_json::Value = serde_json::from_str(&body).expect("json");
+    assert_eq!(json["status"], "ok");
+    assert_eq!(json["data"]["currency"], "USD");
+    assert_eq!(json["data"]["amount"], 1500.25);
+    account_mock.assert();
 }

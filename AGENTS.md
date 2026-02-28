@@ -88,6 +88,15 @@ cargo run -p thales-cli -- execute-intent --provider <alpaca|kraken> --input <pa
 - Validates intent first, then submits live order request to selected provider adapter.
 - Returns `ExecutionResult` including `provider_order_id`.
 
+### `get-buying-power`
+
+```powershell
+cargo run -p thales-cli -- get-buying-power --provider <alpaca|kraken|paper> [--symbol <SYMBOL>]
+```
+
+- Returns available buying power as `{ "currency": "...", "amount": <f64> }`.
+- For `kraken`, `--symbol` is required so quote-currency balance can be resolved.
+
 ### `generate-signals`
 
 ```powershell

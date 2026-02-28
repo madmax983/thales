@@ -94,6 +94,15 @@ cargo run -p thales-cli -- execute-intent \
   --input signals.json
 ```
 
+### 6. Check Buying Power
+Fetch available buying power before sizing new buy orders.
+
+```bash
+cargo run -p thales-cli -- get-buying-power \
+  --provider kraken \
+  --symbol XBT/USD
+```
+
 ## ⚙️ Configuration
 
 Set the following environment variables based on your provider:
