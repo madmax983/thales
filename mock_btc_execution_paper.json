@@ -1,0 +1,1 @@
+{"status":"ok","errors":[],"warnings":[],"data":[{"schema_version":"v0","intent_id":"crypto:BTCUSD:buy:1772298151044","provider":"paper","provider_order_id":"paper-BTCUSD-1772298212003","status":"filled","submitted_at_unix_ms":1772298212003}]}

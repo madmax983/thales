@@ -217,3 +217,38 @@
 **Volatility**: Medium
 **ATR**: 6.76
 **Assessment**: Trend Following (Long)
+
+### BTCUSD - 2026-02-26 08:19:35 (crypto)
+**Volatility**: Medium
+**ATR**: 764.82
+**Assessment**: Trend Following (Short)
+
+### APENFTUSD - 2026-02-28 16:00:00 (crypto)
+**Volatility**: Low
+**ATR**: 0.00
+**Assessment**: Mean Reversion
+
+### KOBANUSD - 2026-02-28 16:00:00 (crypto)
+**Volatility**: Extreme
+**ATR**: 0.00
+**Assessment**: Reduce Risk / Wait for Clarity
+
+### CATUSD - 2026-02-28 16:00:00 (crypto)
+**Volatility**: High
+**ATR**: 0.00
+**Assessment**: Reduce Risk / Wait for Clarity
+
+### BTCUSD - 2026-02-28 16:00:00 (crypto)
+**Volatility**: Medium
+**ATR**: 651.69
+**Assessment**: Mean Reversion
+
+### ETHUSD - 2026-02-28 16:00:00 (crypto)
+**Volatility**: Medium
+**ATR**: 24.35
+**Assessment**: Mean Reversion
+
+### BTCUSD - 2026-02-28 17:02:31 (crypto)
+**Volatility**: Medium
+**ATR**: 764.82
+**Assessment**: Trend Following (Short)
