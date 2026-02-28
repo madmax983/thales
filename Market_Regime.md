@@ -217,3 +217,38 @@
 **Regime**: Trending Up (Short Term)
 **Sentiment**: Bullish (Strong) (Overbought)
 **Confidence**: 80.00%
+
+### BTCUSD - 2026-02-26 08:19:35 (crypto)
+**Regime**: Trending Down (Short Term)
+**Sentiment**: Bearish (Strong) (Oversold)
+**Confidence**: 80.00%
+
+### APENFTUSD - 2026-02-28 16:00:00 (crypto)
+**Regime**: Ranging
+**Sentiment**: Bullish (Strong)
+**Confidence**: 50.00%
+
+### KOBANUSD - 2026-02-28 16:00:00 (crypto)
+**Regime**: Trending Up
+**Sentiment**: Bullish (Strong)
+**Confidence**: 60.00%
+
+### CATUSD - 2026-02-28 16:00:00 (crypto)
+**Regime**: Trending Up (Short Term)
+**Sentiment**: Neutral
+**Confidence**: 60.00%
+
+### BTCUSD - 2026-02-28 16:00:00 (crypto)
+**Regime**: Ranging
+**Sentiment**: Bullish
+**Confidence**: 50.00%
+
+### ETHUSD - 2026-02-28 16:00:00 (crypto)
+**Regime**: Ranging
+**Sentiment**: Bullish
+**Confidence**: 50.00%
+
+### BTCUSD - 2026-02-28 17:02:31 (crypto)
+**Regime**: Trending Down (Short Term)
+**Sentiment**: Bearish (Strong) (Oversold)
+**Confidence**: 80.00%

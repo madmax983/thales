@@ -173,3 +173,31 @@
 ### SPY - 2026-02-28 13:26:30 (equities)
 **Research**: Market rotation towards value stocks observed. AI driven growth in tech sector continues to buoy broader market indices.
 **News**: Federal Reserve signals potential rate cuts later this year. Earnings season exceeds expectations.
+
+### BTCUSD - 2026-02-26 08:19:35 (crypto)
+**Research**: None
+**News**: None
+
+### APENFTUSD - 2026-02-28 16:00:00 (crypto)
+**Research**: None
+**News**: None
+
+### KOBANUSD - 2026-02-28 16:00:00 (crypto)
+**Research**: None
+**News**: None
+
+### CATUSD - 2026-02-28 16:00:00 (crypto)
+**Research**: None
+**News**: None
+
+### BTCUSD - 2026-02-28 16:00:00 (crypto)
+**Research**: None
+**News**: None
+
+### ETHUSD - 2026-02-28 16:00:00 (crypto)
+**Research**: None
+**News**: None
+
+### BTCUSD - 2026-02-28 17:02:31 (crypto)
+**Research**: None
+**News**: None
