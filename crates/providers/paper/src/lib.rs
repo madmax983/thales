@@ -342,18 +342,14 @@ impl PaperClient {
         }
 
         let json: serde_json::Value = resp.json()?;
-        if let Some(result) = json.get("result") {
-            if let Some(obj) = result.as_object() {
-                if let Some(ticker) = obj.values().next() {
-                    if let Some(c) = ticker.get("c") {
-                        if let Some(price_str) = c.get(0).and_then(|v| v.as_str()) {
-                            if let Ok(price) = price_str.parse::<f64>() {
-                                return Ok(price);
-                            }
-                        }
-                    }
-                }
-            }
+        if let Some(result) = json.get("result")
+            && let Some(obj) = result.as_object()
+            && let Some(ticker) = obj.values().next()
+            && let Some(c) = ticker.get("c")
+            && let Some(price_str) = c.get(0).and_then(|v| v.as_str())
+            && let Ok(price) = price_str.parse::<f64>()
+        {
+            return Ok(price);
         }
         Err(PaperProviderError::Api("Price not found".to_string()))
     }

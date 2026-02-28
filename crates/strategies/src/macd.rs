@@ -73,18 +73,18 @@ impl Strategy for Macd {
         // Iterate through data
         for i in 1..close_arr.len() {
             let timestamp = time_arr.get(i).unwrap_or(0);
-            let price_opt = close_arr.get(i).and_then(|v| Decimal::from_f64_retain(v));
+            let price_opt = close_arr.get(i).and_then(Decimal::from_f64_retain);
 
-            let m_curr_opt = macd_arr.get(i).and_then(|v| Decimal::from_f64_retain(v));
-            let s_curr_opt = signal_arr.get(i).and_then(|v| Decimal::from_f64_retain(v));
+            let m_curr_opt = macd_arr.get(i).and_then(Decimal::from_f64_retain);
+            let s_curr_opt = signal_arr.get(i).and_then(Decimal::from_f64_retain);
             let m_prev_opt = macd_arr
                 .get(i - 1)
-                .and_then(|v| Decimal::from_f64_retain(v));
+                .and_then(Decimal::from_f64_retain);
             let s_prev_opt = signal_arr
                 .get(i - 1)
-                .and_then(|v| Decimal::from_f64_retain(v));
+                .and_then(Decimal::from_f64_retain);
 
-            let atr_opt = atr_arr.get(i).and_then(|v| Decimal::from_f64_retain(v));
+            let atr_opt = atr_arr.get(i).and_then(Decimal::from_f64_retain);
 
             if let (Some(mc), Some(sc), Some(mp), Some(sp), Some(price)) =
                 (m_curr_opt, s_curr_opt, m_prev_opt, s_prev_opt, price_opt)

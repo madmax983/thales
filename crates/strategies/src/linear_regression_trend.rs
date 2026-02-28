@@ -230,7 +230,7 @@ mod tests {
             values.push((0.1 * i as f64).exp());
             timestamps.push(i as i64 * 1000);
         }
-        let peak = values.last().unwrap().clone();
+        let peak = *values.last().unwrap();
         for i in 1..30 {
             values.push(peak * (-0.1 * i as f64).exp());
             timestamps.push((30 + i) as i64 * 1000);

@@ -148,13 +148,13 @@ impl KrakenClient {
                 // Pair we have is normalized.
                 // Best effort matching.
                 let pos_pair = normalize_pair(&pos.pair);
-                if pos_pair == pair {
-                    if let Ok(v) = pos.vol.parse::<f64>() {
-                        if let Ok(vc) = pos.vol_closed.parse::<f64>() {
-                            total += v - vc;
-                        } else {
-                            total += v;
-                        }
+                if pos_pair == pair
+                    && let Ok(v) = pos.vol.parse::<f64>()
+                {
+                    if let Ok(vc) = pos.vol_closed.parse::<f64>() {
+                        total += v - vc;
+                    } else {
+                        total += v;
                     }
                 }
             }
@@ -311,32 +311,30 @@ impl KrakenClient {
         }
 
         let mut orders = Vec::new();
-        if let Some(result) = api_response.result {
-            if let Some(open) = result.open {
-                for (txid, info) in open {
-                    let qty = info.vol.parse::<f64>().unwrap_or(0.0);
-                    let filled_qty = info.vol_exec.parse::<f64>().unwrap_or(0.0);
-                    let cost = info.cost.parse::<f64>().unwrap_or(0.0);
-                    let avg_fill_price = if filled_qty > 0.0 {
-                        Some(cost / filled_qty)
-                    } else {
-                        None
-                    };
+        if let Some(open) = api_response.result.and_then(|r| r.open) {
+            for (txid, info) in open {
+                let qty = info.vol.parse::<f64>().unwrap_or(0.0);
+                let filled_qty = info.vol_exec.parse::<f64>().unwrap_or(0.0);
+                let cost = info.cost.parse::<f64>().unwrap_or(0.0);
+                let avg_fill_price = if filled_qty > 0.0 {
+                    Some(cost / filled_qty)
+                } else {
+                    None
+                };
 
-                    let submitted_at = (info.opentm * 1000.0) as i64;
+                let submitted_at = (info.opentm * 1000.0) as i64;
 
-                    orders.push(contracts::Order {
-                        id: txid,
-                        symbol: info.descr.pair,
-                        qty,
-                        filled_qty,
-                        side: info.descr.type_,
-                        order_type: info.descr.ordertype,
-                        status: info.status,
-                        submitted_at_unix_ms: submitted_at,
-                        average_fill_price: avg_fill_price,
-                    });
-                }
+                orders.push(contracts::Order {
+                    id: txid,
+                    symbol: info.descr.pair,
+                    qty,
+                    filled_qty,
+                    side: info.descr.type_,
+                    order_type: info.descr.ordertype,
+                    status: info.status,
+                    submitted_at_unix_ms: submitted_at,
+                    average_fill_price: avg_fill_price,
+                });
             }
         }
 

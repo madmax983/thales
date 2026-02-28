@@ -70,10 +70,10 @@ impl Strategy for RsiMeanReversion {
         // Iterate through data
         for i in 1..close_arr.len() {
             let timestamp = time_arr.get(i).unwrap_or(0);
-            let price_opt = close_arr.get(i).and_then(|v| Decimal::from_f64_retain(v));
+            let price_opt = close_arr.get(i).and_then(Decimal::from_f64_retain);
             let rsi_opt = rsi_arr.get(i);
             let sma_opt = sma_arr.get(i);
-            let atr_opt = atr_arr.get(i).and_then(|v| Decimal::from_f64_retain(v));
+            let atr_opt = atr_arr.get(i).and_then(Decimal::from_f64_retain);
 
             if let (Some(price), Some(rsi_val)) = (price_opt, rsi_opt) {
                 // Check for Exit (Overbought) - Stateless

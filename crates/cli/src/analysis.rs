@@ -179,8 +179,8 @@ fn calculate_volatility(df: &DataFrame, bars: &[Bar]) -> (String, Option<f64>) {
 
     let mut atr_val = None;
 
-    if let Some(s) = atr_series {
-        if let Some(last) = s.f64().ok().and_then(|v| v.last()) {
+    if let Some(s) = atr_series
+        && let Some(last) = s.f64().ok().and_then(|v| v.last()) {
             atr_val = Some(last);
             let ratio = last / last_close;
 
@@ -194,7 +194,6 @@ fn calculate_volatility(df: &DataFrame, bars: &[Bar]) -> (String, Option<f64>) {
                 return ("Low".to_string(), atr_val);
             }
         }
-    }
 
     ("Unknown".to_string(), atr_val)
 }
@@ -206,8 +205,8 @@ fn calculate_sentiment(df: &DataFrame, regime: &str) -> String {
     let mut sentiment_score = 0; // -2 to +2
     let mut last_rsi_val = None;
 
-    if let Some(s) = rsi_series {
-        if let Some(val) = s.f64().ok().and_then(|v| v.last()) {
+    if let Some(s) = rsi_series
+        && let Some(val) = s.f64().ok().and_then(|v| v.last()) {
             last_rsi_val = Some(val);
             if val > 70.0 {
                 sentiment_score += 1;
@@ -223,7 +222,6 @@ fn calculate_sentiment(df: &DataFrame, regime: &str) -> String {
                 sentiment_score -= 1;
             }
         }
-    }
 
     if let Some((macd_line, signal_line, _hist)) = macd_res {
         let m = macd_line.f64().ok().and_then(|v| v.last());
@@ -299,20 +297,18 @@ fn detect_patterns(df: &DataFrame, bars: &[Bar]) -> Vec<String> {
     let prev_is_red = prev.close < prev.open;
     let curr_is_green = curr.close > curr.open;
 
-    if prev_is_red && curr_is_green {
-        if curr.open <= prev.close && curr.close >= prev.open && curr_body > prev_body {
+    if prev_is_red && curr_is_green
+        && curr.open <= prev.close && curr.close >= prev.open && curr_body > prev_body {
             patterns.push("Bullish Engulfing".to_string());
         }
-    }
 
     let prev_is_green = prev.close > prev.open;
     let curr_is_red = curr.close < curr.open;
 
-    if prev_is_green && curr_is_red {
-        if curr.open >= prev.close && curr.close <= prev.open && curr_body > prev_body {
+    if prev_is_green && curr_is_red
+        && curr.open >= prev.close && curr.close <= prev.open && curr_body > prev_body {
             patterns.push("Bearish Engulfing".to_string());
         }
-    }
 
     // Structural Patterns
     // 1. Breakout (Donchian)
@@ -324,16 +320,14 @@ fn detect_patterns(df: &DataFrame, bars: &[Bar]) -> Vec<String> {
         // Assuming strategies implementation: if i=20, value is max(0..19).
         // If Price > Upper[prev], it's a breakout.
 
-        if let Some(uv) = u {
-            if curr.close > uv {
+        if let Some(uv) = u
+            && curr.close > uv {
                 patterns.push("Breakout (Upside)".to_string());
             }
-        }
-        if let Some(lv) = l {
-            if curr.close < lv {
+        if let Some(lv) = l
+            && curr.close < lv {
                 patterns.push("Breakout (Downside)".to_string());
             }
-        }
     }
 
     // 2. Squeeze (Bollinger Band Width)
