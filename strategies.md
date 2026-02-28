@@ -1184,3 +1184,74 @@ pub struct AwesomeOscillatorConfig {
 ### Performance
 - AO calculation is O(N).
 - Signal generation loop is O(N).
+---
+
+# Trading Strategy: Williams %R
+
+## Strategy Specification
+
+**Name:** WilliamsR
+
+**Description:** A momentum indicator that measures overbought and oversold levels, similar to the Stochastic Oscillator. It ranges from -100 to 0.
+
+**Rationale:** It helps identify entry and exit points by showing when an asset is overbought (close to 0) or oversold (close to -100).
+
+## Requirements
+
+### Implementation Details
+- Uses Polars for data analysis.
+- Implements the `Strategy` trait in Rust.
+- Uses `williams_r` and `atr` indicators.
+
+### Strategy Type
+Mean Reversion
+
+### Entry Conditions
+- **Long Entry (Buy):** Williams %R crosses ABOVE `oversold_threshold` (default -80.0).
+- **Short Entry (Sell):** Williams %R crosses BELOW `overbought_threshold` (default -20.0).
+
+### Exit Conditions
+- **Long Exit (Sell):** Williams %R crosses BELOW `overbought_threshold`.
+- **Short Exit (Buy):** Williams %R crosses ABOVE `oversold_threshold`.
+- **Stop Loss:** Entry Price +/- (ATR * `stop_loss_atr_mult`).
+
+### Position Sizing
+- **Size Hint:** "100" (fixed units) or "max" (for exits).
+
+## Code Pattern
+
+```rust
+use crate::strategy::{Strategy, StrategyConfig, Signal, SignalType};
+use crate::indicators::{atr, williams_r};
+use polars::prelude::*;
+use async_trait::async_trait;
+use anyhow::Result;
+
+pub struct WilliamsR {
+    config: WilliamsRConfig,
+}
+
+#[derive(Debug, Clone, serde::Deserialize)]
+pub struct WilliamsRConfig {
+    pub period: usize,
+    pub oversold_threshold: f64,
+    pub overbought_threshold: f64,
+    pub stop_loss_atr_mult: f64,
+    pub atr_period: usize,
+    pub symbol: String,
+}
+```
+
+## Critical Considerations
+
+### Risk Management Integration
+- **Stop Loss:** Uses ATR-based stop loss to adapt to volatility.
+- **Take Profit:** Sets a take profit at 2x the risk distance (2 * ATR).
+
+### Backtesting Requirements
+- Accepts `DataFrame` with historical data.
+- Requires data length > `period`.
+
+### Performance
+- Williams %R calculation is O(N).
+- Signal generation loop is O(N).

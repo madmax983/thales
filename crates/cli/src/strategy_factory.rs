@@ -17,6 +17,7 @@ use strategies::rsi_mean_reversion::{RsiMeanReversion, RsiMeanReversionConfig};
 use strategies::stochastic_oscillator::{StochasticOscillator, StochasticOscillatorConfig};
 use strategies::strategy::Strategy;
 use strategies::supertrend::{Supertrend, SupertrendConfig};
+use strategies::williams_r::{WilliamsR, WilliamsRConfig};
 
 pub fn create_strategy(name: &str, symbol: &str) -> Result<Box<dyn Strategy>> {
     match name {
@@ -199,6 +200,17 @@ pub fn create_strategy(name: &str, symbol: &str) -> Result<Box<dyn Strategy>> {
             };
             Ok(Box::new(ConnorsRsiMeanReversion::new(config)))
         }
+        "WilliamsR" => {
+            let config = WilliamsRConfig {
+                period: 14,
+                oversold_threshold: -80.0,
+                overbought_threshold: -20.0,
+                stop_loss_atr_mult: 2.0,
+                atr_period: 14,
+                symbol: symbol.to_string(),
+            };
+            Ok(Box::new(WilliamsR::new(config)))
+        }
         _ => Err(anyhow::anyhow!("Unknown strategy: {}", name)),
     }
 }
@@ -222,5 +234,6 @@ pub fn list_strategies() -> Vec<&'static str> {
         "MoneyFlowIndex",
         "ConnorsRsiMeanReversion",
         "AwesomeOscillator",
+        "WilliamsR",
     ]
 }

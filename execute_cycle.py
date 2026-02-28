@@ -22,6 +22,7 @@ MEAN_REVERSION_STRATEGIES = {
     "StochasticOscillator",
     "MoneyFlowIndex",
     "ConnorsRsiMeanReversion",
+    "WilliamsR",
 }
 TREND_FOLLOWING_STRATEGIES = {
     "EmaCrossover",
@@ -145,6 +146,8 @@ def get_active_strategies():
         strategies.append("ConnorsRsiMeanReversion")
     if "AwesomeOscillator" in content:
         strategies.append("AwesomeOscillator")
+    if "WilliamsR" in content:
+        strategies.append("WilliamsR")
 
     return strategies
 
