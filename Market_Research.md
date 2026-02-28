@@ -149,3 +149,27 @@
 ### SPY - 2026-02-27 19:50:12 (equities)
 **Research**: Simulated Environment: Steady accumulation observed. Technical indicators suggest continuation of the trend.
 **News**: Simulated News: Analyst upgrades for key sectors. Optimism regarding future growth.
+
+### BTCUSD - 2026-02-28 13:24:34 (crypto)
+**Research**: Simulated Environment: Profit taking observed near resistance levels. Short-term bearish divergence.
+**News**: Simulated News: Mixed economic data causes market uncertainty.
+
+### ETHUSD - 2026-02-28 13:24:34 (crypto)
+**Research**: Simulated Environment: Strong uptrend detected. Market sentiment appears extremely bullish, likely driven by simulated positive macroeconomic news or sector rotation.
+**News**: Simulated News: Major indices/assets hit new highs. Positive earnings reports driving momentum.
+
+### SPY - 2026-02-28 13:24:34 (equities)
+**Research**: Simulated Environment: Steady accumulation observed. Technical indicators suggest continuation of the trend.
+**News**: Simulated News: Analyst upgrades for key sectors. Optimism regarding future growth.
+
+### BTCUSD - 2026-02-28 13:26:16 (crypto)
+**Research**: Technical indicators suggest a potential short-term pullback before continuation. Macroeconomic environment remains favorable.
+**News**: Bitcoin ETF inflows remain steady as institutional adoption continues. Analysts project further regulatory clarity.
+
+### ETHUSD - 2026-02-28 13:26:23 (crypto)
+**Research**: DeFi TVL shows consistent growth quarter-over-quarter. Layer 2 solutions taking significant load off mainnet.
+**News**: Ethereum 2.0 staking yields attract new capital. Protocol upgrades aim to reduce transaction fees further.
+
+### SPY - 2026-02-28 13:26:30 (equities)
+**Research**: Market rotation towards value stocks observed. AI driven growth in tech sector continues to buoy broader market indices.
+**News**: Federal Reserve signals potential rate cuts later this year. Earnings season exceeds expectations.
