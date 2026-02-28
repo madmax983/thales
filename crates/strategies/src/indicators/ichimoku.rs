@@ -342,7 +342,7 @@ mod tests {
         // Period 9. Result should be all None for Tenkan/Kijun/SpanA/SpanB (due to warmup or shift)
         // Chikou should be partially valid (shift -26 -> None, shift -1 -> valid).
 
-        let (t, k, sa, sb, c) = calculate(&df_short, 9, 26, 52, 26, 26)?;
+        let (t, _k, _sa, _sb, _c) = calculate(&df_short, 9, 26, 52, 26, 26)?;
 
         // With only 2 points, rolling max(9) is None.
         assert!(t.f64()?.get(0).is_none());

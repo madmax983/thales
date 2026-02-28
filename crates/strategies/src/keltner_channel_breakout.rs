@@ -195,7 +195,7 @@ mod tests {
             "volume" => vec![1000.0; 30]
         )?;
 
-        let signals = strategy.generate_signals(&df).await?;
+        let _signals = strategy.generate_signals(&df).await?;
 
         // With stable price 100, EMA=100.
         // High 101, Low 99. TR = 2. ATR ~ 2.

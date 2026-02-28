@@ -61,8 +61,22 @@ mod tests {
 
     #[test]
     fn test_calculate_ao() -> Result<()> {
-        let highs = vec![Some(10.0), Some(12.0), Some(14.0), Some(16.0), Some(18.0), Some(20.0)];
-        let lows = vec![Some(8.0), Some(10.0), Some(12.0), Some(14.0), Some(16.0), Some(18.0)];
+        let highs = vec![
+            Some(10.0),
+            Some(12.0),
+            Some(14.0),
+            Some(16.0),
+            Some(18.0),
+            Some(20.0),
+        ];
+        let lows = vec![
+            Some(8.0),
+            Some(10.0),
+            Some(12.0),
+            Some(14.0),
+            Some(16.0),
+            Some(18.0),
+        ];
 
         let data = df!(
             "high" => highs,

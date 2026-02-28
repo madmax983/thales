@@ -10,8 +10,6 @@
 use crate::indicators::rsi;
 use anyhow::{Context, Result};
 use polars::prelude::*;
-use rust_decimal::prelude::*;
-use rust_decimal::Decimal;
 
 /// Calculate Connors RSI
 ///
@@ -38,8 +36,8 @@ pub fn calculate(
     }
 
     // 1. Calculate Standard RSI
-    let rsi_series = rsi::calculate(data, rsi_period)
-        .context("Failed to calculate standard RSI")?;
+    let rsi_series =
+        rsi::calculate(data, rsi_period).context("Failed to calculate standard RSI")?;
     let rsi_arr = rsi_series.f64()?;
 
     // 2. Calculate Streak and RSI(Streak)
@@ -83,8 +81,8 @@ pub fn calculate(
     // Create temp DF for RSI(Streak) calculation
     // RSI expects "close" column
     let streak_df = df!("close" => streaks.clone())?;
-    let streak_rsi_series = rsi::calculate(&streak_df, streak_rsi_period)
-        .context("Failed to calculate RSI(Streak)")?;
+    let streak_rsi_series =
+        rsi::calculate(&streak_df, streak_rsi_period).context("Failed to calculate RSI(Streak)")?;
     let streak_rsi_arr = streak_rsi_series.f64()?;
 
     // 3. Calculate Percent Rank
@@ -129,9 +127,9 @@ pub fn calculate(
         if let Some(current_ret) = current_ret_opt {
             let start_idx = i - rank_lookback;
             let end_idx = i; // Excluding current? Definition: "percentage of values in the lookback period"
-            // Usually lookback is previous N days.
-            // ConnorsRSI definition: "Percent Rank of the one-day return over the past 100 days".
-            // Does it include today? Usually PercentRank(x, N) compares x against previous N values.
+                             // Usually lookback is previous N days.
+                             // ConnorsRSI definition: "Percent Rank of the one-day return over the past 100 days".
+                             // Does it include today? Usually PercentRank(x, N) compares x against previous N values.
 
             let mut count_lt = 0;
             let mut count_total = 0;
@@ -190,17 +188,29 @@ mod tests {
         let mut val = 100.0;
 
         // 0-10: Flat
-        for _ in 0..10 { closes.push(val); }
+        for _ in 0..10 {
+            closes.push(val);
+        }
 
         // 11-15: Up streak (+1, +2, +3, +4, +5)
-        for _ in 0..5 { val += 1.0; closes.push(val); }
+        for _ in 0..5 {
+            val += 1.0;
+            closes.push(val);
+        }
 
         // 16-20: Down streak (-1...-5)
-        for _ in 0..5 { val -= 1.0; closes.push(val); }
+        for _ in 0..5 {
+            val -= 1.0;
+            closes.push(val);
+        }
 
         // Fill up to 120 for rank lookback (100)
         for i in 0..100 {
-            if i % 2 == 0 { val += 2.0; } else { val -= 1.5; }
+            if i % 2 == 0 {
+                val += 2.0;
+            } else {
+                val -= 1.5;
+            }
             closes.push(val);
         }
 

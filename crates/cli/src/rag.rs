@@ -91,7 +91,11 @@ pub fn find_similar_trades(
                     let aliases = get_strategy_aliases(strategy_name);
                     let mut match_found = false;
                     for name in aliases {
-                        if entry.intent.rationale.starts_with(&format!("Strategy: {}", name)) {
+                        if entry
+                            .intent
+                            .rationale
+                            .starts_with(&format!("Strategy: {}", name))
+                        {
                             match_found = true;
                             break;
                         }
@@ -268,7 +272,11 @@ mod tests {
         let current_analysis = create_dummy_analysis("AAPL", "Trending Up", "Low");
 
         // New name in search
-        let similar = find_similar_trades(&current_analysis, history_file.path(), Some("BollingerBands"))?;
+        let similar = find_similar_trades(
+            &current_analysis,
+            history_file.path(),
+            Some("BollingerBands"),
+        )?;
 
         assert_eq!(similar.len(), 1, "Should find trade despite name change");
         assert_eq!(similar[0].intent.strategy, "BollingerBandsMeanReversion");

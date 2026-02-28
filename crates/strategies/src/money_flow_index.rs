@@ -198,7 +198,12 @@ mod tests {
 
         // Assert within delta 0.001 of -1.875
         let expected = -1.875;
-        assert!((sl - expected).abs() < 0.001, "SL was {}, expected {}", sl, expected);
+        assert!(
+            (sl - expected).abs() < 0.001,
+            "SL was {}, expected {}",
+            sl,
+            expected
+        );
 
         Ok(())
     }

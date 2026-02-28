@@ -227,7 +227,11 @@ pub async fn generate_signals(
             // Let's leave this part alone to minimize regression risk unless requested.
             let use_atr_sl_override = matches!(
                 strategy_name,
-                "EmaCrossover" | "RsiMeanReversion" | "Macd" | "ConnorsRsiMeanReversion" | "WilliamsR"
+                "EmaCrossover"
+                    | "RsiMeanReversion"
+                    | "Macd"
+                    | "ConnorsRsiMeanReversion"
+                    | "WilliamsR"
             );
 
             // Calculate SL/TP
@@ -311,7 +315,8 @@ pub async fn generate_signals(
                 eprintln!("DEBUG: Positions available: {:?}", positions);
             }
 
-            let (final_signal_type, mut rationale_suffix) = resolve_signal_type(signal, existing_pos);
+            let (final_signal_type, mut rationale_suffix) =
+                resolve_signal_type(signal, existing_pos);
 
             // Filter out invalid Exits (no position)
             if !skip {
@@ -355,13 +360,11 @@ pub async fn generate_signals(
                 } else {
                     // Momentum/Breakout - Allowed to chase, but add rationale
                     if signal.side == "buy" && market_analysis.sentiment.contains("Overbought") {
-                        rationale_suffix
-                            .push_str(" (Buying strength in Overbought conditions)");
+                        rationale_suffix.push_str(" (Buying strength in Overbought conditions)");
                     } else if signal.side == "sell"
                         && market_analysis.sentiment.contains("Oversold")
                     {
-                        rationale_suffix
-                            .push_str(" (Selling weakness in Oversold conditions)");
+                        rationale_suffix.push_str(" (Selling weakness in Oversold conditions)");
                     }
                 }
             }
@@ -755,11 +758,7 @@ mod tests {
         let intent = &intents[0];
 
         // "Strategy: {}. Reason: {}. Market Context: {} ({} Volatility). {}"
-        assert!(
-            intent
-                .rationale
-                .contains("Strategy: BollingerBands")
-        );
+        assert!(intent.rationale.contains("Strategy: BollingerBands"));
         assert!(intent.rationale.contains("Market Context:"));
         assert!(intent.rationale.contains("Volatility"));
         assert!(intent.rationale.contains("No similar past trades found")); // Default history context
@@ -2140,8 +2139,13 @@ mod tests {
         let intent = &intents[0];
         assert_eq!(intent.side, "buy");
         assert!(intent.rationale.contains("AdxMomentum"));
-        assert!(intent.rationale.contains("Buying strength in Overbought conditions"),
-            "Rationale should explain why chasing is allowed: {}", intent.rationale);
+        assert!(
+            intent
+                .rationale
+                .contains("Buying strength in Overbought conditions"),
+            "Rationale should explain why chasing is allowed: {}",
+            intent.rationale
+        );
 
         Ok(())
     }
@@ -2500,7 +2504,7 @@ mod tests {
         assert_eq!(intent.side, "sell");
 
         let price = spike_price;
-        let atr = 2.0;
+        let _atr = 2.0;
 
         // Verify SL
         // Logic: if side == "sell" -> SL = Price + (2.0 * ATR) = 110 + 4 = 114.
@@ -2635,7 +2639,11 @@ mod tests {
             // Expected ATR SL = 68.0. Fixed SL = 66.5.
             // Check if SL is closer to 68.0 than 66.5
             // Or just check > 67.0
-            assert!(sl > 67.0, "SL should be ATR based (approx 68.0), got {}", sl);
+            assert!(
+                sl > 67.0,
+                "SL should be ATR based (approx 68.0), got {}",
+                sl
+            );
             assert!(
                 (sl - 68.0).abs() < 0.001,
                 "SL should match 2.0 * ATR exactly"

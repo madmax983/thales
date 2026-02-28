@@ -74,10 +74,7 @@ impl Strategy for Supertrend {
                             confidence: 0.8,
                             stop_loss: Some(st_val),
                             take_profit: None,
-                            reason: format!(
-                                "Supertrend Flip Up (Price {:.2} > Upper Band)",
-                                close
-                            ), // Simplified reason as we don't have previous band easily accessible here without extra lookups
+                            reason: format!("Supertrend Flip Up (Price {:.2} > Upper Band)", close), // Simplified reason as we don't have previous band easily accessible here without extra lookups
                             timestamp_ms: timestamp,
                         });
                     } else if trend == -1 {

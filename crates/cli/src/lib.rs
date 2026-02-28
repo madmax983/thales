@@ -22,3 +22,5 @@ pub mod rag;
 pub mod reporting;
 pub mod signals;
 pub mod strategy_factory;
+#[cfg(feature = "nova")]
+pub mod volume_profile;
