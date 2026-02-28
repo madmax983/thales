@@ -644,6 +644,35 @@
 | 2026-02-28 04:06:21 | SPY | NO_STRATEGY_SIGNAL | No active strategy generated a signal (Strategies: BollingerBands, EmaCrossover, RsiMeanReversion, Macd, Supertrend, DonchianBreakout, ParabolicSar, KeltnerChannelBreakout, StochasticOscillator, AdxMomentum, IchimokuCloud, CciMomentum, LinearRegressionTrend, ObvTrendFollowing, MoneyFlowIndex, ConnorsRsiMeanReversion, AwesomeOscillator) |
 | 2026-02-28 04:06:22 | BTCUSD | NO_STRATEGY_SIGNAL | No active strategy generated a signal (Strategies: BollingerBands, EmaCrossover, RsiMeanReversion, Macd, Supertrend, DonchianBreakout, ParabolicSar, KeltnerChannelBreakout, StochasticOscillator, AdxMomentum, IchimokuCloud, CciMomentum, LinearRegressionTrend, ObvTrendFollowing, MoneyFlowIndex, ConnorsRsiMeanReversion, AwesomeOscillator) |
 | 2026-02-28 04:06:22 | ETHUSD | NO_STRATEGY_SIGNAL | No active strategy generated a signal (Strategies: BollingerBands, EmaCrossover, RsiMeanReversion, Macd, Supertrend, DonchianBreakout, ParabolicSar, KeltnerChannelBreakout, StochasticOscillator, AdxMomentum, IchimokuCloud, CciMomentum, LinearRegressionTrend, ObvTrendFollowing, MoneyFlowIndex, ConnorsRsiMeanReversion, AwesomeOscillator) |
+| 2026-02-28 05:42:19 | XXBTZUSD | STALE_SIGNAL | Signal too old (44.7 hours > 24 hours) |
+| 2026-02-28 05:42:19 | MOGUSD | STALE_SIGNAL | Signal too old (44.7 hours > 24 hours) |
+| 2026-02-28 05:42:19 | SPY | STALE_SIGNAL | Signal too old (44.5 hours > 24 hours) |
+| 2026-02-28 05:42:19 | XXBTZUSD | STALE_SIGNAL | Signal too old (40.7 hours > 24 hours) |
+| 2026-02-28 05:42:19 | XETHZUSD | STALE_SIGNAL | Signal too old (40.7 hours > 24 hours) |
+| 2026-02-28 05:42:19 | SPY | STALE_SIGNAL | Signal too old (40.7 hours > 24 hours) |
+| 2026-02-28 05:42:19 | BTCUSD | STALE_SIGNAL | Signal too old (36.1 hours > 24 hours) |
+| 2026-02-28 05:42:19 | ETHUSD | STALE_SIGNAL | Signal too old (36.1 hours > 24 hours) |
+| 2026-02-28 05:42:19 | SPY | STALE_SIGNAL | Signal too old (36.1 hours > 24 hours) |
+| 2026-02-28 05:42:19 | XXBTZUSD | STALE_SIGNAL | Signal too old (34.7 hours > 24 hours) |
+| 2026-02-28 05:42:19 | XXBTZUSD | STALE_SIGNAL | Signal too old (34.7 hours > 24 hours) |
+| 2026-02-28 05:42:19 | XETHZUSD | STALE_SIGNAL | Signal too old (34.7 hours > 24 hours) |
+| 2026-02-28 05:42:19 | SPY | STALE_SIGNAL | Signal too old (34.7 hours > 24 hours) |
+| 2026-02-28 05:42:19 | XXBTZUSD | STALE_SIGNAL | Signal too old (32.7 hours > 24 hours) |
+| 2026-02-28 05:42:19 | XETHZUSD | STALE_SIGNAL | Signal too old (32.7 hours > 24 hours) |
+| 2026-02-28 05:42:19 | SPY | STALE_SIGNAL | Signal too old (32.7 hours > 24 hours) |
+| 2026-02-28 05:42:19 | XXBTZUSD | STALE_SIGNAL | Signal too old (24.7 hours > 24 hours) |
+| 2026-02-28 05:42:19 | XETHZUSD | STALE_SIGNAL | Signal too old (24.7 hours > 24 hours) |
+| 2026-02-28 05:42:19 | XXBTZUSD | STALE_SIGNAL | Signal too old (24.7 hours > 24 hours) |
+| 2026-02-28 05:42:19 | XETHZUSD | STALE_SIGNAL | Signal too old (24.7 hours > 24 hours) |
+| 2026-02-28 05:42:19 | SPY | equities:SPY:sell:1772257339530 | CONFLICT: Conflicting signals (Buy and Sell) detected for SPY. Trading halted for this asset. |
+| 2026-02-28 05:42:19 | SPY | equities:SPY:buy:1772257339530 | CONFLICT: Conflicting signals (Buy and Sell) detected for SPY. Trading halted for this asset. |
+| 2026-02-28 05:42:19 | SPY | equities:SPY:buy:1772257339530 | CONFLICT: Conflicting signals (Buy and Sell) detected for SPY. Trading halted for this asset. |
+| 2026-02-28 05:42:19 | BTCUSD | crypto:BTCUSD:buy:1772257339633 | CONFLICT: Conflicting signals (Buy and Sell) detected for BTCUSD. Trading halted for this asset. |
+| 2026-02-28 05:42:19 | BTCUSD | crypto:BTCUSD:buy:1772257339633 | CONFLICT: Conflicting signals (Buy and Sell) detected for BTCUSD. Trading halted for this asset. |
+| 2026-02-28 05:42:19 | BTCUSD | crypto:BTCUSD:sell:1772257339633 | CONFLICT: Conflicting signals (Buy and Sell) detected for BTCUSD. Trading halted for this asset. |
+| 2026-02-28 05:42:19 | ETHUSD | crypto:ETHUSD:sell:1772257339730 | CONFLICT: Conflicting signals (Buy and Sell) detected for ETHUSD. Trading halted for this asset. |
+| 2026-02-28 05:42:19 | ETHUSD | crypto:ETHUSD:buy:1772257339730 | CONFLICT: Conflicting signals (Buy and Sell) detected for ETHUSD. Trading halted for this asset. |
+| 2026-02-28 05:42:19 | ETHUSD | crypto:ETHUSD:buy:1772257339730 | CONFLICT: Conflicting signals (Buy and Sell) detected for ETHUSD. Trading halted for this asset. |
 
 ## Executed Trades
 
@@ -658,3 +687,4 @@
 | 2026-02-26 16:29:05 | crypto | XETHZUSD | buy (Entry) | 1.232978 | Market | 3270.0353888179957 | 3440.500495392627 | - | crypto:XETHZUSD:buy:1772123344714 | Strategy: DonchianBreakout (64%, MA: 0.80). Reason: Breakout: Close 3351.14 > Upper Channel 3292.00. Market Context: Trending Up (Medium Volatility). No similar past trades found. Research: Ethereum shows strength against Bitcoin, driven by network activity and L2 growth. Testing 2150 resistance.. News: Ethereum developers discuss upcoming upgrade schedule.. |
 | 2026-02-26 16:31:30 | crypto | XETHZUSD | buy (ScaleIn) | 1.232978 | Market | 3270.0353888179957 | 3440.500495392627 | - | crypto:XETHZUSD:buy:1772123489776 | Strategy: DonchianBreakout (64%, MA: 0.80). Reason: Breakout: Close 3351.14 > Upper Channel 3292.00. Market Context: Trending Up (Medium Volatility). No similar past trades found. Research: Ethereum shows strength against Bitcoin, driven by network activity and L2 growth. Testing 2150 resistance.. News: Ethereum developers discuss upcoming upgrade schedule.. (Scaled into existing position) |
 | 2026-02-26 17:21:28 | crypto | XETHZUSD | buy (Entry) | 1.232978 | Market | 3270.0353888179957 | 3440.500495392627 | - | crypto:XETHZUSD:buy:1772126487965 | Strategy: DonchianBreakout (64%, MA: 0.80). Reason: Breakout: Close 3351.14 > Upper Channel 3292.00. Market Context: Trending Up (Medium Volatility). No similar past trades found. Research: Ethereum shows strength against Bitcoin, driven by network activity and L2 growth. Testing 2150 resistance.. News: Ethereum developers discuss upcoming upgrade schedule.. |
+| 2026-02-28 05:54:52 | crypto | ETHUSD | buy (Entry) | 2.749717 | Market | 1881.95 | 1991.05 | 100 | crypto:ETHUSD:buy:1772254800000 | Strategy: MoneyFlowIndex (64%, MA: 0.80). Reason: MFI Oversold: 19.51 < 20.00. Market Context: Trending Up (Low Volatility). No similar past trades found. (Risk: $100, SL Dist: 36.37) [REJECTED: provider error: kraken api error: EOrder:Insufficient funds] |
