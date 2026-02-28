@@ -866,6 +866,88 @@
 | 2026-02-28 21:34:58 | BTCUSD | NO_STRATEGY_SIGNAL | No active strategy generated a signal (Strategies: BollingerBands, EmaCrossover, RsiMeanReversion, Macd, Supertrend, DonchianBreakout, ParabolicSar, KeltnerChannelBreakout, StochasticOscillator, AdxMomentum, IchimokuCloud, CciMomentum, LinearRegressionTrend, ObvTrendFollowing, MoneyFlowIndex, ConnorsRsiMeanReversion, AwesomeOscillator, WilliamsR) |
 | 2026-02-28 21:34:58 | ETHUSD | NO_STRATEGY_SIGNAL | No active strategy generated a signal (Strategies: BollingerBands, EmaCrossover, RsiMeanReversion, Macd, Supertrend, DonchianBreakout, ParabolicSar, KeltnerChannelBreakout, StochasticOscillator, AdxMomentum, IchimokuCloud, CciMomentum, LinearRegressionTrend, ObvTrendFollowing, MoneyFlowIndex, ConnorsRsiMeanReversion, AwesomeOscillator, WilliamsR) |
 | 2026-02-28 21:34:58 | SPY | NO_STRATEGY_SIGNAL | No active strategy generated a signal (Strategies: BollingerBands, EmaCrossover, RsiMeanReversion, Macd, Supertrend, DonchianBreakout, ParabolicSar, KeltnerChannelBreakout, StochasticOscillator, AdxMomentum, IchimokuCloud, CciMomentum, LinearRegressionTrend, ObvTrendFollowing, MoneyFlowIndex, ConnorsRsiMeanReversion, AwesomeOscillator, WilliamsR) |
+| 2026-02-28 22:16:43 | XXBTZUSD | STALE_SIGNAL | Signal too old (41.3 hours > 24 hours) |
+| 2026-02-28 22:16:43 | XETHZUSD | STALE_SIGNAL | Signal too old (41.3 hours > 24 hours) |
+| 2026-02-28 22:16:43 | XXBTZUSD | STALE_SIGNAL | Signal too old (41.3 hours > 24 hours) |
+| 2026-02-28 22:16:43 | XETHZUSD | STALE_SIGNAL | Signal too old (41.3 hours > 24 hours) |
+| 2026-02-28 22:16:43 | XXBTZUSD | STALE_SIGNAL | Signal too old (37.3 hours > 24 hours) |
+| 2026-02-28 22:16:43 | XXBTZUSD | STALE_SIGNAL | Signal too old (37.3 hours > 24 hours) |
+| 2026-02-28 22:16:43 | XETHZUSD | STALE_SIGNAL | Signal too old (37.3 hours > 24 hours) |
+| 2026-02-28 22:16:43 | SPY | STALE_SIGNAL | Signal too old (37.3 hours > 24 hours) |
+| 2026-02-28 22:16:43 | SPY | STALE_SIGNAL | Signal too old (32.6 hours > 24 hours) |
+| 2026-02-28 22:16:43 | XXBTZUSD | STALE_SIGNAL | Signal too old (32.6 hours > 24 hours) |
+| 2026-02-28 22:16:43 | XXBTZUSD | STALE_SIGNAL | Signal too old (34.3 hours > 24 hours) |
+| 2026-02-28 22:16:43 | XXBTZUSD | STALE_SIGNAL | Signal too old (34.3 hours > 24 hours) |
+| 2026-02-28 22:16:43 | XXBTZUSD | STALE_SIGNAL | Signal too old (34.3 hours > 24 hours) |
+| 2026-02-28 22:16:43 | BTCUSD | STALE_SIGNAL | Signal too old (26.4 hours > 24 hours) |
+| 2026-02-28 22:16:43 | ETHUSD | STALE_SIGNAL | Signal too old (26.4 hours > 24 hours) |
+| 2026-02-28 22:16:43 | SPY | STALE_SIGNAL | Signal too old (26.4 hours > 24 hours) |
+| 2026-02-28 22:16:43 | BTCUSD | NO_STRATEGY_SIGNAL | No active strategy generated a signal (Strategies: BollingerBands, EmaCrossover, RsiMeanReversion, Macd, Supertrend, DonchianBreakout, ParabolicSar, KeltnerChannelBreakout, StochasticOscillator, AdxMomentum, IchimokuCloud, CciMomentum, LinearRegressionTrend, ObvTrendFollowing, MoneyFlowIndex, ConnorsRsiMeanReversion, AwesomeOscillator, WilliamsR) |
+| 2026-02-28 22:16:44 | ETHUSD | NO_STRATEGY_SIGNAL | No active strategy generated a signal (Strategies: BollingerBands, EmaCrossover, RsiMeanReversion, Macd, Supertrend, DonchianBreakout, ParabolicSar, KeltnerChannelBreakout, StochasticOscillator, AdxMomentum, IchimokuCloud, CciMomentum, LinearRegressionTrend, ObvTrendFollowing, MoneyFlowIndex, ConnorsRsiMeanReversion, AwesomeOscillator, WilliamsR) |
+| 2026-02-28 22:16:44 | SPY | NO_STRATEGY_SIGNAL | No active strategy generated a signal (Strategies: BollingerBands, EmaCrossover, RsiMeanReversion, Macd, Supertrend, DonchianBreakout, ParabolicSar, KeltnerChannelBreakout, StochasticOscillator, AdxMomentum, IchimokuCloud, CciMomentum, LinearRegressionTrend, ObvTrendFollowing, MoneyFlowIndex, ConnorsRsiMeanReversion, AwesomeOscillator, WilliamsR) |
+| 2026-02-28 22:21:27 | XXBTZUSD | STALE_SIGNAL | Signal too old (41.4 hours > 24 hours) |
+| 2026-02-28 22:21:27 | XETHZUSD | STALE_SIGNAL | Signal too old (41.4 hours > 24 hours) |
+| 2026-02-28 22:21:27 | XXBTZUSD | STALE_SIGNAL | Signal too old (41.4 hours > 24 hours) |
+| 2026-02-28 22:21:27 | XETHZUSD | STALE_SIGNAL | Signal too old (41.4 hours > 24 hours) |
+| 2026-02-28 22:21:27 | XXBTZUSD | STALE_SIGNAL | Signal too old (37.4 hours > 24 hours) |
+| 2026-02-28 22:21:27 | XXBTZUSD | STALE_SIGNAL | Signal too old (37.4 hours > 24 hours) |
+| 2026-02-28 22:21:27 | XETHZUSD | STALE_SIGNAL | Signal too old (37.4 hours > 24 hours) |
+| 2026-02-28 22:21:27 | SPY | STALE_SIGNAL | Signal too old (37.4 hours > 24 hours) |
+| 2026-02-28 22:21:27 | SPY | STALE_SIGNAL | Signal too old (32.7 hours > 24 hours) |
+| 2026-02-28 22:21:27 | XXBTZUSD | STALE_SIGNAL | Signal too old (32.7 hours > 24 hours) |
+| 2026-02-28 22:21:27 | XXBTZUSD | STALE_SIGNAL | Signal too old (34.4 hours > 24 hours) |
+| 2026-02-28 22:21:27 | XXBTZUSD | STALE_SIGNAL | Signal too old (34.4 hours > 24 hours) |
+| 2026-02-28 22:21:27 | XXBTZUSD | STALE_SIGNAL | Signal too old (34.4 hours > 24 hours) |
+| 2026-02-28 22:21:27 | BTCUSD | STALE_SIGNAL | Signal too old (26.5 hours > 24 hours) |
+| 2026-02-28 22:21:27 | ETHUSD | STALE_SIGNAL | Signal too old (26.5 hours > 24 hours) |
+| 2026-02-28 22:21:27 | SPY | STALE_SIGNAL | Signal too old (26.5 hours > 24 hours) |
+| 2026-02-28 22:21:27 | BTCUSD | NO_STRATEGY_SIGNAL | No active strategy generated a signal (Strategies: BollingerBands, EmaCrossover, RsiMeanReversion, Macd, Supertrend, DonchianBreakout, ParabolicSar, KeltnerChannelBreakout, StochasticOscillator, AdxMomentum, IchimokuCloud, CciMomentum, LinearRegressionTrend, ObvTrendFollowing, MoneyFlowIndex, ConnorsRsiMeanReversion, AwesomeOscillator, WilliamsR) |
+| 2026-02-28 22:21:28 | ETHUSD | NO_STRATEGY_SIGNAL | No active strategy generated a signal (Strategies: BollingerBands, EmaCrossover, RsiMeanReversion, Macd, Supertrend, DonchianBreakout, ParabolicSar, KeltnerChannelBreakout, StochasticOscillator, AdxMomentum, IchimokuCloud, CciMomentum, LinearRegressionTrend, ObvTrendFollowing, MoneyFlowIndex, ConnorsRsiMeanReversion, AwesomeOscillator, WilliamsR) |
+| 2026-02-28 22:21:28 | SPY | NO_STRATEGY_SIGNAL | No active strategy generated a signal (Strategies: BollingerBands, EmaCrossover, RsiMeanReversion, Macd, Supertrend, DonchianBreakout, ParabolicSar, KeltnerChannelBreakout, StochasticOscillator, AdxMomentum, IchimokuCloud, CciMomentum, LinearRegressionTrend, ObvTrendFollowing, MoneyFlowIndex, ConnorsRsiMeanReversion, AwesomeOscillator, WilliamsR) |
+| 2026-02-28 22:21:37 | XXBTZUSD | STALE_SIGNAL | Signal too old (41.4 hours > 24 hours) |
+| 2026-02-28 22:21:37 | XETHZUSD | STALE_SIGNAL | Signal too old (41.4 hours > 24 hours) |
+| 2026-02-28 22:21:37 | XXBTZUSD | STALE_SIGNAL | Signal too old (41.4 hours > 24 hours) |
+| 2026-02-28 22:21:37 | XETHZUSD | STALE_SIGNAL | Signal too old (41.4 hours > 24 hours) |
+| 2026-02-28 22:21:37 | XXBTZUSD | STALE_SIGNAL | Signal too old (37.4 hours > 24 hours) |
+| 2026-02-28 22:21:37 | XXBTZUSD | STALE_SIGNAL | Signal too old (37.4 hours > 24 hours) |
+| 2026-02-28 22:21:37 | XETHZUSD | STALE_SIGNAL | Signal too old (37.4 hours > 24 hours) |
+| 2026-02-28 22:21:37 | SPY | STALE_SIGNAL | Signal too old (37.4 hours > 24 hours) |
+| 2026-02-28 22:21:37 | SPY | STALE_SIGNAL | Signal too old (32.7 hours > 24 hours) |
+| 2026-02-28 22:21:37 | XXBTZUSD | STALE_SIGNAL | Signal too old (32.7 hours > 24 hours) |
+| 2026-02-28 22:21:37 | XXBTZUSD | STALE_SIGNAL | Signal too old (34.4 hours > 24 hours) |
+| 2026-02-28 22:21:37 | XXBTZUSD | STALE_SIGNAL | Signal too old (34.4 hours > 24 hours) |
+| 2026-02-28 22:21:37 | XXBTZUSD | STALE_SIGNAL | Signal too old (34.4 hours > 24 hours) |
+| 2026-02-28 22:21:37 | BTCUSD | STALE_SIGNAL | Signal too old (26.5 hours > 24 hours) |
+| 2026-02-28 22:21:37 | ETHUSD | STALE_SIGNAL | Signal too old (26.5 hours > 24 hours) |
+| 2026-02-28 22:21:37 | SPY | STALE_SIGNAL | Signal too old (26.5 hours > 24 hours) |
+| 2026-02-28 22:21:37 | BTCUSD | NO_STRATEGY_SIGNAL | No active strategy generated a signal (Strategies: BollingerBands, EmaCrossover, RsiMeanReversion, Macd, Supertrend, DonchianBreakout, ParabolicSar, KeltnerChannelBreakout, StochasticOscillator, AdxMomentum, IchimokuCloud, CciMomentum, LinearRegressionTrend, ObvTrendFollowing, MoneyFlowIndex, ConnorsRsiMeanReversion, AwesomeOscillator, WilliamsR) |
+| 2026-02-28 22:21:38 | ETHUSD | NO_STRATEGY_SIGNAL | No active strategy generated a signal (Strategies: BollingerBands, EmaCrossover, RsiMeanReversion, Macd, Supertrend, DonchianBreakout, ParabolicSar, KeltnerChannelBreakout, StochasticOscillator, AdxMomentum, IchimokuCloud, CciMomentum, LinearRegressionTrend, ObvTrendFollowing, MoneyFlowIndex, ConnorsRsiMeanReversion, AwesomeOscillator, WilliamsR) |
+| 2026-02-28 22:21:38 | SPY | NO_STRATEGY_SIGNAL | No active strategy generated a signal (Strategies: BollingerBands, EmaCrossover, RsiMeanReversion, Macd, Supertrend, DonchianBreakout, ParabolicSar, KeltnerChannelBreakout, StochasticOscillator, AdxMomentum, IchimokuCloud, CciMomentum, LinearRegressionTrend, ObvTrendFollowing, MoneyFlowIndex, ConnorsRsiMeanReversion, AwesomeOscillator, WilliamsR) |
+| 2026-02-28 22:27:19 | XXBTZUSD | STALE_SIGNAL | Signal too old (41.5 hours > 24 hours) |
+| 2026-02-28 22:27:19 | XETHZUSD | STALE_SIGNAL | Signal too old (41.5 hours > 24 hours) |
+| 2026-02-28 22:27:19 | XXBTZUSD | STALE_SIGNAL | Signal too old (41.5 hours > 24 hours) |
+| 2026-02-28 22:27:19 | XETHZUSD | STALE_SIGNAL | Signal too old (41.5 hours > 24 hours) |
+| 2026-02-28 22:27:19 | XXBTZUSD | STALE_SIGNAL | Signal too old (37.5 hours > 24 hours) |
+| 2026-02-28 22:27:19 | XXBTZUSD | STALE_SIGNAL | Signal too old (37.5 hours > 24 hours) |
+| 2026-02-28 22:27:19 | XETHZUSD | STALE_SIGNAL | Signal too old (37.5 hours > 24 hours) |
+| 2026-02-28 22:27:19 | SPY | STALE_SIGNAL | Signal too old (37.5 hours > 24 hours) |
+| 2026-02-28 22:27:19 | SPY | STALE_SIGNAL | Signal too old (32.8 hours > 24 hours) |
+| 2026-02-28 22:27:19 | XXBTZUSD | STALE_SIGNAL | Signal too old (32.8 hours > 24 hours) |
+| 2026-02-28 22:27:19 | XXBTZUSD | STALE_SIGNAL | Signal too old (34.5 hours > 24 hours) |
+| 2026-02-28 22:27:19 | XXBTZUSD | STALE_SIGNAL | Signal too old (34.5 hours > 24 hours) |
+| 2026-02-28 22:27:19 | XXBTZUSD | STALE_SIGNAL | Signal too old (34.5 hours > 24 hours) |
+| 2026-02-28 22:27:19 | BTCUSD | STALE_SIGNAL | Signal too old (26.6 hours > 24 hours) |
+| 2026-02-28 22:27:19 | ETHUSD | STALE_SIGNAL | Signal too old (26.6 hours > 24 hours) |
+| 2026-02-28 22:27:19 | SPY | STALE_SIGNAL | Signal too old (26.6 hours > 24 hours) |
+| 2026-02-28 22:27:19 | BTCUSD | crypto:BTCUSD:buy:1772317639765 | CONFLICT: Conflicting signals (Buy and Sell) detected for BTCUSD. Trading halted for this asset. |
+| 2026-02-28 22:27:19 | BTCUSD | crypto:BTCUSD:buy:1772317639765 | CONFLICT: Conflicting signals (Buy and Sell) detected for BTCUSD. Trading halted for this asset. |
+| 2026-02-28 22:27:19 | BTCUSD | crypto:BTCUSD:sell:1772317639765 | CONFLICT: Conflicting signals (Buy and Sell) detected for BTCUSD. Trading halted for this asset. |
+| 2026-02-28 22:27:20 | ETHUSD | crypto:ETHUSD:sell:1772317639901 | CONFLICT: Conflicting signals (Buy and Sell) detected for ETHUSD. Trading halted for this asset. |
+| 2026-02-28 22:27:20 | ETHUSD | crypto:ETHUSD:buy:1772317639901 | CONFLICT: Conflicting signals (Buy and Sell) detected for ETHUSD. Trading halted for this asset. |
+| 2026-02-28 22:27:20 | ETHUSD | crypto:ETHUSD:buy:1772317639901 | CONFLICT: Conflicting signals (Buy and Sell) detected for ETHUSD. Trading halted for this asset. |
+| 2026-02-28 22:27:20 | SPY | equities:SPY:sell:1772317640015 | CONFLICT: Conflicting signals (Buy and Sell) detected for SPY. Trading halted for this asset. |
+| 2026-02-28 22:27:20 | SPY | equities:SPY:buy:1772317640015 | CONFLICT: Conflicting signals (Buy and Sell) detected for SPY. Trading halted for this asset. |
+| 2026-02-28 22:27:20 | SPY | equities:SPY:buy:1772317640015 | CONFLICT: Conflicting signals (Buy and Sell) detected for SPY. Trading halted for this asset. |
 
 ## Executed Trades
 
