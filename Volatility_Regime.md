@@ -252,3 +252,8 @@
 **Volatility**: Medium
 **ATR**: 764.82
 **Assessment**: Trend Following (Short)
+
+### BTCUSD - 2026-02-28 17:33:07 (crypto)
+**Volatility**: Medium
+**ATR**: 764.82
+**Assessment**: Trend Following (Short)

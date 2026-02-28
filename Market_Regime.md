@@ -252,3 +252,8 @@
 **Regime**: Trending Down (Short Term)
 **Sentiment**: Bearish (Strong) (Oversold)
 **Confidence**: 80.00%
+
+### BTCUSD - 2026-02-28 17:33:07 (crypto)
+**Regime**: Trending Down (Short Term)
+**Sentiment**: Bearish (Strong) (Oversold)
+**Confidence**: 80.00%
