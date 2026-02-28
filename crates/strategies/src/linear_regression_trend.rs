@@ -1,5 +1,5 @@
 use crate::indicators::{atr, linear_regression};
-use crate::strategy::{Signal, SignalType, Strategy, StrategyConfig, StrategyType};
+use crate::strategy::{Signal, SignalType, Strategy, StrategyType};
 use anyhow::{Context, Result};
 use async_trait::async_trait;
 use polars::prelude::*;

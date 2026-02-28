@@ -89,7 +89,7 @@ pub fn calculate(df: &DataFrame, period: usize) -> Result<Series> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use polars::prelude::*;
+
 
     #[test]
     fn test_cci_calculation() -> Result<()> {

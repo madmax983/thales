@@ -478,7 +478,7 @@ mod tests {
                 timestamp_unix_ms: now + i * 60000,
                 open: close,
                 high: close + 0.1, // Minimal high wick
-                low: close,       // Low = Close to prevent Stop Loss hit
+                low: close,        // Low = Close to prevent Stop Loss hit
                 close: close,
                 volume: 1000.0,
             });

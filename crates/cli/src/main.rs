@@ -13,6 +13,8 @@ use thales_cli::{analysis, backtest, benchmark, history, optimizer, rag, reporti
 
 #[cfg(feature = "nova")]
 use thales_cli::monte_carlo;
+#[cfg(feature = "nova")]
+use thales_cli::volume_profile;
 
 #[derive(Debug, Parser)]
 #[command(name = "thales-cli", version, about = "Agent trading toolkit CLI")]
@@ -165,6 +167,15 @@ enum Commands {
         horizon: Option<usize>,
         #[arg(long)]
         initial_capital: Option<f64>,
+    },
+    #[cfg(feature = "nova")]
+    AnalyzeVolumeProfile {
+        #[arg(long)]
+        input: PathBuf,
+        #[arg(long, default_value = "50")]
+        num_bins: usize,
+        #[arg(long, default_value = "0.70")]
+        value_area_pct: f64,
     },
 }
 
@@ -718,6 +729,31 @@ fn run(command: Commands) -> Result<String, CliError> {
             };
 
             let report = monte_carlo::run_simulation(&backtest, config)
+                .map_err(|e| CliError::Validation(e.to_string()))?;
+
+            ok_envelope(report, vec![])
+        }
+        #[cfg(feature = "nova")]
+        Commands::AnalyzeVolumeProfile {
+            input,
+            num_bins,
+            value_area_pct,
+        } => {
+            let raw = fs::read_to_string(&input)?;
+            let series: BarSeries = match serde_json::from_str::<ResponseEnvelope<BarSeries>>(&raw)
+            {
+                Ok(envelope) => envelope
+                    .data
+                    .ok_or(CliError::Validation("Envelope has no data".to_string()))?,
+                Err(_) => serde_json::from_str::<BarSeries>(&raw)?,
+            };
+
+            let config = volume_profile::VolumeProfileConfig {
+                num_bins,
+                value_area_pct,
+            };
+
+            let report = volume_profile::analyze_volume_profile(&series, config)
                 .map_err(|e| CliError::Validation(e.to_string()))?;
 
             ok_envelope(report, vec![])

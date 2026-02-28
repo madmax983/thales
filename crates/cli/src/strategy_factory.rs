@@ -3,7 +3,9 @@ use strategies::adx_momentum::{AdxMomentum, AdxMomentumConfig};
 use strategies::awesome_oscillator::{AwesomeOscillator, AwesomeOscillatorConfig};
 use strategies::bollinger_bands::{BollingerBandsConfig, BollingerBandsMeanReversion};
 use strategies::cci_momentum::{CciMomentum, CciMomentumConfig};
-use strategies::connors_rsi_mean_reversion::{ConnorsRsiMeanReversion, ConnorsRsiMeanReversionConfig};
+use strategies::connors_rsi_mean_reversion::{
+    ConnorsRsiMeanReversion, ConnorsRsiMeanReversionConfig,
+};
 use strategies::donchian_breakout::{DonchianBreakout, DonchianBreakoutConfig};
 use strategies::ema_crossover::{EmaCrossover, EmaCrossoverConfig};
 use strategies::ichimoku_cloud::{IchimokuCloud, IchimokuCloudConfig};
