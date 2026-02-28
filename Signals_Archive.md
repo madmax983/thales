@@ -1154,3 +1154,169 @@ No external research available. (Placeholder for search_research)
 ```
 
 ---
+## Market Analysis Report - crypto - XXBTZUSD
+
+**Timestamp (ms)**: 1772139600000
+**Confidence**: 50.00%
+
+### 1. Market Regime
+Regime Unchanged (Ranging)
+*Sentiment*: Bearish
+
+### 2. Volatility
+*Assessment*: Low
+
+### 3. Strategy Recommendation
+**Mean Reversion**
+
+### 4. Patterns & Price Action
+*Patterns*: Breakout (Upside), Breakout (Downside), Consolidation (Squeeze)
+
+### 5. Key Levels
+*Support/Resistance*: 63835, 66513, 66917.5, 67684.2
+
+### 6. Research & Context
+**Research**:
+Bitcoin outlook for 2026 is mixed. Some analysts see a bear phase into late 2026 after a peak in 2025. Support levels at 62k and 59k are critical. Short-term selling pressure observed.
+
+**News**:
+2026 Outlook suggests potential for shorter-term trades. Regulatory environment and ETF inflows remain key drivers.
+*Historical Context*: No similar past trades found.
+
+```json
+{
+  "symbol": "XXBTZUSD",
+  "market": "crypto",
+  "regime": "Ranging",
+  "sentiment": "Bearish",
+  "patterns": [
+    "Breakout (Upside)",
+    "Breakout (Downside)",
+    "Consolidation (Squeeze)"
+  ],
+  "key_levels": [
+    63835.0,
+    66513.0,
+    66917.5,
+    67684.2
+  ],
+  "volatility": "Low",
+  "atr": 607.4247688934673,
+  "research_summary": "Bitcoin outlook for 2026 is mixed. Some analysts see a bear phase into late 2026 after a peak in 2025. Support levels at 62k and 59k are critical. Short-term selling pressure observed.",
+  "news_summary": "2026 Outlook suggests potential for shorter-term trades. Regulatory environment and ETF inflows remain key drivers.",
+  "recommendation": "Mean Reversion",
+  "confidence": 0.5,
+  "timestamp_unix_ms": 1772139600000
+}
+```
+
+---
+
+## Market Analysis Report - crypto - XETHZUSD
+
+**Timestamp (ms)**: 1772139600000
+**Confidence**: 70.00%
+
+### 1. Market Regime
+Regime Unchanged (Trending Up)
+*Sentiment*: Bearish
+
+### 2. Volatility
+*Assessment*: Medium
+
+### 3. Strategy Recommendation
+**Trend Following (Long)**
+
+### 4. Patterns & Price Action
+*Patterns*: Breakout (Upside), Breakout (Downside), Consolidation (Squeeze)
+
+### 5. Key Levels
+*Support/Resistance*: 1845.77, 1975.33, 2002.185, 2029.225
+
+### 6. Research & Context
+**Research**:
+Ethereum fundamentals remain strong with high network activity and L2 growth. However, price action shows mild stabilization after a decline. Key support near 850. Potential for recovery if institutional capital returns.
+
+**News**:
+Ethereum 2026 protocol updates focus on scalability. ETF inflows and staking yield are positive catalysts.
+*Historical Context*: No similar past trades found.
+
+```json
+{
+  "symbol": "XETHZUSD",
+  "market": "crypto",
+  "regime": "Trending Up",
+  "sentiment": "Bearish",
+  "patterns": [
+    "Breakout (Upside)",
+    "Breakout (Downside)",
+    "Consolidation (Squeeze)"
+  ],
+  "key_levels": [
+    1845.77,
+    1975.33,
+    2002.185,
+    2029.225
+  ],
+  "volatility": "Medium",
+  "atr": 25.834455494334357,
+  "research_summary": "Ethereum fundamentals remain strong with high network activity and L2 growth. However, price action shows mild stabilization after a decline. Key support near 850. Potential for recovery if institutional capital returns.",
+  "news_summary": "Ethereum 2026 protocol updates focus on scalability. ETF inflows and staking yield are positive catalysts.",
+  "recommendation": "Trend Following (Long)",
+  "confidence": 0.7,
+  "timestamp_unix_ms": 1772139600000
+}
+```
+
+---
+
+## Market Analysis Report - equities - SPY
+
+**Timestamp (ms)**: 1772139600000
+**Confidence**: 50.00%
+
+### 1. Market Regime
+Regime Unchanged (Ranging)
+*Sentiment*: Neutral
+
+### 2. Volatility
+*Assessment*: Unknown
+
+### 3. Strategy Recommendation
+**Mean Reversion**
+
+### 4. Patterns & Price Action
+*Patterns*: Bearish Engulfing
+
+### 5. Key Levels
+*Support/Resistance*: None identified
+
+### 6. Research & Context
+**Research**:
+SPY shows strong development within a rising trend channel. 'Golden Star' signal observed recently suggesting potential for gains. Some consolidation near all-time highs.
+
+**News**:
+Earnings engine projected to grow 15% in 2026. Fed policy remains a key watch item with potential rate cuts.
+*Historical Context*: No similar past trades found.
+
+```json
+{
+  "symbol": "SPY",
+  "market": "equities",
+  "regime": "Ranging",
+  "sentiment": "Neutral",
+  "patterns": [
+    "Bearish Engulfing"
+  ],
+  "key_levels": [],
+  "volatility": "Unknown",
+  "atr": null,
+  "research_summary": "SPY shows strong development within a rising trend channel. 'Golden Star' signal observed recently suggesting potential for gains. Some consolidation near all-time highs.",
+  "news_summary": "Earnings engine projected to grow 15% in 2026. Fed policy remains a key watch item with potential rate cuts.",
+  "recommendation": "Mean Reversion",
+  "confidence": 0.5,
+  "timestamp_unix_ms": 1772139600000
+}
+```
+
+---

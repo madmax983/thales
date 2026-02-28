@@ -74,7 +74,7 @@ impl Strategy for ConnorsRsiMeanReversion {
         // Iterate through data
         for i in 1..close_arr.len() {
             let timestamp = time_arr.get(i).unwrap_or(0);
-            let price_opt = close_arr.get(i).and_then(|v| Decimal::from_f64_retain(v));
+            let price_opt = close_arr.get(i).and_then(Decimal::from_f64_retain);
             let crsi_opt = crsi_arr.get(i);
 
             if let (Some(price), Some(crsi_val)) = (price_opt, crsi_opt) {

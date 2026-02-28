@@ -155,15 +155,14 @@ fn extract_regime_from_block(block: &str) -> Option<String> {
             return Some(inner.to_string());
         }
         // Case 3: "**ALERT: Regime Change Detected!** (Previous: X, Current: Y)"
-        if trimmed.starts_with("**ALERT: Regime Change Detected!**") {
-            if let Some(pos) = trimmed.rfind("Current: ") {
+        if trimmed.starts_with("**ALERT: Regime Change Detected!**")
+            && let Some(pos) = trimmed.rfind("Current: ") {
                 let rest = &trimmed[pos + 9..];
                 if rest.ends_with(')') {
                     return Some(rest[..rest.len() - 1].to_string());
                 }
                 return Some(rest.to_string());
             }
-        }
     }
     None
 }

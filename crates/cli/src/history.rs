@@ -15,11 +15,10 @@ fn parse_horizon(h: &str) -> i64 {
         if let Ok(v) = h.trim_end_matches('d').parse::<i64>() {
             return v * 86_400_000;
         }
-    } else if h.ends_with('m') {
-        if let Ok(v) = h.trim_end_matches('m').parse::<i64>() {
+    } else if h.ends_with('m')
+        && let Ok(v) = h.trim_end_matches('m').parse::<i64>() {
             return v * 60_000;
         }
-    }
     // Default 24h
     86_400_000
 }

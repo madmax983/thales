@@ -11,7 +11,7 @@ fn resolve_signal_type(
     signal: &Signal,
     position: Option<&contracts::Position>,
 ) -> (SignalType, String) {
-    let mut final_signal_type = signal.signal_type.clone();
+    let mut final_signal_type = signal.signal_type;
     let mut rationale_suffix = String::new();
 
     if let Some(pos) = position {
@@ -247,23 +247,19 @@ pub async fn generate_signals(
                         }
                     } else if let Some(s) = signal.stop_loss {
                         Some(s)
+                    } else if signal.side == "buy" {
+                        Some(last_close - (2.0 * atr))
                     } else {
-                        if signal.side == "buy" {
-                            Some(last_close - (2.0 * atr))
-                        } else {
-                            Some(last_close + (2.0 * atr))
-                        }
+                        Some(last_close + (2.0 * atr))
                     };
 
                     // Use Strategy TP if provided, else ATR fallback (4.0 ATR)
                     let tp = if let Some(t) = signal.take_profit {
                         Some(t)
+                    } else if signal.side == "buy" {
+                        Some(last_close + (4.0 * atr))
                     } else {
-                        if signal.side == "buy" {
-                            Some(last_close + (4.0 * atr))
-                        } else {
-                            Some(last_close - (4.0 * atr))
-                        }
+                        Some(last_close - (4.0 * atr))
                     };
 
                     // Calculate Size based on Risk and SL Distance
@@ -373,15 +369,13 @@ pub async fn generate_signals(
             if !skip
                 && (final_signal_type == SignalType::Entry
                     || final_signal_type == SignalType::ScaleIn)
-            {
-                if stop_loss.is_none() {
+                && stop_loss.is_none() {
                     eprintln!(
                         "Signal Generator: Skipping {} signal for {} due to missing Stop Loss",
                         signal.side, signal.symbol
                     );
                     skip = true;
                 }
-            }
 
             // Filter out invalid sizes (0, NaN, Inf)
             if !skip && size_hint != "max" {
@@ -609,7 +603,7 @@ mod tests {
                 open: close,
                 high: close + 1.0,
                 low: close - 1.0,
-                close: close,
+                close,
                 volume: 1000.0,
             });
         }
@@ -682,7 +676,7 @@ mod tests {
                 open: close,
                 high: close + 500.0,
                 low: close - 500.0,
-                close: close,
+                close,
                 volume: 1.0,
             });
         }
@@ -853,7 +847,7 @@ mod tests {
                 open: close,
                 high: close + 1.0,
                 low: close - 1.0,
-                close: close,
+                close,
                 volume: 1000.0,
             });
         }
@@ -1165,7 +1159,7 @@ mod tests {
                 open: close,
                 high: close + 2.0,
                 low: close - 2.0,
-                close: close,
+                close,
                 volume: 1000.0,
             });
         }
@@ -1231,7 +1225,7 @@ mod tests {
                 open: close,
                 high: close + 2.0,
                 low: close - 2.0,
-                close: close,
+                close,
                 volume: 1000.0,
             });
         }
@@ -1378,7 +1372,7 @@ mod tests {
                 open: close,
                 high: close + 1.0,
                 low: close - 1.0,
-                close: close,
+                close,
                 volume: 1000.0,
             });
         }
@@ -1760,7 +1754,7 @@ mod tests {
                 open: close,
                 high: close + 1.0,
                 low: close - 1.0,
-                close: close,
+                close,
                 volume: 1000.0,
             });
         }
@@ -1842,7 +1836,7 @@ mod tests {
                 open: close,
                 high: close + 1.0,
                 low: close - 1.0,
-                close: close,
+                close,
                 volume: 1000.0,
             });
         }
@@ -1857,7 +1851,7 @@ mod tests {
                 open: close,
                 high: close + 1.0,
                 low: close - 1.0,
-                close: close,
+                close,
                 volume: 1000.0,
             });
         }
@@ -1919,7 +1913,7 @@ mod tests {
                 open: close,
                 high: close + 1.0,
                 low: close - 1.0,
-                close: close,
+                close,
                 volume: 1000.0,
             });
         }
@@ -1974,7 +1968,7 @@ mod tests {
                 open: close,
                 high: close + 1.0,
                 low: close - 1.0,
-                close: close,
+                close,
                 volume: 1000.0,
             });
         }
@@ -2168,7 +2162,7 @@ mod tests {
                 open: close,
                 high: close + 0.1,
                 low: close - 0.1,
-                close: close,
+                close,
                 volume: 1000.0,
             });
         }
@@ -2263,7 +2257,7 @@ mod tests {
                 open: close,
                 high: close + 0.1,
                 low: close - 0.1,
-                close: close,
+                close,
                 volume: 1000.0,
             });
         }
@@ -2574,7 +2568,7 @@ mod tests {
         // 2. Trigger Drop to create Oversold CRSI
         // Drop 100 -> 90 -> 80 -> 70.
         // RSI(3) will be low. Streak will be negative. Rank will be 0.
-        let prices = vec![90.0, 80.0, 70.0];
+        let prices = [90.0, 80.0, 70.0];
         for (i, p) in prices.iter().enumerate() {
             bars.push(Bar {
                 symbol: "TEST".to_string(),

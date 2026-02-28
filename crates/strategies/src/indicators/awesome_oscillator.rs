@@ -19,7 +19,7 @@ pub fn calculate(data: &DataFrame, fast_period: usize, slow_period: usize) -> Re
     // Calculate median price
     let median_price: Series = high_f64
         .into_iter()
-        .zip(low_f64.into_iter())
+        .zip(low_f64)
         .map(|(h, l)| {
             if let (Some(h_val), Some(l_val)) = (h, l) {
                 Some((h_val + l_val) / 2.0)
@@ -41,7 +41,7 @@ pub fn calculate(data: &DataFrame, fast_period: usize, slow_period: usize) -> Re
 
     let ao_values: Series = fast_f64
         .into_iter()
-        .zip(slow_f64.into_iter())
+        .zip(slow_f64)
         .map(|(f, s)| {
             if let (Some(f_val), Some(s_val)) = (f, s) {
                 Some(f_val - s_val)

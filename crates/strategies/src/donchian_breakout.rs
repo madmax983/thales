@@ -57,9 +57,9 @@ impl Strategy for DonchianBreakout {
 
         // Convert to Vec<Option<f64>> for easy access
         let upper_channel_vec: Vec<Option<f64>> =
-            upper_series.f64()?.into_iter().map(|v| v).collect();
+            upper_series.f64()?.into_iter().collect();
         let lower_channel_vec: Vec<Option<f64>> =
-            lower_series.f64()?.into_iter().map(|v| v).collect();
+            lower_series.f64()?.into_iter().collect();
 
         // Calculate ATR for Stop Loss
         let atr_series = atr::calculate(data, 14)?;

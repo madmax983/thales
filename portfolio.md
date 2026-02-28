@@ -828,6 +828,44 @@
 | 2026-02-28 19:18:52 | SPY | NO_STRATEGY_SIGNAL | No active strategy generated a signal (Strategies: BollingerBands, EmaCrossover, RsiMeanReversion, Macd, Supertrend, DonchianBreakout, ParabolicSar, KeltnerChannelBreakout, StochasticOscillator, AdxMomentum, IchimokuCloud, CciMomentum, LinearRegressionTrend, ObvTrendFollowing, MoneyFlowIndex, ConnorsRsiMeanReversion, AwesomeOscillator, WilliamsR) |
 | 2026-02-28 19:18:52 | CATUSD | NO_STRATEGY_SIGNAL | No active strategy generated a signal (Strategies: BollingerBands, EmaCrossover, RsiMeanReversion, Macd, Supertrend, DonchianBreakout, ParabolicSar, KeltnerChannelBreakout, StochasticOscillator, AdxMomentum, IchimokuCloud, CciMomentum, LinearRegressionTrend, ObvTrendFollowing, MoneyFlowIndex, ConnorsRsiMeanReversion, AwesomeOscillator, WilliamsR) |
 | 2026-02-28 19:18:53 | BTCUSD | crypto:BTCUSD:buy:1772305200000 | provider error: kraken api error: EOrder:Insufficient funds |
+| 2026-02-28 21:34:34 | XXBTZUSD | STALE_SIGNAL | Signal too old (40.6 hours > 24 hours) |
+| 2026-02-28 21:34:34 | XETHZUSD | STALE_SIGNAL | Signal too old (40.6 hours > 24 hours) |
+| 2026-02-28 21:34:34 | XXBTZUSD | STALE_SIGNAL | Signal too old (40.6 hours > 24 hours) |
+| 2026-02-28 21:34:34 | XETHZUSD | STALE_SIGNAL | Signal too old (40.6 hours > 24 hours) |
+| 2026-02-28 21:34:34 | XXBTZUSD | STALE_SIGNAL | Signal too old (36.6 hours > 24 hours) |
+| 2026-02-28 21:34:34 | XXBTZUSD | STALE_SIGNAL | Signal too old (36.6 hours > 24 hours) |
+| 2026-02-28 21:34:34 | XETHZUSD | STALE_SIGNAL | Signal too old (36.6 hours > 24 hours) |
+| 2026-02-28 21:34:34 | SPY | STALE_SIGNAL | Signal too old (36.6 hours > 24 hours) |
+| 2026-02-28 21:34:34 | SPY | STALE_SIGNAL | Signal too old (31.9 hours > 24 hours) |
+| 2026-02-28 21:34:34 | XXBTZUSD | STALE_SIGNAL | Signal too old (31.9 hours > 24 hours) |
+| 2026-02-28 21:34:34 | XXBTZUSD | STALE_SIGNAL | Signal too old (33.6 hours > 24 hours) |
+| 2026-02-28 21:34:34 | XXBTZUSD | STALE_SIGNAL | Signal too old (33.6 hours > 24 hours) |
+| 2026-02-28 21:34:34 | XXBTZUSD | STALE_SIGNAL | Signal too old (33.6 hours > 24 hours) |
+| 2026-02-28 21:34:34 | BTCUSD | STALE_SIGNAL | Signal too old (25.7 hours > 24 hours) |
+| 2026-02-28 21:34:34 | ETHUSD | STALE_SIGNAL | Signal too old (25.7 hours > 24 hours) |
+| 2026-02-28 21:34:34 | SPY | STALE_SIGNAL | Signal too old (25.7 hours > 24 hours) |
+| 2026-02-28 21:34:35 | BTCUSD | NO_STRATEGY_SIGNAL | No active strategy generated a signal (Strategies: BollingerBands, EmaCrossover, RsiMeanReversion, Macd, Supertrend, DonchianBreakout, ParabolicSar, KeltnerChannelBreakout, StochasticOscillator, AdxMomentum, IchimokuCloud, CciMomentum, LinearRegressionTrend, ObvTrendFollowing, MoneyFlowIndex, ConnorsRsiMeanReversion, AwesomeOscillator, WilliamsR) |
+| 2026-02-28 21:34:35 | ETHUSD | NO_STRATEGY_SIGNAL | No active strategy generated a signal (Strategies: BollingerBands, EmaCrossover, RsiMeanReversion, Macd, Supertrend, DonchianBreakout, ParabolicSar, KeltnerChannelBreakout, StochasticOscillator, AdxMomentum, IchimokuCloud, CciMomentum, LinearRegressionTrend, ObvTrendFollowing, MoneyFlowIndex, ConnorsRsiMeanReversion, AwesomeOscillator, WilliamsR) |
+| 2026-02-28 21:34:36 | SPY | NO_STRATEGY_SIGNAL | No active strategy generated a signal (Strategies: BollingerBands, EmaCrossover, RsiMeanReversion, Macd, Supertrend, DonchianBreakout, ParabolicSar, KeltnerChannelBreakout, StochasticOscillator, AdxMomentum, IchimokuCloud, CciMomentum, LinearRegressionTrend, ObvTrendFollowing, MoneyFlowIndex, ConnorsRsiMeanReversion, AwesomeOscillator, WilliamsR) |
+| 2026-02-28 21:34:57 | XXBTZUSD | STALE_SIGNAL | Signal too old (40.6 hours > 24 hours) |
+| 2026-02-28 21:34:57 | XETHZUSD | STALE_SIGNAL | Signal too old (40.6 hours > 24 hours) |
+| 2026-02-28 21:34:57 | XXBTZUSD | STALE_SIGNAL | Signal too old (40.6 hours > 24 hours) |
+| 2026-02-28 21:34:57 | XETHZUSD | STALE_SIGNAL | Signal too old (40.6 hours > 24 hours) |
+| 2026-02-28 21:34:57 | XXBTZUSD | STALE_SIGNAL | Signal too old (36.6 hours > 24 hours) |
+| 2026-02-28 21:34:57 | XXBTZUSD | STALE_SIGNAL | Signal too old (36.6 hours > 24 hours) |
+| 2026-02-28 21:34:57 | XETHZUSD | STALE_SIGNAL | Signal too old (36.6 hours > 24 hours) |
+| 2026-02-28 21:34:57 | SPY | STALE_SIGNAL | Signal too old (36.6 hours > 24 hours) |
+| 2026-02-28 21:34:57 | SPY | STALE_SIGNAL | Signal too old (31.9 hours > 24 hours) |
+| 2026-02-28 21:34:57 | XXBTZUSD | STALE_SIGNAL | Signal too old (31.9 hours > 24 hours) |
+| 2026-02-28 21:34:57 | XXBTZUSD | STALE_SIGNAL | Signal too old (33.6 hours > 24 hours) |
+| 2026-02-28 21:34:57 | XXBTZUSD | STALE_SIGNAL | Signal too old (33.6 hours > 24 hours) |
+| 2026-02-28 21:34:57 | XXBTZUSD | STALE_SIGNAL | Signal too old (33.6 hours > 24 hours) |
+| 2026-02-28 21:34:57 | BTCUSD | STALE_SIGNAL | Signal too old (25.7 hours > 24 hours) |
+| 2026-02-28 21:34:57 | ETHUSD | STALE_SIGNAL | Signal too old (25.7 hours > 24 hours) |
+| 2026-02-28 21:34:57 | SPY | STALE_SIGNAL | Signal too old (25.7 hours > 24 hours) |
+| 2026-02-28 21:34:58 | BTCUSD | NO_STRATEGY_SIGNAL | No active strategy generated a signal (Strategies: BollingerBands, EmaCrossover, RsiMeanReversion, Macd, Supertrend, DonchianBreakout, ParabolicSar, KeltnerChannelBreakout, StochasticOscillator, AdxMomentum, IchimokuCloud, CciMomentum, LinearRegressionTrend, ObvTrendFollowing, MoneyFlowIndex, ConnorsRsiMeanReversion, AwesomeOscillator, WilliamsR) |
+| 2026-02-28 21:34:58 | ETHUSD | NO_STRATEGY_SIGNAL | No active strategy generated a signal (Strategies: BollingerBands, EmaCrossover, RsiMeanReversion, Macd, Supertrend, DonchianBreakout, ParabolicSar, KeltnerChannelBreakout, StochasticOscillator, AdxMomentum, IchimokuCloud, CciMomentum, LinearRegressionTrend, ObvTrendFollowing, MoneyFlowIndex, ConnorsRsiMeanReversion, AwesomeOscillator, WilliamsR) |
+| 2026-02-28 21:34:58 | SPY | NO_STRATEGY_SIGNAL | No active strategy generated a signal (Strategies: BollingerBands, EmaCrossover, RsiMeanReversion, Macd, Supertrend, DonchianBreakout, ParabolicSar, KeltnerChannelBreakout, StochasticOscillator, AdxMomentum, IchimokuCloud, CciMomentum, LinearRegressionTrend, ObvTrendFollowing, MoneyFlowIndex, ConnorsRsiMeanReversion, AwesomeOscillator, WilliamsR) |
 
 ## Executed Trades
 

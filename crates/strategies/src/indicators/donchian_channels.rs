@@ -45,8 +45,8 @@ pub fn calculate(data: &DataFrame, period: usize) -> Result<(Series, Series, Ser
     // The strategy implementation uses `into_no_null_iter()` which might be dangerous if there are nulls.
     // We will use iteration with Option.
 
-    let highs_vec: Vec<Option<f64>> = high.into_iter().map(|v| v).collect();
-    let lows_vec: Vec<Option<f64>> = low.into_iter().map(|v| v).collect();
+    let highs_vec: Vec<Option<f64>> = high.into_iter().collect();
+    let lows_vec: Vec<Option<f64>> = low.into_iter().collect();
 
     let upper_vals = rolling_max_opt(&highs_vec, period);
     let lower_vals = rolling_min_opt(&lows_vec, period);

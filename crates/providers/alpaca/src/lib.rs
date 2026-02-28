@@ -416,6 +416,7 @@ struct AlpacaOrderResponse {
 #[derive(Debug, Clone, Deserialize)]
 struct AlpacaBarsResponse {
     bars: HashMap<String, Vec<AlpacaBar>>,
+    #[allow(dead_code)]
     next_page_token: Option<String>,
 }
 
@@ -427,7 +428,9 @@ struct AlpacaBar {
     l: f64,
     c: f64,
     v: u64,
+    #[allow(dead_code)]
     n: u64,
+    #[allow(dead_code)]
     vw: f64,
 }
 
