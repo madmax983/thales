@@ -673,16 +673,68 @@
 | 2026-02-28 05:42:19 | ETHUSD | crypto:ETHUSD:sell:1772257339730 | CONFLICT: Conflicting signals (Buy and Sell) detected for ETHUSD. Trading halted for this asset. |
 | 2026-02-28 05:42:19 | ETHUSD | crypto:ETHUSD:buy:1772257339730 | CONFLICT: Conflicting signals (Buy and Sell) detected for ETHUSD. Trading halted for this asset. |
 | 2026-02-28 05:42:19 | ETHUSD | crypto:ETHUSD:buy:1772257339730 | CONFLICT: Conflicting signals (Buy and Sell) detected for ETHUSD. Trading halted for this asset. |
+| 2026-02-28 07:59:31 | XXBTZUSD | STALE_SIGNAL | Signal too old (47.0 hours > 24 hours) |
+| 2026-02-28 07:59:31 | MOGUSD | STALE_SIGNAL | Signal too old (47.0 hours > 24 hours) |
+| 2026-02-28 07:59:31 | SPY | STALE_SIGNAL | Signal too old (46.7 hours > 24 hours) |
+| 2026-02-28 07:59:31 | XXBTZUSD | STALE_SIGNAL | Signal too old (43.0 hours > 24 hours) |
+| 2026-02-28 07:59:31 | XETHZUSD | STALE_SIGNAL | Signal too old (43.0 hours > 24 hours) |
+| 2026-02-28 07:59:31 | SPY | STALE_SIGNAL | Signal too old (43.0 hours > 24 hours) |
+| 2026-02-28 07:59:31 | BTCUSD | STALE_SIGNAL | Signal too old (38.4 hours > 24 hours) |
+| 2026-02-28 07:59:31 | ETHUSD | STALE_SIGNAL | Signal too old (38.4 hours > 24 hours) |
+| 2026-02-28 07:59:31 | SPY | STALE_SIGNAL | Signal too old (38.4 hours > 24 hours) |
+| 2026-02-28 07:59:31 | XXBTZUSD | STALE_SIGNAL | Signal too old (37.0 hours > 24 hours) |
+| 2026-02-28 07:59:31 | XXBTZUSD | STALE_SIGNAL | Signal too old (37.0 hours > 24 hours) |
+| 2026-02-28 07:59:31 | XETHZUSD | STALE_SIGNAL | Signal too old (37.0 hours > 24 hours) |
+| 2026-02-28 07:59:31 | SPY | STALE_SIGNAL | Signal too old (37.0 hours > 24 hours) |
+| 2026-02-28 07:59:31 | XXBTZUSD | STALE_SIGNAL | Signal too old (35.0 hours > 24 hours) |
+| 2026-02-28 07:59:31 | XETHZUSD | STALE_SIGNAL | Signal too old (35.0 hours > 24 hours) |
+| 2026-02-28 07:59:31 | SPY | STALE_SIGNAL | Signal too old (35.0 hours > 24 hours) |
+| 2026-02-28 07:59:31 | XXBTZUSD | STALE_SIGNAL | Signal too old (27.0 hours > 24 hours) |
+| 2026-02-28 07:59:31 | XETHZUSD | STALE_SIGNAL | Signal too old (27.0 hours > 24 hours) |
+| 2026-02-28 07:59:31 | XXBTZUSD | STALE_SIGNAL | Signal too old (27.0 hours > 24 hours) |
+| 2026-02-28 07:59:31 | XETHZUSD | STALE_SIGNAL | Signal too old (27.0 hours > 24 hours) |
+| 2026-02-28 07:59:32 | SPY | NO_STRATEGY_SIGNAL | No active strategy generated a signal (Strategies: BollingerBands, EmaCrossover, RsiMeanReversion, Macd, Supertrend, DonchianBreakout, ParabolicSar, KeltnerChannelBreakout, StochasticOscillator, AdxMomentum, IchimokuCloud, CciMomentum, LinearRegressionTrend, ObvTrendFollowing, MoneyFlowIndex, ConnorsRsiMeanReversion, AwesomeOscillator, WilliamsR) |
+| 2026-02-28 07:59:32 | BTCUSD | crypto:BTCUSD:buy:1772262000000 | CONFLICT: Conflicting signals (Buy and Sell) detected for BTCUSD. Trading halted for this asset. |
+| 2026-02-28 07:59:32 | BTCUSD | crypto:BTCUSD:sell:1772262000000 | CONFLICT: Conflicting signals (Buy and Sell) detected for BTCUSD. Trading halted for this asset. |
+| 2026-02-28 07:59:32 | BTCUSD | crypto:BTCUSD:buy:1772262000000 | CONFLICT: Conflicting signals (Buy and Sell) detected for BTCUSD. Trading halted for this asset. |
+| 2026-02-28 07:59:32 | BTCUSD | crypto:BTCUSD:buy:1772262000000 | CONFLICT: Conflicting signals (Buy and Sell) detected for BTCUSD. Trading halted for this asset. |
+| 2026-02-28 07:59:32 | BTCUSD | crypto:BTCUSD:buy:1772262000000 | CONFLICT: Conflicting signals (Buy and Sell) detected for BTCUSD. Trading halted for this asset. |
+| 2026-02-28 07:59:33 | ETHUSD | crypto:ETHUSD:sell:1772262000000 | provider error: kraken api error: EOrder:Insufficient funds |
+| 2026-02-28 08:02:51 | XXBTZUSD | STALE_SIGNAL | Signal too old (47.0 hours > 24 hours) |
+| 2026-02-28 08:02:51 | MOGUSD | STALE_SIGNAL | Signal too old (47.0 hours > 24 hours) |
+| 2026-02-28 08:02:51 | SPY | STALE_SIGNAL | Signal too old (46.8 hours > 24 hours) |
+| 2026-02-28 08:02:51 | XXBTZUSD | STALE_SIGNAL | Signal too old (43.0 hours > 24 hours) |
+| 2026-02-28 08:02:51 | XETHZUSD | STALE_SIGNAL | Signal too old (43.0 hours > 24 hours) |
+| 2026-02-28 08:02:51 | SPY | STALE_SIGNAL | Signal too old (43.0 hours > 24 hours) |
+| 2026-02-28 08:02:51 | BTCUSD | STALE_SIGNAL | Signal too old (38.5 hours > 24 hours) |
+| 2026-02-28 08:02:51 | ETHUSD | STALE_SIGNAL | Signal too old (38.4 hours > 24 hours) |
+| 2026-02-28 08:02:51 | SPY | STALE_SIGNAL | Signal too old (38.4 hours > 24 hours) |
+| 2026-02-28 08:02:51 | XXBTZUSD | STALE_SIGNAL | Signal too old (37.0 hours > 24 hours) |
+| 2026-02-28 08:02:51 | XXBTZUSD | STALE_SIGNAL | Signal too old (37.0 hours > 24 hours) |
+| 2026-02-28 08:02:51 | XETHZUSD | STALE_SIGNAL | Signal too old (37.0 hours > 24 hours) |
+| 2026-02-28 08:02:51 | SPY | STALE_SIGNAL | Signal too old (37.0 hours > 24 hours) |
+| 2026-02-28 08:02:51 | XXBTZUSD | STALE_SIGNAL | Signal too old (35.0 hours > 24 hours) |
+| 2026-02-28 08:02:51 | XETHZUSD | STALE_SIGNAL | Signal too old (35.0 hours > 24 hours) |
+| 2026-02-28 08:02:51 | SPY | STALE_SIGNAL | Signal too old (35.0 hours > 24 hours) |
+| 2026-02-28 08:02:51 | XXBTZUSD | STALE_SIGNAL | Signal too old (27.0 hours > 24 hours) |
+| 2026-02-28 08:02:51 | XETHZUSD | STALE_SIGNAL | Signal too old (27.0 hours > 24 hours) |
+| 2026-02-28 08:02:51 | XXBTZUSD | STALE_SIGNAL | Signal too old (27.0 hours > 24 hours) |
+| 2026-02-28 08:02:51 | XETHZUSD | STALE_SIGNAL | Signal too old (27.0 hours > 24 hours) |
+| 2026-02-28 08:02:51 | SPY | NO_STRATEGY_SIGNAL | No active strategy generated a signal (Strategies: BollingerBands, EmaCrossover, RsiMeanReversion, Macd, Supertrend, DonchianBreakout, ParabolicSar, KeltnerChannelBreakout, StochasticOscillator, AdxMomentum, IchimokuCloud, CciMomentum, LinearRegressionTrend, ObvTrendFollowing, MoneyFlowIndex, ConnorsRsiMeanReversion, AwesomeOscillator, WilliamsR) |
+| 2026-02-28 08:02:52 | BTCUSD | crypto:BTCUSD:buy:1772265600000 | CONFLICT: Conflicting signals (Buy and Sell) detected for BTCUSD. Trading halted for this asset. |
+| 2026-02-28 08:02:52 | BTCUSD | crypto:BTCUSD:buy:1772265600000 | CONFLICT: Conflicting signals (Buy and Sell) detected for BTCUSD. Trading halted for this asset. |
+| 2026-02-28 08:02:52 | BTCUSD | crypto:BTCUSD:sell:1772265600000 | CONFLICT: Conflicting signals (Buy and Sell) detected for BTCUSD. Trading halted for this asset. |
+| 2026-02-28 08:02:53 | ETHUSD | crypto:ETHUSD:sell:1772265600000 | provider error: kraken api error: EOrder:Insufficient funds |
 
 ## Executed Trades
 
-| Date/Time | Asset Class | Symbol/Contract | Action | Size/Qty | Entry Price | SL | TP | Max Risk | Confidence | Signal Ref | Rationale |
-|---|---|---|---|---|---|---|---|---|---|---|---|
-| 2026-02-26 07:21:36 | crypto | BTCUSD | sell (Exit) | max | Market | - | - | - | 64% | crypto:BTCUSD:sell:1772090496606 | Strategy: DonchianBreakout (64%, MA: 0.80). Reason: Breakdown: Close 59467.03 < Lower Channel 60559.28. Market Context: Trending Down (Short Term) (Medium Volatility). No similar past trades found. Research: Bitcoin consolidates after hitting new highs. Institutional flows remain strong.. News: Global bank announces crypto custody service.. |
-| 2026-02-26 07:21:37 | crypto | ETHUSD | buy (ScaleIn) | 1.232978 | Market | 3270.0353888179957 | 3513.348743708972 | - | 64% | crypto:ETHUSD:buy:1772090496656 | Strategy: DonchianBreakout (64%, MA: 0.80). Reason: Breakout: Close 3351.14 > Upper Channel 3292.00. Market Context: Trending Up (Short Term) (Medium Volatility). No similar past trades found. Research: Ethereum network activity high. L2 adoption growing.. News: Major protocol upgrade successful.. (Scaled into existing position) |
-| 2026-02-26 07:21:37 | equities | SPY | buy (ScaleIn) | 7.397868 | Market | 545.0058981363323 | 585.5581239514951 | - | 64% | equities:SPY:buy:1772090496747 | Strategy: DonchianBreakout (64%, MA: 0.80). Reason: Breakout: Close 558.52 > Upper Channel 548.67. Market Context: Trending Up (Short Term) (Medium Volatility). No similar past trades found. Research: Equities market showing resilience. Tech sector leading.. News: GDP growth exceeds expectations.. (Scaled into existing position) |
-| 2026-02-26 11:34:20 | crypto | MOGUSD | buy (Entry) | 24.659559 | Market | 163.50176944089972 | 167.5569920311469 | - | 64% | crypto:MOGUSD:buy:1772105660137 | Strategy: DonchianBreakout (64%, MA: 0.80). Reason: Breakout: Close 167.56 > Upper Channel 164.60. Market Context: Trending Down (Medium Volatility). No similar past trades found. Research: High volatility, speculative interest.. News: Meme coin hype cycle.. |
-| 2026-02-26 11:35:19 | crypto | MOGUSD | buy (ScaleIn) | 24.659559 | Market | 163.50176944089972 | 167.5569920311469 | - | 64% | crypto:MOGUSD:buy:1772105719028 | Strategy: DonchianBreakout (64%, MA: 0.80). Reason: Breakout: Close 167.56 > Upper Channel 164.60. Market Context: Trending Down (Medium Volatility). No similar past trades found. Research: High volatility, speculative interest.. News: Meme coin hype cycle.. (Scaled into existing position) |
+| Date/Time | Asset Class | Symbol/Contract | Action | Size/Qty | Entry Price | SL | TP | Max Risk | Signal Ref | Rationale |
+|---|---|---|---|---|---|---|---|---|---|---|
+| 2026-02-26 07:21:36 | crypto | BTCUSD | sell (Exit) | max | Market | - | - | - | crypto:BTCUSD:sell:1772090496606 | Strategy: DonchianBreakout (64%, MA: 0.80). Reason: Breakdown: Close 59467.03 < Lower Channel 60559.28. Market Context: Trending Down (Short Term) (Medium Volatility). No similar past trades found. Research: Bitcoin consolidates after hitting new highs. Institutional flows remain strong.. News: Global bank announces crypto custody service.. |
+| 2026-02-26 07:21:37 | crypto | ETHUSD | buy (ScaleIn) | 1.232978 | Market | 3270.0353888179957 | 3513.348743708972 | - | crypto:ETHUSD:buy:1772090496656 | Strategy: DonchianBreakout (64%, MA: 0.80). Reason: Breakout: Close 3351.14 > Upper Channel 3292.00. Market Context: Trending Up (Short Term) (Medium Volatility). No similar past trades found. Research: Ethereum network activity high. L2 adoption growing.. News: Major protocol upgrade successful.. (Scaled into existing position) |
+| 2026-02-26 07:21:37 | equities | SPY | buy (ScaleIn) | 7.397868 | Market | 545.0058981363323 | 585.5581239514951 | - | equities:SPY:buy:1772090496747 | Strategy: DonchianBreakout (64%, MA: 0.80). Reason: Breakout: Close 558.52 > Upper Channel 548.67. Market Context: Trending Up (Short Term) (Medium Volatility). No similar past trades found. Research: Equities market showing resilience. Tech sector leading.. News: GDP growth exceeds expectations.. (Scaled into existing position) |
+| 2026-02-26 11:34:20 | crypto | MOGUSD | buy (Entry) | 24.659559 | Market | 163.50176944089972 | 167.5569920311469 | - | crypto:MOGUSD:buy:1772105660137 | Strategy: DonchianBreakout (64%, MA: 0.80). Reason: Breakout: Close 167.56 > Upper Channel 164.60. Market Context: Trending Down (Medium Volatility). No similar past trades found. Research: High volatility, speculative interest.. News: Meme coin hype cycle.. |
+| 2026-02-26 11:35:19 | crypto | MOGUSD | buy (ScaleIn) | 24.659559 | Market | 163.50176944089972 | 167.5569920311469 | - | crypto:MOGUSD:buy:1772105719028 | Strategy: DonchianBreakout (64%, MA: 0.80). Reason: Breakout: Close 167.56 > Upper Channel 164.60. Market Context: Trending Down (Medium Volatility). No similar past trades found. Research: High volatility, speculative interest.. News: Meme coin hype cycle.. (Scaled into existing position) |
 | 2026-02-26 16:29:04 | crypto | MOGUSD | buy (Entry) | 24.659559 | Market | 163.50176944089972 | 167.5569920311469 | - | crypto:MOGUSD:buy:1772123344675 | Strategy: DonchianBreakout (64%, MA: 0.80). Reason: Breakout: Close 167.56 > Upper Channel 164.60. Market Context: Trending Down (Medium Volatility). No similar past trades found. Research: High volatility, speculative interest.. News: Meme coin hype cycle.. |
 | 2026-02-26 16:29:05 | crypto | XETHZUSD | buy (Entry) | 1.232978 | Market | 3270.0353888179957 | 3440.500495392627 | - | crypto:XETHZUSD:buy:1772123344714 | Strategy: DonchianBreakout (64%, MA: 0.80). Reason: Breakout: Close 3351.14 > Upper Channel 3292.00. Market Context: Trending Up (Medium Volatility). No similar past trades found. Research: Ethereum shows strength against Bitcoin, driven by network activity and L2 growth. Testing 2150 resistance.. News: Ethereum developers discuss upcoming upgrade schedule.. |
 | 2026-02-26 16:31:30 | crypto | XETHZUSD | buy (ScaleIn) | 1.232978 | Market | 3270.0353888179957 | 3440.500495392627 | - | crypto:XETHZUSD:buy:1772123489776 | Strategy: DonchianBreakout (64%, MA: 0.80). Reason: Breakout: Close 3351.14 > Upper Channel 3292.00. Market Context: Trending Up (Medium Volatility). No similar past trades found. Research: Ethereum shows strength against Bitcoin, driven by network activity and L2 growth. Testing 2150 resistance.. News: Ethereum developers discuss upcoming upgrade schedule.. (Scaled into existing position) |
