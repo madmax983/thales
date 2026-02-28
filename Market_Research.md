@@ -201,3 +201,7 @@
 ### BTCUSD - 2026-02-28 17:02:31 (crypto)
 **Research**: None
 **News**: None
+
+### BTCUSD - 2026-02-28 17:33:07 (crypto)
+**Research**: Bitcoin ETFs are seeing strong institutional inflows following SEC approvals. Analysts remain bullish due to positive macroeconomic indicators and recent halving events. | Similar market conditions in Q4 2023 showed a strong bullish trend following consolidation periods. The market is currently exhibiting similar behavior.
+**News**: Major indices are hitting new highs, with Bitcoin showing resilience against recent regulatory concerns.
