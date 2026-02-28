@@ -863,7 +863,11 @@ def manage_orders():
                      "intent_id": f"CANCEL-{order['id']}",
                      "rationale": f"Stale order ({age_s:.0f}s > 300s) canceled"
                  }
-                 log_skipped(dummy_intent, "Stale Order Cancellation")
+                 if filled_qty > 0 and filled_qty < qty:
+                     dummy_intent["rationale"] = f"Stale partial order ({age_s:.0f}s > 300s) canceled, unfilled: {qty - filled_qty}"
+                     log_skipped(dummy_intent, "Stale Partial Order Cancellation")
+                 else:
+                     log_skipped(dummy_intent, "Stale Order Cancellation")
 
 def get_latest_price(provider, symbol):
     """Fetches the latest close price for a symbol."""
@@ -892,19 +896,26 @@ def refine_intent(intent, current_price=None):
     algo = "Limit"
     order_type = "limit"
 
-    # Check for Large Size -> TWAP
+    # Check for Large Size -> TWAP/VWAP
     is_large = False
+    is_very_large = False
     try:
         if size_hint != "max":
             size = float(size_hint)
             # Simple heuristic: > 1000 units is "large".
             # In production this would depend on asset price and volume.
-            if size > 1000.0:
+            if size > 10000.0:
+                is_very_large = True
+            elif size > 1000.0:
                 is_large = True
     except:
         pass
 
-    if is_large:
+    if is_very_large:
+        algo = "VWAP"
+        order_type = "limit" # Simulate VWAP with Limit for now, provider logs Algo
+        print("Selected VWAP algorithm to minimize market impact for very large order.")
+    elif is_large:
         algo = "TWAP"
         order_type = "limit" # Simulate TWAP with Limit for now, provider logs Algo
         print("Selected TWAP algorithm for large order.")
@@ -917,11 +928,22 @@ def refine_intent(intent, current_price=None):
         algo = "Limit"
         order_type = "limit"
 
+    # Handle Stop and Stop-Limit orders
+    if intent.get("stop_price"):
+        if intent.get("limit_price"):
+            order_type = "stop-limit"
+            algo = "Limit" # It's a stop-limit
+            print("Selected Stop-Limit order type.")
+        else:
+            order_type = "stop"
+            algo = "Market" # Trigger market order when stop hit
+            print("Selected Stop order type.")
+
     intent["execution_algo"] = algo
     intent["order_type"] = order_type
 
     # 2. Slippage Control (Set Limit Price)
-    if order_type == "limit":
+    if order_type == "limit" or order_type == "stop-limit":
         # Prefer strategy price if valid, else use current price
         if not intent.get("limit_price") and current_price:
              intent["limit_price"] = current_price
@@ -929,7 +951,7 @@ def refine_intent(intent, current_price=None):
         if not intent.get("limit_price"):
             # Fallback if no current price and no strategy price
             print("Warning: No limit price available for Limit order. Falling back to Market.")
-            intent["order_type"] = "market"
+            intent["order_type"] = "market" if order_type == "limit" else "stop"
             intent["execution_algo"] = "Market"
 
     return intent
