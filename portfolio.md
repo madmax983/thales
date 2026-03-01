@@ -1081,6 +1081,67 @@
 | 2026-03-01 00:44:10 | BTCUSD | NO_STRATEGY_SIGNAL | No active strategy generated a signal (Strategies: BollingerBands, EmaCrossover, RsiMeanReversion, Macd, Supertrend, DonchianBreakout, ParabolicSar, KeltnerChannelBreakout, StochasticOscillator, AdxMomentum, IchimokuCloud, CciMomentum, LinearRegressionTrend, ObvTrendFollowing, MoneyFlowIndex, ConnorsRsiMeanReversion, AwesomeOscillator, WilliamsR, VwmaCrossover) |
 | 2026-03-01 00:44:11 | SPY | NO_STRATEGY_SIGNAL | No active strategy generated a signal (Strategies: BollingerBands, EmaCrossover, RsiMeanReversion, Macd, Supertrend, DonchianBreakout, ParabolicSar, KeltnerChannelBreakout, StochasticOscillator, AdxMomentum, IchimokuCloud, CciMomentum, LinearRegressionTrend, ObvTrendFollowing, MoneyFlowIndex, ConnorsRsiMeanReversion, AwesomeOscillator, WilliamsR, VwmaCrossover) |
 | 2026-03-01 00:44:11 | ETHUSD | crypto:ETHUSD:sell:1772323200000 | provider error: kraken api error: EOrder:Insufficient funds |
+| 2026-03-01 02:03:07 | XXBTZUSD | STALE_SIGNAL | Signal too old (45.1 hours > 24 hours) |
+| 2026-03-01 02:03:07 | XETHZUSD | STALE_SIGNAL | Signal too old (45.1 hours > 24 hours) |
+| 2026-03-01 02:03:07 | XXBTZUSD | STALE_SIGNAL | Signal too old (45.1 hours > 24 hours) |
+| 2026-03-01 02:03:07 | XETHZUSD | STALE_SIGNAL | Signal too old (45.1 hours > 24 hours) |
+| 2026-03-01 02:03:07 | XXBTZUSD | STALE_SIGNAL | Signal too old (41.1 hours > 24 hours) |
+| 2026-03-01 02:03:07 | XXBTZUSD | STALE_SIGNAL | Signal too old (41.1 hours > 24 hours) |
+| 2026-03-01 02:03:07 | XETHZUSD | STALE_SIGNAL | Signal too old (41.1 hours > 24 hours) |
+| 2026-03-01 02:03:07 | SPY | STALE_SIGNAL | Signal too old (41.1 hours > 24 hours) |
+| 2026-03-01 02:03:07 | SPY | STALE_SIGNAL | Signal too old (36.4 hours > 24 hours) |
+| 2026-03-01 02:03:07 | XXBTZUSD | STALE_SIGNAL | Signal too old (36.4 hours > 24 hours) |
+| 2026-03-01 02:03:07 | XXBTZUSD | STALE_SIGNAL | Signal too old (38.1 hours > 24 hours) |
+| 2026-03-01 02:03:07 | XXBTZUSD | STALE_SIGNAL | Signal too old (38.1 hours > 24 hours) |
+| 2026-03-01 02:03:07 | XXBTZUSD | STALE_SIGNAL | Signal too old (38.1 hours > 24 hours) |
+| 2026-03-01 02:03:07 | BTCUSD | STALE_SIGNAL | Signal too old (30.2 hours > 24 hours) |
+| 2026-03-01 02:03:07 | ETHUSD | STALE_SIGNAL | Signal too old (30.2 hours > 24 hours) |
+| 2026-03-01 02:03:07 | SPY | STALE_SIGNAL | Signal too old (30.2 hours > 24 hours) |
+| 2026-03-01 02:03:07 | XXBTZUSD | STALE_SIGNAL | Signal too old (36.3 hours > 24 hours) |
+| 2026-03-01 02:03:08 | ETHUSD | crypto:ETHUSD:sell:1772330400000 | CONFLICT: Conflicting signals (Buy and Sell) detected for ETHUSD. Trading halted for this asset. |
+| 2026-03-01 02:03:08 | ETHUSD | crypto:ETHUSD:buy:1772330400000 | CONFLICT: Conflicting signals (Buy and Sell) detected for ETHUSD. Trading halted for this asset. |
+| 2026-03-01 02:03:08 | ETHUSD | crypto:ETHUSD:buy:1772330400000 | CONFLICT: Conflicting signals (Buy and Sell) detected for ETHUSD. Trading halted for this asset. |
+| 2026-03-01 02:03:08 | SPY | NO_STRATEGY_SIGNAL | No active strategy generated a signal (Strategies: BollingerBands, EmaCrossover, RsiMeanReversion, Macd, Supertrend, DonchianBreakout, ParabolicSar, KeltnerChannelBreakout, StochasticOscillator, AdxMomentum, IchimokuCloud, CciMomentum, LinearRegressionTrend, ObvTrendFollowing, MoneyFlowIndex, ConnorsRsiMeanReversion, AwesomeOscillator, WilliamsR, VwmaCrossover) |
+| 2026-03-01 02:03:08 | BTCUSD | crypto:BTCUSD:buy:1772330400000 | Unable to fetch current price for size validation |
+| 2026-03-01 02:07:15 | XXBTZUSD | STALE_SIGNAL | Signal too old (45.1 hours > 24 hours) |
+| 2026-03-01 02:07:15 | XETHZUSD | STALE_SIGNAL | Signal too old (45.1 hours > 24 hours) |
+| 2026-03-01 02:07:15 | XXBTZUSD | STALE_SIGNAL | Signal too old (45.1 hours > 24 hours) |
+| 2026-03-01 02:07:15 | XETHZUSD | STALE_SIGNAL | Signal too old (45.1 hours > 24 hours) |
+| 2026-03-01 02:07:15 | XXBTZUSD | STALE_SIGNAL | Signal too old (41.1 hours > 24 hours) |
+| 2026-03-01 02:07:15 | XXBTZUSD | STALE_SIGNAL | Signal too old (41.1 hours > 24 hours) |
+| 2026-03-01 02:07:15 | XETHZUSD | STALE_SIGNAL | Signal too old (41.1 hours > 24 hours) |
+| 2026-03-01 02:07:15 | SPY | STALE_SIGNAL | Signal too old (41.1 hours > 24 hours) |
+| 2026-03-01 02:07:15 | SPY | STALE_SIGNAL | Signal too old (36.5 hours > 24 hours) |
+| 2026-03-01 02:07:15 | XXBTZUSD | STALE_SIGNAL | Signal too old (36.4 hours > 24 hours) |
+| 2026-03-01 02:07:15 | XXBTZUSD | STALE_SIGNAL | Signal too old (38.1 hours > 24 hours) |
+| 2026-03-01 02:07:15 | XXBTZUSD | STALE_SIGNAL | Signal too old (38.1 hours > 24 hours) |
+| 2026-03-01 02:07:15 | XXBTZUSD | STALE_SIGNAL | Signal too old (38.1 hours > 24 hours) |
+| 2026-03-01 02:07:15 | BTCUSD | STALE_SIGNAL | Signal too old (30.3 hours > 24 hours) |
+| 2026-03-01 02:07:15 | ETHUSD | STALE_SIGNAL | Signal too old (30.3 hours > 24 hours) |
+| 2026-03-01 02:07:15 | SPY | STALE_SIGNAL | Signal too old (30.3 hours > 24 hours) |
+| 2026-03-01 02:07:15 | XXBTZUSD | STALE_SIGNAL | Signal too old (36.4 hours > 24 hours) |
+| 2026-03-01 02:12:46 | XXBTZUSD | STALE_SIGNAL | Signal too old (45.2 hours > 24 hours) |
+| 2026-03-01 02:12:46 | XETHZUSD | STALE_SIGNAL | Signal too old (45.2 hours > 24 hours) |
+| 2026-03-01 02:12:46 | XXBTZUSD | STALE_SIGNAL | Signal too old (45.2 hours > 24 hours) |
+| 2026-03-01 02:12:46 | XETHZUSD | STALE_SIGNAL | Signal too old (45.2 hours > 24 hours) |
+| 2026-03-01 02:12:46 | XXBTZUSD | STALE_SIGNAL | Signal too old (41.2 hours > 24 hours) |
+| 2026-03-01 02:12:46 | XXBTZUSD | STALE_SIGNAL | Signal too old (41.2 hours > 24 hours) |
+| 2026-03-01 02:12:46 | XETHZUSD | STALE_SIGNAL | Signal too old (41.2 hours > 24 hours) |
+| 2026-03-01 02:12:46 | SPY | STALE_SIGNAL | Signal too old (41.2 hours > 24 hours) |
+| 2026-03-01 02:12:46 | SPY | STALE_SIGNAL | Signal too old (36.6 hours > 24 hours) |
+| 2026-03-01 02:12:46 | XXBTZUSD | STALE_SIGNAL | Signal too old (36.5 hours > 24 hours) |
+| 2026-03-01 02:12:46 | XXBTZUSD | STALE_SIGNAL | Signal too old (38.2 hours > 24 hours) |
+| 2026-03-01 02:12:46 | XXBTZUSD | STALE_SIGNAL | Signal too old (38.2 hours > 24 hours) |
+| 2026-03-01 02:12:46 | XXBTZUSD | STALE_SIGNAL | Signal too old (38.2 hours > 24 hours) |
+| 2026-03-01 02:12:46 | BTCUSD | STALE_SIGNAL | Signal too old (30.4 hours > 24 hours) |
+| 2026-03-01 02:12:46 | ETHUSD | STALE_SIGNAL | Signal too old (30.4 hours > 24 hours) |
+| 2026-03-01 02:12:46 | SPY | STALE_SIGNAL | Signal too old (30.4 hours > 24 hours) |
+| 2026-03-01 02:12:46 | XXBTZUSD | STALE_SIGNAL | Signal too old (36.5 hours > 24 hours) |
+| 2026-03-01 02:12:48 | ETHUSD | crypto:ETHUSD:sell:1772330400000 | CONFLICT: Conflicting signals (Buy and Sell) detected for ETHUSD. Trading halted for this asset. |
+| 2026-03-01 02:12:48 | ETHUSD | crypto:ETHUSD:buy:1772330400000 | CONFLICT: Conflicting signals (Buy and Sell) detected for ETHUSD. Trading halted for this asset. |
+| 2026-03-01 02:12:48 | ETHUSD | crypto:ETHUSD:buy:1772330400000 | CONFLICT: Conflicting signals (Buy and Sell) detected for ETHUSD. Trading halted for this asset. |
+| 2026-03-01 02:12:48 | SPY | NO_STRATEGY_SIGNAL | No active strategy generated a signal (Strategies: BollingerBands, EmaCrossover, RsiMeanReversion, Macd, Supertrend, DonchianBreakout, ParabolicSar, KeltnerChannelBreakout, StochasticOscillator, AdxMomentum, IchimokuCloud, CciMomentum, LinearRegressionTrend, ObvTrendFollowing, MoneyFlowIndex, ConnorsRsiMeanReversion, AwesomeOscillator, WilliamsR, VwmaCrossover) |
+| 2026-03-01 02:12:48 | BTCUSD | crypto:BTCUSD:buy:1772330400000 | Unable to fetch current price for size validation |
 
 ## Executed Trades
 
@@ -1097,3 +1158,4 @@
 | 2026-02-26 17:21:28 | crypto | XETHZUSD | buy (Entry) | 1.232978 | Market | 3270.0353888179957 | 3440.500495392627 | - | crypto:XETHZUSD:buy:1772126487965 | Strategy: DonchianBreakout (64%, MA: 0.80). Reason: Breakout: Close 3351.14 > Upper Channel 3292.00. Market Context: Trending Up (Medium Volatility). No similar past trades found. Research: Ethereum shows strength against Bitcoin, driven by network activity and L2 growth. Testing 2150 resistance.. News: Ethereum developers discuss upcoming upgrade schedule.. |
 | 2026-02-28 05:54:52 | crypto | ETHUSD | buy (Entry) | 2.749717 | Market | 1881.95 | 1991.05 | 100 | crypto:ETHUSD:buy:1772254800000 | Strategy: MoneyFlowIndex (64%, MA: 0.80). Reason: MFI Oversold: 19.51 < 20.00. Market Context: Trending Up (Low Volatility). No similar past trades found. (Risk: $100, SL Dist: 36.37) [REJECTED: provider error: kraken api error: EOrder:Insufficient funds] |
 | 2026-02-28 17:03:32 | crypto | BTCUSD | buy (Entry) | 0.037850 | Market | 56825.01174732183 | 63048.244537893 | - | crypto:BTCUSD:buy:1772298151044 | Strategy: BollingerBands (64%, MA: 0.80). Reason: Close 59467.02704514670040225610136 < Lower Band 60406.23. Market Context: Trending Down (Short Term) (Medium Volatility). No similar past trades found. (Opening new position) (Risk: $100, SL Dist: 2642.02) [Slippage: 0.0000%] |
+| 2026-03-01 02:15:10 | crypto | BTCUSD | buy (Entry) | 0.00166498 | 68000.0 | 66417.03906773066 | 71056.42186453869 | 2.64 | crypto:BTCUSD:buy:1772330400000 | Strategy: DonchianBreakout (64%, MA: 0.80). Reason: Breakout: Close 67963.50 > Upper Channel 67725.20. Market Context: Trending Up (Short Term) (Medium Volatility). No similar past trades found. (Risk: $100, SL Dist: 1546.46) [Size adjusted to 0.00166498 based on USD 114.3624] |
