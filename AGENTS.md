@@ -97,6 +97,15 @@ cargo run -p thales-cli -- get-buying-power --provider <alpaca|kraken|paper> [--
 - Returns available buying power as `{ "currency": "...", "amount": <f64> }`.
 - For `kraken`, `--symbol` is required so quote-currency balance can be resolved.
 
+### `get-selling-power`
+
+```powershell
+cargo run -p thales-cli -- get-selling-power --provider <alpaca|kraken|paper> --symbol <SYMBOL>
+```
+
+- Returns sellable asset balance as `{ "asset": "...", "amount": <f64> }`.
+- For `kraken`, this uses the base-asset wallet balance for the requested trading pair.
+
 ### `generate-signals`
 
 ```powershell

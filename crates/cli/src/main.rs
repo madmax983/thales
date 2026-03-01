@@ -157,6 +157,12 @@ enum Commands {
         #[arg(long)]
         symbol: Option<String>,
     },
+    GetSellingPower {
+        #[arg(long)]
+        provider: String,
+        #[arg(long)]
+        symbol: String,
+    },
     OptimizeStrategy {
         #[arg(long)]
         input: PathBuf,
@@ -621,6 +627,50 @@ fn run(command: Commands) -> Result<String, CliError> {
                     .get_buying_power()
                     .map_err(|e| CliError::Provider(e.to_string()))?;
                 ok_envelope(json!({ "currency": "USD", "amount": amount }), vec![])
+            }
+            _ => Err(CliError::Validation(format!(
+                "Unsupported provider: {}",
+                provider
+            ))),
+        },
+        Commands::GetSellingPower { provider, symbol } => match provider.as_str() {
+            "kraken" => {
+                let cfg =
+                    KrakenConfig::from_env().map_err(|e| CliError::Provider(e.to_string()))?;
+                let client = KrakenClient::new(cfg);
+                let (asset, amount) = client
+                    .get_sellable_balance_for_symbol(&symbol)
+                    .map_err(|e| CliError::Provider(e.to_string()))?;
+                ok_envelope(json!({ "asset": asset, "amount": amount }), vec![])
+            }
+            "alpaca" => {
+                let cfg =
+                    AlpacaConfig::from_env().map_err(|e| CliError::Provider(e.to_string()))?;
+                let client = AlpacaClient::new(cfg);
+                let positions = client
+                    .get_open_positions()
+                    .map_err(|e| CliError::Provider(e.to_string()))?;
+                let wanted = symbol.to_uppercase();
+                let amount: f64 = positions
+                    .into_iter()
+                    .filter(|p| p.symbol.to_uppercase() == wanted && p.qty > 0.0)
+                    .map(|p| p.qty)
+                    .sum();
+                ok_envelope(json!({ "asset": wanted, "amount": amount }), vec![])
+            }
+            "paper" => {
+                let cfg = PaperConfig::from_env();
+                let client = PaperClient::new(cfg);
+                let positions = client
+                    .get_open_positions()
+                    .map_err(|e| CliError::Provider(e.to_string()))?;
+                let wanted = symbol.to_uppercase();
+                let amount: f64 = positions
+                    .into_iter()
+                    .filter(|p| p.symbol.to_uppercase() == wanted && p.qty > 0.0)
+                    .map(|p| p.qty)
+                    .sum();
+                ok_envelope(json!({ "asset": wanted, "amount": amount }), vec![])
             }
             _ => Err(CliError::Validation(format!(
                 "Unsupported provider: {}",

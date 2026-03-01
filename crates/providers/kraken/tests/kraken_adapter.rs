@@ -382,3 +382,40 @@ fn get_buying_power_for_symbol_reads_quote_balance() {
     assert!((amount - 250.75).abs() < 1e-6);
     balance_mock.assert();
 }
+
+#[test]
+fn get_sellable_balance_for_symbol_reads_base_balance() {
+    let mut server = mockito::Server::new();
+    let balance_mock = server
+        .mock("POST", "/0/private/Balance")
+        .match_header("API-Key", "k")
+        .match_header("API-Sign", Matcher::Regex(".+".to_string()))
+        .match_body(Matcher::Regex("nonce=\\d+".to_string()))
+        .with_status(200)
+        .with_body(
+            json!({
+                "error": [],
+                "result": {
+                    "XXBT": "0.321"
+                }
+            })
+            .to_string(),
+        )
+        .create();
+
+    let cfg = KrakenConfig::from_env_with(|key| match key {
+        "KRAKEN_API_KEY" => Some("k".to_string()),
+        "KRAKEN_API_SECRET" => Some("YWJj".to_string()),
+        "KRAKEN_BASE_URL" => Some(server.url()),
+        _ => None,
+    })
+    .expect("config");
+    let client = KrakenClient::new(cfg);
+
+    let (asset, amount) = client
+        .get_sellable_balance_for_symbol("XBT/USD")
+        .expect("sellable balance");
+    assert_eq!(asset, "XBT");
+    assert!((amount - 0.321).abs() < 1e-6);
+    balance_mock.assert();
+}

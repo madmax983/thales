@@ -651,6 +651,20 @@ impl KrakenClient {
         Ok((quote.to_string(), amount))
     }
 
+    /// Returns available base-asset balance that can be sold for a trading symbol.
+    pub fn get_sellable_balance_for_symbol(
+        &self,
+        symbol: &str,
+    ) -> Result<(String, f64), KrakenProviderError> {
+        let pair = normalize_pair(symbol);
+        let base = base_currency_from_pair(&pair)
+            .ok_or_else(|| KrakenProviderError::UnsupportedBaseCurrency(pair.clone()))?;
+        let balances = self.fetch_balance()?;
+        let amount = parse_balance_for_currency(&balances, base)
+            .ok_or_else(|| KrakenProviderError::MissingBalanceForCurrency(base.to_string()))?;
+        Ok((base.to_string(), amount))
+    }
+
     pub fn get_open_positions(&self) -> Result<Vec<contracts::Position>, KrakenProviderError> {
         let open_positions = self.fetch_open_positions()?;
 
@@ -739,6 +753,11 @@ fn quote_currency_from_pair(pair: &str) -> Option<&'static str> {
         "USDT", "USDC", "USD", "EUR", "GBP", "JPY", "AUD", "CAD", "CHF", "BTC", "ETH",
     ];
     KNOWN_QUOTES.into_iter().find(|quote| pair.ends_with(quote))
+}
+
+fn base_currency_from_pair(pair: &str) -> Option<&str> {
+    let quote = quote_currency_from_pair(pair)?;
+    pair.strip_suffix(quote)
 }
 
 fn parse_balance_for_currency(balances: &HashMap<String, String>, currency: &str) -> Option<f64> {
@@ -907,7 +926,9 @@ pub enum KrakenProviderError {
     InvalidVolume(String),
     #[error("unsupported quote currency for pair: {0}")]
     UnsupportedQuoteCurrency(String),
-    #[error("missing balance for quote currency: {0}")]
+    #[error("unsupported base currency for pair: {0}")]
+    UnsupportedBaseCurrency(String),
+    #[error("missing balance for currency: {0}")]
     MissingBalanceForCurrency(String),
     #[error("invalid kraken api secret encoding: {0}")]
     SecretDecode(#[from] base64::DecodeError),
