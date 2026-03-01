@@ -188,6 +188,8 @@ enum Commands {
         num_bins: usize,
         #[arg(long, default_value = "0.70")]
         value_area_pct: f64,
+        #[arg(long)]
+        visualize: bool,
     },
 }
 
@@ -829,6 +831,7 @@ fn run(command: Commands) -> Result<String, CliError> {
             input,
             num_bins,
             value_area_pct,
+            visualize,
         } => {
             let raw = fs::read_to_string(&input)?;
             let series: BarSeries = match serde_json::from_str::<ResponseEnvelope<BarSeries>>(&raw)
@@ -846,6 +849,10 @@ fn run(command: Commands) -> Result<String, CliError> {
 
             let report = volume_profile::analyze_volume_profile(&series, config)
                 .map_err(|e| CliError::Validation(e.to_string()))?;
+
+            if visualize {
+                volume_profile::print_ascii_profile(&report);
+            }
 
             ok_envelope(report, vec![])
         }
