@@ -23,6 +23,7 @@ MEAN_REVERSION_STRATEGIES = {
     "MoneyFlowIndex",
     "ConnorsRsiMeanReversion",
     "WilliamsR",
+    "VwapReversion",
 }
 TREND_FOLLOWING_STRATEGIES = {
     "EmaCrossover",
@@ -151,6 +152,8 @@ def get_active_strategies():
         strategies.append("WilliamsR")
     if "VwmaCrossover" in content:
         strategies.append("VwmaCrossover")
+    if "VwapReversion" in content:
+        strategies.append("VwapReversion")
 
     return strategies
 

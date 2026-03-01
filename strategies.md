@@ -1326,3 +1326,75 @@ pub struct VwmaCrossoverConfig {
 ### Performance
 - VWMA calculation is O(N).
 - Signal generation loop is O(N).
+
+---
+
+# Trading Strategy: VWAP Reversion
+
+## Strategy Specification
+
+**Name:** VwapReversion
+
+**Description:** A mean reversion strategy based on the Volume Weighted Average Price (VWAP). It buys when the price is significantly below the VWAP (oversold) and sells when the price is significantly above the VWAP (overbought).
+
+**Rationale:** Prices tend to revert to their volume-weighted average over time. Extreme deviations from VWAP represent potential mean reversion opportunities as the market corrects overextensions.
+
+## Requirements
+
+### Implementation Details
+- Uses Polars for data analysis.
+- Implements the `Strategy` trait in Rust.
+- Uses `vwma` and `atr` indicators.
+
+### Strategy Type
+Mean Reversion
+
+### Entry Conditions
+- **Long Entry (Buy):** Close Price < Lower Band (VWMA * (1.0 - `oversold_threshold_pct`)).
+- **Short Entry (Sell):** Close Price > Upper Band (VWMA * (1.0 + `overbought_threshold_pct`)).
+
+### Exit Conditions
+- **Long Exit (Sell):** Close Price >= VWMA.
+- **Short Exit (Buy):** Close Price <= VWMA.
+- **Stop Loss:** Entry Price +/- (ATR * `stop_loss_atr_mult`).
+
+### Position Sizing
+- **Size Hint:** "100" (fixed units) or "max" (for exits).
+
+## Code Pattern
+
+```rust
+use crate::strategy::{Strategy, StrategyConfig, Signal, SignalType};
+use crate::indicators::{atr, vwma};
+use polars::prelude::*;
+use async_trait::async_trait;
+use anyhow::Result;
+
+pub struct VwapReversion {
+    config: VwapReversionConfig,
+}
+
+#[derive(Debug, Clone, serde::Deserialize)]
+pub struct VwapReversionConfig {
+    pub vwma_period: usize,
+    pub oversold_threshold_pct: f64,
+    pub overbought_threshold_pct: f64,
+    pub stop_loss_atr_mult: f64,
+    pub atr_period: usize,
+    pub symbol: String,
+}
+```
+
+## Critical Considerations
+
+### Risk Management Integration
+- **Stop Loss:** Uses ATR-based stop loss to adapt to current market volatility.
+- **Take Profit:** Mean reversion implies the target is the mean (VWMA).
+
+### Backtesting Requirements
+- Accepts `DataFrame` with historical data containing "close" and "volume".
+- Requires data length > `vwma_period`.
+
+### Performance
+- VWMA calculation is O(N).
+- Signal generation loop is O(N).
