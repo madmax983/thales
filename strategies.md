@@ -1398,3 +1398,72 @@ pub struct VwapReversionConfig {
 ### Performance
 - VWMA calculation is O(N).
 - Signal generation loop is O(N).
+---
+
+# Trading Strategy: Vortex Breakout
+
+## Strategy Specification
+
+**Name:** VortexBreakout
+
+**Description:** A trend-following strategy that generates signals based on the crossover of the positive and negative directional movement lines of the Vortex Indicator. It enters long when VI+ crosses above VI-, and enters short when VI+ crosses below VI-.
+
+**Rationale:** The Vortex Indicator captures positive and negative trend movements to define trend direction and strength. A crossover between VI+ and VI- represents a shift in directional movement, signaling the potential start of a new trend or continuation.
+
+## Requirements
+
+### Implementation Details
+- Uses Polars for data analysis.
+- Implements the `Strategy` trait in Rust.
+- Uses `vortex` and `atr` indicators.
+
+### Strategy Type
+Trend Following
+
+### Entry Conditions
+- **Long Entry (Buy):** VI+ crosses ABOVE VI-.
+- **Short Entry (Sell):** VI+ crosses BELOW VI-.
+
+### Exit Conditions
+- **Long Exit (Sell):** VI+ crosses BELOW VI-.
+- **Short Exit (Buy):** VI+ crosses ABOVE VI-.
+- **Stop Loss:** Entry Price +/- (ATR * `stop_loss_atr_mult`).
+
+### Position Sizing
+- **Size Hint:** "100" (fixed units) or "max" (for exits).
+
+## Code Pattern
+
+```rust
+use crate::strategy::{Strategy, StrategyConfig, Signal, SignalType};
+use crate::indicators::{atr, vortex};
+use polars::prelude::*;
+use async_trait::async_trait;
+use anyhow::Result;
+
+pub struct VortexBreakout {
+    config: VortexBreakoutConfig,
+}
+
+#[derive(Debug, Clone, serde::Deserialize)]
+pub struct VortexBreakoutConfig {
+    pub period: usize,
+    pub stop_loss_atr_mult: f64,
+    pub atr_period: usize,
+    pub symbol: String,
+}
+```
+
+## Critical Considerations
+
+### Risk Management Integration
+- **Stop Loss:** Uses ATR-based stop loss to adapt to volatility.
+- **Take Profit:** The strategy implies trailing the trend until a reverse crossover occurs, but manual take profit logic could be added or dynamically set based on risk.
+
+### Backtesting Requirements
+- Accepts `DataFrame` with historical data containing "high", "low", and "close".
+- Requires data length > `period`.
+
+### Performance
+- Vortex Indicator calculation is O(N).
+- Signal generation loop is O(N).

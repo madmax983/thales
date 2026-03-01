@@ -395,3 +395,34 @@ let mfi_series = mfi::calculate(&df, period)?;
 - Returns `Result<Series>`.
 - The output Series is named "mfi".
 - The first `period` values will be null.
+
+## Vortex Indicator
+
+**Name:** Vortex Indicator (VI)
+**Description:** A technical indicator that identifies new or existing trends in the financial markets by measuring the movement of an asset's price between two periods. It consists of two lines: VI+ (positive trend movement) and VI- (negative trend movement).
+**Rationale:** The Vortex Indicator uses positive and negative trend movements to signal reversals and trend strength, based on the concept of vortex motion.
+
+### Implementation Details
+- Uses `f64` arithmetic to calculate the True Range (TR) and Vortex Movements (VM+ and VM-).
+- Accumulates rolling sums of TR, VM+, and VM- over the specified period to generate the VI lines.
+- Returns a tuple of two Polars `Series` of `f64` values: (VI+, VI-).
+
+### Usage
+
+```rust
+use strategies::indicators::vortex;
+use polars::prelude::*;
+
+// Assuming df is a DataFrame with "high", "low", "close" columns
+let period = 14;
+let (vi_plus, vi_minus) = vortex::calculate(&df, period)?;
+```
+
+### Parameters
+- `data`: Reference to a Polars `DataFrame`. Must contain numeric columns "high", "low", and "close".
+- `period`: The lookback period (typically 14).
+
+### Output
+- Returns `Result<(Series, Series)>` representing `(vi_plus, vi_minus)`.
+- The output Series are named "vi_plus" and "vi_minus".
+- The first `period - 1` values will be null.
