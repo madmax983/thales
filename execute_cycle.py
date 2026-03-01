@@ -1048,6 +1048,49 @@ def manage_orders():
                      log_skipped(dummy_intent, "Stale Partial Order Cancellation")
                  else:
                      log_skipped(dummy_intent, "Stale Order Cancellation")
+             else:
+                 # Adjust partial fill bounds if not stale
+                 if filled_qty > 0 and filled_qty < qty:
+                     # e.g., We might want to adjust a limit order if it's partially filled to ensure the rest gets filled.
+                     # We can replace the order or adjust price based on market.
+                     # Let's cancel the current order and issue a market order for the remaining amount
+                     print(f"Order {order['id']} is partially filled. Adjusting remaining quantity: {qty - filled_qty}.")
+                     run_command(["cancel-order", "--provider", provider, "--id", order['id']])
+
+                     # Re-execute as a Market order for remaining amount to guarantee fill
+                     remaining = format_size_hint(qty - filled_qty)
+                     side = order.get("side", "buy")
+                     symbol = order.get("symbol")
+
+                     # We do not have the full original intent context here, so we construct a minimal one
+                     adjustment_intent = {
+                         "provider": provider,
+                         "market": "unknown", # Could try to infer or pass down
+                         "symbol": symbol,
+                         "side": side,
+                         "size_hint": remaining,
+                         "confidence": 1.0, # High confidence for adjustment
+                         "rationale": f"Adjusting partial fill for order {order['id']}",
+                         "intent_id": f"ADJUST-{order['id']}",
+                         "order_type": "market",
+                         "execution_algo": "Market"
+                     }
+
+                     safe_symbol = symbol.replace("/", "_") if symbol else "unknown"
+                     temp_intent_file = f"temp_intent_adjust_{safe_symbol}.json"
+                     with open(temp_intent_file, "w") as f:
+                         json.dump(adjustment_intent, f)
+
+                     result = run_command(["execute-intent", "--provider", provider, "--input", temp_intent_file])
+
+                     if os.path.exists(temp_intent_file):
+                         os.remove(temp_intent_file)
+
+                     if result:
+                         exec_res = result[0] if isinstance(result, list) else result
+                         log_submitted(adjustment_intent, exec_res)
+                     else:
+                         print(f"Failed to submit adjustment order for {order['id']}")
 
 def get_latest_price(provider, symbol):
     """Fetches the latest close price for a symbol."""
@@ -1166,7 +1209,15 @@ def monitor_execution(provider, order_id, expected_price):
                     # For Buy: Positive is bad (paid more)
                     # For Sell: Negative is bad (sold less)
                     # Let's just log raw % diff
-                    slippage = (avg_price - expected_price) / expected_price * 100.0
+                    side = order.get("side", "")
+                    if side:
+                        side = side.lower()
+                    if side == "buy":
+                        slippage = (avg_price - expected_price) / expected_price * 100.0
+                    elif side == "sell":
+                        slippage = (expected_price - avg_price) / expected_price * 100.0
+                    else:
+                        slippage = (avg_price - expected_price) / expected_price * 100.0
 
                 print(f"Order filled at {avg_price} (Expected: {expected_price}). Slippage: {slippage:.4f}%")
                 return avg_price, slippage
@@ -1339,6 +1390,23 @@ def main():
         print(f"Order Type: {intent['order_type'].upper()}")
         if intent.get("execution_algo"):
             print(f"Algorithm: {intent['execution_algo']}")
+
+        # Ensure we always pass a stop loss, according to agent rules "Always set stop losses when available"
+        if not intent.get("stop_loss"):
+            print("Warning: Missing stop loss, adding safety default stop loss")
+            # If no stop loss was provided by the strategy but we are going to trade,
+            # risk management must apply. Let's apply a naive 5% safety buffer.
+            # (Note: real stop loss override based on ATR is done in Rust, but we must enforce it here as well
+            # if strategies bypassed it or generated direct signals)
+            if current_price:
+                if intent["side"] == "buy":
+                    intent["stop_loss"] = current_price * 0.95
+                elif intent["side"] == "sell":
+                    intent["stop_loss"] = current_price * 1.05
+            else:
+                print("Skipping execution: Cannot determine safe stop loss without current price.")
+                log_skipped(intent, "Missing stop loss and current price unavailable")
+                continue
 
         provider = intent["provider"]
         print(f"Executing {intent['side']} {intent['symbol']} via {provider}...")
