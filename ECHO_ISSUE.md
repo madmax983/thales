@@ -1,15 +1,18 @@
-# 🗣️ Echo: Getting Started example is broken
+# 🗣️ Echo: Getting Started example is confusing
 
 ## 🤦 The Confusion:
-Tried to run the `generate-signals` command shown in the "Quick Start" / README `generate-signals` section.
-I fetched the market data as instructed, ran the signal generator, and I just got an empty `[]` array in `signals.json`.
-I thought it was broken! I followed the README exactly, and it resulted in nothing. Why would you show an example that doesn't output anything?
+I was trying to run the quick start examples in `README.md`. I copy-pasted the `fetch-market-data` command and got some data. Then I ran the `generate-signals` command exactly as shown:
+`cargo run -p thales-cli -- generate-signals --input market_data.json --strategy BollingerBands > signals.json`
+I opened `signals.json` expecting to see trade signals, but the `data` array was totally empty: `{"status":"ok","errors":[],"warnings":["No signals triggered..."],"data":[]}`.
+I thought I did something wrong, or the market was closed, or the command was broken!
+
+Also, reading through the docs, I kept hitting weird jargon. What on earth is "OHLCV", "RAG", "TWAP", or "VWAP"? I'm just trying to make a trade, not get a PhD in finance!
 
 ## 🕵️ The Reality:
-Turns out the `generate-signals` command *only* outputs a signal if one happens to trigger on the *exact latest candle* of the data fetched. Since market data is mostly sideways or not triggering a Bollinger Bands signal exactly right now, it returns `[]`.
-The README has a "Note" explaining this under "Troubleshooting Empty Signals", but as a new user, I just copy-pasted the command and felt like it was broken when it produced an empty file.
+It turns out the `generate-signals` command only outputs something if a condition is met on the *exact latest candle*. If the market is just moving sideways right now, it returns nothing. The CLI does include a warning about this, but outputting an empty array on the very first "Quick Start" example makes it look like it failed silently.
+
+On the bright side, when I messed up the commands on purpose (like using `--timeframe 99x` or `--provider invalid`), the error messages were actually readable ("provider error: invalid timeframe: 99x", "Unsupported provider: invalid") instead of just saying "Error: 2".
 
 ## 💡 The Fix:
-Add a huge banner/warning right before or in the code block itself, or change the default example to use the `backtest` command first which *guarantees* you see a list of trades, so the user sees the output structure immediately without having to be lucky with real-time market conditions. Or provide a `dummy_data.json` in the repo that is guaranteed to produce a signal for the example.
-
-Another point: The JSON envelope overhead makes it annoying to read. We should really consider adding a `--raw` flag or similar if we want users to be able to pipe or read this without parsing `{"data": [...]}`.
+1. Provide a `dummy_data.json` in the repo that is mathematically *guaranteed* to trigger a signal for the `BollingerBands` strategy so the README example actually shows a real output structure. Or change the default example to use the `backtest` command first, which always outputs a list of past trades.
+2. Please remove or explain jargon like "OHLCV" (just say "price data"), "RAG" (just say "search history"), and "TWAP"/"VWAP" (just say "time/volume spreading"). Keep it simple!
