@@ -88,7 +88,7 @@ class TestExecuteCycle(unittest.TestCase):
 
             elif "fetch-market-data" in cmd_str:
                 # Return minimal bars
-                bars = [{"close": 100.0, "timestamp_unix_ms": 1000}]
+                bars = {"schema_version": "v0", "bars": [{"close": 100.0, "timestamp_unix_ms": 1000}]}
                 return ret_json(bars)
 
             elif "get-buying-power" in cmd_str:
@@ -169,7 +169,7 @@ class TestExecuteCycle(unittest.TestCase):
                 return []
 
             if cmd == "fetch-market-data":
-                return [{"close": 100.0, "timestamp_unix_ms": 1000}]
+                return {"schema_version": "v0", "bars": [{"close": 100.0, "timestamp_unix_ms": 1000}]}
 
             if cmd == "analyze-market":
                 return {
