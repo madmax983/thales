@@ -789,6 +789,27 @@ def fetch_buying_power(provider, symbol):
 
     return amount, currency
 
+def fetch_sellable_balance(provider, symbol):
+    """Fetches provider sellable base-asset balance for a symbol."""
+    if not symbol:
+        return None, None
+
+    data = run_command(["get-selling-power", "--provider", provider, "--symbol", symbol])
+    if not isinstance(data, dict):
+        return None, None
+
+    amount_raw = data.get("amount")
+    asset = str(data.get("asset", symbol))
+    try:
+        amount = float(amount_raw)
+    except (TypeError, ValueError):
+        return None, None
+
+    if not math.isfinite(amount):
+        return None, None
+
+    return amount, asset
+
 def format_size_hint(size):
     """Formats a numeric size as a compact decimal string."""
     formatted = f"{size:.8f}".rstrip("0").rstrip(".")
@@ -863,6 +884,59 @@ def adjust_buy_size_to_buying_power(intent, current_price, safety_buffer=0.99):
         f"(buying power: {currency} {buying_power:.2f})"
     )
     return True, "Size adjusted to available buying power"
+
+def adjust_sell_size_to_sellable_balance(intent):
+    """
+    Ensures sell size does not exceed available holdings.
+    If requested size is too large, converts to `max` (sell all).
+    Returns (bool, reason). False means skip execution.
+    """
+    if not isinstance(intent, dict):
+        return False, "Invalid intent format"
+
+    if intent.get("side") != "sell":
+        return True, "Not a sell signal"
+
+    size_hint = intent.get("size_hint", "0")
+    if size_hint == "max":
+        return True, "Max sizing handled by provider"
+
+    try:
+        requested_size = float(size_hint)
+    except (TypeError, ValueError):
+        return False, f"Invalid size format: {size_hint}"
+
+    if requested_size <= 0 or not math.isfinite(requested_size):
+        return False, f"Invalid size: {size_hint}"
+
+    provider = intent.get("provider", "")
+    symbol = intent.get("symbol", "")
+    sellable_balance, asset = fetch_sellable_balance(provider, symbol)
+
+    if sellable_balance is None:
+        return False, f"Unable to determine sellable balance for {provider}:{symbol}"
+    if sellable_balance <= 0:
+        return False, f"No sellable balance available ({asset} {sellable_balance:.8f})"
+
+    if requested_size <= sellable_balance:
+        return True, "Size within sellable balance"
+
+    intent["size_hint"] = "max"
+    old_rationale = intent.get("rationale", "").strip()
+    sizing_note = (
+        f"Sell size adjusted from {size_hint} to max based on "
+        f"available {asset} balance ({sellable_balance:.8f})"
+    )
+    if old_rationale:
+        intent["rationale"] = f"{old_rationale} [{sizing_note}]"
+    else:
+        intent["rationale"] = f"[{sizing_note}]"
+
+    print(
+        f"Adjusted sell size for {symbol}: {size_hint} -> max "
+        f"(sellable: {asset} {sellable_balance:.8f})"
+    )
+    return True, "Size adjusted to available sellable balance"
 
 def verify_risk(intent):
     """
@@ -1239,6 +1313,13 @@ def main():
         if not size_ok:
             print(f"Skipping {intent['symbol']}: {size_reason}")
             log_skipped(intent, size_reason)
+            continue
+
+        # Cap sell size to available holdings before execution.
+        sell_ok, sell_reason = adjust_sell_size_to_sellable_balance(intent)
+        if not sell_ok:
+            print(f"Skipping {intent['symbol']}: {sell_reason}")
+            log_skipped(intent, sell_reason)
             continue
 
         # Refine Intent (Algo Selection)

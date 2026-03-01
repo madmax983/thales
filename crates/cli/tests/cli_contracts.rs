@@ -308,6 +308,51 @@ fn get_buying_power_returns_kraken_quote_balance() {
 }
 
 #[test]
+fn get_selling_power_returns_kraken_base_balance() {
+    let mut server = mockito::Server::new();
+    let balance_mock = server
+        .mock("POST", "/0/private/Balance")
+        .match_header("API-Key", "k")
+        .match_header("API-Sign", Matcher::Regex(".+".to_string()))
+        .match_body(Matcher::Regex("nonce=\\d+".to_string()))
+        .with_status(200)
+        .with_body(
+            serde_json::json!({
+                "error": [],
+                "result": {
+                    "XXBT": "0.42"
+                }
+            })
+            .to_string(),
+        )
+        .create();
+
+    let output = Command::new(assert_cmd::cargo::cargo_bin!("thales-cli"))
+        .env("KRAKEN_API_KEY", "k")
+        .env("KRAKEN_API_SECRET", "YWJj")
+        .env("KRAKEN_BASE_URL", server.url())
+        .args([
+            "get-selling-power",
+            "--provider",
+            "kraken",
+            "--symbol",
+            "XBT/USD",
+        ])
+        .assert()
+        .success()
+        .get_output()
+        .stdout
+        .clone();
+
+    let body = String::from_utf8(output).expect("utf8");
+    let json: serde_json::Value = serde_json::from_str(&body).expect("json");
+    assert_eq!(json["status"], "ok");
+    assert_eq!(json["data"]["asset"], "XBT");
+    assert_eq!(json["data"]["amount"], 0.42);
+    balance_mock.assert();
+}
+
+#[test]
 fn get_buying_power_returns_alpaca_buying_power() {
     let mut server = mockito::Server::new();
     let account_mock = server

@@ -153,6 +153,93 @@ class TestExecuteCycle(unittest.TestCase):
         self.assertIn("0.1", content)
         self.assertIn("Test Signal", content)
 
+    @patch("execute_cycle.run_command")
+    def test_main_converts_oversized_sell_to_max_before_execute(self, mock_run_command):
+        captured_intent = {}
+
+        def side_effect(args):
+            cmd = args[0]
+
+            if cmd == "scan-market":
+                provider = args[args.index("--provider") + 1]
+                if provider == "kraken":
+                    return ["BTCUSD"]
+                if provider == "alpaca":
+                    return []
+                return []
+
+            if cmd == "fetch-market-data":
+                return [{"close": 100.0, "timestamp_unix_ms": 1000}]
+
+            if cmd == "analyze-market":
+                return {
+                    "regime": "Trending Up",
+                    "market": "crypto",
+                    "symbol": "BTCUSD",
+                    "sentiment": "Neutral",
+                    "volatility": "Medium",
+                    "confidence": 0.8,
+                }
+
+            if cmd == "generate-signals":
+                strategy = args[args.index("--strategy") + 1]
+                return [
+                    {
+                        "intent_id": f"sell-{strategy}",
+                        "market": "crypto",
+                        "symbol": "BTCUSD",
+                        "side": "sell",
+                        "size_hint": "2.0",
+                        "confidence": 0.9,
+                        "rationale": "Oversized sell for regression test",
+                        "stop_loss": 110.0,
+                        "take_profit": 90.0,
+                        "order_type": "market",
+                        "time_in_force": "GTC",
+                        "signal_type": "Entry",
+                        "strategy": strategy,
+                    }
+                ]
+
+            if cmd == "get-positions":
+                return []
+
+            if cmd == "get-selling-power":
+                return {"amount": 0.75, "asset": "BTC"}
+
+            if cmd == "execute-intent":
+                input_path = args[args.index("--input") + 1]
+                with open(input_path, "r") as f:
+                    payload = json.load(f)
+                captured_intent["side"] = payload.get("side")
+                captured_intent["size_hint"] = payload.get("size_hint")
+                return [
+                    {
+                        "schema_version": "v0",
+                        "intent_id": payload.get("intent_id", "sell-test"),
+                        "provider": "kraken",
+                        "status": "submitted",
+                        "provider_order_id": "oid-sell-1",
+                        "submitted_at_unix_ms": 1234567890000,
+                    }
+                ]
+
+            if cmd == "get-open-orders":
+                return []
+
+            return []
+
+        mock_run_command.side_effect = side_effect
+
+        execute_cycle.main()
+
+        self.assertEqual(captured_intent.get("side"), "sell")
+        self.assertEqual(
+            captured_intent.get("size_hint"),
+            "max",
+            "Oversized sell should be converted to sell-all before execute-intent",
+        )
+
     def test_classify_execution_outcome(self):
         self.assertEqual(
             execute_cycle.classify_execution_outcome({"status": "filled"}),
@@ -371,6 +458,64 @@ class TestExecuteCycle(unittest.TestCase):
         self.assertTrue(ok)
         self.assertEqual(reason, "Not a buy signal")
         self.assertEqual(intent["size_hint"], "1.0")
+        mock_run_command.assert_not_called()
+
+    @patch("execute_cycle.run_command")
+    def test_adjust_sell_size_to_sellable_balance_sets_max_when_size_exceeds_balance(self, mock_run_command):
+        mock_run_command.return_value = {"amount": 0.75, "asset": "BTC"}
+
+        intent = {
+            "provider": "kraken",
+            "symbol": "BTCUSD",
+            "side": "sell",
+            "size_hint": "1.0",
+            "intent_id": "sell-oversize",
+            "rationale": "test",
+        }
+
+        ok, reason = execute_cycle.adjust_sell_size_to_sellable_balance(intent)
+
+        self.assertTrue(ok, f"Expected sell-all fallback, got reason: {reason}")
+        self.assertEqual(intent["size_hint"], "max")
+        self.assertIn("Sell size adjusted", intent["rationale"])
+        mock_run_command.assert_called_once_with(
+            ["get-selling-power", "--provider", "kraken", "--symbol", "BTCUSD"]
+        )
+
+    @patch("execute_cycle.run_command")
+    def test_adjust_sell_size_to_sellable_balance_rejects_when_no_sellable_balance(self, mock_run_command):
+        mock_run_command.return_value = {"amount": 0.0, "asset": "BTC"}
+
+        intent = {
+            "provider": "kraken",
+            "symbol": "BTCUSD",
+            "side": "sell",
+            "size_hint": "0.5",
+            "intent_id": "sell-none",
+            "rationale": "test",
+        }
+
+        ok, reason = execute_cycle.adjust_sell_size_to_sellable_balance(intent)
+
+        self.assertFalse(ok)
+        self.assertIn("No sellable balance", reason)
+
+    @patch("execute_cycle.run_command")
+    def test_adjust_sell_size_to_sellable_balance_ignores_non_sells(self, mock_run_command):
+        intent = {
+            "provider": "kraken",
+            "symbol": "BTCUSD",
+            "side": "buy",
+            "size_hint": "0.5",
+            "intent_id": "buy-ignore",
+            "rationale": "test",
+        }
+
+        ok, reason = execute_cycle.adjust_sell_size_to_sellable_balance(intent)
+
+        self.assertTrue(ok)
+        self.assertEqual(reason, "Not a sell signal")
+        self.assertEqual(intent["size_hint"], "0.5")
         mock_run_command.assert_not_called()
 
 if __name__ == '__main__':
