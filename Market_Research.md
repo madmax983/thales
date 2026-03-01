@@ -281,3 +281,15 @@
 ### SPY - 2026-03-01 05:39:54 (equities)
 **Research**: Historical context: Similar market conditions in Q4 2023 showed a strong bullish trend following consolidation periods. The market is currently exhibiting similar behavior. Research: positive macroeconomic indicators.
 **News**: Major indices are hitting new highs.
+
+### BTCUSD - 2026-03-01 14:03:00 (crypto)
+**Research**: Historical context: Similar market conditions in Q4 2023 showed a strong bullish trend following consolidation periods. The market is currently exhibiting similar behavior. Research: Bitcoin ETFs are seeing strong institutional inflows following SEC approvals. Analysts remain bullish due to positive macroeconomic indicators and recent halving events.
+**News**: Bitcoin showing resilience against recent regulatory concerns.
+
+### ETHUSD - 2026-03-01 14:03:01 (crypto)
+**Research**: Historical context: Similar market conditions in Q4 2023 showed a strong bullish trend following consolidation periods. The market is currently exhibiting similar behavior.
+**News**: None
+
+### SPY - 2026-03-01 14:03:02 (equities)
+**Research**: Historical context: Similar market conditions in Q4 2023 showed a strong bullish trend following consolidation periods. The market is currently exhibiting similar behavior. Research: positive macroeconomic indicators.
+**News**: Major indices are hitting new highs.
