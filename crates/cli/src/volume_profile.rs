@@ -179,6 +179,57 @@ pub fn analyze_volume_profile(
     })
 }
 
+#[cfg(feature = "nova")]
+pub fn print_ascii_profile(report: &VolumeProfileReport) {
+    let max_vol = report.bins.iter().map(|b| b.volume).fold(0.0, f64::max);
+
+    if max_vol == 0.0 {
+        println!("No volume data to display.");
+        return;
+    }
+
+    let term_width = 50; // Max width for the bars
+
+    println!("\nVolume Profile for {}", report.symbol);
+    println!("--------------------------------------------------");
+
+    for bin in report.bins.iter().rev() {
+        // Start from highest price
+        let is_va =
+            bin.price_level >= report.value_area_low && bin.price_level <= report.value_area_high;
+        let is_poc = (bin.volume - report.poc_volume).abs() < f64::EPSILON;
+
+        let bar_len = ((bin.volume / max_vol) * term_width as f64).round() as usize;
+        let bar = "█".repeat(bar_len);
+
+        // Styling based on Value Area and Point of Control
+        let (color_start, color_end) = if is_poc {
+            ("\x1b[1;31m", "\x1b[0m") // Red for POC
+        } else if is_va {
+            ("\x1b[1;34m", "\x1b[0m") // Blue for Value Area
+        } else {
+            ("\x1b[1;30m", "\x1b[0m") // Dark gray outside VA
+        };
+
+        // Align price to 10 characters
+        println!(
+            "{:10.2} | {}{}{}",
+            bin.price_level, color_start, bar, color_end
+        );
+    }
+
+    println!("--------------------------------------------------");
+    println!(
+        "POC: {:.2} (Vol: {:.2})",
+        report.poc_price, report.poc_volume
+    );
+    println!(
+        "Value Area: {:.2} - {:.2}",
+        report.value_area_low, report.value_area_high
+    );
+    println!("Total Volume: {:.2}\n", report.total_volume);
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -244,5 +295,26 @@ mod tests {
         assert_eq!(report.total_volume, 650.0);
         assert!(report.value_area_high >= report.value_area_low);
         assert!(report.bins.len() <= 10);
+    }
+
+    #[test]
+    #[cfg(feature = "nova")]
+    fn test_print_ascii_profile() {
+        let report = VolumeProfileReport {
+            symbol: "TEST".to_string(),
+            poc_price: 100.0,
+            poc_volume: 500.0,
+            value_area_high: 105.0,
+            value_area_low: 95.0,
+            total_volume: 650.0,
+            bins: vec![
+                VolumeBin { price_level: 95.0, volume: 100.0 },
+                VolumeBin { price_level: 100.0, volume: 500.0 },
+                VolumeBin { price_level: 105.0, volume: 50.0 },
+            ],
+        };
+
+        // This test ensures the function doesn't panic and covers the visualization logic.
+        print_ascii_profile(&report);
     }
 }

@@ -61,8 +61,8 @@ impl Strategy for VwapReversion {
 
         let oversold_thresh =
             Decimal::from_f64_retain(self.config.oversold_threshold_pct).unwrap_or(Decimal::ZERO);
-        let overbought_thresh = Decimal::from_f64_retain(self.config.overbought_threshold_pct)
-            .unwrap_or(Decimal::ZERO);
+        let overbought_thresh =
+            Decimal::from_f64_retain(self.config.overbought_threshold_pct).unwrap_or(Decimal::ZERO);
         let one_dec = Decimal::ONE;
 
         for i in 1..close_arr.len() {
@@ -85,7 +85,8 @@ impl Strategy for VwapReversion {
                 let price_dec = Decimal::from_f64_retain(price).unwrap_or(Decimal::ZERO);
                 let prev_price_dec = Decimal::from_f64_retain(prev_price).unwrap_or(Decimal::ZERO);
                 let vwma_dec = Decimal::from_f64_retain(vwma_val).unwrap_or(Decimal::ZERO);
-                let prev_vwma_dec = Decimal::from_f64_retain(prev_vwma_val).unwrap_or(Decimal::ZERO);
+                let prev_vwma_dec =
+                    Decimal::from_f64_retain(prev_vwma_val).unwrap_or(Decimal::ZERO);
                 let atr_dec = Decimal::from_f64_retain(atr_val).unwrap_or(Decimal::ZERO);
 
                 let lower_band = vwma_dec * (one_dec - oversold_thresh);
@@ -109,11 +110,13 @@ impl Strategy for VwapReversion {
                         confidence: 0.8,
                         stop_loss: Some(sl.to_f64().unwrap_or(0.0)),
                         take_profit: Some(tp.to_f64().unwrap_or(0.0)),
-                        reason: format!("VWAP Reversion: Price {:.2} < Lower Band {:.2}", price, lower_band),
+                        reason: format!(
+                            "VWAP Reversion: Price {:.2} < Lower Band {:.2}",
+                            price, lower_band
+                        ),
                         timestamp_ms: timestamp,
                     });
                 }
-
                 // Mean Reversion Entry (Short)
                 // Sell when price goes above the upper band (overbought)
                 else if prev_price_dec <= prev_upper_band && price_dec > upper_band {
@@ -129,7 +132,10 @@ impl Strategy for VwapReversion {
                         confidence: 0.8,
                         stop_loss: Some(sl.to_f64().unwrap_or(0.0)),
                         take_profit: Some(tp.to_f64().unwrap_or(0.0)),
-                        reason: format!("VWAP Reversion: Price {:.2} > Upper Band {:.2}", price, upper_band),
+                        reason: format!(
+                            "VWAP Reversion: Price {:.2} > Upper Band {:.2}",
+                            price, upper_band
+                        ),
                         timestamp_ms: timestamp,
                     });
                 }
@@ -146,14 +152,17 @@ impl Strategy for VwapReversion {
                         confidence: 0.8,
                         stop_loss: None,
                         take_profit: None,
-                        reason: format!("VWAP Reverted to Mean: Price {:.2} >= VWMA {:.2}", price, vwma_val),
+                        reason: format!(
+                            "VWAP Reverted to Mean: Price {:.2} >= VWMA {:.2}",
+                            price, vwma_val
+                        ),
                         timestamp_ms: timestamp,
                     });
                 }
 
                 if prev_price_dec > prev_vwma_dec && price_dec <= vwma_dec {
-                     // Price crossed below mean, exit Short
-                     signals.push(Signal {
+                    // Price crossed below mean, exit Short
+                    signals.push(Signal {
                         signal_type: SignalType::Exit,
                         symbol: self.config.symbol.clone(),
                         side: "buy".to_string(), // Exit Short
@@ -161,7 +170,10 @@ impl Strategy for VwapReversion {
                         confidence: 0.8,
                         stop_loss: None,
                         take_profit: None,
-                        reason: format!("VWAP Reverted to Mean: Price {:.2} <= VWMA {:.2}", price, vwma_val),
+                        reason: format!(
+                            "VWAP Reverted to Mean: Price {:.2} <= VWMA {:.2}",
+                            price, vwma_val
+                        ),
                         timestamp_ms: timestamp,
                     });
                 }
@@ -187,7 +199,7 @@ mod tests {
     async fn test_vwap_reversion_signals() -> Result<()> {
         let config = VwapReversionConfig {
             vwma_period: 2,
-            oversold_threshold_pct: 0.1, // 10% below VWMA
+            oversold_threshold_pct: 0.1,   // 10% below VWMA
             overbought_threshold_pct: 0.1, // 10% above VWMA
             stop_loss_atr_mult: 2.0,
             atr_period: 2,
@@ -258,7 +270,12 @@ mod tests {
             .iter()
             .filter(|s| s.signal_type == SignalType::Entry && s.side == "buy")
             .collect();
-        assert_eq!(entries_long.len(), 1, "Expected 1 Long Entry. Got: {:?}", entries_long);
+        assert_eq!(
+            entries_long.len(),
+            1,
+            "Expected 1 Long Entry. Got: {:?}",
+            entries_long
+        );
         assert_eq!(entries_long[0].timestamp_ms, 3000);
 
         // Exit Long at i=3 (4000ms)
@@ -267,7 +284,12 @@ mod tests {
             .filter(|s| s.signal_type == SignalType::Exit && s.side == "sell")
             .collect();
         // Since price 9.0 >= 8.5 (VWMA), exit is triggered at i=3
-        assert_eq!(exits_long.len(), 1, "Expected 1 Long Exit. Got: {:?}", exits_long);
+        assert_eq!(
+            exits_long.len(),
+            1,
+            "Expected 1 Long Exit. Got: {:?}",
+            exits_long
+        );
         assert_eq!(exits_long[0].timestamp_ms, 4000);
 
         // Entry Short at i=4 (5000ms)
@@ -275,7 +297,12 @@ mod tests {
             .iter()
             .filter(|s| s.signal_type == SignalType::Entry && s.side == "sell")
             .collect();
-        assert_eq!(entries_short.len(), 1, "Expected 1 Short Entry. Got: {:?}", entries_short);
+        assert_eq!(
+            entries_short.len(),
+            1,
+            "Expected 1 Short Entry. Got: {:?}",
+            entries_short
+        );
         assert_eq!(entries_short[0].timestamp_ms, 5000);
 
         // Exit Short at i=5 (6000ms)
@@ -283,7 +310,12 @@ mod tests {
             .iter()
             .filter(|s| s.signal_type == SignalType::Exit && s.side == "buy")
             .collect();
-        assert_eq!(exits_short.len(), 1, "Expected 1 Short Exit. Got: {:?}", exits_short);
+        assert_eq!(
+            exits_short.len(),
+            1,
+            "Expected 1 Short Exit. Got: {:?}",
+            exits_short
+        );
         assert_eq!(exits_short[0].timestamp_ms, 6000);
 
         Ok(())

@@ -19,8 +19,8 @@ use strategies::rsi_mean_reversion::{RsiMeanReversion, RsiMeanReversionConfig};
 use strategies::stochastic_oscillator::{StochasticOscillator, StochasticOscillatorConfig};
 use strategies::strategy::Strategy;
 use strategies::supertrend::{Supertrend, SupertrendConfig};
-use strategies::vwma_crossover::{VwmaCrossover, VwmaCrossoverConfig};
 use strategies::vwap_reversion::{VwapReversion, VwapReversionConfig};
+use strategies::vwma_crossover::{VwmaCrossover, VwmaCrossoverConfig};
 use strategies::williams_r::{WilliamsR, WilliamsRConfig};
 
 pub fn create_strategy(name: &str, symbol: &str) -> Result<Box<dyn Strategy>> {
