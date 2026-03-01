@@ -40,6 +40,7 @@ pub mod rsi_mean_reversion;
 pub mod stochastic_oscillator;
 pub mod strategy;
 pub mod supertrend;
+pub mod vortex_breakout;
 pub mod vwap_reversion;
 pub mod vwma_crossover;
 pub mod williams_r;

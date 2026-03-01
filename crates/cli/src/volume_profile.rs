@@ -308,9 +308,18 @@ mod tests {
             value_area_low: 95.0,
             total_volume: 650.0,
             bins: vec![
-                VolumeBin { price_level: 95.0, volume: 100.0 },
-                VolumeBin { price_level: 100.0, volume: 500.0 },
-                VolumeBin { price_level: 105.0, volume: 50.0 },
+                VolumeBin {
+                    price_level: 95.0,
+                    volume: 100.0,
+                },
+                VolumeBin {
+                    price_level: 100.0,
+                    volume: 500.0,
+                },
+                VolumeBin {
+                    price_level: 105.0,
+                    volume: 50.0,
+                },
             ],
         };
 

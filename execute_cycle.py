@@ -39,6 +39,7 @@ TREND_FOLLOWING_STRATEGIES = {
     "ObvTrendFollowing",
     "AwesomeOscillator",
     "VwmaCrossover",
+    "VortexBreakout",
 }
 BREAKOUT_STRATEGIES = {
     "DonchianBreakout",
@@ -154,6 +155,8 @@ def get_active_strategies():
         strategies.append("VwmaCrossover")
     if "VwapReversion" in content:
         strategies.append("VwapReversion")
+    if "VortexBreakout" in content:
+        strategies.append("VortexBreakout")
 
     return strategies
 
