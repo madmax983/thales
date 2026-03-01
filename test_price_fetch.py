@@ -25,7 +25,12 @@ def run_command(args):
 def test_fetch_price():
     # Test Paper (Simulation)
     print("Testing Paper Provider...")
-    bars = run_command(["fetch-market-data", "--provider", "paper", "--symbol", "BTC/USD", "--timeframe", "1m"])
+    data = run_command(["fetch-market-data", "--provider", "paper", "--symbol", "BTC/USD", "--timeframe", "1m"])
+    if isinstance(data, dict):
+        bars = data.get("bars", [])
+    else:
+        bars = data
+
     if bars and len(bars) > 0:
         last_close = bars[-1]["close"]
         print(f"Paper BTC/USD Close: {last_close}")
