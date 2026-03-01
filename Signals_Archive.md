@@ -1549,3 +1549,219 @@ Major protocol upgrades planned for Q2. DeFi TVL stabilizing.
 ```
 
 ---
+## Market Analysis Report - crypto - XXBTZUSD
+
+**Timestamp (ms)**: 1772182800000
+**Confidence**: 80.00%
+
+### 1. Market Regime
+Regime Unchanged (Trending Up)
+*Sentiment*: Bullish (Strong)
+
+### 2. Volatility
+*Assessment*: Low
+
+### 3. Strategy Recommendation
+**Trend Following (Long)**
+
+### 4. Patterns & Price Action
+*Patterns*: Doji, Breakout (Upside), Consolidation (Squeeze)
+
+### 5. Key Levels
+*Support/Resistance*: 64960.8, 66513, 67388, 67480.4
+
+### 6. Research & Context
+No external research available. (Placeholder for search_research)
+*Historical Context*: No similar past trades found.
+
+```json
+{
+  "symbol": "XXBTZUSD",
+  "market": "crypto",
+  "regime": "Trending Up",
+  "sentiment": "Bullish (Strong)",
+  "patterns": [
+    "Doji",
+    "Breakout (Upside)",
+    "Consolidation (Squeeze)"
+  ],
+  "key_levels": [
+    64960.8,
+    66513.0,
+    67388.0,
+    67480.4
+  ],
+  "volatility": "Low",
+  "atr": 463.26354881124934,
+  "research_summary": null,
+  "news_summary": null,
+  "recommendation": "Trend Following (Long)",
+  "confidence": 0.7999999999999999,
+  "timestamp_unix_ms": 1772182800000
+}
+```
+
+---
+
+## Market Analysis Report - crypto - XXBTZUSD
+
+**Timestamp (ms)**: 1772182800000
+**Confidence**: 80.00%
+
+### 1. Market Regime
+Regime Unchanged (Trending Up)
+*Sentiment*: Bullish (Strong)
+
+### 2. Volatility
+*Assessment*: Low
+
+### 3. Strategy Recommendation
+**Trend Following (Long)**
+
+### 4. Patterns & Price Action
+*Patterns*: Breakout (Upside), Consolidation (Squeeze)
+
+### 5. Key Levels
+*Support/Resistance*: 64960.8, 66513, 67388, 67480.4
+
+### 6. Research & Context
+**Research**:
+Bitcoin shows strong bullish sentiment with 77% investor confidence. ETFs seeing major inflows (BlackRock 97.4M). Options expiry on Feb 27 may cause volatility. Key resistance at 2k and 5k.
+
+**News**:
+BlackRock iShares attracts 97.4M inflows. Trading volumes surpass .3B. Bitcoin options expiry involves over .8B in contracts.
+*Historical Context*: No similar past trades found.
+
+```json
+{
+  "symbol": "XXBTZUSD",
+  "market": "crypto",
+  "regime": "Trending Up",
+  "sentiment": "Bullish (Strong)",
+  "patterns": [
+    "Breakout (Upside)",
+    "Consolidation (Squeeze)"
+  ],
+  "key_levels": [
+    64960.8,
+    66513.0,
+    67388.0,
+    67480.4
+  ],
+  "volatility": "Low",
+  "atr": 463.26354881124934,
+  "research_summary": "Bitcoin shows strong bullish sentiment with 77% investor confidence. ETFs seeing major inflows (BlackRock 97.4M). Options expiry on Feb 27 may cause volatility. Key resistance at 2k and 5k.",
+  "news_summary": "BlackRock iShares attracts 97.4M inflows. Trading volumes surpass .3B. Bitcoin options expiry involves over .8B in contracts.",
+  "recommendation": "Trend Following (Long)",
+  "confidence": 0.7999999999999999,
+  "timestamp_unix_ms": 1772182800000
+}
+```
+
+---
+
+## Market Analysis Report - crypto - XETHZUSD
+
+**Timestamp (ms)**: 1772182800000
+**Confidence**: 70.00%
+
+### 1. Market Regime
+Regime Unchanged (Trending Up)
+*Sentiment*: Bearish
+
+### 2. Volatility
+*Assessment*: Low
+
+### 3. Strategy Recommendation
+**Trend Following (Long)**
+
+### 4. Patterns & Price Action
+*Patterns*: Breakout (Upside), Consolidation (Squeeze)
+
+### 5. Key Levels
+*Support/Resistance*: 1890.18, 1975.33, 2024.39, 2026.6
+
+### 6. Research & Context
+**Research**:
+Ethereum sentiment is bullish (84% investor confidence). Recent sell-off by FG Nexus (7,550 ETH) caused dip, but ETFs returned to inflows (57M). Facing resistance near ,108 and 20-day EMA.
+
+**News**:
+Ethereum ETFs pull in 57M. FG Nexus distributes 7,550 ETH. Major protocol upgrades planned for Q2.
+*Historical Context*: No similar past trades found.
+
+```json
+{
+  "symbol": "XETHZUSD",
+  "market": "crypto",
+  "regime": "Trending Up",
+  "sentiment": "Bearish",
+  "patterns": [
+    "Breakout (Upside)",
+    "Consolidation (Squeeze)"
+  ],
+  "key_levels": [
+    1890.18,
+    1975.33,
+    2024.39,
+    2026.6
+  ],
+  "volatility": "Low",
+  "atr": 19.936401116735556,
+  "research_summary": "Ethereum sentiment is bullish (84% investor confidence). Recent sell-off by FG Nexus (7,550 ETH) caused dip, but ETFs returned to inflows (57M). Facing resistance near ,108 and 20-day EMA.",
+  "news_summary": "Ethereum ETFs pull in 57M. FG Nexus distributes 7,550 ETH. Major protocol upgrades planned for Q2.",
+  "recommendation": "Trend Following (Long)",
+  "confidence": 0.7,
+  "timestamp_unix_ms": 1772182800000
+}
+```
+
+---
+
+## Market Analysis Report - equities - SPY
+
+**Timestamp (ms)**: 1772182800000
+**Confidence**: 50.00%
+
+### 1. Market Regime
+Regime Unchanged (Ranging)
+*Sentiment*: Neutral
+
+### 2. Volatility
+*Assessment*: Unknown
+
+### 3. Strategy Recommendation
+**Mean Reversion**
+
+### 4. Patterns & Price Action
+*Patterns*: None detected
+
+### 5. Key Levels
+*Support/Resistance*: None identified
+
+### 6. Research & Context
+**Research**:
+SPY showing resilience near all-time highs. Tech sector leading. Market sentiment remains cautiously optimistic awaiting Fed cues.
+
+**News**:
+US Economy shows signs of soft landing. Federal Reserve likely to maintain current rate policy.
+*Historical Context*: No similar past trades found.
+
+```json
+{
+  "symbol": "SPY",
+  "market": "equities",
+  "regime": "Ranging",
+  "sentiment": "Neutral",
+  "patterns": [],
+  "key_levels": [],
+  "volatility": "Unknown",
+  "atr": null,
+  "research_summary": "SPY showing resilience near all-time highs. Tech sector leading. Market sentiment remains cautiously optimistic awaiting Fed cues.",
+  "news_summary": "US Economy shows signs of soft landing. Federal Reserve likely to maintain current rate policy.",
+  "recommendation": "Mean Reversion",
+  "confidence": 0.5,
+  "timestamp_unix_ms": 1772182800000
+}
+```
+
+---
