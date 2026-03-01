@@ -20,6 +20,7 @@ use strategies::stochastic_oscillator::{StochasticOscillator, StochasticOscillat
 use strategies::strategy::Strategy;
 use strategies::supertrend::{Supertrend, SupertrendConfig};
 use strategies::vwma_crossover::{VwmaCrossover, VwmaCrossoverConfig};
+use strategies::vwap_reversion::{VwapReversion, VwapReversionConfig};
 use strategies::williams_r::{WilliamsR, WilliamsRConfig};
 
 pub fn create_strategy(name: &str, symbol: &str) -> Result<Box<dyn Strategy>> {
@@ -224,6 +225,17 @@ pub fn create_strategy(name: &str, symbol: &str) -> Result<Box<dyn Strategy>> {
             };
             Ok(Box::new(VwmaCrossover::new(config)))
         }
+        "VwapReversion" => {
+            let config = VwapReversionConfig {
+                vwma_period: 20,
+                oversold_threshold_pct: 0.05,
+                overbought_threshold_pct: 0.05,
+                stop_loss_atr_mult: 2.0,
+                atr_period: 14,
+                symbol: symbol.to_string(),
+            };
+            Ok(Box::new(VwapReversion::new(config)))
+        }
         _ => Err(anyhow::anyhow!("Unknown strategy: {}", name)),
     }
 }
@@ -249,5 +261,6 @@ pub fn list_strategies() -> Vec<&'static str> {
         "AwesomeOscillator",
         "WilliamsR",
         "VwmaCrossover",
+        "VwapReversion",
     ]
 }

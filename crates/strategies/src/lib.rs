@@ -41,4 +41,5 @@ pub mod stochastic_oscillator;
 pub mod strategy;
 pub mod supertrend;
 pub mod vwma_crossover;
+pub mod vwap_reversion;
 pub mod williams_r;
