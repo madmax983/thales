@@ -1046,7 +1046,13 @@ def manage_orders():
 def get_latest_price(provider, symbol):
     """Fetches the latest close price for a symbol."""
     print(f"Fetching latest price for {symbol} on {provider}...")
-    bars = run_command(["fetch-market-data", "--provider", provider, "--symbol", symbol, "--timeframe", "1m"])
+    data = run_command(["fetch-market-data", "--provider", provider, "--symbol", symbol, "--timeframe", "1m"])
+
+    if isinstance(data, dict):
+        bars = data.get("bars", [])
+    else:
+        bars = data
+
     if bars and isinstance(bars, list) and len(bars) > 0:
         # Sort by timestamp just in case, though usually sorted
         bars.sort(key=lambda x: x.get("timestamp_unix_ms", 0))
