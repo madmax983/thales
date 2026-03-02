@@ -25,6 +25,7 @@ pub mod adx_momentum;
 pub mod awesome_oscillator;
 pub mod bollinger_bands;
 pub mod cci_momentum;
+pub mod chaikin_money_flow;
 pub mod connors_rsi_mean_reversion;
 pub mod donchian_breakout;
 pub mod ema_crossover;

@@ -34,7 +34,8 @@ pub fn calculate(data: &DataFrame, period: usize) -> Result<Series> {
     let mut sum_x = Decimal::ZERO;
     let mut sum_x2 = Decimal::ZERO; // Sum of x^2
 
-    let period_dec = Decimal::from_usize(period).context("Invalid period for Decimal conversion")?;
+    let period_dec =
+        Decimal::from_usize(period).context("Invalid period for Decimal conversion")?;
 
     for i in 0..close.len() {
         let val_opt = close.get(i);
