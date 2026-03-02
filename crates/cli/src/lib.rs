@@ -16,6 +16,8 @@ pub mod backtest;
 pub mod benchmark;
 pub mod history;
 #[cfg(feature = "nova")]
+pub mod markov_chain;
+#[cfg(feature = "nova")]
 pub mod monte_carlo;
 pub mod optimizer;
 pub mod rag;
