@@ -118,7 +118,7 @@ pub fn calculate(data: &DataFrame, period: usize) -> Result<Series> {
     atr_values[period - 1] = Some(prev_atr.to_f64().unwrap_or(0.0));
 
     // Calculate remaining ATRs using Wilder's Smoothing
-    for i in period..len {
+    for (i, atr_val) in atr_values.iter_mut().enumerate().take(len).skip(period) {
         let h = Decimal::from_f64_retain(high.get(i).unwrap_or(f64::NAN)).unwrap_or(Decimal::ZERO);
         let l = Decimal::from_f64_retain(low.get(i).unwrap_or(f64::NAN)).unwrap_or(Decimal::ZERO);
         let cp =
@@ -128,7 +128,7 @@ pub fn calculate(data: &DataFrame, period: usize) -> Result<Series> {
             || low.get(i).unwrap_or(f64::NAN).is_nan()
             || close.get(i - 1).unwrap_or(f64::NAN).is_nan()
         {
-            atr_values[i] = None;
+            *atr_val = None;
             // Strategy: if missing data, we can't easily continue smoothing.
             // We could reset, or just emit None.
             // For now, emit None and keep prev_atr same? No, that's wrong.
@@ -146,7 +146,7 @@ pub fn calculate(data: &DataFrame, period: usize) -> Result<Series> {
         // ATR[i] = (ATR[i-1] * (period - 1) + TR[i]) / period
         let current_atr = (prev_atr * period_minus_one + tr) / period_dec;
 
-        atr_values[i] = Some(current_atr.to_f64().unwrap_or(0.0));
+        *atr_val = Some(current_atr.to_f64().unwrap_or(0.0));
         prev_atr = current_atr;
     }
 

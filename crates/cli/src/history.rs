@@ -9,7 +9,7 @@ fn parse_horizon(h: &str) -> i64 {
     let h = h.trim();
     if h.ends_with('h') {
         if let Ok(v) = h.trim_end_matches('h').parse::<i64>() {
-            return v * 3600_000;
+            return v * 3_600_000;
         }
     } else if h.ends_with('d') {
         if let Ok(v) = h.trim_end_matches('d').parse::<i64>() {
@@ -76,7 +76,7 @@ where
 
                 if let (Some(start), Some(end)) = (entry_bar, exit_bar) {
                     // Check if bars are reasonably close to desired timestamps (e.g. within 2 hours)
-                    let tolerance = 7200_000; // 2 hours
+                    let tolerance = 7_200_000; // 2 hours
                     if (start.timestamp_unix_ms - entry_ts).abs() < tolerance
                         && (end.timestamp_unix_ms - exit_ts).abs() < tolerance
                     {

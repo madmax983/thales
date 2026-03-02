@@ -1919,6 +1919,72 @@
 | 2026-03-02 00:09:19 | SPY | equities:SPY:sell:1772410159618 | CONFLICT: Conflicting signals (Buy and Sell) detected for SPY. Trading halted for this asset. |
 | 2026-03-02 00:09:19 | SPY | equities:SPY:buy:1772410159618 | CONFLICT: Conflicting signals (Buy and Sell) detected for SPY. Trading halted for this asset. |
 | 2026-03-02 00:09:19 | SPY | equities:SPY:buy:1772410159618 | CONFLICT: Conflicting signals (Buy and Sell) detected for SPY. Trading halted for this asset. |
+| 2026-03-02 02:09:22 | BTCUSD | STALE_SIGNAL | Signal too old (36.7 hours > 24 hours) |
+| 2026-03-02 02:09:22 | ETHUSD | STALE_SIGNAL | Signal too old (36.7 hours > 24 hours) |
+| 2026-03-02 02:09:22 | SPY | STALE_SIGNAL | Signal too old (36.7 hours > 24 hours) |
+| 2026-03-02 02:09:22 | BTCUSD | STALE_SIGNAL | Signal too old (36.7 hours > 24 hours) |
+| 2026-03-02 02:09:22 | ETHUSD | STALE_SIGNAL | Signal too old (36.7 hours > 24 hours) |
+| 2026-03-02 02:09:22 | SPY | STALE_SIGNAL | Signal too old (36.7 hours > 24 hours) |
+| 2026-03-02 02:09:22 | APENFTUSD | STALE_SIGNAL | Signal too old (34.2 hours > 24 hours) |
+| 2026-03-02 02:09:22 | KOBANUSD | STALE_SIGNAL | Signal too old (34.2 hours > 24 hours) |
+| 2026-03-02 02:09:22 | CATUSD | STALE_SIGNAL | Signal too old (34.2 hours > 24 hours) |
+| 2026-03-02 02:09:22 | BTCUSD | STALE_SIGNAL | Signal too old (34.2 hours > 24 hours) |
+| 2026-03-02 02:09:22 | ETHUSD | STALE_SIGNAL | Signal too old (34.2 hours > 24 hours) |
+| 2026-03-02 02:09:22 | BTCUSD | STALE_SIGNAL | Signal too old (33.1 hours > 24 hours) |
+| 2026-03-02 02:09:22 | BTCUSD | STALE_SIGNAL | Signal too old (32.6 hours > 24 hours) |
+| 2026-03-02 02:09:22 | BTCUSD | STALE_SIGNAL | Signal too old (30.7 hours > 24 hours) |
+| 2026-03-02 02:09:22 | ETHUSD | STALE_SIGNAL | Signal too old (30.7 hours > 24 hours) |
+| 2026-03-02 02:09:22 | SPY | STALE_SIGNAL | Signal too old (30.7 hours > 24 hours) |
+| 2026-03-02 02:09:22 | BTCUSD | STALE_SIGNAL | Signal too old (28.6 hours > 24 hours) |
+| 2026-03-02 02:09:22 | ETHUSD | STALE_SIGNAL | Signal too old (28.6 hours > 24 hours) |
+| 2026-03-02 02:09:22 | SPY | STALE_SIGNAL | Signal too old (28.6 hours > 24 hours) |
+| 2026-03-02 02:09:22 | BTCUSD | STALE_SIGNAL | Signal too old (24.8 hours > 24 hours) |
+| 2026-03-02 02:09:22 | ETHUSD | STALE_SIGNAL | Signal too old (24.8 hours > 24 hours) |
+| 2026-03-02 02:09:22 | SPY | STALE_SIGNAL | Signal too old (24.8 hours > 24 hours) |
+| 2026-03-02 02:09:22 | BTCUSD | crypto:BTCUSD:buy:1772417362692 | CONFLICT: Conflicting signals (Buy and Sell) detected for BTCUSD. Trading halted for this asset. |
+| 2026-03-02 02:09:22 | BTCUSD | crypto:BTCUSD:buy:1772417362692 | CONFLICT: Conflicting signals (Buy and Sell) detected for BTCUSD. Trading halted for this asset. |
+| 2026-03-02 02:09:22 | BTCUSD | crypto:BTCUSD:sell:1772417362692 | CONFLICT: Conflicting signals (Buy and Sell) detected for BTCUSD. Trading halted for this asset. |
+| 2026-03-02 02:09:22 | BTCUSD | crypto:BTCUSD:buy:1772417362692 | CONFLICT: Conflicting signals (Buy and Sell) detected for BTCUSD. Trading halted for this asset. |
+| 2026-03-02 02:09:22 | BTCUSD | crypto:BTCUSD:buy:1772417362692 | CONFLICT: Conflicting signals (Buy and Sell) detected for BTCUSD. Trading halted for this asset. |
+| 2026-03-02 02:09:22 | ETHUSD | crypto:ETHUSD:sell:1772417362858 | CONFLICT: Conflicting signals (Buy and Sell) detected for ETHUSD. Trading halted for this asset. |
+| 2026-03-02 02:09:22 | ETHUSD | crypto:ETHUSD:buy:1772417362858 | CONFLICT: Conflicting signals (Buy and Sell) detected for ETHUSD. Trading halted for this asset. |
+| 2026-03-02 02:09:22 | ETHUSD | crypto:ETHUSD:buy:1772417362858 | CONFLICT: Conflicting signals (Buy and Sell) detected for ETHUSD. Trading halted for this asset. |
+| 2026-03-02 02:09:23 | SPY | equities:SPY:sell:1772417362972 | CONFLICT: Conflicting signals (Buy and Sell) detected for SPY. Trading halted for this asset. |
+| 2026-03-02 02:09:23 | SPY | equities:SPY:buy:1772417362972 | CONFLICT: Conflicting signals (Buy and Sell) detected for SPY. Trading halted for this asset. |
+| 2026-03-02 02:09:23 | SPY | equities:SPY:buy:1772417362972 | CONFLICT: Conflicting signals (Buy and Sell) detected for SPY. Trading halted for this asset. |
+| 2026-03-02 02:20:35 | BTCUSD | STALE_SIGNAL | Signal too old (36.9 hours > 24 hours) |
+| 2026-03-02 02:20:35 | ETHUSD | STALE_SIGNAL | Signal too old (36.9 hours > 24 hours) |
+| 2026-03-02 02:20:35 | SPY | STALE_SIGNAL | Signal too old (36.9 hours > 24 hours) |
+| 2026-03-02 02:20:35 | BTCUSD | STALE_SIGNAL | Signal too old (36.9 hours > 24 hours) |
+| 2026-03-02 02:20:35 | ETHUSD | STALE_SIGNAL | Signal too old (36.9 hours > 24 hours) |
+| 2026-03-02 02:20:35 | SPY | STALE_SIGNAL | Signal too old (36.9 hours > 24 hours) |
+| 2026-03-02 02:20:35 | APENFTUSD | STALE_SIGNAL | Signal too old (34.3 hours > 24 hours) |
+| 2026-03-02 02:20:35 | KOBANUSD | STALE_SIGNAL | Signal too old (34.3 hours > 24 hours) |
+| 2026-03-02 02:20:35 | CATUSD | STALE_SIGNAL | Signal too old (34.3 hours > 24 hours) |
+| 2026-03-02 02:20:35 | BTCUSD | STALE_SIGNAL | Signal too old (34.3 hours > 24 hours) |
+| 2026-03-02 02:20:35 | ETHUSD | STALE_SIGNAL | Signal too old (34.3 hours > 24 hours) |
+| 2026-03-02 02:20:35 | BTCUSD | STALE_SIGNAL | Signal too old (33.3 hours > 24 hours) |
+| 2026-03-02 02:20:35 | BTCUSD | STALE_SIGNAL | Signal too old (32.8 hours > 24 hours) |
+| 2026-03-02 02:20:35 | BTCUSD | STALE_SIGNAL | Signal too old (30.9 hours > 24 hours) |
+| 2026-03-02 02:20:35 | ETHUSD | STALE_SIGNAL | Signal too old (30.9 hours > 24 hours) |
+| 2026-03-02 02:20:35 | SPY | STALE_SIGNAL | Signal too old (30.9 hours > 24 hours) |
+| 2026-03-02 02:20:35 | BTCUSD | STALE_SIGNAL | Signal too old (28.8 hours > 24 hours) |
+| 2026-03-02 02:20:35 | ETHUSD | STALE_SIGNAL | Signal too old (28.8 hours > 24 hours) |
+| 2026-03-02 02:20:35 | SPY | STALE_SIGNAL | Signal too old (28.8 hours > 24 hours) |
+| 2026-03-02 02:20:35 | BTCUSD | STALE_SIGNAL | Signal too old (25.0 hours > 24 hours) |
+| 2026-03-02 02:20:35 | ETHUSD | STALE_SIGNAL | Signal too old (25.0 hours > 24 hours) |
+| 2026-03-02 02:20:35 | SPY | STALE_SIGNAL | Signal too old (25.0 hours > 24 hours) |
+| 2026-03-02 02:20:36 | BTCUSD | crypto:BTCUSD:buy:1772418035941 | CONFLICT: Conflicting signals (Buy and Sell) detected for BTCUSD. Trading halted for this asset. |
+| 2026-03-02 02:20:36 | BTCUSD | crypto:BTCUSD:buy:1772418035941 | CONFLICT: Conflicting signals (Buy and Sell) detected for BTCUSD. Trading halted for this asset. |
+| 2026-03-02 02:20:36 | BTCUSD | crypto:BTCUSD:sell:1772418035941 | CONFLICT: Conflicting signals (Buy and Sell) detected for BTCUSD. Trading halted for this asset. |
+| 2026-03-02 02:20:36 | BTCUSD | crypto:BTCUSD:buy:1772418035941 | CONFLICT: Conflicting signals (Buy and Sell) detected for BTCUSD. Trading halted for this asset. |
+| 2026-03-02 02:20:36 | BTCUSD | crypto:BTCUSD:buy:1772418035941 | CONFLICT: Conflicting signals (Buy and Sell) detected for BTCUSD. Trading halted for this asset. |
+| 2026-03-02 02:20:36 | ETHUSD | crypto:ETHUSD:sell:1772418036061 | CONFLICT: Conflicting signals (Buy and Sell) detected for ETHUSD. Trading halted for this asset. |
+| 2026-03-02 02:20:36 | ETHUSD | crypto:ETHUSD:buy:1772418036061 | CONFLICT: Conflicting signals (Buy and Sell) detected for ETHUSD. Trading halted for this asset. |
+| 2026-03-02 02:20:36 | ETHUSD | crypto:ETHUSD:buy:1772418036061 | CONFLICT: Conflicting signals (Buy and Sell) detected for ETHUSD. Trading halted for this asset. |
+| 2026-03-02 02:20:36 | SPY | equities:SPY:sell:1772418036173 | CONFLICT: Conflicting signals (Buy and Sell) detected for SPY. Trading halted for this asset. |
+| 2026-03-02 02:20:36 | SPY | equities:SPY:buy:1772418036173 | CONFLICT: Conflicting signals (Buy and Sell) detected for SPY. Trading halted for this asset. |
+| 2026-03-02 02:20:36 | SPY | equities:SPY:buy:1772418036173 | CONFLICT: Conflicting signals (Buy and Sell) detected for SPY. Trading halted for this asset. |
 
 ## Executed Trades
 

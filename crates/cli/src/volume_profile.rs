@@ -55,11 +55,10 @@ pub fn analyze_volume_profile(
     // Handle edge case where max_price == min_price
     if max_price == min_price {
         let total_volume: f64 = series.bars.iter().map(|b| b.volume).sum();
-        let mut bins = Vec::new();
-        bins.push(VolumeBin {
+        let bins = vec![VolumeBin {
             price_level: min_price,
             volume: total_volume,
-        });
+        }];
 
         return Ok(VolumeProfileReport {
             symbol,
@@ -94,8 +93,8 @@ pub fn analyze_volume_profile(
             let num_overlapping_bins = (end_bin - start_bin + 1) as f64;
             let vol_per_bin = bar_vol / num_overlapping_bins;
 
-            for i in start_bin..=end_bin {
-                bin_volumes[i] += vol_per_bin;
+            for bin_vol in bin_volumes.iter_mut().take(end_bin + 1).skip(start_bin) {
+                *bin_vol += vol_per_bin;
             }
         } else {
             // If bar_range is 0, add all volume to the single bin it falls into
