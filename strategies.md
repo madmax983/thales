@@ -1539,3 +1539,73 @@ pub struct ZScoreMeanReversionConfig {
 ### Performance
 - Z-Score calculation is O(N).
 - Signal generation loop is O(N).
+
+---
+
+# Trading Strategy: Chaikin Money Flow
+
+## Strategy Specification
+
+**Name:** ChaikinMoneyFlow
+
+**Description:** A momentum strategy based on the Chaikin Money Flow (CMF) indicator. It measures buying and selling pressure by calculating the Money Flow Multiplier and Money Flow Volume over a given period (usually 21 periods).
+
+**Rationale:** CMF combines price and volume to identify accumulation and distribution. A sustained positive reading indicates buying pressure, while a sustained negative reading indicates selling pressure. Crossovers of the zero line can signal a potential shift in trend momentum.
+
+## Requirements
+
+### Implementation Details
+- Uses Polars for data analysis.
+- Implements the `Strategy` trait in Rust.
+- Uses `cmf` and `atr` indicators.
+
+### Strategy Type
+Momentum / Trend Following
+
+### Entry Conditions
+- **Long Entry (Buy):** CMF crosses ABOVE `buy_threshold` (default 0.0).
+
+### Exit Conditions
+- **Long Exit (Sell):** CMF crosses BELOW `sell_threshold` (default 0.0).
+- **Stop Loss:** Entry Price - (ATR * `stop_loss_atr_mult`).
+
+### Position Sizing
+- **Size Hint:** "100" (fixed units) or "max" (for exits).
+
+## Code Pattern
+
+```rust
+use crate::strategy::{Strategy, StrategyConfig, Signal, SignalType};
+use crate::indicators::{atr, cmf};
+use polars::prelude::*;
+use async_trait::async_trait;
+use anyhow::Result;
+
+pub struct ChaikinMoneyFlow {
+    config: ChaikinMoneyFlowConfig,
+}
+
+#[derive(Debug, Clone, serde::Deserialize)]
+pub struct ChaikinMoneyFlowConfig {
+    pub period: usize,
+    pub buy_threshold: f64,
+    pub sell_threshold: f64,
+    pub stop_loss_atr_mult: f64,
+    pub atr_period: usize,
+    pub symbol: String,
+}
+```
+
+## Critical Considerations
+
+### Risk Management Integration
+- **Stop Loss:** Uses ATR-based stop loss to adapt to volatility.
+- **Take Profit:** The strategy implies trailing the momentum until a reverse crossover occurs.
+
+### Backtesting Requirements
+- Accepts `DataFrame` with historical data containing "high", "low", "close", and "volume".
+- Requires data length > `period`.
+
+### Performance
+- CMF calculation is O(N).
+- Signal generation loop is O(N).
