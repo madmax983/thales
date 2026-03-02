@@ -101,7 +101,12 @@ pub fn calculate(data: &DataFrame, period: usize) -> Result<Series> {
     rsi_values[period] = first_rsi.to_f64();
 
     // Loop for the rest
-    for i in (period + 1)..close.len() {
+    for (i, rsi_val) in rsi_values
+        .iter_mut()
+        .enumerate()
+        .take(close.len())
+        .skip(period + 1)
+    {
         let curr_opt = close.get(i);
         let prev_opt = close.get(i - 1);
 
@@ -131,10 +136,10 @@ pub fn calculate(data: &DataFrame, period: usize) -> Result<Series> {
                 hundred - (hundred / (Decimal::ONE + rs))
             };
 
-            rsi_values[i] = rsi.to_f64();
+            *rsi_val = rsi.to_f64();
         } else {
             // Missing data
-            rsi_values[i] = None;
+            *rsi_val = None;
             // Reset? Or carry forward?
             // Standard behavior: if missing data, gap in RSI.
             // But we need avg_gain/loss for next step.

@@ -134,12 +134,10 @@ pub fn calculate(
             let mut count_lt = 0;
             let mut count_total = 0;
 
-            for j in start_idx..end_idx {
-                if let Some(ret) = returns[j] {
-                    count_total += 1;
-                    if ret < current_ret {
-                        count_lt += 1;
-                    }
+            for ret in returns.iter().take(end_idx).skip(start_idx).flatten() {
+                count_total += 1;
+                if *ret < current_ret {
+                    count_lt += 1;
                 }
             }
 
@@ -156,10 +154,9 @@ pub fn calculate(
     // 4. Combine: (RSI + RSI(Streak) + PercentRank) / 3
     let mut crsi_values = Vec::with_capacity(close.len());
 
-    for i in 0..close.len() {
+    for (i, rank_val) in percent_ranks.iter().enumerate().take(close.len()) {
         let rsi_val = rsi_arr.get(i);
         let streak_rsi_val = streak_rsi_arr.get(i);
-        let rank_val = percent_ranks[i];
 
         if let (Some(r), Some(sr), Some(pr)) = (rsi_val, streak_rsi_val, rank_val) {
             let crsi = (r + sr + pr) / 3.0;

@@ -1,13 +1,15 @@
 use anyhow::{anyhow, Result};
 use polars::prelude::*;
 
+type SarResult = Result<(Vec<Option<f64>>, Vec<Option<bool>>)>;
+
 pub fn parabolic_sar(
     high: &Series,
     low: &Series,
     initial_af: f64,
     max_af: f64,
     step_af: f64,
-) -> Result<(Vec<Option<f64>>, Vec<Option<bool>>)> {
+) -> SarResult {
     let high_iter = high.f64()?;
     let low_iter = low.f64()?;
 
