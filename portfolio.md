@@ -2971,6 +2971,68 @@
 | 2026-03-02 23:07:46 | BTCUSD | NO_STRATEGY_SIGNAL | No active strategy generated a signal (Strategies: BollingerBands, EmaCrossover, RsiMeanReversion, Macd, Supertrend, DonchianBreakout, ParabolicSar, KeltnerChannelBreakout, StochasticOscillator, AdxMomentum, IchimokuCloud, CciMomentum, LinearRegressionTrend, ObvTrendFollowing, MoneyFlowIndex, ConnorsRsiMeanReversion, AwesomeOscillator, WilliamsR, VwmaCrossover, VwapReversion, VortexBreakout) |
 | 2026-03-02 23:07:46 | SPY | NO_STRATEGY_SIGNAL | No active strategy generated a signal (Strategies: BollingerBands, EmaCrossover, RsiMeanReversion, Macd, Supertrend, DonchianBreakout, ParabolicSar, KeltnerChannelBreakout, StochasticOscillator, AdxMomentum, IchimokuCloud, CciMomentum, LinearRegressionTrend, ObvTrendFollowing, MoneyFlowIndex, ConnorsRsiMeanReversion, AwesomeOscillator, WilliamsR, VwmaCrossover, VwapReversion, VortexBreakout) |
 | 2026-03-02 23:07:47 | ETHUSD | crypto:ETHUSD:buy:1772492400000 | provider error: kraken api error: EGeneral:Invalid arguments:volume minimum not met |
+| 2026-03-02 23:50:24 | BTCUSD | STALE_SIGNAL | Signal too old (46.5 hours > 24 hours) |
+| 2026-03-02 23:50:24 | ETHUSD | STALE_SIGNAL | Signal too old (46.5 hours > 24 hours) |
+| 2026-03-02 23:50:24 | SPY | STALE_SIGNAL | Signal too old (46.5 hours > 24 hours) |
+| 2026-03-02 23:50:24 | BTCUSD | STALE_SIGNAL | Signal too old (42.2 hours > 24 hours) |
+| 2026-03-02 23:50:24 | ETHUSD | STALE_SIGNAL | Signal too old (42.2 hours > 24 hours) |
+| 2026-03-02 23:50:24 | SPY | STALE_SIGNAL | Signal too old (42.2 hours > 24 hours) |
+| 2026-03-02 23:50:24 | BTCUSD | STALE_SIGNAL | Signal too old (42.2 hours > 24 hours) |
+| 2026-03-02 23:50:24 | ETHUSD | STALE_SIGNAL | Signal too old (42.2 hours > 24 hours) |
+| 2026-03-02 23:50:24 | SPY | STALE_SIGNAL | Signal too old (42.2 hours > 24 hours) |
+| 2026-03-02 23:50:24 | BTCUSD | STALE_SIGNAL | Signal too old (42.2 hours > 24 hours) |
+| 2026-03-02 23:50:24 | ETHUSD | STALE_SIGNAL | Signal too old (42.2 hours > 24 hours) |
+| 2026-03-02 23:50:24 | SPY | STALE_SIGNAL | Signal too old (42.2 hours > 24 hours) |
+| 2026-03-02 23:50:24 | BTCUSD | STALE_SIGNAL | Signal too old (33.8 hours > 24 hours) |
+| 2026-03-02 23:50:24 | ETHUSD | STALE_SIGNAL | Signal too old (33.8 hours > 24 hours) |
+| 2026-03-02 23:50:24 | SPY | STALE_SIGNAL | Signal too old (33.8 hours > 24 hours) |
+| 2026-03-02 23:50:24 | ETHUSD | STALE_SIGNAL | Signal too old (30.0 hours > 24 hours) |
+| 2026-03-02 23:50:24 | SPY | STALE_SIGNAL | Signal too old (30.0 hours > 24 hours) |
+| 2026-03-02 23:50:24 | BTCUSD | STALE_SIGNAL | Signal too old (30.0 hours > 24 hours) |
+| 2026-03-02 23:50:24 | BTCUSD | STALE_SIGNAL | Signal too old (26.5 hours > 24 hours) |
+| 2026-03-02 23:50:24 | ETHUSD | STALE_SIGNAL | Signal too old (26.5 hours > 24 hours) |
+| 2026-03-02 23:50:24 | SPY | STALE_SIGNAL | Signal too old (26.5 hours > 24 hours) |
+| 2026-03-02 23:50:24 | BTCUSD | STALE_SIGNAL | Signal too old (26.4 hours > 24 hours) |
+| 2026-03-02 23:50:24 | ETHUSD | STALE_SIGNAL | Signal too old (26.4 hours > 24 hours) |
+| 2026-03-02 23:50:24 | SPY | STALE_SIGNAL | Signal too old (26.4 hours > 24 hours) |
+| 2026-03-02 23:50:24 | BTCUSD | crypto:BTCUSD:buy:1772495424656 | CONFLICT: Conflicting signals (Buy and Sell) detected for BTCUSD. Trading halted for this asset. |
+| 2026-03-02 23:50:24 | BTCUSD | crypto:BTCUSD:buy:1772495424656 | CONFLICT: Conflicting signals (Buy and Sell) detected for BTCUSD. Trading halted for this asset. |
+| 2026-03-02 23:50:24 | BTCUSD | crypto:BTCUSD:sell:1772495424656 | CONFLICT: Conflicting signals (Buy and Sell) detected for BTCUSD. Trading halted for this asset. |
+| 2026-03-02 23:50:24 | BTCUSD | crypto:BTCUSD:buy:1772495424656 | CONFLICT: Conflicting signals (Buy and Sell) detected for BTCUSD. Trading halted for this asset. |
+| 2026-03-02 23:50:24 | BTCUSD | crypto:BTCUSD:buy:1772495424656 | CONFLICT: Conflicting signals (Buy and Sell) detected for BTCUSD. Trading halted for this asset. |
+| 2026-03-02 23:50:24 | ETHUSD | crypto:ETHUSD:sell:1772495424776 | CONFLICT: Conflicting signals (Buy and Sell) detected for ETHUSD. Trading halted for this asset. |
+| 2026-03-02 23:50:24 | ETHUSD | crypto:ETHUSD:buy:1772495424776 | CONFLICT: Conflicting signals (Buy and Sell) detected for ETHUSD. Trading halted for this asset. |
+| 2026-03-02 23:50:24 | ETHUSD | crypto:ETHUSD:buy:1772495424776 | CONFLICT: Conflicting signals (Buy and Sell) detected for ETHUSD. Trading halted for this asset. |
+| 2026-03-02 23:50:24 | SPY | equities:SPY:sell:1772495424884 | CONFLICT: Conflicting signals (Buy and Sell) detected for SPY. Trading halted for this asset. |
+| 2026-03-02 23:50:24 | SPY | equities:SPY:buy:1772495424884 | CONFLICT: Conflicting signals (Buy and Sell) detected for SPY. Trading halted for this asset. |
+| 2026-03-02 23:50:24 | SPY | equities:SPY:buy:1772495424884 | CONFLICT: Conflicting signals (Buy and Sell) detected for SPY. Trading halted for this asset. |
+| 2026-03-02 23:51:10 | BTCUSD | STALE_SIGNAL | Signal too old (46.5 hours > 24 hours) |
+| 2026-03-02 23:51:10 | ETHUSD | STALE_SIGNAL | Signal too old (46.5 hours > 24 hours) |
+| 2026-03-02 23:51:10 | SPY | STALE_SIGNAL | Signal too old (46.5 hours > 24 hours) |
+| 2026-03-02 23:51:10 | BTCUSD | STALE_SIGNAL | Signal too old (42.3 hours > 24 hours) |
+| 2026-03-02 23:51:10 | ETHUSD | STALE_SIGNAL | Signal too old (42.3 hours > 24 hours) |
+| 2026-03-02 23:51:10 | SPY | STALE_SIGNAL | Signal too old (42.3 hours > 24 hours) |
+| 2026-03-02 23:51:10 | BTCUSD | STALE_SIGNAL | Signal too old (42.2 hours > 24 hours) |
+| 2026-03-02 23:51:10 | ETHUSD | STALE_SIGNAL | Signal too old (42.2 hours > 24 hours) |
+| 2026-03-02 23:51:10 | SPY | STALE_SIGNAL | Signal too old (42.2 hours > 24 hours) |
+| 2026-03-02 23:51:10 | BTCUSD | STALE_SIGNAL | Signal too old (42.2 hours > 24 hours) |
+| 2026-03-02 23:51:10 | ETHUSD | STALE_SIGNAL | Signal too old (42.2 hours > 24 hours) |
+| 2026-03-02 23:51:10 | SPY | STALE_SIGNAL | Signal too old (42.2 hours > 24 hours) |
+| 2026-03-02 23:51:10 | BTCUSD | STALE_SIGNAL | Signal too old (33.8 hours > 24 hours) |
+| 2026-03-02 23:51:10 | ETHUSD | STALE_SIGNAL | Signal too old (33.8 hours > 24 hours) |
+| 2026-03-02 23:51:10 | SPY | STALE_SIGNAL | Signal too old (33.8 hours > 24 hours) |
+| 2026-03-02 23:51:10 | ETHUSD | STALE_SIGNAL | Signal too old (30.0 hours > 24 hours) |
+| 2026-03-02 23:51:10 | SPY | STALE_SIGNAL | Signal too old (30.0 hours > 24 hours) |
+| 2026-03-02 23:51:10 | BTCUSD | STALE_SIGNAL | Signal too old (30.0 hours > 24 hours) |
+| 2026-03-02 23:51:10 | BTCUSD | STALE_SIGNAL | Signal too old (26.5 hours > 24 hours) |
+| 2026-03-02 23:51:10 | ETHUSD | STALE_SIGNAL | Signal too old (26.5 hours > 24 hours) |
+| 2026-03-02 23:51:10 | SPY | STALE_SIGNAL | Signal too old (26.5 hours > 24 hours) |
+| 2026-03-02 23:51:10 | BTCUSD | STALE_SIGNAL | Signal too old (26.4 hours > 24 hours) |
+| 2026-03-02 23:51:10 | ETHUSD | STALE_SIGNAL | Signal too old (26.4 hours > 24 hours) |
+| 2026-03-02 23:51:10 | SPY | STALE_SIGNAL | Signal too old (26.4 hours > 24 hours) |
+| 2026-03-02 23:51:11 | BTCUSD | NO_STRATEGY_SIGNAL | No active strategy generated a signal (Strategies: BollingerBands, EmaCrossover, RsiMeanReversion, Macd, Supertrend, DonchianBreakout, ParabolicSar, KeltnerChannelBreakout, StochasticOscillator, AdxMomentum, IchimokuCloud, CciMomentum, LinearRegressionTrend, ObvTrendFollowing, MoneyFlowIndex, ConnorsRsiMeanReversion, AwesomeOscillator, WilliamsR, VwmaCrossover, VwapReversion, VortexBreakout) |
+| 2026-03-02 23:51:12 | ETHUSD | NO_STRATEGY_SIGNAL | No active strategy generated a signal (Strategies: BollingerBands, EmaCrossover, RsiMeanReversion, Macd, Supertrend, DonchianBreakout, ParabolicSar, KeltnerChannelBreakout, StochasticOscillator, AdxMomentum, IchimokuCloud, CciMomentum, LinearRegressionTrend, ObvTrendFollowing, MoneyFlowIndex, ConnorsRsiMeanReversion, AwesomeOscillator, WilliamsR, VwmaCrossover, VwapReversion, VortexBreakout) |
+| 2026-03-02 23:51:12 | SPY | equities:SPY:sell:1772492400000 | Unable to determine sellable balance for kraken:SPY |
 
 ## Executed Trades
 
