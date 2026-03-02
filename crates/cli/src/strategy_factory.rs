@@ -23,6 +23,7 @@ use strategies::vortex_breakout::{VortexBreakout, VortexBreakoutConfig};
 use strategies::vwap_reversion::{VwapReversion, VwapReversionConfig};
 use strategies::vwma_crossover::{VwmaCrossover, VwmaCrossoverConfig};
 use strategies::williams_r::{WilliamsR, WilliamsRConfig};
+use strategies::zscore_mean_reversion::{ZScoreMeanReversion, ZScoreMeanReversionConfig};
 
 pub fn create_strategy(name: &str, symbol: &str) -> Result<Box<dyn Strategy>> {
     match name {
@@ -246,6 +247,17 @@ pub fn create_strategy(name: &str, symbol: &str) -> Result<Box<dyn Strategy>> {
             };
             Ok(Box::new(VortexBreakout::new(config)))
         }
+        "ZScoreMeanReversion" => {
+            let config = ZScoreMeanReversionConfig {
+                period: 20,
+                entry_threshold: 2.0,
+                exit_threshold: 0.0,
+                stop_loss_atr_mult: 2.0,
+                atr_period: 14,
+                symbol: symbol.to_string(),
+            };
+            Ok(Box::new(ZScoreMeanReversion::new(config)))
+        }
         _ => Err(anyhow::anyhow!("Unknown strategy: {}", name)),
     }
 }
@@ -273,5 +285,6 @@ pub fn list_strategies() -> Vec<&'static str> {
         "VwmaCrossover",
         "VwapReversion",
         "VortexBreakout",
+        "ZScoreMeanReversion",
     ]
 }

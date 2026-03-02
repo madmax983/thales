@@ -20,3 +20,4 @@ pub mod supertrend;
 pub mod vortex;
 pub mod vwma;
 pub mod williams_r;
+pub mod zscore;

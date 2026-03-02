@@ -1467,3 +1467,75 @@ pub struct VortexBreakoutConfig {
 ### Performance
 - Vortex Indicator calculation is O(N).
 - Signal generation loop is O(N).
+
+---
+
+# Trading Strategy: Z-Score Mean Reversion
+
+## Strategy Specification
+
+**Name:** ZScoreMeanReversion
+
+**Description:** A mean reversion strategy based on the Z-Score. It calculates the Z-Score by measuring how many standard deviations the current price is away from a Simple Moving Average (SMA).
+
+**Rationale:** Prices tend to revert to their moving average over time. High positive or negative Z-Scores indicate that the asset is overbought or oversold, providing potential mean reversion opportunities as the market corrects overextensions.
+
+## Requirements
+
+### Implementation Details
+- Uses Polars for data analysis.
+- Implements the `Strategy` trait in Rust.
+- Uses custom `zscore` and `atr` indicators.
+
+### Strategy Type
+Mean Reversion
+
+### Entry Conditions
+- **Long Entry (Buy):** Z-Score crosses BELOW `-entry_threshold`.
+- **Short Entry (Sell):** Z-Score crosses ABOVE `entry_threshold`.
+
+### Exit Conditions
+- **Long Exit (Sell):** Z-Score crosses ABOVE `exit_threshold`.
+- **Short Exit (Buy):** Z-Score crosses BELOW `-exit_threshold`.
+- **Stop Loss:** Entry Price +/- (ATR * `stop_loss_atr_mult`).
+
+### Position Sizing
+- **Size Hint:** "100" (fixed units) or "max" (for exits).
+
+## Code Pattern
+
+```rust
+use crate::strategy::{Strategy, StrategyConfig, Signal, SignalType};
+use crate::indicators::{atr, zscore};
+use polars::prelude::*;
+use async_trait::async_trait;
+use anyhow::Result;
+
+pub struct ZScoreMeanReversion {
+    config: ZScoreMeanReversionConfig,
+}
+
+#[derive(Debug, Clone, serde::Deserialize)]
+pub struct ZScoreMeanReversionConfig {
+    pub period: usize,
+    pub entry_threshold: f64,
+    pub exit_threshold: f64,
+    pub stop_loss_atr_mult: f64,
+    pub atr_period: usize,
+    pub symbol: String,
+}
+```
+
+## Critical Considerations
+
+### Risk Management Integration
+- **Stop Loss:** Uses ATR-based stop loss to adapt to current market volatility.
+- **Take Profit:** Mean reversion implies the target is the mean (SMA).
+
+### Backtesting Requirements
+- Accepts `DataFrame` with historical data containing "close".
+- Requires data length > `period`.
+
+### Performance
+- Z-Score calculation is O(N).
+- Signal generation loop is O(N).

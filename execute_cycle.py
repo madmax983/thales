@@ -24,6 +24,7 @@ MEAN_REVERSION_STRATEGIES = {
     "ConnorsRsiMeanReversion",
     "WilliamsR",
     "VwapReversion",
+    "ZScoreMeanReversion",
 }
 TREND_FOLLOWING_STRATEGIES = {
     "EmaCrossover",
