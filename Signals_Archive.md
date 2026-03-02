@@ -2586,3 +2586,314 @@ Federal Reserve signals potential rate cuts later this year. Earnings season exc
 ```
 
 ---
+## Market Analysis Report - crypto - APENFTUSD
+
+**Timestamp (ms)**: 1772294400000
+**Confidence**: 50.00%
+
+### 1. Market Regime
+Regime: Ranging
+*Sentiment*: Bullish (Strong)
+
+### 2. Volatility
+*Assessment*: Low
+
+### 3. Strategy Recommendation
+**Mean Reversion**
+
+### 4. Patterns & Price Action
+*Patterns*: Breakout (Upside), Consolidation (Squeeze)
+
+### 5. Key Levels
+*Support/Resistance*: 0.0000003294, 0.00000033365
+
+### 6. Research & Context
+No external research available. (Placeholder for search_research)
+*Historical Context*: No similar past trades found.
+
+```json
+{
+  "symbol": "APENFTUSD",
+  "market": "crypto",
+  "regime": "Ranging",
+  "sentiment": "Bullish (Strong)",
+  "patterns": [
+    "Breakout (Upside)",
+    "Consolidation (Squeeze)"
+  ],
+  "key_levels": [
+    3.294e-7,
+    3.3365e-7
+  ],
+  "volatility": "Low",
+  "atr": 2.3516214141657e-9,
+  "research_summary": null,
+  "news_summary": null,
+  "recommendation": "Mean Reversion",
+  "confidence": 0.5,
+  "timestamp_unix_ms": 1772294400000
+}
+```
+
+---
+
+## Market Analysis Report - crypto - KOBANUSD
+
+**Timestamp (ms)**: 1772294400000
+**Confidence**: 60.00%
+
+### 1. Market Regime
+Regime: Trending Up
+*Sentiment*: Bullish (Strong)
+
+### 2. Volatility
+*Assessment*: **EXTREME (Unusual Activity)**
+
+### 3. Strategy Recommendation
+**Reduce Risk / Wait for Clarity**
+
+### 4. Patterns & Price Action
+*Patterns*: Breakout (Upside), Breakout (Downside), Consolidation (Squeeze)
+
+### 5. Key Levels
+*Support/Resistance*: 0.000136, 0.0001425, 0.0001601, 0.00016335
+
+### 6. Research & Context
+No external research available. (Placeholder for search_research)
+*Historical Context*: No similar past trades found.
+
+```json
+{
+  "symbol": "KOBANUSD",
+  "market": "crypto",
+  "regime": "Trending Up",
+  "sentiment": "Bullish (Strong)",
+  "patterns": [
+    "Breakout (Upside)",
+    "Breakout (Downside)",
+    "Consolidation (Squeeze)"
+  ],
+  "key_levels": [
+    0.000136,
+    0.0001425,
+    0.0001601,
+    0.00016335
+  ],
+  "volatility": "Extreme",
+  "atr": 0.000011527025241871518,
+  "research_summary": null,
+  "news_summary": null,
+  "recommendation": "Reduce Risk / Wait for Clarity",
+  "confidence": 0.5999999999999999,
+  "timestamp_unix_ms": 1772294400000
+}
+```
+
+---
+
+## Market Analysis Report - crypto - CATUSD
+
+**Timestamp (ms)**: 1772294400000
+**Confidence**: 60.00%
+
+### 1. Market Regime
+Regime: Trending Up (Short Term)
+*Sentiment*: Neutral
+
+### 2. Volatility
+*Assessment*: High
+
+### 3. Strategy Recommendation
+**Reduce Risk / Wait for Clarity**
+
+### 4. Patterns & Price Action
+*Patterns*: Breakout (Upside), Breakout (Downside), Consolidation (Squeeze)
+
+### 5. Key Levels
+*Support/Resistance*: 0.000001547, 0.0000018914999999999998
+
+### 6. Research & Context
+No external research available. (Placeholder for search_research)
+*Historical Context*: No similar past trades found.
+
+```json
+{
+  "symbol": "CATUSD",
+  "market": "crypto",
+  "regime": "Trending Up (Short Term)",
+  "sentiment": "Neutral",
+  "patterns": [
+    "Breakout (Upside)",
+    "Breakout (Downside)",
+    "Consolidation (Squeeze)"
+  ],
+  "key_levels": [
+    1.547e-6,
+    1.8914999999999998e-6
+  ],
+  "volatility": "High",
+  "atr": 7.850322767929212e-8,
+  "research_summary": null,
+  "news_summary": null,
+  "recommendation": "Reduce Risk / Wait for Clarity",
+  "confidence": 0.6,
+  "timestamp_unix_ms": 1772294400000
+}
+```
+
+---
+
+## Market Analysis Report - crypto - BTCUSD
+
+**Timestamp (ms)**: 1772294400000
+**Confidence**: 50.00%
+
+### 1. Market Regime
+**ALERT: Regime Change Detected!** (Previous: Trending Down (Short Term), Current: Ranging)
+*Sentiment*: Bullish
+
+### 2. Volatility
+*Assessment*: Medium
+
+### 3. Strategy Recommendation
+**Mean Reversion**
+
+### 4. Patterns & Price Action
+*Patterns*: Breakout (Upside), Consolidation (Squeeze)
+
+### 5. Key Levels
+*Support/Resistance*: 63030, 64516.7, 65616.15
+
+### 6. Research & Context
+No external research available. (Placeholder for search_research)
+*Historical Context*: No similar past trades found.
+
+```json
+{
+  "symbol": "BTCUSD",
+  "market": "crypto",
+  "regime": "Ranging",
+  "sentiment": "Bullish",
+  "patterns": [
+    "Breakout (Upside)",
+    "Consolidation (Squeeze)"
+  ],
+  "key_levels": [
+    63030.0,
+    64516.7,
+    65616.15
+  ],
+  "volatility": "Medium",
+  "atr": 651.688211277121,
+  "research_summary": null,
+  "news_summary": null,
+  "recommendation": "Mean Reversion",
+  "confidence": 0.5,
+  "timestamp_unix_ms": 1772294400000
+}
+```
+
+---
+
+## Market Analysis Report - crypto - ETHUSD
+
+**Timestamp (ms)**: 1772294400000
+**Confidence**: 50.00%
+
+### 1. Market Regime
+**ALERT: Regime Change Detected!** (Previous: Trending Up (Short Term), Current: Ranging)
+*Sentiment*: Bullish
+
+### 2. Volatility
+*Assessment*: Medium
+
+### 3. Strategy Recommendation
+**Mean Reversion**
+
+### 4. Patterns & Price Action
+*Patterns*: Breakout (Upside), Consolidation (Squeeze)
+
+### 5. Key Levels
+*Support/Resistance*: 1836, 1886.435, 1949.5
+
+### 6. Research & Context
+No external research available. (Placeholder for search_research)
+*Historical Context*: No similar past trades found.
+
+```json
+{
+  "symbol": "ETHUSD",
+  "market": "crypto",
+  "regime": "Ranging",
+  "sentiment": "Bullish",
+  "patterns": [
+    "Breakout (Upside)",
+    "Consolidation (Squeeze)"
+  ],
+  "key_levels": [
+    1836.0,
+    1886.435,
+    1949.5
+  ],
+  "volatility": "Medium",
+  "atr": 24.34752922839973,
+  "research_summary": null,
+  "news_summary": null,
+  "recommendation": "Mean Reversion",
+  "confidence": 0.5,
+  "timestamp_unix_ms": 1772294400000
+}
+```
+
+---
+## Market Analysis Report - crypto - BTCUSD
+
+**Timestamp (ms)**: 1772298151044
+**Confidence**: 80.00%
+
+### 1. Market Regime
+**ALERT: Regime Change Detected!** (Previous: Ranging, Current: Trending Down (Short Term))
+*Sentiment*: Bearish (Strong) (Oversold)
+
+### 2. Volatility
+*Assessment*: Medium
+
+### 3. Strategy Recommendation
+**Trend Following (Short)**
+
+### 4. Patterns & Price Action
+*Patterns*: Breakout (Downside), Consolidation (Squeeze)
+
+### 5. Key Levels
+*Support/Resistance*: 59348.09299105641, 62321.223889637375, 62637.9775018533
+
+### 6. Research & Context
+No external research available. (Placeholder for search_research)
+*Historical Context*: Found 7 similar past trades (4 on same symbol). Win Rate: 100.0%. Avg Return: 1.96%
+
+```json
+{
+  "symbol": "BTCUSD",
+  "market": "crypto",
+  "regime": "Trending Down (Short Term)",
+  "sentiment": "Bearish (Strong) (Oversold)",
+  "patterns": [
+    "Breakout (Downside)",
+    "Consolidation (Squeeze)"
+  ],
+  "key_levels": [
+    59348.09299105641,
+    62321.223889637375,
+    62637.9775018533
+  ],
+  "volatility": "Medium",
+  "atr": 764.8234042370752,
+  "research_summary": null,
+  "news_summary": null,
+  "recommendation": "Trend Following (Short)",
+  "confidence": 0.7999999999999999,
+  "timestamp_unix_ms": 1772298151044
+}
+```
+
+---
