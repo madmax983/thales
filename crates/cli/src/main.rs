@@ -12,6 +12,8 @@ use thiserror::Error;
 use thales_cli::{analysis, backtest, benchmark, history, optimizer, rag, reporting, signals};
 
 #[cfg(feature = "nova")]
+use thales_cli::markov_chain;
+#[cfg(feature = "nova")]
 use thales_cli::monte_carlo;
 #[cfg(feature = "nova")]
 use thales_cli::volume_profile;
@@ -188,6 +190,15 @@ enum Commands {
         num_bins: usize,
         #[arg(long, default_value = "0.70")]
         value_area_pct: f64,
+        #[arg(long)]
+        visualize: bool,
+    },
+    #[cfg(feature = "nova")]
+    AnalyzeMarkovChain {
+        #[arg(long)]
+        input: PathBuf,
+        #[arg(long, default_value = "0.01")]
+        state_threshold_pct: f64,
         #[arg(long)]
         visualize: bool,
     },
@@ -852,6 +863,34 @@ fn run(command: Commands) -> Result<String, CliError> {
 
             if visualize {
                 volume_profile::print_ascii_profile(&report);
+            }
+
+            ok_envelope(report, vec![])
+        }
+        #[cfg(feature = "nova")]
+        Commands::AnalyzeMarkovChain {
+            input,
+            state_threshold_pct,
+            visualize,
+        } => {
+            let raw = fs::read_to_string(&input)?;
+            let series: BarSeries = match serde_json::from_str::<ResponseEnvelope<BarSeries>>(&raw)
+            {
+                Ok(envelope) => envelope
+                    .data
+                    .ok_or(CliError::Validation("Envelope has no data".to_string()))?,
+                Err(_) => serde_json::from_str::<BarSeries>(&raw)?,
+            };
+
+            let config = markov_chain::MarkovConfig {
+                state_threshold_pct,
+            };
+
+            let report = markov_chain::analyze_markov_chain(&series, config)
+                .map_err(|e| CliError::Validation(e.to_string()))?;
+
+            if visualize {
+                markov_chain::print_ascii_markov_chain(&report);
             }
 
             ok_envelope(report, vec![])
