@@ -40,6 +40,7 @@ TREND_FOLLOWING_STRATEGIES = {
     "AwesomeOscillator",
     "VwmaCrossover",
     "VortexBreakout",
+    "RocMomentum",
 }
 BREAKOUT_STRATEGIES = {
     "DonchianBreakout",
