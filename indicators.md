@@ -2,6 +2,37 @@
 
 This document lists the technical indicators implemented in the `crates/strategies/src/indicators` module.
 
+## Rate of Change (ROC)
+
+**Name:** Rate of Change (ROC)
+**Description:** Calculates the percentage change in price between the current price and the price a certain number of periods ago.
+**Rationale:** A momentum oscillator that measures the speed at which prices are changing.
+
+### Implementation Details
+- Uses `rust_decimal::Decimal` for all internal calculations to ensure precision.
+- Returns a Polars `Series` of `String` values containing decimal representations to strictly prevent `f64` float operations.
+- Handles division by zero by returning null.
+
+### Usage
+
+```rust
+use strategies::indicators::roc;
+use polars::prelude::*;
+
+// Assuming df is a DataFrame with a "close" column
+let period = 9;
+let roc_series = roc::calculate(&df, period)?;
+```
+
+### Parameters
+- `data`: Reference to a Polars `DataFrame`. Must contain a numeric column named "close".
+- `period`: The size of the lookback window for comparison (must be > 0).
+
+### Output
+- Returns `Result<Series>`.
+- The output Series is named "roc".
+- The first `period` values will be null.
+
 ## Simple Moving Average (SMA)
 
 **Name:** SMA
