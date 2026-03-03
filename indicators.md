@@ -395,3 +395,32 @@ let mfi_series = mfi::calculate(&df, period)?;
 - Returns `Result<Series>`.
 - The output Series is named "mfi".
 - The first `period` values will be null.
+
+## Volume Weighted Average Price (VWAP)
+
+**Name:** VWAP
+**Description:** Calculates the Volume Weighted Average Price. VWAP represents the ratio of the value traded to total volume traded over a specific time horizon.
+**Rationale:** VWAP is a benchmark used by traders that provides the average price a security has traded at throughout the day, based on both volume and price. It helps to understand the true average price.
+
+### Implementation Details
+- Uses `rust_decimal::Decimal` for all calculations to maintain precision.
+- Keeps a running total of the product of Typical Price ((High+Low+Close)/3) and Volume, and divides by the cumulative volume.
+- Resets the cumulative values at the start of each new trading day based on the `timestamp` column.
+- Returns a Polars `Series` of `String` values representing the exact `Decimal` value, as Polars has limited native support for arbitrary-precision numeric types.
+
+### Usage
+
+```rust
+use strategies::indicators::vwap;
+use polars::prelude::*;
+
+// Assuming df is a DataFrame with "high", "low", "close", "volume" columns
+let vwap_series = vwap::calculate(&df)?;
+```
+
+### Parameters
+- `data`: Reference to a Polars `DataFrame`. Must contain numeric columns "high", "low", "close", "volume".
+
+### Output
+- Returns `Result<Series>`.
+- The output Series is named "vwap".
