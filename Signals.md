@@ -1639,3 +1639,77 @@ Major indices are hitting new highs.
 ```
 
 ---
+
+## Market Analysis Report - crypto - XXBTZUSD
+
+**Timestamp (ms)**: 1772193600000
+**Confidence**: 70.00%
+
+### 1. Market Regime
+Regime: Trending Up
+*Sentiment*: Bearish (Strong)
+
+### 2. Volatility
+*Assessment*: Low
+
+### 3. Strategy Recommendation
+**Trend Following (Long)**
+
+### 4. Patterns & Price Action
+*Patterns*: Breakout (Downside), Consolidation (Squeeze)
+
+### 5. Key Levels
+*Support/Resistance*: 65165, 65910.2, 67056.25, 67582.5
+
+### 6. Research & Context
+**Research**:
+Bitcoin ETFs are seeing strong institutional inflows following SEC approvals. Analysts remain bullish due to positive macroeconomic indicators and recent halving events.
+
+**News**:
+Major indices are hitting new highs, with Bitcoin showing resilience against recent regulatory concerns.
+*Historical Context*: No similar past trades found.
+
+```json
+{
+  "symbol": "XXBTZUSD",
+  "market": "crypto",
+  "regime": "Trending Up",
+  "sentiment": "Bearish (Strong)",
+  "patterns": [
+    "Breakout (Downside)",
+    "Consolidation (Squeeze)"
+  ],
+  "key_levels": [
+    65165.0,
+    65910.2,
+    67056.25,
+    67582.5
+  ],
+  "volatility": "Low",
+  "atr": 532.300740169106,
+  "research_summary": "Bitcoin ETFs are seeing strong institutional inflows following SEC approvals. Analysts remain bullish due to positive macroeconomic indicators and recent halving events.",
+  "news_summary": "Major indices are hitting new highs, with Bitcoin showing resilience against recent regulatory concerns.",
+  "recommendation": "Trend Following (Long)",
+  "confidence": 0.7,
+  "timestamp_unix_ms": 1772193600000
+}
+```
+
+---
+## Market Analysis Report - crypto - XXBTZUSD
+
+Analysis for XXBTZUSD...
+
+```json
+{
+  "regime": "Trending Up",
+  "sentiment": "Bearish (Strong)",
+  "volatility": "Low",
+  "confidence": 0.7,
+  "recommendation": "Trend Following (Long)"
+}
+```
+
+**Research**: Bitcoin ETFs are seeing strong institutional inflows following SEC approvals. Analysts remain bullish due to positive macroeconomic indicators and recent halving events.
+
+**News**: Major indices are hitting new highs, with Bitcoin showing resilience against recent regulatory concerns.
