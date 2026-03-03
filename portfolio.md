@@ -3065,6 +3065,25 @@
 | 2026-03-03 03:59:39 | SPY | equities:SPY:sell:1772510379284 | CONFLICT: Conflicting signals (Buy and Sell) detected for SPY. Trading halted for this asset. |
 | 2026-03-03 03:59:39 | SPY | equities:SPY:buy:1772510379284 | CONFLICT: Conflicting signals (Buy and Sell) detected for SPY. Trading halted for this asset. |
 | 2026-03-03 03:59:39 | SPY | equities:SPY:buy:1772510379284 | CONFLICT: Conflicting signals (Buy and Sell) detected for SPY. Trading halted for this asset. |
+| 2026-03-03 05:55:54 | BTCUSD | STALE_SIGNAL | Signal too old (39.9 hours > 24 hours) |
+| 2026-03-03 05:55:54 | ETHUSD | STALE_SIGNAL | Signal too old (39.9 hours > 24 hours) |
+| 2026-03-03 05:55:54 | SPY | STALE_SIGNAL | Signal too old (39.9 hours > 24 hours) |
+| 2026-03-03 05:55:54 | ETHUSD | STALE_SIGNAL | Signal too old (36.0 hours > 24 hours) |
+| 2026-03-03 05:55:54 | SPY | STALE_SIGNAL | Signal too old (36.0 hours > 24 hours) |
+| 2026-03-03 05:55:54 | BTCUSD | STALE_SIGNAL | Signal too old (36.0 hours > 24 hours) |
+| 2026-03-03 05:55:54 | BTCUSD | STALE_SIGNAL | Signal too old (32.6 hours > 24 hours) |
+| 2026-03-03 05:55:54 | ETHUSD | STALE_SIGNAL | Signal too old (32.6 hours > 24 hours) |
+| 2026-03-03 05:55:54 | SPY | STALE_SIGNAL | Signal too old (32.6 hours > 24 hours) |
+| 2026-03-03 05:55:54 | BTCUSD | STALE_SIGNAL | Signal too old (32.5 hours > 24 hours) |
+| 2026-03-03 05:55:54 | ETHUSD | STALE_SIGNAL | Signal too old (32.5 hours > 24 hours) |
+| 2026-03-03 05:55:54 | SPY | STALE_SIGNAL | Signal too old (32.5 hours > 24 hours) |
+| 2026-03-03 05:55:54 | BTCUSD | STALE_SIGNAL | Signal too old (24.7 hours > 24 hours) |
+| 2026-03-03 05:55:54 | ETHUSD | STALE_SIGNAL | Signal too old (24.7 hours > 24 hours) |
+| 2026-03-03 05:55:54 | SPY | STALE_SIGNAL | Signal too old (24.7 hours > 24 hours) |
+| 2026-03-03 05:55:54 | BTCUSD | STALE_SIGNAL | Signal too old (24.6 hours > 24 hours) |
+| 2026-03-03 05:55:54 | ETHUSD | STALE_SIGNAL | Signal too old (24.6 hours > 24 hours) |
+| 2026-03-03 05:55:54 | SPY | STALE_SIGNAL | Signal too old (24.6 hours > 24 hours) |
+| 2026-03-03 05:55:57 | REKTUSD | crypto:REKTUSD:buy:1772514000000 | provider error: kraken api error: EGeneral:Invalid arguments:volume minimum not met |
 
 ## Executed Trades
 
