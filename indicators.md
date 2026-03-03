@@ -426,3 +426,34 @@ let (vi_plus, vi_minus) = vortex::calculate(&df, period)?;
 - Returns `Result<(Series, Series)>` representing `(vi_plus, vi_minus)`.
 - The output Series are named "vi_plus" and "vi_minus".
 - The first `period - 1` values will be null.
+
+## Rate of Change (ROC)
+
+**Name:** Rate of Change (ROC)
+**Description:** A momentum oscillator that measures the percentage change in price between the current price and the price a certain number of periods ago.
+**Rationale:** ROC helps identify the speed at which prices are changing, useful for confirming trends or spotting divergences and overbought/oversold conditions.
+
+### Implementation Details
+- Uses `rust_decimal::Decimal` for precision and safe arithmetic.
+- Calculates percentage change as `((Current Close - Past Close) / Past Close) * 100`.
+- Returns a Polars `Series` of `f64` values.
+
+### Usage
+
+```rust
+use strategies::indicators::roc;
+use polars::prelude::*;
+
+// Assuming df is a DataFrame with a "close" column
+let period = 14;
+let roc_series = roc::calculate(&df, period)?;
+```
+
+### Parameters
+- `data`: Reference to a Polars `DataFrame`. Must contain a numeric column named "close".
+- `period`: The lookback period (typically 9 or 14).
+
+### Output
+- Returns `Result<Series>`.
+- The output Series is named "roc".
+- The first `period` values will be null.
