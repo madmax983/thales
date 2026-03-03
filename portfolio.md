@@ -3237,6 +3237,20 @@
 | 2026-03-03 16:43:46 | SPY | equities:SPY:sell:1772556226514 | CONFLICT: Conflicting signals (Buy and Sell) detected for SPY. Trading halted for this asset. |
 | 2026-03-03 16:43:46 | SPY | equities:SPY:buy:1772556226514 | CONFLICT: Conflicting signals (Buy and Sell) detected for SPY. Trading halted for this asset. |
 | 2026-03-03 16:43:46 | SPY | equities:SPY:buy:1772556226514 | CONFLICT: Conflicting signals (Buy and Sell) detected for SPY. Trading halted for this asset. |
+| 2026-03-03 23:03:04 | ETHUSD | NO_STRATEGY_SIGNAL | No active strategy generated a signal (Strategies: BollingerBands, EmaCrossover, RsiMeanReversion, Macd, Supertrend, DonchianBreakout, ParabolicSar, KeltnerChannelBreakout, StochasticOscillator, AdxMomentum, IchimokuCloud, CciMomentum, LinearRegressionTrend, ObvTrendFollowing, MoneyFlowIndex, ConnorsRsiMeanReversion, AwesomeOscillator, WilliamsR, VwmaCrossover, VwapReversion, VortexBreakout) |
+| 2026-03-03 23:03:04 | SPY | NO_STRATEGY_SIGNAL | No active strategy generated a signal (Strategies: BollingerBands, EmaCrossover, RsiMeanReversion, Macd, Supertrend, DonchianBreakout, ParabolicSar, KeltnerChannelBreakout, StochasticOscillator, AdxMomentum, IchimokuCloud, CciMomentum, LinearRegressionTrend, ObvTrendFollowing, MoneyFlowIndex, ConnorsRsiMeanReversion, AwesomeOscillator, WilliamsR, VwmaCrossover, VwapReversion, VortexBreakout) |
+| 2026-03-03 23:03:05 | BTCUSD | crypto:BTCUSD:buy:1772578800000 | provider error: kraken api error: EGeneral:Invalid arguments:volume minimum not met |
+| 2026-03-03 23:03:24 | BTCUSD | crypto:BTCUSD:buy:1772579004541 | CONFLICT: Conflicting signals (Buy and Sell) detected for BTCUSD. Trading halted for this asset. |
+| 2026-03-03 23:03:24 | BTCUSD | crypto:BTCUSD:buy:1772579004541 | CONFLICT: Conflicting signals (Buy and Sell) detected for BTCUSD. Trading halted for this asset. |
+| 2026-03-03 23:03:24 | BTCUSD | crypto:BTCUSD:sell:1772579004541 | CONFLICT: Conflicting signals (Buy and Sell) detected for BTCUSD. Trading halted for this asset. |
+| 2026-03-03 23:03:24 | BTCUSD | crypto:BTCUSD:buy:1772579004541 | CONFLICT: Conflicting signals (Buy and Sell) detected for BTCUSD. Trading halted for this asset. |
+| 2026-03-03 23:03:24 | BTCUSD | crypto:BTCUSD:buy:1772579004541 | CONFLICT: Conflicting signals (Buy and Sell) detected for BTCUSD. Trading halted for this asset. |
+| 2026-03-03 23:03:24 | ETHUSD | crypto:ETHUSD:sell:1772579004678 | CONFLICT: Conflicting signals (Buy and Sell) detected for ETHUSD. Trading halted for this asset. |
+| 2026-03-03 23:03:24 | ETHUSD | crypto:ETHUSD:buy:1772579004678 | CONFLICT: Conflicting signals (Buy and Sell) detected for ETHUSD. Trading halted for this asset. |
+| 2026-03-03 23:03:24 | ETHUSD | crypto:ETHUSD:buy:1772579004678 | CONFLICT: Conflicting signals (Buy and Sell) detected for ETHUSD. Trading halted for this asset. |
+| 2026-03-03 23:03:24 | SPY | equities:SPY:sell:1772579004805 | CONFLICT: Conflicting signals (Buy and Sell) detected for SPY. Trading halted for this asset. |
+| 2026-03-03 23:03:24 | SPY | equities:SPY:buy:1772579004805 | CONFLICT: Conflicting signals (Buy and Sell) detected for SPY. Trading halted for this asset. |
+| 2026-03-03 23:03:24 | SPY | equities:SPY:buy:1772579004805 | CONFLICT: Conflicting signals (Buy and Sell) detected for SPY. Trading halted for this asset. |
 
 ## Executed Trades
 
@@ -3257,3 +3271,6 @@
 | 2026-03-03 12:00:00 | COQUSD | NO_REF | No strategy signal generated. |
 | 2026-03-03 12:00:00 | CHEEMSUSD | NO_REF | No strategy signal generated. |
 | 2026-03-03 12:00:00 | BTCUSD | NO_REF | Conflict: Multiple strategies gave conflicting signals ({'buy', 'sell'}) |
+| 2026-03-03 23:08:16 | BTCUSD | NO_REF | Conflict: Multiple strategies gave conflicting signals ({'buy', 'sell'}) |
+| 2026-03-03 23:08:25 | ETHUSD | NO_REF | Conflict: Multiple strategies gave conflicting signals ({'buy', 'sell'}) |
+| 2026-03-03 23:08:34 | SPY | NO_REF | Conflict: Multiple strategies gave conflicting signals ({'buy', 'sell'}) |
