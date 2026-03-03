@@ -225,3 +225,31 @@ let (lower, middle, upper) = donchian_channels::calculate(&df, period)?;
 - Returns `Result<(Series, Series, Series)>` representing `(lower_band, middle_band, upper_band)`.
 - The output Series are named "donchian_lower", "donchian_middle", and "donchian_upper".
 - The first `period - 1` values will be null.
+
+## On-Balance Volume (OBV)
+
+**Name:** OBV
+**Description:** Calculates On-Balance Volume, a momentum indicator that uses volume flow to predict changes in stock price.
+**Rationale:** Cumulative volume adds buying pressure when price closes up, and subtracting selling pressure when price closes down.
+
+### Implementation Details
+- Uses `rust_decimal::Decimal` for all internal calculations to ensure precision.
+- Returns a Polars `Series` of `f64` values.
+- Efficiently iterates over price and volume data linearly.
+
+### Usage
+
+```rust
+use strategies::indicators::obv;
+use polars::prelude::*;
+
+// Assuming df is a DataFrame with "close" and "volume" columns
+let obv_series = obv::calculate(&df)?;
+```
+
+### Parameters
+- `data`: Reference to a Polars `DataFrame`. Must contain numeric columns named "close" and "volume".
+
+### Output
+- Returns `Result<Series>`.
+- The output Series is named "obv".
