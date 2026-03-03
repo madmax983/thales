@@ -395,3 +395,34 @@ let mfi_series = mfi::calculate(&df, period)?;
 - Returns `Result<Series>`.
 - The output Series is named "mfi".
 - The first `period` values will be null.
+
+## Williams %R
+
+**Name:** Williams %R
+**Description:** Calculates the Williams %R, a momentum indicator that moves between 0 and -100 and measures overbought and oversold levels. The Williams %R compares a stock's closing price to the high-low range over a specific period.
+**Rationale:** Momentum indicator used to identify overbought or oversold conditions. Traditionally, Williams %R is considered overbought when above -20 and oversold when below -80.
+
+### Implementation Details
+- Uses `rust_decimal::Decimal` for precision.
+- Implements a rolling max/min window algorithm (O(N)) manually to ensure compatibility and efficiency.
+- Returns a Polars `Series` of `f64` values (-100 to 0).
+
+### Usage
+
+```rust
+use strategies::indicators::williams_r;
+use polars::prelude::*;
+
+// Assuming df is a DataFrame with "high", "low", "close" columns
+let period = 14;
+let will_r_series = williams_r::calculate(&df, period)?;
+```
+
+### Parameters
+- `data`: Reference to a Polars `DataFrame`. Must contain numeric columns named "high", "low", and "close".
+- `period`: The lookback period (typically 14).
+
+### Output
+- Returns `Result<Series>`.
+- The output Series is named "williams_r".
+- The first `period - 1` values will be null.
