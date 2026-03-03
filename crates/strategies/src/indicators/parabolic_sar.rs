@@ -184,7 +184,7 @@ mod tests {
         // Bar 3: Low[3]=8.0. If SAR is still 8.0, this might be a hit?
         // Let's rely on code logic.
 
-        let (sar, trend) = parabolic_sar(&highs, &lows, 0.02, 0.2, 0.02).unwrap();
+        let (_sar, _trend) = parabolic_sar(&highs, &lows, 0.02, 0.2, 0.02).unwrap();
 
         // Check if trend flipped to false at end
         // Last low is 8.0. If previous SAR was > 8.0, it would flip.

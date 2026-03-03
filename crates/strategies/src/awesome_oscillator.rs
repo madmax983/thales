@@ -47,7 +47,8 @@ impl Strategy for AwesomeOscillator {
         let time_arr = time_arr.i64()?;
 
         // Calculate Awesome Oscillator
-        let ao_series = awesome_oscillator::calculate(data, self.config.fast_period, self.config.slow_period)?;
+        let ao_series =
+            awesome_oscillator::calculate(data, self.config.fast_period, self.config.slow_period)?;
         let ao_arr = ao_series.f64()?;
 
         // Calculate ATR for Stop Loss
@@ -55,7 +56,8 @@ impl Strategy for AwesomeOscillator {
         let atr_arr = atr_series.f64()?;
 
         let mut signals = Vec::new();
-        let sl_mult = Decimal::from_f64_retain(self.config.stop_loss_atr_mult).unwrap_or(Decimal::ZERO);
+        let sl_mult =
+            Decimal::from_f64_retain(self.config.stop_loss_atr_mult).unwrap_or(Decimal::ZERO);
         let two_dec = Decimal::from(2);
 
         for i in 1..close_arr.len() {
@@ -67,12 +69,8 @@ impl Strategy for AwesomeOscillator {
             let price_opt = close_arr.get(i);
             let atr_opt = atr_arr.get(i);
 
-            if let (
-                Some(ao_c),
-                Some(ao_p),
-                Some(price),
-                Some(atr_val),
-            ) = (ao_curr, ao_prev, price_opt, atr_opt)
+            if let (Some(ao_c), Some(ao_p), Some(price), Some(atr_val)) =
+                (ao_curr, ao_prev, price_opt, atr_opt)
             {
                 let price_dec = Decimal::from_f64_retain(price).unwrap_or(Decimal::ZERO);
                 let atr_dec = Decimal::from_f64_retain(atr_val).unwrap_or(Decimal::ZERO);
@@ -170,7 +168,7 @@ mod tests {
         };
         let strategy = AwesomeOscillator::new(config);
 
-        let df = df!(
+        let _df = df!(
             "timestamp_unix_ms" => &[1000i64, 2000, 3000, 4000, 5000, 6000, 7000],
             "open"  => &[10.0, 10.0, 10.0, 15.0, 20.0, 10.0, 5.0],
             "high"  => &[10.0, 10.0, 10.0, 15.0, 20.0, 10.0, 5.0],

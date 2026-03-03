@@ -302,7 +302,7 @@ mod tests {
                 open: close,
                 high: close + 1.0,
                 low: close - 1.0,
-                close: close,
+                close,
                 volume: 100.0,
             });
         }

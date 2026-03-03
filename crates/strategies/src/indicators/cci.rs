@@ -89,7 +89,7 @@ pub fn calculate(df: &DataFrame, period: usize) -> Result<Series> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use polars::prelude::*;
+
 
     #[test]
     fn test_cci_calculation() -> Result<()> {
@@ -128,10 +128,8 @@ mod tests {
         if let AnyValue::Float64(v) = last_val {
             // In strong uptrend, CCI should be positive
             assert!(v > 0.0, "CCI should be positive in uptrend, got {}", v);
-        } else {
-            if let AnyValue::Null = last_val {
-                panic!("Expected Float64, got Null");
-            }
+        } else if let AnyValue::Null = last_val {
+            panic!("Expected Float64, got Null");
         }
 
         Ok(())

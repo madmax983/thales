@@ -762,7 +762,7 @@ fn scan_market(
 
                 // Parse Open/Close for Momentum (24h)
                 let open_str = info.o.clone();
-                let close_str = info.c.get(0).unwrap_or(&"0".to_string()).clone();
+                let close_str = info.c.first().unwrap_or(&"0".to_string()).clone();
                 let open = open_str.parse::<f64>().unwrap_or(0.0);
                 let close = close_str.parse::<f64>().unwrap_or(0.0);
 

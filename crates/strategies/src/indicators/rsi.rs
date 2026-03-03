@@ -13,17 +13,41 @@ use rust_decimal::Decimal;
 /// Calculate Relative Strength Index (RSI)
 ///
 /// # Arguments
-/// * `data` - DataFrame with "close" column
-/// * `period` - Lookback period (standard is 14)
+/// * `data` - DataFrame with `close` column.
+/// * `period` - Lookback period (standard is 14).
 ///
 /// # Returns
-/// Series with RSI values. The first `period` values will be null.
+/// A `Series` containing the computed RSI values. The first `period` values will be `None`.
 ///
-/// # Example
+/// # Panics
+/// This function does not panic. It returns an `Err` if the `close` column is missing, if the data is empty, or if the period is 0.
+///
+/// # Edge Cases
+/// - **Zero Period:** If `period` is 0, returns an error.
+/// - **Empty DataFrame:** If the DataFrame is empty, returns an error.
+/// - **Missing Data:** If the `close` column contains `NaN` or missing values (`None`), the calculation outputs `None` for those specific rows and effectively resets its internal accumulators. The exact value will be `None`.
+/// - **Flat Data:** If the price does not change over the lookback period (pure zeros for both gains and losses), the RSI defaults to 50.0 to avoid division by zero.
+///
+/// # Examples
 /// ```rust
 /// use polars::prelude::*;
-/// // let df = ...;
-/// // let rsi = strategies::indicators::rsi::calculate(&df, 14)?;
+/// use strategies::indicators::rsi;
+///
+/// // Create sample price data
+/// let df = df!(
+///     "close" => &[10.0, 12.0, 11.0, 13.0]
+/// ).unwrap();
+///
+/// // Calculate a 2-period RSI
+/// let rsi_series = rsi::calculate(&df, 2).unwrap();
+/// let rsi_values = rsi_series.f64().unwrap();
+///
+/// // The first `period` values are None
+/// assert_eq!(rsi_values.get(0), None);
+/// assert_eq!(rsi_values.get(1), None);
+///
+/// // Subsequent values are calculated based on Wilder's Smoothing
+/// assert!(rsi_values.get(2).is_some());
 /// ```
 pub fn calculate(data: &DataFrame, period: usize) -> Result<Series> {
     // Validate inputs
@@ -249,7 +273,7 @@ mod tests {
         let series = s.f64()?;
         for i in 14..100 {
             if let Some(v) = series.get(i) {
-                assert!(v >= 0.0 && v <= 100.0, "RSI {} out of bounds at {}", v, i);
+                assert!((0.0..=100.0).contains(&v), "RSI {} out of bounds at {}", v, i);
             }
         }
 

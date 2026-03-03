@@ -56,7 +56,8 @@ impl Strategy for WilliamsR {
         let atr_arr = atr_series.f64()?;
 
         let mut signals = Vec::new();
-        let sl_mult = Decimal::from_f64_retain(self.config.stop_loss_atr_mult).unwrap_or(Decimal::ZERO);
+        let sl_mult =
+            Decimal::from_f64_retain(self.config.stop_loss_atr_mult).unwrap_or(Decimal::ZERO);
         let two_dec = Decimal::from(2);
 
         for i in 1..close_arr.len() {
@@ -68,12 +69,8 @@ impl Strategy for WilliamsR {
             let price_opt = close_arr.get(i);
             let atr_opt = atr_arr.get(i);
 
-            if let (
-                Some(wr_c),
-                Some(wr_p),
-                Some(price),
-                Some(atr_val),
-            ) = (wr_curr, wr_prev, price_opt, atr_opt)
+            if let (Some(wr_c), Some(wr_p), Some(price), Some(atr_val)) =
+                (wr_curr, wr_prev, price_opt, atr_opt)
             {
                 let price_dec = Decimal::from_f64_retain(price).unwrap_or(Decimal::ZERO);
                 let atr_dec = Decimal::from_f64_retain(atr_val).unwrap_or(Decimal::ZERO);
@@ -89,7 +86,10 @@ impl Strategy for WilliamsR {
                         confidence: 0.8,
                         stop_loss: None,
                         take_profit: None,
-                        reason: format!("Williams %R Crossover Up: {:.2} > {:.2}", wr_c, self.config.oversold_threshold),
+                        reason: format!(
+                            "Williams %R Crossover Up: {:.2} > {:.2}",
+                            wr_c, self.config.oversold_threshold
+                        ),
                         timestamp_ms: timestamp,
                     });
 
@@ -106,12 +106,17 @@ impl Strategy for WilliamsR {
                         confidence: 0.8,
                         stop_loss: Some(sl.to_f64().unwrap_or(0.0)),
                         take_profit: Some(tp.to_f64().unwrap_or(0.0)),
-                        reason: format!("Williams %R Crossover Up: {:.2} > {:.2}", wr_c, self.config.oversold_threshold),
+                        reason: format!(
+                            "Williams %R Crossover Up: {:.2} > {:.2}",
+                            wr_c, self.config.oversold_threshold
+                        ),
                         timestamp_ms: timestamp,
                     });
                 }
                 // Short Entry / Long Exit: %R crosses BELOW overbought threshold (e.g., -20)
-                else if wr_p >= self.config.overbought_threshold && wr_c < self.config.overbought_threshold {
+                else if wr_p >= self.config.overbought_threshold
+                    && wr_c < self.config.overbought_threshold
+                {
                     // Exit any Long
                     signals.push(Signal {
                         signal_type: SignalType::Exit,
@@ -121,7 +126,10 @@ impl Strategy for WilliamsR {
                         confidence: 0.8,
                         stop_loss: None,
                         take_profit: None,
-                        reason: format!("Williams %R Crossover Down: {:.2} < {:.2}", wr_c, self.config.overbought_threshold),
+                        reason: format!(
+                            "Williams %R Crossover Down: {:.2} < {:.2}",
+                            wr_c, self.config.overbought_threshold
+                        ),
                         timestamp_ms: timestamp,
                     });
 
@@ -138,7 +146,10 @@ impl Strategy for WilliamsR {
                         confidence: 0.8,
                         stop_loss: Some(sl.to_f64().unwrap_or(0.0)),
                         take_profit: Some(tp.to_f64().unwrap_or(0.0)),
-                        reason: format!("Williams %R Crossover Down: {:.2} < {:.2}", wr_c, self.config.overbought_threshold),
+                        reason: format!(
+                            "Williams %R Crossover Down: {:.2} < {:.2}",
+                            wr_c, self.config.overbought_threshold
+                        ),
                         timestamp_ms: timestamp,
                     });
                 }

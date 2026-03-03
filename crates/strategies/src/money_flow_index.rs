@@ -62,9 +62,9 @@ impl Strategy for MoneyFlowIndex {
         // Iterate through data
         for i in 1..close_arr.len() {
             let timestamp = time_arr.get(i).unwrap_or(0);
-            let price_opt = close_arr.get(i).and_then(|v| Decimal::from_f64_retain(v));
+            let price_opt = close_arr.get(i).and_then(Decimal::from_f64_retain);
             let mfi_opt = mfi_arr.get(i);
-            let atr_opt = atr_arr.get(i).and_then(|v| Decimal::from_f64_retain(v));
+            let atr_opt = atr_arr.get(i).and_then(Decimal::from_f64_retain);
 
             if let (Some(price), Some(mfi_val), Some(atr_val)) = (price_opt, mfi_opt, atr_opt) {
                 // Check for Exit (Overbought) - Stateless
@@ -198,7 +198,12 @@ mod tests {
 
         // Assert within delta 0.001 of -1.875
         let expected = -1.875;
-        assert!((sl - expected).abs() < 0.001, "SL was {}, expected {}", sl, expected);
+        assert!(
+            (sl - expected).abs() < 0.001,
+            "SL was {}, expected {}",
+            sl,
+            expected
+        );
 
         Ok(())
     }

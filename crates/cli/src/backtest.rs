@@ -245,32 +245,32 @@ pub async fn run_backtest_with_strategy(
 
             if pos.side == "long" {
                 // Check SL (Low <= SL)
-                if let Some(sl) = pos.stop_loss {
-                    if bar.low <= sl {
-                        // Slippage: If Open < SL, we gap down, fill at Open. Else fill at SL.
-                        exit_price = Some(if bar.open < sl { bar.open } else { sl });
-                        reason = "Stop Loss".to_string();
-                    }
+                if let Some(sl) = pos.stop_loss
+                    && bar.low <= sl
+                {
+                    // Slippage: If Open < SL, we gap down, fill at Open. Else fill at SL.
+                    exit_price = Some(if bar.open < sl { bar.open } else { sl });
+                    reason = "Stop Loss".to_string();
                 }
                 // Check TP (High >= TP)
                 if exit_price.is_none() {
                     // SL takes precedence usually
-                    if let Some(tp) = pos.take_profit {
-                        if bar.high >= tp {
-                            // Slippage: If Open > TP, we gap up, fill at Open. Else fill at TP.
-                            exit_price = Some(if bar.open > tp { bar.open } else { tp });
-                            reason = "Take Profit".to_string();
-                        }
+                    if let Some(tp) = pos.take_profit
+                        && bar.high >= tp
+                    {
+                        // Slippage: If Open > TP, we gap up, fill at Open. Else fill at TP.
+                        exit_price = Some(if bar.open > tp { bar.open } else { tp });
+                        reason = "Take Profit".to_string();
                     }
                 }
             } else {
                 // Short
                 // Check SL (High >= SL)
-                if let Some(sl) = pos.stop_loss {
-                    if bar.high >= sl {
-                        exit_price = Some(if bar.open > sl { bar.open } else { sl });
-                        reason = "Stop Loss".to_string();
-                    }
+                if let Some(sl) = pos.stop_loss
+                    && bar.high >= sl
+                {
+                    exit_price = Some(if bar.open > sl { bar.open } else { sl });
+                    reason = "Stop Loss".to_string();
                 }
                 // Check TP (Low <= TP)
                 if exit_price.is_none() {
@@ -460,7 +460,7 @@ mod tests {
                 open: close,
                 high: close + 1.0,
                 low: close - 1.0,
-                close: close,
+                close,
                 volume: 1000.0,
             });
         }
@@ -478,8 +478,8 @@ mod tests {
                 timestamp_unix_ms: now + i * 60000,
                 open: close,
                 high: close + 0.1, // Minimal high wick
-                low: close,       // Low = Close to prevent Stop Loss hit
-                close: close,
+                low: close,        // Low = Close to prevent Stop Loss hit
+                close,
                 volume: 1000.0,
             });
         }
@@ -524,7 +524,7 @@ mod tests {
                 open: close,
                 high: close,
                 low: close,
-                close: close,
+                close,
                 volume: 1000.0,
             });
         }
@@ -540,7 +540,7 @@ mod tests {
                 open: close,
                 high: close,
                 low: close,
-                close: close,
+                close,
                 volume: 1000.0,
             });
         }

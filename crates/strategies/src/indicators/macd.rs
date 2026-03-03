@@ -4,14 +4,41 @@ use polars::prelude::*;
 
 /// Calculate Moving Average Convergence Divergence (MACD)
 ///
+/// MACD is a trend-following momentum indicator that shows the relationship between two moving averages of a security’s price.
+///
 /// # Arguments
-/// * `data` - DataFrame with "close" column
-/// * `fast_period` - Fast EMA period (default 12)
-/// * `slow_period` - Slow EMA period (default 26)
-/// * `signal_period` - Signal Line EMA period (default 9)
+/// * `data` - DataFrame with a `close` column.
+/// * `fast_period` - Fast EMA period (commonly 12).
+/// * `slow_period` - Slow EMA period (commonly 26).
+/// * `signal_period` - Signal Line EMA period (commonly 9).
 ///
 /// # Returns
-/// Tuple of (MACD Line, Signal Line, Histogram)
+/// A tuple containing `(MACD Line, Signal Line, Histogram)` as Polars `Series`.
+///
+/// # Panics
+/// This function does not panic. It will return an error if the `close` column is missing, or if any of the underlying EMA calculations fail.
+///
+/// # Edge Cases
+/// - **Insufficient Data:** If the input DataFrame has fewer rows than the slowest period, the early values will be `None`.
+/// - **Zero Periods:** If any period is set to 0, the underlying EMA calculation will return an error.
+///
+/// # Examples
+/// ```rust
+/// use polars::prelude::*;
+/// use strategies::indicators::macd;
+///
+/// // Create sample price data
+/// let df = df!(
+///     "close" => &[10.0, 11.0, 12.0, 13.0, 14.0, 15.0]
+/// ).unwrap();
+///
+/// // Calculate MACD with short periods for testing
+/// let (macd, signal, hist) = macd::calculate(&df, 2, 4, 3).unwrap();
+///
+/// assert_eq!(macd.len(), 6);
+/// assert_eq!(signal.len(), 6);
+/// assert_eq!(hist.len(), 6);
+/// ```
 pub fn calculate(
     data: &DataFrame,
     fast_period: usize,

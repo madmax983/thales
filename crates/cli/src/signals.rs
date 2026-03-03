@@ -11,7 +11,7 @@ fn resolve_signal_type(
     signal: &Signal,
     position: Option<&contracts::Position>,
 ) -> (SignalType, String) {
-    let mut final_signal_type = signal.signal_type.clone();
+    let mut final_signal_type = signal.signal_type;
     let mut rationale_suffix = String::new();
 
     if let Some(pos) = position {
@@ -227,7 +227,11 @@ pub async fn generate_signals(
             // Let's leave this part alone to minimize regression risk unless requested.
             let use_atr_sl_override = matches!(
                 strategy_name,
-                "EmaCrossover" | "RsiMeanReversion" | "Macd" | "ConnorsRsiMeanReversion" | "WilliamsR"
+                "EmaCrossover"
+                    | "RsiMeanReversion"
+                    | "Macd"
+                    | "ConnorsRsiMeanReversion"
+                    | "WilliamsR"
             );
 
             // Calculate SL/TP
@@ -243,23 +247,19 @@ pub async fn generate_signals(
                         }
                     } else if let Some(s) = signal.stop_loss {
                         Some(s)
+                    } else if signal.side == "buy" {
+                        Some(last_close - (2.0 * atr))
                     } else {
-                        if signal.side == "buy" {
-                            Some(last_close - (2.0 * atr))
-                        } else {
-                            Some(last_close + (2.0 * atr))
-                        }
+                        Some(last_close + (2.0 * atr))
                     };
 
                     // Use Strategy TP if provided, else ATR fallback (4.0 ATR)
                     let tp = if let Some(t) = signal.take_profit {
                         Some(t)
+                    } else if signal.side == "buy" {
+                        Some(last_close + (4.0 * atr))
                     } else {
-                        if signal.side == "buy" {
-                            Some(last_close + (4.0 * atr))
-                        } else {
-                            Some(last_close - (4.0 * atr))
-                        }
+                        Some(last_close - (4.0 * atr))
                     };
 
                     // Calculate Size based on Risk and SL Distance
@@ -311,7 +311,8 @@ pub async fn generate_signals(
                 eprintln!("DEBUG: Positions available: {:?}", positions);
             }
 
-            let (final_signal_type, mut rationale_suffix) = resolve_signal_type(signal, existing_pos);
+            let (final_signal_type, mut rationale_suffix) =
+                resolve_signal_type(signal, existing_pos);
 
             // Filter out invalid Exits (no position)
             if !skip {
@@ -355,13 +356,11 @@ pub async fn generate_signals(
                 } else {
                     // Momentum/Breakout - Allowed to chase, but add rationale
                     if signal.side == "buy" && market_analysis.sentiment.contains("Overbought") {
-                        rationale_suffix
-                            .push_str(" (Buying strength in Overbought conditions)");
+                        rationale_suffix.push_str(" (Buying strength in Overbought conditions)");
                     } else if signal.side == "sell"
                         && market_analysis.sentiment.contains("Oversold")
                     {
-                        rationale_suffix
-                            .push_str(" (Selling weakness in Oversold conditions)");
+                        rationale_suffix.push_str(" (Selling weakness in Oversold conditions)");
                     }
                 }
             }
@@ -370,14 +369,13 @@ pub async fn generate_signals(
             if !skip
                 && (final_signal_type == SignalType::Entry
                     || final_signal_type == SignalType::ScaleIn)
+                && stop_loss.is_none()
             {
-                if stop_loss.is_none() {
-                    eprintln!(
-                        "Signal Generator: Skipping {} signal for {} due to missing Stop Loss",
-                        signal.side, signal.symbol
-                    );
-                    skip = true;
-                }
+                eprintln!(
+                    "Signal Generator: Skipping {} signal for {} due to missing Stop Loss",
+                    signal.side, signal.symbol
+                );
+                skip = true;
             }
 
             // Filter out invalid sizes (0, NaN, Inf)
@@ -606,7 +604,7 @@ mod tests {
                 open: close,
                 high: close + 1.0,
                 low: close - 1.0,
-                close: close,
+                close,
                 volume: 1000.0,
             });
         }
@@ -679,7 +677,7 @@ mod tests {
                 open: close,
                 high: close + 500.0,
                 low: close - 500.0,
-                close: close,
+                close,
                 volume: 1.0,
             });
         }
@@ -755,11 +753,7 @@ mod tests {
         let intent = &intents[0];
 
         // "Strategy: {}. Reason: {}. Market Context: {} ({} Volatility). {}"
-        assert!(
-            intent
-                .rationale
-                .contains("Strategy: BollingerBands")
-        );
+        assert!(intent.rationale.contains("Strategy: BollingerBands"));
         assert!(intent.rationale.contains("Market Context:"));
         assert!(intent.rationale.contains("Volatility"));
         assert!(intent.rationale.contains("No similar past trades found")); // Default history context
@@ -854,7 +848,7 @@ mod tests {
                 open: close,
                 high: close + 1.0,
                 low: close - 1.0,
-                close: close,
+                close,
                 volume: 1000.0,
             });
         }
@@ -1166,7 +1160,7 @@ mod tests {
                 open: close,
                 high: close + 2.0,
                 low: close - 2.0,
-                close: close,
+                close,
                 volume: 1000.0,
             });
         }
@@ -1232,7 +1226,7 @@ mod tests {
                 open: close,
                 high: close + 2.0,
                 low: close - 2.0,
-                close: close,
+                close,
                 volume: 1000.0,
             });
         }
@@ -1379,7 +1373,7 @@ mod tests {
                 open: close,
                 high: close + 1.0,
                 low: close - 1.0,
-                close: close,
+                close,
                 volume: 1000.0,
             });
         }
@@ -1761,7 +1755,7 @@ mod tests {
                 open: close,
                 high: close + 1.0,
                 low: close - 1.0,
-                close: close,
+                close,
                 volume: 1000.0,
             });
         }
@@ -1843,7 +1837,7 @@ mod tests {
                 open: close,
                 high: close + 1.0,
                 low: close - 1.0,
-                close: close,
+                close,
                 volume: 1000.0,
             });
         }
@@ -1858,7 +1852,7 @@ mod tests {
                 open: close,
                 high: close + 1.0,
                 low: close - 1.0,
-                close: close,
+                close,
                 volume: 1000.0,
             });
         }
@@ -1920,7 +1914,7 @@ mod tests {
                 open: close,
                 high: close + 1.0,
                 low: close - 1.0,
-                close: close,
+                close,
                 volume: 1000.0,
             });
         }
@@ -1975,7 +1969,7 @@ mod tests {
                 open: close,
                 high: close + 1.0,
                 low: close - 1.0,
-                close: close,
+                close,
                 volume: 1000.0,
             });
         }
@@ -2140,8 +2134,13 @@ mod tests {
         let intent = &intents[0];
         assert_eq!(intent.side, "buy");
         assert!(intent.rationale.contains("AdxMomentum"));
-        assert!(intent.rationale.contains("Buying strength in Overbought conditions"),
-            "Rationale should explain why chasing is allowed: {}", intent.rationale);
+        assert!(
+            intent
+                .rationale
+                .contains("Buying strength in Overbought conditions"),
+            "Rationale should explain why chasing is allowed: {}",
+            intent.rationale
+        );
 
         Ok(())
     }
@@ -2164,7 +2163,7 @@ mod tests {
                 open: close,
                 high: close + 0.1,
                 low: close - 0.1,
-                close: close,
+                close,
                 volume: 1000.0,
             });
         }
@@ -2259,7 +2258,7 @@ mod tests {
                 open: close,
                 high: close + 0.1,
                 low: close - 0.1,
-                close: close,
+                close,
                 volume: 1000.0,
             });
         }
@@ -2500,7 +2499,7 @@ mod tests {
         assert_eq!(intent.side, "sell");
 
         let price = spike_price;
-        let atr = 2.0;
+        let _atr = 2.0;
 
         // Verify SL
         // Logic: if side == "sell" -> SL = Price + (2.0 * ATR) = 110 + 4 = 114.
@@ -2570,7 +2569,7 @@ mod tests {
         // 2. Trigger Drop to create Oversold CRSI
         // Drop 100 -> 90 -> 80 -> 70.
         // RSI(3) will be low. Streak will be negative. Rank will be 0.
-        let prices = vec![90.0, 80.0, 70.0];
+        let prices = [90.0, 80.0, 70.0];
         for (i, p) in prices.iter().enumerate() {
             bars.push(Bar {
                 symbol: "TEST".to_string(),
@@ -2635,7 +2634,11 @@ mod tests {
             // Expected ATR SL = 68.0. Fixed SL = 66.5.
             // Check if SL is closer to 68.0 than 66.5
             // Or just check > 67.0
-            assert!(sl > 67.0, "SL should be ATR based (approx 68.0), got {}", sl);
+            assert!(
+                sl > 67.0,
+                "SL should be ATR based (approx 68.0), got {}",
+                sl
+            );
             assert!(
                 (sl - 68.0).abs() < 0.001,
                 "SL should match 2.0 * ATR exactly"

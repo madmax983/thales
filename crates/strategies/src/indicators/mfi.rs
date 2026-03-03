@@ -59,7 +59,8 @@ pub fn calculate(data: &DataFrame, period: usize) -> Result<Series> {
         let h = Decimal::from_f64_retain(high.get(i).unwrap_or(f64::NAN)).unwrap_or(Decimal::ZERO);
         let l = Decimal::from_f64_retain(low.get(i).unwrap_or(f64::NAN)).unwrap_or(Decimal::ZERO);
         let c = Decimal::from_f64_retain(close.get(i).unwrap_or(f64::NAN)).unwrap_or(Decimal::ZERO);
-        let v = Decimal::from_f64_retain(volume.get(i).unwrap_or(f64::NAN)).unwrap_or(Decimal::ZERO);
+        let v =
+            Decimal::from_f64_retain(volume.get(i).unwrap_or(f64::NAN)).unwrap_or(Decimal::ZERO);
 
         // Typical Price = (High + Low + Close) / 3
         let tp = (h + l + c) / Decimal::from(3);
@@ -133,8 +134,12 @@ pub fn calculate(data: &DataFrame, period: usize) -> Result<Series> {
         sum_neg -= negative_flows[i - period];
 
         // Ensure non-negative due to potential floating point issues (though using Decimal helps)
-        if sum_pos < Decimal::ZERO { sum_pos = Decimal::ZERO; }
-        if sum_neg < Decimal::ZERO { sum_neg = Decimal::ZERO; }
+        if sum_pos < Decimal::ZERO {
+            sum_pos = Decimal::ZERO;
+        }
+        if sum_neg < Decimal::ZERO {
+            sum_neg = Decimal::ZERO;
+        }
 
         let mfi = if sum_neg.is_zero() {
             hundred
@@ -205,7 +210,8 @@ mod tests {
         // 100 - (100 / (1 + 1200/1100)) = 100 - (100 / 2.090909) = 100 - 47.826 = 52.1739
         assert!(
             (val3 - 52.1739).abs() < 1e-3,
-            "Expected ~52.1739, got {}", val3
+            "Expected ~52.1739, got {}",
+            val3
         );
 
         Ok(())
@@ -221,7 +227,8 @@ mod tests {
             "low" => &[10.0],
             "close" => &[10.0],
             "volume" => &[100.0]
-        ).unwrap();
+        )
+        .unwrap();
         let res = calculate(&df_short, 5).unwrap();
         assert!(res.f64().unwrap().get(0).is_none());
     }

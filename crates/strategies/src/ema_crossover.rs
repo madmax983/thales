@@ -67,19 +67,19 @@ impl Strategy for EmaCrossover {
         // Iterate through data
         for i in 1..close_arr.len() {
             let timestamp = time_arr.get(i).unwrap_or(0);
-            let price_opt = close_arr.get(i).and_then(|v| Decimal::from_f64_retain(v));
+            let price_opt = close_arr.get(i).and_then(Decimal::from_f64_retain);
 
             // Ensure we have EMA values
-            let s_curr_opt = short_ema.get(i).and_then(|v| Decimal::from_f64_retain(v));
-            let l_curr_opt = long_ema.get(i).and_then(|v| Decimal::from_f64_retain(v));
+            let s_curr_opt = short_ema.get(i).and_then(Decimal::from_f64_retain);
+            let l_curr_opt = long_ema.get(i).and_then(Decimal::from_f64_retain);
             let s_prev_opt = short_ema
                 .get(i - 1)
-                .and_then(|v| Decimal::from_f64_retain(v));
+                .and_then(Decimal::from_f64_retain);
             let l_prev_opt = long_ema
                 .get(i - 1)
-                .and_then(|v| Decimal::from_f64_retain(v));
+                .and_then(Decimal::from_f64_retain);
 
-            let atr_opt = atr_arr.get(i).and_then(|v| Decimal::from_f64_retain(v));
+            let atr_opt = atr_arr.get(i).and_then(Decimal::from_f64_retain);
 
             if let (Some(sc), Some(lc), Some(sp), Some(lp), Some(price)) =
                 (s_curr_opt, l_curr_opt, s_prev_opt, l_prev_opt, price_opt)

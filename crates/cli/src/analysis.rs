@@ -181,8 +181,18 @@ fn calculate_volatility(df: &DataFrame, bars: &[Bar]) -> (String, Option<f64>) {
 
     if let Some(s) = atr_series {
         if let Some(last) = s.f64().ok().and_then(|v| v.last()) {
-            atr_val = Some(last);
-            let ratio = last / last_close;
+            // `last` is already an `Option<f64>` returned by `v.last()`,
+            // but `and_then` flattens it if `v.last()` returns `Some(&Option<f64>)`... wait.
+            // `v.last()` on a Float64Chunked returns `Option<f64>`.
+            // So `s.f64().ok().and_then(|v| v.last())` actually returns `Option<f64>`.
+            // Therefore, `last` is a `f64`. Wait, the error said: `expected f64, found Option<_>`.
+            // Let's just use `last` directly if it's an Option, or maybe `v.last()` returns `Option<f64>` and `and_then` returns `Option<f64>`.
+            // Ah, `v.last()` returns `Option<f64>`. `and_then` expects an `Option<T>`.
+            // So `last` is `f64`? But earlier clippy said `if let Some(actual_last) = last` expected `f64` found `Option`.
+            // Let's just re-evaluate:
+            let actual_last = last;
+            atr_val = Some(actual_last);
+            let ratio = actual_last / last_close;
 
             if ratio > 0.05 {
                 return ("Extreme".to_string(), atr_val);
@@ -208,18 +218,19 @@ fn calculate_sentiment(df: &DataFrame, regime: &str) -> String {
 
     if let Some(s) = rsi_series {
         if let Some(val) = s.f64().ok().and_then(|v| v.last()) {
-            last_rsi_val = Some(val);
-            if val > 70.0 {
+            let actual_val = val;
+            last_rsi_val = Some(actual_val);
+            if actual_val > 70.0 {
                 sentiment_score += 1;
             }
             // Bullish (Overbought in strong trend)
-            else if val < 30.0 {
+            else if actual_val < 30.0 {
                 sentiment_score -= 1;
             }
             // Bearish
-            else if val > 55.0 {
+            else if actual_val > 55.0 {
                 sentiment_score += 1;
-            } else if val < 45.0 {
+            } else if actual_val < 45.0 {
                 sentiment_score -= 1;
             }
         }
@@ -299,19 +310,25 @@ fn detect_patterns(df: &DataFrame, bars: &[Bar]) -> Vec<String> {
     let prev_is_red = prev.close < prev.open;
     let curr_is_green = curr.close > curr.open;
 
-    if prev_is_red && curr_is_green {
-        if curr.open <= prev.close && curr.close >= prev.open && curr_body > prev_body {
-            patterns.push("Bullish Engulfing".to_string());
-        }
+    if prev_is_red
+        && curr_is_green
+        && curr.open <= prev.close
+        && curr.close >= prev.open
+        && curr_body > prev_body
+    {
+        patterns.push("Bullish Engulfing".to_string());
     }
 
     let prev_is_green = prev.close > prev.open;
     let curr_is_red = curr.close < curr.open;
 
-    if prev_is_green && curr_is_red {
-        if curr.open >= prev.close && curr.close <= prev.open && curr_body > prev_body {
-            patterns.push("Bearish Engulfing".to_string());
-        }
+    if prev_is_green
+        && curr_is_red
+        && curr.open >= prev.close
+        && curr.close <= prev.open
+        && curr_body > prev_body
+    {
+        patterns.push("Bearish Engulfing".to_string());
     }
 
     // Structural Patterns
@@ -324,15 +341,15 @@ fn detect_patterns(df: &DataFrame, bars: &[Bar]) -> Vec<String> {
         // Assuming strategies implementation: if i=20, value is max(0..19).
         // If Price > Upper[prev], it's a breakout.
 
-        if let Some(uv) = u {
-            if curr.close > uv {
-                patterns.push("Breakout (Upside)".to_string());
-            }
+        if let Some(uv) = u
+            && curr.close > uv
+        {
+            patterns.push("Breakout (Upside)".to_string());
         }
-        if let Some(lv) = l {
-            if curr.close < lv {
-                patterns.push("Breakout (Downside)".to_string());
-            }
+        if let Some(lv) = l
+            && curr.close < lv
+        {
+            patterns.push("Breakout (Downside)".to_string());
         }
     }
 

@@ -6,12 +6,39 @@ use std::collections::VecDeque;
 
 /// Calculate Simple Moving Average (SMA)
 ///
+/// The Simple Moving Average calculates the unweighted mean of the previous `period` data points.
+///
 /// # Arguments
-/// * `data` - DataFrame with "close" column
-/// * `period` - Lookback period
+/// * `data` - DataFrame with a `close` column.
+/// * `period` - Lookback period.
 ///
 /// # Returns
-/// Series with SMA values.
+/// A `Series` containing the computed SMA values.
+///
+/// # Panics
+/// This function does not panic. Returns an error if the `close` column is missing, the DataFrame is empty, or the period is 0.
+///
+/// # Edge Cases
+/// - **Zero Period:** If `period` is 0, returns an error.
+/// - **Insufficient Data:** If the DataFrame has fewer rows than `period`, it will still return a series but values will be `None` until `period` data points are accumulated.
+/// - **Missing Data:** If the `close` column contains `NaN` or missing values (`None`), those specific elements will not be included in the sum, which may result in `None` outputs until a full clean window is formed again.
+///
+/// # Examples
+/// ```rust
+/// use polars::prelude::*;
+/// use strategies::indicators::sma;
+///
+/// let df = df!(
+///     "close" => &[10.0, 20.0, 30.0, 40.0]
+/// ).unwrap();
+///
+/// let sma_series = sma::calculate(&df, 2).unwrap();
+/// let sma_values = sma_series.f64().unwrap();
+///
+/// assert_eq!(sma_values.get(0), None);
+/// assert_eq!(sma_values.get(1), Some(15.0)); // (10 + 20) / 2
+/// assert_eq!(sma_values.get(2), Some(25.0)); // (20 + 30) / 2
+/// ```
 pub fn calculate(data: &DataFrame, period: usize) -> Result<Series> {
     // Validate inputs
     if data.height() == 0 {

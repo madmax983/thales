@@ -16,9 +16,9 @@ pub struct MonteCarloReport {
     pub horizon: usize,
     pub baseline_return_pct: f64,
     pub median_return_pct: f64,
-    pub best_case_return_pct: f64, // 95th percentile
+    pub best_case_return_pct: f64,  // 95th percentile
     pub worst_case_return_pct: f64, // 5th percentile
-    pub risk_of_ruin_pct: f64,     // % of paths that went <= 0
+    pub risk_of_ruin_pct: f64,      // % of paths that went <= 0
     pub max_drawdown_median_pct: f64,
     pub var_95_pct: f64, // Value at Risk (95% confidence)
 }

@@ -92,8 +92,8 @@ pub fn calculate(
             Ok(result)
         };
 
-    let highs_vec: Vec<Option<f64>> = high.into_iter().map(|v| v).collect();
-    let lows_vec: Vec<Option<f64>> = low.into_iter().map(|v| v).collect();
+    let highs_vec: Vec<Option<f64>> = high.into_iter().collect();
+    let lows_vec: Vec<Option<f64>> = low.into_iter().collect();
 
     // 1. Calculate Tenkan-sen
     let tenkan_vals = calc_midpoint(&highs_vec, &lows_vec, tenkan_period)?;
@@ -342,7 +342,7 @@ mod tests {
         // Period 9. Result should be all None for Tenkan/Kijun/SpanA/SpanB (due to warmup or shift)
         // Chikou should be partially valid (shift -26 -> None, shift -1 -> valid).
 
-        let (t, k, sa, sb, c) = calculate(&df_short, 9, 26, 52, 26, 26)?;
+        let (t, _k, _sa, _sb, _c) = calculate(&df_short, 9, 26, 52, 26, 26)?;
 
         // With only 2 points, rolling max(9) is None.
         assert!(t.f64()?.get(0).is_none());
