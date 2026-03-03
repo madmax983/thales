@@ -13,7 +13,7 @@ fn from_env_with_requires_required_keys() {
 fn execute_intent_submits_order_and_maps_response() {
     let mut server = mockito::Server::new();
     let mock = server
-        .mock("POST", "/v2/orders")
+        .mock("POST", "/orders")
         .match_header("APCA-API-KEY-ID", "k")
         .match_header("APCA-API-SECRET-KEY", "s")
         .match_body(Matcher::Regex("\"symbol\":\"AAPL\"".to_string()))
@@ -76,7 +76,7 @@ fn execute_intent_submits_order_and_maps_response() {
 fn execute_intent_returns_error_on_http_failure() {
     let mut server = mockito::Server::new();
     let mock = server
-        .mock("POST", "/v2/orders")
+        .mock("POST", "/orders")
         .with_status(422)
         .with_body(
             json!({
@@ -128,7 +128,7 @@ fn execute_intent_returns_error_on_http_failure() {
 fn execute_intent_submits_limit_order() {
     let mut server = mockito::Server::new();
     let mock = server
-        .mock("POST", "/v2/orders")
+        .mock("POST", "/orders")
         .match_body(Matcher::Regex("\"type\":\"limit\"".to_string()))
         .match_body(Matcher::Regex("\"limit_price\":150.0".to_string()))
         .with_status(200)
@@ -181,7 +181,7 @@ fn execute_intent_submits_limit_order() {
 fn execute_intent_submits_bracket_order() {
     let mut server = mockito::Server::new();
     let mock = server
-        .mock("POST", "/v2/orders")
+        .mock("POST", "/orders")
         .match_body(Matcher::Regex(
             "\"take_profit\":\\{\"limit_price\":160.0\\}".to_string(),
         ))

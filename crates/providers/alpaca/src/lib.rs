@@ -97,7 +97,7 @@ impl AlpacaClient {
                 limit_price: None,
             }),
         };
-        let url = format!("{}/v2/orders", self.config.base_url.trim_end_matches('/'));
+        let url = format!("{}/orders", self.config.base_url.trim_end_matches('/'));
 
         let response = self
             .http
@@ -139,7 +139,7 @@ impl AlpacaClient {
 
     pub fn fetch_open_orders(&self) -> Result<Vec<contracts::Order>, AlpacaProviderError> {
         let url = format!(
-            "{}/v2/orders?status=open",
+            "{}/orders?status=open",
             self.config.base_url.trim_end_matches('/')
         );
 
@@ -191,7 +191,7 @@ impl AlpacaClient {
 
     pub fn fetch_order(&self, order_id: &str) -> Result<contracts::Order, AlpacaProviderError> {
         let url = format!(
-            "{}/v2/orders/{}",
+            "{}/orders/{}",
             self.config.base_url.trim_end_matches('/'),
             order_id
         );
@@ -238,7 +238,7 @@ impl AlpacaClient {
 
     pub fn cancel_order(&self, order_id: &str) -> Result<(), AlpacaProviderError> {
         let url = format!(
-            "{}/v2/orders/{}",
+            "{}/orders/{}",
             self.config.base_url.trim_end_matches('/'),
             order_id
         );
@@ -330,7 +330,7 @@ impl AlpacaClient {
 
     pub fn fetch_positions(&self) -> Result<Vec<AlpacaPosition>, AlpacaProviderError> {
         let url = format!(
-            "{}/v2/positions",
+            "{}/positions",
             self.config.base_url.trim_end_matches('/')
         );
 
