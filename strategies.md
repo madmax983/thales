@@ -1042,3 +1042,70 @@ pub struct MoneyFlowIndexConfig {
 ### Performance
 - MFI calculation is O(N).
 - Signal generation loop is O(N).
+---
+
+# Trading Strategy: VWAP Mean Reversion
+
+## Strategy Specification
+
+**Name:** VwapMeanReversion
+
+**Description:** A mean reversion strategy that uses the Volume Weighted Average Price (VWAP). It generates a buy signal when the price drops significantly below the VWAP (oversold) and a sell signal when the price rises significantly above the VWAP (overbought).
+
+**Rationale:** VWAP represents the true average price paid by market participants over a given period, weighted by volume. Prices tend to revert to the VWAP. When the price is far below VWAP, it may be undervalued (buy opportunity). When far above, it may be overvalued (sell opportunity).
+
+## Requirements
+
+### Implementation Details
+- Uses Polars for data analysis.
+- Implements the `Strategy` trait in Rust.
+- Uses `vwap` indicator.
+
+### Strategy Type
+Mean Reversion
+
+### Entry Conditions
+- **Long Entry (Buy):** Close Price < VWAP * (1 - `entry_threshold_pct`)
+
+### Exit Conditions
+- **Long Exit (Sell):** Close Price > VWAP * (1 + `exit_threshold_pct`)
+- **Stop Loss:** Close Price <= Entry Price * (1 - `stop_loss_pct`).
+
+### Position Sizing
+- **Size Hint:** "100" (fixed units) or "max" (for exits).
+
+## Code Pattern
+
+```rust
+use crate::strategy::{Strategy, StrategyConfig, Signal, SignalType};
+use crate::indicators::vwap;
+use polars::prelude::*;
+use async_trait::async_trait;
+use anyhow::Result;
+
+pub struct VwapMeanReversion {
+    config: VwapMeanReversionConfig,
+}
+
+#[derive(Debug, Clone, serde::Deserialize)]
+pub struct VwapMeanReversionConfig {
+    pub period: usize,
+    pub entry_threshold_pct: f64,
+    pub exit_threshold_pct: f64,
+    pub stop_loss_pct: f64,
+    pub symbol: String,
+}
+```
+
+## Critical Considerations
+
+### Risk Management Integration
+- **Stop Loss:** Fixed percentage stop loss.
+
+### Backtesting Requirements
+- Accepts `DataFrame` with historical data including "volume".
+- Requires data length > `period`.
+
+### Performance
+- VWAP calculation is O(N).
+- Signal generation loop is O(N).

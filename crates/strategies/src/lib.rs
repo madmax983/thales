@@ -36,3 +36,4 @@ pub mod rsi_mean_reversion;
 pub mod stochastic_oscillator;
 pub mod strategy;
 pub mod supertrend;
+pub mod vwap_mean_reversion;

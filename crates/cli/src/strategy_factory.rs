@@ -15,6 +15,7 @@ use strategies::rsi_mean_reversion::{RsiMeanReversion, RsiMeanReversionConfig};
 use strategies::stochastic_oscillator::{StochasticOscillator, StochasticOscillatorConfig};
 use strategies::strategy::Strategy;
 use strategies::supertrend::{Supertrend, SupertrendConfig};
+use strategies::vwap_mean_reversion::{VwapMeanReversion, VwapMeanReversionConfig};
 
 pub fn create_strategy(name: &str, symbol: &str) -> Result<Box<dyn Strategy>> {
     match name {
@@ -167,6 +168,16 @@ pub fn create_strategy(name: &str, symbol: &str) -> Result<Box<dyn Strategy>> {
             };
             Ok(Box::new(MoneyFlowIndex::new(config)))
         }
+        "VwapMeanReversion" => {
+            let config = VwapMeanReversionConfig {
+                period: 20, // 20 bar rolling VWAP
+                entry_threshold_pct: 0.02, // 2% below VWAP
+                exit_threshold_pct: 0.02,  // 2% above VWAP
+                stop_loss_pct: 0.05,
+                symbol: symbol.to_string(),
+            };
+            Ok(Box::new(VwapMeanReversion::new(config)))
+        }
         _ => Err(anyhow::anyhow!("Unknown strategy: {}", name)),
     }
 }
@@ -188,5 +199,6 @@ pub fn list_strategies() -> Vec<&'static str> {
         "LinearRegressionTrend",
         "ObvTrendFollowing",
         "MoneyFlowIndex",
+        "VwapMeanReversion",
     ]
 }
