@@ -11,3 +11,7 @@
 ## 2024-05-22 - The Hidden Strategy
 **Confusion:** The `Strategy` trait in `crates/strategies` had no documentation. It wasn't clear what the expected input `DataFrame` should look like (required columns).
 **Clarification:** documented the `Strategy` trait and explicitly listed the required columns (`open`, `high`, `low`, `close`, `volume`, `timestamp`) in the `generate_signals` method docs.
+
+## 2024-05-23 - The Mystery of RAG
+**Confusion:** The RAG module (`crates/cli/src/rag.rs`) lacked any documentation. Users had no idea how it matched past trades or how the daily signal limits worked.
+**Clarification:** Added comprehensive module-level documentation and executable examples (`# Examples`) for all public structures (`HistoryEntry`, `HistoricalPerformance`) and functions (`analyze_performance`, `find_similar_trades`, `count_todays_signals`, `summarize_history`) using `tempfile` to demonstrate JSON history interactions.
