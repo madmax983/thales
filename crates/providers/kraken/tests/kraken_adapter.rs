@@ -205,9 +205,7 @@ fn execute_intent_returns_error_for_day_tif() {
         })
         .expect_err("expected error");
 
-    assert!(err
-        .to_string()
-        .contains("DAY time-in-force not supported"));
+    assert!(err.to_string().contains("DAY time-in-force not supported"));
 }
 
 #[test]

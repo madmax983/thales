@@ -63,12 +63,12 @@ pub fn calculate(data: &DataFrame, period: usize) -> Result<Series> {
         let prev = close.get(i - 1).unwrap_or(f64::NAN);
 
         if curr.is_nan() || prev.is_nan() {
-             valid_start = false;
-             break;
+            valid_start = false;
+            break;
         }
 
         let change = Decimal::from_f64_retain(curr).unwrap_or(Decimal::ZERO)
-                   - Decimal::from_f64_retain(prev).unwrap_or(Decimal::ZERO);
+            - Decimal::from_f64_retain(prev).unwrap_or(Decimal::ZERO);
 
         if change > Decimal::ZERO {
             avg_gain += change;
@@ -106,8 +106,8 @@ pub fn calculate(data: &DataFrame, period: usize) -> Result<Series> {
         let prev_opt = close.get(i - 1);
 
         if let (Some(curr), Some(prev)) = (curr_opt, prev_opt) {
-             let change = Decimal::from_f64_retain(curr).unwrap_or(Decimal::ZERO)
-                        - Decimal::from_f64_retain(prev).unwrap_or(Decimal::ZERO);
+            let change = Decimal::from_f64_retain(curr).unwrap_or(Decimal::ZERO)
+                - Decimal::from_f64_retain(prev).unwrap_or(Decimal::ZERO);
 
             let (curr_gain, curr_loss) = if change > Decimal::ZERO {
                 (change, Decimal::ZERO)
@@ -132,7 +132,6 @@ pub fn calculate(data: &DataFrame, period: usize) -> Result<Series> {
             };
 
             rsi_values[i] = rsi.to_f64();
-
         } else {
             // Missing data
             rsi_values[i] = None;
@@ -186,10 +185,18 @@ mod tests {
         assert!(out.get(1).is_none());
 
         let val2 = out.get(2).unwrap();
-        assert!((val2 - 66.666666).abs() < 1e-4, "Expected ~66.67, got {}", val2);
+        assert!(
+            (val2 - 66.666666).abs() < 1e-4,
+            "Expected ~66.67, got {}",
+            val2
+        );
 
         let val3 = out.get(3).unwrap();
-        assert!((val3 - 85.714285).abs() < 1e-4, "Expected ~85.71, got {}", val3);
+        assert!(
+            (val3 - 85.714285).abs() < 1e-4,
+            "Expected ~85.71, got {}",
+            val3
+        );
 
         Ok(())
     }
@@ -228,7 +235,9 @@ mod tests {
 
     #[test]
     fn test_realistic_data() -> Result<()> {
-        let values: Vec<f64> = (0..100).map(|i| 100.0 + (i as f64 * 0.1).sin() * 10.0).collect();
+        let values: Vec<f64> = (0..100)
+            .map(|i| 100.0 + (i as f64 * 0.1).sin() * 10.0)
+            .collect();
         let df = df!("close" => values)?;
         let result = calculate(&df, 14);
         assert!(result.is_ok());

@@ -1,9 +1,9 @@
+use crate::strategy_factory;
 use anyhow::Result;
-use contracts::{BarSeries};
+use contracts::BarSeries;
 use polars::prelude::*;
 use serde::{Deserialize, Serialize};
 use strategies::strategy::{Signal, SignalType};
-use crate::strategy_factory;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct BacktestConfig {
@@ -96,9 +96,13 @@ pub async fn run_backtest(
     // Group signals by timestamp for efficient lookup
     // Assuming signals are sorted by timestamp, but let's map them.
     // Use a HashMap<Timestamp, Vec<Signal>>
-    let mut signals_map: std::collections::HashMap<i64, Vec<Signal>> = std::collections::HashMap::new();
+    let mut signals_map: std::collections::HashMap<i64, Vec<Signal>> =
+        std::collections::HashMap::new();
     for signal in raw_signals {
-        signals_map.entry(signal.timestamp_ms).or_default().push(signal);
+        signals_map
+            .entry(signal.timestamp_ms)
+            .or_default()
+            .push(signal);
     }
 
     // 4. Simulation Loop
@@ -129,12 +133,12 @@ pub async fn run_backtest(
 
                 // Basic Sizing Logic
                 let qty = if let Some(stop) = sl {
-                     let risk_dist = (entry_price - stop).abs();
-                     if risk_dist > 0.0 {
-                         config.risk_per_trade / risk_dist
-                     } else {
-                         0.0
-                     }
+                    let risk_dist = (entry_price - stop).abs();
+                    if risk_dist > 0.0 {
+                        config.risk_per_trade / risk_dist
+                    } else {
+                        0.0
+                    }
                 } else {
                     // Fallback: Use fixed size hint if numeric, else small default
                     if let Ok(s) = order.signal.size_hint.parse::<f64>() {
@@ -148,7 +152,11 @@ pub async fn run_backtest(
                 };
 
                 if qty > 0.0 {
-                    let side = if order.signal.side == "buy" { "long".to_string() } else { "short".to_string() };
+                    let side = if order.signal.side == "buy" {
+                        "long".to_string()
+                    } else {
+                        "short".to_string()
+                    };
                     position = Some(OpenPosition {
                         symbol: order.signal.symbol.clone(),
                         side,
@@ -161,58 +169,58 @@ pub async fn run_backtest(
                 }
             } else {
                 // Check if this is an Exit signal for the existing position
-                 if let Some(pos) = &position {
-                     // If Signal is Exit and matches direction (e.g. Long Pos + Sell Signal)
-                     let is_exit = order.signal.signal_type == SignalType::Exit;
-                     let correct_side = (pos.side == "long" && order.signal.side == "sell") ||
-                                        (pos.side == "short" && order.signal.side == "buy");
+                if let Some(pos) = &position {
+                    // If Signal is Exit and matches direction (e.g. Long Pos + Sell Signal)
+                    let is_exit = order.signal.signal_type == SignalType::Exit;
+                    let correct_side = (pos.side == "long" && order.signal.side == "sell")
+                        || (pos.side == "short" && order.signal.side == "buy");
 
-                     if is_exit && correct_side {
-                         // Close Position at Open
-                         let exit_price = bar.open;
-                         let pnl = if pos.side == "long" {
-                             (exit_price - pos.entry_price) * pos.qty
-                         } else {
-                             (pos.entry_price - exit_price) * pos.qty
-                         };
+                    if is_exit && correct_side {
+                        // Close Position at Open
+                        let exit_price = bar.open;
+                        let pnl = if pos.side == "long" {
+                            (exit_price - pos.entry_price) * pos.qty
+                        } else {
+                            (pos.entry_price - exit_price) * pos.qty
+                        };
 
-                         // Note: We don't subtract cost basis because we track Cash + Position Value = Equity
-                         // Wait, simpler: Cash is "Available Cash".
-                         // When buying, we deduce cost?
-                         // No, let's track Equity.
-                         // Equity = Cash + Unrealized PnL.
-                         // Actually, simpler model:
-                         // Start Cash = 10000.
-                         // Buy 1 BTC @ 10000. Cash = 0. Position = 1 BTC.
-                         // Sell 1 BTC @ 11000. Cash = 11000. Position = 0.
-                         // PnL = 1000.
+                        // Note: We don't subtract cost basis because we track Cash + Position Value = Equity
+                        // Wait, simpler: Cash is "Available Cash".
+                        // When buying, we deduce cost?
+                        // No, let's track Equity.
+                        // Equity = Cash + Unrealized PnL.
+                        // Actually, simpler model:
+                        // Start Cash = 10000.
+                        // Buy 1 BTC @ 10000. Cash = 0. Position = 1 BTC.
+                        // Sell 1 BTC @ 11000. Cash = 11000. Position = 0.
+                        // PnL = 1000.
 
-                         // Re-do accounting:
-                         // 1. Buy: Cash -= Price * Qty.
-                         // 2. Sell: Cash += Price * Qty.
-                         // But for Shorting?
-                         // Short 1 BTC @ 10000. Cash = 20000 (10k collateral + 10k proceeds). Liability = 1 BTC.
-                         // Cover 1 BTC @ 9000. Cash -= 9000. Cash = 11000. PnL = 1000.
+                        // Re-do accounting:
+                        // 1. Buy: Cash -= Price * Qty.
+                        // 2. Sell: Cash += Price * Qty.
+                        // But for Shorting?
+                        // Short 1 BTC @ 10000. Cash = 20000 (10k collateral + 10k proceeds). Liability = 1 BTC.
+                        // Cover 1 BTC @ 9000. Cash -= 9000. Cash = 11000. PnL = 1000.
 
-                         // Let's stick to PnL accumulation for simplicity.
-                         // Equity = Initial + Sum(Realized PnL) + Unrealized PnL.
+                        // Let's stick to PnL accumulation for simplicity.
+                        // Equity = Initial + Sum(Realized PnL) + Unrealized PnL.
 
-                         trades.push(BacktestTrade {
-                             id: order.signal.timestamp_ms.to_string(),
-                             entry_time: pos.entry_time,
-                             exit_time: current_time,
-                             side: pos.side.clone(),
-                             qty: pos.qty,
-                             entry_price: pos.entry_price,
-                             exit_price,
-                             pnl,
-                             pnl_pct: pnl / (pos.entry_price * pos.qty), // ROI on trade not account
-                             exit_reason: order.signal.reason.clone(),
-                         });
+                        trades.push(BacktestTrade {
+                            id: order.signal.timestamp_ms.to_string(),
+                            entry_time: pos.entry_time,
+                            exit_time: current_time,
+                            side: pos.side.clone(),
+                            qty: pos.qty,
+                            entry_price: pos.entry_price,
+                            exit_price,
+                            pnl,
+                            pnl_pct: pnl / (pos.entry_price * pos.qty), // ROI on trade not account
+                            exit_reason: order.signal.reason.clone(),
+                        });
 
-                         position = None;
-                     }
-                 }
+                        position = None;
+                    }
+                }
             }
         }
 
@@ -232,7 +240,8 @@ pub async fn run_backtest(
                     }
                 }
                 // Check TP (High >= TP)
-                if exit_price.is_none() { // SL takes precedence usually
+                if exit_price.is_none() {
+                    // SL takes precedence usually
                     if let Some(tp) = pos.take_profit {
                         if bar.high >= tp {
                             // Slippage: If Open > TP, we gap up, fill at Open. Else fill at TP.
@@ -241,15 +250,16 @@ pub async fn run_backtest(
                         }
                     }
                 }
-            } else { // Short
-                 // Check SL (High >= SL)
+            } else {
+                // Short
+                // Check SL (High >= SL)
                 if let Some(sl) = pos.stop_loss {
                     if bar.high >= sl {
                         exit_price = Some(if bar.open > sl { bar.open } else { sl });
                         reason = "Stop Loss".to_string();
                     }
                 }
-                 // Check TP (Low <= TP)
+                // Check TP (Low <= TP)
                 if exit_price.is_none() {
                     if let Some(tp) = pos.take_profit {
                         if bar.low <= tp {
@@ -262,25 +272,25 @@ pub async fn run_backtest(
 
             if let Some(price) = exit_price {
                 let pnl = if pos.side == "long" {
-                     (price - pos.entry_price) * pos.qty
-                 } else {
-                     (pos.entry_price - price) * pos.qty
-                 };
+                    (price - pos.entry_price) * pos.qty
+                } else {
+                    (pos.entry_price - price) * pos.qty
+                };
 
-                 trades.push(BacktestTrade {
-                     id: format!("{}-auto", current_time),
-                     entry_time: pos.entry_time,
-                     exit_time: current_time,
-                     side: pos.side.clone(),
-                     qty: pos.qty,
-                     entry_price: pos.entry_price,
-                     exit_price: price,
-                     pnl,
-                     pnl_pct: pnl / (pos.entry_price * pos.qty),
-                     exit_reason: reason,
-                 });
+                trades.push(BacktestTrade {
+                    id: format!("{}-auto", current_time),
+                    entry_time: pos.entry_time,
+                    exit_time: current_time,
+                    side: pos.side.clone(),
+                    qty: pos.qty,
+                    entry_price: pos.entry_price,
+                    exit_price: price,
+                    pnl,
+                    pnl_pct: pnl / (pos.entry_price * pos.qty),
+                    exit_reason: reason,
+                });
 
-                 position = None;
+                position = None;
             }
         }
 
@@ -293,8 +303,10 @@ pub async fn run_backtest(
             for sig in sigs {
                 // If we have a position, ignore Entry signals unless we support scaling (MVP: No)
                 // If we don't have a position, ignore Exit signals.
-                let is_entry = sig.signal_type == SignalType::Entry || sig.signal_type == SignalType::ScaleIn;
-                let is_exit = sig.signal_type == SignalType::Exit || sig.signal_type == SignalType::ScaleOut;
+                let is_entry =
+                    sig.signal_type == SignalType::Entry || sig.signal_type == SignalType::ScaleIn;
+                let is_exit =
+                    sig.signal_type == SignalType::Exit || sig.signal_type == SignalType::ScaleOut;
 
                 if position.is_none() && is_entry {
                     // Enrich Signal with SL/TP if missing?
@@ -352,11 +364,23 @@ pub async fn run_backtest(
 
     let win_count = trades.iter().filter(|t| t.pnl > 0.0).count();
     let loss_count = trades.iter().filter(|t| t.pnl <= 0.0).count();
-    let win_rate = if !trades.is_empty() { win_count as f64 / trades.len() as f64 } else { 0.0 };
+    let win_rate = if !trades.is_empty() {
+        win_count as f64 / trades.len() as f64
+    } else {
+        0.0
+    };
 
     let gross_profit: f64 = trades.iter().filter(|t| t.pnl > 0.0).map(|t| t.pnl).sum();
-    let gross_loss: f64 = trades.iter().filter(|t| t.pnl <= 0.0).map(|t| t.pnl.abs()).sum();
-    let profit_factor = if gross_loss > 0.0 { gross_profit / gross_loss } else { gross_profit };
+    let gross_loss: f64 = trades
+        .iter()
+        .filter(|t| t.pnl <= 0.0)
+        .map(|t| t.pnl.abs())
+        .sum();
+    let profit_factor = if gross_loss > 0.0 {
+        gross_profit / gross_loss
+    } else {
+        gross_profit
+    };
 
     Ok(BacktestResult {
         strategy: strategy_name.to_string(),
@@ -416,23 +440,38 @@ mod tests {
         for i in 0..20 {
             let close = 100.0 - (i as f64); // Drop from 100 to 80
             bars.push(Bar {
-                symbol: "TEST".to_string(), market: "equities".to_string(), timeframe: "1m".to_string(),
+                symbol: "TEST".to_string(),
+                market: "equities".to_string(),
+                timeframe: "1m".to_string(),
                 timestamp_unix_ms: now + i * 60000,
-                open: close, high: close + 1.0, low: close - 1.0, close: close, volume: 1000.0,
+                open: close,
+                high: close + 1.0,
+                low: close - 1.0,
+                close: close,
+                volume: 1000.0,
             });
         }
 
         // 2. Rally to trigger RSI Overbought (Sell)
         for i in 20..40 {
-             let close = 80.0 + ((i - 20) as f64) * 2.0; // Rise from 80 to 120
-             bars.push(Bar {
-                symbol: "TEST".to_string(), market: "equities".to_string(), timeframe: "1m".to_string(),
+            let close = 80.0 + ((i - 20) as f64) * 2.0; // Rise from 80 to 120
+            bars.push(Bar {
+                symbol: "TEST".to_string(),
+                market: "equities".to_string(),
+                timeframe: "1m".to_string(),
                 timestamp_unix_ms: now + i * 60000,
-                open: close, high: close + 1.0, low: close - 1.0, close: close, volume: 1000.0,
+                open: close,
+                high: close + 1.0,
+                low: close - 1.0,
+                close: close,
+                volume: 1000.0,
             });
         }
 
-        let series = BarSeries { schema_version: "v0".to_string(), bars };
+        let series = BarSeries {
+            schema_version: "v0".to_string(),
+            bars,
+        };
 
         let config = BacktestConfig {
             initial_capital: 10000.0,
@@ -463,24 +502,42 @@ mod tests {
         for i in 0..20 {
             let close = 100.0 - (i as f64);
             bars.push(Bar {
-                symbol: "TEST".to_string(), market: "equities".to_string(), timeframe: "1m".to_string(),
+                symbol: "TEST".to_string(),
+                market: "equities".to_string(),
+                timeframe: "1m".to_string(),
                 timestamp_unix_ms: now + i * 60000,
-                open: close, high: close, low: close, close: close, volume: 1000.0
+                open: close,
+                high: close,
+                low: close,
+                close: close,
+                volume: 1000.0,
             });
         }
 
         // 2. Crash further
         for i in 20..30 {
-             let close = 80.0 - ((i - 20) as f64) * 5.0; // Crash fast
-             bars.push(Bar {
-                symbol: "TEST".to_string(), market: "equities".to_string(), timeframe: "1m".to_string(),
+            let close = 80.0 - ((i - 20) as f64) * 5.0; // Crash fast
+            bars.push(Bar {
+                symbol: "TEST".to_string(),
+                market: "equities".to_string(),
+                timeframe: "1m".to_string(),
                 timestamp_unix_ms: now + i * 60000,
-                open: close, high: close, low: close, close: close, volume: 1000.0
+                open: close,
+                high: close,
+                low: close,
+                close: close,
+                volume: 1000.0,
             });
         }
 
-        let series = BarSeries { schema_version: "v0".to_string(), bars };
-        let config = BacktestConfig { initial_capital: 10000.0, risk_per_trade: 100.0 };
+        let series = BarSeries {
+            schema_version: "v0".to_string(),
+            bars,
+        };
+        let config = BacktestConfig {
+            initial_capital: 10000.0,
+            risk_per_trade: 100.0,
+        };
 
         let result = run_backtest(&series, "RsiMeanReversion", config).await?;
 

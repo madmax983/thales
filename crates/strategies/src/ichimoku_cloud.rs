@@ -1,8 +1,8 @@
-use crate::strategy::{Strategy, Signal, SignalType};
 use crate::indicators::ichimoku;
-use polars::prelude::*;
-use async_trait::async_trait;
+use crate::strategy::{Signal, SignalType, Strategy};
 use anyhow::Result;
+use async_trait::async_trait;
+use polars::prelude::*;
 
 pub struct IchimokuCloud {
     config: IchimokuCloudConfig,
@@ -68,9 +68,15 @@ impl Strategy for IchimokuCloud {
             let kijun_prev = kijun.get(i - 1);
 
             // Ensure all necessary values are present
-            if let (Some(c), Some(t), Some(k), Some(sa), Some(sb), Some(t_prev), Some(k_prev)) =
-                (close_curr, tenkan_curr, kijun_curr, span_a_curr, span_b_curr, tenkan_prev, kijun_prev)
-            {
+            if let (Some(c), Some(t), Some(k), Some(sa), Some(sb), Some(t_prev), Some(k_prev)) = (
+                close_curr,
+                tenkan_curr,
+                kijun_curr,
+                span_a_curr,
+                span_b_curr,
+                tenkan_prev,
+                kijun_prev,
+            ) {
                 // Cloud Status
                 // Bullish Cloud: Span A > Span B (Green)
                 // Bearish Cloud: Span A < Span B (Red)
@@ -91,14 +97,18 @@ impl Strategy for IchimokuCloud {
                     // Take Profit: Entry + 2 * (Entry - Kijun)
                     let sl = k; // Kijun is the SL
                     let risk = c - sl;
-                    let tp = if risk > 0.0 { Some(c + 2.0 * risk) } else { None };
+                    let tp = if risk > 0.0 {
+                        Some(c + 2.0 * risk)
+                    } else {
+                        None
+                    };
 
                     signals.push(Signal {
                         signal_type: SignalType::Entry,
                         symbol: self.config.symbol.clone(),
                         side: "buy".to_string(),
                         size_hint: "100".to_string(), // Default hint, will be sized by signals.rs
-                        confidence: 0.8, // High confidence for TK Cross above Cloud
+                        confidence: 0.8,              // High confidence for TK Cross above Cloud
                         stop_loss: Some(sl),
                         take_profit: tp,
                         reason: "Tenkan-Kijun Bullish Cross above Cloud".to_string(),
@@ -110,7 +120,11 @@ impl Strategy for IchimokuCloud {
                     // Take Profit: Entry - 2 * (Kijun - Entry)
                     let sl = k;
                     let risk = sl - c;
-                    let tp = if risk > 0.0 { Some(c - 2.0 * risk) } else { None };
+                    let tp = if risk > 0.0 {
+                        Some(c - 2.0 * risk)
+                    } else {
+                        None
+                    };
 
                     signals.push(Signal {
                         signal_type: SignalType::Entry,

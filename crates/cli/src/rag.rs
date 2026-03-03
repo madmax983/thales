@@ -1,8 +1,8 @@
+use anyhow::Result;
 use contracts::{MarketAnalysis, TradeIntent};
 use serde::{Deserialize, Serialize};
 use std::fs;
 use std::path::Path;
-use anyhow::Result;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct HistoryEntry {
@@ -20,10 +20,7 @@ pub struct HistoricalPerformance {
 
 pub fn analyze_performance(entries: &[HistoryEntry]) -> HistoricalPerformance {
     // Only analyze completed trades (where outcome is known)
-    let completed: Vec<&HistoryEntry> = entries
-        .iter()
-        .filter(|e| e.outcome.is_some())
-        .collect();
+    let completed: Vec<&HistoryEntry> = entries.iter().filter(|e| e.outcome.is_some()).collect();
 
     let count = completed.len();
     if count == 0 {
@@ -125,7 +122,10 @@ pub fn summarize_history(entries: &[HistoryEntry], current_symbol: &str) -> Stri
 
     format!(
         "Found {} similar past trades ({} on same symbol). Win Rate: {:.1}%. Avg Return: {:.2}%",
-        perf.count, same_symbol_count, perf.win_rate, perf.avg_pnl * 100.0
+        perf.count,
+        same_symbol_count,
+        perf.win_rate,
+        perf.avg_pnl * 100.0
     )
 }
 

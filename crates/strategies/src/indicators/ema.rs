@@ -28,7 +28,8 @@ pub fn calculate(data: &DataFrame, period: usize) -> Result<Series> {
         .context("Close column must be numeric (f64)")?;
 
     let mut ema_values: Vec<Option<f64>> = Vec::with_capacity(close.len());
-    let k = Decimal::from_f64(2.0 / (period as f64 + 1.0)).context("Invalid period for K calculation")?;
+    let k = Decimal::from_f64(2.0 / (period as f64 + 1.0))
+        .context("Invalid period for K calculation")?;
     let mut prev_ema: Option<Decimal> = None;
     let mut window_sum = Decimal::ZERO;
     let mut count = 0;

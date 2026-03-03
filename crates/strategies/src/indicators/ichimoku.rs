@@ -50,32 +50,47 @@ pub fn calculate(
     }
 
     // Get columns
-    let high = data.column("high").context("DataFrame must contain 'high' column")?.f64().context("High column must be numeric (f64)")?;
-    let low = data.column("low").context("DataFrame must contain 'low' column")?.f64().context("Low column must be numeric (f64)")?;
-    let close = data.column("close").context("DataFrame must contain 'close' column")?.f64().context("Close column must be numeric (f64)")?;
+    let high = data
+        .column("high")
+        .context("DataFrame must contain 'high' column")?
+        .f64()
+        .context("High column must be numeric (f64)")?;
+    let low = data
+        .column("low")
+        .context("DataFrame must contain 'low' column")?
+        .f64()
+        .context("Low column must be numeric (f64)")?;
+    let close = data
+        .column("close")
+        .context("DataFrame must contain 'close' column")?
+        .f64()
+        .context("Close column must be numeric (f64)")?;
 
     // Helper closure to calculate (Max + Min) / 2
-    let calc_midpoint = |highs: &[Option<f64>], lows: &[Option<f64>], period: usize| -> Result<Vec<Option<f64>>> {
-        let max_vals = rolling_max_opt(highs, period);
-        let min_vals = rolling_min_opt(lows, period);
-        let mut result = Vec::with_capacity(highs.len());
-        let two = Decimal::from(2);
+    let calc_midpoint =
+        |highs: &[Option<f64>], lows: &[Option<f64>], period: usize| -> Result<Vec<Option<f64>>> {
+            let max_vals = rolling_max_opt(highs, period);
+            let min_vals = rolling_min_opt(lows, period);
+            let mut result = Vec::with_capacity(highs.len());
+            let two = Decimal::from(2);
 
-        for i in 0..highs.len() {
-            match (max_vals[i], min_vals[i]) {
-                (Some(h), Some(l)) => {
-                    if let (Some(h_dec), Some(l_dec)) = (Decimal::from_f64_retain(h), Decimal::from_f64_retain(l)) {
-                        let mid = (h_dec + l_dec) / two;
-                        result.push(mid.to_f64());
-                    } else {
-                        result.push(None);
+            for i in 0..highs.len() {
+                match (max_vals[i], min_vals[i]) {
+                    (Some(h), Some(l)) => {
+                        if let (Some(h_dec), Some(l_dec)) =
+                            (Decimal::from_f64_retain(h), Decimal::from_f64_retain(l))
+                        {
+                            let mid = (h_dec + l_dec) / two;
+                            result.push(mid.to_f64());
+                        } else {
+                            result.push(None);
+                        }
                     }
-                },
-                _ => result.push(None),
+                    _ => result.push(None),
+                }
             }
-        }
-        Ok(result)
-    };
+            Ok(result)
+        };
 
     let highs_vec: Vec<Option<f64>> = high.into_iter().map(|v| v).collect();
     let lows_vec: Vec<Option<f64>> = low.into_iter().map(|v| v).collect();
@@ -100,13 +115,15 @@ pub fn calculate(
     for i in 0..data.height() {
         match (tenkan_vals[i], kijun_vals[i]) {
             (Some(t), Some(k)) => {
-                if let (Some(t_dec), Some(k_dec)) = (Decimal::from_f64_retain(t), Decimal::from_f64_retain(k)) {
+                if let (Some(t_dec), Some(k_dec)) =
+                    (Decimal::from_f64_retain(t), Decimal::from_f64_retain(k))
+                {
                     let avg = (t_dec + k_dec) / two;
                     span_a_vals.push(avg.to_f64());
                 } else {
                     span_a_vals.push(None);
                 }
-            },
+            }
             _ => span_a_vals.push(None),
         }
     }
@@ -131,13 +148,21 @@ pub fn calculate(
     let chikou_shifted_ca = close.shift(-(chikou_span_offset as i64));
     let chikou_series = Series::new("chikou_span", chikou_shifted_ca);
 
-    Ok((tenkan_series, kijun_series, span_a_shifted, span_b_shifted, chikou_series))
+    Ok((
+        tenkan_series,
+        kijun_series,
+        span_a_shifted,
+        span_b_shifted,
+        chikou_series,
+    ))
 }
 
 // Helper functions for rolling calculations using Monotonic Queue (O(N))
 // Adapted to handle Option<f64>
 fn rolling_max_opt(values: &[Option<f64>], window_size: usize) -> Vec<Option<f64>> {
-    if window_size == 0 { return vec![None; values.len()]; }
+    if window_size == 0 {
+        return vec![None; values.len()];
+    }
     let mut result = Vec::with_capacity(values.len());
     let mut deque: VecDeque<usize> = VecDeque::new();
 
@@ -170,7 +195,7 @@ fn rolling_max_opt(values: &[Option<f64>], window_size: usize) -> Vec<Option<f64
         // Result for this window
         if i >= window_size - 1 {
             if let Some(&front) = deque.front() {
-                 result.push(values[front]);
+                result.push(values[front]);
             } else {
                 result.push(None);
             }
@@ -182,7 +207,9 @@ fn rolling_max_opt(values: &[Option<f64>], window_size: usize) -> Vec<Option<f64
 }
 
 fn rolling_min_opt(values: &[Option<f64>], window_size: usize) -> Vec<Option<f64>> {
-    if window_size == 0 { return vec![None; values.len()]; }
+    if window_size == 0 {
+        return vec![None; values.len()];
+    }
     let mut result = Vec::with_capacity(values.len());
     let mut deque: VecDeque<usize> = VecDeque::new();
 
@@ -206,7 +233,7 @@ fn rolling_min_opt(values: &[Option<f64>], window_size: usize) -> Vec<Option<f64
                         break;
                     }
                 } else {
-                     deque.pop_back();
+                    deque.pop_back();
                 }
             }
             deque.push_back(i);
@@ -214,7 +241,7 @@ fn rolling_min_opt(values: &[Option<f64>], window_size: usize) -> Vec<Option<f64
 
         if i >= window_size - 1 {
             if let Some(&front) = deque.front() {
-                 result.push(values[front]);
+                result.push(values[front]);
             } else {
                 result.push(None);
             }
@@ -315,7 +342,7 @@ mod tests {
         // Period 9. Result should be all None for Tenkan/Kijun/SpanA/SpanB (due to warmup or shift)
         // Chikou should be partially valid (shift -26 -> None, shift -1 -> valid).
 
-        let (t, k, sa, sb, c) = calculate(&df_short, 9, 26, 52, 26, 26)?;
+        let (t, _k, _sa, _sb, _c) = calculate(&df_short, 9, 26, 52, 26, 26)?;
 
         // With only 2 points, rolling max(9) is None.
         assert!(t.f64()?.get(0).is_none());

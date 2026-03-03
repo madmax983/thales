@@ -1,8 +1,4 @@
-use std::{
-    fs,
-    path::PathBuf,
-    process,
-};
+use std::{fs, path::PathBuf, process};
 
 use alpaca_provider::{AlpacaClient, AlpacaConfig};
 use clap::{Parser, Subcommand};
@@ -229,21 +225,34 @@ fn run(command: Commands) -> Result<String, CliError> {
         } => {
             let bars = match provider.as_str() {
                 "kraken" => {
-                    let cfg = KrakenConfig::from_env().map_err(|e| CliError::Provider(e.to_string()))?;
+                    let cfg =
+                        KrakenConfig::from_env().map_err(|e| CliError::Provider(e.to_string()))?;
                     let client = KrakenClient::new(cfg);
-                    client.fetch_bars(&symbol, &timeframe).map_err(|e| CliError::Provider(e.to_string()))?
+                    client
+                        .fetch_bars(&symbol, &timeframe)
+                        .map_err(|e| CliError::Provider(e.to_string()))?
                 }
                 "alpaca" => {
-                    let cfg = AlpacaConfig::from_env().map_err(|e| CliError::Provider(e.to_string()))?;
+                    let cfg =
+                        AlpacaConfig::from_env().map_err(|e| CliError::Provider(e.to_string()))?;
                     let client = AlpacaClient::new(cfg);
-                    client.fetch_bars(&symbol, &timeframe).map_err(|e| CliError::Provider(e.to_string()))?
+                    client
+                        .fetch_bars(&symbol, &timeframe)
+                        .map_err(|e| CliError::Provider(e.to_string()))?
                 }
                 "paper" => {
                     let cfg = PaperConfig::from_env();
                     let client = PaperClient::new(cfg);
-                    client.fetch_bars(&symbol, &timeframe).map_err(|e| CliError::Provider(e.to_string()))?
+                    client
+                        .fetch_bars(&symbol, &timeframe)
+                        .map_err(|e| CliError::Provider(e.to_string()))?
                 }
-                _ => return Err(CliError::Validation(format!("Unsupported provider: {}", provider))),
+                _ => {
+                    return Err(CliError::Validation(format!(
+                        "Unsupported provider: {}",
+                        provider
+                    )));
+                }
             };
 
             let series = BarSeries {
@@ -393,19 +402,29 @@ fn run(command: Commands) -> Result<String, CliError> {
 
             ok_envelope(analysis)
         }
-        Commands::GenerateSignals { input, strategy, history, risk, portfolio, analysis } => {
+        Commands::GenerateSignals {
+            input,
+            strategy,
+            history,
+            risk,
+            portfolio,
+            analysis,
+        } => {
             let raw = fs::read_to_string(&input)?;
-            let series: BarSeries = match serde_json::from_str::<ResponseEnvelope<BarSeries>>(&raw) {
-                Ok(envelope) => envelope.data.ok_or(CliError::Validation("Envelope has no data".to_string()))?,
-                Err(_) => serde_json::from_str::<BarSeries>(&raw)?
+            let series: BarSeries = match serde_json::from_str::<ResponseEnvelope<BarSeries>>(&raw)
+            {
+                Ok(envelope) => envelope
+                    .data
+                    .ok_or(CliError::Validation("Envelope has no data".to_string()))?,
+                Err(_) => serde_json::from_str::<BarSeries>(&raw)?,
             };
 
             let positions: Vec<contracts::Position> = if let Some(path) = portfolio {
                 let raw_pos = fs::read_to_string(&path)?;
                 // Handle envelope or raw list
                 match serde_json::from_str::<ResponseEnvelope<Vec<contracts::Position>>>(&raw_pos) {
-                     Ok(env) => env.data.unwrap_or_default(),
-                     Err(_) => serde_json::from_str(&raw_pos).unwrap_or_default(),
+                    Ok(env) => env.data.unwrap_or_default(),
+                    Err(_) => serde_json::from_str(&raw_pos).unwrap_or_default(),
                 }
             } else {
                 Vec::new()
@@ -413,7 +432,9 @@ fn run(command: Commands) -> Result<String, CliError> {
 
             let market_analysis: Option<contracts::MarketAnalysis> = if let Some(path) = analysis {
                 let raw_analysis = fs::read_to_string(&path)?;
-                match serde_json::from_str::<ResponseEnvelope<contracts::MarketAnalysis>>(&raw_analysis) {
+                match serde_json::from_str::<ResponseEnvelope<contracts::MarketAnalysis>>(
+                    &raw_analysis,
+                ) {
                     Ok(env) => env.data,
                     Err(_) => Some(serde_json::from_str(&raw_analysis)?),
                 }
@@ -426,123 +447,179 @@ fn run(command: Commands) -> Result<String, CliError> {
                 .build()
                 .map_err(|e| CliError::Provider(format!("Failed to create runtime: {}", e)))?;
 
-            let intents = rt.block_on(async {
-                signals::generate_signals(&series, &strategy, history.as_deref(), risk, &positions, market_analysis).await
-            }).map_err(|e| CliError::Validation(e.to_string()))?;
+            let intents = rt
+                .block_on(async {
+                    signals::generate_signals(
+                        &series,
+                        &strategy,
+                        history.as_deref(),
+                        risk,
+                        &positions,
+                        market_analysis,
+                    )
+                    .await
+                })
+                .map_err(|e| CliError::Validation(e.to_string()))?;
 
             ok_envelope(intents)
         }
         Commands::UpdateSignalHistory { input, provider } => {
             let count = match provider.as_str() {
                 "kraken" => {
-                    let cfg = KrakenConfig::from_env().map_err(|e| CliError::Provider(e.to_string()))?;
+                    let cfg =
+                        KrakenConfig::from_env().map_err(|e| CliError::Provider(e.to_string()))?;
                     let client = KrakenClient::new(cfg);
                     history::update_history(&input, |sym, tf| {
                         client.fetch_bars(sym, tf).map_err(|e| anyhow::anyhow!(e))
                     })
                 }
                 "alpaca" => {
-                    let cfg = AlpacaConfig::from_env().map_err(|e| CliError::Provider(e.to_string()))?;
+                    let cfg =
+                        AlpacaConfig::from_env().map_err(|e| CliError::Provider(e.to_string()))?;
                     let client = AlpacaClient::new(cfg);
                     history::update_history(&input, |sym, tf| {
-                         client.fetch_bars(sym, tf).map_err(|e| anyhow::anyhow!(e))
+                        client.fetch_bars(sym, tf).map_err(|e| anyhow::anyhow!(e))
                     })
                 }
                 "paper" => {
                     let cfg = PaperConfig::from_env();
                     let client = PaperClient::new(cfg);
                     history::update_history(&input, |sym, tf| {
-                         client.fetch_bars(sym, tf).map_err(|e| anyhow::anyhow!(e))
+                        client.fetch_bars(sym, tf).map_err(|e| anyhow::anyhow!(e))
                     })
                 }
-                _ => return Err(CliError::Validation(format!("Unsupported provider: {}", provider))),
+                _ => {
+                    return Err(CliError::Validation(format!(
+                        "Unsupported provider: {}",
+                        provider
+                    )));
+                }
             }
             .map_err(|e| CliError::Validation(e.to_string()))?;
 
             ok_envelope(json!({ "updated_count": count }))
         }
-        Commands::ScanMarket { provider, top_n, min_volatility, min_momentum } => {
+        Commands::ScanMarket {
+            provider,
+            top_n,
+            min_volatility,
+            min_momentum,
+        } => {
             let symbols = scan_market(&provider, top_n, min_volatility, min_momentum)?;
             ok_envelope(symbols)
         }
-        Commands::GetPositions { provider } => {
-            match provider.as_str() {
-                "kraken" => {
-                    let cfg = KrakenConfig::from_env().map_err(|e| CliError::Provider(e.to_string()))?;
-                    let client = KrakenClient::new(cfg);
-                    let positions = client.get_open_positions().map_err(|e| CliError::Provider(e.to_string()))?;
-                    ok_envelope(positions)
-                }
-                "alpaca" => {
-                    let cfg = AlpacaConfig::from_env().map_err(|e| CliError::Provider(e.to_string()))?;
-                    let client = AlpacaClient::new(cfg);
-                    let positions = client.get_open_positions().map_err(|e| CliError::Provider(e.to_string()))?;
-                    ok_envelope(positions)
-                }
-                "paper" => {
-                    let cfg = PaperConfig::from_env();
-                    let client = PaperClient::new(cfg);
-                    let positions = client.get_open_positions().map_err(|e| CliError::Provider(e.to_string()))?;
-                    ok_envelope(positions)
-                }
-                _ => Err(CliError::Validation(format!("Unsupported provider: {}", provider))),
+        Commands::GetPositions { provider } => match provider.as_str() {
+            "kraken" => {
+                let cfg =
+                    KrakenConfig::from_env().map_err(|e| CliError::Provider(e.to_string()))?;
+                let client = KrakenClient::new(cfg);
+                let positions = client
+                    .get_open_positions()
+                    .map_err(|e| CliError::Provider(e.to_string()))?;
+                ok_envelope(positions)
             }
-        }
-        Commands::GetOpenOrders { provider } => {
-            match provider.as_str() {
-                "kraken" => {
-                    let cfg = KrakenConfig::from_env().map_err(|e| CliError::Provider(e.to_string()))?;
-                    let client = KrakenClient::new(cfg);
-                    let orders = client.fetch_open_orders().map_err(|e| CliError::Provider(e.to_string()))?;
-                    ok_envelope(orders)
-                }
-                "alpaca" => {
-                    let cfg = AlpacaConfig::from_env().map_err(|e| CliError::Provider(e.to_string()))?;
-                    let client = AlpacaClient::new(cfg);
-                    let orders = client.fetch_open_orders().map_err(|e| CliError::Provider(e.to_string()))?;
-                    ok_envelope(orders)
-                }
-                "paper" => {
-                    let cfg = PaperConfig::from_env();
-                    let client = PaperClient::new(cfg);
-                    let orders = client.fetch_open_orders().map_err(|e| CliError::Provider(e.to_string()))?;
-                    ok_envelope(orders)
-                }
-                _ => Err(CliError::Validation(format!("Unsupported provider: {}", provider))),
+            "alpaca" => {
+                let cfg =
+                    AlpacaConfig::from_env().map_err(|e| CliError::Provider(e.to_string()))?;
+                let client = AlpacaClient::new(cfg);
+                let positions = client
+                    .get_open_positions()
+                    .map_err(|e| CliError::Provider(e.to_string()))?;
+                ok_envelope(positions)
             }
-        }
-        Commands::CancelOrder { provider, id } => {
-            match provider.as_str() {
-                "kraken" => {
-                    let cfg = KrakenConfig::from_env().map_err(|e| CliError::Provider(e.to_string()))?;
-                    let client = KrakenClient::new(cfg);
-                    client.cancel_order(&id).map_err(|e| CliError::Provider(e.to_string()))?;
-                    ok_envelope(json!({ "status": "canceled", "id": id }))
-                }
-                "alpaca" => {
-                    let cfg = AlpacaConfig::from_env().map_err(|e| CliError::Provider(e.to_string()))?;
-                    let client = AlpacaClient::new(cfg);
-                    client.cancel_order(&id).map_err(|e| CliError::Provider(e.to_string()))?;
-                    ok_envelope(json!({ "status": "canceled", "id": id }))
-                }
-                "paper" => {
-                    let cfg = PaperConfig::from_env();
-                    let client = PaperClient::new(cfg);
-                    client.cancel_order(&id).map_err(|e| CliError::Provider(e.to_string()))?;
-                    ok_envelope(json!({ "status": "canceled", "id": id }))
-                }
-                _ => Err(CliError::Validation(format!("Unsupported provider: {}", provider))),
+            "paper" => {
+                let cfg = PaperConfig::from_env();
+                let client = PaperClient::new(cfg);
+                let positions = client
+                    .get_open_positions()
+                    .map_err(|e| CliError::Provider(e.to_string()))?;
+                ok_envelope(positions)
             }
-        }
+            _ => Err(CliError::Validation(format!(
+                "Unsupported provider: {}",
+                provider
+            ))),
+        },
+        Commands::GetOpenOrders { provider } => match provider.as_str() {
+            "kraken" => {
+                let cfg =
+                    KrakenConfig::from_env().map_err(|e| CliError::Provider(e.to_string()))?;
+                let client = KrakenClient::new(cfg);
+                let orders = client
+                    .fetch_open_orders()
+                    .map_err(|e| CliError::Provider(e.to_string()))?;
+                ok_envelope(orders)
+            }
+            "alpaca" => {
+                let cfg =
+                    AlpacaConfig::from_env().map_err(|e| CliError::Provider(e.to_string()))?;
+                let client = AlpacaClient::new(cfg);
+                let orders = client
+                    .fetch_open_orders()
+                    .map_err(|e| CliError::Provider(e.to_string()))?;
+                ok_envelope(orders)
+            }
+            "paper" => {
+                let cfg = PaperConfig::from_env();
+                let client = PaperClient::new(cfg);
+                let orders = client
+                    .fetch_open_orders()
+                    .map_err(|e| CliError::Provider(e.to_string()))?;
+                ok_envelope(orders)
+            }
+            _ => Err(CliError::Validation(format!(
+                "Unsupported provider: {}",
+                provider
+            ))),
+        },
+        Commands::CancelOrder { provider, id } => match provider.as_str() {
+            "kraken" => {
+                let cfg =
+                    KrakenConfig::from_env().map_err(|e| CliError::Provider(e.to_string()))?;
+                let client = KrakenClient::new(cfg);
+                client
+                    .cancel_order(&id)
+                    .map_err(|e| CliError::Provider(e.to_string()))?;
+                ok_envelope(json!({ "status": "canceled", "id": id }))
+            }
+            "alpaca" => {
+                let cfg =
+                    AlpacaConfig::from_env().map_err(|e| CliError::Provider(e.to_string()))?;
+                let client = AlpacaClient::new(cfg);
+                client
+                    .cancel_order(&id)
+                    .map_err(|e| CliError::Provider(e.to_string()))?;
+                ok_envelope(json!({ "status": "canceled", "id": id }))
+            }
+            "paper" => {
+                let cfg = PaperConfig::from_env();
+                let client = PaperClient::new(cfg);
+                client
+                    .cancel_order(&id)
+                    .map_err(|e| CliError::Provider(e.to_string()))?;
+                ok_envelope(json!({ "status": "canceled", "id": id }))
+            }
+            _ => Err(CliError::Validation(format!(
+                "Unsupported provider: {}",
+                provider
+            ))),
+        },
     }
 }
 
-fn scan_market(provider: &str, top_n: usize, min_volatility: f64, min_momentum: f64) -> Result<Vec<String>, CliError> {
+fn scan_market(
+    provider: &str,
+    top_n: usize,
+    min_volatility: f64,
+    min_momentum: f64,
+) -> Result<Vec<String>, CliError> {
     match provider {
         "kraken" => {
             let cfg = KrakenConfig::from_env().map_err(|e| CliError::Provider(e.to_string()))?;
             let client = KrakenClient::new(cfg);
-            let tickers = client.fetch_tickers().map_err(|e| CliError::Provider(e.to_string()))?;
+            let tickers = client
+                .fetch_tickers()
+                .map_err(|e| CliError::Provider(e.to_string()))?;
 
             // Filter and Sort
             let mut candidates: Vec<(String, f64, f64)> = Vec::new(); // (Symbol, Volume, Volatility)
@@ -550,7 +627,9 @@ fn scan_market(provider: &str, top_n: usize, min_volatility: f64, min_momentum: 
             for (pair, info) in tickers {
                 // Filter for USD pairs (usually end in USD or ZUSD)
                 // Kraken pairs are weird: XXBTZUSD, XETHZUSD, ADAUSD
-                if !pair.ends_with("USD") { continue; }
+                if !pair.ends_with("USD") {
+                    continue;
+                }
 
                 // Parse volume (24h) - 'v' field [today, 24h]
                 let vol_str = info.v.get(1).unwrap_or(&"0".to_string()).clone();
@@ -569,12 +648,16 @@ fn scan_market(provider: &str, top_n: usize, min_volatility: f64, min_momentum: 
                 let open = open_str.parse::<f64>().unwrap_or(0.0);
                 let close = close_str.parse::<f64>().unwrap_or(0.0);
 
-                let momentum = if open > 0.0 { (close - open) / open } else { 0.0 };
+                let momentum = if open > 0.0 {
+                    (close - open) / open
+                } else {
+                    0.0
+                };
 
                 if low_24h > 0.0 {
                     let volatility = (high_24h - low_24h) / low_24h;
                     if volatility >= min_volatility && momentum >= min_momentum {
-                         candidates.push((pair, vol_24h, volatility));
+                        candidates.push((pair, vol_24h, volatility));
                     }
                 }
             }
@@ -582,21 +665,33 @@ fn scan_market(provider: &str, top_n: usize, min_volatility: f64, min_momentum: 
             // Sort by volume descending
             candidates.sort_by(|a, b| b.1.partial_cmp(&a.1).unwrap_or(std::cmp::Ordering::Equal));
 
-            let result: Vec<String> = candidates.into_iter().take(top_n).map(|(s, _, _)| s).collect();
+            let result: Vec<String> = candidates
+                .into_iter()
+                .take(top_n)
+                .map(|(s, _, _)| s)
+                .collect();
             Ok(result)
         }
         "alpaca" => {
             // Static watchlist for equities
             let watchlist = vec![
-                "SPY", "QQQ", "TQQQ", "AAPL", "NVDA", "TSLA", "AMZN", "META", "MSFT", "AMD", "GOOGL"
+                "SPY", "QQQ", "TQQQ", "AAPL", "NVDA", "TSLA", "AMZN", "META", "MSFT", "AMD",
+                "GOOGL",
             ];
             Ok(watchlist.into_iter().map(String::from).collect())
         }
         "paper" => {
             // Return static list for simulation
-            Ok(vec!["BTCUSD".to_string(), "ETHUSD".to_string(), "SPY".to_string()])
+            Ok(vec![
+                "BTCUSD".to_string(),
+                "ETHUSD".to_string(),
+                "SPY".to_string(),
+            ])
         }
-        _ => Err(CliError::Validation(format!("Unsupported provider for scanning: {}", provider))),
+        _ => Err(CliError::Validation(format!(
+            "Unsupported provider for scanning: {}",
+            provider
+        ))),
     }
 }
 

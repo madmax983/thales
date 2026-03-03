@@ -334,3 +334,35 @@ let (tenkan, kijun, span_a, span_b, chikou) = ichimoku::calculate(&df, tenkan, k
 ### Output
 - Returns `Result<(Series, Series, Series, Series, Series)>` representing `(tenkan_sen, kijun_sen, senkou_span_a, senkou_span_b, chikou_span)`.
 - The output Series are named accordingly.
+
+## Money Flow Index (MFI)
+
+**Name:** Money Flow Index (MFI)
+**Description:** A volume-weighted oscillator that measures buying and selling pressure. It is often referred to as a volume-weighted RSI.
+**Rationale:** Identifies overbought or oversold conditions while factoring in volume, which can provide stronger confirmation than price movement alone.
+
+### Implementation Details
+- Uses `rust_decimal::Decimal` for precision internally.
+- Computes Typical Price ((High + Low + Close) / 3) multiplied by Volume for Raw Money Flow.
+- Divides sum of positive money flow over a period by sum of negative money flow.
+- Returns a Polars `Series` of `f64` values (0-100).
+
+### Usage
+
+```rust
+use strategies::indicators::mfi;
+use polars::prelude::*;
+
+// Assuming df is a DataFrame with "high", "low", "close", "volume" columns
+let period = 14;
+let mfi_series = mfi::calculate(&df, period)?;
+```
+
+### Parameters
+- `data`: Reference to a Polars `DataFrame`. Must contain numeric columns named "high", "low", "close", and "volume".
+- `period`: The lookback period (typically 14).
+
+### Output
+- Returns `Result<Series>`.
+- The output Series is named "mfi".
+- The first `period` values will be null.

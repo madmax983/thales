@@ -13,9 +13,9 @@
 
 pub mod analysis;
 pub mod backtest;
+pub mod benchmark;
+pub mod history;
 pub mod rag;
 pub mod reporting;
 pub mod signals;
-pub mod history;
 pub mod strategy_factory;
-pub mod benchmark;

@@ -16,16 +16,16 @@
 //! - [`keltner_channel_breakout::KeltnerChannelBreakout`] - Trend following using Keltner Channels.
 //! - [`adx_momentum::AdxMomentum`] - Trend following using ADX and DMI.
 
-pub mod bollinger_bands;
-pub mod ema_crossover;
-pub mod indicators;
-pub mod rsi_mean_reversion;
-pub mod strategy;
-pub mod macd;
-pub mod supertrend;
-pub mod donchian_breakout;
-pub mod parabolic_sar;
-pub mod keltner_channel_breakout;
-pub mod stochastic_oscillator;
 pub mod adx_momentum;
+pub mod bollinger_bands;
+pub mod donchian_breakout;
+pub mod ema_crossover;
 pub mod ichimoku_cloud;
+pub mod indicators;
+pub mod keltner_channel_breakout;
+pub mod macd;
+pub mod parabolic_sar;
+pub mod rsi_mean_reversion;
+pub mod stochastic_oscillator;
+pub mod strategy;
+pub mod supertrend;
