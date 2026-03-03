@@ -7,7 +7,25 @@ use tempfile::NamedTempFile;
 
 #[test]
 fn fetch_market_data_returns_ok_envelope() {
+    let mut server = mockito::Server::new();
+    let _mock = server
+        .mock("GET", Matcher::Any)
+        .with_status(200)
+        .with_body(
+            serde_json::json!({
+                "bars": {
+                    "AAPL": []
+                }
+            })
+            .to_string(),
+        )
+        .create();
+
     let output = Command::new(assert_cmd::cargo::cargo_bin!("thales-cli"))
+        .env("ALPACA_API_KEY", "test")
+        .env("ALPACA_API_SECRET", "test")
+        .env("ALPACA_BASE_URL", server.url())
+        .env("ALPACA_DATA_URL", server.url())
         .args([
             "fetch-market-data",
             "--provider",
@@ -151,6 +169,7 @@ fn execute_intent_returns_provider_result() {
     let output = Command::new(assert_cmd::cargo::cargo_bin!("thales-cli"))
         .env("ALPACA_API_KEY", "k")
         .env("ALPACA_API_SECRET", "s")
+        .env("ALPACA_BASE_URL", server.url())
         .env("ALPACA_BASE_URL", server.url())
         .args([
             "execute-intent",

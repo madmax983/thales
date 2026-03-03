@@ -277,8 +277,9 @@ impl AlpacaClient {
             _ => return Err(AlpacaProviderError::InvalidTimeframe(timeframe.to_string())),
         };
 
-        // Hardcoded Data API URL (v2)
-        let url = "https://data.alpaca.markets/v2/stocks/bars";
+        // Check for overridden data URL in environment, otherwise use hardcoded
+        let url = std::env::var("ALPACA_DATA_URL")
+            .unwrap_or_else(|_| "https://data.alpaca.markets/v2/stocks/bars".to_string());
         let params = [
             ("symbols", symbol),
             ("timeframe", tf),
