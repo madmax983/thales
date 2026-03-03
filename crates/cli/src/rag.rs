@@ -1,23 +1,134 @@
+//! Retrieval-Augmented Generation (RAG) for historical trade context.
+//!
+//! This module provides functions to search and analyze a historical database
+//! of past trades. By retrieving past trades that occurred under similar market
+//! conditions (e.g., same regime, similar volatility), the trading agent can
+//! make more informed decisions about whether to execute a new trade.
+//!
+//! The core functionality revolves around [`find_similar_trades`], which matches
+//! a current [`MarketAnalysis`] against a JSON file of [`HistoryEntry`] records,
+//! and [`analyze_performance`], which calculates the win rate and average PnL
+//! of those similar trades.
+
 use anyhow::Result;
 use contracts::{MarketAnalysis, TradeIntent};
 use serde::{Deserialize, Serialize};
 use std::fs;
 use std::path::Path;
 
+/// A record of a past trade and the market context at the time it was generated.
+///
+/// This struct is used to build the historical database for the RAG system.
+/// It contains the original trade intent, the market analysis that led to it,
+/// and the final outcome (PnL) if the trade was completed.
+///
+/// # Examples
+///
+/// ```rust
+/// use contracts::{MarketAnalysis, TradeIntent};
+/// use thales_cli::rag::HistoryEntry;
+///
+/// let entry = HistoryEntry {
+///     intent: TradeIntent::default(),
+///     market_analysis: MarketAnalysis {
+///         symbol: "BTCUSD".to_string(),
+///         market: "crypto".to_string(),
+///         regime: "Trending Up".to_string(),
+///         sentiment: "Bullish".to_string(),
+///         patterns: vec![],
+///         key_levels: vec![],
+///         volatility: "Low".to_string(),
+///         atr: Some(100.0),
+///         research_summary: None,
+///         news_summary: None,
+///         recommendation: None,
+///         confidence: 0.8,
+///         timestamp_unix_ms: 1622505600000,
+///     },
+///     outcome: Some(0.05), // 5% profit
+/// };
+/// ```
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct HistoryEntry {
+    /// The trade intent that was generated.
     pub intent: TradeIntent,
+    /// The market conditions at the time the intent was generated.
     pub market_analysis: MarketAnalysis,
-    pub outcome: Option<f64>, // PnL or score, optional
+    /// The final outcome of the trade, typically expressed as a fractional PnL (e.g., 0.05 for 5% profit).
+    /// If `None`, the trade is still open or the outcome is unknown.
+    pub outcome: Option<f64>,
 }
 
+/// A summary of the performance of a set of historical trades.
+///
+/// This is typically used to aggregate the outcomes of trades found via [`find_similar_trades`].
 #[derive(Debug, Clone)]
 pub struct HistoricalPerformance {
+    /// The number of completed trades analyzed.
     pub count: usize,
+    /// The percentage of trades that were profitable (0.0 to 100.0).
     pub win_rate: f64,
+    /// The average outcome (PnL) of the trades.
     pub avg_pnl: f64,
 }
 
+/// Analyzes a slice of historical entries to determine their aggregate performance.
+///
+/// Only entries with a `Some` outcome are considered. If no entries have an outcome,
+/// it returns a zeroed [`HistoricalPerformance`] struct.
+///
+/// # Examples
+///
+/// ```rust
+/// use contracts::{MarketAnalysis, TradeIntent};
+/// use thales_cli::rag::{HistoryEntry, analyze_performance};
+///
+/// let entries = vec![
+///     HistoryEntry {
+///         intent: TradeIntent::default(),
+///         market_analysis: MarketAnalysis {
+///             symbol: "BTCUSD".to_string(),
+///             market: "crypto".to_string(),
+///             regime: "Trending Up".to_string(),
+///             sentiment: "Bullish".to_string(),
+///             patterns: vec![],
+///             key_levels: vec![],
+///             volatility: "Low".to_string(),
+///             atr: Some(100.0),
+///             research_summary: None,
+///             news_summary: None,
+///             recommendation: None,
+///             confidence: 0.8,
+///             timestamp_unix_ms: 1622505600000,
+///         },
+///         outcome: Some(0.10), // Win
+///     },
+///     HistoryEntry {
+///         intent: TradeIntent::default(),
+///         market_analysis: MarketAnalysis {
+///             symbol: "BTCUSD".to_string(),
+///             market: "crypto".to_string(),
+///             regime: "Trending Up".to_string(),
+///             sentiment: "Bullish".to_string(),
+///             patterns: vec![],
+///             key_levels: vec![],
+///             volatility: "Low".to_string(),
+///             atr: Some(100.0),
+///             research_summary: None,
+///             news_summary: None,
+///             recommendation: None,
+///             confidence: 0.8,
+///             timestamp_unix_ms: 1622505600000,
+///         },
+///         outcome: Some(-0.05), // Loss
+///     }
+/// ];
+///
+/// let perf = analyze_performance(&entries);
+/// assert_eq!(perf.count, 2);
+/// assert_eq!(perf.win_rate, 50.0);
+/// assert_eq!(perf.avg_pnl, 0.025); // (0.10 - 0.05) / 2
+/// ```
 pub fn analyze_performance(entries: &[HistoryEntry]) -> HistoricalPerformance {
     // Only analyze completed trades (where outcome is known)
     let completed: Vec<&HistoryEntry> = entries.iter().filter(|e| e.outcome.is_some()).collect();
@@ -49,6 +160,61 @@ pub fn analyze_performance(entries: &[HistoryEntry]) -> HistoricalPerformance {
     }
 }
 
+/// Finds past trades that occurred in market conditions similar to the current analysis.
+///
+/// It reads a JSON file containing an array of [`HistoryEntry`] records and filters them
+/// based on the market, regime, and volatility of the provided `current_analysis`.
+/// It can optionally filter by a specific trading strategy.
+///
+/// # Arguments
+///
+/// * `current_analysis` - The current market conditions to match against.
+/// * `history_path` - The path to the JSON file containing the history. If the file doesn't exist, it returns an empty vector.
+/// * `strategy_filter` - An optional strategy name to further filter the results (e.g., "BollingerBands").
+///
+/// # Examples
+///
+/// ```rust
+/// use std::io::Write;
+/// use tempfile::NamedTempFile;
+/// use contracts::MarketAnalysis;
+/// use thales_cli::rag::{HistoryEntry, find_similar_trades};
+///
+/// # fn main() -> anyhow::Result<()> {
+/// // 1. Create a dummy history file
+/// let mut file = NamedTempFile::new()?;
+/// let history = r#"[
+///     {
+///         "intent": { "intent_id": "1", "market": "crypto", "symbol": "BTCUSD", "side": "buy", "size_hint": "1", "confidence": 0.8, "horizon": "1d", "rationale": "", "invalidation": "", "schema_version": "v0", "order_type": "market", "time_in_force": "day", "strategy": "SMA" },
+///         "market_analysis": { "symbol": "BTCUSD", "market": "crypto", "regime": "Trending Up", "sentiment": "Bullish", "patterns": [], "key_levels": [], "volatility": "Low", "confidence": 0.9, "timestamp_unix_ms": 1000 },
+///         "outcome": 0.05
+///     }
+/// ]"#;
+/// write!(file, "{}", history)?;
+///
+/// // 2. Create our current analysis to match
+/// let current_analysis = MarketAnalysis {
+///     symbol: "ETHUSD".to_string(), // Different symbol, but...
+///     market: "crypto".to_string(), // Same market
+///     regime: "Trending Up".to_string(), // Same regime
+///     sentiment: "Bullish".to_string(),
+///     patterns: vec![],
+///     key_levels: vec![],
+///     volatility: "Low".to_string(), // Same volatility
+///     atr: None,
+///     research_summary: None,
+///     news_summary: None,
+///     recommendation: None,
+///     confidence: 0.8,
+///     timestamp_unix_ms: 2000,
+/// };
+///
+/// // 3. Find similar trades
+/// let similar = find_similar_trades(&current_analysis, file.path(), Some("SMA"))?;
+/// assert_eq!(similar.len(), 1);
+/// # Ok(())
+/// # }
+/// ```
 pub fn find_similar_trades(
     current_analysis: &MarketAnalysis,
     history_path: &Path,
@@ -113,6 +279,38 @@ pub fn find_similar_trades(
     Ok(similar_trades)
 }
 
+/// Counts the number of signals generated for a specific symbol on a given day.
+///
+/// This is used to enforce daily signal limits (e.g., maximum 3 trades per symbol per day)
+/// to prevent overtrading during choppy conditions.
+///
+/// # Arguments
+///
+/// * `symbol` - The symbol to count signals for.
+/// * `history_path` - Path to the historical trade database.
+/// * `reference_ts` - The current timestamp in milliseconds to determine the "day".
+///
+/// # Examples
+///
+/// ```rust
+/// use std::io::Write;
+/// use tempfile::NamedTempFile;
+/// use thales_cli::rag::count_todays_signals;
+///
+/// # fn main() -> anyhow::Result<()> {
+/// let mut file = NamedTempFile::new()?;
+/// // Two signals on day 0 (timestamp < 86400000)
+/// let history = r#"[
+///     { "intent": { "intent_id": "1", "market": "crypto", "symbol": "BTCUSD", "side": "buy", "size_hint": "1", "confidence": 0.8, "horizon": "1d", "rationale": "", "invalidation": "", "schema_version": "v0", "order_type": "market", "time_in_force": "day", "strategy": "" }, "market_analysis": { "symbol": "BTCUSD", "market": "crypto", "regime": "", "sentiment": "", "patterns": [], "key_levels": [], "volatility": "", "confidence": 0.0, "timestamp_unix_ms": 1000 }, "outcome": null },
+///     { "intent": { "intent_id": "2", "market": "crypto", "symbol": "BTCUSD", "side": "buy", "size_hint": "1", "confidence": 0.8, "horizon": "1d", "rationale": "", "invalidation": "", "schema_version": "v0", "order_type": "market", "time_in_force": "day", "strategy": "" }, "market_analysis": { "symbol": "BTCUSD", "market": "crypto", "regime": "", "sentiment": "", "patterns": [], "key_levels": [], "volatility": "", "confidence": 0.0, "timestamp_unix_ms": 2000 }, "outcome": null }
+/// ]"#;
+/// write!(file, "{}", history)?;
+///
+/// let count = count_todays_signals("BTCUSD", file.path(), 3000)?;
+/// assert_eq!(count, 2);
+/// # Ok(())
+/// # }
+/// ```
 pub fn count_todays_signals(symbol: &str, history_path: &Path, reference_ts: i64) -> Result<usize> {
     if !history_path.exists() {
         return Ok(0);
@@ -138,6 +336,42 @@ pub fn count_todays_signals(symbol: &str, history_path: &Path, reference_ts: i64
     Ok(count)
 }
 
+/// Generates a human-readable summary of historical performance.
+///
+/// This string is typically appended to the rationale of a new trade intent to provide
+/// context on how similar trades have performed in the past.
+///
+/// # Examples
+///
+/// ```rust
+/// use contracts::{MarketAnalysis, TradeIntent};
+/// use thales_cli::rag::{HistoryEntry, summarize_history};
+///
+/// let entries = vec![
+///     HistoryEntry {
+///         intent: TradeIntent::default(),
+///         market_analysis: MarketAnalysis {
+///             symbol: "BTCUSD".to_string(),
+///             market: "crypto".to_string(),
+///             regime: "Trending Up".to_string(),
+///             sentiment: "Bullish".to_string(),
+///             patterns: vec![],
+///             key_levels: vec![],
+///             volatility: "Low".to_string(),
+///             atr: Some(100.0),
+///             research_summary: None,
+///             news_summary: None,
+///             recommendation: None,
+///             confidence: 0.8,
+///             timestamp_unix_ms: 1622505600000,
+///         },
+///         outcome: Some(0.10),
+///     }
+/// ];
+///
+/// let summary = summarize_history(&entries, "BTCUSD");
+/// assert_eq!(summary, "Found 1 similar past trades (1 on same symbol). Win Rate: 100.0%. Avg Return: 10.00%");
+/// ```
 pub fn summarize_history(entries: &[HistoryEntry], current_symbol: &str) -> String {
     let perf = analyze_performance(entries);
 
