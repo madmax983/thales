@@ -79,6 +79,24 @@ cargo run -p thales-cli -- generate-signals \
   --strategy BollingerBandsMeanReversion > signals.json
 ```
 
+**Output with Warnings (Example):**
+```json
+{
+  "status": "ok",
+  "errors": [],
+  "warnings": ["No signals generated for the latest timestamp. (Found 5 signals in historical data)"],
+  "data": []
+}
+```
+
+### Raw Output (`--raw`)
+
+To output only the `data` content (useful for piping to other tools like `jq`), use the global `--raw` flag:
+
+```bash
+cargo run -p thales-cli -- --raw fetch-market-data ...
+```
+
 ### 5. Execute Trades
 Execute the generated trade intents.
 

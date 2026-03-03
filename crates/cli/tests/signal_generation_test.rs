@@ -85,7 +85,7 @@ async fn test_signal_generation_limit() {
 
     // 3. Generate Signals
     let positions = vec![];
-    let intents = signals::generate_signals(
+    let (intents, _) = signals::generate_signals(
         &series,
         "BollingerBands",
         Some(&history_path),
@@ -134,7 +134,7 @@ async fn test_signal_generation_success() {
 
     // 3. Generate Signals
     let positions = vec![];
-    let intents = signals::generate_signals(
+    let (intents, _) = signals::generate_signals(
         &series,
         "BollingerBands",
         Some(&history_path),
@@ -199,7 +199,7 @@ async fn test_rag_context() {
 
     // 3. Generate Signals
     let positions = vec![];
-    let intents = signals::generate_signals(
+    let (intents, _) = signals::generate_signals(
         &series,
         "BollingerBands",
         Some(&history_path),
