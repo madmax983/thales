@@ -12,6 +12,8 @@ use thiserror::Error;
 use thales_cli::{analysis, backtest, benchmark, history, optimizer, rag, reporting, signals};
 
 #[cfg(feature = "nova")]
+use thales_cli::entropy;
+#[cfg(feature = "nova")]
 use thales_cli::markov_chain;
 #[cfg(feature = "nova")]
 use thales_cli::monte_carlo;
@@ -199,6 +201,15 @@ enum Commands {
         input: PathBuf,
         #[arg(long, default_value = "0.01")]
         state_threshold_pct: f64,
+        #[arg(long)]
+        visualize: bool,
+    },
+    #[cfg(feature = "nova")]
+    AnalyzeEntropy {
+        #[arg(long)]
+        input: PathBuf,
+        #[arg(long, default_value = "20")]
+        num_bins: usize,
         #[arg(long)]
         visualize: bool,
     },
@@ -891,6 +902,32 @@ fn run(command: Commands) -> Result<String, CliError> {
 
             if visualize {
                 markov_chain::print_ascii_markov_chain(&report);
+            }
+
+            ok_envelope(report, vec![])
+        }
+        #[cfg(feature = "nova")]
+        Commands::AnalyzeEntropy {
+            input,
+            num_bins,
+            visualize,
+        } => {
+            let raw = fs::read_to_string(&input)?;
+            let series: BarSeries = match serde_json::from_str::<ResponseEnvelope<BarSeries>>(&raw)
+            {
+                Ok(envelope) => envelope
+                    .data
+                    .ok_or(CliError::Validation("Envelope has no data".to_string()))?,
+                Err(_) => serde_json::from_str::<BarSeries>(&raw)?,
+            };
+
+            let config = entropy::EntropyConfig { num_bins };
+
+            let report = entropy::analyze_entropy(&series, config)
+                .map_err(|e| CliError::Validation(e.to_string()))?;
+
+            if visualize {
+                entropy::print_ascii_entropy(&report);
             }
 
             ok_envelope(report, vec![])
