@@ -335,6 +335,39 @@ let (tenkan, kijun, span_a, span_b, chikou) = ichimoku::calculate(&df, tenkan, k
 - Returns `Result<(Series, Series, Series, Series, Series)>` representing `(tenkan_sen, kijun_sen, senkou_span_a, senkou_span_b, chikou_span)`.
 - The output Series are named accordingly.
 
+## Chaikin Money Flow (CMF)
+
+**Name:** Chaikin Money Flow (CMF)
+**Description:** A volume-weighted average of accumulation and distribution over a specified period. It combines price and volume to measure buying and selling pressure.
+**Rationale:** CMF helps identify institutional accumulation or distribution. A value above 0 indicates accumulation (buying pressure), while a value below 0 indicates distribution (selling pressure).
+
+### Implementation Details
+- Uses `rust_decimal::Decimal` for precision.
+- Calculates Money Flow Multiplier based on the relationship between close, high, and low.
+- Calculates Money Flow Volume by multiplying the Multiplier with Volume.
+- Uses a rolling sum window for both Money Flow Volume and Volume over the lookback period.
+- Returns a Polars `Series` of `f64` values ranging from -1.0 to 1.0.
+
+### Usage
+
+```rust
+use strategies::indicators::cmf;
+use polars::prelude::*;
+
+// Assuming df is a DataFrame with "high", "low", "close", "volume" columns
+let period = 20;
+let cmf_series = cmf::calculate(&df, period)?;
+```
+
+### Parameters
+- `data`: Reference to a Polars `DataFrame`. Must contain numeric columns "high", "low", "close", "volume".
+- `period`: The lookback period (typically 20 or 21).
+
+### Output
+- Returns `Result<Series>`.
+- The output Series is named "cmf".
+- The first `period - 1` values will be null.
+
 ## On-Balance Volume (OBV)
 
 **Name:** On-Balance Volume (OBV)
