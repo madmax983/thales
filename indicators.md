@@ -426,3 +426,38 @@ let (vi_plus, vi_minus) = vortex::calculate(&df, period)?;
 - Returns `Result<(Series, Series)>` representing `(vi_plus, vi_minus)`.
 - The output Series are named "vi_plus" and "vi_minus".
 - The first `period - 1` values will be null.
+
+## Kaufman's Adaptive Moving Average (KAMA)
+
+**Name:** KAMA
+**Description:** Calculates an adaptive moving average that adjusts its sensitivity based on market volatility.
+**Rationale:** KAMA smooths out noise when the market is trendless, but becomes more sensitive to price changes when the market is trending.
+
+### Implementation Details
+- Uses `rust_decimal::Decimal` for all internal calculations to ensure exact precision.
+- Returns a Polars `Series` of `Decimal` values encoded as `String` (due to object support constraints).
+- Implements the Efficiency Ratio (ER) and Smoothing Constant (SC) for adaptability.
+
+### Usage
+
+```rust
+use strategies::indicators::kama;
+use polars::prelude::*;
+
+// Assuming df is a DataFrame with a "close" column
+let period = 10;
+let fast_ema_period = 2;
+let slow_ema_period = 30;
+let kama_series = kama::calculate(&df, period, fast_ema_period, slow_ema_period)?;
+```
+
+### Parameters
+- `data`: Reference to a Polars `DataFrame`. Must contain a numeric column named "close".
+- `period`: Efficiency Ratio lookback period (typically 10).
+- `fast_ema_period`: Fast EMA smoothing period (typically 2).
+- `slow_ema_period`: Slow EMA smoothing period (typically 30).
+
+### Output
+- Returns `Result<Series>`.
+- The output Series is named "kama".
+- The first `period - 1` values will be null.
