@@ -11,7 +11,7 @@ fn fetch_market_data_returns_ok_envelope() {
         .args([
             "fetch-market-data",
             "--provider",
-            "alpaca",
+            "paper",
             "--symbol",
             "AAPL",
             "--timeframe",
