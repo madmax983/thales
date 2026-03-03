@@ -1243,7 +1243,7 @@ def main():
     manage_orders()
 
     # 0b. Archive Stale Signals
-    archive_signals(days=2)
+    archive_signals(days=1)
 
     # 0c. Update Signal History
     if os.environ.get("SIMULATION") == "true":
