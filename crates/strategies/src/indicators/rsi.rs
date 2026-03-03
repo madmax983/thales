@@ -101,6 +101,7 @@ pub fn calculate(data: &DataFrame, period: usize) -> Result<Series> {
     rsi_values[period] = first_rsi.to_f64();
 
     // Loop for the rest
+    #[allow(clippy::needless_range_loop)]
     for i in (period + 1)..close.len() {
         let curr_opt = close.get(i);
         let prev_opt = close.get(i - 1);

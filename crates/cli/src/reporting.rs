@@ -149,6 +149,7 @@ fn extract_regime_from_block(block: &str) -> Option<String> {
         // Case 2: "Regime Unchanged (Trending Up)"
         if trimmed.starts_with("Regime Unchanged (") {
             let inner = trimmed.trim_start_matches("Regime Unchanged (");
+            #[allow(clippy::manual_strip)]
             if inner.ends_with(')') {
                 return Some(inner[..inner.len() - 1].to_string());
             }
@@ -159,6 +160,7 @@ fn extract_regime_from_block(block: &str) -> Option<String> {
             && let Some(pos) = trimmed.rfind("Current: ")
         {
             let rest = &trimmed[pos + 9..];
+            #[allow(clippy::manual_strip)]
             if rest.ends_with(')') {
                 return Some(rest[..rest.len() - 1].to_string());
             }

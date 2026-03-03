@@ -1467,3 +1467,78 @@ pub struct VortexBreakoutConfig {
 ### Performance
 - Vortex Indicator calculation is O(N).
 - Signal generation loop is O(N).
+
+---
+
+# Trading Strategy: SMA Crossover
+
+## Strategy Specification
+
+**Name:** SmaCrossover
+
+**Description:** A trend-following strategy that uses two Simple Moving Averages (SMA) with different lookback periods (Short and Long). It generates buy signals when the Short SMA crosses above the Long SMA, and sell signals when the Short SMA crosses below the Long SMA.
+
+**Rationale:** SMAs smooth out price data to create a trend-following indicator. A crossover of a faster SMA above a slower SMA signals an uptrend, filtering out the noise associated with EMAs.
+
+## Requirements
+
+### Implementation Details
+- Uses Polars for data analysis.
+- Implements the `Strategy` trait in Rust.
+- Uses `sma` indicator for calculation.
+
+### Strategy Type
+Trend Following
+
+### Entry Conditions
+- **Long Entry (Buy):** Short SMA > Long SMA (and Short SMA was <= Long SMA in previous bar).
+
+### Exit Conditions
+- **Long Exit (Sell):** Short SMA < Long SMA.
+- **Stop Loss:** Close Price <= Entry Price * (1 - `stop_loss_pct`).
+
+### Position Sizing
+- **Size Hint:** "100" (fixed units) or "max" (for exits).
+
+## Code Pattern
+
+```rust
+use crate::strategy::{Strategy, StrategyConfig, Signal, SignalType};
+use crate::indicators::sma;
+use polars::prelude::*;
+use async_trait::async_trait;
+use anyhow::Result;
+
+pub struct SmaCrossover {
+    config: SmaCrossoverConfig,
+}
+
+#[derive(Debug, Clone, serde::Deserialize)]
+pub struct SmaCrossoverConfig {
+    pub short_window: usize,
+    pub long_window: usize,
+    pub stop_loss_pct: f64,
+    pub atr_period: usize,
+    pub atr_mult: f64,
+    pub symbol: String,
+}
+```
+
+## Critical Considerations
+
+### Risk Management Integration
+- **Stop Loss:** Explicitly checks if current price drops below a percentage of the entry price. This is crucial for limiting downside risk in false breakouts.
+- **Statefulness:** The strategy tracks simulated position state during signal generation to correctly apply stop-loss logic based on the specific entry price.
+
+### Backtesting Requirements
+- Accepts `DataFrame` with historical data.
+- Signal generation mimics real-time execution by iterating chronologically and updating state.
+- **Expected Metrics**:
+  - **Win Rate**: ~40-45% (Typical for trend following strategies).
+  - **Sharpe Ratio**: ~0.8 - 1.2 (Depending on trend strength and holding periods).
+  - **Max Drawdown**: ~15-20% (Due to whipsaws in ranging markets).
+
+### Performance
+- SMA calculation is O(N).
+- Signal generation loop is O(N).
+- Uses `Vec<Option<f64>>` for efficient indexed access during iteration.

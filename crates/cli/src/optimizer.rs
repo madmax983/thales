@@ -45,7 +45,9 @@ enum GeneValue {
 }
 
 impl GeneValue {
-    fn to_json(&self) -> Value {
+    #[allow(clippy::wrong_self_convention)]
+    #[allow(clippy::wrong_self_convention)]
+    fn to_json(self) -> Value {
         match self {
             GeneValue::Int(v) => serde_json::json!(v),
             GeneValue::Float(v) => serde_json::json!(v),

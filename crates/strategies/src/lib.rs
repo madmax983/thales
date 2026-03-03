@@ -37,6 +37,7 @@ pub mod money_flow_index;
 pub mod obv_trend;
 pub mod parabolic_sar;
 pub mod rsi_mean_reversion;
+pub mod sma_crossover;
 pub mod stochastic_oscillator;
 pub mod strategy;
 pub mod supertrend;

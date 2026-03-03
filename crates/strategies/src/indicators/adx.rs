@@ -223,6 +223,7 @@ pub fn calculate(data: &DataFrame, period: usize) -> Result<(Series, Series, Ser
     let mut dx_sum = Decimal::ZERO;
     let mut valid_dx_count = 0;
 
+    #[allow(clippy::needless_range_loop)]
     for i in dx_start_idx..(dx_start_idx + period) {
         if let Some(val) = dx_vec[i] {
             dx_sum += val;

@@ -38,6 +38,7 @@ TREND_FOLLOWING_STRATEGIES = {
     "CciMomentum",
     "ObvTrendFollowing",
     "AwesomeOscillator",
+    "SmaCrossover",
     "VwmaCrossover",
     "VortexBreakout",
 }
@@ -119,6 +120,8 @@ def get_active_strategies():
         strategies.append("BollingerBands")
     if "EmaCrossover" in content:
         strategies.append("EmaCrossover")
+    if "SmaCrossover" in content:
+        strategies.append("SmaCrossover")
     if "RsiMeanReversion" in content:
         strategies.append("RsiMeanReversion")
     if "Macd" in content:

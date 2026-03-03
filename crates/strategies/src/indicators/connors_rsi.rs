@@ -115,6 +115,7 @@ pub fn calculate(
     // Ideally O(N) sliding window, but O(N * Lookback) is acceptable here.
     // Lookback = 100.
 
+    #[allow(clippy::needless_range_loop)]
     for i in 0..close.len() {
         if i < rank_lookback {
             percent_ranks.push(None);
@@ -134,6 +135,7 @@ pub fn calculate(
             let mut count_lt = 0;
             let mut count_total = 0;
 
+            #[allow(clippy::needless_range_loop)]
             for j in start_idx..end_idx {
                 if let Some(ret) = returns[j] {
                     count_total += 1;
@@ -156,6 +158,7 @@ pub fn calculate(
     // 4. Combine: (RSI + RSI(Streak) + PercentRank) / 3
     let mut crsi_values = Vec::with_capacity(close.len());
 
+    #[allow(clippy::needless_range_loop)]
     for i in 0..close.len() {
         let rsi_val = rsi_arr.get(i);
         let streak_rsi_val = streak_rsi_arr.get(i);

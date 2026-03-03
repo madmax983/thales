@@ -1,6 +1,7 @@
 use anyhow::{anyhow, Result};
 use polars::prelude::*;
 
+#[allow(clippy::type_complexity)]
 pub fn parabolic_sar(
     high: &Series,
     low: &Series,

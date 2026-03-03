@@ -118,6 +118,7 @@ pub fn calculate(data: &DataFrame, period: usize) -> Result<Series> {
     atr_values[period - 1] = Some(prev_atr.to_f64().unwrap_or(0.0));
 
     // Calculate remaining ATRs using Wilder's Smoothing
+    #[allow(clippy::needless_range_loop)]
     for i in period..len {
         let h = Decimal::from_f64_retain(high.get(i).unwrap_or(f64::NAN)).unwrap_or(Decimal::ZERO);
         let l = Decimal::from_f64_retain(low.get(i).unwrap_or(f64::NAN)).unwrap_or(Decimal::ZERO);
