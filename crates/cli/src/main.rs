@@ -19,6 +19,8 @@ use thales_cli::volume_profile;
 #[derive(Debug, Parser)]
 #[command(name = "thales-cli", version, about = "Agent trading toolkit CLI")]
 struct Cli {
+    #[arg(long, global = true)]
+    raw: bool,
     #[command(subcommand)]
     command: Commands,
 }
@@ -195,7 +197,7 @@ enum Commands {
 
 fn main() {
     let cli = Cli::parse();
-    match run(cli.command) {
+    match run(cli.command, cli.raw) {
         Ok(output) => {
             println!("{output}");
         }
@@ -206,7 +208,7 @@ fn main() {
     }
 }
 
-fn run(command: Commands) -> Result<String, CliError> {
+fn run(command: Commands, is_raw: bool) -> Result<String, CliError> {
     match command {
         Commands::Backtest {
             input,
@@ -237,7 +239,7 @@ fn run(command: Commands) -> Result<String, CliError> {
                 .block_on(async { backtest::run_backtest(&series, &strategy, config).await })
                 .map_err(|e| CliError::Validation(e.to_string()))?;
 
-            ok_envelope(result, vec![])
+            ok_envelope(result, vec![], is_raw)
         }
         Commands::Benchmark {
             input,
@@ -269,7 +271,7 @@ fn run(command: Commands) -> Result<String, CliError> {
                 .block_on(async { benchmark::run_benchmark(&series, config).await })
                 .map_err(|e| CliError::Validation(e.to_string()))?;
 
-            ok_envelope(result, vec![])
+            ok_envelope(result, vec![], is_raw)
         }
         Commands::FetchMarketData {
             provider,
@@ -312,7 +314,7 @@ fn run(command: Commands) -> Result<String, CliError> {
                 schema_version: "v0".to_string(),
                 bars,
             };
-            ok_envelope(series, vec![])
+            ok_envelope(series, vec![], is_raw)
         }
         Commands::NormalizeBars { input } => {
             let raw = fs::read_to_string(&input)?;
@@ -324,7 +326,7 @@ fn run(command: Commands) -> Result<String, CliError> {
                     Err(_) => serde_json::from_str::<BarSeries>(&raw)?,
                 };
             series.bars.sort_by_key(|bar| bar.timestamp_unix_ms);
-            ok_envelope(series, vec![])
+            ok_envelope(series, vec![], is_raw)
         }
         Commands::GenerateTradeIntent {
             market,
@@ -360,13 +362,13 @@ fn run(command: Commands) -> Result<String, CliError> {
                 execution_algo,
                 strategy,
             };
-            ok_envelope(intent, vec![])
+            ok_envelope(intent, vec![], is_raw)
         }
         Commands::ValidateIntent { input } => {
             let intent: TradeIntent = read_json_file(&input)?;
             let errors = validate_intent(&intent);
             if errors.is_empty() {
-                ok_envelope(json!({ "valid": true }), vec![])
+                ok_envelope(json!({ "valid": true }), vec![], is_raw)
             } else {
                 Err(CliError::Validation(errors.join("; ")))
             }
@@ -395,7 +397,7 @@ fn run(command: Commands) -> Result<String, CliError> {
                 results.push(result);
             }
 
-            ok_envelope(results, vec![])
+            ok_envelope(results, vec![], is_raw)
         }
         Commands::AnalyzeMarket {
             input,
@@ -455,7 +457,7 @@ fn run(command: Commands) -> Result<String, CliError> {
                 }
             }
 
-            ok_envelope(analysis, vec![])
+            ok_envelope(analysis, vec![], is_raw)
         }
         Commands::GenerateSignals {
             input,
@@ -521,7 +523,7 @@ fn run(command: Commands) -> Result<String, CliError> {
                 warnings.push("No signals triggered. Strategies only generate signals if the condition is met on the latest available candle.".to_string());
             }
 
-            ok_envelope(intents, warnings)
+            ok_envelope(intents, warnings, is_raw)
         }
         Commands::UpdateSignalHistory { input, provider } => {
             let count = match provider.as_str() {
@@ -557,7 +559,7 @@ fn run(command: Commands) -> Result<String, CliError> {
             }
             .map_err(|e| CliError::Validation(e.to_string()))?;
 
-            ok_envelope(json!({ "updated_count": count }), vec![])
+            ok_envelope(json!({ "updated_count": count }), vec![], is_raw)
         }
         Commands::ScanMarket {
             provider,
@@ -566,7 +568,7 @@ fn run(command: Commands) -> Result<String, CliError> {
             min_momentum,
         } => {
             let symbols = scan_market(&provider, top_n, min_volatility, min_momentum)?;
-            ok_envelope(symbols, vec![])
+            ok_envelope(symbols, vec![], is_raw)
         }
         Commands::GetPositions { provider } => match provider.as_str() {
             "kraken" => {
@@ -576,7 +578,7 @@ fn run(command: Commands) -> Result<String, CliError> {
                 let positions = client
                     .get_open_positions()
                     .map_err(|e| CliError::Provider(e.to_string()))?;
-                ok_envelope(positions, vec![])
+                ok_envelope(positions, vec![], is_raw)
             }
             "alpaca" => {
                 let cfg =
@@ -585,7 +587,7 @@ fn run(command: Commands) -> Result<String, CliError> {
                 let positions = client
                     .get_open_positions()
                     .map_err(|e| CliError::Provider(e.to_string()))?;
-                ok_envelope(positions, vec![])
+                ok_envelope(positions, vec![], is_raw)
             }
             "paper" => {
                 let cfg = PaperConfig::from_env();
@@ -593,7 +595,7 @@ fn run(command: Commands) -> Result<String, CliError> {
                 let positions = client
                     .get_open_positions()
                     .map_err(|e| CliError::Provider(e.to_string()))?;
-                ok_envelope(positions, vec![])
+                ok_envelope(positions, vec![], is_raw)
             }
             _ => Err(CliError::Validation(format!(
                 "Unsupported provider: {}",
@@ -611,7 +613,7 @@ fn run(command: Commands) -> Result<String, CliError> {
                 let (currency, amount) = client
                     .get_buying_power_for_symbol(&symbol)
                     .map_err(|e| CliError::Provider(e.to_string()))?;
-                ok_envelope(json!({ "currency": currency, "amount": amount }), vec![])
+                ok_envelope(json!({ "currency": currency, "amount": amount }), vec![], is_raw)
             }
             "alpaca" => {
                 let cfg =
@@ -620,7 +622,7 @@ fn run(command: Commands) -> Result<String, CliError> {
                 let amount = client
                     .get_buying_power()
                     .map_err(|e| CliError::Provider(e.to_string()))?;
-                ok_envelope(json!({ "currency": "USD", "amount": amount }), vec![])
+                ok_envelope(json!({ "currency": "USD", "amount": amount }), vec![], is_raw)
             }
             "paper" => {
                 let cfg = PaperConfig::from_env();
@@ -628,7 +630,7 @@ fn run(command: Commands) -> Result<String, CliError> {
                 let amount = client
                     .get_buying_power()
                     .map_err(|e| CliError::Provider(e.to_string()))?;
-                ok_envelope(json!({ "currency": "USD", "amount": amount }), vec![])
+                ok_envelope(json!({ "currency": "USD", "amount": amount }), vec![], is_raw)
             }
             _ => Err(CliError::Validation(format!(
                 "Unsupported provider: {}",
@@ -643,7 +645,7 @@ fn run(command: Commands) -> Result<String, CliError> {
                 let (asset, amount) = client
                     .get_sellable_balance_for_symbol(&symbol)
                     .map_err(|e| CliError::Provider(e.to_string()))?;
-                ok_envelope(json!({ "asset": asset, "amount": amount }), vec![])
+                ok_envelope(json!({ "asset": asset, "amount": amount }), vec![], is_raw)
             }
             "alpaca" => {
                 let cfg =
@@ -658,7 +660,7 @@ fn run(command: Commands) -> Result<String, CliError> {
                     .filter(|p| p.symbol.to_uppercase() == wanted && p.qty > 0.0)
                     .map(|p| p.qty)
                     .sum();
-                ok_envelope(json!({ "asset": wanted, "amount": amount }), vec![])
+                ok_envelope(json!({ "asset": wanted, "amount": amount }), vec![], is_raw)
             }
             "paper" => {
                 let cfg = PaperConfig::from_env();
@@ -672,7 +674,7 @@ fn run(command: Commands) -> Result<String, CliError> {
                     .filter(|p| p.symbol.to_uppercase() == wanted && p.qty > 0.0)
                     .map(|p| p.qty)
                     .sum();
-                ok_envelope(json!({ "asset": wanted, "amount": amount }), vec![])
+                ok_envelope(json!({ "asset": wanted, "amount": amount }), vec![], is_raw)
             }
             _ => Err(CliError::Validation(format!(
                 "Unsupported provider: {}",
@@ -687,7 +689,7 @@ fn run(command: Commands) -> Result<String, CliError> {
                 let order = client
                     .fetch_order(&id)
                     .map_err(|e| CliError::Provider(e.to_string()))?;
-                ok_envelope(order, vec![])
+                ok_envelope(order, vec![], is_raw)
             }
             "alpaca" => {
                 let cfg =
@@ -696,7 +698,7 @@ fn run(command: Commands) -> Result<String, CliError> {
                 let order = client
                     .fetch_order(&id)
                     .map_err(|e| CliError::Provider(e.to_string()))?;
-                ok_envelope(order, vec![])
+                ok_envelope(order, vec![], is_raw)
             }
             "paper" => {
                 let cfg = PaperConfig::from_env();
@@ -704,7 +706,7 @@ fn run(command: Commands) -> Result<String, CliError> {
                 let order = client
                     .fetch_order(&id)
                     .map_err(|e| CliError::Provider(e.to_string()))?;
-                ok_envelope(order, vec![])
+                ok_envelope(order, vec![], is_raw)
             }
             _ => Err(CliError::Validation(format!(
                 "Unsupported provider: {}",
@@ -719,7 +721,7 @@ fn run(command: Commands) -> Result<String, CliError> {
                 let orders = client
                     .fetch_open_orders()
                     .map_err(|e| CliError::Provider(e.to_string()))?;
-                ok_envelope(orders, vec![])
+                ok_envelope(orders, vec![], is_raw)
             }
             "alpaca" => {
                 let cfg =
@@ -728,7 +730,7 @@ fn run(command: Commands) -> Result<String, CliError> {
                 let orders = client
                     .fetch_open_orders()
                     .map_err(|e| CliError::Provider(e.to_string()))?;
-                ok_envelope(orders, vec![])
+                ok_envelope(orders, vec![], is_raw)
             }
             "paper" => {
                 let cfg = PaperConfig::from_env();
@@ -736,7 +738,7 @@ fn run(command: Commands) -> Result<String, CliError> {
                 let orders = client
                     .fetch_open_orders()
                     .map_err(|e| CliError::Provider(e.to_string()))?;
-                ok_envelope(orders, vec![])
+                ok_envelope(orders, vec![], is_raw)
             }
             _ => Err(CliError::Validation(format!(
                 "Unsupported provider: {}",
@@ -751,7 +753,7 @@ fn run(command: Commands) -> Result<String, CliError> {
                 client
                     .cancel_order(&id)
                     .map_err(|e| CliError::Provider(e.to_string()))?;
-                ok_envelope(json!({ "status": "canceled", "id": id }), vec![])
+                ok_envelope(json!({ "status": "canceled", "id": id }), vec![], is_raw)
             }
             "alpaca" => {
                 let cfg =
@@ -760,7 +762,7 @@ fn run(command: Commands) -> Result<String, CliError> {
                 client
                     .cancel_order(&id)
                     .map_err(|e| CliError::Provider(e.to_string()))?;
-                ok_envelope(json!({ "status": "canceled", "id": id }), vec![])
+                ok_envelope(json!({ "status": "canceled", "id": id }), vec![], is_raw)
             }
             "paper" => {
                 let cfg = PaperConfig::from_env();
@@ -768,7 +770,7 @@ fn run(command: Commands) -> Result<String, CliError> {
                 client
                     .cancel_order(&id)
                     .map_err(|e| CliError::Provider(e.to_string()))?;
-                ok_envelope(json!({ "status": "canceled", "id": id }), vec![])
+                ok_envelope(json!({ "status": "canceled", "id": id }), vec![], is_raw)
             }
             _ => Err(CliError::Validation(format!(
                 "Unsupported provider: {}",
@@ -797,7 +799,7 @@ fn run(command: Commands) -> Result<String, CliError> {
                 .block_on(async { optimizer::optimize(&request, &series).await })
                 .map_err(|e| CliError::Validation(e.to_string()))?;
 
-            ok_envelope(result, vec![])
+            ok_envelope(result, vec![], is_raw)
         }
         #[cfg(feature = "nova")]
         Commands::MonteCarlo {
@@ -824,7 +826,7 @@ fn run(command: Commands) -> Result<String, CliError> {
             let report = monte_carlo::run_simulation(&backtest, config)
                 .map_err(|e| CliError::Validation(e.to_string()))?;
 
-            ok_envelope(report, vec![])
+            ok_envelope(report, vec![], is_raw)
         }
         #[cfg(feature = "nova")]
         Commands::AnalyzeVolumeProfile {
@@ -854,7 +856,7 @@ fn run(command: Commands) -> Result<String, CliError> {
                 volume_profile::print_ascii_profile(&report);
             }
 
-            ok_envelope(report, vec![])
+            ok_envelope(report, vec![], is_raw)
         }
     }
 }
@@ -1019,10 +1021,13 @@ where
     Ok(parsed)
 }
 
-fn ok_envelope<T>(data: T, warnings: Vec<String>) -> Result<String, CliError>
+fn ok_envelope<T>(data: T, warnings: Vec<String>, is_raw: bool) -> Result<String, CliError>
 where
     T: Serialize,
 {
+    if is_raw {
+        return Ok(serde_json::to_string(&data)?);
+    }
     let envelope = ResponseEnvelope {
         status: EnvelopeStatus::Ok,
         errors: Vec::<String>::new(),
