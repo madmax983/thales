@@ -396,6 +396,37 @@ let mfi_series = mfi::calculate(&df, period)?;
 - The output Series is named "mfi".
 - The first `period` values will be null.
 
+## Rate of Change (ROC)
+
+**Name:** ROC
+**Description:** Calculates the percentage change in price between the current price and the price a certain number of periods ago.
+**Rationale:** Standard momentum indicator used to measure the speed at which prices are changing.
+
+### Implementation Details
+- Uses `rust_decimal::Decimal` for all internal calculations to ensure precision.
+- Returns a Polars `Series` of `f64` values for compatibility with other analysis tools.
+- Prevents division by zero if past price is exactly zero.
+
+### Usage
+
+```rust
+use strategies::indicators::roc;
+use polars::prelude::*;
+
+// Assuming df is a DataFrame with a "close" column
+let period = 14;
+let roc_series = roc::calculate(&df, period)?;
+```
+
+### Parameters
+- `data`: Reference to a Polars `DataFrame`. Must contain a numeric column named "close".
+- `period`: The lookback period for calculating the change.
+
+### Output
+- Returns `Result<Series>`.
+- The output Series is named "roc".
+- The first `period` values will be null.
+
 ## Vortex Indicator
 
 **Name:** Vortex Indicator (VI)
