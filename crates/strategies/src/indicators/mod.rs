@@ -15,6 +15,7 @@ pub mod macd;
 pub mod mfi;
 pub mod obv;
 pub mod parabolic_sar;
+pub mod roc;
 pub mod rsi;
 pub mod sma;
 pub mod stochastic;
