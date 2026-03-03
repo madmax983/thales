@@ -1,5 +1,6 @@
 use anyhow::Result;
 use strategies::adx_momentum::{AdxMomentum, AdxMomentumConfig};
+use strategies::aroon_oscillator::{AroonOscillator, AroonOscillatorConfig};
 use strategies::awesome_oscillator::{AwesomeOscillator, AwesomeOscillatorConfig};
 use strategies::bollinger_bands::{BollingerBandsConfig, BollingerBandsMeanReversion};
 use strategies::cci_momentum::{CciMomentum, CciMomentumConfig};
@@ -29,6 +30,17 @@ use strategies::zscore_mean_reversion::{ZScoreMeanReversion, ZScoreMeanReversion
 
 pub fn create_strategy(name: &str, symbol: &str) -> Result<Box<dyn Strategy>> {
     match name {
+        "AroonOscillator" => {
+            let config = AroonOscillatorConfig {
+                period: 14,
+                buy_threshold: 0.0,
+                sell_threshold: 0.0,
+                stop_loss_atr_mult: 2.0,
+                atr_period: 14,
+                symbol: symbol.to_string(),
+            };
+            Ok(Box::new(AroonOscillator::new(config)))
+        }
         "AwesomeOscillator" => {
             let config = AwesomeOscillatorConfig {
                 fast_period: 5,
@@ -286,6 +298,7 @@ pub fn create_strategy(name: &str, symbol: &str) -> Result<Box<dyn Strategy>> {
 
 pub fn list_strategies() -> Vec<&'static str> {
     vec![
+        "AroonOscillator",
         "BollingerBands",
         "ElderRay",
         "EmaCrossover",

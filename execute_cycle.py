@@ -27,6 +27,7 @@ MEAN_REVERSION_STRATEGIES = {
     "ZScoreMeanReversion",
 }
 TREND_FOLLOWING_STRATEGIES = {
+    "AroonOscillator",
     "ElderRay",
     "EmaCrossover",
     "Macd",

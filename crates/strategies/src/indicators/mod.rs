@@ -1,4 +1,5 @@
 pub mod adx;
+pub mod aroon;
 pub mod atr;
 pub mod awesome_oscillator;
 pub mod bollinger_bands;

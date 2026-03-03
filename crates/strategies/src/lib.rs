@@ -22,6 +22,7 @@
 //! - [`awesome_oscillator::AwesomeOscillator`] - Momentum strategy using Awesome Oscillator (AO).
 
 pub mod adx_momentum;
+pub mod aroon_oscillator;
 pub mod awesome_oscillator;
 pub mod bollinger_bands;
 pub mod cci_momentum;
