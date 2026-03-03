@@ -97,15 +97,21 @@ impl Strategy for AroonOscillator {
             (last_osc, prev_osc, last_close, last_ts, last_atr)
         {
             // Buy condition: Aroon Oscillator crosses above buy_threshold
-            let buy_condition = p_osc <= self.config.buy_threshold && l_osc > self.config.buy_threshold;
+            let buy_condition =
+                p_osc <= self.config.buy_threshold && l_osc > self.config.buy_threshold;
 
             // Sell condition: Aroon Oscillator crosses below sell_threshold
-            let sell_condition = p_osc >= self.config.sell_threshold && l_osc < self.config.sell_threshold;
+            let sell_condition =
+                p_osc >= self.config.sell_threshold && l_osc < self.config.sell_threshold;
 
             if buy_condition {
                 let sl_dist = Decimal::from_f64_retain(atr_val).unwrap_or(Decimal::ZERO)
-                    * Decimal::from_f64_retain(self.config.stop_loss_atr_mult).unwrap_or(Decimal::ZERO);
-                let sl_price = (Decimal::from_f64_retain(close_price).unwrap_or(Decimal::ZERO) - sl_dist).to_f64().unwrap_or(0.0);
+                    * Decimal::from_f64_retain(self.config.stop_loss_atr_mult)
+                        .unwrap_or(Decimal::ZERO);
+                let sl_price = (Decimal::from_f64_retain(close_price).unwrap_or(Decimal::ZERO)
+                    - sl_dist)
+                    .to_f64()
+                    .unwrap_or(0.0);
 
                 signals.push(Signal {
                     signal_type: SignalType::Entry,
@@ -115,13 +121,20 @@ impl Strategy for AroonOscillator {
                     confidence: 0.8,
                     stop_loss: Some(sl_price),
                     take_profit: None,
-                    reason: format!("Aroon Oscillator crossed above {}", self.config.buy_threshold),
+                    reason: format!(
+                        "Aroon Oscillator crossed above {}",
+                        self.config.buy_threshold
+                    ),
                     timestamp_ms: ts,
                 });
             } else if sell_condition {
                 let sl_dist = Decimal::from_f64_retain(atr_val).unwrap_or(Decimal::ZERO)
-                    * Decimal::from_f64_retain(self.config.stop_loss_atr_mult).unwrap_or(Decimal::ZERO);
-                let sl_price = (Decimal::from_f64_retain(close_price).unwrap_or(Decimal::ZERO) + sl_dist).to_f64().unwrap_or(0.0);
+                    * Decimal::from_f64_retain(self.config.stop_loss_atr_mult)
+                        .unwrap_or(Decimal::ZERO);
+                let sl_price = (Decimal::from_f64_retain(close_price).unwrap_or(Decimal::ZERO)
+                    + sl_dist)
+                    .to_f64()
+                    .unwrap_or(0.0);
 
                 signals.push(Signal {
                     signal_type: SignalType::Entry,
@@ -131,7 +144,10 @@ impl Strategy for AroonOscillator {
                     confidence: 0.8,
                     stop_loss: Some(sl_price),
                     take_profit: None,
-                    reason: format!("Aroon Oscillator crossed below {}", self.config.sell_threshold),
+                    reason: format!(
+                        "Aroon Oscillator crossed below {}",
+                        self.config.sell_threshold
+                    ),
                     timestamp_ms: ts,
                 });
             }
@@ -152,34 +168,6 @@ mod tests {
     use super::*;
     use polars::df;
 
-    fn create_test_data() -> DataFrame {
-        // We need data with clear trends to test Aroon
-        // Uptrend from 1 to 5, then downtrend from 6 to 10
-        let highs = vec![
-            10.0, 11.0, 12.0, 13.0, 14.0, // Uptrend
-            13.0, 12.0, 11.0, 10.0,  9.0, // Downtrend
-        ];
-        let lows = vec![
-            5.0,  6.0,  7.0,  8.0,  9.0,
-            8.0,  7.0,  6.0,  5.0,  4.0,
-        ];
-        let closes = vec![
-            8.0,  9.0, 10.0, 11.0, 12.0,
-            11.0, 10.0,  9.0,  8.0,  7.0,
-        ];
-        let timestamps = vec![
-            1000, 2000, 3000, 4000, 5000,
-            6000, 7000, 8000, 9000, 10000,
-        ];
-
-        df!(
-            "high" => highs,
-            "low" => lows,
-            "close" => closes,
-            "timestamp_unix_ms" => timestamps,
-        ).unwrap()
-    }
-
     #[tokio::test]
     async fn test_buy_signal() {
         // Provide data that creates an uptrend crossover
@@ -188,7 +176,8 @@ mod tests {
             "low" =>  &[ 5.0,  6.0,  7.0,  8.0,  9.0,  8.0,  7.0,  6.0],
             "close" =>&[ 8.0,  9.0, 10.0, 11.0, 12.0, 11.0, 10.0, 14.0],
             "timestamp_unix_ms" => &[1000i64, 2000, 3000, 4000, 5000, 6000, 7000, 8000],
-        ).unwrap();
+        )
+        .unwrap();
 
         let config = AroonOscillatorConfig {
             period: 3,
@@ -210,7 +199,8 @@ mod tests {
             "low" =>  &[ 5.0,  8.0,  6.0, 10.0, 15.0, 14.0, 12.0, 10.0],
             "close" =>&[ 8.0, 10.0,  9.0, 14.0, 18.0, 16.0, 14.0, 12.0],
             "timestamp_unix_ms" => &[1000i64, 2000, 3000, 4000, 5000, 6000, 7000, 8000],
-        ).unwrap();
+        )
+        .unwrap();
 
         let config = AroonOscillatorConfig {
             period: 3,

@@ -436,3 +436,11 @@
 ### SPY - 2026-02-27 13:44:02 (equities)
 **Research**: None
 **News**: Major indices are hitting new highs
+
+### COQUSD - 2026-03-03 19:00:00 (crypto)
+**Research**: None
+**News**: None
+
+### CHEEMSUSD - 2026-03-03 19:00:00 (crypto)
+**Research**: None
+**News**: None

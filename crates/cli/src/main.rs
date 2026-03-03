@@ -239,13 +239,13 @@ fn run(command: Commands, raw: bool) -> Result<String, CliError> {
             risk,
         } => {
             let raw_str = fs::read_to_string(&input)?;
-            let series: BarSeries = match serde_json::from_str::<ResponseEnvelope<BarSeries>>(&raw_str)
-            {
-                Ok(envelope) => envelope
-                    .data
-                    .ok_or(CliError::Validation("Envelope has no data".to_string()))?,
-                Err(_) => serde_json::from_str::<BarSeries>(&raw_str)?,
-            };
+            let series: BarSeries =
+                match serde_json::from_str::<ResponseEnvelope<BarSeries>>(&raw_str) {
+                    Ok(envelope) => envelope
+                        .data
+                        .ok_or(CliError::Validation("Envelope has no data".to_string()))?,
+                    Err(_) => serde_json::from_str::<BarSeries>(&raw_str)?,
+                };
 
             let config = backtest::BacktestConfig {
                 initial_capital,
@@ -270,13 +270,13 @@ fn run(command: Commands, raw: bool) -> Result<String, CliError> {
             sort_by,
         } => {
             let raw_str = fs::read_to_string(&input)?;
-            let series: BarSeries = match serde_json::from_str::<ResponseEnvelope<BarSeries>>(&raw_str)
-            {
-                Ok(envelope) => envelope
-                    .data
-                    .ok_or(CliError::Validation("Envelope has no data".to_string()))?,
-                Err(_) => serde_json::from_str::<BarSeries>(&raw_str)?,
-            };
+            let series: BarSeries =
+                match serde_json::from_str::<ResponseEnvelope<BarSeries>>(&raw_str) {
+                    Ok(envelope) => envelope
+                        .data
+                        .ok_or(CliError::Validation("Envelope has no data".to_string()))?,
+                    Err(_) => serde_json::from_str::<BarSeries>(&raw_str)?,
+                };
 
             let config = benchmark::BenchmarkConfig {
                 initial_capital,
@@ -428,13 +428,13 @@ fn run(command: Commands, raw: bool) -> Result<String, CliError> {
             no_report,
         } => {
             let raw_str = fs::read_to_string(&input)?;
-            let series: BarSeries = match serde_json::from_str::<ResponseEnvelope<BarSeries>>(&raw_str)
-            {
-                Ok(envelope) => envelope
-                    .data
-                    .ok_or(CliError::Validation("Envelope has no data".to_string()))?,
-                Err(_) => serde_json::from_str::<BarSeries>(&raw_str)?,
-            };
+            let series: BarSeries =
+                match serde_json::from_str::<ResponseEnvelope<BarSeries>>(&raw_str) {
+                    Ok(envelope) => envelope
+                        .data
+                        .ok_or(CliError::Validation("Envelope has no data".to_string()))?,
+                    Err(_) => serde_json::from_str::<BarSeries>(&raw_str)?,
+                };
 
             let mut analysis = analysis::analyze(&series);
             analysis.research_summary = research;
@@ -490,13 +490,13 @@ fn run(command: Commands, raw: bool) -> Result<String, CliError> {
             analysis,
         } => {
             let raw_str = fs::read_to_string(&input)?;
-            let series: BarSeries = match serde_json::from_str::<ResponseEnvelope<BarSeries>>(&raw_str)
-            {
-                Ok(envelope) => envelope
-                    .data
-                    .ok_or(CliError::Validation("Envelope has no data".to_string()))?,
-                Err(_) => serde_json::from_str::<BarSeries>(&raw_str)?,
-            };
+            let series: BarSeries =
+                match serde_json::from_str::<ResponseEnvelope<BarSeries>>(&raw_str) {
+                    Ok(envelope) => envelope
+                        .data
+                        .ok_or(CliError::Validation("Envelope has no data".to_string()))?,
+                    Err(_) => serde_json::from_str::<BarSeries>(&raw_str)?,
+                };
 
             let positions: Vec<contracts::Position> = if let Some(path) = portfolio {
                 let raw_pos = fs::read_to_string(&path)?;
@@ -641,7 +641,11 @@ fn run(command: Commands, raw: bool) -> Result<String, CliError> {
                 let (currency, amount) = client
                     .get_buying_power_for_symbol(&symbol)
                     .map_err(|e| CliError::Provider(e.to_string()))?;
-                ok_envelope(json!({ "currency": currency, "amount": amount }), vec![], raw)
+                ok_envelope(
+                    json!({ "currency": currency, "amount": amount }),
+                    vec![],
+                    raw,
+                )
             }
             "alpaca" => {
                 let cfg =
@@ -837,13 +841,15 @@ fn run(command: Commands, raw: bool) -> Result<String, CliError> {
             initial_capital,
         } => {
             let raw_str = fs::read_to_string(&input)?;
-            let backtest: backtest::BacktestResult =
-                match serde_json::from_str::<ResponseEnvelope<backtest::BacktestResult>>(&raw_str) {
-                    Ok(envelope) => envelope
-                        .data
-                        .ok_or(CliError::Validation("Envelope has no data".to_string()))?,
-                    Err(_) => serde_json::from_str::<backtest::BacktestResult>(&raw_str)?,
-                };
+            let backtest: backtest::BacktestResult = match serde_json::from_str::<
+                ResponseEnvelope<backtest::BacktestResult>,
+            >(&raw_str)
+            {
+                Ok(envelope) => envelope
+                    .data
+                    .ok_or(CliError::Validation("Envelope has no data".to_string()))?,
+                Err(_) => serde_json::from_str::<backtest::BacktestResult>(&raw_str)?,
+            };
 
             let config = monte_carlo::MonteCarloConfig {
                 iterations,
@@ -864,13 +870,13 @@ fn run(command: Commands, raw: bool) -> Result<String, CliError> {
             visualize,
         } => {
             let raw_str = fs::read_to_string(&input)?;
-            let series: BarSeries = match serde_json::from_str::<ResponseEnvelope<BarSeries>>(&raw_str)
-            {
-                Ok(envelope) => envelope
-                    .data
-                    .ok_or(CliError::Validation("Envelope has no data".to_string()))?,
-                Err(_) => serde_json::from_str::<BarSeries>(&raw_str)?,
-            };
+            let series: BarSeries =
+                match serde_json::from_str::<ResponseEnvelope<BarSeries>>(&raw_str) {
+                    Ok(envelope) => envelope
+                        .data
+                        .ok_or(CliError::Validation("Envelope has no data".to_string()))?,
+                    Err(_) => serde_json::from_str::<BarSeries>(&raw_str)?,
+                };
 
             let config = volume_profile::VolumeProfileConfig {
                 num_bins,
@@ -912,7 +918,7 @@ fn run(command: Commands, raw: bool) -> Result<String, CliError> {
                 markov_chain::print_ascii_markov_chain(&report);
             }
 
-            ok_envelope(report, vec![])
+            ok_envelope(report, vec![], false)
         }
         #[cfg(feature = "nova")]
         Commands::AnalyzeEntropy {
@@ -938,7 +944,7 @@ fn run(command: Commands, raw: bool) -> Result<String, CliError> {
                 entropy::print_ascii_entropy(&report);
             }
 
-            ok_envelope(report, vec![])
+            ok_envelope(report, vec![], false)
         }
     }
 }

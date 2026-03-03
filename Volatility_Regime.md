@@ -539,3 +539,13 @@
 **Volatility**: Medium
 **ATR**: 6.76
 **Assessment**: Trend Following (Long)
+
+### COQUSD - 2026-03-03 19:00:00 (crypto)
+**Volatility**: High
+**ATR**: 0.00
+**Assessment**: Reduce Risk / Wait for Clarity
+
+### CHEEMSUSD - 2026-03-03 19:00:00 (crypto)
+**Volatility**: Extreme
+**ATR**: 0.00
+**Assessment**: Reduce Risk / Wait for Clarity

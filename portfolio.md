@@ -3237,6 +3237,19 @@
 | 2026-03-03 16:43:46 | SPY | equities:SPY:sell:1772556226514 | CONFLICT: Conflicting signals (Buy and Sell) detected for SPY. Trading halted for this asset. |
 | 2026-03-03 16:43:46 | SPY | equities:SPY:buy:1772556226514 | CONFLICT: Conflicting signals (Buy and Sell) detected for SPY. Trading halted for this asset. |
 | 2026-03-03 16:43:46 | SPY | equities:SPY:buy:1772556226514 | CONFLICT: Conflicting signals (Buy and Sell) detected for SPY. Trading halted for this asset. |
+| 2026-03-03 19:24:20 | LUNAUSD | crypto:LUNAUSD:buy:1772564400000 | provider error: kraken api error: EGeneral:Invalid arguments:volume minimum not met |
+| 2026-03-03 19:27:07 | LUNAUSD | crypto:LUNAUSD:buy:1772564400000 | provider error: kraken api error: EGeneral:Invalid arguments:volume minimum not met |
+| 2026-03-03 19:27:17 | BTCUSD | crypto:BTCUSD:buy:1772566037089 | CONFLICT: Conflicting signals (Buy and Sell) detected for BTCUSD. Trading halted for this asset. |
+| 2026-03-03 19:27:17 | BTCUSD | crypto:BTCUSD:buy:1772566037089 | CONFLICT: Conflicting signals (Buy and Sell) detected for BTCUSD. Trading halted for this asset. |
+| 2026-03-03 19:27:17 | BTCUSD | crypto:BTCUSD:sell:1772566037089 | CONFLICT: Conflicting signals (Buy and Sell) detected for BTCUSD. Trading halted for this asset. |
+| 2026-03-03 19:27:17 | BTCUSD | crypto:BTCUSD:buy:1772566037089 | CONFLICT: Conflicting signals (Buy and Sell) detected for BTCUSD. Trading halted for this asset. |
+| 2026-03-03 19:27:17 | BTCUSD | crypto:BTCUSD:buy:1772566037089 | CONFLICT: Conflicting signals (Buy and Sell) detected for BTCUSD. Trading halted for this asset. |
+| 2026-03-03 19:27:17 | ETHUSD | crypto:ETHUSD:sell:1772566037233 | CONFLICT: Conflicting signals (Buy and Sell) detected for ETHUSD. Trading halted for this asset. |
+| 2026-03-03 19:27:17 | ETHUSD | crypto:ETHUSD:buy:1772566037233 | CONFLICT: Conflicting signals (Buy and Sell) detected for ETHUSD. Trading halted for this asset. |
+| 2026-03-03 19:27:17 | ETHUSD | crypto:ETHUSD:buy:1772566037233 | CONFLICT: Conflicting signals (Buy and Sell) detected for ETHUSD. Trading halted for this asset. |
+| 2026-03-03 19:27:17 | SPY | equities:SPY:sell:1772566037370 | CONFLICT: Conflicting signals (Buy and Sell) detected for SPY. Trading halted for this asset. |
+| 2026-03-03 19:27:17 | SPY | equities:SPY:buy:1772566037370 | CONFLICT: Conflicting signals (Buy and Sell) detected for SPY. Trading halted for this asset. |
+| 2026-03-03 19:27:17 | SPY | equities:SPY:buy:1772566037370 | CONFLICT: Conflicting signals (Buy and Sell) detected for SPY. Trading halted for this asset. |
 
 ## Executed Trades
 
@@ -3254,3 +3267,4 @@
 | 2026-02-28 05:54:52 | crypto | ETHUSD | buy (Entry) | 2.749717 | Market | 1881.95 | 1991.05 | 100 | crypto:ETHUSD:buy:1772254800000 | Strategy: MoneyFlowIndex (64%, MA: 0.80). Reason: MFI Oversold: 19.51 < 20.00. Market Context: Trending Up (Low Volatility). No similar past trades found. (Risk: $100, SL Dist: 36.37) [REJECTED: provider error: kraken api error: EOrder:Insufficient funds] |
 | 2026-02-28 17:03:32 | crypto | BTCUSD | buy (Entry) | 0.037850 | Market | 56825.01174732183 | 63048.244537893 | - | crypto:BTCUSD:buy:1772298151044 | Strategy: BollingerBands (64%, MA: 0.80). Reason: Close 59467.02704514670040225610136 < Lower Band 60406.23. Market Context: Trending Down (Short Term) (Medium Volatility). No similar past trades found. (Opening new position) (Risk: $100, SL Dist: 2642.02) [Slippage: 0.0000%] |
 | 2026-03-01 02:15:10 | crypto | BTCUSD | buy (Entry) | 0.00166498 | 68000.0 | 66417.03906773066 | 71056.42186453869 | 2.64 | crypto:BTCUSD:buy:1772330400000 | Strategy: DonchianBreakout (64%, MA: 0.80). Reason: Breakout: Close 67963.50 > Upper Channel 67725.20. Market Context: Trending Up (Short Term) (Medium Volatility). No similar past trades found. (Risk: $100, SL Dist: 1546.46) [Size adjusted to 0.00166498 based on USD 114.3624] |
+| 2026-03-03 19:43:00 | crypto | JASMYUSD | buy | 566082.665413 | Market | 0.005383347355236355 | 0.005913305289527289 | 100.00 | crypto:JASMYUSD:buy:1772564400000 | Strategy: Macd (56%, MA: 0.70). Reason: Bullish Crossover: MACD 0.00 > Signal 0.00. Market Context: Trending Down (Medium Volatility). No similar past trades found. |

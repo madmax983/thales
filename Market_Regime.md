@@ -539,3 +539,13 @@
 **Regime**: Trending Up (Short Term)
 **Sentiment**: Bullish (Strong) (Overbought)
 **Confidence**: 80.00%
+
+### COQUSD - 2026-03-03 19:00:00 (crypto)
+**Regime**: Trending Up
+**Sentiment**: Bullish (Strong)
+**Confidence**: 70.00%
+
+### CHEEMSUSD - 2026-03-03 19:00:00 (crypto)
+**Regime**: Trending Up
+**Sentiment**: Bearish
+**Confidence**: 50.00%
