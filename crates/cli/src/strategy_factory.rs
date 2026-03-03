@@ -18,6 +18,7 @@ use strategies::macd::{Macd, MacdConfig};
 use strategies::money_flow_index::{MoneyFlowIndex, MoneyFlowIndexConfig};
 use strategies::obv_trend::{ObvTrendFollowing, ObvTrendFollowingConfig};
 use strategies::parabolic_sar::{ParabolicSar, ParabolicSarConfig};
+use strategies::roc_momentum::{RocMomentum, RocMomentumConfig};
 use strategies::rsi_mean_reversion::{RsiMeanReversion, RsiMeanReversionConfig};
 use strategies::stochastic_oscillator::{StochasticOscillator, StochasticOscillatorConfig};
 use strategies::strategy::Strategy;
@@ -292,6 +293,17 @@ pub fn create_strategy(name: &str, symbol: &str) -> Result<Box<dyn Strategy>> {
             };
             Ok(Box::new(ZScoreMeanReversion::new(config)))
         }
+        "RocMomentum" => {
+            let config = RocMomentumConfig {
+                period: 14,
+                buy_threshold: 0.0,
+                sell_threshold: 0.0,
+                stop_loss_atr_mult: 2.0,
+                atr_period: 14,
+                symbol: symbol.to_string(),
+            };
+            Ok(Box::new(RocMomentum::new(config)))
+        }
         _ => Err(anyhow::anyhow!("Unknown strategy: {}", name)),
     }
 }
@@ -323,5 +335,6 @@ pub fn list_strategies() -> Vec<&'static str> {
         "VwapReversion",
         "VortexBreakout",
         "ZScoreMeanReversion",
+        "RocMomentum",
     ]
 }

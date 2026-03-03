@@ -161,6 +161,8 @@ def get_active_strategies():
         strategies.append("VwapReversion")
     if "VortexBreakout" in content:
         strategies.append("VortexBreakout")
+    if "RocMomentum" in content:
+        strategies.append("RocMomentum")
 
     return strategies
 
