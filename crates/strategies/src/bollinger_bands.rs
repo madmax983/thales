@@ -168,7 +168,7 @@ impl Strategy for BollingerBandsMeanReversion {
 
                     let prev_close = close_arr
                         .get(i - 1)
-                        .and_then(|v| Decimal::from_f64_retain(v))
+                        .and_then(Decimal::from_f64_retain)
                         .unwrap_or(prev_mean); // Fallback to mean if prev missing (shouldn't happen)
 
                     if let Some(ts) = time_arr.get(i) {

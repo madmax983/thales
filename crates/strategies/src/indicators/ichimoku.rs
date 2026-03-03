@@ -92,8 +92,8 @@ pub fn calculate(
             Ok(result)
         };
 
-    let highs_vec: Vec<Option<f64>> = high.into_iter().map(|v| v).collect();
-    let lows_vec: Vec<Option<f64>> = low.into_iter().map(|v| v).collect();
+    let highs_vec: Vec<Option<f64>> = high.into_iter().collect();
+    let lows_vec: Vec<Option<f64>> = low.into_iter().collect();
 
     // 1. Calculate Tenkan-sen
     let tenkan_vals = calc_midpoint(&highs_vec, &lows_vec, tenkan_period)?;

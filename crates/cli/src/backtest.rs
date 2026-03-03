@@ -245,42 +245,37 @@ pub async fn run_backtest_with_strategy(
 
             if pos.side == "long" {
                 // Check SL (Low <= SL)
-                if let Some(sl) = pos.stop_loss {
-                    if bar.low <= sl {
+                if let Some(sl) = pos.stop_loss
+                    && bar.low <= sl {
                         // Slippage: If Open < SL, we gap down, fill at Open. Else fill at SL.
                         exit_price = Some(if bar.open < sl { bar.open } else { sl });
                         reason = "Stop Loss".to_string();
                     }
-                }
                 // Check TP (High >= TP)
                 if exit_price.is_none() {
                     // SL takes precedence usually
-                    if let Some(tp) = pos.take_profit {
-                        if bar.high >= tp {
+                    if let Some(tp) = pos.take_profit
+                        && bar.high >= tp {
                             // Slippage: If Open > TP, we gap up, fill at Open. Else fill at TP.
                             exit_price = Some(if bar.open > tp { bar.open } else { tp });
                             reason = "Take Profit".to_string();
                         }
-                    }
                 }
             } else {
                 // Short
                 // Check SL (High >= SL)
-                if let Some(sl) = pos.stop_loss {
-                    if bar.high >= sl {
+                if let Some(sl) = pos.stop_loss
+                    && bar.high >= sl {
                         exit_price = Some(if bar.open > sl { bar.open } else { sl });
                         reason = "Stop Loss".to_string();
                     }
-                }
                 // Check TP (Low <= TP)
-                if exit_price.is_none() {
-                    if let Some(tp) = pos.take_profit {
-                        if bar.low <= tp {
+                if exit_price.is_none()
+                    && let Some(tp) = pos.take_profit
+                        && bar.low <= tp {
                             exit_price = Some(if bar.open < tp { bar.open } else { tp });
                             reason = "Take Profit".to_string();
                         }
-                    }
-                }
             }
 
             if let Some(price) = exit_price {

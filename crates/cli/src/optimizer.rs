@@ -45,7 +45,7 @@ enum GeneValue {
 }
 
 impl GeneValue {
-    fn to_json(&self) -> Value {
+    fn into_json(self) -> Value {
         match self {
             GeneValue::Int(v) => serde_json::json!(v),
             GeneValue::Float(v) => serde_json::json!(v),
@@ -93,7 +93,7 @@ pub async fn optimize(
         for genome in &mut population {
             let mut params_json = serde_json::Map::new();
             for (k, v) in &genome.genes {
-                params_json.insert(k.clone(), v.to_json());
+                params_json.insert(k.clone(), v.into_json());
             }
             // Add other required fields that are not optimized (e.g. symbol)
             // But strategies might need them in the config.
@@ -177,7 +177,7 @@ pub async fn optimize(
     let best = &population[0];
     let mut best_params_json = HashMap::new();
     for (k, v) in &best.genes {
-        best_params_json.insert(k.clone(), v.to_json());
+        best_params_json.insert(k.clone(), v.into_json());
     }
 
     Ok(OptimizationResult {
@@ -269,14 +269,13 @@ fn mutate(
     rng: &mut impl Rng,
 ) {
     for (k, v) in genes.iter_mut() {
-        if rng.gen_bool(rate) {
-            if let Some(param_type) = params.get(k) {
+        if rng.gen_bool(rate)
+            && let Some(param_type) = params.get(k) {
                 *v = match param_type {
                     ParamType::Int { min, max } => GeneValue::Int(rng.gen_range(*min..=*max)),
                     ParamType::Float { min, max } => GeneValue::Float(rng.gen_range(*min..=*max)),
                 };
             }
-        }
     }
 }
 

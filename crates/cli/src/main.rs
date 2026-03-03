@@ -712,7 +712,7 @@ fn scan_market(
 
                 // Parse Open/Close for Momentum (24h)
                 let open_str = info.o.clone();
-                let close_str = info.c.get(0).unwrap_or(&"0".to_string()).clone();
+                let close_str = info.c.first().unwrap_or(&"0".to_string()).clone();
                 let open = open_str.parse::<f64>().unwrap_or(0.0);
                 let close = close_str.parse::<f64>().unwrap_or(0.0);
 
@@ -826,11 +826,10 @@ where
     T: serde::de::DeserializeOwned,
 {
     let raw = fs::read_to_string(path)?;
-    if let Ok(envelope) = serde_json::from_str::<ResponseEnvelope<T>>(&raw) {
-        if let Some(data) = envelope.data {
+    if let Ok(envelope) = serde_json::from_str::<ResponseEnvelope<T>>(&raw)
+        && let Some(data) = envelope.data {
             return Ok(data);
         }
-    }
     let parsed = serde_json::from_str::<T>(&raw)?;
     Ok(parsed)
 }

@@ -53,8 +53,8 @@ impl Strategy for KeltnerChannelBreakout {
         let atr_mult = self.config.atr_multiplier;
         let stop_loss_mult = self.config.stop_loss_atr_mult;
 
-        let ema_vec: Vec<Option<f64>> = ema_arr.into_iter().map(|v| v).collect();
-        let atr_vec: Vec<Option<f64>> = atr_arr.into_iter().map(|v| v).collect();
+        let ema_vec: Vec<Option<f64>> = ema_arr.into_iter().collect();
+        let atr_vec: Vec<Option<f64>> = atr_arr.into_iter().collect();
 
         let mut signals = Vec::new();
         let len = data.height();

@@ -50,15 +50,15 @@ pub fn calculate(
     // Convert to Decimal for precision, treating NaN/Inf as None
     let highs: Vec<Option<Decimal>> = high_series
         .into_iter()
-        .map(|v| v.and_then(|f| Decimal::from_f64_retain(f)))
+        .map(|v| v.and_then(Decimal::from_f64_retain))
         .collect();
     let lows: Vec<Option<Decimal>> = low_series
         .into_iter()
-        .map(|v| v.and_then(|f| Decimal::from_f64_retain(f)))
+        .map(|v| v.and_then(Decimal::from_f64_retain))
         .collect();
     let closes: Vec<Option<Decimal>> = close_series
         .into_iter()
-        .map(|v| v.and_then(|f| Decimal::from_f64_retain(f)))
+        .map(|v| v.and_then(Decimal::from_f64_retain))
         .collect();
 
     // 1. Calculate Lowest Low and Highest High over k_period
@@ -118,11 +118,10 @@ fn rolling_min(data: &[Option<Decimal>], window: usize) -> Vec<Option<Decimal>> 
 
     for i in 0..data.len() {
         // Leaving window
-        if i >= window {
-            if data[i - window].is_none() {
+        if i >= window
+            && data[i - window].is_none() {
                 none_count -= 1;
             }
-        }
 
         // Entering window
         if data[i].is_none() {
@@ -176,11 +175,10 @@ fn rolling_max(data: &[Option<Decimal>], window: usize) -> Vec<Option<Decimal>> 
 
     for i in 0..data.len() {
         // Leaving window
-        if i >= window {
-            if data[i - window].is_none() {
+        if i >= window
+            && data[i - window].is_none() {
                 none_count -= 1;
             }
-        }
 
         // Entering window
         if data[i].is_none() {

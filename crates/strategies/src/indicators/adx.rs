@@ -223,11 +223,9 @@ pub fn calculate(data: &DataFrame, period: usize) -> Result<(Series, Series, Ser
     let mut dx_sum = Decimal::ZERO;
     let mut valid_dx_count = 0;
 
-    for i in dx_start_idx..(dx_start_idx + period) {
-        if let Some(val) = dx_vec[i] {
-            dx_sum += val;
-            valid_dx_count += 1;
-        }
+    for val in dx_vec.iter().skip(dx_start_idx).take(period).flatten() {
+        dx_sum += *val;
+        valid_dx_count += 1;
     }
 
     if valid_dx_count == period {
