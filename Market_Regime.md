@@ -479,3 +479,63 @@
 **Sentiment**: Bearish (Strong)
 **Confidence**: 70.00%
 - **2026-02-27 12:00:00** | XXBTZUSD | Regime: Trending Up | Confidence: 0.70
+
+### XXBTZUSD - 2026-02-27 13:44:02 (crypto)
+**Regime**: Trending Down (Short Term)
+**Sentiment**: Bearish (Strong) (Oversold)
+**Confidence**: 80.00%
+
+### XETHZUSD - 2026-02-27 09:00:00 (crypto)
+**Regime**: Trending Up
+**Sentiment**: Bearish
+**Confidence**: 70.00%
+
+### SPY - 2026-02-27 13:44:02 (equities)
+**Regime**: Trending Up (Short Term)
+**Sentiment**: Bullish (Strong) (Overbought)
+**Confidence**: 80.00%
+
+### XXBTZUSD - 2026-02-27 13:44:02 (crypto)
+**Regime**: Trending Down (Short Term)
+**Sentiment**: Bearish (Strong) (Oversold)
+**Confidence**: 80.00%
+
+### XETHZUSD - 2026-02-27 09:00:00 (crypto)
+**Regime**: Trending Up
+**Sentiment**: Bearish
+**Confidence**: 70.00%
+
+### SPY - 2026-02-27 13:44:02 (equities)
+**Regime**: Trending Up (Short Term)
+**Sentiment**: Bullish (Strong) (Overbought)
+**Confidence**: 80.00%
+
+### XXBTZUSD - 2026-02-27 13:44:02 (crypto)
+**Regime**: Trending Down (Short Term)
+**Sentiment**: Bearish (Strong) (Oversold)
+**Confidence**: 80.00%
+
+### XETHZUSD - 2026-02-27 09:00:00 (crypto)
+**Regime**: Trending Up
+**Sentiment**: Bearish
+**Confidence**: 70.00%
+
+### SPY - 2026-02-27 13:44:02 (equities)
+**Regime**: Trending Up (Short Term)
+**Sentiment**: Bullish (Strong) (Overbought)
+**Confidence**: 80.00%
+
+### XXBTZUSD - 2026-02-27 13:44:02 (crypto)
+**Regime**: Trending Down (Short Term)
+**Sentiment**: Bearish (Strong) (Oversold)
+**Confidence**: 80.00%
+
+### XETHZUSD - 2026-02-27 09:00:00 (crypto)
+**Regime**: Trending Up
+**Sentiment**: Bearish
+**Confidence**: 70.00%
+
+### SPY - 2026-02-27 13:44:02 (equities)
+**Regime**: Trending Up (Short Term)
+**Sentiment**: Bullish (Strong) (Overbought)
+**Confidence**: 80.00%

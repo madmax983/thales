@@ -479,3 +479,63 @@
 **ATR**: 532.30
 **Assessment**: Trend Following (Long)
 - **2026-02-27 12:00:00** | XXBTZUSD | Volatility: Low | ATR: 532.3007
+
+### XXBTZUSD - 2026-02-27 13:44:02 (crypto)
+**Volatility**: Medium
+**ATR**: 764.82
+**Assessment**: Trend Following (Short)
+
+### XETHZUSD - 2026-02-27 09:00:00 (crypto)
+**Volatility**: Low
+**ATR**: 19.82
+**Assessment**: Trend Following (Long)
+
+### SPY - 2026-02-27 13:44:02 (equities)
+**Volatility**: Medium
+**ATR**: 6.76
+**Assessment**: Trend Following (Long)
+
+### XXBTZUSD - 2026-02-27 13:44:02 (crypto)
+**Volatility**: Medium
+**ATR**: 764.82
+**Assessment**: Trend Following (Short)
+
+### XETHZUSD - 2026-02-27 09:00:00 (crypto)
+**Volatility**: Low
+**ATR**: 19.82
+**Assessment**: Trend Following (Long)
+
+### SPY - 2026-02-27 13:44:02 (equities)
+**Volatility**: Medium
+**ATR**: 6.76
+**Assessment**: Trend Following (Long)
+
+### XXBTZUSD - 2026-02-27 13:44:02 (crypto)
+**Volatility**: Medium
+**ATR**: 764.82
+**Assessment**: Trend Following (Short)
+
+### XETHZUSD - 2026-02-27 09:00:00 (crypto)
+**Volatility**: Low
+**ATR**: 19.82
+**Assessment**: Trend Following (Long)
+
+### SPY - 2026-02-27 13:44:02 (equities)
+**Volatility**: Medium
+**ATR**: 6.76
+**Assessment**: Trend Following (Long)
+
+### XXBTZUSD - 2026-02-27 13:44:02 (crypto)
+**Volatility**: Medium
+**ATR**: 764.82
+**Assessment**: Trend Following (Short)
+
+### XETHZUSD - 2026-02-27 09:00:00 (crypto)
+**Volatility**: Low
+**ATR**: 19.82
+**Assessment**: Trend Following (Long)
+
+### SPY - 2026-02-27 13:44:02 (equities)
+**Volatility**: Medium
+**ATR**: 6.76
+**Assessment**: Trend Following (Long)

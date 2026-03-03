@@ -388,3 +388,51 @@
 **Research**: Bitcoin ETFs are seeing strong institutional inflows following SEC approvals. Analysts remain bullish due to positive macroeconomic indicators and recent halving events.
 
 **News**: Major indices are hitting new highs, with Bitcoin showing resilience against recent regulatory concerns.
+
+### XXBTZUSD - 2026-02-27 13:44:02 (crypto)
+**Research**: Bitcoin ETFs are seeing strong institutional inflows following SEC approvals. Analysts remain bullish due to positive macroeconomic indicators and recent halving events.
+**News**: Major indices are hitting new highs, with Bitcoin showing resilience against recent regulatory concerns.
+
+### XETHZUSD - 2026-02-27 09:00:00 (crypto)
+**Research**: Bitcoin ETFs are seeing strong institutional inflows following SEC approvals. Analysts remain bullish due to positive macroeconomic indicators and recent halving events.
+**News**: Major indices are hitting new highs, with Bitcoin showing resilience against recent regulatory concerns.
+
+### SPY - 2026-02-27 13:44:02 (equities)
+**Research**: Bitcoin ETFs are seeing strong institutional inflows following SEC approvals. Analysts remain bullish due to positive macroeconomic indicators and recent halving events.
+**News**: Major indices are hitting new highs, with Bitcoin showing resilience against recent regulatory concerns.
+
+### XXBTZUSD - 2026-02-27 13:44:02 (crypto)
+**Research**: Bitcoin ETFs are seeing strong institutional inflows following SEC approvals. Analysts remain bullish due to positive macroeconomic indicators and recent halving events.
+**News**: Bitcoin showing resilience against recent regulatory concerns.
+
+### XETHZUSD - 2026-02-27 09:00:00 (crypto)
+**Research**:
+**News**:
+
+### SPY - 2026-02-27 13:44:02 (equities)
+**Research**:
+**News**: Major indices are hitting new highs
+
+### XXBTZUSD - 2026-02-27 13:44:02 (crypto)
+**Research**: Bitcoin ETFs are seeing strong institutional inflows following SEC approvals. Analysts remain bullish due to positive macroeconomic indicators and recent halving events.
+**News**: Bitcoin showing resilience against recent regulatory concerns.
+
+### XETHZUSD - 2026-02-27 09:00:00 (crypto)
+**Research**: None
+**News**: None
+
+### SPY - 2026-02-27 13:44:02 (equities)
+**Research**: None
+**News**: Major indices are hitting new highs
+
+### XXBTZUSD - 2026-02-27 13:44:02 (crypto)
+**Research**: Bitcoin ETFs are seeing strong institutional inflows following SEC approvals. Analysts remain bullish due to positive macroeconomic indicators and recent halving events.
+**News**: Bitcoin showing resilience against recent regulatory concerns.
+
+### XETHZUSD - 2026-02-27 09:00:00 (crypto)
+**Research**: None
+**News**: None
+
+### SPY - 2026-02-27 13:44:02 (equities)
+**Research**: None
+**News**: Major indices are hitting new highs
