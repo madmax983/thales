@@ -1769,3 +1769,59 @@ Simulated News: Analyst upgrades for key sectors. Optimism regarding future grow
 ```
 
 ---
+
+## Market Analysis Report - crypto - XXBTZUSD
+
+**Timestamp (ms)**: 1772199842362
+**Confidence**: 80.00%
+
+### 1. Market Regime
+**ALERT: Regime Change Detected!** (Previous: Trending Up, Current: Trending Down (Short Term))
+*Sentiment*: Bearish (Strong) (Oversold)
+
+### 2. Volatility
+*Assessment*: Medium
+
+### 3. Strategy Recommendation
+**Trend Following (Short)**
+
+### 4. Patterns & Price Action
+*Patterns*: Breakout (Downside), Consolidation (Squeeze)
+
+### 5. Key Levels
+*Support/Resistance*: 59348.09299105641, 62321.223889637375, 62637.9775018533
+
+### 6. Research & Context
+**Research**:
+Market sentiment is currently cautious. Short-term bearish divergence observed in recent data.
+
+**News**:
+Global crypto adoption is increasing, but regulatory concerns persist. Institutional inflows are mixed.
+*Historical Context*: Found 7 similar past trades (1 on same symbol). Win Rate: 100.0%. Avg Return: 1.96%
+
+```json
+{
+  "symbol": "XXBTZUSD",
+  "market": "crypto",
+  "regime": "Trending Down (Short Term)",
+  "sentiment": "Bearish (Strong) (Oversold)",
+  "patterns": [
+    "Breakout (Downside)",
+    "Consolidation (Squeeze)"
+  ],
+  "key_levels": [
+    59348.09299105641,
+    62321.223889637375,
+    62637.9775018533
+  ],
+  "volatility": "Medium",
+  "atr": 764.8234042370752,
+  "research_summary": "Market sentiment is currently cautious. Short-term bearish divergence observed in recent data.",
+  "news_summary": "Global crypto adoption is increasing, but regulatory concerns persist. Institutional inflows are mixed.",
+  "recommendation": "Trend Following (Short)",
+  "confidence": 0.7999999999999999,
+  "timestamp_unix_ms": 1772199842362
+}
+```
+
+---
