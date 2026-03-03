@@ -329,10 +329,7 @@ impl AlpacaClient {
     }
 
     pub fn fetch_positions(&self) -> Result<Vec<AlpacaPosition>, AlpacaProviderError> {
-        let url = format!(
-            "{}/positions",
-            self.config.base_url.trim_end_matches('/')
-        );
+        let url = format!("{}/positions", self.config.base_url.trim_end_matches('/'));
 
         let response = self
             .http
