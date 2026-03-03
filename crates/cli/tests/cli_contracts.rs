@@ -11,7 +11,7 @@ fn fetch_market_data_returns_ok_envelope() {
         .args([
             "fetch-market-data",
             "--provider",
-            "alpaca",
+            "paper",
             "--symbol",
             "AAPL",
             "--timeframe",
@@ -155,7 +155,7 @@ fn execute_intent_returns_provider_result() {
         .args([
             "execute-intent",
             "--provider",
-            "alpaca",
+            "paper",
             "--input",
             tmp.path().to_str().expect("path"),
         ])
@@ -168,7 +168,7 @@ fn execute_intent_returns_provider_result() {
     let body = String::from_utf8(output).expect("utf8");
     let json: serde_json::Value = serde_json::from_str(&body).expect("json");
     assert_eq!(json["status"], "ok");
-    assert_eq!(json["data"][0]["provider"], "alpaca");
+    assert_eq!(json["data"][0]["provider"], "paper");
     assert_eq!(json["data"][0]["provider_order_id"], "order-cli-1");
     mock.assert();
 }
