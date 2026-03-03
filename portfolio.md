@@ -3215,6 +3215,28 @@
 | 2026-03-03 16:07:20 | SPY | equities:SPY:sell:1772554040459 | CONFLICT: Conflicting signals (Buy and Sell) detected for SPY. Trading halted for this asset. |
 | 2026-03-03 16:07:20 | SPY | equities:SPY:buy:1772554040459 | CONFLICT: Conflicting signals (Buy and Sell) detected for SPY. Trading halted for this asset. |
 | 2026-03-03 16:07:20 | SPY | equities:SPY:buy:1772554040459 | CONFLICT: Conflicting signals (Buy and Sell) detected for SPY. Trading halted for this asset. |
+| 2026-03-03 16:42:00 | BTCUSD | crypto:BTCUSD:buy:1772556120847 | CONFLICT: Conflicting signals (Buy and Sell) detected for BTCUSD. Trading halted for this asset. |
+| 2026-03-03 16:42:00 | BTCUSD | crypto:BTCUSD:buy:1772556120847 | CONFLICT: Conflicting signals (Buy and Sell) detected for BTCUSD. Trading halted for this asset. |
+| 2026-03-03 16:42:00 | BTCUSD | crypto:BTCUSD:sell:1772556120847 | CONFLICT: Conflicting signals (Buy and Sell) detected for BTCUSD. Trading halted for this asset. |
+| 2026-03-03 16:42:00 | BTCUSD | crypto:BTCUSD:buy:1772556120847 | CONFLICT: Conflicting signals (Buy and Sell) detected for BTCUSD. Trading halted for this asset. |
+| 2026-03-03 16:42:00 | BTCUSD | crypto:BTCUSD:buy:1772556120847 | CONFLICT: Conflicting signals (Buy and Sell) detected for BTCUSD. Trading halted for this asset. |
+| 2026-03-03 16:42:01 | ETHUSD | crypto:ETHUSD:sell:1772556120988 | CONFLICT: Conflicting signals (Buy and Sell) detected for ETHUSD. Trading halted for this asset. |
+| 2026-03-03 16:42:01 | ETHUSD | crypto:ETHUSD:buy:1772556120988 | CONFLICT: Conflicting signals (Buy and Sell) detected for ETHUSD. Trading halted for this asset. |
+| 2026-03-03 16:42:01 | ETHUSD | crypto:ETHUSD:buy:1772556120988 | CONFLICT: Conflicting signals (Buy and Sell) detected for ETHUSD. Trading halted for this asset. |
+| 2026-03-03 16:42:01 | SPY | equities:SPY:sell:1772556121112 | CONFLICT: Conflicting signals (Buy and Sell) detected for SPY. Trading halted for this asset. |
+| 2026-03-03 16:42:01 | SPY | equities:SPY:buy:1772556121112 | CONFLICT: Conflicting signals (Buy and Sell) detected for SPY. Trading halted for this asset. |
+| 2026-03-03 16:42:01 | SPY | equities:SPY:buy:1772556121112 | CONFLICT: Conflicting signals (Buy and Sell) detected for SPY. Trading halted for this asset. |
+| 2026-03-03 16:43:46 | BTCUSD | crypto:BTCUSD:buy:1772556226192 | CONFLICT: Conflicting signals (Buy and Sell) detected for BTCUSD. Trading halted for this asset. |
+| 2026-03-03 16:43:46 | BTCUSD | crypto:BTCUSD:buy:1772556226192 | CONFLICT: Conflicting signals (Buy and Sell) detected for BTCUSD. Trading halted for this asset. |
+| 2026-03-03 16:43:46 | BTCUSD | crypto:BTCUSD:sell:1772556226192 | CONFLICT: Conflicting signals (Buy and Sell) detected for BTCUSD. Trading halted for this asset. |
+| 2026-03-03 16:43:46 | BTCUSD | crypto:BTCUSD:buy:1772556226192 | CONFLICT: Conflicting signals (Buy and Sell) detected for BTCUSD. Trading halted for this asset. |
+| 2026-03-03 16:43:46 | BTCUSD | crypto:BTCUSD:buy:1772556226192 | CONFLICT: Conflicting signals (Buy and Sell) detected for BTCUSD. Trading halted for this asset. |
+| 2026-03-03 16:43:46 | ETHUSD | crypto:ETHUSD:sell:1772556226378 | CONFLICT: Conflicting signals (Buy and Sell) detected for ETHUSD. Trading halted for this asset. |
+| 2026-03-03 16:43:46 | ETHUSD | crypto:ETHUSD:buy:1772556226378 | CONFLICT: Conflicting signals (Buy and Sell) detected for ETHUSD. Trading halted for this asset. |
+| 2026-03-03 16:43:46 | ETHUSD | crypto:ETHUSD:buy:1772556226378 | CONFLICT: Conflicting signals (Buy and Sell) detected for ETHUSD. Trading halted for this asset. |
+| 2026-03-03 16:43:46 | SPY | equities:SPY:sell:1772556226514 | CONFLICT: Conflicting signals (Buy and Sell) detected for SPY. Trading halted for this asset. |
+| 2026-03-03 16:43:46 | SPY | equities:SPY:buy:1772556226514 | CONFLICT: Conflicting signals (Buy and Sell) detected for SPY. Trading halted for this asset. |
+| 2026-03-03 16:43:46 | SPY | equities:SPY:buy:1772556226514 | CONFLICT: Conflicting signals (Buy and Sell) detected for SPY. Trading halted for this asset. |
 
 ## Executed Trades
 
