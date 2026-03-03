@@ -67,7 +67,9 @@ impl Strategy for ChaikinMoneyFlow {
             let prev_cmf_val_opt = cmf_arr.get(i - 1);
             let atr_opt = atr_arr.get(i).and_then(Decimal::from_f64_retain);
 
-            if let (Some(price), Some(cmf_val), Some(prev_cmf), Some(atr_val)) = (price_opt, cmf_val_opt, prev_cmf_val_opt, atr_opt) {
+            if let (Some(price), Some(cmf_val), Some(prev_cmf), Some(atr_val)) =
+                (price_opt, cmf_val_opt, prev_cmf_val_opt, atr_opt)
+            {
                 // Check Entry (CMF crosses above buy threshold)
                 if prev_cmf <= self.config.buy_threshold && cmf_val > self.config.buy_threshold {
                     let sl_dist = atr_val * stop_loss_mult_dec;
@@ -171,7 +173,9 @@ mod tests {
         // Expect Entry at i=2 (CMF goes from 0.0 to 1.0)
         assert_eq!(entries.len(), 1);
         assert_eq!(entries[0].timestamp_ms, 3000);
-        assert!(entries[0].reason.contains("CMF crossed above Buy Threshold"));
+        assert!(entries[0]
+            .reason
+            .contains("CMF crossed above Buy Threshold"));
         assert!(entries[0].stop_loss.is_some());
 
         // Expect Exit at i=4 (CMF goes from 0.0 to -1.0)

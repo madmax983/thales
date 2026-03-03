@@ -1609,3 +1609,73 @@ pub struct ChaikinMoneyFlowConfig {
 ### Performance
 - CMF calculation is O(N).
 - Signal generation loop is O(N).
+
+---
+
+# Trading Strategy: Elder Ray Index
+
+## Strategy Specification
+
+**Name:** ElderRay
+
+**Description:** A trend-following strategy that uses the Elder Ray Index to measure buying and selling pressure in the market. It combines an Exponential Moving Average (EMA) with Bull Power and Bear Power indicators to generate trading signals.
+
+**Rationale:** Developed by Dr. Alexander Elder, the Elder Ray Index helps traders identify when bulls or bears are in control of the market. The EMA indicates the consensus of value (the trend), while Bull Power and Bear Power measure the ability of buyers and sellers to drive prices above or below that consensus. Trades are taken in the direction of the trend when the opposing power shows weakness.
+
+## Requirements
+
+### Implementation Details
+- Uses Polars for data analysis.
+- Implements the `Strategy` trait in Rust.
+- Uses `elder_ray` and `atr` indicators.
+
+### Strategy Type
+Trend Following
+
+### Entry Conditions
+- **Long Entry (Buy):** Bear Power < 0.0 AND Bear Power > Previous Bear Power (Bearish divergence / turning up) AND EMA > Previous EMA (Uptrend).
+- **Short Entry (Sell):** Bull Power > 0.0 AND Bull Power < Previous Bull Power (Bullish divergence / turning down) AND EMA < Previous EMA (Downtrend).
+
+### Exit Conditions
+- **Long Exit (Sell):** Bear Power < Previous Bear Power OR EMA < Previous EMA (Trend weakening/reversing).
+- **Short Exit (Buy):** Bull Power > Previous Bull Power OR EMA > Previous EMA (Trend weakening/reversing).
+- **Stop Loss:** Entry Price +/- (ATR * `stop_loss_atr_mult`).
+
+### Position Sizing
+- **Size Hint:** "100" (fixed units) or "max" (for exits).
+
+## Code Pattern
+
+```rust
+use crate::strategy::{Strategy, StrategyConfig, Signal, SignalType};
+use crate::indicators::{atr, elder_ray};
+use polars::prelude::*;
+use async_trait::async_trait;
+use anyhow::Result;
+
+pub struct ElderRay {
+    config: ElderRayConfig,
+}
+
+#[derive(Debug, Clone, serde::Deserialize)]
+pub struct ElderRayConfig {
+    pub ema_period: usize,
+    pub stop_loss_atr_mult: f64,
+    pub atr_period: usize,
+    pub symbol: String,
+}
+```
+
+## Critical Considerations
+
+### Risk Management Integration
+- **Stop Loss:** Uses ATR-based stop loss to adapt to volatility.
+- **Trend Filter:** The EMA slope acts as a strict trend filter for entries.
+
+### Backtesting Requirements
+- Accepts `DataFrame` with historical data containing "high", "low", and "close".
+- Requires data length > `ema_period`.
+
+### Performance
+- Elder Ray calculation (EMA, High - EMA, Low - EMA) is O(N).
+- Signal generation loop is O(N).

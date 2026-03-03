@@ -8,6 +8,7 @@ use strategies::connors_rsi_mean_reversion::{
     ConnorsRsiMeanReversion, ConnorsRsiMeanReversionConfig,
 };
 use strategies::donchian_breakout::{DonchianBreakout, DonchianBreakoutConfig};
+use strategies::elder_ray::{ElderRay, ElderRayConfig};
 use strategies::ema_crossover::{EmaCrossover, EmaCrossoverConfig};
 use strategies::ichimoku_cloud::{IchimokuCloud, IchimokuCloudConfig};
 use strategies::keltner_channel_breakout::{KeltnerChannelBreakout, KeltnerChannelBreakoutConfig};
@@ -57,6 +58,15 @@ pub fn create_strategy(name: &str, symbol: &str) -> Result<Box<dyn Strategy>> {
                 symbol: symbol.to_string(),
             };
             Ok(Box::new(EmaCrossover::new(config)))
+        }
+        "ElderRay" => {
+            let config = ElderRayConfig {
+                ema_period: 13,
+                stop_loss_atr_mult: 2.0,
+                atr_period: 14,
+                symbol: symbol.to_string(),
+            };
+            Ok(Box::new(ElderRay::new(config)))
         }
         "RsiMeanReversion" => {
             let config = RsiMeanReversionConfig {
@@ -277,6 +287,7 @@ pub fn create_strategy(name: &str, symbol: &str) -> Result<Box<dyn Strategy>> {
 pub fn list_strategies() -> Vec<&'static str> {
     vec![
         "BollingerBands",
+        "ElderRay",
         "EmaCrossover",
         "RsiMeanReversion",
         "Macd",
