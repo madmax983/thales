@@ -1,36 +1,42 @@
-1. **Research and Specify Strategy:**
-   - I need to pick a new trading strategy that isn't currently implemented. The existing ones are (among others): BollingerBands, ElderRay, EmaCrossover, RsiMeanReversion, Macd, Supertrend, DonchianBreakout, ParabolicSar, KeltnerChannelBreakout, StochasticOscillator, AdxMomentum, IchimokuCloud, CciMomentum, ChaikinMoneyFlow, LinearRegressionTrend, ObvTrendFollowing, MoneyFlowIndex, ConnorsRsiMeanReversion, AwesomeOscillator, WilliamsR, VwmaCrossover, VwapReversion, VortexBreakout, ZScoreMeanReversion.
-   - Let's implement **Aroon Oscillator**.
-   - **Name:** `AroonOscillator`
-   - **Type:** TrendFollowing
-   - **Description:** Aroon Oscillator uses Aroon Up and Aroon Down to measure the strength of a trend. Aroon Up measures the number of periods since the highest high within the period, and Aroon Down measures periods since the lowest low. The oscillator is the difference between Up and Down.
-   - **Entry:** Aroon Oscillator crosses above 0 (or a specific threshold like +50).
-   - **Exit:** Aroon Oscillator crosses below 0 (or a specific threshold like -50).
-   - **Position Sizing:** max/100.
-   - **Risk Management:** Implement ATR based Stop Loss.
+1. **Explore & Research**: I need to implement a new trading strategy. Since the system has an existing ROC (Rate of Change) indicator (`crates/strategies/src/indicators/roc.rs`) that is not used by any current strategy, I will implement a `RocMomentum` strategy! This aligns perfectly with the requirement to "create a new strategy" and "Use Polars for data analysis".
 
-2. **Implement Indicator (`crates/strategies/src/indicators/aroon.rs`):**
-   - Calculate Aroon Up and Aroon Down.
-   - Calculate Aroon Oscillator.
-   - In Polars, `rolling_argmax` or `rolling_argmin` can be used to find the index of highest/lowest, but Polars expressions are powerful enough to do it. Oh wait, `rolling_max` and finding when it equals the current can work, but really we need `rolling_argmax` / `rolling_argmin` which tells us how many periods ago the extreme occurred. Or we can just calculate it in Rust using a rolling window natively if Polars is tricky. But let's check Polars documentation or use a `.apply` if needed, or see how Donchian does it. (Actually, Donchian uses rolling_max/min, not argmax). We can just use an iterator in Rust on the `f64` slice for maximum efficiency and exactness since Polars `rolling_argmax` might be tricky. Let's write `aroon` calculation function in `crates/strategies/src/indicators/aroon.rs`.
+**Name:** RocMomentum
+**Description:** A momentum strategy based on the Rate of Change (ROC) indicator. It identifies overbought and oversold conditions, as well as trend reversals, by measuring the percentage change in price over a given period.
+**Rationale:** Momentum often precedes price. A high positive ROC indicates strong bullish momentum (overbought), while a low negative ROC indicates strong bearish momentum (oversold). Crossing above/below the zero line or specific thresholds can signal trend changes.
+**Strategy Type:** Momentum
+**Entry Conditions:**
+- Long Entry (Buy): ROC crosses above `buy_threshold` (e.g., 0.0 or a slightly positive value) AND ROC > Previous ROC.
+- Short Entry (Sell): ROC crosses below `sell_threshold` (e.g., 0.0 or a slightly negative value) AND ROC < Previous ROC.
+**Exit Conditions:**
+- Long Exit (Sell): ROC crosses below `sell_threshold` OR ROC < Previous ROC (momentum slowing down).
+- Short Exit (Buy): ROC crosses above `buy_threshold` OR ROC > Previous ROC.
+- Stop Loss: Entry Price +/- (ATR * `stop_loss_atr_mult`).
+**Position Sizing:** "100" or "max".
 
-3. **Implement Strategy (`crates/strategies/src/aroon_oscillator.rs`):**
-   - Define `AroonOscillatorConfig` (period, buy_threshold, sell_threshold, stop_loss_atr_mult, atr_period).
-   - Implement `Strategy` trait for `AroonOscillator`.
-   - Write unit tests for signal generation and parameter validation, including mock data.
+Wait, let's keep it simple to ensure robustness.
+Entry: ROC crosses above `buy_threshold`
+Exit: ROC crosses below `sell_threshold`, or Stop Loss hit.
 
-4. **Integrate Strategy:**
-   - Add `pub mod aroon_oscillator;` to `crates/strategies/src/lib.rs`.
-   - Add indicator `pub mod aroon;` to `crates/strategies/src/indicators/mod.rs`.
-   - Add to `crates/cli/src/strategy_factory.rs` under `create_strategy` and `list_strategies`.
-   - Add `AroonOscillator` to `TREND_FOLLOWING_STRATEGIES` in `execute_cycle.py`.
-   - Update `strategies.md` with the specification.
+2. **Implement Strategy Logic (`crates/strategies/src/roc_momentum.rs`)**:
+   - Define `RocMomentum` and `RocMomentumConfig`.
+   - Implement `Strategy` trait.
+   - Use `roc` and `atr` indicators.
+   - Calculate signals using Polars `DataFrame`.
+   - Write comprehensive tests inside the file (covering entry, exit, parameter validation, edge cases).
 
-5. **Tests & Pre-commit Check:**
-   - Run `cargo test -p strategies`
-   - Run `cargo test -p thales-cli`
-   - Run `python -m unittest test_execute_cycle.py`
-   - Ensure pre-commit steps are done using the `pre_commit_instructions` tool to guarantee testing, verification, review, and reflection.
+3. **Register Strategy**:
+   - Add `pub mod roc_momentum;` to `crates/strategies/src/lib.rs`.
+   - Add `RocMomentum` to `crates/cli/src/strategy_factory.rs`.
+   - Add `RocMomentum` to `execute_cycle.py` strategy list.
 
-6. **Submit:**
-   - Submit the PR with changes.
+4. **Update Documentation**:
+   - Add `RocMomentum` section to `strategies.md` with expected metrics (Win Rate, Sharpe, Max Drawdown).
+
+5. **Run Tests**:
+   - `cargo test -p strategies`
+   - `python -m unittest test_execute_cycle.py` (if it exists)
+   - `cargo fmt --all && cargo clippy --all-targets --all-features -- -D warnings`
+
+6. **Pre-commit steps**: Ensure proper testing, verification, review, and reflection are done by calling `pre_commit_instructions`.
+
+7. **Submit**: Create PR.

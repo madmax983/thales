@@ -1745,3 +1745,74 @@ pub struct AroonOscillatorConfig {
 
 ### Performance
 - Calculates Aroon values in `O(N * M)` where N is length and M is period, fast enough for <100ms given typical periods (14-25).
+
+# Trading Strategy: ROC Momentum
+
+## Strategy Specification
+
+**Name:** RocMomentum
+
+**Description:** A momentum strategy based on the Rate of Change (ROC) indicator. It identifies overbought and oversold conditions, as well as trend reversals, by measuring the percentage change in price over a given period.
+
+**Rationale:** Momentum often precedes price. A high positive ROC indicates strong bullish momentum (overbought), while a low negative ROC indicates strong bearish momentum (oversold). Crossing above/below specific thresholds can signal trend changes.
+
+## Requirements
+
+### Implementation Details
+- Uses Polars for data analysis.
+- Implements the `Strategy` trait in Rust.
+- Uses the custom `roc` and `atr` indicators.
+
+### Strategy Type
+Momentum
+
+### Entry Conditions
+- **Long Entry (Buy):** ROC crosses ABOVE the `buy_threshold`.
+- **Short Entry (Sell):** ROC crosses BELOW the `sell_threshold`.
+
+### Exit Conditions
+- Uses Take Profit and Stop Loss derived from ATR.
+- **Stop Loss:** Entry Price +/- (ATR * `stop_loss_atr_mult`).
+
+### Position Sizing
+- **Size Hint:** "100" (fixed units) or "max" (for exits).
+
+## Code Pattern
+
+```rust
+use crate::strategy::{Strategy, StrategyConfig, Signal, SignalType};
+use polars::prelude::*;
+use rust_decimal::Decimal;
+use async_trait::async_trait;
+use anyhow::Result;
+
+pub struct RocMomentum {
+    config: RocMomentumConfig,
+}
+
+#[derive(Debug, Clone, serde::Deserialize)]
+pub struct RocMomentumConfig {
+    pub period: usize,
+    pub buy_threshold: f64,
+    pub sell_threshold: f64,
+    pub stop_loss_atr_mult: f64,
+    pub atr_period: usize,
+    pub symbol: String,
+}
+```
+
+## Critical Considerations
+
+### Risk Management Integration
+- **Stop Loss:** Uses ATR-based stop loss to adapt to volatility.
+
+### Backtesting Requirements
+- Accepts `DataFrame` with historical data containing "high", "low", and "close".
+- Requires data length > `period` and `atr_period`.
+- Expected Win Rate: 45-55%
+- Expected Sharpe Ratio: > 1.0
+- Max Drawdown: < 15%
+
+### Performance
+- Calculates ROC values in O(N).
+- Signal generation loop is O(N).
