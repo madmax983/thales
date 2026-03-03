@@ -162,7 +162,7 @@ class TestExecuteCycle(unittest.TestCase):
 
             if cmd == "scan-market":
                 provider = args[args.index("--provider") + 1]
-                if provider == "kraken":
+                if provider == "kraken" or provider == "paper":
                     return ["BTCUSD"]
                 if provider == "alpaca":
                     return []
