@@ -60,8 +60,8 @@ impl Strategy for ZScoreMeanReversion {
         let atr_arr = atr_series.f64()?;
 
         let mut signals = Vec::new();
-        let atr_mult_dec = Decimal::from_f64_retain(self.config.stop_loss_atr_mult)
-            .unwrap_or(Decimal::new(2, 0));
+        let atr_mult_dec =
+            Decimal::from_f64_retain(self.config.stop_loss_atr_mult).unwrap_or(Decimal::new(2, 0));
 
         let entry_threshold = self.config.entry_threshold;
         let exit_threshold = self.config.exit_threshold;
@@ -80,7 +80,9 @@ impl Strategy for ZScoreMeanReversion {
             let sma_opt = sma_arr.get(i);
             let atr_opt = atr_arr.get(i).and_then(Decimal::from_f64_retain);
 
-            if let (Some(price), Some(prev_z), Some(curr_z)) = (price_opt, prev_zscore_opt, zscore_opt) {
+            if let (Some(price), Some(prev_z), Some(curr_z)) =
+                (price_opt, prev_zscore_opt, zscore_opt)
+            {
                 // Determine sl dynamically if available
                 let atr_dec = atr_opt.unwrap_or(Decimal::ZERO);
 
@@ -104,7 +106,6 @@ impl Strategy for ZScoreMeanReversion {
                         timestamp_ms: timestamp,
                     });
                 }
-
                 // Short Entry: Z-Score crosses above entry_threshold
                 else if prev_z <= entry_threshold && curr_z > entry_threshold {
                     let sl = price + (atr_dec * atr_mult_dec);
