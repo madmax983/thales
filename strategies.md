@@ -1679,3 +1679,69 @@ pub struct ElderRayConfig {
 ### Performance
 - Elder Ray calculation (EMA, High - EMA, Low - EMA) is O(N).
 - Signal generation loop is O(N).
+
+# Trading Strategy: Aroon Oscillator
+
+## Strategy Specification
+
+**Name:** AroonOscillator
+
+**Description:** A trend-following strategy that uses the Aroon Oscillator to identify trend strength and direction. Aroon Up measures the number of periods since the highest high, and Aroon Down measures the number of periods since the lowest low within the period. The oscillator is the difference between Aroon Up and Aroon Down.
+
+**Rationale:** The Aroon Oscillator is a powerful tool to detect strong trends early by measuring the time since recent highs and lows. When the oscillator crosses above a positive threshold (or zero), it indicates a strong emerging uptrend. A cross below a negative threshold (or zero) indicates a strong downtrend.
+
+## Requirements
+
+### Implementation Details
+- Uses Polars for data analysis and signal generation.
+- Implements Aroon indicator calculations manually.
+- Evaluates crossovers based on consecutive closing candles.
+
+### Strategy Type
+TrendFollowing
+
+### Entry Conditions
+- **Long Entry (Buy):** Aroon Oscillator crosses above the `buy_threshold`.
+- **Short Entry (Sell):** Aroon Oscillator crosses below the `sell_threshold`.
+
+### Exit Conditions
+- Uses Take Profit and Stop Loss derived from ATR.
+
+### Position Sizing
+- **Size Hint:** "100" units (fixed sizing placeholder).
+
+## Code Pattern
+
+```rust
+use crate::strategy::{Strategy, StrategyConfig, Signal, SignalType};
+use polars::prelude::*;
+use rust_decimal::Decimal;
+use async_trait::async_trait;
+use anyhow::Result;
+
+pub struct AroonOscillator {
+    config: AroonOscillatorConfig,
+}
+
+#[derive(Debug, Clone, serde::Deserialize)]
+pub struct AroonOscillatorConfig {
+    pub period: usize,
+    pub buy_threshold: f64,
+    pub sell_threshold: f64,
+    pub stop_loss_atr_mult: f64,
+    pub atr_period: usize,
+    pub symbol: String,
+}
+```
+
+## Critical Considerations
+
+### Risk Management Integration
+- MUST include ATR-based stop-loss logic.
+- Consider adjusting maximum position sizes during volatile markets.
+
+### Backtesting Requirements
+- The Aroon Oscillator logic is backtestable and verifies the exact `periods_since_high` and `periods_since_low` calculations using exact Rust iterations over the high/low arrays.
+
+### Performance
+- Calculates Aroon values in `O(N * M)` where N is length and M is period, fast enough for <100ms given typical periods (14-25).
