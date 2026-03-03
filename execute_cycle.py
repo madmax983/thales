@@ -446,7 +446,7 @@ def evaluate_candidate(candidate, strategies, portfolio_path=None):
 
     # Fetch Data
     bars = run_command(["fetch-market-data", "--provider", provider, "--symbol", symbol, "--timeframe", "1h"])
-    if not bars:
+    if not bars or not isinstance(bars, dict) or not bars.get("bars"):
         return []
 
     # Save temp bars
