@@ -194,3 +194,37 @@ let (st_line, st_trend) = supertrend::calculate(&df, period, multiplier)?;
 - Returns `Result<(Series, Series)>` representing `(supertrend_line, trend_direction)`.
 - The output Series are named "supertrend" and "supertrend_trend".
 - The first `period` values (approx) will be null.
+
+## Stochastic Oscillator
+
+**Name:** Stochastic Oscillator
+**Description:** Calculates the Stochastic Oscillator, a momentum indicator comparing a particular closing price of a security to a range of its prices over a certain period of time.
+**Rationale:** Momentum indicator used to identify overbought or oversold conditions, based on the premise that prices close near their highs in an uptrend and near their lows in a downtrend.
+
+### Implementation Details
+- Uses `rust_decimal::Decimal` for all internal calculations to ensure precision.
+- Calculates both `%K` (the fast indicator line) and `%D` (the slow indicator line, a simple moving average of `%K`).
+- Returns a tuple of two Polars `Series` of `f64` values: (`%K`, `%D`).
+- Outputs `50.0` when the high-low range over the period is zero to avoid division by zero errors.
+
+### Usage
+
+```rust
+use strategies::indicators::stochastic;
+use polars::prelude::*;
+
+// Assuming df is a DataFrame with "high", "low", "close" columns
+let k_period = 14;
+let d_period = 3;
+let (k_series, d_series) = stochastic::calculate(&df, k_period, d_period)?;
+```
+
+### Parameters
+- `data`: Reference to a Polars `DataFrame`. Must contain numeric columns named "high", "low", and "close".
+- `k_period`: The lookback period for the `%K` line calculation (typically 14).
+- `d_period`: The lookback period for the `%D` line (SMA of `%K`) calculation (typically 3).
+
+### Output
+- Returns `Result<(Series, Series)>` representing `(k_series, d_series)`.
+- The output Series are named "stoch_k" and "stoch_d".
+- The first `k_period - 1` values of `%K` will be null. The `%D` line will have additional initial nulls depending on `d_period`.
