@@ -27,6 +27,7 @@ MEAN_REVERSION_STRATEGIES = {
     "ZScoreMeanReversion",
 }
 TREND_FOLLOWING_STRATEGIES = {
+    "ElderRay",
     "EmaCrossover",
     "Macd",
     "Supertrend",

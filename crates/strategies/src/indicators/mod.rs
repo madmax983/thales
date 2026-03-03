@@ -6,6 +6,7 @@ pub mod cci;
 pub mod cmf;
 pub mod connors_rsi;
 pub mod donchian_channels;
+pub mod elder_ray;
 pub mod ema;
 pub mod ichimoku;
 pub mod keltner_channels;
