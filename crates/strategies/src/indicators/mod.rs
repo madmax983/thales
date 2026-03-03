@@ -19,3 +19,4 @@ pub mod stochastic;
 pub mod supertrend;
 pub mod vwma;
 pub mod williams_r;
+pub mod vwap;
