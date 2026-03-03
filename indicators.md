@@ -295,6 +295,37 @@ let (lower, middle, upper) = keltner_channels::calculate(&df, ema_period, atr_pe
 - Returns `Result<(Series, Series, Series)>` representing `(lower_band, middle_band, upper_band)`.
 - The output Series are named "keltner_lower", "keltner_middle", and "keltner_upper".
 
+## Rate of Change (ROC)
+
+**Name:** Rate of Change (ROC)
+**Description:** A momentum oscillator that measures the percentage change in price between the current price and the price a certain number of periods ago.
+**Rationale:** The ROC helps identify overbought and oversold conditions as well as trend direction. High ROC values suggest a strong uptrend and low ROC values suggest a strong downtrend.
+
+### Implementation Details
+- Uses `rust_decimal::Decimal` for precision.
+- Returns a Polars `Series` of `f64` values.
+- Uses sliding window percentage difference with `((Current Close - Past Close) / Past Close) * 100`.
+
+### Usage
+
+```rust
+use strategies::indicators::roc;
+use polars::prelude::*;
+
+// Assuming df is a DataFrame with a "close" column
+let period = 14;
+let roc_series = roc::calculate(&df, period)?;
+```
+
+### Parameters
+- `data`: Reference to a Polars `DataFrame`. Must contain a numeric column named "close".
+- `period`: The lookback period (typically 14).
+
+### Output
+- Returns `Result<Series>`.
+- The output Series is named "roc".
+- The first `period` values will be null.
+
 ## Ichimoku Cloud
 
 **Name:** Ichimoku Cloud (Ichimoku Kinko Hyo)

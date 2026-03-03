@@ -9,6 +9,7 @@ pub mod keltner_channels;
 pub mod linear_regression;
 pub mod macd;
 pub mod parabolic_sar;
+pub mod roc;
 pub mod rsi;
 pub mod sma;
 pub mod stochastic;
