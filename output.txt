@@ -1,69 +1,34 @@
 Error executing ['get-open-orders', '--provider', 'alpaca']: provider error: unexpected alpaca response status 404: Not Found
-Active Strategies: ['BollingerBands', 'EmaCrossover', 'RsiMeanReversion', 'Macd', 'Supertrend', 'DonchianBreakout', 'ParabolicSar', 'KeltnerChannelBreakout', 'StochasticOscillator', 'AdxMomentum', 'IchimokuCloud', 'CciMomentum', 'LinearRegressionTrend', 'ObvTrendFollowing', 'MoneyFlowIndex', 'ConnorsRsiMeanReversion', 'AwesomeOscillator', 'WilliamsR', 'VwmaCrossover']
+Active Strategies: ['BollingerBands', 'EmaCrossover', 'RsiMeanReversion', 'Macd', 'Supertrend', 'DonchianBreakout', 'ParabolicSar', 'KeltnerChannelBreakout', 'StochasticOscillator', 'AdxMomentum', 'IchimokuCloud', 'CciMomentum', 'LinearRegressionTrend', 'ObvTrendFollowing', 'MoneyFlowIndex', 'ConnorsRsiMeanReversion', 'AwesomeOscillator', 'WilliamsR', 'VwmaCrossover', 'VwapReversion', 'VortexBreakout']
 Scanning Kraken (Crypto)...
 Scanning Alpaca (Equities)...
-Skipping stale signal for XXBTZUSD: Signal too old (47.1 hours > 24 hours)
-Skipping stale signal for XETHZUSD: Signal too old (47.1 hours > 24 hours)
-Skipping stale signal for XXBTZUSD: Signal too old (47.1 hours > 24 hours)
-Skipping stale signal for XETHZUSD: Signal too old (47.1 hours > 24 hours)
-Skipping stale signal for XXBTZUSD: Signal too old (43.1 hours > 24 hours)
-Skipping stale signal for XXBTZUSD: Signal too old (43.1 hours > 24 hours)
-Skipping stale signal for XETHZUSD: Signal too old (43.1 hours > 24 hours)
-Skipping stale signal for SPY: Signal too old (43.1 hours > 24 hours)
-Skipping stale signal for SPY: Signal too old (38.5 hours > 24 hours)
-Skipping stale signal for XXBTZUSD: Signal too old (38.5 hours > 24 hours)
-Skipping stale signal for XXBTZUSD: Signal too old (40.1 hours > 24 hours)
-Skipping stale signal for XXBTZUSD: Signal too old (40.1 hours > 24 hours)
-Skipping stale signal for XXBTZUSD: Signal too old (40.1 hours > 24 hours)
-Skipping stale signal for BTCUSD: Signal too old (32.3 hours > 24 hours)
-Skipping stale signal for ETHUSD: Signal too old (32.3 hours > 24 hours)
-Skipping stale signal for SPY: Signal too old (32.3 hours > 24 hours)
-Skipping stale signal for XXBTZUSD: Signal too old (38.4 hours > 24 hours)
-Selected 3 candidates for deep analysis (from 21 scanned + 6 signals).
+Skipping stale signal for BTCUSD: Signal too old (31.2 hours > 24 hours)
+Skipping stale signal for ETHUSD: Signal too old (31.2 hours > 24 hours)
+Skipping stale signal for SPY: Signal too old (31.2 hours > 24 hours)
+Skipping stale signal for BTCUSD: Signal too old (31.2 hours > 24 hours)
+Skipping stale signal for ETHUSD: Signal too old (31.2 hours > 24 hours)
+Skipping stale signal for SPY: Signal too old (31.2 hours > 24 hours)
+Skipping stale signal for APENFTUSD: Signal too old (28.6 hours > 24 hours)
+Skipping stale signal for KOBANUSD: Signal too old (28.6 hours > 24 hours)
+Skipping stale signal for CATUSD: Signal too old (28.6 hours > 24 hours)
+Skipping stale signal for BTCUSD: Signal too old (28.6 hours > 24 hours)
+Skipping stale signal for ETHUSD: Signal too old (28.6 hours > 24 hours)
+Skipping stale signal for BTCUSD: Signal too old (27.6 hours > 24 hours)
+Skipping stale signal for BTCUSD: Signal too old (27.1 hours > 24 hours)
+Skipping stale signal for BTCUSD: Signal too old (25.2 hours > 24 hours)
+Skipping stale signal for ETHUSD: Signal too old (25.2 hours > 24 hours)
+Skipping stale signal for SPY: Signal too old (25.2 hours > 24 hours)
+Selected 3 candidates for deep analysis (from 21 scanned + 3 signals).
  - BTCUSD (crypto)
  - ETHUSD (crypto)
  - SPY (equities)
 Fetching open positions...
 Error executing ['get-positions', '--provider', 'alpaca']: provider error: unexpected alpaca response status 404: Not Found
 Evaluating candidates...
-  BTCUSD: regime=trending_down, using strategies=['BollingerBands', 'EmaCrossover', 'RsiMeanReversion', 'Macd', 'Supertrend', 'DonchianBreakout', 'ParabolicSar', 'KeltnerChannelBreakout', 'StochasticOscillator', 'AdxMomentum', 'IchimokuCloud', 'CciMomentum', 'LinearRegressionTrend', 'ObvTrendFollowing', 'MoneyFlowIndex', 'ConnorsRsiMeanReversion', 'AwesomeOscillator', 'WilliamsR', 'VwmaCrossover']
-  BTCUSD: No active strategy generated a signal (Strategies: BollingerBands, EmaCrossover, RsiMeanReversion, Macd, Supertrend, DonchianBreakout, ParabolicSar, KeltnerChannelBreakout, StochasticOscillator, AdxMomentum, IchimokuCloud, CciMomentum, LinearRegressionTrend, ObvTrendFollowing, MoneyFlowIndex, ConnorsRsiMeanReversion, AwesomeOscillator, WilliamsR, VwmaCrossover)
-  ETHUSD: regime=trending_up, using strategies=['BollingerBands', 'EmaCrossover', 'RsiMeanReversion', 'Macd', 'Supertrend', 'DonchianBreakout', 'ParabolicSar', 'KeltnerChannelBreakout', 'StochasticOscillator', 'AdxMomentum', 'IchimokuCloud', 'CciMomentum', 'LinearRegressionTrend', 'ObvTrendFollowing', 'MoneyFlowIndex', 'ConnorsRsiMeanReversion', 'AwesomeOscillator', 'WilliamsR', 'VwmaCrossover']
-  ETHUSD: Selected 1 valid signals.
-  SPY: regime=trending_up, using strategies=['BollingerBands', 'EmaCrossover', 'RsiMeanReversion', 'Macd', 'Supertrend', 'DonchianBreakout', 'ParabolicSar', 'KeltnerChannelBreakout', 'StochasticOscillator', 'AdxMomentum', 'IchimokuCloud', 'CciMomentum', 'LinearRegressionTrend', 'ObvTrendFollowing', 'MoneyFlowIndex', 'ConnorsRsiMeanReversion', 'AwesomeOscillator', 'WilliamsR', 'VwmaCrossover']
-Error executing ['generate-signals', '--input', 'temp_bars_SPY.json', '--strategy', 'EmaCrossover', '--history', 'history.json', '--portfolio', 'temp_portfolio.json', '--analysis', 'temp_analysis_SPY.json', '--risk', '100.0']: validation error: Data cannot be empty
-Error executing ['generate-signals', '--input', 'temp_bars_SPY.json', '--strategy', 'RsiMeanReversion', '--history', 'history.json', '--portfolio', 'temp_portfolio.json', '--analysis', 'temp_analysis_SPY.json', '--risk', '100.0']: validation error: Data cannot be empty
-Error executing ['generate-signals', '--input', 'temp_bars_SPY.json', '--strategy', 'Macd', '--history', 'history.json', '--portfolio', 'temp_portfolio.json', '--analysis', 'temp_analysis_SPY.json', '--risk', '100.0']: validation error: Failed to calculate Fast EMA
-Error executing ['generate-signals', '--input', 'temp_bars_SPY.json', '--strategy', 'Supertrend', '--history', 'history.json', '--portfolio', 'temp_portfolio.json', '--analysis', 'temp_analysis_SPY.json', '--risk', '100.0']: validation error: Data cannot be empty
-Error executing ['generate-signals', '--input', 'temp_bars_SPY.json', '--strategy', 'StochasticOscillator', '--history', 'history.json', '--portfolio', 'temp_portfolio.json', '--analysis', 'temp_analysis_SPY.json', '--risk', '100.0']: validation error: Data cannot be empty
-Error executing ['generate-signals', '--input', 'temp_bars_SPY.json', '--strategy', 'AdxMomentum', '--history', 'history.json', '--portfolio', 'temp_portfolio.json', '--analysis', 'temp_analysis_SPY.json', '--risk', '100.0']: validation error: Failed to calculate ADX
-Error executing ['generate-signals', '--input', 'temp_bars_SPY.json', '--strategy', 'IchimokuCloud', '--history', 'history.json', '--portfolio', 'temp_portfolio.json', '--analysis', 'temp_analysis_SPY.json', '--risk', '100.0']: validation error: Data cannot be empty
-Error executing ['generate-signals', '--input', 'temp_bars_SPY.json', '--strategy', 'LinearRegressionTrend', '--history', 'history.json', '--portfolio', 'temp_portfolio.json', '--analysis', 'temp_analysis_SPY.json', '--risk', '100.0']: validation error: Failed to calculate Linear Regression Slope
-Error executing ['generate-signals', '--input', 'temp_bars_SPY.json', '--strategy', 'ObvTrendFollowing', '--history', 'history.json', '--portfolio', 'temp_portfolio.json', '--analysis', 'temp_analysis_SPY.json', '--risk', '100.0']: validation error: Data cannot be empty
-Error executing ['generate-signals', '--input', 'temp_bars_SPY.json', '--strategy', 'MoneyFlowIndex', '--history', 'history.json', '--portfolio', 'temp_portfolio.json', '--analysis', 'temp_analysis_SPY.json', '--risk', '100.0']: validation error: Data cannot be empty
-Error executing ['generate-signals', '--input', 'temp_bars_SPY.json', '--strategy', 'ConnorsRsiMeanReversion', '--history', 'history.json', '--portfolio', 'temp_portfolio.json', '--analysis', 'temp_analysis_SPY.json', '--risk', '100.0']: validation error: Data cannot be empty
-Error executing ['generate-signals', '--input', 'temp_bars_SPY.json', '--strategy', 'AwesomeOscillator', '--history', 'history.json', '--portfolio', 'temp_portfolio.json', '--analysis', 'temp_analysis_SPY.json', '--risk', '100.0']: validation error: Data cannot be empty
-Error executing ['generate-signals', '--input', 'temp_bars_SPY.json', '--strategy', 'WilliamsR', '--history', 'history.json', '--portfolio', 'temp_portfolio.json', '--analysis', 'temp_analysis_SPY.json', '--risk', '100.0']: validation error: Data cannot be empty
-Error executing ['generate-signals', '--input', 'temp_bars_SPY.json', '--strategy', 'VwmaCrossover', '--history', 'history.json', '--portfolio', 'temp_portfolio.json', '--analysis', 'temp_analysis_SPY.json', '--risk', '100.0']: validation error: Data cannot be empty
-  SPY: No active strategy generated a signal (Strategies: BollingerBands, EmaCrossover, RsiMeanReversion, Macd, Supertrend, DonchianBreakout, ParabolicSar, KeltnerChannelBreakout, StochasticOscillator, AdxMomentum, IchimokuCloud, CciMomentum, LinearRegressionTrend, ObvTrendFollowing, MoneyFlowIndex, ConnorsRsiMeanReversion, AwesomeOscillator, WilliamsR, VwmaCrossover)
-Selected top 1 signals for execution.
-
---- NEW SIGNAL ---
-Symbol: ETHUSD (crypto)
-Direction: BUY
-Signal Type: Entry
-Confidence: 64.0%
-Size Hint: 1.738318
-Stop Loss: 1962.623141775424
-Take Profit: 2182.358903260651
-Reasoning: Strategy: KeltnerChannelBreakout (64%, MA: 0.80). Reason: Keltner Breakout: Close 2020.15 > Upper 2018.28. Market Context: Trending Up (Short Term) (Medium Volatility). No similar past trades found. Research: Similar market conditions in Q4 2023 showed a strong bullish trend following consolidation periods. The market is currently exhibiting similar behavior. Bitcoin ETFs are seeing strong institutional inflows following SEC approvals. Analysts remain bullish due to positive macroeconomic indicators and recent halving events.. News: Major indices are hitting new highs, with Bitcoin showing resilience against recent regulatory concerns.. (Buying strength in Overbought conditions) (Risk: $100, SL Dist: 57.53)
-------------------
-
-Fetching latest price for ETHUSD on kraken...
-Latest price for ETHUSD: 2020.15
-Adjusted buy size for ETHUSD: 1.738318 -> 0.0004218 (buying power: USD 0.86)
-Order Type: LIMIT
-Algorithm: Limit
-Executing buy ETHUSD via kraken...
-Error executing ['execute-intent', '--provider', 'kraken', '--input', 'temp_intent_ETHUSD.json']: provider error: kraken api error: EGeneral:Invalid arguments:volume minimum not met
-Execution failed: provider error: kraken api error: EGeneral:Invalid arguments:volume minimum not met
+  BTCUSD: regime=trending_down, using strategies=['BollingerBands', 'EmaCrossover', 'RsiMeanReversion', 'Macd', 'Supertrend', 'DonchianBreakout', 'ParabolicSar', 'KeltnerChannelBreakout', 'StochasticOscillator', 'AdxMomentum', 'IchimokuCloud', 'CciMomentum', 'LinearRegressionTrend', 'ObvTrendFollowing', 'MoneyFlowIndex', 'ConnorsRsiMeanReversion', 'AwesomeOscillator', 'WilliamsR', 'VwmaCrossover', 'VwapReversion', 'VortexBreakout']
+CONFLICT: Conflicting signals (Buy and Sell) detected for BTCUSD. Trading halted for this asset.
+  BTCUSD: All 2 signals rejected due to conflicts.
+  ETHUSD: regime=trending_up, using strategies=['BollingerBands', 'EmaCrossover', 'RsiMeanReversion', 'Macd', 'Supertrend', 'DonchianBreakout', 'ParabolicSar', 'KeltnerChannelBreakout', 'StochasticOscillator', 'AdxMomentum', 'IchimokuCloud', 'CciMomentum', 'LinearRegressionTrend', 'ObvTrendFollowing', 'MoneyFlowIndex', 'ConnorsRsiMeanReversion', 'AwesomeOscillator', 'WilliamsR', 'VwmaCrossover', 'VwapReversion', 'VortexBreakout']
+  ETHUSD: No active strategy generated a signal (Strategies: BollingerBands, EmaCrossover, RsiMeanReversion, Macd, Supertrend, DonchianBreakout, ParabolicSar, KeltnerChannelBreakout, StochasticOscillator, AdxMomentum, IchimokuCloud, CciMomentum, LinearRegressionTrend, ObvTrendFollowing, MoneyFlowIndex, ConnorsRsiMeanReversion, AwesomeOscillator, WilliamsR, VwmaCrossover, VwapReversion, VortexBreakout)
+  SPY: No active strategy generated a signal (Strategies: BollingerBands, EmaCrossover, RsiMeanReversion, Macd, Supertrend, DonchianBreakout, ParabolicSar, KeltnerChannelBreakout, StochasticOscillator, AdxMomentum, IchimokuCloud, CciMomentum, LinearRegressionTrend, ObvTrendFollowing, MoneyFlowIndex, ConnorsRsiMeanReversion, AwesomeOscillator, WilliamsR, VwmaCrossover, VwapReversion, VortexBreakout)
+No signals generated. Doing nothing.
