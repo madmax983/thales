@@ -3,6 +3,7 @@ use strategies::adx_momentum::{AdxMomentum, AdxMomentumConfig};
 use strategies::awesome_oscillator::{AwesomeOscillator, AwesomeOscillatorConfig};
 use strategies::bollinger_bands::{BollingerBandsConfig, BollingerBandsMeanReversion};
 use strategies::cci_momentum::{CciMomentum, CciMomentumConfig};
+use strategies::chandelier_exit::{ChandelierExit, ChandelierExitConfig};
 use strategies::connors_rsi_mean_reversion::{
     ConnorsRsiMeanReversion, ConnorsRsiMeanReversionConfig,
 };
@@ -213,6 +214,16 @@ pub fn create_strategy(name: &str, symbol: &str) -> Result<Box<dyn Strategy>> {
             };
             Ok(Box::new(WilliamsR::new(config)))
         }
+        "ChandelierExit" => {
+            let config = ChandelierExitConfig {
+                period: 22,
+                atr_mult: 3.0,
+                atr_period: 22,
+                stop_loss_atr_mult: 2.0,
+                symbol: symbol.to_string(),
+            };
+            Ok(Box::new(ChandelierExit::new(config)))
+        }
         _ => Err(anyhow::anyhow!("Unknown strategy: {}", name)),
     }
 }
@@ -237,5 +248,6 @@ pub fn list_strategies() -> Vec<&'static str> {
         "ConnorsRsiMeanReversion",
         "AwesomeOscillator",
         "WilliamsR",
+        "ChandelierExit",
     ]
 }

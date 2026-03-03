@@ -20,11 +20,13 @@
 //! - [`money_flow_index::MoneyFlowIndex`] - Mean reversion using Money Flow Index (MFI).
 //! - [`connors_rsi_mean_reversion::ConnorsRsiMeanReversion`] - Mean reversion using Connors RSI (CRSI).
 //! - [`awesome_oscillator::AwesomeOscillator`] - Momentum strategy using Awesome Oscillator (AO).
+//! - [`chandelier_exit::ChandelierExit`] - Trend following using Chandelier Exit.
 
 pub mod adx_momentum;
 pub mod awesome_oscillator;
 pub mod bollinger_bands;
 pub mod cci_momentum;
+pub mod chandelier_exit;
 pub mod connors_rsi_mean_reversion;
 pub mod donchian_breakout;
 pub mod ema_crossover;

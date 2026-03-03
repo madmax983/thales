@@ -1186,6 +1186,76 @@ pub struct AwesomeOscillatorConfig {
 - Signal generation loop is O(N).
 ---
 
+# Trading Strategy: Chandelier Exit
+
+## Strategy Specification
+
+**Name:** ChandelierExit
+
+**Description:** A trend-following strategy using the Chandelier Exit indicator to trail stops and identify trend changes. It enters long when the price crosses above the short Chandelier Exit line and enters short when the price crosses below the long Chandelier Exit line.
+
+**Rationale:** Chandelier Exit trails stops using the ATR to adapt to market volatility, providing a natural buffer against whipsaws while keeping traders in major trends.
+
+## Requirements
+
+### Implementation Details
+- Uses Polars for data analysis.
+- Implements the `Strategy` trait in Rust.
+- Uses `atr` indicator.
+
+### Strategy Type
+Trend Following
+
+### Entry Conditions
+- **Long Entry (Buy):** Close crosses ABOVE Chandelier Exit Short.
+- **Short Entry (Sell):** Close crosses BELOW Chandelier Exit Long.
+
+### Exit Conditions
+- **Long Exit (Sell):** Close crosses BELOW Chandelier Exit Long.
+- **Short Exit (Buy):** Close crosses ABOVE Chandelier Exit Short.
+- **Stop Loss:** Entry Price +/- (ATR * `stop_loss_atr_mult`).
+
+### Position Sizing
+- **Size Hint:** "100" (fixed units) or "max" (for exits).
+
+## Code Pattern
+
+```rust
+use crate::strategy::{Strategy, StrategyConfig, Signal, SignalType};
+use crate::indicators::atr;
+use polars::prelude::*;
+use async_trait::async_trait;
+use anyhow::Result;
+
+pub struct ChandelierExit {
+    config: ChandelierExitConfig,
+}
+
+#[derive(Debug, Clone, serde::Deserialize)]
+pub struct ChandelierExitConfig {
+    pub period: usize,
+    pub atr_mult: f64,
+    pub stop_loss_atr_mult: f64,
+    pub atr_period: usize,
+    pub symbol: String,
+}
+```
+
+## Critical Considerations
+
+### Risk Management Integration
+- **Stop Loss:** Uses ATR-based stop loss to adapt to volatility.
+- **Take Profit:** Sets a take profit at 2x the risk distance (2 * ATR).
+
+### Backtesting Requirements
+- Accepts `DataFrame` with historical data.
+- Requires data length > `period`.
+
+### Performance
+- Indicator calculation is O(N).
+- Signal generation loop is O(N).
+---
+
 # Trading Strategy: Williams %R
 
 ## Strategy Specification
