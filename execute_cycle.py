@@ -25,6 +25,7 @@ MEAN_REVERSION_STRATEGIES = {
     "WilliamsR",
     "VwapReversion",
     "ZScoreMeanReversion",
+    "StochRsiMeanReversion",
 }
 TREND_FOLLOWING_STRATEGIES = {
     "AroonOscillator",

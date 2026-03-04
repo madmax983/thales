@@ -1891,3 +1891,80 @@ pub struct RocMomentumConfig {
 ### Performance
 - Calculates ROC values in O(N).
 - Signal generation loop is O(N).
+
+---
+
+# Trading Strategy: StochRSI Mean Reversion
+
+## Strategy Specification
+
+**Name:** StochRsiMeanReversion
+
+**Description:** A mean reversion strategy based on the Stochastic RSI (StochRSI) indicator. It identifies overbought and oversold conditions by applying the stochastic formula to RSI values, providing high sensitivity to price extremes.
+
+**Rationale:** Standard RSI can lag and stay in neutral zones for long periods. StochRSI measures where RSI is relative to its high-low range, making it a very sensitive momentum oscillator. When StochRSI reaches extreme values and its %K line crosses its %D line, it signals a potential mean reversion.
+
+## Requirements
+
+### Implementation Details
+- Uses Polars for data analysis.
+- Implements the `Strategy` trait in Rust.
+- Uses the custom `stoch_rsi` indicator alongside `atr` for risk management.
+
+### Strategy Type
+MeanReversion
+
+### Entry Conditions
+- **Long Entry (Buy):** StochRSI %K crosses ABOVE StochRSI %D AND %K is LESS THAN `oversold_threshold` (e.g., 20).
+- **Short Entry (Sell):** StochRSI %K crosses BELOW StochRSI %D AND %K is GREATER THAN `overbought_threshold` (e.g., 80).
+
+### Exit Conditions
+- Uses Take Profit (e.g., 2:1 Risk/Reward) and Stop Loss derived from ATR.
+- **Stop Loss:** Entry Price +/- (ATR * `stop_loss_atr_mult`).
+- Also signals exits on opposite crossovers in extreme regions.
+
+### Position Sizing
+- **Size Hint:** "100" (fixed units) or "max" (for exits).
+
+## Code Pattern
+
+```rust
+use crate::strategy::{Strategy, StrategyConfig, Signal, SignalType};
+use polars::prelude::*;
+use rust_decimal::Decimal;
+use async_trait::async_trait;
+use anyhow::Result;
+
+pub struct StochRsiMeanReversion {
+    config: StochRsiMeanReversionConfig,
+}
+
+#[derive(Debug, Clone, serde::Deserialize)]
+pub struct StochRsiMeanReversionConfig {
+    pub rsi_period: usize,
+    pub stoch_period: usize,
+    pub k_period: usize,
+    pub d_period: usize,
+    pub oversold_threshold: f64,
+    pub overbought_threshold: f64,
+    pub stop_loss_atr_mult: f64,
+    pub atr_period: usize,
+    pub symbol: String,
+}
+```
+
+## Critical Considerations
+
+### Risk Management Integration
+- **Stop Loss:** Uses ATR-based stop loss to adapt to volatility and limit risk on premature entries.
+
+### Backtesting Requirements
+- Accepts `DataFrame` with historical data containing "close".
+- Requires data length > `rsi_period + stoch_period + k_period + d_period`.
+- Expected Win Rate: 50-60% (High probability in ranging markets).
+- Expected Sharpe Ratio: > 1.2
+- Max Drawdown: < 15%
+
+### Performance
+- Calculates StochRSI values in O(N).
+- Signal generation loop is O(N).
