@@ -333,7 +333,7 @@ class TestExecuteCycle(unittest.TestCase):
         # But this test name implies it checks for preference.
         # Let's update the test to reflect the NEW STRICT behavior: IT SHOULD REJECT.
 
-        resolved = execute_cycle.resolve_conflicts(intents, conflict_margin=0.05)
+        resolved = execute_cycle.resolve_conflicts(intents, {"symbol": "AAPL"})
 
         self.assertEqual(len(resolved), 0, "Should reject conflicted signals (Buy vs Sell)")
 
@@ -359,10 +359,10 @@ class TestExecuteCycle(unittest.TestCase):
             },
         ]
 
-        resolved = execute_cycle.resolve_conflicts(intents, conflict_margin=0.05)
+        resolved = execute_cycle.resolve_conflicts(intents, {"symbol": "AAPL"})
 
         self.assertEqual(resolved, [])
-        self.assertEqual(mock_log_skipped.call_count, 2)
+        self.assertEqual(mock_log_skipped.call_count, 1)
 
     def test_log_trade_escapes_pipes(self):
         intent = {

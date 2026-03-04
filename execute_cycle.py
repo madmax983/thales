@@ -350,9 +350,18 @@ def get_candidates_from_signals():
             except:
                 pass
 
-        # Check for Staleness (24 hours = 86400000 ms)
+# Check for Staleness (24 hours = 86400000 ms)
+        signal_ref = "NO_REF"
+        expected_side = None
         if raw_json and raw_json.get("timestamp_unix_ms"):
             ts = raw_json["timestamp_unix_ms"]
+            rec = raw_json.get("recommendation", "").lower()
+            if "short" in rec or "sell" in rec: expected_side = "sell"
+            elif "long" in rec or "buy" in rec: expected_side = "buy"
+
+            side_str = expected_side if expected_side else "unknown"
+            signal_ref = f"{market}:{symbol}:{side_str}:{ts}"
+
             now = int(datetime.now().timestamp() * 1000)
             if (now - ts) > 86400000:
                  age_hours = (now - ts) / 3600000
@@ -360,10 +369,9 @@ def get_candidates_from_signals():
                  print(f"Skipping stale signal for {symbol}: {reason}")
 
                  # Log to portfolio.md
-                 # Create a dummy intent for logging
                  dummy_intent = {
                      "symbol": symbol,
-                     "intent_id": "STALE_SIGNAL",
+                     "intent_id": signal_ref,
                      "rationale": "Stale signal from Signals.md"
                  }
                  log_skipped(dummy_intent, reason)
@@ -395,7 +403,9 @@ def get_candidates_from_signals():
             "provider": provider,
             "symbol": symbol,
             "market": market,
-            "raw_analysis_json": raw_json
+            "raw_analysis_json": raw_json,
+            "expected_side": expected_side,
+            "signal_ref": signal_ref
         }
 
     return list(candidates.values())
@@ -538,41 +548,53 @@ def evaluate_candidate(candidate, strategies, portfolio_path=None):
 
     return all_generated_intents
 
-def resolve_conflicts(intents, conflict_margin=0.05):
+def resolve_conflicts(intents, candidate):
     """
     Resolves conflicts among signals for the same candidate.
-    - If signals conflict (Buy vs Sell), strictly REJECTS execution for that asset.
-    - If side scores are too close, returns empty list and logs warning.
+    - Filters out intents that conflict with Signals.md expected side.
+    - If strategies conflict (Buy vs Sell), strictly REJECTS execution for that asset.
     - Returns single best intent.
     """
     if not intents:
         return []
 
-    # Assume all intents are for the same symbol (caller ensures this)
-    symbol = intents[0]["symbol"]
-    analysis = intents[0].get("_market_analysis")
-    regime_label = classify_market_regime(analysis)
+    symbol = candidate["symbol"]
+    signal_ref = candidate.get("signal_ref", "NO_REF")
+    expected_side = candidate.get("expected_side")
 
+    if expected_side:
+        valid_intents = [i for i in intents if i["side"] == expected_side]
+        if not valid_intents:
+            invalid_sides = set(i["side"] for i in intents)
+            reason = f"Cross-validation failed: Strategies generated {invalid_sides} but signal recommended {expected_side}."
+            print(f"  {symbol}: {reason}")
+            dummy_intent = {"symbol": symbol, "intent_id": signal_ref}
+            log_skipped(dummy_intent, reason)
+            return []
+        intents = valid_intents
+
+    sides = set(intent["side"] for intent in intents)
+    if len(sides) > 1:
+        reason = f"Conflict: Active strategies generated conflicting signals ({sides}) for {symbol}."
+        print(f"  {symbol}: {reason}")
+        dummy_intent = {"symbol": symbol, "intent_id": signal_ref}
+        log_skipped(dummy_intent, reason)
+        return []
+
+    analysis = intents[0].get("_market_analysis")
     def score_intent(intent):
         confidence = float(intent.get("confidence", 0.0) or 0.0)
         strategy_name = intent.get("strategy", "")
         return confidence * strategy_regime_weight(strategy_name, analysis)
 
-    sides = set(intent["side"] for intent in intents)
-    if len(sides) > 1:
-        # STRICT CONFLICT RESOLUTION: If both Buy and Sell signals exist, do not trade.
-        reason = f"CONFLICT: Conflicting signals (Buy and Sell) detected for {symbol}. Trading halted for this asset."
-        print(reason)
-        for intent in intents:
-            log_skipped(intent, reason)
-        return []
-
-    # No side conflict, pick best weighted confidence.
     intents.sort(
         key=lambda x: (score_intent(x), float(x.get("confidence", 0.0) or 0.0)),
         reverse=True,
     )
     best_intent = intents[0]
+
+    if signal_ref != "NO_REF":
+        best_intent["intent_id"] = signal_ref
 
     return [best_intent]
 
@@ -1321,7 +1343,7 @@ def main():
             raw_signals = evaluate_candidate(cand, strategies, portfolio_path)
 
             # Resolve conflicts (per candidate)
-            valid_signals = resolve_conflicts(raw_signals)
+            valid_signals = resolve_conflicts(raw_signals, cand)
 
             if valid_signals:
                 print(f"  {cand['symbol']}: Selected {len(valid_signals)} valid signals.")
@@ -1337,7 +1359,7 @@ def main():
                      # Create a dummy intent for logging
                      dummy_intent = {
                          "symbol": cand["symbol"],
-                         "intent_id": "NO_STRATEGY_SIGNAL",
+                         "intent_id": cand.get("signal_ref", "NO_STRATEGY_SIGNAL"),
                          "rationale": "Signal from Signals.md not validated by any active strategy"
                      }
                      log_skipped(dummy_intent, reason)
