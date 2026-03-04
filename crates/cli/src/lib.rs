@@ -22,6 +22,8 @@ pub mod markov_chain;
 #[cfg(feature = "nova")]
 pub mod monte_carlo;
 pub mod optimizer;
+#[cfg(feature = "nova")]
+pub mod pattern_match;
 pub mod rag;
 pub mod reporting;
 pub mod signals;
