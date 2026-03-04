@@ -27,6 +27,7 @@ pub mod awesome_oscillator;
 pub mod bollinger_bands;
 pub mod cci_momentum;
 pub mod chaikin_money_flow;
+pub mod chandelier_exit;
 pub mod connors_rsi_mean_reversion;
 pub mod donchian_breakout;
 pub mod elder_ray;

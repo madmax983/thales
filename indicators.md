@@ -195,6 +195,39 @@ let (st_line, st_trend) = supertrend::calculate(&df, period, multiplier)?;
 - The output Series are named "supertrend" and "supertrend_trend".
 - The first `period` values (approx) will be null.
 
+## Chandelier Exit
+
+**Name:** Chandelier Exit
+**Description:** A volatility-based indicator that uses the Average True Range (ATR) to trail a stop loss from the highest high or lowest low over a period.
+**Rationale:** It helps traders ride a trend by allowing profits to run while cutting losses using a dynamic, volatility-adjusted stop level.
+
+### Implementation Details
+- Uses `rust_decimal::Decimal` for all internal calculations to ensure precision.
+- Implements an O(N) rolling max/min sliding window algorithm using `std::collections::VecDeque` to maintain `<100ms` performance requirements.
+- Returns a tuple of two Polars `Series` of `f64` values: (Long Exit, Short Exit).
+
+### Usage
+
+```rust
+use strategies::indicators::chandelier_exit;
+use polars::prelude::*;
+
+// Assuming df is a DataFrame with "high", "low", "close" columns
+let period = 22;
+let multiplier = 3.0;
+let (long_exit, short_exit) = chandelier_exit::calculate(&df, period, multiplier)?;
+```
+
+### Parameters
+- `data`: Reference to a Polars `DataFrame`. Must contain numeric columns "high", "low", and "close".
+- `period`: The lookback period (typically 22).
+- `multiplier`: Multiplier for ATR to set band width (typically 3.0).
+
+### Output
+- Returns `Result<(Series, Series)>` representing `(long_exit, short_exit)`.
+- The output Series are named "chandelier_long" and "chandelier_short".
+- The first `period - 1` values will be null.
+
 ## Donchian Channels
 
 **Name:** Donchian Channels
