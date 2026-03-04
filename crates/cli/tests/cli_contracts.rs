@@ -169,8 +169,7 @@ fn execute_intent_returns_provider_result() {
     let output = Command::new(assert_cmd::cargo::cargo_bin!("thales-cli"))
         .env("ALPACA_API_KEY", "k")
         .env("ALPACA_API_SECRET", "s")
-        .env("ALPACA_BASE_URL", server.url())
-        .env("ALPACA_BASE_URL", server.url())
+        .env("ALPACA_BASE_URL", format!("{}/v2", server.url()))
         .args([
             "execute-intent",
             "--provider",
