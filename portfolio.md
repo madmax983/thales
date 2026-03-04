@@ -3345,6 +3345,29 @@
 | 2026-03-04 21:49:23 | SPY | equities:SPY:sell:1772660962970 | CONFLICT: Conflicting signals (Buy and Sell) detected for SPY. Trading halted for this asset. |
 | 2026-03-04 21:49:23 | SPY | equities:SPY:buy:1772660962970 | CONFLICT: Conflicting signals (Buy and Sell) detected for SPY. Trading halted for this asset. |
 | 2026-03-04 21:49:23 | SPY | equities:SPY:buy:1772660962970 | CONFLICT: Conflicting signals (Buy and Sell) detected for SPY. Trading halted for this asset. |
+| 2026-03-04 22:57:52 | BTCUSD | crypto:BTCUSD:buy:1772665072785 | CONFLICT: Conflicting signals (Buy and Sell) detected for BTCUSD. Trading halted for this asset. |
+| 2026-03-04 22:57:52 | BTCUSD | crypto:BTCUSD:buy:1772665072785 | CONFLICT: Conflicting signals (Buy and Sell) detected for BTCUSD. Trading halted for this asset. |
+| 2026-03-04 22:57:52 | BTCUSD | crypto:BTCUSD:sell:1772665072785 | CONFLICT: Conflicting signals (Buy and Sell) detected for BTCUSD. Trading halted for this asset. |
+| 2026-03-04 22:57:52 | BTCUSD | crypto:BTCUSD:buy:1772665072785 | CONFLICT: Conflicting signals (Buy and Sell) detected for BTCUSD. Trading halted for this asset. |
+| 2026-03-04 22:57:52 | BTCUSD | crypto:BTCUSD:buy:1772665072785 | CONFLICT: Conflicting signals (Buy and Sell) detected for BTCUSD. Trading halted for this asset. |
+| 2026-03-04 22:57:53 | ETHUSD | crypto:ETHUSD:sell:1772665072924 | CONFLICT: Conflicting signals (Buy and Sell) detected for ETHUSD. Trading halted for this asset. |
+| 2026-03-04 22:57:53 | ETHUSD | crypto:ETHUSD:buy:1772665072924 | CONFLICT: Conflicting signals (Buy and Sell) detected for ETHUSD. Trading halted for this asset. |
+| 2026-03-04 22:57:53 | ETHUSD | crypto:ETHUSD:buy:1772665072924 | CONFLICT: Conflicting signals (Buy and Sell) detected for ETHUSD. Trading halted for this asset. |
+| 2026-03-04 22:57:53 | SPY | equities:SPY:sell:1772665073054 | CONFLICT: Conflicting signals (Buy and Sell) detected for SPY. Trading halted for this asset. |
+| 2026-03-04 22:57:53 | SPY | equities:SPY:buy:1772665073054 | CONFLICT: Conflicting signals (Buy and Sell) detected for SPY. Trading halted for this asset. |
+| 2026-03-04 22:57:53 | SPY | equities:SPY:buy:1772665073054 | CONFLICT: Conflicting signals (Buy and Sell) detected for SPY. Trading halted for this asset. |
+| 2026-03-04 22:59:22 | BTCUSD | crypto:BTCUSD:buy:1772665162050 | CONFLICT: Conflicting signals (Buy and Sell) detected for BTCUSD. Trading halted for this asset. |
+| 2026-03-04 22:59:22 | BTCUSD | crypto:BTCUSD:buy:1772665162050 | CONFLICT: Conflicting signals (Buy and Sell) detected for BTCUSD. Trading halted for this asset. |
+| 2026-03-04 22:59:22 | BTCUSD | crypto:BTCUSD:sell:1772665162050 | CONFLICT: Conflicting signals (Buy and Sell) detected for BTCUSD. Trading halted for this asset. |
+| 2026-03-04 22:59:22 | BTCUSD | crypto:BTCUSD:buy:1772665162050 | CONFLICT: Conflicting signals (Buy and Sell) detected for BTCUSD. Trading halted for this asset. |
+| 2026-03-04 22:59:22 | BTCUSD | crypto:BTCUSD:buy:1772665162050 | CONFLICT: Conflicting signals (Buy and Sell) detected for BTCUSD. Trading halted for this asset. |
+| 2026-03-04 22:59:22 | ETHUSD | crypto:ETHUSD:sell:1772665162413 | CONFLICT: Conflicting signals (Buy and Sell) detected for ETHUSD. Trading halted for this asset. |
+| 2026-03-04 22:59:22 | ETHUSD | crypto:ETHUSD:buy:1772665162413 | CONFLICT: Conflicting signals (Buy and Sell) detected for ETHUSD. Trading halted for this asset. |
+| 2026-03-04 22:59:22 | ETHUSD | crypto:ETHUSD:buy:1772665162413 | CONFLICT: Conflicting signals (Buy and Sell) detected for ETHUSD. Trading halted for this asset. |
+| 2026-03-04 22:59:22 | SPY | equities:SPY:sell:1772665162633 | CONFLICT: Conflicting signals (Buy and Sell) detected for SPY. Trading halted for this asset. |
+| 2026-03-04 22:59:22 | SPY | equities:SPY:buy:1772665162633 | CONFLICT: Conflicting signals (Buy and Sell) detected for SPY. Trading halted for this asset. |
+| 2026-03-04 22:59:22 | SPY | equities:SPY:buy:1772665162633 | CONFLICT: Conflicting signals (Buy and Sell) detected for SPY. Trading halted for this asset. |
+| 2026-03-04 23:08:30 | BTCUSD | crypto:BTCUSD:sell:1772660313076 | No sellable balance available (BTCUSD -0.00000000) |
 
 ## Executed Trades
 
@@ -3396,3 +3419,5 @@
 | 2026-03-04 16:46:56 | SPY | NO_REF | No strategy signal generated. |
 | 2026-03-04 16:46:56 | QQQ | NO_REF | No strategy signal generated. |
 | 2026-03-04 16:46:56 | AAPL | NO_REF | No strategy signal generated. |
+| 2026-03-04 23:08:30 | crypto | ETHUSD | buy (Entry) | 1.071235 | 3351.139840448321 | 3257.789640589059 | 3513.348743708972 | 100.00 | crypto:ETHUSD:buy:1772660313179 | Strategy: KeltnerChannelBreakout (64%, MA: 0.80). Reason: Keltner Breakout: Close 3351.14 > Upper 3153.98. Market Context: Trending Up (Short Term) (Medium Volatility). No similar past trades found. Research: Ethereum network activity is surging, with decentralized finance protocols showing increased total value locked (Source: DeFi Llama Reports). Network upgrades are contributing to a deflationary supply model (Source: Eth News Weekly).. News: Ethereum pushes past key resistance levels amidst broader crypto market rally (Source: CoinDesk).. (Buying strength in Overbought conditions) (Risk: $100, SL Dist: 93.35) |
+| 2026-03-04 23:08:33 | equities | SPY | buy (Entry) | 7.397868 | 558.5233067413866 | 545.0058981363323 | 585.5581239514951 | 100.00 | equities:SPY:buy:1772660313207 | Strategy: DonchianBreakout (64%, MA: 0.80). Reason: Breakout: Close 558.52 > Upper Channel 548.67. Market Context: Trending Up (Short Term) (Medium Volatility). Found 5 similar past trades (3 on same symbol). Win Rate: 40.0%. Avg Return: -0.30% Research: S&P 500 companies are reporting robust quarterly earnings, exceeding analyst expectations in tech and energy sectors (Source: Goldman Sachs Equity Research). The market is pricing in favorable interest rate policies (Source: Bloomberg Intelligence).. News: US stock market hits record highs as inflation concerns ease and corporate profits soar (Source: Wall Street Journal).. (Buying strength in Overbought conditions) (Risk: $100, SL Dist: 13.52) |
