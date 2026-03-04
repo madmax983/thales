@@ -10,7 +10,7 @@ use polars::prelude::*;
 use rust_decimal::prelude::*;
 use rust_decimal::Decimal;
 
-/// Calculate VWAP (Volume Weighted Average Price)
+/// Calculate volume spreading (VWAP) (Volume Weighted Average Price)
 ///
 /// # Arguments
 /// * `data` - DataFrame with "high", "low", "close", "volume", and "timestamp_unix_ms" columns

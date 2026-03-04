@@ -1,4 +1,4 @@
-//! Retrieval-Augmented Generation (RAG) for historical trade context.
+//! Retrieval-Augmented Generation (search history) for historical trade context.
 //!
 //! This module provides functions to search and analyze a historical database
 //! of past trades. By retrieving past trades that occurred under similar market
@@ -18,7 +18,7 @@ use std::path::Path;
 
 /// A record of a past trade and the market context at the time it was generated.
 ///
-/// This struct is used to build the historical database for the RAG system.
+/// This struct is used to build the historical database for the search history system.
 /// It contains the original trade intent, the market analysis that led to it,
 /// and the final outcome (PnL) if the trade was completed.
 ///
