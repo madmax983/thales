@@ -26,5 +26,6 @@ pub mod supertrend;
 pub mod vortex;
 pub mod vwap;
 pub mod vwma;
+pub mod trix;
 pub mod williams_r;
 pub mod zscore;
