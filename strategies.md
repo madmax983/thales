@@ -1968,3 +1968,76 @@ pub struct StochRsiMeanReversionConfig {
 ### Performance
 - Calculates StochRSI values in O(N).
 - Signal generation loop is O(N).
+
+---
+
+# Trading Strategy: MACD + RSI Trend
+
+## Strategy Specification
+
+**Name:** MacdRsiTrend
+
+**Description:** A trend-following momentum strategy combining the Moving Average Convergence Divergence (MACD) and the Relative Strength Index (RSI). It enters long when the MACD Line crosses above the Signal Line, provided the RSI is below a certain buy threshold (not overbought). It exits long when the MACD crosses below the Signal Line or the RSI exceeds a sell threshold.
+
+**Rationale:** Using MACD alone can result in entering trades when the asset is already overbought and prone to reversal. Combining MACD with RSI ensures that momentum is shifting positively (MACD crossover) while there is still room for upward movement (RSI confirmation).
+
+## Requirements
+
+### Implementation Details
+- Uses Polars for data analysis.
+- Implements the `Strategy` trait in Rust.
+- Uses `macd`, `rsi`, and `atr` indicators.
+
+### Strategy Type
+Momentum
+
+### Entry Conditions
+- **Long Entry (Buy):** MACD Line crosses ABOVE Signal Line AND RSI < `rsi_buy_threshold`.
+
+### Exit Conditions
+- **Long Exit (Sell):** MACD Line crosses BELOW Signal Line OR RSI > `rsi_sell_threshold`.
+- **Stop Loss:** Entry Price - (ATR * `stop_loss_atr_mult`).
+
+### Position Sizing
+- **Size Hint:** "100" (fixed units) or "max" (for exits).
+
+## Code Pattern
+
+```rust
+use crate::strategy::{Strategy, StrategyConfig, Signal, SignalType};
+use crate::indicators::{atr, macd, rsi};
+use polars::prelude::*;
+use async_trait::async_trait;
+use anyhow::Result;
+
+pub struct MacdRsiTrend {
+    config: MacdRsiTrendConfig,
+}
+
+#[derive(Debug, Clone, serde::Deserialize)]
+pub struct MacdRsiTrendConfig {
+    pub macd_fast_period: usize,
+    pub macd_slow_period: usize,
+    pub macd_signal_period: usize,
+    pub rsi_period: usize,
+    pub rsi_buy_threshold: f64,
+    pub rsi_sell_threshold: f64,
+    pub atr_period: usize,
+    pub stop_loss_atr_mult: f64,
+    pub symbol: String,
+}
+```
+
+## Critical Considerations
+
+### Risk Management Integration
+- **Stop Loss:** Uses ATR-based stop loss for risk control.
+- **Trend Filter:** RSI acts as a momentum confirmation and overbought filter.
+
+### Backtesting Requirements
+- Accepts `DataFrame` with historical data containing "close".
+- Requires data length > max(`macd_slow_period` + `macd_signal_period`, `rsi_period`, `atr_period`).
+
+### Performance
+- MACD, RSI, and ATR calculations are O(N).
+- Signal generation loop is O(N).
