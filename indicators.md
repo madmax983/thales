@@ -557,3 +557,34 @@ let (k, d) = stoch_rsi::calculate(&df, rsi_period, stoch_period, k_period, d_per
 - Returns `Result<(Series, Series)>` representing `(percent_k, percent_d)`.
 - The output Series are named "stoch_rsi_k" and "stoch_rsi_d".
 - The first `rsi_period + stoch_period + k_period + d_period - 3` values will generally be null depending on the periods.
+
+## TRIX
+
+**Name:** TRIX
+**Description:** Calculates the Triple Exponential Average, a momentum indicator showing the percentage rate of change of a triple exponentially smoothed moving average.
+**Rationale:** Used as a momentum indicator to identify overbought and oversold markets, and as a trend indicator, effectively filtering out minor price movements.
+
+### Implementation Details
+- Uses `rust_decimal::Decimal` for all internal calculations to ensure precision.
+- Uses three successive passes of the `ema` indicator on the "close" column.
+- Returns a Polars `Series` of `f64` values representing the percentage rate of change.
+
+### Usage
+
+```rust
+use strategies::indicators::trix;
+use polars::prelude::*;
+
+// Assuming df is a DataFrame with a "close" column
+let period = 15;
+let trix_series = trix::calculate(&df, period)?;
+```
+
+### Parameters
+- `data`: Reference to a Polars `DataFrame`. Must contain a numeric "close" column.
+- `period`: The lookback period (typically 15 or 18).
+
+### Output
+- Returns `Result<Series>`.
+- The output Series is named "trix".
+- The first `period * 3` (approximate) values will be null.
