@@ -3334,6 +3334,17 @@
 | 2026-03-04 20:55:59 | SPY | equities:SPY:sell:1772657759761 | CONFLICT: Conflicting signals (Buy and Sell) detected for SPY. Trading halted for this asset. |
 | 2026-03-04 20:55:59 | SPY | equities:SPY:buy:1772657759761 | CONFLICT: Conflicting signals (Buy and Sell) detected for SPY. Trading halted for this asset. |
 | 2026-03-04 20:55:59 | SPY | equities:SPY:buy:1772657759761 | CONFLICT: Conflicting signals (Buy and Sell) detected for SPY. Trading halted for this asset. |
+| 2026-03-04 21:49:22 | BTCUSD | crypto:BTCUSD:buy:1772660962489 | CONFLICT: Conflicting signals (Buy and Sell) detected for BTCUSD. Trading halted for this asset. |
+| 2026-03-04 21:49:22 | BTCUSD | crypto:BTCUSD:buy:1772660962489 | CONFLICT: Conflicting signals (Buy and Sell) detected for BTCUSD. Trading halted for this asset. |
+| 2026-03-04 21:49:22 | BTCUSD | crypto:BTCUSD:sell:1772660962489 | CONFLICT: Conflicting signals (Buy and Sell) detected for BTCUSD. Trading halted for this asset. |
+| 2026-03-04 21:49:22 | BTCUSD | crypto:BTCUSD:buy:1772660962489 | CONFLICT: Conflicting signals (Buy and Sell) detected for BTCUSD. Trading halted for this asset. |
+| 2026-03-04 21:49:22 | BTCUSD | crypto:BTCUSD:buy:1772660962489 | CONFLICT: Conflicting signals (Buy and Sell) detected for BTCUSD. Trading halted for this asset. |
+| 2026-03-04 21:49:22 | ETHUSD | crypto:ETHUSD:sell:1772660962784 | CONFLICT: Conflicting signals (Buy and Sell) detected for ETHUSD. Trading halted for this asset. |
+| 2026-03-04 21:49:22 | ETHUSD | crypto:ETHUSD:buy:1772660962784 | CONFLICT: Conflicting signals (Buy and Sell) detected for ETHUSD. Trading halted for this asset. |
+| 2026-03-04 21:49:22 | ETHUSD | crypto:ETHUSD:buy:1772660962784 | CONFLICT: Conflicting signals (Buy and Sell) detected for ETHUSD. Trading halted for this asset. |
+| 2026-03-04 21:49:23 | SPY | equities:SPY:sell:1772660962970 | CONFLICT: Conflicting signals (Buy and Sell) detected for SPY. Trading halted for this asset. |
+| 2026-03-04 21:49:23 | SPY | equities:SPY:buy:1772660962970 | CONFLICT: Conflicting signals (Buy and Sell) detected for SPY. Trading halted for this asset. |
+| 2026-03-04 21:49:23 | SPY | equities:SPY:buy:1772660962970 | CONFLICT: Conflicting signals (Buy and Sell) detected for SPY. Trading halted for this asset. |
 
 ## Executed Trades
 
