@@ -3282,3 +3282,7 @@
 | 2026-03-04 01:57:35 | BTCUSD | NO_REF | Conflict: Multiple strategies gave conflicting signals ({'sell', 'buy'}) |
 | 2026-03-04 01:57:35 | ETHUSD | NO_REF | Conflict: Multiple strategies gave conflicting signals ({'sell', 'buy'}) |
 | 2026-03-04 01:57:35 | SPY | NO_REF | Conflict: Multiple strategies gave conflicting signals ({'sell', 'buy'}) |
+| 2026-03-04 05:57:15 | equities | AAPL | buy (Entry) | 24.659559 | Market | 163.50 | 175.67 | 100 | equities:AAPL:buy:1772603717389 | Strategy: DonchianBreakout (64%, MA: 0.80). Reason: Breakout: Close 167.56 > Upper Channel 164.60. Market Context: Trending Up (Short Term) (Medium Volatility). |
+| 2026-03-04 05:57:15 | REKTUSD | NO_REF | No strategy signal generated. |
+| 2026-03-04 05:57:15 | CHEEMSUSD | NO_REF | No strategy signal generated. |
+| 2026-03-04 05:57:15 | APENFTUSD | NO_REF | No strategy signal generated. |
