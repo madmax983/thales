@@ -25,6 +25,7 @@ use strategies::stoch_rsi_mean_reversion::{StochRsiMeanReversion, StochRsiMeanRe
 use strategies::stochastic_oscillator::{StochasticOscillator, StochasticOscillatorConfig};
 use strategies::strategy::Strategy;
 use strategies::supertrend::{Supertrend, SupertrendConfig};
+use strategies::trix_momentum::{TrixMomentum, TrixMomentumConfig};
 use strategies::vortex_breakout::{VortexBreakout, VortexBreakoutConfig};
 use strategies::vwap_reversion::{VwapReversion, VwapReversionConfig};
 use strategies::vwma_crossover::{VwmaCrossover, VwmaCrossoverConfig};
@@ -43,6 +44,16 @@ pub fn create_strategy(name: &str, symbol: &str) -> Result<Box<dyn Strategy>> {
                 symbol: symbol.to_string(),
             };
             Ok(Box::new(AroonOscillator::new(config)))
+        }
+        "TrixMomentum" => {
+            let config = TrixMomentumConfig {
+                trix_period: 15,
+                signal_period: 9,
+                stop_loss_atr_mult: 2.0,
+                atr_period: 14,
+                symbol: symbol.to_string(),
+            };
+            Ok(Box::new(TrixMomentum::new(config)))
         }
         "AwesomeOscillator" => {
             let config = AwesomeOscillatorConfig {

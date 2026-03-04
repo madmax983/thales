@@ -2041,3 +2041,72 @@ pub struct MacdRsiTrendConfig {
 ### Performance
 - MACD, RSI, and ATR calculations are O(N).
 - Signal generation loop is O(N).
+
+---
+
+# Trading Strategy: TRIX Momentum
+
+## Strategy Specification
+
+**Name:** TrixMomentum
+
+**Description:** A momentum strategy that uses the Triple Exponential Average (TRIX) indicator and its Signal Line (a Simple Moving Average of TRIX) to identify trend direction and momentum shifts. It enters long when the TRIX line crosses above its Signal Line and exits when it crosses below.
+
+**Rationale:** The TRIX indicator acts as an oscillator that filters out insignificant price movements by using a triple exponentially smoothed moving average. When the TRIX line crosses above its signal line, it suggests that momentum is accelerating upwards, providing a strong entry signal for trend-following or momentum trading.
+
+## Requirements
+
+### Implementation Details
+- Uses Polars for data analysis.
+- Implements the `Strategy` trait in Rust.
+- Uses `trix`, `sma`, and `atr` indicators.
+
+### Strategy Type
+Momentum
+
+### Entry Conditions
+- **Long Entry (Buy):** TRIX line crosses ABOVE Signal Line (SMA of TRIX).
+
+### Exit Conditions
+- **Long Exit (Sell):** TRIX line crosses BELOW Signal Line.
+- **Stop Loss:** Entry Price - (ATR * `stop_loss_atr_mult`).
+
+### Position Sizing
+- **Size Hint:** "100" (fixed units) or "max" (for exits).
+
+## Code Pattern
+
+```rust
+use crate::strategy::{Strategy, StrategyConfig, Signal, SignalType};
+use crate::indicators::{atr, sma, trix};
+use polars::prelude::*;
+use async_trait::async_trait;
+use anyhow::Result;
+
+pub struct TrixMomentum {
+    config: TrixMomentumConfig,
+}
+
+#[derive(Debug, Clone, serde::Deserialize)]
+pub struct TrixMomentumConfig {
+    pub trix_period: usize,
+    pub signal_period: usize,
+    pub stop_loss_atr_mult: f64,
+    pub atr_period: usize,
+    pub symbol: String,
+}
+```
+
+## Critical Considerations
+
+### Risk Management Integration
+- **Stop Loss:** Uses ATR-based stop loss for risk control, trailing dynamic volatility.
+- **Trend Confirmation:** Relies on the TRIX crossover logic, which inherently smooths out false signals.
+
+### Backtesting Requirements
+- Accepts `DataFrame` with historical data containing "close".
+- Requires data length > `trix_period * 3 + signal_period + atr_period`.
+
+### Performance
+- TRIX, SMA, and ATR calculations are O(N).
+- Signal generation loop is O(N).
