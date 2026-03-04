@@ -57,7 +57,7 @@ impl Strategy for ElderRay {
             .context("Missing 'close' column")?
             .f64()?;
         let timestamps = data
-            .column("timestamp")
+            .column("timestamp_unix_ms")
             .context("Missing 'timestamp' column")?
             .i64()?;
 
@@ -246,7 +246,7 @@ mod tests {
 
         // Construct mock data
         let df = df!(
-            "timestamp" => &[1i64, 2, 3, 4, 5, 6],
+            "timestamp_unix_ms" => &[1i64, 2, 3, 4, 5, 6],
             "open" => &[10.0, 10.0, 10.0, 10.0, 10.0, 10.0],
             "high" => &[11.0, 11.0, 11.0, 12.0, 13.0, 14.0], // Constant then rising
             "low" => &[9.0, 9.0, 9.0, 10.0, 11.0, 9.0],      // Bear Power < 0 and rising, then falling
@@ -280,7 +280,7 @@ mod tests {
         });
 
         let df2 = df!(
-            "timestamp" => &[1i64, 2, 3, 4, 5, 6],
+            "timestamp_unix_ms" => &[1i64, 2, 3, 4, 5, 6],
             "open" => &[10.0, 10.0, 10.0, 10.0, 10.0, 10.0],
             "high" => &[11.0, 11.0, 11.0, 10.5, 9.5, 11.0], // Need Bull Power > 0 and falling
             "low" => &[9.0, 9.0, 9.0, 8.0, 7.0, 9.0],
