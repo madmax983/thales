@@ -169,6 +169,8 @@ def get_active_strategies():
         strategies.append("VortexBreakout")
     if "RocMomentum" in content:
         strategies.append("RocMomentum")
+    if "TrixMomentum" in content:
+        strategies.append("TrixMomentum")
 
     return strategies
 
