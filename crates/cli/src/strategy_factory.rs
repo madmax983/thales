@@ -5,6 +5,7 @@ use strategies::awesome_oscillator::{AwesomeOscillator, AwesomeOscillatorConfig}
 use strategies::bollinger_bands::{BollingerBandsConfig, BollingerBandsMeanReversion};
 use strategies::cci_momentum::{CciMomentum, CciMomentumConfig};
 use strategies::chaikin_money_flow::{ChaikinMoneyFlow, ChaikinMoneyFlowConfig};
+use strategies::chandelier_exit::{ChandelierExit, ChandelierExitConfig};
 use strategies::connors_rsi_mean_reversion::{
     ConnorsRsiMeanReversion, ConnorsRsiMeanReversionConfig,
 };
@@ -198,6 +199,15 @@ pub fn create_strategy(name: &str, symbol: &str) -> Result<Box<dyn Strategy>> {
             };
             Ok(Box::new(ChaikinMoneyFlow::new(config)))
         }
+        "ChandelierExit" => {
+            let config = ChandelierExitConfig {
+                period: 22,
+                atr_period: 22,
+                multiplier: 3.0,
+                symbol: symbol.to_string(),
+            };
+            Ok(Box::new(ChandelierExit::new(config)))
+        }
         "LinearRegressionTrend" => {
             let config = LinearRegressionTrendConfig {
                 period: 20,
@@ -325,6 +335,7 @@ pub fn list_strategies() -> Vec<&'static str> {
         "IchimokuCloud",
         "CciMomentum",
         "ChaikinMoneyFlow",
+        "ChandelierExit",
         "LinearRegressionTrend",
         "ObvTrendFollowing",
         "MoneyFlowIndex",

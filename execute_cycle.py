@@ -33,6 +33,7 @@ TREND_FOLLOWING_STRATEGIES = {
     "Macd",
     "Supertrend",
     "ChaikinMoneyFlow",
+    "ChandelierExit",
     "DonchianBreakout",
     "ParabolicSar",
     "KeltnerChannelBreakout",
@@ -143,6 +144,10 @@ def get_active_strategies():
         strategies.append("IchimokuCloud")
     if "CciMomentum" in content:
         strategies.append("CciMomentum")
+    if "ChaikinMoneyFlow" in content:
+        strategies.append("ChaikinMoneyFlow")
+    if "ChandelierExit" in content:
+        strategies.append("ChandelierExit")
     if "LinearRegressionTrend" in content:
         strategies.append("LinearRegressionTrend")
     if "ObvTrendFollowing" in content:

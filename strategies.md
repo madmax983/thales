@@ -826,6 +826,9 @@ pub struct CciMomentumConfig {
 ### Backtesting Requirements
 - Accepts `DataFrame` with historical data.
 - Requires data length > `period`.
+- **Expected Win Rate:** ~40-45% (Trend-following strategies typically have lower win rates but higher reward/risk ratios).
+- **Expected Sharpe Ratio:** > 1.2
+- **Max Drawdown:** < 20%
 
 ### Performance
 - CCI calculation is O(N).
@@ -1679,6 +1682,78 @@ pub struct ElderRayConfig {
 ### Performance
 - Elder Ray calculation (EMA, High - EMA, Low - EMA) is O(N).
 - Signal generation loop is O(N).
+
+# Trading Strategy: Chandelier Exit
+
+## Strategy Specification
+
+**Name:** ChandelierExit
+
+**Description:** A trend-following strategy that uses the Chandelier Exit indicator to trail a stop loss from the highest high or lowest low over a period, adjusted by the Average True Range (ATR).
+
+**Rationale:** The Chandelier Exit helps traders ride a trend by allowing profits to run while cutting losses using a dynamic, volatility-adjusted stop level. When the price crosses above the long exit line or below the short exit line, a trend change is signaled.
+
+## Requirements
+
+### Implementation Details
+- Uses Polars for data analysis.
+- Implements the `Strategy` trait in Rust.
+- Uses the custom `chandelier_exit` indicator.
+
+### Strategy Type
+Trend Following
+
+### Entry Conditions
+- **Long Entry (Buy):** Close Price crosses ABOVE the Long Exit Line.
+- **Short Entry (Sell):** Close Price crosses BELOW the Short Exit Line.
+
+### Exit Conditions
+- **Long Exit (Sell):** Close Price crosses BELOW the Long Exit Line.
+- **Short Exit (Buy):** Close Price crosses ABOVE the Short Exit Line.
+- **Stop Loss:** The Chandelier Exit line itself.
+
+### Position Sizing
+- **Size Hint:** "100" (fixed units) or "max" (for exits).
+
+## Code Pattern
+
+```rust
+use crate::strategy::{Strategy, StrategyConfig, Signal, SignalType};
+use crate::indicators::chandelier_exit;
+use polars::prelude::*;
+use async_trait::async_trait;
+use anyhow::Result;
+
+pub struct ChandelierExit {
+    config: ChandelierExitConfig,
+}
+
+#[derive(Debug, Clone, serde::Deserialize)]
+pub struct ChandelierExitConfig {
+    pub period: usize,
+    pub atr_period: usize,
+    pub multiplier: f64,
+    pub symbol: String,
+}
+```
+
+## Critical Considerations
+
+### Risk Management Integration
+- **Stop Loss:** The Chandelier Exit naturally provides a stop loss level.
+
+### Backtesting Requirements
+- Accepts `DataFrame` with historical data.
+- Requires data length > `period`.
+- **Expected Win Rate:** ~40-45% (Trend-following strategies typically have lower win rates but higher reward/risk ratios).
+- **Expected Sharpe Ratio:** > 1.2
+- **Max Drawdown:** < 20%
+
+### Performance
+- Chandelier Exit calculation uses O(N) rolling max/min queue.
+- Signal generation loop is O(N).
+
+---
 
 # Trading Strategy: Aroon Oscillator
 
