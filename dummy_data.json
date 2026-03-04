@@ -1,0 +1,236 @@
+{
+  "schema_version": "v0",
+  "bars": [
+    {
+      "symbol": "XXBTZUSD",
+      "market": "crypto",
+      "timeframe": "1h",
+      "timestamp_unix_ms": 100000,
+      "open": 100.0,
+      "high": 101.0,
+      "low": 99.0,
+      "close": 100.0,
+      "volume": 1000.0
+    },
+    {
+      "symbol": "XXBTZUSD",
+      "market": "crypto",
+      "timeframe": "1h",
+      "timestamp_unix_ms": 3700000,
+      "open": 100.0,
+      "high": 101.0,
+      "low": 99.0,
+      "close": 100.0,
+      "volume": 1000.0
+    },
+    {
+      "symbol": "XXBTZUSD",
+      "market": "crypto",
+      "timeframe": "1h",
+      "timestamp_unix_ms": 7300000,
+      "open": 100.0,
+      "high": 101.0,
+      "low": 99.0,
+      "close": 100.0,
+      "volume": 1000.0
+    },
+    {
+      "symbol": "XXBTZUSD",
+      "market": "crypto",
+      "timeframe": "1h",
+      "timestamp_unix_ms": 10900000,
+      "open": 100.0,
+      "high": 101.0,
+      "low": 99.0,
+      "close": 100.0,
+      "volume": 1000.0
+    },
+    {
+      "symbol": "XXBTZUSD",
+      "market": "crypto",
+      "timeframe": "1h",
+      "timestamp_unix_ms": 14500000,
+      "open": 100.0,
+      "high": 101.0,
+      "low": 99.0,
+      "close": 100.0,
+      "volume": 1000.0
+    },
+    {
+      "symbol": "XXBTZUSD",
+      "market": "crypto",
+      "timeframe": "1h",
+      "timestamp_unix_ms": 18100000,
+      "open": 100.0,
+      "high": 101.0,
+      "low": 99.0,
+      "close": 100.0,
+      "volume": 1000.0
+    },
+    {
+      "symbol": "XXBTZUSD",
+      "market": "crypto",
+      "timeframe": "1h",
+      "timestamp_unix_ms": 21700000,
+      "open": 100.0,
+      "high": 101.0,
+      "low": 99.0,
+      "close": 100.0,
+      "volume": 1000.0
+    },
+    {
+      "symbol": "XXBTZUSD",
+      "market": "crypto",
+      "timeframe": "1h",
+      "timestamp_unix_ms": 25300000,
+      "open": 100.0,
+      "high": 101.0,
+      "low": 99.0,
+      "close": 100.0,
+      "volume": 1000.0
+    },
+    {
+      "symbol": "XXBTZUSD",
+      "market": "crypto",
+      "timeframe": "1h",
+      "timestamp_unix_ms": 28900000,
+      "open": 100.0,
+      "high": 101.0,
+      "low": 99.0,
+      "close": 100.0,
+      "volume": 1000.0
+    },
+    {
+      "symbol": "XXBTZUSD",
+      "market": "crypto",
+      "timeframe": "1h",
+      "timestamp_unix_ms": 32500000,
+      "open": 100.0,
+      "high": 101.0,
+      "low": 99.0,
+      "close": 100.0,
+      "volume": 1000.0
+    },
+    {
+      "symbol": "XXBTZUSD",
+      "market": "crypto",
+      "timeframe": "1h",
+      "timestamp_unix_ms": 36100000,
+      "open": 100.0,
+      "high": 101.0,
+      "low": 99.0,
+      "close": 100.0,
+      "volume": 1000.0
+    },
+    {
+      "symbol": "XXBTZUSD",
+      "market": "crypto",
+      "timeframe": "1h",
+      "timestamp_unix_ms": 39700000,
+      "open": 100.0,
+      "high": 101.0,
+      "low": 99.0,
+      "close": 100.0,
+      "volume": 1000.0
+    },
+    {
+      "symbol": "XXBTZUSD",
+      "market": "crypto",
+      "timeframe": "1h",
+      "timestamp_unix_ms": 43300000,
+      "open": 100.0,
+      "high": 101.0,
+      "low": 99.0,
+      "close": 100.0,
+      "volume": 1000.0
+    },
+    {
+      "symbol": "XXBTZUSD",
+      "market": "crypto",
+      "timeframe": "1h",
+      "timestamp_unix_ms": 46900000,
+      "open": 100.0,
+      "high": 101.0,
+      "low": 99.0,
+      "close": 100.0,
+      "volume": 1000.0
+    },
+    {
+      "symbol": "XXBTZUSD",
+      "market": "crypto",
+      "timeframe": "1h",
+      "timestamp_unix_ms": 50500000,
+      "open": 100.0,
+      "high": 101.0,
+      "low": 99.0,
+      "close": 100.0,
+      "volume": 1000.0
+    },
+    {
+      "symbol": "XXBTZUSD",
+      "market": "crypto",
+      "timeframe": "1h",
+      "timestamp_unix_ms": 54100000,
+      "open": 100.0,
+      "high": 101.0,
+      "low": 99.0,
+      "close": 100.0,
+      "volume": 1000.0
+    },
+    {
+      "symbol": "XXBTZUSD",
+      "market": "crypto",
+      "timeframe": "1h",
+      "timestamp_unix_ms": 57700000,
+      "open": 100.0,
+      "high": 101.0,
+      "low": 99.0,
+      "close": 100.0,
+      "volume": 1000.0
+    },
+    {
+      "symbol": "XXBTZUSD",
+      "market": "crypto",
+      "timeframe": "1h",
+      "timestamp_unix_ms": 61300000,
+      "open": 100.0,
+      "high": 101.0,
+      "low": 99.0,
+      "close": 100.0,
+      "volume": 1000.0
+    },
+    {
+      "symbol": "XXBTZUSD",
+      "market": "crypto",
+      "timeframe": "1h",
+      "timestamp_unix_ms": 64900000,
+      "open": 100.0,
+      "high": 101.0,
+      "low": 99.0,
+      "close": 100.0,
+      "volume": 1000.0
+    },
+    {
+      "symbol": "XXBTZUSD",
+      "market": "crypto",
+      "timeframe": "1h",
+      "timestamp_unix_ms": 68500000,
+      "open": 100.0,
+      "high": 101.0,
+      "low": 99.0,
+      "close": 100.0,
+      "volume": 1000.0
+    },
+    {
+      "symbol": "XXBTZUSD",
+      "market": "crypto",
+      "timeframe": "1h",
+      "timestamp_unix_ms": 72100000,
+      "open": 100.0,
+      "high": 120.0,
+      "low": 100.0,
+      "close": 120.0,
+      "volume": 5000.0
+    }
+  ]
+}

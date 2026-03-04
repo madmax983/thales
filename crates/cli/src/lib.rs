@@ -1,7 +1,7 @@
 //! Core logic for the Thales CLI.
 //!
 //! This crate implements the business logic required to run the Thales trading agent.
-//! It orchestrates market analysis, signal generation, historical data retrieval (RAG),
+//! It orchestrates market analysis, signal generation, historical data retrieval (search history),
 //! and reporting.
 //!
 //! # Modules
