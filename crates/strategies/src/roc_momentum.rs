@@ -201,7 +201,9 @@ mod tests {
         assert!(!signals.is_empty(), "Should generate signals");
 
         // Find a sell signal
-        let sell_sig = signals.iter().find(|s| s.side == "sell" && s.signal_type == SignalType::Entry);
+        let sell_sig = signals
+            .iter()
+            .find(|s| s.side == "sell" && s.signal_type == SignalType::Entry);
         assert!(sell_sig.is_some(), "Expected a sell signal");
 
         if let Some(sig) = sell_sig {
@@ -215,11 +217,14 @@ mod tests {
             "low" => &[9.0, 8.0, 7.0, 6.0, 10.0, 14.0],
             "close" => &[10.0, 8.5, 7.5, 6.5, 10.5, 14.5], // ROC at i=4 (vs 8.5) = +23%, ROC at i=5 (vs 7.5) = +93%
             "volume" => &[100.0, 100.0, 100.0, 100.0, 100.0, 100.0],
-        ).unwrap();
+        )
+        .unwrap();
 
         let signals2 = strategy.generate_signals(&data2).await?;
 
-        let buy_entry = signals2.iter().find(|s| s.side == "buy" && s.signal_type == SignalType::Entry);
+        let buy_entry = signals2
+            .iter()
+            .find(|s| s.side == "buy" && s.signal_type == SignalType::Entry);
         assert!(buy_entry.is_some(), "Expected a buy entry signal");
 
         if let Some(sig) = buy_entry {

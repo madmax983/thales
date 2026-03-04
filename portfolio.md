@@ -11,6 +11,9 @@
 
 | Date/Time | Symbol | Signal Ref | Rejection Reason |
 |---|---|---|---|
+| 2026-03-04 04:16:39 | ETHUSD | NO_STRATEGY_SIGNAL | No active strategy generated a signal |
+| 2026-03-04 04:16:39 | SPY | NO_STRATEGY_SIGNAL | No active strategy generated a signal |
+| 2026-03-04 04:16:39 | BTCUSD | crypto:BTCUSD:sell:1772596800000 | provider error: kraken api error: EOrder:Insufficient funds |
 | 2026-02-24 02:06:08 | SPICEUSD | Signals.md | Exit signal received but no open position to exit. |
 | 2026-02-24 03:39:12 | XBTUSD | None | No Strategy Signal (BollingerBandsMeanReversion) |
 | 2026-02-24 03:39:12 | AAPL | None | No Strategy Signal (BollingerBandsMeanReversion) |
@@ -3253,6 +3256,9 @@
 | 2026-03-04 01:50:17 | SPY | equities:SPY:sell:1772589017644 | CONFLICT: Conflicting signals (Buy and Sell) detected for SPY. Trading halted for this asset. |
 | 2026-03-04 01:50:17 | SPY | equities:SPY:buy:1772589017644 | CONFLICT: Conflicting signals (Buy and Sell) detected for SPY. Trading halted for this asset. |
 | 2026-03-04 01:50:17 | SPY | equities:SPY:buy:1772589017644 | CONFLICT: Conflicting signals (Buy and Sell) detected for SPY. Trading halted for this asset. |
+| 2026-03-04 04:00:51 | ETHUSD | NO_STRATEGY_SIGNAL | No active strategy generated a signal (Strategies: BollingerBands, EmaCrossover, RsiMeanReversion, Macd, Supertrend, DonchianBreakout, ParabolicSar, KeltnerChannelBreakout, StochasticOscillator, AdxMomentum, IchimokuCloud, CciMomentum, LinearRegressionTrend, ObvTrendFollowing, MoneyFlowIndex, ConnorsRsiMeanReversion, AwesomeOscillator, WilliamsR, VwmaCrossover, VwapReversion, VortexBreakout, RocMomentum) |
+| 2026-03-04 04:00:51 | SPY | NO_STRATEGY_SIGNAL | No active strategy generated a signal (Strategies: BollingerBands, EmaCrossover, RsiMeanReversion, Macd, Supertrend, DonchianBreakout, ParabolicSar, KeltnerChannelBreakout, StochasticOscillator, AdxMomentum, IchimokuCloud, CciMomentum, LinearRegressionTrend, ObvTrendFollowing, MoneyFlowIndex, ConnorsRsiMeanReversion, AwesomeOscillator, WilliamsR, VwmaCrossover, VwapReversion, VortexBreakout, RocMomentum) |
+| 2026-03-04 04:00:52 | BTCUSD | crypto:BTCUSD:sell:1772596800000 | provider error: invalid volume: No open position found for max exit for BTCUSD |
 
 ## Executed Trades
 
