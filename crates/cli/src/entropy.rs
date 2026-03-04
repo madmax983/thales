@@ -1,29 +1,103 @@
+//! Information Theory and Shannon Entropy Analysis
+//!
+//! This module calculates the Shannon Entropy of asset returns to quantify market randomness.
+//! High entropy indicates a random, unpredictable market (efficient), while low entropy
+//! suggests the presence of trends or patterns that strategies might exploit.
+
 use anyhow::Result;
 use contracts::BarSeries;
 use serde::{Deserialize, Serialize};
 
+/// Configuration for the Shannon Entropy analysis.
+///
+/// # Examples
+///
+/// ```rust
+/// use thales_cli::entropy::EntropyConfig;
+///
+/// let config = EntropyConfig { num_bins: 50 };
+/// assert_eq!(config.num_bins, 50);
+/// ```
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct EntropyConfig {
+    /// The number of histogram bins to divide the return distribution into.
     pub num_bins: usize,
 }
 
+/// The result of an entropy analysis run.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct EntropyReport {
+    /// The asset symbol.
     pub symbol: String,
+    /// The calculated Shannon Entropy in bits.
     pub entropy: f64,
+    /// The maximum possible entropy for the given number of bins (`log2(num_bins)`).
     pub max_entropy: f64,
-    pub normalized_entropy: f64, // entropy / max_entropy, 0.0 to 1.0
+    /// The normalized entropy (`entropy / max_entropy`), ranging from 0.0 to 1.0.
+    /// 1.0 means pure randomness, 0.0 means perfect predictability.
+    pub normalized_entropy: f64,
+    /// The number of bins used.
     pub num_bins: usize,
+    /// The detailed histogram bins.
     pub bins: Vec<EntropyBin>,
 }
 
+/// A single bin in the return histogram used to calculate entropy.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct EntropyBin {
+    /// The central return value for this bin.
     pub center_return: f64,
+    /// The probability of a return falling into this bin (0.0 to 1.0).
     pub probability: f64,
+    /// The raw count of returns in this bin.
     pub count: usize,
 }
 
+/// Calculates the Shannon Entropy of the log returns of a `BarSeries`.
+///
+/// The function divides the range of returns into `config.num_bins` equal-width bins,
+/// calculates the probability of a return falling into each bin, and applies the Shannon
+/// Entropy formula: `H = -sum(p * log2(p))`.
+///
+/// # Errors
+///
+/// Returns an error if:
+/// - The `BarSeries` contains fewer than 2 bars.
+/// - `config.num_bins` is 0.
+///
+/// # Examples
+///
+/// ```rust
+/// use contracts::{BarSeries, Bar};
+/// use thales_cli::entropy::{analyze_entropy, EntropyConfig};
+///
+/// fn create_bar(close: f64) -> Bar {
+///     Bar {
+///         symbol: "TEST".to_string(),
+///         market: "equities".to_string(),
+///         timeframe: "1d".to_string(),
+///         timestamp_unix_ms: 0,
+///         open: close,
+///         high: close,
+///         low: close,
+///         close,
+///         volume: 100.0,
+///     }
+/// }
+///
+/// let series = BarSeries {
+///     schema_version: "v0".to_string(),
+///     bars: vec![
+///         create_bar(100.0),
+///         create_bar(105.0), // Positive return
+///         create_bar(100.0), // Negative return
+///     ],
+/// };
+///
+/// let config = EntropyConfig { num_bins: 2 };
+/// let report = analyze_entropy(&series, config).unwrap();
+/// assert!(report.entropy > 0.0);
+/// ```
 pub fn analyze_entropy(series: &BarSeries, config: EntropyConfig) -> Result<EntropyReport> {
     if series.bars.len() < 2 {
         return Err(anyhow::anyhow!(
