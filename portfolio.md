@@ -3237,6 +3237,22 @@
 | 2026-03-03 16:43:46 | SPY | equities:SPY:sell:1772556226514 | CONFLICT: Conflicting signals (Buy and Sell) detected for SPY. Trading halted for this asset. |
 | 2026-03-03 16:43:46 | SPY | equities:SPY:buy:1772556226514 | CONFLICT: Conflicting signals (Buy and Sell) detected for SPY. Trading halted for this asset. |
 | 2026-03-03 16:43:46 | SPY | equities:SPY:buy:1772556226514 | CONFLICT: Conflicting signals (Buy and Sell) detected for SPY. Trading halted for this asset. |
+| 2026-03-04 01:50:06 | SPY | CANCEL-a6404a27-9320-4787-ace6-61ed56949a91 | Stale Order Cancellation |
+| 2026-03-04 01:50:06 | SPY | CANCEL-4f2c92b4-0588-4320-beef-51365f2983b5 | Stale Order Cancellation |
+| 2026-03-04 01:50:08 | BTCUSD | NO_STRATEGY_SIGNAL | No active strategy generated a signal (Strategies: BollingerBands, EmaCrossover, RsiMeanReversion, Macd, Supertrend, DonchianBreakout, ParabolicSar, KeltnerChannelBreakout, StochasticOscillator, AdxMomentum, IchimokuCloud, CciMomentum, LinearRegressionTrend, ObvTrendFollowing, MoneyFlowIndex, ConnorsRsiMeanReversion, AwesomeOscillator, WilliamsR, VwmaCrossover, VwapReversion, VortexBreakout, RocMomentum) |
+| 2026-03-04 01:50:08 | ETHUSD | NO_STRATEGY_SIGNAL | No active strategy generated a signal (Strategies: BollingerBands, EmaCrossover, RsiMeanReversion, Macd, Supertrend, DonchianBreakout, ParabolicSar, KeltnerChannelBreakout, StochasticOscillator, AdxMomentum, IchimokuCloud, CciMomentum, LinearRegressionTrend, ObvTrendFollowing, MoneyFlowIndex, ConnorsRsiMeanReversion, AwesomeOscillator, WilliamsR, VwmaCrossover, VwapReversion, VortexBreakout, RocMomentum) |
+| 2026-03-04 01:50:09 | SPY | NO_STRATEGY_SIGNAL | No active strategy generated a signal (Strategies: BollingerBands, EmaCrossover, RsiMeanReversion, Macd, Supertrend, DonchianBreakout, ParabolicSar, KeltnerChannelBreakout, StochasticOscillator, AdxMomentum, IchimokuCloud, CciMomentum, LinearRegressionTrend, ObvTrendFollowing, MoneyFlowIndex, ConnorsRsiMeanReversion, AwesomeOscillator, WilliamsR, VwmaCrossover, VwapReversion, VortexBreakout, RocMomentum) |
+| 2026-03-04 01:50:17 | BTCUSD | crypto:BTCUSD:buy:1772589017321 | CONFLICT: Conflicting signals (Buy and Sell) detected for BTCUSD. Trading halted for this asset. |
+| 2026-03-04 01:50:17 | BTCUSD | crypto:BTCUSD:buy:1772589017321 | CONFLICT: Conflicting signals (Buy and Sell) detected for BTCUSD. Trading halted for this asset. |
+| 2026-03-04 01:50:17 | BTCUSD | crypto:BTCUSD:sell:1772589017321 | CONFLICT: Conflicting signals (Buy and Sell) detected for BTCUSD. Trading halted for this asset. |
+| 2026-03-04 01:50:17 | BTCUSD | crypto:BTCUSD:buy:1772589017321 | CONFLICT: Conflicting signals (Buy and Sell) detected for BTCUSD. Trading halted for this asset. |
+| 2026-03-04 01:50:17 | BTCUSD | crypto:BTCUSD:buy:1772589017321 | CONFLICT: Conflicting signals (Buy and Sell) detected for BTCUSD. Trading halted for this asset. |
+| 2026-03-04 01:50:17 | ETHUSD | crypto:ETHUSD:sell:1772589017491 | CONFLICT: Conflicting signals (Buy and Sell) detected for ETHUSD. Trading halted for this asset. |
+| 2026-03-04 01:50:17 | ETHUSD | crypto:ETHUSD:buy:1772589017491 | CONFLICT: Conflicting signals (Buy and Sell) detected for ETHUSD. Trading halted for this asset. |
+| 2026-03-04 01:50:17 | ETHUSD | crypto:ETHUSD:buy:1772589017491 | CONFLICT: Conflicting signals (Buy and Sell) detected for ETHUSD. Trading halted for this asset. |
+| 2026-03-04 01:50:17 | SPY | equities:SPY:sell:1772589017644 | CONFLICT: Conflicting signals (Buy and Sell) detected for SPY. Trading halted for this asset. |
+| 2026-03-04 01:50:17 | SPY | equities:SPY:buy:1772589017644 | CONFLICT: Conflicting signals (Buy and Sell) detected for SPY. Trading halted for this asset. |
+| 2026-03-04 01:50:17 | SPY | equities:SPY:buy:1772589017644 | CONFLICT: Conflicting signals (Buy and Sell) detected for SPY. Trading halted for this asset. |
 
 ## Executed Trades
 
@@ -3257,3 +3273,6 @@
 | 2026-03-03 12:00:00 | COQUSD | NO_REF | No strategy signal generated. |
 | 2026-03-03 12:00:00 | CHEEMSUSD | NO_REF | No strategy signal generated. |
 | 2026-03-03 12:00:00 | BTCUSD | NO_REF | Conflict: Multiple strategies gave conflicting signals ({'buy', 'sell'}) |
+| 2026-03-04 01:57:35 | BTCUSD | NO_REF | Conflict: Multiple strategies gave conflicting signals ({'sell', 'buy'}) |
+| 2026-03-04 01:57:35 | ETHUSD | NO_REF | Conflict: Multiple strategies gave conflicting signals ({'sell', 'buy'}) |
+| 2026-03-04 01:57:35 | SPY | NO_REF | Conflict: Multiple strategies gave conflicting signals ({'sell', 'buy'}) |
