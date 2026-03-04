@@ -584,3 +584,48 @@
 **Regime**: Trending Up (Short Term)
 **Sentiment**: Bullish (Strong) (Overbought)
 **Confidence**: 80.00%
+
+### BTCUSD - 2026-03-04 09:09:35 (crypto)
+**Regime**: Trending Down (Short Term)
+**Sentiment**: Bearish (Strong) (Oversold)
+**Confidence**: 80.00%
+
+### ETHUSD - 2026-03-04 09:09:35 (crypto)
+**Regime**: Trending Up (Short Term)
+**Sentiment**: Bullish (Strong) (Overbought)
+**Confidence**: 80.00%
+
+### SPY - 2026-03-04 09:09:35 (equities)
+**Regime**: Trending Up (Short Term)
+**Sentiment**: Bullish (Strong) (Overbought)
+**Confidence**: 80.00%
+
+### BTCUSD - 2026-03-04 09:13:33 (crypto)
+**Regime**: Trending Down (Short Term)
+**Sentiment**: Bearish (Strong) (Oversold)
+**Confidence**: 80.00%
+
+### BTCUSD - 2026-03-04 09:13:33 (crypto)
+**Regime**: Trending Down (Short Term)
+**Sentiment**: Bearish (Strong) (Oversold)
+**Confidence**: 80.00%
+
+### ETHUSD - 2026-03-04 09:13:33 (crypto)
+**Regime**: Trending Up (Short Term)
+**Sentiment**: Bullish (Strong) (Overbought)
+**Confidence**: 80.00%
+
+### ETHUSD - 2026-03-04 09:13:33 (crypto)
+**Regime**: Trending Up (Short Term)
+**Sentiment**: Bullish (Strong) (Overbought)
+**Confidence**: 80.00%
+
+### SPY - 2026-03-04 09:13:33 (equities)
+**Regime**: Trending Up (Short Term)
+**Sentiment**: Bullish (Strong) (Overbought)
+**Confidence**: 80.00%
+
+### SPY - 2026-03-04 09:13:33 (equities)
+**Regime**: Trending Up (Short Term)
+**Sentiment**: Bullish (Strong) (Overbought)
+**Confidence**: 80.00%

@@ -134,6 +134,44 @@ def main():
             if analysis.get("volatility") == "High" or analysis.get("volatility") == "Extreme":
                  print(f"ALERT: High Volatility Detected!")
 
+            # Determine formatted date string
+            from datetime import datetime
+            dt = datetime.fromtimestamp(analysis.get("timestamp_unix_ms", 0) / 1000.0)
+            formatted_date = dt.strftime("%Y-%m-%d %H:%M:%S")
+
+            market = analysis.get("market", "")
+            sentiment = analysis.get("sentiment", "")
+            confidence = analysis.get("confidence", 0.0)
+            volatility = analysis.get("volatility", "")
+            atr = analysis.get("atr")
+            if atr is not None:
+                atr_str = f"{atr:.2f}"
+            else:
+                atr_str = "N/A"
+            assessment = analysis.get("recommendation", "")
+            research_summary = analysis.get("research_summary", "None")
+            news_summary = analysis.get("news_summary", "None")
+
+            # Update Market_Regime.md
+            with open("Market_Regime.md", "a") as f:
+                f.write(f"\n### {symbol} - {formatted_date} ({market})\n")
+                f.write(f"**Regime**: {regime}\n")
+                f.write(f"**Sentiment**: {sentiment}\n")
+                f.write(f"**Confidence**: {confidence * 100:.2f}%\n")
+
+            # Update Volatility_Regime.md
+            with open("Volatility_Regime.md", "a") as f:
+                f.write(f"\n### {symbol} - {formatted_date} ({market})\n")
+                f.write(f"**Volatility**: {volatility}\n")
+                f.write(f"**ATR**: {atr_str}\n")
+                f.write(f"**Assessment**: {assessment}\n")
+
+            # Update Market_Research.md
+            with open("Market_Research.md", "a") as f:
+                f.write(f"\n### {symbol} - {formatted_date} ({market})\n")
+                f.write(f"**Research**: {research_summary}\n")
+                f.write(f"**News**: {news_summary}\n")
+
         # Cleanup
         if os.path.exists(temp_bars_file):
             os.remove(temp_bars_file)
