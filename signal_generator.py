@@ -79,6 +79,7 @@ def main():
             json.dump(analysis, f)
 
         # 4. Generate Signals (includes RAG history check, sizing, SL/TP)
+        symbol_intents = []
         for strategy in active_strategies:
             args = ["generate-signals", "--input", data_file, "--strategy", strategy, "--analysis", analysis_file]
             if os.path.exists(HISTORY_PATH):
@@ -86,7 +87,19 @@ def main():
 
             intents = run_command(args)
             if intents:
-                all_intents.extend(intents)
+                for intent in intents:
+                    if intent.get("signal_type") == "Entry" and (not intent.get("stop_loss") or intent.get("stop_loss") == "None"):
+                        continue
+                    symbol_intents.append(intent)
+
+        # Limit to 1-3 signals per symbol per day and resolve conflicts
+        symbol_intents.sort(key=lambda x: x.get("confidence", 0.0), reverse=True)
+
+        # Resolve conflicting directions (only keep the direction of the highest confidence signal)
+        if symbol_intents:
+            primary_direction = symbol_intents[0].get('side', 'buy')
+            filtered_intents = [intent for intent in symbol_intents if intent.get('side', 'buy') == primary_direction]
+            all_intents.extend(filtered_intents[:3])
 
         # Cleanup
         if os.path.exists(data_file):
