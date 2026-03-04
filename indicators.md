@@ -489,3 +489,33 @@ let roc_series = roc::calculate(&df, period)?;
 - Returns `Result<Series>`.
 - The output Series is named "roc".
 - The first `period` values will be null.
+
+## Volume Weighted Average Price (VWAP)
+
+**Name:** Volume Weighted Average Price (VWAP)
+**Description:** A trading benchmark that gives the average price a security has traded at throughout the day, based on both volume and price.
+**Rationale:** VWAP provides insight into both the trend and value of a security. It resets at the start of each trading session.
+
+### Implementation Details
+- Uses `rust_decimal::Decimal` for precision.
+- Calculates Typical Price (High + Low + Close) / 3.
+- Accumulates Price * Volume and Volume over the course of the day.
+- Uses `timestamp_unix_ms` to detect day changes and resets the accumulators.
+- Returns a Polars `Series` of `f64` values.
+
+### Usage
+
+```rust
+use strategies::indicators::vwap;
+use polars::prelude::*;
+
+// Assuming df is a DataFrame with "high", "low", "close", "volume", and "timestamp_unix_ms" columns
+let vwap_series = vwap::calculate(&df)?;
+```
+
+### Parameters
+- `data`: Reference to a Polars `DataFrame`. Must contain numeric columns "high", "low", "close", "volume", and "timestamp_unix_ms".
+
+### Output
+- Returns `Result<Series>`.
+- The output Series is named "vwap".
