@@ -519,3 +519,41 @@ let vwap_series = vwap::calculate(&df)?;
 ### Output
 - Returns `Result<Series>`.
 - The output Series is named "vwap".
+
+## Stochastic RSI (StochRSI)
+
+**Name:** Stochastic RSI (StochRSI)
+**Description:** Applies the Stochastic Oscillator formula to the Relative Strength Index (RSI).
+**Rationale:** Standard RSI can remain between 30 and 70 for extended periods. StochRSI increases sensitivity by measuring RSI relative to its high-low range over a set period, quickly identifying extremes in the RSI itself.
+
+### Implementation Details
+- Uses `rust_decimal::Decimal` for smoothing calculations to ensure precision.
+- Implements Rolling Min/Max using an O(N) Monotonic Queue algorithm over the RSI series.
+- Uses sliding windows for %K and %D calculations.
+- Returns a tuple of two Polars `Series` of `f64` values: (%K, %D).
+
+### Usage
+
+```rust
+use strategies::indicators::stoch_rsi;
+use polars::prelude::*;
+
+// Assuming df is a DataFrame with a "close" column
+let rsi_period = 14;
+let stoch_period = 14;
+let k_period = 3;
+let d_period = 3;
+let (k, d) = stoch_rsi::calculate(&df, rsi_period, stoch_period, k_period, d_period)?;
+```
+
+### Parameters
+- `data`: Reference to a Polars `DataFrame`. Must contain a numeric "close" column.
+- `rsi_period`: The lookback period for RSI calculation (typically 14).
+- `stoch_period`: The lookback period for the Stochastic calculation on RSI (typically 14).
+- `k_period`: The smoothing period for %K (typically 3).
+- `d_period`: The smoothing period for %D (typically 3).
+
+### Output
+- Returns `Result<(Series, Series)>` representing `(percent_k, percent_d)`.
+- The output Series are named "stoch_rsi_k" and "stoch_rsi_d".
+- The first `rsi_period + stoch_period + k_period + d_period - 3` values will generally be null depending on the periods.

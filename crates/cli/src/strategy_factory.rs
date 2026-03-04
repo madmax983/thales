@@ -21,6 +21,7 @@ use strategies::obv_trend::{ObvTrendFollowing, ObvTrendFollowingConfig};
 use strategies::parabolic_sar::{ParabolicSar, ParabolicSarConfig};
 use strategies::roc_momentum::{RocMomentum, RocMomentumConfig};
 use strategies::rsi_mean_reversion::{RsiMeanReversion, RsiMeanReversionConfig};
+use strategies::stoch_rsi_mean_reversion::{StochRsiMeanReversion, StochRsiMeanReversionConfig};
 use strategies::stochastic_oscillator::{StochasticOscillator, StochasticOscillatorConfig};
 use strategies::strategy::Strategy;
 use strategies::supertrend::{Supertrend, SupertrendConfig};
@@ -303,6 +304,20 @@ pub fn create_strategy(name: &str, symbol: &str) -> Result<Box<dyn Strategy>> {
             };
             Ok(Box::new(ZScoreMeanReversion::new(config)))
         }
+        "StochRsiMeanReversion" => {
+            let config = StochRsiMeanReversionConfig {
+                rsi_period: 14,
+                stoch_period: 14,
+                k_period: 3,
+                d_period: 3,
+                oversold_threshold: 20.0,
+                overbought_threshold: 80.0,
+                stop_loss_atr_mult: 2.0,
+                atr_period: 14,
+                symbol: symbol.to_string(),
+            };
+            Ok(Box::new(StochRsiMeanReversion::new(config)))
+        }
         "RocMomentum" => {
             let config = RocMomentumConfig {
                 period: 14,
@@ -346,6 +361,7 @@ pub fn list_strategies() -> Vec<&'static str> {
         "VwapReversion",
         "VortexBreakout",
         "ZScoreMeanReversion",
+        "StochRsiMeanReversion",
         "RocMomentum",
     ]
 }

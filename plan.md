@@ -1,42 +1,60 @@
-1. **Explore & Research**: I need to implement a new trading strategy. Since the system has an existing ROC (Rate of Change) indicator (`crates/strategies/src/indicators/roc.rs`) that is not used by any current strategy, I will implement a `RocMomentum` strategy! This aligns perfectly with the requirement to "create a new strategy" and "Use Polars for data analysis".
+1. **Understand Requirements**:
+    - Strategy Name: `WilliamsR` (Already partially exists or is asked to be created? Wait, the template has `{{name}}`, `{{description}}`, but the memory says "Williams R" is an existing strategy or maybe I need to implement what the user asks. Wait, the user's prompt contains placeholders: `{{name}}`, `{{description}}`, `{{rationale}}`, etc., which I am supposed to fill in with my own strategy because the prompt says: "- Do web research and create a new strategy.")
+    - Ah, the prompt says:
+      "Do web research and create a new strategy."
+      "Use Polars for data analysis and signal generation"
+      "Strategy Type: {{strategy_type}}"
+    - Wait, the prompt has literal placeholders `{{name}}`, etc.
+    - Let me check what the user actually said. The user prompt literally contains `{{name}}`, `{{description}}`, `{{rationale}}`, `{{strategy_type}}`, `{{entry_conditions}}`, `{{exit_conditions}}`, `{{position_sizing}}`, `{{strategy_name}}`, `{{context}}`. It asks me to do web research and create a new strategy.
+    - Okay, I need to invent a new strategy, fill out these details mentally or in the code, create the Rust implementation in `crates/strategies/src/`, register it in `strategy_factory.rs` and `lib.rs`, add it to `execute_cycle.py`, and update `strategies.md`.
 
-**Name:** RocMomentum
-**Description:** A momentum strategy based on the Rate of Change (ROC) indicator. It identifies overbought and oversold conditions, as well as trend reversals, by measuring the percentage change in price over a given period.
-**Rationale:** Momentum often precedes price. A high positive ROC indicates strong bullish momentum (overbought), while a low negative ROC indicates strong bearish momentum (oversold). Crossing above/below the zero line or specific thresholds can signal trend changes.
-**Strategy Type:** Momentum
-**Entry Conditions:**
-- Long Entry (Buy): ROC crosses above `buy_threshold` (e.g., 0.0 or a slightly positive value) AND ROC > Previous ROC.
-- Short Entry (Sell): ROC crosses below `sell_threshold` (e.g., 0.0 or a slightly negative value) AND ROC < Previous ROC.
-**Exit Conditions:**
-- Long Exit (Sell): ROC crosses below `sell_threshold` OR ROC < Previous ROC (momentum slowing down).
-- Short Exit (Buy): ROC crosses above `buy_threshold` OR ROC > Previous ROC.
-- Stop Loss: Entry Price +/- (ATR * `stop_loss_atr_mult`).
-**Position Sizing:** "100" or "max".
+Let me choose a well-known strategy that isn't implemented yet.
+Checking existing strategies:
+`BollingerBands`, `EmaCrossover`, `RsiMeanReversion`, `Macd`, `Supertrend`, `DonchianBreakout`, `ParabolicSar`, `KeltnerChannelBreakout`, `StochasticOscillator`, `AdxMomentum`, `IchimokuCloud`, `CciMomentum`, `LinearRegressionTrend`, `ObvTrendFollowing`, `MoneyFlowIndex`, `ConnorsRsiMeanReversion`, `AwesomeOscillator`, `WilliamsR`, `VwmaCrossover`, `VwapReversion`, `VortexBreakout`, `ZScoreMeanReversion`, `ChaikinMoneyFlow`, `ElderRay`, `AroonOscillator`, `ChandelierExit`, `RocMomentum`.
 
-Wait, let's keep it simple to ensure robustness.
-Entry: ROC crosses above `buy_threshold`
-Exit: ROC crosses below `sell_threshold`, or Stop Loss hit.
+What's a good one that is missing?
+- **TRIX** (Triple Exponential Average)
+- **Coppock Curve**
+- **Schaff Trend Cycle (STC)**
+- **True Strength Index (TSI)**
+- **Ultimate Oscillator**
+- **Fisher Transform**
+- **KAMA (Kaufman's Adaptive Moving Average)**
+- **Gator Oscillator**
+- **Fractal Chaos Bands**
 
-2. **Implement Strategy Logic (`crates/strategies/src/roc_momentum.rs`)**:
-   - Define `RocMomentum` and `RocMomentumConfig`.
-   - Implement `Strategy` trait.
-   - Use `roc` and `atr` indicators.
-   - Calculate signals using Polars `DataFrame`.
-   - Write comprehensive tests inside the file (covering entry, exit, parameter validation, edge cases).
+Let's implement **True Strength Index (TSI)**.
+TSI = 100 * ( EMA( EMA( Price Change, Long Period ), Short Period ) / EMA( EMA( |Price Change|, Long Period ), Short Period ) )
+Or let's implement **Ultimate Oscillator**.
 
-3. **Register Strategy**:
-   - Add `pub mod roc_momentum;` to `crates/strategies/src/lib.rs`.
-   - Add `RocMomentum` to `crates/cli/src/strategy_factory.rs`.
-   - Add `RocMomentum` to `execute_cycle.py` strategy list.
+Let's go with **TRIX (Triple Exponential Average)**.
+TRIX is a momentum oscillator that displays the percent rate of change of a triple exponentially smoothed moving average.
+- Strategy Name: `TrixMomentum`
+- Description: A momentum strategy based on the TRIX indicator, which uses a triple smoothed EMA to filter out insignificant price movements.
+- Rationale: TRIX crossing above zero indicates bullish momentum, while crossing below zero indicates bearish momentum. Alternatively, TRIX crossing its signal line (an EMA of TRIX) generates signals. We will use the signal line crossover.
 
-4. **Update Documentation**:
-   - Add `RocMomentum` section to `strategies.md` with expected metrics (Win Rate, Sharpe, Max Drawdown).
+Wait, `EMA` is already available in `crates/strategies/src/indicators/ema.rs`. We can build `trix.rs` in indicators, then `trix_momentum.rs` in strategies.
 
-5. **Run Tests**:
-   - `cargo test -p strategies`
-   - `python -m unittest test_execute_cycle.py` (if it exists)
-   - `cargo fmt --all && cargo clippy --all-targets --all-features -- -D warnings`
+Let's do **TripleEMA (TEMA)** or **TRIX**.
+To keep it simple and robust, let's implement **TRIX**.
+TRIX requires:
+1. EMA1 = EMA(Close, Period)
+2. EMA2 = EMA(EMA1, Period)
+3. EMA3 = EMA(EMA2, Period)
+4. TRIX = (EMA3 - Previous EMA3) / Previous EMA3 * 100
+5. Signal Line = EMA(TRIX, Signal_Period)
 
-6. **Pre-commit steps**: Ensure proper testing, verification, review, and reflection are done by calling `pre_commit_instructions`.
+Let's do **Fisher Transform**.
+Fisher Transform:
+1. Math: 0.5 * ln((1 + x) / (1 - x))
+2. Used to normalize prices.
 
-7. **Submit**: Create PR.
+What about **Ultimate Oscillator**?
+Uses 3 timeframes (e.g., 7, 14, 28) of Buying Pressure / True Range.
+
+What about **Awesome Oscillator**? Already exists.
+What about **Rate of Change (ROC)**? Already exists.
+
+Let's do **TRIX (Triple Exponential Average)**.
+Wait, let me verify if `ema` indicator can take an existing `Series` or if it only takes a `DataFrame`.
+Let's check `crates/strategies/src/indicators/ema.rs`.
