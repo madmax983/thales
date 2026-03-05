@@ -1147,10 +1147,10 @@ where
     T: serde::de::DeserializeOwned,
 {
     let raw_str = fs::read_to_string(path)?;
-    if let Ok(envelope) = serde_json::from_str::<ResponseEnvelope<T>>(&raw_str)
-        && let Some(data) = envelope.data
-    {
-        return Ok(data);
+    if let Ok(envelope) = serde_json::from_str::<ResponseEnvelope<T>>(&raw_str) {
+        if let Some(data) = envelope.data {
+            return Ok(data);
+        }
     }
     let parsed = serde_json::from_str::<T>(&raw_str)?;
     Ok(parsed)
