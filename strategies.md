@@ -2182,3 +2182,76 @@ pub struct TrixMomentumConfig {
 ### Performance
 - TRIX, SMA, and ATR calculations are O(N).
 - Signal generation loop is O(N).
+
+---
+
+# Trading Strategy: TSI Trend
+
+## Strategy Specification
+
+**Name:** TsiTrend
+
+**Description:** A momentum and trend-following strategy based on the True Strength Index (TSI). It enters long when the TSI line crosses above its Signal Line (an EMA of the TSI) and enters short when the TSI crosses below its Signal Line.
+
+**Rationale:** The TSI measures trend direction and strength by double-smoothing momentum. The signal line crossover provides early warnings of trend changes while filtering out noise due to the double smoothing mechanism.
+
+## Requirements
+
+### Implementation Details
+- Uses Polars for data analysis.
+- Implements the `Strategy` trait in Rust.
+- Uses `tsi`, `ema`, and `atr` indicators.
+
+### Strategy Type
+Momentum
+
+### Entry Conditions
+- **Long Entry (Buy):** TSI line crosses ABOVE Signal Line (EMA of TSI).
+- **Short Entry (Sell):** TSI line crosses BELOW Signal Line.
+
+### Exit Conditions
+- **Long Exit (Sell):** TSI line crosses BELOW Signal Line.
+- **Short Exit (Buy):** TSI line crosses ABOVE Signal Line.
+- **Stop Loss:** Entry Price +/- (ATR * `stop_loss_atr_mult`).
+
+### Position Sizing
+- **Size Hint:** "100" (fixed units) or "max" (for exits).
+
+## Code Pattern
+
+```rust
+use crate::strategy::{Strategy, StrategyConfig, Signal, SignalType};
+use crate::indicators::{atr, ema, tsi};
+use polars::prelude::*;
+use async_trait::async_trait;
+use anyhow::Result;
+
+pub struct TsiTrend {
+    config: TsiTrendConfig,
+}
+
+#[derive(Debug, Clone, serde::Deserialize)]
+pub struct TsiTrendConfig {
+    pub long_period: usize,
+    pub short_period: usize,
+    pub signal_period: usize,
+    pub stop_loss_atr_mult: f64,
+    pub atr_period: usize,
+    pub symbol: String,
+}
+```
+
+## Critical Considerations
+
+### Risk Management Integration
+- **Stop Loss:** Uses ATR-based stop loss to adapt to volatility.
+
+### Backtesting Requirements
+- Accepts `DataFrame` with historical data containing "close".
+- Requires data length > `long_period + short_period + signal_period + atr_period`.
+- Expected Win Rate: 45-55%
+- Expected Sharpe Ratio: > 1.0
+
+### Performance
+- TSI, EMA, and ATR calculations are O(N).
+- Signal generation loop is O(N).

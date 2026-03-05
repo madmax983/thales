@@ -60,7 +60,12 @@ pub fn calculate(data: &DataFrame, period: usize) -> Result<Series> {
 
     let hundred = Decimal::new(100, 0);
 
-    for (i, val) in trix_values.iter_mut().enumerate().take(ema3_f64.len()).skip(1) {
+    for (i, val) in trix_values
+        .iter_mut()
+        .enumerate()
+        .take(ema3_f64.len())
+        .skip(1)
+    {
         let curr_opt = ema3_f64.get(i);
         let prev_opt = ema3_f64.get(i - 1);
 
