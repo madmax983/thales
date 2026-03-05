@@ -243,7 +243,10 @@ mod tests {
         let signals = strategy.generate_signals(&df).await?;
 
         // We should get at least one entry signal due to the strong synthetic trend.
-        assert!(!signals.is_empty(), "Should generate signals on strong trend");
+        assert!(
+            !signals.is_empty(),
+            "Should generate signals on strong trend"
+        );
 
         let entry_signal = signals.iter().find(|s| s.signal_type == SignalType::Entry);
         assert!(entry_signal.is_some(), "Should have an entry signal");

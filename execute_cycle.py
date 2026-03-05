@@ -17,42 +17,46 @@ SIGNALS_PATH = "Signals.md"
 ARCHIVE_PATH = "Signals_Archive.md"
 
 MEAN_REVERSION_STRATEGIES = {
-    "BollingerBands",
+    "WilliamsR",
     "RsiMeanReversion",
     "StochasticOscillator",
     "MoneyFlowIndex",
-    "ConnorsRsiMeanReversion",
-    "WilliamsR",
-    "VwapReversion",
     "ZScoreMeanReversion",
+    "ConnorsRsiMeanReversion",
+    "VwapReversion",
+    "BollingerBands",
     "StochRsiMeanReversion",
 }
 TREND_FOLLOWING_STRATEGIES = {
-    "AroonOscillator",
-    "ElderRay",
-    "EmaCrossover",
-    "Macd",
-    "Supertrend",
-    "ChaikinMoneyFlow",
-    "ChandelierExit",
-    "DonchianBreakout",
-    "ParabolicSar",
-    "KeltnerChannelBreakout",
-    "AdxMomentum",
-    "IchimokuCloud",
     "LinearRegressionTrend",
-    "CciMomentum",
-    "ObvTrendFollowing",
-    "AwesomeOscillator",
-    "VwmaCrossover",
+    "ParabolicSar",
+    "EmaCrossover",
+    "AdxMacdTrend",
+    "Supertrend",
+    "KeltnerChannelBreakout",
+    "DonchianBreakout",
+    "ChaikinMoneyFlow",
+    "ElderRay",
     "VortexBreakout",
+    "CciMomentum",
+    "Macd",
+    "MacdRsiTrend",
+    "IchimokuCloud",
+    "AroonOscillator",
+    "TrixMomentum",
+    "RocMomentum",
+    "AwesomeOscillator",
+    "AdxMomentum",
+    "VwmaCrossover",
+    "ChandelierExit",
+    "ObvTrendFollowing",
 }
 BREAKOUT_STRATEGIES = {
-    "DonchianBreakout",
-    "KeltnerChannelBreakout",
     "Supertrend",
-    "ParabolicSar",
+    "KeltnerChannelBreakout",
     "CciMomentum",
+    "ParabolicSar",
+    "DonchianBreakout",
 }
 EXECUTED_STATUSES = {"filled", "executed", "closed"}
 SUBMITTED_STATUSES = {
@@ -171,6 +175,18 @@ def get_active_strategies():
         strategies.append("RocMomentum")
     if "TrixMomentum" in content:
         strategies.append("TrixMomentum")
+    if "AdxMacdTrend" in content:
+        strategies.append("AdxMacdTrend")
+    if "ZScoreMeanReversion" in content:
+        strategies.append("ZScoreMeanReversion")
+    if "ElderRay" in content:
+        strategies.append("ElderRay")
+    if "AroonOscillator" in content:
+        strategies.append("AroonOscillator")
+    if "StochRsiMeanReversion" in content:
+        strategies.append("StochRsiMeanReversion")
+    if "MacdRsiTrend" in content:
+        strategies.append("MacdRsiTrend")
 
     return strategies
 

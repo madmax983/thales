@@ -17,6 +17,7 @@ use strategies::ichimoku_cloud::{IchimokuCloud, IchimokuCloudConfig};
 use strategies::keltner_channel_breakout::{KeltnerChannelBreakout, KeltnerChannelBreakoutConfig};
 use strategies::linear_regression_trend::{LinearRegressionTrend, LinearRegressionTrendConfig};
 use strategies::macd::{Macd, MacdConfig};
+use strategies::macd_rsi::{MacdRsiTrend, MacdRsiTrendConfig};
 use strategies::money_flow_index::{MoneyFlowIndex, MoneyFlowIndexConfig};
 use strategies::obv_trend::{ObvTrendFollowing, ObvTrendFollowingConfig};
 use strategies::parabolic_sar::{ParabolicSar, ParabolicSarConfig};
@@ -354,6 +355,20 @@ pub fn create_strategy(name: &str, symbol: &str) -> Result<Box<dyn Strategy>> {
             };
             Ok(Box::new(RocMomentum::new(config)))
         }
+        "MacdRsiTrend" => {
+            let config = MacdRsiTrendConfig {
+                macd_fast_period: 12,
+                macd_slow_period: 26,
+                macd_signal_period: 9,
+                rsi_period: 14,
+                rsi_buy_threshold: 50.0,
+                rsi_sell_threshold: 70.0,
+                atr_period: 14,
+                stop_loss_atr_mult: 2.0,
+                symbol: symbol.to_string(),
+            };
+            Ok(Box::new(MacdRsiTrend::new(config)))
+        }
         _ => Err(anyhow::anyhow!("Unknown strategy: {}", name)),
     }
 }
@@ -389,5 +404,6 @@ pub fn list_strategies() -> Vec<&'static str> {
         "ZScoreMeanReversion",
         "StochRsiMeanReversion",
         "RocMomentum",
+        "MacdRsiTrend",
     ]
 }
