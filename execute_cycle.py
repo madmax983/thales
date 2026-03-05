@@ -548,7 +548,7 @@ def evaluate_candidate(candidate, strategies, portfolio_path=None):
                 if provider == "paper":
                     intent["provider"] = "paper"
                 elif candidate.get("market") == "equities":
-                    intent["provider"] = "kraken"
+                    intent["provider"] = "alpaca"
                 else:
                     intent["provider"] = provider
 
