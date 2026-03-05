@@ -621,6 +621,78 @@ pub struct StochasticOscillatorConfig {
 
 ---
 
+# Trading Strategy: ADX + MACD Trend
+
+## Strategy Specification
+
+**Name:** AdxMacdTrend
+
+**Description:** A trend-following strategy that combines the Average Directional Index (ADX) for trend strength and Moving Average Convergence Divergence (MACD) for trend direction. It enters long when the MACD Line crosses above the Signal Line, provided the ADX indicates a strong trend (ADX > `adx_threshold`).
+
+**Rationale:** MACD is an excellent trend-following momentum indicator but is prone to false signals (whipsaws) in ranging markets. By filtering MACD crossovers with an ADX threshold (e.g., ADX > 25), we ensure that we only take MACD signals when a strong trend is established, significantly increasing the probability of a successful trade.
+
+## Requirements
+
+### Implementation Details
+- Uses Polars for data analysis.
+- Implements the `Strategy` trait in Rust.
+- Uses `adx`, `macd`, and `atr` indicators from the custom indicators module.
+
+### Strategy Type
+TrendFollowing
+
+### Entry Conditions
+- **Long Entry (Buy):** MACD Line crosses ABOVE Signal Line AND ADX > `adx_threshold`.
+
+### Exit Conditions
+- **Long Exit (Sell):** MACD Line crosses BELOW Signal Line OR Price hits Stop Loss.
+- **Stop Loss:** Entry Price - (ATR * `stop_loss_atr_mult`).
+
+### Position Sizing
+- **Size Hint:** "100" (fixed units) or "max" (for exits).
+
+## Code Pattern
+
+```rust
+use crate::strategy::{Strategy, StrategyConfig, Signal, SignalType};
+use crate::indicators::{adx, atr, macd};
+use polars::prelude::*;
+use async_trait::async_trait;
+use anyhow::Result;
+
+pub struct AdxMacdTrend {
+    config: AdxMacdTrendConfig,
+}
+
+#[derive(Debug, Clone, serde::Deserialize)]
+pub struct AdxMacdTrendConfig {
+    pub adx_period: usize,
+    pub adx_threshold: f64,
+    pub macd_fast_period: usize,
+    pub macd_slow_period: usize,
+    pub macd_signal_period: usize,
+    pub stop_loss_atr_mult: f64,
+    pub atr_period: usize,
+    pub symbol: String,
+}
+```
+
+## Critical Considerations
+
+### Risk Management Integration
+- **Stop Loss:** Uses ATR-based stop loss for dynamic risk control.
+- **Trend Filter:** ADX acts as a strict filter to avoid entering trades in sideways markets.
+
+### Backtesting Requirements
+- Accepts `DataFrame` with historical data containing "high", "low", and "close".
+- Requires data length > max(`macd_slow_period` + `macd_signal_period`, `adx_period`, `atr_period`).
+
+### Performance
+- MACD, ADX, and ATR calculations are O(N).
+- Signal generation loop is O(N).
+
+---
+
 # Trading Strategy: ADX Momentum
 
 ## Strategy Specification

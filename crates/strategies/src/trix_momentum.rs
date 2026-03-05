@@ -41,7 +41,9 @@ impl Strategy for TrixMomentum {
     }
 
     async fn generate_signals(&self, data: &DataFrame) -> Result<Vec<Signal>> {
-        if data.height() < self.config.trix_period * 3 + self.config.signal_period + self.config.atr_period {
+        if data.height()
+            < self.config.trix_period * 3 + self.config.signal_period + self.config.atr_period
+        {
             return Ok(vec![]);
         }
 
@@ -77,15 +79,14 @@ impl Strategy for TrixMomentum {
             let atr_val = atr_f64.get(i);
             let timestamp = time_col.get(i).unwrap_or(0);
 
-            if let (
-                Some(c_trix),
-                Some(p_trix),
-                Some(c_sig),
-                Some(p_sig),
-                Some(price),
-                Some(atr),
-            ) = (curr_trix, prev_trix, curr_signal, prev_signal, close, atr_val)
-            {
+            if let (Some(c_trix), Some(p_trix), Some(c_sig), Some(p_sig), Some(price), Some(atr)) = (
+                curr_trix,
+                prev_trix,
+                curr_signal,
+                prev_signal,
+                close,
+                atr_val,
+            ) {
                 // Check stop loss first
                 if in_long && price <= stop_loss {
                     signals.push(Signal {

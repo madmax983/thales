@@ -80,15 +80,7 @@ impl Strategy for MacdRsiTrend {
             let curr_atr = atr_f64.get(i);
             let timestamp = timestamps.get(i).unwrap_or(0);
 
-            if let (
-                Some(close_val),
-                Some(pm),
-                Some(ps),
-                Some(cm),
-                Some(cs),
-                Some(cr),
-                Some(ca),
-            ) = (
+            if let (Some(close_val), Some(pm), Some(ps), Some(cm), Some(cs), Some(cr), Some(ca)) = (
                 current_close,
                 prev_macd,
                 prev_signal,
