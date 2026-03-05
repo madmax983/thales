@@ -28,6 +28,7 @@ use strategies::stochastic_oscillator::{StochasticOscillator, StochasticOscillat
 use strategies::strategy::Strategy;
 use strategies::supertrend::{Supertrend, SupertrendConfig};
 use strategies::trix_momentum::{TrixMomentum, TrixMomentumConfig};
+use strategies::tsi_trend::{TsiTrend, TsiTrendConfig};
 use strategies::vortex_breakout::{VortexBreakout, VortexBreakoutConfig};
 use strategies::vwap_reversion::{VwapReversion, VwapReversionConfig};
 use strategies::vwma_crossover::{VwmaCrossover, VwmaCrossoverConfig};
@@ -369,6 +370,17 @@ pub fn create_strategy(name: &str, symbol: &str) -> Result<Box<dyn Strategy>> {
             };
             Ok(Box::new(MacdRsiTrend::new(config)))
         }
+        "TsiTrend" => {
+            let config = TsiTrendConfig {
+                long_period: 25,
+                short_period: 13,
+                signal_period: 7,
+                stop_loss_atr_mult: 2.0,
+                atr_period: 14,
+                symbol: symbol.to_string(),
+            };
+            Ok(Box::new(TsiTrend::new(config)))
+        }
         _ => Err(anyhow::anyhow!("Unknown strategy: {}", name)),
     }
 }
@@ -405,5 +417,6 @@ pub fn list_strategies() -> Vec<&'static str> {
         "StochRsiMeanReversion",
         "RocMomentum",
         "MacdRsiTrend",
+        "TsiTrend",
     ]
 }

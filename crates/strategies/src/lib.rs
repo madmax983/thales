@@ -49,6 +49,7 @@ pub mod stochastic_oscillator;
 pub mod strategy;
 pub mod supertrend;
 pub mod trix_momentum;
+pub mod tsi_trend;
 pub mod vortex_breakout;
 pub mod vwap_reversion;
 pub mod vwma_crossover;
