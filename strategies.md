@@ -2255,3 +2255,34 @@ pub struct TsiTrendConfig {
 ### Performance
 - TSI, EMA, and ATR calculations are O(N).
 - Signal generation loop is O(N).
+
+## TemaCrossover
+
+**Type:** Trend Following
+
+### Description
+Uses two Triple Exponential Moving Averages (Fast TEMA and Slow TEMA) to generate trading signals based on trend changes. TEMA drastically reduces lag compared to traditional EMAs, making crossovers more responsive.
+
+### Rationale
+Moving average crossovers are a core trend-following technique. By using TEMA instead of SMA or EMA, this strategy reduces lag, allowing traders to enter new trends sooner and avoid false signals in sideways markets more effectively.
+
+### Parameters
+* `fast_period` (int): The lookback period for the Fast TEMA (e.g., 10).
+* `slow_period` (int): The lookback period for the Slow TEMA (e.g., 30).
+* `stop_loss_atr_mult` (float): Multiplier for the ATR to set the stop-loss level.
+* `atr_period` (int): Lookback period for calculating ATR.
+* `symbol` (string): The trading pair symbol.
+
+### Signal Generation
+* **Entry (Buy):** Generated when the Fast TEMA crosses above the Slow TEMA.
+* **Exit (Sell):** Generated when the Fast TEMA crosses below the Slow TEMA.
+
+### Position Sizing & Risk Management
+* **Entry Size:** "100" (configurable via constants in intent generator).
+* **Exit Size:** "max" (close full position).
+* **Stop Loss:** Set dynamically based on `Close - (ATR * stop_loss_atr_mult)` at entry time.
+
+### Backtesting Expectations
+* **Win Rate:** 45-55% (trend-following strategies often have moderate win rates but large average wins).
+* **Sharpe Ratio:** 1.10 - 1.40
+* **Max Drawdown:** 15-25% (depending on the asset's volatility and the selected periods).

@@ -588,3 +588,34 @@ let trix_series = trix::calculate(&df, period)?;
 - Returns `Result<Series>`.
 - The output Series is named "trix".
 - The first `period * 3` (approximate) values will be null.
+
+## Triple Exponential Moving Average (TEMA)
+
+**Name:** TEMA
+**Description:** Calculates the Triple Exponential Moving Average, designed to smooth price fluctuations while reducing the lag associated with traditional EMAs.
+**Rationale:** Standard trend-following indicator used to reduce lag compared to standard Exponential Moving Averages, providing a more responsive signal for trend changes.
+
+### Implementation Details
+- Derived from three consecutive passes of an Exponential Moving Average.
+- Formula: `TEMA = (3 * EMA1) - (3 * EMA2) + EMA3`.
+- Returns a Polars `Series` of `f64` values.
+- Missing or warming up values will be set to `null` (`None`).
+
+### Usage
+
+```rust
+use strategies::indicators::tema;
+use polars::prelude::*;
+
+// Assuming df is a DataFrame with a "close" column
+let period = 14;
+let tema_series = tema::calculate(&df, period)?;
+```
+
+### Parameters
+- `data`: Reference to a Polars `DataFrame`. Must contain a numeric column named "close".
+- `period`: The size of the moving window (must be > 0).
+
+### Output
+- Returns `Result<Series>`.
+- The output Series is named "tema".

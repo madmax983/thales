@@ -27,6 +27,7 @@ use strategies::stoch_rsi_mean_reversion::{StochRsiMeanReversion, StochRsiMeanRe
 use strategies::stochastic_oscillator::{StochasticOscillator, StochasticOscillatorConfig};
 use strategies::strategy::Strategy;
 use strategies::supertrend::{Supertrend, SupertrendConfig};
+use strategies::tema_crossover::{TemaCrossover, TemaCrossoverConfig};
 use strategies::trix_momentum::{TrixMomentum, TrixMomentumConfig};
 use strategies::tsi_trend::{TsiTrend, TsiTrendConfig};
 use strategies::vortex_breakout::{VortexBreakout, VortexBreakoutConfig};
@@ -255,6 +256,16 @@ pub fn create_strategy(name: &str, symbol: &str) -> Result<Box<dyn Strategy>> {
             };
             Ok(Box::new(ObvTrendFollowing::new(config)))
         }
+        "TemaCrossover" => {
+            let config = TemaCrossoverConfig {
+                fast_period: 10,
+                slow_period: 30,
+                stop_loss_atr_mult: 2.0,
+                atr_period: 14,
+                symbol: symbol.to_string(),
+            };
+            Ok(Box::new(TemaCrossover::new(config)))
+        }
         "MoneyFlowIndex" => {
             let config = MoneyFlowIndexConfig {
                 period: 14,
@@ -417,6 +428,7 @@ pub fn list_strategies() -> Vec<&'static str> {
         "StochRsiMeanReversion",
         "RocMomentum",
         "MacdRsiTrend",
+        "TemaCrossover",
         "TsiTrend",
     ]
 }

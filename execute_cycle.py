@@ -48,6 +48,7 @@ TREND_FOLLOWING_STRATEGIES = {
     "AwesomeOscillator",
     "AdxMomentum",
     "VwmaCrossover",
+    "TemaCrossover",
     "ChandelierExit",
     "ObvTrendFollowing",
 }
