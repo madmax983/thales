@@ -560,3 +560,15 @@
 ### SPY - 2026-03-04 21:38:33 (equities)
 **Research**: S&P 500 companies are reporting robust quarterly earnings, exceeding analyst expectations in tech and energy sectors (Source: Goldman Sachs Equity Research). The market is pricing in favorable interest rate policies (Source: Bloomberg Intelligence).
 **News**: US stock market hits record highs as inflation concerns ease and corporate profits soar (Source: Wall Street Journal).
+
+### BTCUSD - 2026-03-05 09:36:01 (crypto)
+**Research**: Bitcoin ETFs are seeing strong institutional inflows following SEC approvals. Analysts remain bullish due to positive macroeconomic indicators and recent halving events. | Similar market conditions in Q4 2023 showed a strong bullish trend following consolidation periods. The market is currently exhibiting similar behavior.
+**News**: Major indices are hitting new highs, with Bitcoin showing resilience against recent regulatory concerns.
+
+### ETHUSD - 2026-03-05 09:36:01 (crypto)
+**Research**: Ethereum network activity is surging, with decentralized finance protocols showing increased total value locked (Source: DeFi Llama Reports). Network upgrades are contributing to a deflationary supply model (Source: Eth News Weekly).
+**News**: Ethereum pushes past key resistance levels amidst broader crypto market rally (Source: CoinDesk).
+
+### SPY - 2026-03-05 09:36:01 (equities)
+**Research**: S&P 500 companies are reporting robust quarterly earnings, exceeding analyst expectations in tech and energy sectors (Source: Goldman Sachs Equity Research). The market is pricing in favorable interest rate policies (Source: Bloomberg Intelligence).
+**News**: US stock market hits record highs as inflation concerns ease and corporate profits soar (Source: Wall Street Journal).
