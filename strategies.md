@@ -2255,3 +2255,16 @@ pub struct TsiTrendConfig {
 ### Performance
 - TSI, EMA, and ATR calculations are O(N).
 - Signal generation loop is O(N).
+
+## StochRsiMeanReversion
+
+**Name:** StochRsiMeanReversion
+**Description:** Applies the Stochastic oscillator formula to the Relative Strength Index (RSI) to identify overbought and oversold conditions with greater sensitivity.
+**Rationale:** Regular RSI can languish between 30 and 70 for extended periods. StochRSI is more sensitive and quickly identifies extremes in RSI itself.
+
+### Signal Generation
+
+- **Entry Long:** `%K` crosses above `%D` while both are below the `oversold_threshold` (default 20).
+- **Entry Short:** `%K` crosses below `%D` while both are above the `overbought_threshold` (default 80).
+- **Exit Long:** Price hits stop loss (ATR-based) OR `%K` crosses below `%D` above the `overbought_threshold`.
+- **Exit Short:** Price hits stop loss (ATR-based) OR `%K` crosses above `%D` below the `oversold_threshold`.

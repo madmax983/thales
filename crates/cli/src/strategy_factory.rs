@@ -39,12 +39,8 @@ pub fn create_strategy(name: &str, symbol: &str) -> Result<Box<dyn Strategy>> {
     match name {
         "AroonOscillator" => {
             let config = AroonOscillatorConfig {
-                period: 14,
-                buy_threshold: 0.0,
-                sell_threshold: 0.0,
-                stop_loss_atr_mult: 2.0,
-                atr_period: 14,
                 symbol: symbol.to_string(),
+                ..AroonOscillatorConfig::default()
             };
             Ok(Box::new(AroonOscillator::new(config)))
         }
@@ -333,15 +329,8 @@ pub fn create_strategy(name: &str, symbol: &str) -> Result<Box<dyn Strategy>> {
         }
         "StochRsiMeanReversion" => {
             let config = StochRsiMeanReversionConfig {
-                rsi_period: 14,
-                stoch_period: 14,
-                k_period: 3,
-                d_period: 3,
-                oversold_threshold: 20.0,
-                overbought_threshold: 80.0,
-                stop_loss_atr_mult: 2.0,
-                atr_period: 14,
                 symbol: symbol.to_string(),
+                ..Default::default()
             };
             Ok(Box::new(StochRsiMeanReversion::new(config)))
         }

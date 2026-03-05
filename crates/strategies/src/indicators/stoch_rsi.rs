@@ -90,33 +90,21 @@ pub fn calculate(
             }
             max_deque.push_back(i);
 
-            // Calculate StochRSI if we have enough data (at least stoch_period valid RSI values)
-            // Wait, rsi_arr has `rsi_period` leading Nones.
-            // The first valid RSI is at index `rsi_period`.
-            // So the first valid StochRSI is at `rsi_period + stoch_period - 1`... wait.
-            // Actually, if we just check if `min_deque` and `max_deque` have elements from the valid range,
-            // we can calculate. But we need a full `stoch_period` of VALID RSI values.
-            // A simple way is to check if `i >= rsi_period + stoch_period - 1`.
             if i >= rsi_period + stoch_period - 1 {
-                let min_idx = *min_deque.front().unwrap();
-                let max_idx = *max_deque.front().unwrap();
+                let min_idx = min_deque.front().copied().unwrap_or(i);
+                let max_idx = max_deque.front().copied().unwrap_or(i);
 
-                let min_val = rsi_arr.get(min_idx).unwrap();
-                let max_val = rsi_arr.get(max_idx).unwrap();
+                let min_val = rsi_arr.get(min_idx).unwrap_or(val);
+                let max_val = rsi_arr.get(max_idx).unwrap_or(val);
 
                 let stoch_rsi = if max_val > min_val {
                     ((val - min_val) / (max_val - min_val)) * 100.0
                 } else {
-                    // If max == min, StochRSI is undefined or 0.
-                    // Usually it means RSI has been flat, we'll set it to 0 or 50. Let's use 0.0.
                     0.0
                 };
                 *stoch_rsi_val = Some(stoch_rsi);
             }
         } else {
-            // If val is None, we clear deques?
-            // Since RSI returns None for first `rsi_period` elements, we just ignore them.
-            // But if there's a None later, we might want to reset.
             min_deque.clear();
             max_deque.clear();
         }
@@ -145,7 +133,7 @@ pub fn calculate(
                 }
 
                 if k_count == k_period {
-                    let k_dec = Decimal::from_usize(k_period).unwrap();
+                    let k_dec = Decimal::from_usize(k_period).unwrap_or(Decimal::ONE);
                     let avg = k_sum / k_dec;
                     *k_val = Some(avg.to_f64().unwrap_or(0.0));
                 }
@@ -180,7 +168,7 @@ pub fn calculate(
                 }
 
                 if d_count == d_period {
-                    let d_dec = Decimal::from_usize(d_period).unwrap();
+                    let d_dec = Decimal::from_usize(d_period).unwrap_or(Decimal::ONE);
                     let avg = d_sum / d_dec;
                     *d_val = Some(avg.to_f64().unwrap_or(0.0));
                 }
@@ -204,9 +192,6 @@ mod tests {
 
     #[test]
     fn test_stoch_rsi_calculation() -> Result<()> {
-        // Let's create a DataFrame with enough data points.
-        // For rsi_period=3, stoch_period=3, k_period=3, d_period=3
-        // We need at least 3 + 3 + 3 + 3 = 12 points to see a valid %D.
         let values: Vec<f64> = vec![
             10.0, 11.0, 12.0, 11.0, 10.0, 9.0, 8.0, 9.0, 10.0, 11.0, 12.0, 13.0, 14.0, 15.0,
         ];
@@ -219,19 +204,12 @@ mod tests {
         assert_eq!(k_arr.len(), 14);
         assert_eq!(d_arr.len(), 14);
 
-        // Verify the initial Nones are handled
-        // RSI has 3 Nones.
-        // StochRSI needs 3 valid RSIs, so it starts at index 3 + 3 - 1 = 5.
-        // %K is SMA of StochRSI over 3, so it starts at index 5 + 3 - 1 = 7.
-        // %D is SMA of %K over 3, so it starts at index 7 + 3 - 1 = 9.
-
         assert!(k_arr.get(6).is_none());
-        assert!(k_arr.get(7).is_some()); // %K first valid at 7
+        assert!(k_arr.get(7).is_some());
 
         assert!(d_arr.get(8).is_none());
-        assert!(d_arr.get(9).is_some()); // %D first valid at 9
+        assert!(d_arr.get(9).is_some());
 
-        // Verify values are within bounds
         for i in 7..14 {
             if let Some(v) = k_arr.get(i) {
                 assert!((0.0..=100.0).contains(&v), "%K out of bounds: {}", v);
@@ -263,7 +241,6 @@ mod tests {
         assert!(k_arr.get(2).is_none());
         assert!(d_arr.get(2).is_none());
 
-        // Zero periods
         let res_zero = calculate(&df_short, 0, 14, 3, 3);
         assert!(res_zero.is_err());
 
