@@ -1,0 +1,26 @@
+Scanning market for candidates...
+Found candidates: BTCUSD, ETHUSD, SPY
+
+Evaluating BTCUSD...
+
+Evaluating ETHUSD...
+
+Evaluating SPY...
+
+=== Signal Generator Output ===
+
+- Symbol and direction (long/short): BTCUSD (Long)
+- Signal type and strength (0-100%): Entry, Strength: 64.0%
+- Suggested size (quantity): 0.037850
+- Stop loss and take profit levels: Stop Loss: 56825.01174732183, Take Profit: 63048.244537893
+- Clear reasoning (including historical context): Strategy: BollingerBands (64%, MA: 0.80). Reason: Close 59467.02704514670040225610136 < Lower Band 60406.23. Market Context: Trending Down (Short Term) (Medium Volatility). No similar past trades found. (Opening new position) (Risk: $100, SL Dist: 2642.02)
+
+------------------
+
+- Symbol and direction (long/short): BTCUSD (Long)
+- Signal type and strength (0-100%): Entry, Strength: 64.0%
+- Suggested size (quantity): 0.065375
+- Stop loss and take profit levels: Stop Loss: 57937.38023667255, Take Profit: 63210.891631115985
+- Clear reasoning (including historical context): Strategy: RsiMeanReversion (64%, MA: 0.80). Reason: RSI Oversold: 21.74 < 30.00. Market Context: Trending Down (Short Term) (Medium Volatility). No similar past trades found. (Risk: $100, SL Dist: 1529.65)
+
+------------------
