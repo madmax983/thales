@@ -1,4 +1,5 @@
 use anyhow::Result;
+use strategies::adx_macd_trend::{AdxMacdTrend, AdxMacdTrendConfig};
 use strategies::adx_momentum::{AdxMomentum, AdxMomentumConfig};
 use strategies::aroon_oscillator::{AroonOscillator, AroonOscillatorConfig};
 use strategies::awesome_oscillator::{AwesomeOscillator, AwesomeOscillatorConfig};
@@ -166,6 +167,19 @@ pub fn create_strategy(name: &str, symbol: &str) -> Result<Box<dyn Strategy>> {
                 symbol: symbol.to_string(),
             };
             Ok(Box::new(StochasticOscillator::new(config)))
+        }
+        "AdxMacdTrend" => {
+            let config = AdxMacdTrendConfig {
+                adx_period: 14,
+                adx_threshold: 25.0,
+                macd_fast_period: 12,
+                macd_slow_period: 26,
+                macd_signal_period: 9,
+                stop_loss_atr_mult: 2.0,
+                atr_period: 14,
+                symbol: symbol.to_string(),
+            };
+            Ok(Box::new(AdxMacdTrend::new(config)))
         }
         "AdxMomentum" => {
             let config = AdxMomentumConfig {
@@ -346,6 +360,7 @@ pub fn create_strategy(name: &str, symbol: &str) -> Result<Box<dyn Strategy>> {
 
 pub fn list_strategies() -> Vec<&'static str> {
     vec![
+        "AdxMacdTrend",
         "AroonOscillator",
         "BollingerBands",
         "ElderRay",

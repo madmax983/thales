@@ -21,6 +21,7 @@
 //! - [`connors_rsi_mean_reversion::ConnorsRsiMeanReversion`] - Mean reversion using Connors RSI (CRSI).
 //! - [`awesome_oscillator::AwesomeOscillator`] - Momentum strategy using Awesome Oscillator (AO).
 
+pub mod adx_macd_trend;
 pub mod adx_momentum;
 pub mod aroon_oscillator;
 pub mod awesome_oscillator;

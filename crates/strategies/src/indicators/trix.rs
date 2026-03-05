@@ -126,7 +126,10 @@ mod tests {
         let s_flat = result_flat.f64()?;
 
         if let Some(flat_val) = s_flat.get(7) {
-            assert!((flat_val - 0.0).abs() < 1e-6, "Flat line should yield TRIX of exactly 0.0");
+            assert!(
+                (flat_val - 0.0).abs() < 1e-6,
+                "Flat line should yield TRIX of exactly 0.0"
+            );
         }
 
         Ok(())
