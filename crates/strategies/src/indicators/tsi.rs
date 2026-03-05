@@ -106,7 +106,7 @@ mod tests {
         // Let's just verify it runs and produces reasonable bounds
         for i in 0..out.len() {
             if let Some(val) = out.get(i) {
-                assert!(val >= -100.0 && val <= 100.0);
+                assert!((-100.0..=100.0).contains(&val));
             }
         }
 

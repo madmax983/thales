@@ -588,3 +588,25 @@ let trix_series = trix::calculate(&df, period)?;
 - Returns `Result<Series>`.
 - The output Series is named "trix".
 - The first `period * 3` (approximate) values will be null.
+
+## Stochastic RSI (StochRSI)
+
+**Name:** StochRSI
+**Description:** Applies the Stochastic Oscillator formula to the Relative Strength Index (RSI).
+**Rationale:** Standard RSI can languish between 30 and 70 for extended periods. StochRSI is more sensitive and quickly identifies extremes in RSI itself.
+
+### Implementation Details
+- Uses a Deque algorithm to compute rolling min and max values of the RSI series efficiently in O(N).
+- Smooths the raw StochRSI using Simple Moving Average (SMA) logic.
+- Returns a tuple of `(Series, Series)` for `%K` and `%D`.
+
+### Usage
+
+```rust
+use strategies::indicators::stoch_rsi;
+use polars::prelude::*;
+
+// Let `df` be a DataFrame with a "close" column
+// Parameters: data, rsi_period, stoch_period, k_period, d_period
+let (k_series, d_series) = stoch_rsi::calculate(&df, 14, 14, 3, 3).unwrap();
+```

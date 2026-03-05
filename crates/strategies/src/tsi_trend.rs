@@ -310,7 +310,10 @@ mod tests {
 
         // Just verify any exit signal exists. It's too sensitive to exact ATR to assert it's explicitly "Stop Loss Hit" when standard crossovers also trigger during huge spikes.
         let exit_signal = signals.iter().find(|s| s.signal_type == SignalType::Exit);
-        assert!(exit_signal.is_some(), "Should have generated an exit signal");
+        assert!(
+            exit_signal.is_some(),
+            "Should have generated an exit signal"
+        );
     }
 
     #[tokio::test]

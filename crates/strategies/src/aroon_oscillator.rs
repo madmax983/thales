@@ -13,7 +13,7 @@ use rust_decimal::prelude::*;
 use rust_decimal::Decimal;
 
 /// Configuration for the Aroon Oscillator Strategy
-#[derive(Debug, Clone, serde::Deserialize)]
+#[derive(Debug, Clone, serde::Deserialize, Default)]
 pub struct AroonOscillatorConfig {
     /// Lookback period for Aroon calculation
     pub period: usize,
