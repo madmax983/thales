@@ -588,3 +588,10 @@ let trix_series = trix::calculate(&df, period)?;
 - Returns `Result<Series>`.
 - The output Series is named "trix".
 - The first `period * 3` (approximate) values will be null.
+
+## Triple Exponential Moving Average (TEMA)
+**Category**: `Trend`
+
+**Description**: The Triple Exponential Moving Average (TEMA) smooths price data and reduces the lag associated with traditional moving averages. It is calculated by taking an EMA, an EMA of the EMA, and an EMA of that EMA, then combining them.
+
+**Formula**: `TEMA = (3 * EMA1) - (3 * EMA2) + EMA3`

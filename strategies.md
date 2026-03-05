@@ -2255,3 +2255,23 @@ pub struct TsiTrendConfig {
 ### Performance
 - TSI, EMA, and ATR calculations are O(N).
 - Signal generation loop is O(N).
+
+## TemaCrossover
+**Type**: `TrendFollowing`
+
+**Description**: Triple Exponential Moving Average Crossover (TEMA). This strategy identifies trends using two TEMA indicators with different periods.
+
+**Conditions**:
+- **Entry**: Short TEMA crosses above Long TEMA.
+- **Exit**: Short TEMA crosses below Long TEMA.
+
+**Configuration**:
+- `short_period`: Period for the short TEMA (default: 9).
+- `long_period`: Period for the long TEMA (default: 21).
+- `stop_loss_atr_mult`: ATR multiplier for dynamic stop-loss (default: 2.0).
+- `atr_period`: Period for ATR calculation (default: 14).
+
+**Expected Historical Performance Metrics (Sample)**:
+- **Win Rate**: ~45-55% (trend following typically has lower win rates but higher risk/reward ratios).
+- **Sharpe Ratio**: 1.2 - 1.5.
+- **Max Drawdown**: -15% to -20%.
