@@ -49,7 +49,7 @@ impl Strategy for TrixMomentum {
 
         // Calculate TRIX
         let mut trix_series = trix::calculate(data, self.config.trix_period)?;
-        let trix_df = DataFrame::new(vec![trix_series.rename("close".into()).clone()])?;
+        let trix_df = DataFrame::new(vec![trix_series.rename("close").clone()])?;
 
         // Calculate Signal Line (SMA of TRIX)
         let signal_series = sma::calculate(&trix_df, self.config.signal_period)?;
