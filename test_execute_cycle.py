@@ -277,9 +277,8 @@ class TestExecuteCycle(unittest.TestCase):
         with open("temp_portfolio.md", "r") as f:
             content = f.read()
 
-        self.assertIn("## Submitted Orders", content)
+        self.assertIn("## Executed Trades", content)
         self.assertIn("intent-submitted-1", content)
-        self.assertIn("submitted", content)
 
     def test_select_strategies_returns_all_active_strategies(self):
         # Now returns all strategies regardless of regime
