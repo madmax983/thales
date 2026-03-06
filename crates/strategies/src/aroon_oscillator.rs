@@ -13,7 +13,7 @@ use rust_decimal::prelude::*;
 use rust_decimal::Decimal;
 
 /// Configuration for the Aroon Oscillator Strategy
-#[derive(Debug, Clone, serde::Deserialize, Default)]
+#[derive(Debug, Clone, serde::Deserialize)]
 pub struct AroonOscillatorConfig {
     /// Lookback period for Aroon calculation
     pub period: usize,
@@ -27,6 +27,19 @@ pub struct AroonOscillatorConfig {
     pub atr_period: usize,
     /// The symbol to trade
     pub symbol: String,
+}
+
+impl Default for AroonOscillatorConfig {
+    fn default() -> Self {
+        Self {
+            period: 14,
+            buy_threshold: 50.0,
+            sell_threshold: -50.0,
+            stop_loss_atr_mult: 2.0,
+            atr_period: 14,
+            symbol: "XXBTZUSD".to_string(),
+        }
+    }
 }
 
 impl StrategyConfig for AroonOscillatorConfig {}
