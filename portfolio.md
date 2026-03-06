@@ -3517,6 +3517,9 @@
 | 2026-03-06 15:43:06 | BTCUSD | crypto:BTCUSD:sell:1772806377157 | provider error: invalid volume: No open position found for max exit for BTCUSD |
 | 2026-03-06 15:53:14 | ETHUSD | crypto:ETHUSD:buy:1772806377175 | Cross-validation failed: Strategies generated {'sell'} but signal recommended buy. |
 | 2026-03-06 15:53:14 | SPY | equities:SPY:buy:1772806377191 | No active strategy generated a signal (Strategies: BollingerBands, EmaCrossover, RsiMeanReversion, Macd, Supertrend, DonchianBreakout, ParabolicSar, KeltnerChannelBreakout, StochasticOscillator, AdxMomentum, IchimokuCloud, CciMomentum, ChaikinMoneyFlow, ChandelierExit, LinearRegressionTrend, ObvTrendFollowing, MoneyFlowIndex, ConnorsRsiMeanReversion, AwesomeOscillator, WilliamsR, VwmaCrossover, VwapReversion, VortexBreakout, RocMomentum, TrixMomentum, AdxMacdTrend, ZScoreMeanReversion, ElderRay, AroonOscillator, StochRsiMeanReversion, MacdRsiTrend, TsiTrend) |
+| 2026-03-06 17:42:57 | ETHUSD | crypto:ETHUSD:buy:1772806377175 | Cross-validation failed: Strategies generated {'sell'} but signal recommended buy. |
+| 2026-03-06 17:42:57 | SPY | equities:SPY:buy:1772806377191 | No active strategy generated a signal (Strategies: BollingerBands, EmaCrossover, RsiMeanReversion, Macd, Supertrend, DonchianBreakout, ParabolicSar, KeltnerChannelBreakout, StochasticOscillator, AdxMomentum, IchimokuCloud, CciMomentum, ChaikinMoneyFlow, ChandelierExit, LinearRegressionTrend, ObvTrendFollowing, MoneyFlowIndex, ConnorsRsiMeanReversion, AwesomeOscillator, WilliamsR, VwmaCrossover, VwapReversion, VortexBreakout, RocMomentum, TrixMomentum, AdxMacdTrend, ZScoreMeanReversion, ElderRay, AroonOscillator, StochRsiMeanReversion, MacdRsiTrend, TsiTrend) |
+| 2026-03-06 17:42:58 | BTCUSD | crypto:BTCUSD:sell:1772806377157 | No sellable balance available (BTC 0.00000000) |
 
 ## Executed Trades
 
