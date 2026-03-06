@@ -258,68 +258,87 @@ def execute_agent(intent_file):
     print("=== Execution Agent Persona ===")
 
     with open(intent_file, "r") as f:
-        intent = json.load(f)
+        loaded_json = json.load(f)
 
-    provider = intent.get("provider", "paper")
-
-    # 1. Manage Orders (Stale & Partial Fills)
-    manage_orders(provider)
-
-    # 2. Get Current Price
-    print(f"Fetching latest price for {intent['symbol']} on {provider}...")
-    data = run_command(["fetch-market-data", "--provider", provider, "--symbol", intent['symbol'], "--timeframe", "1m"])
-    current_price = None
-    if isinstance(data, dict) and "bars" in data and len(data["bars"]) > 0:
-        bars = data["bars"]
-        bars.sort(key=lambda x: x.get("timestamp_unix_ms", 0))
-        current_price = bars[-1].get("close")
-
-    # 3. Always set stop losses when available
-    if not intent.get("stop_loss"):
-        print("Warning: Missing stop loss. Applying safety default stop loss.")
-        if current_price:
-            if intent["side"] == "buy":
-                intent["stop_loss"] = current_price * 0.95
-            elif intent["side"] == "sell":
-                intent["stop_loss"] = current_price * 1.05
+    # Check if this is a standard CLI JSON envelope or a bare intent list/object
+    intents = []
+    if isinstance(loaded_json, dict) and "data" in loaded_json:
+        data = loaded_json["data"]
+        if isinstance(data, list):
+            intents = data
         else:
-            print("Cannot determine safe stop loss without current price. Aborting.")
-            return
-
-    # 4. Refine Intent (Algo Selection & Order Type)
-    intent = refine_intent(intent, current_price)
-    print(f"Order Type: {intent['order_type'].upper()}")
-    if intent.get("execution_algo"):
-        print(f"Algorithm: {intent['execution_algo']}")
-
-    # 5. Execute Intent
-    print(f"Executing {intent['side']} {intent['symbol']} via {provider}...")
-    temp_intent_file = f"temp_execute_{intent['symbol']}.json"
-    with open(temp_intent_file, "w") as f:
-        json.dump(intent, f)
-
-    result = run_command(["execute-intent", "--provider", provider, "--input", temp_intent_file])
-
-    if os.path.exists(temp_intent_file):
-        os.remove(temp_intent_file)
-
-    if result:
-        exec_res = result[0] if isinstance(result, list) else result
-        status = exec_res.get("status", "unknown")
-
-        print(f"Execution response: {status}")
-
-        # 6. Monitor Slippage
-        expected_price = intent.get("limit_price") or current_price
-        slippage = None
-
-        if expected_price and exec_res.get("provider_order_id"):
-            _, slippage = monitor_execution(provider, exec_res["provider_order_id"], expected_price)
-
-        # 7. Reporting
-        log_trade(intent, exec_res, slippage)
+            intents = [data]
+    elif isinstance(loaded_json, list):
+        intents = loaded_json
     else:
-        print("Execution failed.")
+        intents = [loaded_json]
+
+    if not intents:
+        print("Error: No intents found in the provided file.")
+        return
+
+    # For now, process the first intent, or loop through them
+    for intent in intents:
+        provider = intent.get("provider", "paper")
+
+        # 1. Manage Orders (Stale & Partial Fills)
+        manage_orders(provider)
+
+        # 2. Get Current Price
+        print(f"Fetching latest price for {intent['symbol']} on {provider}...")
+        data = run_command(["fetch-market-data", "--provider", provider, "--symbol", intent['symbol'], "--timeframe", "1m"])
+        current_price = None
+        if isinstance(data, dict) and "bars" in data and len(data["bars"]) > 0:
+            bars = data["bars"]
+            bars.sort(key=lambda x: x.get("timestamp_unix_ms", 0))
+            current_price = bars[-1].get("close")
+
+        # 3. Always set stop losses when available
+        if not intent.get("stop_loss"):
+            print("Warning: Missing stop loss. Applying safety default stop loss.")
+            if current_price:
+                if intent["side"] == "buy":
+                    intent["stop_loss"] = current_price * 0.95
+                elif intent["side"] == "sell":
+                    intent["stop_loss"] = current_price * 1.05
+            else:
+                print("Cannot determine safe stop loss without current price. Aborting.")
+                continue
+
+        # 4. Refine Intent (Algo Selection & Order Type)
+        intent = refine_intent(intent, current_price)
+        print(f"Order Type: {intent['order_type'].upper()}")
+        if intent.get("execution_algo"):
+            print(f"Algorithm: {intent['execution_algo']}")
+
+        # 5. Execute Intent
+        print(f"Executing {intent['side']} {intent['symbol']} via {provider}...")
+        temp_intent_file = f"temp_execute_{intent['symbol']}.json"
+        with open(temp_intent_file, "w") as f:
+            json.dump(intent, f)
+
+        result = run_command(["execute-intent", "--provider", provider, "--input", temp_intent_file])
+
+        if os.path.exists(temp_intent_file):
+            os.remove(temp_intent_file)
+
+        if result:
+            exec_res = result[0] if isinstance(result, list) else result
+            status = exec_res.get("status", "unknown")
+
+            print(f"Execution response: {status}")
+
+            # 6. Monitor Slippage
+            expected_price = intent.get("limit_price") or current_price
+            slippage = None
+
+            if expected_price and exec_res.get("provider_order_id"):
+                _, slippage = monitor_execution(provider, exec_res["provider_order_id"], expected_price)
+
+            # 7. Reporting
+            log_trade(intent, exec_res, slippage)
+        else:
+            print("Execution failed.")
 
 if __name__ == "__main__":
     import argparse
