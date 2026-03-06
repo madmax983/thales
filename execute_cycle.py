@@ -805,16 +805,56 @@ def log_trade(intent, result, slippage=None):
 def log_submitted(intent, result):
     """Logs accepted/submitted orders that are not yet filled."""
     date_str = datetime.fromtimestamp(result.get("submitted_at_unix_ms", int(datetime.now().timestamp() * 1000)) / 1000).strftime("%Y-%m-%d %H:%M:%S")
-    symbol = intent.get("symbol", "-").replace("|", "\\|")
-    side = intent.get("side", "-").replace("|", "\\|")
-    status = str(result.get("status", "unknown")).replace("|", "\\|")
-    provider = str(result.get("provider", intent.get("provider", "-"))).replace("|", "\\|")
-    order_id = str(result.get("provider_order_id", "-")).replace("|", "\\|")
-    signal_ref = intent.get("intent_id", "-").replace("|", "\\|")
+    asset_class = intent.get("market", "-")
+    symbol = intent.get("symbol", "-")
 
-    header = "| Date/Time | Symbol | Side | Provider | Provider Order ID | Status | Signal Ref |"
-    row = f"| {date_str} | {symbol} | {side} | {provider} | {order_id} | {status} | {signal_ref} |"
-    append_to_section(PORTFOLIO_PATH, "## Submitted Orders", header, row)
+    # Enrich Action with Signal Type if available
+    action = intent.get("side", "-")
+    signal_type_raw = intent.get("signal_type", "")
+    # Clean up Rust enum string if present (e.g. SignalType::Entry -> Entry)
+    if "SignalType::" in signal_type_raw:
+        signal_type_clean = signal_type_raw.replace("SignalType::", "")
+    else:
+        signal_type_clean = signal_type_raw
+
+    if signal_type_clean:
+        action = f"{action} ({signal_type_clean})"
+
+    # Escape pipes
+    asset_class = asset_class.replace("|", "\\|")
+    symbol = symbol.replace("|", "\\|")
+    action = action.replace("|", "\\|")
+
+    size = intent.get("size_hint", "0")
+    price = str(intent.get("limit_price", "Market"))
+    if price == "None": price = "Market"
+
+    sl = str(intent.get("stop_loss", "-"))
+    if sl == "None": sl = "-"
+
+    tp = str(intent.get("take_profit", "-"))
+    if tp == "None": tp = "-"
+
+    # Calc max risk if possible
+    max_risk = "-"
+    if sl != "-" and price != "Market":
+        try:
+             entry = float(price)
+             stop = float(sl)
+             qty = float(size)
+             max_risk = f"{abs(entry - stop) * qty:.2f}"
+        except:
+             pass
+
+    signal_ref = intent.get("intent_id", "-").replace("|", "\\|")
+    rationale = intent.get("rationale", "-").replace("\n", " ").replace("\r", " ").replace("|", "\\|")
+
+    # The prompt required submitted or executed trades to be appended to portfolio.md in this exact 11 columns format
+    header = "| Date/Time | Asset Class | Symbol/Contract | Action | Size/Qty | Entry Price | SL | TP | Max Risk | Signal Ref | Rationale |"
+    row = f"| {date_str} | {asset_class} | {symbol} | {action} | {size} | {price} | {sl} | {tp} | {max_risk} | {signal_ref} | {rationale} |"
+
+    # Still appending to Executed Trades since "After every execution, append to portfolio.md..." applies to placed orders
+    append_to_section(PORTFOLIO_PATH, "## Executed Trades", header, row)
 
 def log_skipped(intent, reason):
     """Logs skipped trade."""
@@ -982,7 +1022,7 @@ def adjust_sell_size_to_sellable_balance(intent):
     if requested_size <= sellable_balance:
         return True, "Size within sellable balance"
 
-    intent["size_hint"] = "max"
+    intent["size_hint"] = format_size_hint(sellable_balance)
     old_rationale = intent.get("rationale", "").strip()
     sizing_note = (
         f"Sell size adjusted from {size_hint} to max based on "

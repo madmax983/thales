@@ -3512,6 +3512,11 @@
 | 2026-03-06 14:31:12 | ETHUSD | crypto:ETHUSD:buy:1772806377175 | Cross-validation failed: Strategies generated {'sell'} but signal recommended buy. |
 | 2026-03-06 14:31:13 | SPY | equities:SPY:buy:1772806377191 | Cross-validation failed: Strategies generated {'sell'} but signal recommended buy. |
 | 2026-03-06 14:31:13 | BTCUSD | crypto:BTCUSD:sell:1772806377157 | provider error: invalid volume: No open position found for max exit for BTCUSD |
+| 2026-03-06 15:43:05 | ETHUSD | crypto:ETHUSD:buy:1772806377175 | Cross-validation failed: Strategies generated {'sell'} but signal recommended buy. |
+| 2026-03-06 15:43:05 | SPY | equities:SPY:buy:1772806377191 | No active strategy generated a signal (Strategies: BollingerBands, EmaCrossover, RsiMeanReversion, Macd, Supertrend, DonchianBreakout, ParabolicSar, KeltnerChannelBreakout, StochasticOscillator, AdxMomentum, IchimokuCloud, CciMomentum, ChaikinMoneyFlow, ChandelierExit, LinearRegressionTrend, ObvTrendFollowing, MoneyFlowIndex, ConnorsRsiMeanReversion, AwesomeOscillator, WilliamsR, VwmaCrossover, VwapReversion, VortexBreakout, RocMomentum, TrixMomentum, AdxMacdTrend, ZScoreMeanReversion, ElderRay, AroonOscillator, StochRsiMeanReversion, MacdRsiTrend, TsiTrend) |
+| 2026-03-06 15:43:06 | BTCUSD | crypto:BTCUSD:sell:1772806377157 | provider error: invalid volume: No open position found for max exit for BTCUSD |
+| 2026-03-06 15:53:14 | ETHUSD | crypto:ETHUSD:buy:1772806377175 | Cross-validation failed: Strategies generated {'sell'} but signal recommended buy. |
+| 2026-03-06 15:53:14 | SPY | equities:SPY:buy:1772806377191 | No active strategy generated a signal (Strategies: BollingerBands, EmaCrossover, RsiMeanReversion, Macd, Supertrend, DonchianBreakout, ParabolicSar, KeltnerChannelBreakout, StochasticOscillator, AdxMomentum, IchimokuCloud, CciMomentum, ChaikinMoneyFlow, ChandelierExit, LinearRegressionTrend, ObvTrendFollowing, MoneyFlowIndex, ConnorsRsiMeanReversion, AwesomeOscillator, WilliamsR, VwmaCrossover, VwapReversion, VortexBreakout, RocMomentum, TrixMomentum, AdxMacdTrend, ZScoreMeanReversion, ElderRay, AroonOscillator, StochRsiMeanReversion, MacdRsiTrend, TsiTrend) |
 
 ## Executed Trades
 
@@ -3618,3 +3623,4 @@
 | 2026-03-06 14:14:04 | SPY | NO_REF | No strategy signal generated. |
 | 2026-03-06 14:14:17 | QQQ | NO_REF | No strategy signal generated. |
 | 2026-03-06 14:14:31 | TQQQ | NO_REF | No strategy signal generated. |
+| 2026-03-06 15:53:15 | BTCUSD | sell | kraken | OUDK3V-PTRHQ-DT4YSN | submitted | crypto:BTCUSD:sell:1772806377157 |
