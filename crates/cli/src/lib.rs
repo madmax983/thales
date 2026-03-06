@@ -28,6 +28,8 @@ pub mod pairs_trading;
 pub mod pattern_match;
 pub mod rag;
 pub mod reporting;
+#[cfg(feature = "nova")]
+pub mod seasonality;
 pub mod signals;
 pub mod strategy_factory;
 #[cfg(feature = "nova")]
