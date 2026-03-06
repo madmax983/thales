@@ -1,4 +1,4 @@
-use crate::rag::HistoryEntry;
+use crate::search_history::HistoryEntry;
 use anyhow::{Context, Result};
 use contracts::Bar;
 use std::fs;

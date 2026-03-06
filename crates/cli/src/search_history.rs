@@ -26,7 +26,7 @@ use std::path::Path;
 ///
 /// ```rust
 /// use contracts::{MarketAnalysis, TradeIntent};
-/// use thales_cli::rag::HistoryEntry;
+/// use thales_cli::search_history::HistoryEntry;
 ///
 /// let entry = HistoryEntry {
 ///     intent: TradeIntent::default(),
@@ -81,7 +81,7 @@ pub struct HistoricalPerformance {
 ///
 /// ```rust
 /// use contracts::{MarketAnalysis, TradeIntent};
-/// use thales_cli::rag::{HistoryEntry, analyze_performance};
+/// use thales_cli::search_history::{HistoryEntry, analyze_performance};
 ///
 /// let entries = vec![
 ///     HistoryEntry {
@@ -178,7 +178,7 @@ pub fn analyze_performance(entries: &[HistoryEntry]) -> HistoricalPerformance {
 /// use std::io::Write;
 /// use tempfile::NamedTempFile;
 /// use contracts::MarketAnalysis;
-/// use thales_cli::rag::{HistoryEntry, find_similar_trades};
+/// use thales_cli::search_history::{HistoryEntry, find_similar_trades};
 ///
 /// # fn main() -> anyhow::Result<()> {
 /// // 1. Create a dummy history file
@@ -295,7 +295,7 @@ pub fn find_similar_trades(
 /// ```rust
 /// use std::io::Write;
 /// use tempfile::NamedTempFile;
-/// use thales_cli::rag::count_todays_signals;
+/// use thales_cli::search_history::count_todays_signals;
 ///
 /// # fn main() -> anyhow::Result<()> {
 /// let mut file = NamedTempFile::new()?;
@@ -345,7 +345,7 @@ pub fn count_todays_signals(symbol: &str, history_path: &Path, reference_ts: i64
 ///
 /// ```rust
 /// use contracts::{MarketAnalysis, TradeIntent};
-/// use thales_cli::rag::{HistoryEntry, summarize_history};
+/// use thales_cli::search_history::{HistoryEntry, summarize_history};
 ///
 /// let entries = vec![
 ///     HistoryEntry {

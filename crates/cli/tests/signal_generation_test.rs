@@ -1,7 +1,7 @@
 use contracts::{Bar, BarSeries, MarketAnalysis, TradeIntent};
 use std::fs;
 use tempfile::tempdir;
-use thales_cli::rag::HistoryEntry;
+use thales_cli::search_history::HistoryEntry;
 use thales_cli::signals;
 
 fn create_bar(symbol: &str, timestamp: i64, close: f64) -> Bar {
@@ -97,7 +97,7 @@ async fn test_signal_generation_limit() {
     .unwrap();
 
     // 4. Assert Limit Reached (should be empty because signals_today=3)
-    // Actually rag::count_todays_signals might depend on timestamp matching exactly "today"
+    // Actually search_history::count_todays_signals might depend on timestamp matching exactly "today"
     // The bars timestamp is `now + ...` which is same day as `now` (1600000000000 is Sep 13 2020)
     // So it should work.
 
@@ -158,7 +158,7 @@ async fn test_signal_generation_success() {
 }
 
 #[tokio::test]
-async fn test_rag_context() {
+async fn test_search_history_context() {
     // 1. Setup History with similar trade
     let dir = tempdir().unwrap();
     let history_path = dir.path().join("history.json");

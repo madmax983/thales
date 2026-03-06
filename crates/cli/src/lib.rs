@@ -7,7 +7,7 @@
 //! # Modules
 //!
 //! - [`analysis`]: Market analysis using technical indicators and patterns.
-//! - [`rag`]: Retrieval-Augmented Generation for historical trade context.
+//! - [`search_history`]: search history for historical trade context.
 //! - [`reporting`]: Generation of markdown reports for the user.
 //! - [`signals`]: Signal generation pipeline, connecting strategies to market data.
 
@@ -26,7 +26,7 @@ pub mod optimizer;
 pub mod pairs_trading;
 #[cfg(feature = "nova")]
 pub mod pattern_match;
-pub mod rag;
+pub mod search_history;
 pub mod reporting;
 #[cfg(feature = "nova")]
 pub mod seasonality;
