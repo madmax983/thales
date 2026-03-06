@@ -3500,6 +3500,18 @@
 | 2026-03-06 11:49:22 | BTCUSD | crypto:BTCUSD:sell:1772791148906 | No active strategy generated a signal (Strategies: BollingerBands, EmaCrossover, RsiMeanReversion, Macd, Supertrend, DonchianBreakout, ParabolicSar, KeltnerChannelBreakout, StochasticOscillator, AdxMomentum, IchimokuCloud, CciMomentum, ChaikinMoneyFlow, ChandelierExit, LinearRegressionTrend, ObvTrendFollowing, MoneyFlowIndex, ConnorsRsiMeanReversion, AwesomeOscillator, WilliamsR, VwmaCrossover, VwapReversion, VortexBreakout, RocMomentum, TrixMomentum, AdxMacdTrend, ZScoreMeanReversion, ElderRay, AroonOscillator, StochRsiMeanReversion, MacdRsiTrend, TsiTrend) |
 | 2026-03-06 11:49:23 | ETHUSD | crypto:ETHUSD:buy:1772791148920 | Cross-validation failed: Strategies generated {'sell'} but signal recommended buy. |
 | 2026-03-06 11:49:23 | SPY | equities:SPY:buy:1772791148932 | Cross-validation failed: Strategies generated {'sell'} but signal recommended buy. |
+| 2026-03-06 14:07:20 | SPY | CANCEL-c94787de-37fb-4ce2-aa45-21d86cece933 | Stale Order Cancellation |
+| 2026-03-06 14:07:20 | AAPL | CANCEL-bf6558a3-8d27-40be-aa32-3401cd97cb25 | Stale Order Cancellation |
+| 2026-03-06 14:07:20 | SPY | CANCEL-70fafa88-0c95-419f-a7c7-085a161a5d77 | Stale Order Cancellation |
+| 2026-03-06 14:07:23 | ETHUSD | crypto:ETHUSD:buy:1772803949485 | Cross-validation failed: Strategies generated {'sell'} but signal recommended buy. |
+| 2026-03-06 14:07:23 | SPY | equities:SPY:buy:1772803949497 | No active strategy generated a signal (Strategies: BollingerBands, EmaCrossover, RsiMeanReversion, Macd, Supertrend, DonchianBreakout, ParabolicSar, KeltnerChannelBreakout, StochasticOscillator, AdxMomentum, IchimokuCloud, CciMomentum, ChaikinMoneyFlow, ChandelierExit, LinearRegressionTrend, ObvTrendFollowing, MoneyFlowIndex, ConnorsRsiMeanReversion, AwesomeOscillator, WilliamsR, VwmaCrossover, VwapReversion, VortexBreakout, RocMomentum, TrixMomentum, AdxMacdTrend, ZScoreMeanReversion, ElderRay, AroonOscillator, StochRsiMeanReversion, MacdRsiTrend, TsiTrend) |
+| 2026-03-06 14:07:24 | BTCUSD | crypto:BTCUSD:sell:1772803949470 | provider error: invalid volume: No open position found for max exit for BTCUSD |
+| 2026-03-06 14:07:49 | ETHUSD | crypto:ETHUSD:buy:1772803949485 | Cross-validation failed: Strategies generated {'sell'} but signal recommended buy. |
+| 2026-03-06 14:07:49 | SPY | equities:SPY:buy:1772803949497 | No active strategy generated a signal (Strategies: BollingerBands, EmaCrossover, RsiMeanReversion, Macd, Supertrend, DonchianBreakout, ParabolicSar, KeltnerChannelBreakout, StochasticOscillator, AdxMomentum, IchimokuCloud, CciMomentum, ChaikinMoneyFlow, ChandelierExit, LinearRegressionTrend, ObvTrendFollowing, MoneyFlowIndex, ConnorsRsiMeanReversion, AwesomeOscillator, WilliamsR, VwmaCrossover, VwapReversion, VortexBreakout, RocMomentum, TrixMomentum, AdxMacdTrend, ZScoreMeanReversion, ElderRay, AroonOscillator, StochRsiMeanReversion, MacdRsiTrend, TsiTrend) |
+| 2026-03-06 14:07:50 | BTCUSD | crypto:BTCUSD:sell:1772803949470 | provider error: invalid volume: No open position found for max exit for BTCUSD |
+| 2026-03-06 14:31:12 | ETHUSD | crypto:ETHUSD:buy:1772806377175 | Cross-validation failed: Strategies generated {'sell'} but signal recommended buy. |
+| 2026-03-06 14:31:13 | SPY | equities:SPY:buy:1772806377191 | Cross-validation failed: Strategies generated {'sell'} but signal recommended buy. |
+| 2026-03-06 14:31:13 | BTCUSD | crypto:BTCUSD:sell:1772806377157 | provider error: invalid volume: No open position found for max exit for BTCUSD |
 
 ## Executed Trades
 
@@ -3600,3 +3612,9 @@
 | 2026-03-06 11:57:15 | TQQQ | NO_REF | No strategy signal generated. |
 | 2026-03-06 11:57:47 | crypto | ETHUSD | buy | 0.001 | Market | - | - | - | manual-1772798266 | Manual buy execution based on scan |
 | 2026-03-06 11:57:47 | equities | SPY | buy | 1 | Market | - | - | - | manual-1772798267 | Manual buy execution based on scan |
+| 2026-03-06 14:13:19 | PEPEUSD | NO_REF | No strategy signal generated. |
+| 2026-03-06 14:13:35 | REKTUSD | NO_REF | No strategy signal generated. |
+| 2026-03-06 14:13:50 | MOGUSD | NO_REF | No strategy signal generated. |
+| 2026-03-06 14:14:04 | SPY | NO_REF | No strategy signal generated. |
+| 2026-03-06 14:14:17 | QQQ | NO_REF | No strategy signal generated. |
+| 2026-03-06 14:14:31 | TQQQ | NO_REF | No strategy signal generated. |
