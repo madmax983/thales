@@ -19,3 +19,7 @@
 ## 2024-05-24 - The Hidden Entropy
 **Confusion:** The `entropy` module in `crates/cli/src/entropy.rs` lacked any documentation, making it difficult for users to understand what "Shannon Entropy" means in the context of market returns or how to interpret the `normalized_entropy` output (e.g., that 1.0 means pure randomness).
 **Clarification:** Added comprehensive module-level documentation and executable examples (`# Examples`) for all public structures (`EntropyConfig`, `EntropyReport`) and functions (`analyze_entropy`), explaining the information theory concepts behind the calculations and explicitly detailing `# Errors` conditions.
+
+## 2024-05-25 - The Undocumented Predictors
+**Confusion:** The `markov_chain` and `monte_carlo` modules in `crates/cli/src/` lacked documentation. Users did not understand the configurations, reports, or how to use the main functions.
+**Clarification:** Added module-level documentation and executable examples (`# Examples`) for all public structures (`MarkovConfig`, `MarkovChainReport`, `MarketState`, `MonteCarloConfig`, `MonteCarloReport`) and functions (`analyze_markov_chain`, `run_simulation`), explaining the underlying concepts and detailing `# Errors` conditions.

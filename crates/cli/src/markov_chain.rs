@@ -1,25 +1,47 @@
+//! # Markov Chain Analysis
+//!
+//! This module provides tools for analyzing the probability of transitioning between different
+//! [`MarketState`]s (e.g., Bull, Bear, Flat) based on historical price returns.
+//!
+//! By calculating a transition matrix, it estimates the likelihood of moving from one state
+//! to another and computes the stationary distribution to approximate the long-term
+//! probabilities of each market state.
+
 use anyhow::Result;
 use contracts::BarSeries;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
+/// Configuration for the Markov Chain analysis.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct MarkovConfig {
+    /// The absolute percentage return threshold used to classify a [`MarketState`].
     pub state_threshold_pct: f64,
 }
 
+/// A report detailing the transition probabilities between market states.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct MarkovChainReport {
+    /// The trading symbol that was analyzed.
     pub symbol: String,
+    /// The transition matrix.
+    ///
+    /// The outer map is the "from" state, and the inner map is the "to" state, mapping to the
+    /// probability (0.0 to 1.0) of that transition.
     pub transitions: HashMap<String, HashMap<String, f64>>,
+    /// The stationary distribution representing the long-term probability of being in each state.
     pub state_probabilities: HashMap<String, f64>,
 }
 
+/// Represents the distinct classifications of a market's return period.
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub enum MarketState {
-    Bull, // Return > threshold
-    Bear, // Return < -threshold
-    Flat, // |Return| <= threshold
+    /// A period where the return exceeded the positive threshold.
+    Bull,
+    /// A period where the return exceeded the negative threshold.
+    Bear,
+    /// A period where the return stayed within the threshold bounds.
+    Flat,
 }
 
 impl MarketState {
@@ -42,6 +64,28 @@ impl MarketState {
     }
 }
 
+/// Analyzes a [`BarSeries`] to build a Markov Chain transition matrix.
+///
+/// # Arguments
+/// * `series` - The historical price data to analyze.
+/// * `config` - The configuration containing the return threshold for state classification.
+///
+/// # Errors
+/// Returns an error if the series contains fewer than two bars.
+///
+/// # Examples
+/// ```
+/// use contracts::{BarSeries, Bar};
+/// use thales_cli::markov_chain::{analyze_markov_chain, MarkovConfig};
+///
+/// let bars = vec![
+///     Bar { symbol: "TEST".to_string(), market: "equities".to_string(), timeframe: "1d".to_string(), timestamp_unix_ms: 0, open: 100.0, high: 100.0, low: 100.0, close: 100.0, volume: 100.0 },
+///     Bar { symbol: "TEST".to_string(), market: "equities".to_string(), timeframe: "1d".to_string(), timestamp_unix_ms: 1, open: 105.0, high: 105.0, low: 105.0, close: 105.0, volume: 100.0 },
+///     Bar { symbol: "TEST".to_string(), market: "equities".to_string(), timeframe: "1d".to_string(), timestamp_unix_ms: 2, open: 100.0, high: 100.0, low: 100.0, close: 100.0, volume: 100.0 },
+/// ];
+/// let series = BarSeries { schema_version: "v0".to_string(), bars };
+/// let report = analyze_markov_chain(&series, MarkovConfig { state_threshold_pct: 0.02 }).unwrap();
+/// ```
 pub fn analyze_markov_chain(series: &BarSeries, config: MarkovConfig) -> Result<MarkovChainReport> {
     if series.bars.len() < 2 {
         return Err(anyhow::anyhow!(

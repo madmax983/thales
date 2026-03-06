@@ -1,28 +1,89 @@
+//! # Monte Carlo Simulation
+//!
+//! This module provides tools for running Monte Carlo simulations on backtest results.
+//!
+//! By resampling the historical trades from a [`BacktestResult`], it generates many possible
+//! future equity curves. This helps in understanding the variance, potential drawdowns,
+//! and the risk of ruin for a given trading strategy.
+
 use crate::backtest::BacktestResult;
 use anyhow::Result;
 use rand::prelude::*;
 use serde::{Deserialize, Serialize};
 
+/// Configuration for the Monte Carlo simulation.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct MonteCarloConfig {
+    /// The number of simulation paths to generate.
     pub iterations: usize,
-    pub horizon: Option<usize>, // Number of trades to simulate per path. Default: number of trades in backtest.
-    pub initial_capital: Option<f64>, // Default: backtest initial capital
+    /// Number of trades to simulate per path. Defaults to the number of trades in the backtest.
+    pub horizon: Option<usize>,
+    /// Starting capital for the simulation. Defaults to the backtest initial capital.
+    pub initial_capital: Option<f64>,
 }
 
+/// A report containing the aggregated statistics from all simulation paths.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct MonteCarloReport {
+    /// The number of simulation paths to generate.
     pub iterations: usize,
     pub horizon: usize,
+    /// The total return percentage of the original backtest.
     pub baseline_return_pct: f64,
+    /// The median return percentage across all simulated paths.
     pub median_return_pct: f64,
-    pub best_case_return_pct: f64,  // 95th percentile
-    pub worst_case_return_pct: f64, // 5th percentile
-    pub risk_of_ruin_pct: f64,      // % of paths that went <= 0
+    /// The 95th percentile return percentage (Best Case).
+    pub best_case_return_pct: f64,
+    /// The 5th percentile return percentage (Worst Case).
+    pub worst_case_return_pct: f64,
+    /// The percentage of paths where the equity dropped to or below zero.
+    pub risk_of_ruin_pct: f64,
+    /// The median maximum drawdown percentage across all simulated paths.
     pub max_drawdown_median_pct: f64,
-    pub var_95_pct: f64, // Value at Risk (95% confidence)
+    /// Value at Risk (95% confidence). Represents the percentage loss of capital at the 5th percentile.
+    pub var_95_pct: f64,
 }
 
+/// Runs a Monte Carlo simulation on a set of backtest trades.
+///
+/// Randomly samples (with replacement) from the backtest's trades to generate multiple simulated
+/// equity curves, and then calculates aggregate statistics across those paths.
+///
+/// # Arguments
+/// * `backtest` - The original backtest result containing the trades to sample.
+/// * `config` - The configuration dictating the number of iterations and horizon.
+///
+/// # Errors
+/// Returns an error if the backtest contains no trades to simulate.
+///
+/// # Examples
+/// ```
+/// use thales_cli::backtest::{BacktestResult, BacktestMetrics, BacktestTrade};
+/// use thales_cli::monte_carlo::{run_simulation, MonteCarloConfig};
+///
+/// let trades = vec![
+///     BacktestTrade { id: "1".to_string(), entry_time: 0, exit_time: 1, side: "long".to_string(), qty: 1.0, entry_price: 100.0, exit_price: 110.0, pnl: 100.0, pnl_pct: 0.1, exit_reason: "tp".to_string() },
+///     BacktestTrade { id: "2".to_string(), entry_time: 2, exit_time: 3, side: "long".to_string(), qty: 1.0, entry_price: 110.0, exit_price: 105.0, pnl: -50.0, pnl_pct: -0.05, exit_reason: "sl".to_string() },
+///     BacktestTrade { id: "3".to_string(), entry_time: 4, exit_time: 5, side: "long".to_string(), qty: 1.0, entry_price: 105.0, exit_price: 125.0, pnl: 200.0, pnl_pct: 0.2, exit_reason: "tp".to_string() },
+/// ];
+/// let backtest = BacktestResult {
+///     strategy: "Test".to_string(),
+///     symbol: "TEST".to_string(),
+///     timeframe: "1d".to_string(),
+///     initial_capital: 1000.0,
+///     final_equity: 1250.0,
+///     metrics: BacktestMetrics { total_return_pct: 25.0, cagr: 0.0, max_drawdown_pct: 5.0, win_rate: 0.66, profit_factor: 6.0, total_trades: 3, winning_trades: 2, losing_trades: 1 },
+///     trades,
+///     equity_curve: vec![],
+/// };
+/// let config = MonteCarloConfig {
+///     iterations: 1000,
+///     horizon: Some(10),
+///     initial_capital: None,
+/// };
+/// let report = run_simulation(&backtest, config).unwrap();
+/// assert!(report.iterations == 1000);
+/// ```
 pub fn run_simulation(
     backtest: &BacktestResult,
     config: MonteCarloConfig,
