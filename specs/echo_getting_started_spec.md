@@ -15,6 +15,8 @@ Currently, the default example fetches live data and generates signals on the la
 ## ✅ Acceptance Criteria
 - Must include a `dummy_data.json` that is mathematically guaranteed to trigger a signal for the `BollingerBands` strategy, OR the default quick start example must be changed to use the `backtest` command first.
 - The jargon terms "OHLCV", "RAG", and "TWAP"/"VWAP" must be replaced or explained as "price data", "search history", and "time/volume spreading", respectively.
+- If `generate-signals` outputs an empty `data` array, the `warnings` field must explain *why* (e.g. "No signals triggered for latest candle").
+- Provide user-friendly standard error output for interactive shells when signals are not generated.
 
 ## 🚫 Out of Scope
 Implementation of these fixes (Code changes, README updates, or providing the actual `dummy_data.json`).
