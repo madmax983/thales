@@ -20,6 +20,8 @@ use thales_cli::monte_carlo;
 #[cfg(feature = "nova")]
 use thales_cli::pattern_match;
 #[cfg(feature = "nova")]
+use thales_cli::seasonality;
+#[cfg(feature = "nova")]
 use thales_cli::volume_profile;
 
 #[derive(Debug, Parser)]
@@ -227,6 +229,15 @@ enum Commands {
         top_k: usize,
         #[arg(long, default_value = "5")]
         forward_horizon: usize,
+        #[arg(long)]
+        visualize: bool,
+    },
+    #[cfg(feature = "nova")]
+    AnalyzeSeasonality {
+        #[arg(long)]
+        input: PathBuf,
+        #[arg(long, default_value = "DayOfWeek")]
+        period: String,
         #[arg(long)]
         visualize: bool,
     },
@@ -993,6 +1004,44 @@ fn run(command: Commands, raw: bool) -> Result<String, CliError> {
 
             ok_envelope(report, vec![], raw)
         }
+        #[cfg(feature = "nova")]
+        Commands::AnalyzeSeasonality {
+            input,
+            period,
+            visualize,
+        } => {
+            let file_content = fs::read_to_string(&input)?;
+            let series: BarSeries =
+                match serde_json::from_str::<ResponseEnvelope<BarSeries>>(&file_content) {
+                    Ok(envelope) => envelope
+                        .data
+                        .ok_or(CliError::Validation("Envelope has no data".to_string()))?,
+                    Err(_) => serde_json::from_str::<BarSeries>(&file_content)?,
+                };
+
+            let p = match period.as_str() {
+                "DayOfWeek" => seasonality::SeasonalityPeriod::DayOfWeek,
+                "MonthOfYear" => seasonality::SeasonalityPeriod::MonthOfYear,
+                "HourOfDay" => seasonality::SeasonalityPeriod::HourOfDay,
+                _ => {
+                    return Err(CliError::Validation(format!(
+                        "Invalid period type: {}",
+                        period
+                    )));
+                }
+            };
+
+            let config = seasonality::SeasonalityConfig { period: p };
+
+            let report = seasonality::analyze_seasonality(&series, config)
+                .map_err(|e| CliError::Validation(e.to_string()))?;
+
+            if visualize {
+                seasonality::print_ascii_seasonality(&report);
+            }
+
+            ok_envelope(report, vec![], raw)
+        }
     }
 }
 
@@ -1147,7 +1196,9 @@ where
     T: serde::de::DeserializeOwned,
 {
     let raw_str = fs::read_to_string(path)?;
-    if let Ok(envelope) = serde_json::from_str::<ResponseEnvelope<T>>(&raw_str) && let Some(data) = envelope.data {
+    if let Ok(envelope) = serde_json::from_str::<ResponseEnvelope<T>>(&raw_str)
+        && let Some(data) = envelope.data
+    {
         return Ok(data);
     }
     let parsed = serde_json::from_str::<T>(&raw_str)?;
