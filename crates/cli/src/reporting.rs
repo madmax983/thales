@@ -1,4 +1,4 @@
-use crate::rag::HistoryEntry;
+use crate::search_history::HistoryEntry;
 use anyhow::{Context, Result};
 use chrono::TimeZone;
 use contracts::MarketAnalysis;
@@ -50,7 +50,7 @@ pub fn generate_report(
         }
     };
 
-    let history_section = crate::rag::summarize_history(similar_trades, &analysis.symbol);
+    let history_section = crate::search_history::summarize_history(similar_trades, &analysis.symbol);
 
     let volatility_display = if analysis.volatility == "Extreme" {
         "**EXTREME (Unusual Activity)**".to_string()

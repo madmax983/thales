@@ -9,7 +9,7 @@ use serde::Serialize;
 use serde_json::json;
 use thiserror::Error;
 
-use thales_cli::{analysis, backtest, benchmark, history, optimizer, rag, reporting, signals};
+use thales_cli::{analysis, backtest, benchmark, history, optimizer, search_history, reporting, signals};
 
 #[cfg(feature = "nova")]
 use thales_cli::entropy;
@@ -474,7 +474,7 @@ fn run(command: Commands, raw: bool) -> Result<String, CliError> {
                 let research_path = PathBuf::from("Market_Research.md");
 
                 let similar_trades =
-                    rag::find_similar_trades(&analysis, &PathBuf::from("history.json"), None)
+                    search_history::find_similar_trades(&analysis, &PathBuf::from("history.json"), None)
                         .unwrap_or_default();
                 let previous_regime = reporting::read_last_regime(&signals_path, &analysis.symbol);
 

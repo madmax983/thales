@@ -1,5 +1,5 @@
 use crate::analysis;
-use crate::rag;
+use crate::search_history;
 use crate::strategy_factory;
 use anyhow::Result;
 use contracts::{BarSeries, MarketAnalysis, TradeIntent};
@@ -120,7 +120,7 @@ pub async fn generate_signals(
 
     // Check existing signals count from history
     let existing_signals_count = if let Some(path) = history_path {
-        rag::count_todays_signals(&market_analysis.symbol, path, latest_timestamp)?
+        search_history::count_todays_signals(&market_analysis.symbol, path, latest_timestamp)?
     } else {
         0
     };
@@ -167,18 +167,18 @@ pub async fn generate_signals(
         // We check `signals_today` count from history. If we have 0, 1, or 2, we allow a new one.
         // If we have 3 or more, we skip.
         if signals_today < 3 {
-            // RAG Step: Check history
+            // search history Step: Check history
             // We pass the strategy name to filter history
             let similar_trades = if let Some(path) = history_path {
-                rag::find_similar_trades(&market_analysis, path, Some(strategy.name()))
+                search_history::find_similar_trades(&market_analysis, path, Some(strategy.name()))
                     .unwrap_or_default()
             } else {
                 Vec::new()
             };
 
             let historical_context =
-                rag::summarize_history(&similar_trades, &market_analysis.symbol);
-            let performance = rag::analyze_performance(&similar_trades);
+                search_history::summarize_history(&similar_trades, &market_analysis.symbol);
+            let performance = search_history::analyze_performance(&similar_trades);
 
             // Adjust confidence based on historical performance
             let mut confidence_modifier = 1.0;
@@ -495,7 +495,7 @@ fn bars_to_dataframe(series: &BarSeries) -> Result<DataFrame> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::rag::HistoryEntry;
+    use crate::search_history::HistoryEntry;
     use contracts::{Bar, MarketAnalysis, TradeIntent};
     use std::io::Write;
     use tempfile::NamedTempFile;
