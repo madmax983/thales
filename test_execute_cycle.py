@@ -236,7 +236,7 @@ class TestExecuteCycle(unittest.TestCase):
         self.assertEqual(captured_intent.get("side"), "sell")
         self.assertEqual(
             captured_intent.get("size_hint"),
-            "max",
+            "0.75",
             "Oversized sell should be converted to sell-all before execute-intent",
         )
 
@@ -476,7 +476,7 @@ class TestExecuteCycle(unittest.TestCase):
         ok, reason = execute_cycle.adjust_sell_size_to_sellable_balance(intent)
 
         self.assertTrue(ok, f"Expected sell-all fallback, got reason: {reason}")
-        self.assertEqual(intent["size_hint"], "max")
+        self.assertEqual(intent["size_hint"], "0.75")
         self.assertIn("Sell size adjusted", intent["rationale"])
         mock_run_command.assert_called_once_with(
             ["get-selling-power", "--provider", "kraken", "--symbol", "BTCUSD"]
