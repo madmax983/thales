@@ -50,7 +50,8 @@ pub fn generate_report(
         }
     };
 
-    let history_section = crate::search_history::summarize_history(similar_trades, &analysis.symbol);
+    let history_section =
+        crate::search_history::summarize_history(similar_trades, &analysis.symbol);
 
     let volatility_display = if analysis.volatility == "Extreme" {
         "**EXTREME (Unusual Activity)**".to_string()

@@ -1,37 +1,120 @@
+//! Seasonality Analysis
+//!
+//! This module provides tools for analyzing the seasonal tendencies of asset returns.
+//! It can determine if an asset tends to perform better or worse during specific
+//! days of the week, months of the year, or hours of the day.
+//!
+//! # Core Concepts
+//!
+//! - **Seasonality Period:** The timeframe over which returns are aggregated (e.g., `DayOfWeek`).
+//! - **Average Return:** The mean percentage return across all occurrences of a period.
+//! - **Win Rate:** The percentage of times the period closed with a positive return.
+
 use anyhow::Result;
 use contracts::BarSeries;
 use serde::{Deserialize, Serialize};
 
+/// The period used for aggregating seasonality data.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub enum SeasonalityPeriod {
+    /// Aggregates returns by the day of the week (Monday through Sunday).
     DayOfWeek,
+    /// Aggregates returns by the month of the year (January through December).
     MonthOfYear,
+    /// Aggregates returns by the hour of the day (00:00 through 23:00).
     HourOfDay,
 }
 
+/// Configuration for the Seasonality analysis.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct SeasonalityConfig {
+    /// The specific period to group the seasonal analysis by.
     pub period: SeasonalityPeriod,
 }
 
+/// The result of a Seasonality analysis run.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct SeasonalityReport {
+    /// The asset symbol analyzed.
     pub symbol: String,
+    /// The period that was used to group returns.
     pub period: SeasonalityPeriod,
+    /// The calculated seasonality data grouped into bins.
     pub bins: Vec<SeasonalityBin>,
 }
 
+/// A single seasonal bin containing aggregated return data.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct SeasonalityBin {
+    /// The label for the bin (e.g., "Monday", "Jan", "14:00").
     pub label: String,
+    /// The average percentage return during this period.
     pub average_return: f64,
+    /// The percentage of occurrences that resulted in a positive return (0.0 to 1.0).
     pub win_rate: f64,
+    /// The total number of observations in this bin.
     pub count: usize,
 }
 
 use chrono::{DateTime, Datelike, Timelike};
 use std::collections::HashMap;
 
+/// Analyzes a [`BarSeries`] to calculate average returns and win rates grouped by a specified period.
+///
+/// The function calculates the bar-to-bar return (`(close - prev_close) / prev_close`) and groups
+/// these returns into bins corresponding to the chosen [`SeasonalityPeriod`] (e.g., all returns that
+/// occurred on a Monday).
+///
+/// Finally, it calculates the `average_return` and `win_rate` for each bin. Missing bins are filled
+/// with 0 counts to ensure the output list is always complete (e.g., 7 days, 12 months).
+///
+/// # Errors
+///
+/// Returns an error if the `BarSeries` contains fewer than 2 bars.
+///
+/// # Examples
+///
+/// ```rust
+/// use contracts::{BarSeries, Bar};
+/// use thales_cli::seasonality::{analyze_seasonality, SeasonalityConfig, SeasonalityPeriod};
+///
+/// let bars = vec![
+///     Bar {
+///         symbol: "TEST".to_string(),
+///         market: "equities".to_string(),
+///         timeframe: "1d".to_string(),
+///         timestamp_unix_ms: 1672617600000, // Monday
+///         open: 100.0,
+///         high: 100.0,
+///         low: 100.0,
+///         close: 100.0,
+///         volume: 100.0,
+///     },
+///     Bar {
+///         symbol: "TEST".to_string(),
+///         market: "equities".to_string(),
+///         timeframe: "1d".to_string(),
+///         timestamp_unix_ms: 1672704000000, // Tuesday
+///         open: 105.0,
+///         high: 105.0,
+///         low: 105.0,
+///         close: 105.0,
+///         volume: 100.0,
+///     },
+/// ];
+///
+/// let series = BarSeries {
+///     schema_version: "v0".to_string(),
+///     bars,
+/// };
+///
+/// let config = SeasonalityConfig {
+///     period: SeasonalityPeriod::DayOfWeek,
+/// };
+///
+/// let report = analyze_seasonality(&series, config).unwrap();
+/// assert_eq!(report.bins.len(), 7); // Contains all 7 days of the week
+/// ```
 pub fn analyze_seasonality(
     series: &BarSeries,
     config: SeasonalityConfig,

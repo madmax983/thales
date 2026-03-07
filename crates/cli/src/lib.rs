@@ -26,8 +26,8 @@ pub mod optimizer;
 pub mod pairs_trading;
 #[cfg(feature = "nova")]
 pub mod pattern_match;
-pub mod search_history;
 pub mod reporting;
+pub mod search_history;
 #[cfg(feature = "nova")]
 pub mod seasonality;
 pub mod signals;

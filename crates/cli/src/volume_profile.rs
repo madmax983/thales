@@ -1,30 +1,108 @@
+//! Volume Profile Analysis
+//!
+//! This module provides tools for analyzing the distribution of trading volume over
+//! different price levels. Unlike a standard volume histogram which plots volume against time,
+//! Volume Profile plots volume against price. This helps identify significant price levels
+//! where the most trading activity occurred.
+//!
+//! # Core Concepts
+//!
+//! - **Point of Control (POC):** The price level with the highest traded volume.
+//! - **Value Area:** The range of price levels around the POC that contains a specified
+//!   percentage (e.g., 70%) of the total volume traded during the specified period.
+//! - **Volume Bins:** The price range is divided into equal-sized bins, and the volume of
+//!   each bar is distributed across the bins it overlaps.
+
 use anyhow::Result;
 use contracts::BarSeries;
 use serde::{Deserialize, Serialize};
 
+/// Configuration for the Volume Profile analysis.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct VolumeProfileConfig {
+    /// The number of price bins to divide the total price range into.
     pub num_bins: usize,
+    /// The percentage of total volume to include in the Value Area (e.g., 0.70 for 70%).
     pub value_area_pct: f64,
 }
 
+/// The result of a Volume Profile analysis run.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct VolumeProfileReport {
+    /// The asset symbol analyzed.
     pub symbol: String,
+    /// The Point of Control (POC) price level, where the most volume occurred.
     pub poc_price: f64,
+    /// The volume traded at the Point of Control.
     pub poc_volume: f64,
+    /// The highest price level in the Value Area.
     pub value_area_high: f64,
+    /// The lowest price level in the Value Area.
     pub value_area_low: f64,
+    /// The total volume traded across all bins.
     pub total_volume: f64,
+    /// The detailed volume distribution across all price bins.
     pub bins: Vec<VolumeBin>,
 }
 
+/// A single price bin in the Volume Profile.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct VolumeBin {
+    /// The central price level of the bin.
     pub price_level: f64,
+    /// The total volume traded within this price bin.
     pub volume: f64,
 }
 
+/// Analyzes a [`BarSeries`] to calculate its Volume Profile.
+///
+/// The function divides the total price range (from lowest low to highest high) into `num_bins`.
+/// It then distributes the volume of each bar proportionally across the bins that overlap
+/// with the bar's price range.
+///
+/// Finally, it calculates the Point of Control (POC) and expands outward to find the
+/// Value Area containing `value_area_pct` of the total volume.
+///
+/// # Errors
+///
+/// Returns an error if:
+/// - The `BarSeries` contains no bars.
+/// - `config.num_bins` is 0.
+///
+/// # Examples
+///
+/// ```rust
+/// use contracts::{BarSeries, Bar};
+/// use thales_cli::volume_profile::{analyze_volume_profile, VolumeProfileConfig};
+///
+/// let bars = vec![
+///     Bar {
+///         symbol: "TEST".to_string(),
+///         market: "equities".to_string(),
+///         timeframe: "1d".to_string(),
+///         timestamp_unix_ms: 0,
+///         open: 95.0,
+///         high: 100.0,
+///         low: 90.0,
+///         close: 95.0,
+///         volume: 100.0,
+///     },
+/// ];
+///
+/// let series = BarSeries {
+///     schema_version: "v0".to_string(),
+///     bars,
+/// };
+///
+/// let config = VolumeProfileConfig {
+///     num_bins: 10,
+///     value_area_pct: 0.70,
+/// };
+///
+/// let report = analyze_volume_profile(&series, config).unwrap();
+/// assert_eq!(report.total_volume, 100.0);
+/// assert!(report.bins.len() <= 10);
+/// ```
 pub fn analyze_volume_profile(
     series: &BarSeries,
     config: VolumeProfileConfig,

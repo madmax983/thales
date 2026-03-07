@@ -1,30 +1,121 @@
+//! Fractal Pattern Matching Analysis
+//!
+//! This module provides tools for identifying historical price patterns that closely resemble
+//! the current market price action. By finding similar historical setups, it estimates the
+//! expected forward return based on what happened next in the past.
+//!
+//! # Core Concepts
+//!
+//! - **Target Window:** The most recent sequence of bars (length `window_size`) acting as the reference pattern.
+//! - **Distance:** The Euclidean distance between the normalized target window and a historical window.
+//! - **Similarity Score:** A value between 0.0 and 1.0 indicating how closely the historical pattern matches
+//!   the target window (1.0 means identical).
+//! - **Forward Return:** The percentage price change in the `forward_horizon` periods immediately following
+//!   a matched historical pattern.
+
 use anyhow::Result;
 use contracts::BarSeries;
 use serde::{Deserialize, Serialize};
 
+/// Configuration for the Pattern Matching analysis.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct PatternMatchConfig {
+    /// The number of recent bars to use as the target pattern.
     pub window_size: usize,
+    /// The maximum number of historical matches to return.
     pub top_k: usize,
+    /// The number of periods ahead to calculate the expected return for each match.
     pub forward_horizon: usize,
 }
 
+/// The result of a Pattern Matching analysis run.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct PatternMatchReport {
+    /// The asset symbol analyzed.
     pub symbol: String,
+    /// The list of the top `k` historical pattern matches found.
     pub matches: Vec<PatternMatch>,
+    /// The average expected forward return percentage based on the top matches.
     pub expected_forward_return_pct: f64,
 }
 
+/// A single historical pattern match found by the analyzer.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct PatternMatch {
+    /// The starting index of the matched pattern in the historical data.
     pub start_index: usize,
+    /// The ending index of the matched pattern in the historical data.
     pub end_index: usize,
+    /// The Euclidean distance between the normalized historical and target patterns.
     pub distance: f64,
-    pub similarity_score: f64, // 0.0 to 1.0 (1.0 is identical)
+    /// A score from 0.0 to 1.0 indicating similarity (1.0 is a perfect match).
+    pub similarity_score: f64,
+    /// The actual percentage return observed `forward_horizon` periods after this historical pattern.
     pub forward_return_pct: f64,
 }
 
+/// Analyzes a [`BarSeries`] to find historical patterns that match the most recent price action.
+///
+/// The function takes the last `window_size` bars as the "target pattern". It normalizes this
+/// pattern (scales values between 0.0 and 1.0) and then slides a window of the same size over
+/// the entire historical dataset.
+///
+/// For each historical window, it normalizes the prices, calculates the Euclidean distance to
+/// the target pattern, and determines what the actual return was `forward_horizon` bars later.
+/// It returns the top `top_k` matches with the lowest Euclidean distance.
+///
+/// # Errors
+///
+/// Returns an error if:
+/// - The `BarSeries` has fewer bars than `window_size + forward_horizon`.
+/// - `config.window_size` or `config.top_k` is 0.
+///
+/// # Examples
+///
+/// ```rust
+/// use contracts::{BarSeries, Bar};
+/// use thales_cli::pattern_match::{analyze_patterns, PatternMatchConfig};
+///
+/// fn create_bar(close: f64) -> Bar {
+///     Bar {
+///         symbol: "TEST".to_string(),
+///         market: "equities".to_string(),
+///         timeframe: "1d".to_string(),
+///         timestamp_unix_ms: 100000,
+///         open: 100.0,
+///         high: 100.0,
+///         low: 100.0,
+///         close,
+///         volume: 100.0,
+///     }
+/// }
+///
+/// // Create a simple V-shape pattern historically, followed by a spike
+/// let bars = vec![
+///     create_bar(10.0),  // Hist start
+///     create_bar(5.0),   // Hist mid
+///     create_bar(10.0),  // Hist end
+///     create_bar(15.0),  // Forward horizon (+50% return)
+///     create_bar(100.0), // Noise
+///     create_bar(200.0), // Noise
+///     create_bar(10.0),  // Target start
+///     create_bar(5.0),   // Target mid
+///     create_bar(10.0),  // Target end
+/// ];
+///
+/// let series = BarSeries { schema_version: "v0".to_string(), bars };
+///
+/// let config = PatternMatchConfig {
+///     window_size: 3,
+///     top_k: 1,
+///     forward_horizon: 1,
+/// };
+///
+/// let report = analyze_patterns(&series, config).unwrap();
+/// assert_eq!(report.matches.len(), 1);
+/// assert_eq!(report.matches[0].start_index, 0);
+/// assert!((report.expected_forward_return_pct - 50.0).abs() < f64::EPSILON);
+/// ```
 pub fn analyze_patterns(
     series: &BarSeries,
     config: PatternMatchConfig,

@@ -1,23 +1,108 @@
+//! Pairs Trading Analysis
+//!
+//! This module provides tools for analyzing the statistical relationship between two assets
+//! (e.g., for statistical arbitrage). It calculates the correlation between their price series
+//! and identifies when their price ratio (spread) diverges significantly from its historical mean.
+//!
+//! # Core Concepts
+//!
+//! - **Correlation:** A measure of how closely the two assets move together.
+//! - **Spread:** The ratio of the price of Asset A to the price of Asset B.
+//! - **Z-Score:** A normalized measure of how far the current spread is from its moving average.
+//!   A high absolute Z-Score indicates divergence.
+//! - **Divergence:** When the Z-Score exceeds a defined threshold, suggesting a potential
+//!   mean-reverting trading opportunity.
+
 use anyhow::Result;
 use contracts::BarSeries;
 use serde::{Deserialize, Serialize};
 
+/// Configuration for the Pairs Trading analysis.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct PairsConfig {
+    /// The number of periods to use when calculating the rolling mean and standard deviation of the spread.
     pub zscore_window: usize,
+    /// The Z-Score threshold above which the spread is considered diverged.
     pub divergence_threshold: f64,
 }
 
+/// The result of a Pairs Trading analysis run.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct PairsReport {
+    /// The symbol of the first asset.
     pub symbol_a: String,
+    /// The symbol of the second asset.
     pub symbol_b: String,
+    /// The Pearson correlation coefficient between the two assets over the aligned window.
     pub correlation: f64,
+    /// The current Z-Score of the spread.
     pub current_zscore: f64,
+    /// True if the absolute value of the current Z-Score is greater than the divergence threshold.
     pub is_diverged: bool,
+    /// The historical spread values for the recent Z-Score window.
     pub recent_spread: Vec<f64>,
 }
 
+/// Analyzes two [`BarSeries`] to calculate their correlation and spread divergence.
+///
+/// The function first aligns the two price series by timestamp using a two-pointer approach.
+/// It then calculates the Pearson correlation coefficient. Next, it computes the spread as
+/// the ratio of prices (`Price A / Price B`) and calculates a rolling Z-Score over the specified
+/// `zscore_window` to determine if the current spread is anomalously wide or narrow.
+///
+/// # Errors
+///
+/// Returns an error if:
+/// - Either `BarSeries` is empty.
+/// - `config.zscore_window` is 0.
+/// - The aligned dataset has fewer points than `config.zscore_window`.
+///
+/// # Examples
+///
+/// ```rust
+/// use contracts::{BarSeries, Bar};
+/// use thales_cli::pairs_trading::{analyze_pairs, PairsConfig};
+///
+/// fn create_bar(symbol: &str, timestamp: i64, close: f64) -> Bar {
+///     Bar {
+///         symbol: symbol.to_string(),
+///         market: "equities".to_string(),
+///         timeframe: "1d".to_string(),
+///         timestamp_unix_ms: timestamp,
+///         open: close,
+///         high: close,
+///         low: close,
+///         close,
+///         volume: 100.0,
+///     }
+/// }
+///
+/// let bars_a = vec![
+///     create_bar("A", 1000, 10.0),
+///     create_bar("A", 2000, 10.0),
+///     create_bar("A", 3000, 10.0),
+///     create_bar("A", 4000, 20.0), // Sudden price spike
+/// ];
+///
+/// let bars_b = vec![
+///     create_bar("B", 1000, 10.0),
+///     create_bar("B", 2000, 10.0),
+///     create_bar("B", 3000, 10.0),
+///     create_bar("B", 4000, 10.0), // Remains flat
+/// ];
+///
+/// let series_a = BarSeries { schema_version: "v0".to_string(), bars: bars_a };
+/// let series_b = BarSeries { schema_version: "v0".to_string(), bars: bars_b };
+///
+/// let config = PairsConfig {
+///     zscore_window: 4,
+///     divergence_threshold: 1.0,
+/// };
+///
+/// let report = analyze_pairs(&series_a, &series_b, config).unwrap();
+/// assert!(report.current_zscore > 1.0);
+/// assert!(report.is_diverged);
+/// ```
 pub fn analyze_pairs(
     series_a: &BarSeries,
     series_b: &BarSeries,
