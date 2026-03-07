@@ -24,6 +24,8 @@ use thales_cli::pattern_match;
 #[cfg(feature = "nova")]
 use thales_cli::seasonality;
 #[cfg(feature = "nova")]
+use thales_cli::synthetic_data;
+#[cfg(feature = "nova")]
 use thales_cli::volume_profile;
 
 #[derive(Debug, Parser)]
@@ -242,6 +244,21 @@ enum Commands {
         period: String,
         #[arg(long)]
         visualize: bool,
+    },
+    #[cfg(feature = "nova")]
+    GenerateSyntheticData {
+        #[arg(long, default_value = "SYNTH")]
+        symbol: String,
+        #[arg(long, default_value = "100.0")]
+        initial_price: f64,
+        #[arg(long, default_value = "0.0001")]
+        drift: f64,
+        #[arg(long, default_value = "0.01")]
+        volatility: f64,
+        #[arg(long, default_value = "100")]
+        num_bars: usize,
+        #[arg(long, default_value = "1d")]
+        timeframe: String,
     },
 }
 
@@ -1046,6 +1063,30 @@ fn run(command: Commands, raw: bool) -> Result<String, CliError> {
             }
 
             ok_envelope(report, vec![], raw)
+        }
+        #[cfg(feature = "nova")]
+        Commands::GenerateSyntheticData {
+            symbol,
+            initial_price,
+            drift,
+            volatility,
+            num_bars,
+            timeframe,
+        } => {
+            let config = synthetic_data::SyntheticDataConfig {
+                symbol,
+                initial_price,
+                drift,
+                volatility,
+                num_bars,
+                timeframe,
+                start_time_ms: chrono::Utc::now().timestamp_millis(),
+            };
+
+            let series = synthetic_data::generate_synthetic_data(config)
+                .map_err(|e| CliError::Validation(e.to_string()))?;
+
+            ok_envelope(series, vec![], raw)
         }
     }
 }
