@@ -24,6 +24,7 @@ pub mod stoch_rsi;
 pub mod stochastic;
 pub mod supertrend;
 pub mod trix;
+pub mod tema;
 pub mod tsi;
 pub mod vortex;
 pub mod vwap;

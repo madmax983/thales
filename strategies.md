@@ -2268,3 +2268,40 @@ pub struct TsiTrendConfig {
 - **Entry Short:** `%K` crosses below `%D` while both are above the `overbought_threshold` (default 80).
 - **Exit Long:** Price hits stop loss (ATR-based) OR `%K` crosses below `%D` above the `overbought_threshold`.
 - **Exit Short:** Price hits stop loss (ATR-based) OR `%K` crosses above `%D` below the `oversold_threshold`.
+
+## TemaCrossover
+
+**Name:** TemaCrossover
+**Description:** A trend following strategy that uses the crossover of a fast TEMA (Triple Exponential Moving Average) and a slow TEMA to generate entry and exit signals.
+**Rationale:** TEMA reduces the lag associated with traditional moving averages. A fast TEMA crossing above a slow TEMA signals upward momentum, while crossing below signals downward momentum.
+
+### Requirements
+
+#### Implementation Details
+- Uses Polars for data analysis.
+- Implements the `Strategy` trait in Rust.
+
+#### Strategy Type
+Trend Following
+
+### Signal Generation
+- **Entry Long:** Fast TEMA crosses over Slow TEMA.
+- **Entry Short:** Fast TEMA crosses under Slow TEMA.
+- **Exit Long:** TEMA bearish crossover or price hits ATR-based stop loss.
+- **Exit Short:** TEMA bullish crossover or price hits ATR-based stop loss.
+
+### Code Pattern
+
+```rust
+use strategies::tema_crossover::{TemaCrossover, TemaCrossoverConfig};
+
+let config = TemaCrossoverConfig {
+    fast_period: 10,
+    slow_period: 30,
+    stop_loss_atr_mult: 2.0,
+    atr_period: 14,
+    symbol: "BTCUSD".to_string(),
+};
+
+let strategy = TemaCrossover::new(config);
+```

@@ -48,6 +48,7 @@ TREND_FOLLOWING_STRATEGIES = {
     "AwesomeOscillator",
     "AdxMomentum",
     "VwmaCrossover",
+    "TemaCrossover",
     "ChandelierExit",
     "ObvTrendFollowing",
     "TsiTrend",
@@ -190,6 +191,8 @@ def get_active_strategies():
         strategies.append("MacdRsiTrend")
     if "TsiTrend" in content:
         strategies.append("TsiTrend")
+    if "TemaCrossover" in content:
+        strategies.append("TemaCrossover")
 
     return strategies
 
