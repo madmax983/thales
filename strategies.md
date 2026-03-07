@@ -2268,3 +2268,72 @@ pub struct TsiTrendConfig {
 - **Entry Short:** `%K` crosses below `%D` while both are above the `overbought_threshold` (default 80).
 - **Exit Long:** Price hits stop loss (ATR-based) OR `%K` crosses below `%D` above the `overbought_threshold`.
 - **Exit Short:** Price hits stop loss (ATR-based) OR `%K` crosses above `%D` below the `oversold_threshold`.
+
+---
+
+# Trading Strategy: TEMA Crossover
+
+## Strategy Specification
+
+**Name:** TemaCrossover
+
+**Description:** A trend-following strategy that generates signals based on the crossover of two Triple Exponential Moving Averages (TEMA) of different periods.
+
+**Rationale:** The TEMA indicator reduces the lag associated with traditional moving averages while maintaining smoothing. Crossovers between a fast and slow TEMA provide timely entry and exit signals for trending markets.
+
+## Requirements
+
+### Implementation Details
+- Uses Polars for data analysis.
+- Implements the `Strategy` trait in Rust.
+- Uses `tema` and `atr` indicators.
+
+### Strategy Type
+TrendFollowing
+
+### Entry Conditions
+- **Long Entry (Buy):** Short TEMA crosses ABOVE Long TEMA.
+
+### Exit Conditions
+- **Long Exit (Sell):** Short TEMA crosses BELOW Long TEMA.
+- **Stop Loss:** Entry Price - (ATR * `stop_loss_atr_mult`).
+
+### Position Sizing
+- **Size Hint:** "100" (fixed units) or "max" (for exits).
+
+## Code Pattern
+
+```rust
+use crate::strategy::{Strategy, StrategyConfig, Signal, SignalType};
+use crate::indicators::{atr, tema};
+use polars::prelude::*;
+use async_trait::async_trait;
+use anyhow::Result;
+
+pub struct TemaCrossover {
+    config: TemaCrossoverConfig,
+}
+
+#[derive(Debug, Clone, serde::Deserialize)]
+pub struct TemaCrossoverConfig {
+    pub short_period: usize,
+    pub long_period: usize,
+    pub stop_loss_atr_mult: f64,
+    pub atr_period: usize,
+    pub symbol: String,
+}
+```
+
+## Critical Considerations
+
+### Risk Management Integration
+- **Stop Loss:** Uses ATR-based stop loss for risk control.
+- **Trend Filter:** Relying on TEMA reduces lag but can increase false signals in ranging markets.
+
+### Backtesting Requirements
+- Accepts `DataFrame` with historical data containing "close".
+- Requires data length > `long_period * 3`.
+
+### Performance
+- TEMA and ATR calculations are O(N).
+- Signal generation loop is O(N).

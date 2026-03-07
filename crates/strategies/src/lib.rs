@@ -52,6 +52,7 @@ pub mod trix_momentum;
 pub mod tsi_trend;
 pub mod vortex_breakout;
 pub mod vwap_reversion;
+pub mod tema_crossover;
 pub mod vwma_crossover;
 pub mod williams_r;
 pub mod zscore_mean_reversion;
