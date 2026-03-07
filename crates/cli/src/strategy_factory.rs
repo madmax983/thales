@@ -28,6 +28,7 @@ use strategies::stochastic_oscillator::{StochasticOscillator, StochasticOscillat
 use strategies::strategy::Strategy;
 use strategies::supertrend::{Supertrend, SupertrendConfig};
 use strategies::trix_momentum::{TrixMomentum, TrixMomentumConfig};
+use strategies::tema_crossover::{TemaCrossover, TemaCrossoverConfig};
 use strategies::tsi_trend::{TsiTrend, TsiTrendConfig};
 use strategies::vortex_breakout::{VortexBreakout, VortexBreakoutConfig};
 use strategies::vwap_reversion::{VwapReversion, VwapReversionConfig};
@@ -327,6 +328,13 @@ pub fn create_strategy(name: &str, symbol: &str) -> Result<Box<dyn Strategy>> {
             };
             Ok(Box::new(ZScoreMeanReversion::new(config)))
         }
+        "TemaCrossover" => {
+            let config = TemaCrossoverConfig {
+                symbol: symbol.to_string(),
+                ..Default::default()
+            };
+            Ok(Box::new(TemaCrossover::new(config)))
+        }
         "StochRsiMeanReversion" => {
             let config = StochRsiMeanReversionConfig {
                 symbol: symbol.to_string(),
@@ -407,5 +415,6 @@ pub fn list_strategies() -> Vec<&'static str> {
         "RocMomentum",
         "MacdRsiTrend",
         "TsiTrend",
+        "TemaCrossover",
     ]
 }
