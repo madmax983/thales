@@ -1068,6 +1068,16 @@ def verify_risk(intent):
                  return False, f"Invalid size: Infinity"
             if size <= 0:
                 return False, f"Invalid size: {size_hint} (must be > 0)"
+
+            # Kraken minimum order sizes (approximate, hardcoded for safety)
+            # https://support.kraken.com/hc/en-us/articles/205893708-Minimum-order-size-volume-for-trading
+            min_sizes = {
+                "BTCUSD": 0.0001,
+                "ETHUSD": 0.001,
+            }
+            if intent.get("provider") == "kraken" and symbol in min_sizes:
+                if size < min_sizes[symbol]:
+                    return False, f"Position size below exchange minimum for {symbol} ({size} < {min_sizes[symbol]})"
         except ValueError:
             return False, f"Invalid size format: {size_hint}"
 
