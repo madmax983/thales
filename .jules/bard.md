@@ -23,3 +23,7 @@
 ## 2024-05-25 - The Undocumented Predictors
 **Confusion:** The `markov_chain` and `monte_carlo` modules in `crates/cli/src/` lacked documentation. Users did not understand the configurations, reports, or how to use the main functions.
 **Clarification:** Added module-level documentation and executable examples (`# Examples`) for all public structures (`MarkovConfig`, `MarkovChainReport`, `MarketState`, `MonteCarloConfig`, `MonteCarloReport`) and functions (`analyze_markov_chain`, `run_simulation`), explaining the underlying concepts and detailing `# Errors` conditions.
+
+## 2024-05-26 - The Undocumented Nova Modules
+**Confusion:** The analytical modules included under the `nova` feature (`volume_profile`, `seasonality`, `pairs_trading`, and `pattern_match` in `crates/cli/src/`) were completely undocumented. Users had no idea what configurations were required or how the complex reports (e.g., Value Area, Expected Forward Return) should be interpreted.
+**Clarification:** Added comprehensive module-level documentation (`//!`) to explain the core financial concepts for each analysis tool. Added item-level documentation with executable `# Examples` to demonstrate proper usage, configuration initialization, and error handling for all public functions and data structures.
