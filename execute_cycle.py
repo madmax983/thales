@@ -271,27 +271,25 @@ def archive_signals(days=2):
         # If i > 0, it was split by "\n## ", so we need to add "## " back
         full_chunk_text = f"\n## {chunk}" if i > 0 else chunk
 
-        # Check timestamp in JSON
-        json_match = re.search(r"```json\s*(\{.*?\})\s*```", chunk, re.DOTALL)
+        # Priority to header timestamp if present to avoid using old json timestamp
         is_stale = False
+        ts_match = re.search(r"\*\*Timestamp \(ms\)\*\*:\s*(\d+)", chunk)
+        if ts_match:
+             ts = int(ts_match.group(1))
+             if (now - ts) > cutoff_ms:
+                 is_stale = True
 
-        if json_match:
-            try:
-                data = json.loads(json_match.group(1))
-                ts = data.get("timestamp_unix_ms", 0)
-                if (now - ts) > cutoff_ms:
-                    is_stale = True
-            except:
-                pass
-
-        # Also check header timestamp if JSON missing/parse error?
-        # Header format: **Timestamp (ms)**: 1771870472944
-        if not is_stale and not json_match:
-             ts_match = re.search(r"\*\*Timestamp \(ms\)\*\*:\s*(\d+)", chunk)
-             if ts_match:
-                 ts = int(ts_match.group(1))
-                 if (now - ts) > cutoff_ms:
-                     is_stale = True
+        # Check timestamp in JSON as fallback
+        if not is_stale:
+             json_match = re.search(r"```json\s*(\{.*?\})\s*```", chunk, re.DOTALL)
+             if json_match:
+                 try:
+                     data = json.loads(json_match.group(1))
+                     ts = data.get("timestamp_unix_ms", 0)
+                     if ts > 0 and (now - ts) > cutoff_ms:
+                         is_stale = True
+                 except:
+                     pass
 
         if is_stale:
             archive_chunks.append(full_chunk_text)
@@ -371,11 +369,22 @@ def get_candidates_from_signals():
             except:
                 pass
 
+        # Try to find header timestamp as fallback, or use it instead
+        header_ts_match = re.search(r"\*\*Timestamp \(ms\)\*\*:\s*(\d+)", chunk)
+        header_ts = None
+        if header_ts_match:
+            header_ts = int(header_ts_match.group(1))
+
 # Check for Staleness (24 hours = 86400000 ms)
         signal_ref = "NO_REF"
         expected_side = None
-        if raw_json and raw_json.get("timestamp_unix_ms"):
+
+        # Priority to header timestamp if present to avoid using old json timestamp
+        ts = header_ts
+        if not ts and raw_json and raw_json.get("timestamp_unix_ms"):
             ts = raw_json["timestamp_unix_ms"]
+
+        if ts and raw_json:
             rec = raw_json.get("recommendation", "").lower()
             if "short" in rec or "sell" in rec: expected_side = "sell"
             elif "long" in rec or "buy" in rec: expected_side = "buy"
@@ -383,6 +392,23 @@ def get_candidates_from_signals():
             side_str = expected_side if expected_side else "unknown"
             signal_ref = f"{market}:{symbol}:{side_str}:{ts}"
 
+            now = int(datetime.now().timestamp() * 1000)
+            if (now - ts) > 86400000:
+                 age_hours = (now - ts) / 3600000
+                 reason = f"Signal too old ({age_hours:.1f} hours > 24 hours)"
+                 print(f"Skipping stale signal for {symbol}: {reason}")
+
+                 # Log to portfolio.md
+                 dummy_intent = {
+                     "symbol": symbol,
+                     "intent_id": signal_ref,
+                     "rationale": "Stale signal from Signals.md"
+                 }
+                 log_skipped(dummy_intent, reason)
+                 continue
+        elif not raw_json and ts:
+            # We have a header timestamp but no json. Might be a partial signal?
+            signal_ref = f"{market}:{symbol}:unknown:{ts}"
             now = int(datetime.now().timestamp() * 1000)
             if (now - ts) > 86400000:
                  age_hours = (now - ts) / 3600000
