@@ -23,6 +23,7 @@ pub mod sma;
 pub mod stoch_rsi;
 pub mod stochastic;
 pub mod supertrend;
+pub mod tema;
 pub mod trix;
 pub mod tsi;
 pub mod vortex;

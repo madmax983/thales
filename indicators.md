@@ -33,6 +33,37 @@ let sma_series = sma::calculate(&df, period)?;
 - The output Series is named "sma".
 - The first `period - 1` values will be null.
 
+## Triple Exponential Moving Average (TEMA)
+
+**Name:** TEMA
+**Description:** Calculates the Triple Exponential Moving Average, designed to reduce the lag of traditional EMAs by placing more weight on recent data using a combination of a single EMA, a double EMA, and a triple EMA.
+**Rationale:** Trend-following indicator that responds to price changes faster than a traditional EMA or SMA, making it useful for capturing early trend reversals.
+
+### Implementation Details
+- Uses `rust_decimal::Decimal` for precision.
+- Built on top of the base `ema` module, computing three successive EMAs.
+- Returns a Polars `Series` of `f64` values.
+- Requires 3 times the lookback period to fully populate values without nulls.
+
+### Usage
+
+```rust
+use strategies::indicators::tema;
+use polars::prelude::*;
+
+// Assuming df is a DataFrame with a "close" column
+let period = 14;
+let tema_series = tema::calculate(&df, period)?;
+```
+
+### Parameters
+- `data`: Reference to a Polars `DataFrame`. Must contain a numeric column named "close".
+- `period`: The size of the moving window (must be > 0).
+
+### Output
+- Returns `Result<Series>`.
+- The output Series is named "tema".
+
 ## Exponential Moving Average (EMA)
 
 **Name:** EMA
