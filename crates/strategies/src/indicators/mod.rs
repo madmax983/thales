@@ -30,3 +30,4 @@ pub mod vwap;
 pub mod vwma;
 pub mod williams_r;
 pub mod zscore;
+pub mod cg;

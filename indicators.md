@@ -610,3 +610,34 @@ use polars::prelude::*;
 // Parameters: data, rsi_period, stoch_period, k_period, d_period
 let (k_series, d_series) = stoch_rsi::calculate(&df, 14, 14, 3, 3).unwrap();
 ```
+
+## Center of Gravity (CG)
+
+**Name:** Center of Gravity (CG)
+**Description:** Calculates the Center of Gravity oscillator, developed by John Ehlers, which helps identify turning points as early as possible with zero lag.
+**Rationale:** The CG indicator is an oscillator that is smoothed yet has essentially zero lag, which makes it effective in identifying cycle turning points.
+
+### Implementation Details
+- Uses `rust_decimal::Decimal` for precision.
+- Calculates using the formula: `Sum(Price_i * (i + 1)) / Sum(Price_i)`.
+- Returns a Polars `Series` of `f64` values.
+
+### Usage
+
+```rust
+use strategies::indicators::cg;
+use polars::prelude::*;
+
+// Assuming df is a DataFrame with a "close" column
+let period = 10;
+let cg_series = cg::calculate(&df, period)?;
+```
+
+### Parameters
+- `data`: Reference to a Polars `DataFrame`. Must contain a numeric "close" column.
+- `period`: The lookback period (typically 10).
+
+### Output
+- Returns `Result<Series>`.
+- The output Series is named "cg".
+- The first `period - 1` values will be null.
