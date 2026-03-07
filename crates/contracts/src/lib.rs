@@ -106,7 +106,7 @@ impl Default for TradeIntent {
     }
 }
 
-/// A single candlestick bar representing price data (OHLCV).
+/// A single candlestick bar representing price data.
 ///
 /// # Examples
 ///

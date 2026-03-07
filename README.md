@@ -35,7 +35,7 @@ The workspace is organized into modular crates:
 Thales CLI follows a pipeline approach where commands output JSON envelopes that can be piped or saved to files.
 
 ### 1. Fetch Market Data
-Fetch price data (OHLCV) from a provider.
+Fetch price data from a provider.
 
 > **Note**: If no API keys are provided, this command will return synthetic scaffolding data for testing purposes.
 
