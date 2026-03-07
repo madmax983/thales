@@ -631,3 +631,21 @@
 **ATR**: 6.76
 **Assessment**: Trend Following (Long)
 **Confidence**: 80.00%
+
+### BTCUSD - 2026-03-07 01:41:39 (crypto)
+**Volatility**: Medium
+**ATR**: 764.82
+**Assessment**: Trend Following (Short)
+**Confidence**: 80.00%
+
+### ETHUSD - 2026-03-07 01:41:39 (crypto)
+**Volatility**: Medium
+**ATR**: 40.55
+**Assessment**: Trend Following (Long)
+**Confidence**: 80.00%
+
+### SPY - 2026-03-07 01:41:39 (equities)
+**Volatility**: Medium
+**ATR**: 6.76
+**Assessment**: Trend Following (Long)
+**Confidence**: 80.00%
