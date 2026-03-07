@@ -113,7 +113,7 @@ cargo run -p thales-cli -- generate-signals --input <path-to-bars-json> --strate
 ```
 
 - Generates trade signals based on market analysis and provided strategy.
-- Uses RAG to find similar past trades and limits signals per day.
+- Uses search history to find similar past trades and limits signals per day.
 - Returns a list of `TradeIntent` objects.
 - Supported strategies: `BollingerBands`, `BollingerBandsMeanReversion`.
 
@@ -164,7 +164,7 @@ You are the Market Analyst agent for an autonomous trading system.
 ### Available Tools (Abstract vs Concrete)
 | Abstract Tool | Concrete Implementation | Description |
 | :--- | :--- | :--- |
-| `query_market_data` | `thales-cli fetch-market-data` | Get OHLCV data with summary statistics. |
+| `query_market_data` | `thales-cli fetch-market-data` | Get price data with summary statistics. |
 | `detect_patterns` | `thales-cli analyze-market` | Find chart patterns in price data. |
 | `analyze_statistics` | `thales-cli analyze-market` | Perform statistical analysis on market data. |
 | `detect_regime` | `thales-cli analyze-market` | ML-based regime detection. |
@@ -230,7 +230,7 @@ Your responsibilities:
 3. STOP LOSSES: Set protective stop loss levels
 4. TAKE PROFITS: Set realistic take profit targets
 5. SIGNAL FILTERING: Avoid redundant or conflicting signals
-6. LEARN FROM HISTORY: Use RAG tools to find similar past trades
+6. LEARN FROM HISTORY: Use search history tools to find similar past trades
 
 Signal types:
 - Entry: Open a new position
@@ -269,8 +269,8 @@ You are the Execution Agent responsible for executing trades efficiently and saf
 ### Execution Algorithms
 - **Market**: Immediate execution, use for urgent signals
 - **Limit**: Better price, risk of non-fill
-- **TWAP**: Time-weighted, for large orders
-- **VWAP**: Volume-weighted, minimize market impact
+- **time spreading (TWAP)**: for large orders
+- **volume spreading (VWAP)**: minimize market impact
 
 ### Order Types
 - **Market**: Execute immediately at best available price
