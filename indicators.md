@@ -610,3 +610,25 @@ use polars::prelude::*;
 // Parameters: data, rsi_period, stoch_period, k_period, d_period
 let (k_series, d_series) = stoch_rsi::calculate(&df, 14, 14, 3, 3).unwrap();
 ```
+
+## Triple Exponential Moving Average (TEMA)
+
+**Name:** TEMA
+**Description:** Calculates the Triple Exponential Moving Average. It reduces the lag characteristic of other moving averages.
+**Rationale:** It's calculated by taking the EMA of the data, then the EMA of the EMA, and finally the EMA of that second EMA. Formula: `(3 * EMA1) - (3 * EMA2) + EMA3`.
+
+### Implementation Details
+- Uses `rust_decimal::Decimal` for precision scaling.
+- Uses `crates/strategies/src/indicators/ema.rs` sequentially.
+- Returns a Polars `Series` of `f64` values.
+
+### Usage
+
+```rust
+use strategies::indicators::tema;
+use polars::prelude::*;
+
+// Assuming `df` is a DataFrame with a "close" column
+// Calculate a 14-period TEMA
+let tema_series = tema::calculate(&df, 14)?;
+```

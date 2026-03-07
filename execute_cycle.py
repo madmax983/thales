@@ -31,6 +31,7 @@ TREND_FOLLOWING_STRATEGIES = {
     "LinearRegressionTrend",
     "ParabolicSar",
     "EmaCrossover",
+    "TemaCrossover",
     "AdxMacdTrend",
     "Supertrend",
     "KeltnerChannelBreakout",

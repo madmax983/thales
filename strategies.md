@@ -2268,3 +2268,41 @@ pub struct TsiTrendConfig {
 - **Entry Short:** `%K` crosses below `%D` while both are above the `overbought_threshold` (default 80).
 - **Exit Long:** Price hits stop loss (ATR-based) OR `%K` crosses below `%D` above the `overbought_threshold`.
 - **Exit Short:** Price hits stop loss (ATR-based) OR `%K` crosses above `%D` below the `oversold_threshold`.
+
+# Trading Strategy: Tema Crossover
+
+## Strategy Specification
+
+**Name:** TemaCrossover
+
+**Description:** A trend-following strategy that generates signals based on the crossover of a short-period and long-period Triple Exponential Moving Average (TEMA).
+
+**Rationale:** The TEMA responds faster to price changes compared to standard EMA and SMA, reducing lag in trend-following strategies. When the short TEMA crosses above the long TEMA, it indicates a strong upward momentum shift (bullish). When it crosses below, it indicates a downward shift (bearish).
+
+## Requirements
+
+### Implementation Details
+- Uses Polars for data analysis.
+- Implements the `Strategy` trait in Rust.
+- Utilizes the `tema` indicator from `crates/strategies/src/indicators/tema.rs`.
+
+### Strategy Type
+Trend Following
+
+### Entry Conditions
+- Short TEMA crosses above the Long TEMA.
+- The previous bar's Short TEMA was less than or equal to the previous bar's Long TEMA.
+
+### Exit Conditions
+- Short TEMA crosses below the Long TEMA.
+- The previous bar's Short TEMA was greater than or equal to the previous bar's Long TEMA.
+
+### Position Sizing
+- 100% of available capital for entries.
+- Exits close maximum ("max") available position.
+
+## Critical Considerations
+
+### Risk Management Integration
+- Uses an Average True Range (ATR) based stop loss. Default multiplier is 2.0x ATR.
+- Fallback stop-loss of 5% if ATR is unavailable.
