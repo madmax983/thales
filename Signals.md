@@ -1656,3 +1656,79 @@ Major indices are hitting new highs, SPY breaks previous all-time highs on tech 
 ```
 
 ---
+
+### BTCUSD - 2026-03-07 09:28:53 (crypto)
+```json
+{
+  "symbol": "BTCUSD",
+  "market": "crypto",
+  "regime": "Trending Down (Short Term)",
+  "sentiment": "Bearish (Strong) (Oversold)",
+  "patterns": [
+    "Breakout (Downside)",
+    "Consolidation (Squeeze)"
+  ],
+  "key_levels": [
+    59348.09299105641,
+    62321.223889637375,
+    62637.9775018533
+  ],
+  "volatility": "Medium",
+  "atr": 764.8234042370752,
+  "research_summary": "Bitcoin ETFs are seeing strong institutional inflows following SEC approvals. Analysts remain bullish due to positive macroeconomic indicators and recent halving events.\nHistorical Context: Similar market conditions in Q4 2023 showed a strong bullish trend following consolidation periods. The market is currently exhibiting similar behavior. (Source: Thales Knowledge Base)",
+  "news_summary": "Major indices are hitting new highs, with Bitcoin showing resilience against recent regulatory concerns. (Source: Thales Knowledge Base)",
+  "recommendation": "Trend Following (Short)",
+  "confidence": 0.7999999999999999,
+  "timestamp_unix_ms": 1772875733821
+}
+```
+
+### ETHUSD - 2026-03-07 09:28:53 (crypto)
+```json
+{
+  "symbol": "ETHUSD",
+  "market": "crypto",
+  "regime": "Trending Up (Short Term)",
+  "sentiment": "Bullish (Strong) (Overbought)",
+  "patterns": [
+    "Breakout (Upside)",
+    "Consolidation (Squeeze)"
+  ],
+  "key_levels": [
+    2882.4178745196914,
+    3120.1299973244545
+  ],
+  "volatility": "Medium",
+  "atr": 40.552225815162686,
+  "research_summary": "Ethereum sentiment is improving following Dencun upgrade and potential spot ETF applications. (Source: Thales Knowledge Base)\nHistorical Context: Similar market conditions in Q4 2023 showed a strong bullish trend following consolidation periods. The market is currently exhibiting similar behavior.",
+  "news_summary": "ETH outpaces major assets amid network improvements and increasing DeFi TVL. (Source: Thales Knowledge Base)",
+  "recommendation": "Trend Following (Long)",
+  "confidence": 0.7999999999999999,
+  "timestamp_unix_ms": 1772875733844
+}
+```
+
+### SPY - 2026-03-07 09:28:53 (equities)
+```json
+{
+  "symbol": "SPY",
+  "market": "equities",
+  "regime": "Trending Up (Short Term)",
+  "sentiment": "Bullish (Strong) (Overbought)",
+  "patterns": [
+    "Breakout (Upside)",
+    "Consolidation (Squeeze)"
+  ],
+  "key_levels": [
+    480.40297908661506,
+    520.0216662207422
+  ],
+  "volatility": "Medium",
+  "atr": 6.758704302527127,
+  "research_summary": "Macroeconomic data supports a soft landing. Analysts maintain overweight positions on large-cap tech. (Source: Thales Knowledge Base)\nHistorical Context: Similar market conditions in Q4 2023 showed a strong bullish trend following consolidation periods. The market is currently exhibiting similar behavior.",
+  "news_summary": "Major indices are hitting new highs, SPY breaks previous all-time highs on tech earnings beat. (Source: Thales Knowledge Base)",
+  "recommendation": "Trend Following (Long)",
+  "confidence": 0.7999999999999999,
+  "timestamp_unix_ms": 1772875733866
+}
+```
