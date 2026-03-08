@@ -16,6 +16,8 @@ use thales_cli::{
 #[cfg(feature = "nova")]
 use thales_cli::entropy;
 #[cfg(feature = "nova")]
+use thales_cli::fear_and_greed;
+#[cfg(feature = "nova")]
 use thales_cli::markov_chain;
 #[cfg(feature = "nova")]
 use thales_cli::monte_carlo;
@@ -220,6 +222,15 @@ enum Commands {
         input: PathBuf,
         #[arg(long, default_value = "20")]
         num_bins: usize,
+        #[arg(long)]
+        visualize: bool,
+    },
+    #[cfg(feature = "nova")]
+    AnalyzeFearAndGreed {
+        #[arg(long)]
+        input: PathBuf,
+        #[arg(long, default_value = "20")]
+        period: usize,
         #[arg(long)]
         visualize: bool,
     },
@@ -990,6 +1001,32 @@ fn run(command: Commands, raw: bool) -> Result<String, CliError> {
 
             if visualize {
                 entropy::print_ascii_entropy(&report);
+            }
+
+            ok_envelope(report, vec![], raw)
+        }
+        #[cfg(feature = "nova")]
+        Commands::AnalyzeFearAndGreed {
+            input,
+            period,
+            visualize,
+        } => {
+            let file_content = fs::read_to_string(&input)?;
+            let series: BarSeries =
+                match serde_json::from_str::<ResponseEnvelope<BarSeries>>(&file_content) {
+                    Ok(envelope) => envelope
+                        .data
+                        .ok_or(CliError::Validation("Envelope has no data".to_string()))?,
+                    Err(_) => serde_json::from_str::<BarSeries>(&file_content)?,
+                };
+
+            let config = fear_and_greed::FearAndGreedConfig { period };
+
+            let report = fear_and_greed::analyze_fear_and_greed(&series, config)
+                .map_err(|e| CliError::Validation(e.to_string()))?;
+
+            if visualize {
+                fear_and_greed::print_ascii_fear_and_greed(&report);
             }
 
             ok_envelope(report, vec![], raw)

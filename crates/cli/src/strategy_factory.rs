@@ -27,8 +27,8 @@ use strategies::stoch_rsi_mean_reversion::{StochRsiMeanReversion, StochRsiMeanRe
 use strategies::stochastic_oscillator::{StochasticOscillator, StochasticOscillatorConfig};
 use strategies::strategy::Strategy;
 use strategies::supertrend::{Supertrend, SupertrendConfig};
-use strategies::trix_momentum::{TrixMomentum, TrixMomentumConfig};
 use strategies::tema_crossover::{TemaCrossover, TemaCrossoverConfig};
+use strategies::trix_momentum::{TrixMomentum, TrixMomentumConfig};
 use strategies::tsi_trend::{TsiTrend, TsiTrendConfig};
 use strategies::vortex_breakout::{VortexBreakout, VortexBreakoutConfig};
 use strategies::vwap_reversion::{VwapReversion, VwapReversionConfig};
