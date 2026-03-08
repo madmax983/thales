@@ -90,14 +90,8 @@ impl Strategy for TemaCrossover {
                 Some(p_long),
                 Some(price),
                 Some(atr),
-            ) = (
-                curr_short,
-                prev_short,
-                curr_long,
-                prev_long,
-                close,
-                atr_val,
-            ) {
+            ) = (curr_short, prev_short, curr_long, prev_long, close, atr_val)
+            {
                 if in_long && price <= stop_loss {
                     signals.push(Signal {
                         signal_type: SignalType::Exit,

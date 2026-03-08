@@ -16,6 +16,8 @@ pub mod backtest;
 pub mod benchmark;
 #[cfg(feature = "nova")]
 pub mod entropy;
+#[cfg(feature = "nova")]
+pub mod fear_and_greed;
 pub mod history;
 #[cfg(feature = "nova")]
 pub mod markov_chain;
