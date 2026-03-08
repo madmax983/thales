@@ -48,37 +48,40 @@ def fetch_market_data(symbol, provider):
 
 def search_research(symbol, bars_list):
     """
-    Simulates searching for research/news.
-    In a real scenario, this would call external search APIs.
-    Here, it generates context-aware synthetic news based on price action (simulation).
+    Reads research, news, and knowledge from local text files.
     """
-    if not bars_list or len(bars_list) < 2:
-        return None, None
-
-    last_close = bars_list[-1].get("close", 0.0)
-    prev_close = bars_list[-2].get("close", 0.0)
-    change_pct = (last_close - prev_close) / prev_close if prev_close > 0 else 0.0
-
     research = ""
     news = ""
+    knowledge = ""
 
-    if change_pct > 0.02:
-        research = "Simulated Environment: Strong uptrend detected. Market sentiment appears extremely bullish, likely driven by simulated positive macroeconomic news or sector rotation."
-        news = "Simulated News: Major indices/assets hit new highs. Positive earnings reports driving momentum."
-    elif change_pct < -0.02:
-        research = "Simulated Environment: Sharp correction underway. Bearish sentiment dominant. High volume selling suggests institutional liquidation."
-        news = "Simulated News: Regulatory concerns resurface. Major exchange outflow detected."
-    elif change_pct > 0.005:
-        research = "Simulated Environment: Steady accumulation observed. Technical indicators suggest continuation of the trend."
-        news = "Simulated News: Analyst upgrades for key sectors. Optimism regarding future growth."
-    elif change_pct < -0.005:
-        research = "Simulated Environment: Profit taking observed near resistance levels. Short-term bearish divergence."
-        news = "Simulated News: Mixed economic data causes market uncertainty."
-    else:
-        research = "Simulated Environment: Market consolidation. Low volatility suggests a potential breakout or breakdown soon."
-        news = "Simulated News: Quiet trading session ahead of major economic announcements."
+    try:
+        with open("research.txt", "r") as f:
+            research = f.read().strip()
+    except Exception:
+        pass
 
-    return research, news
+    try:
+        with open("knowledge.txt", "r") as f:
+            knowledge = f.read().strip()
+    except Exception:
+        pass
+
+    try:
+        with open("news.txt", "r") as f:
+            news = f.read().strip()
+    except Exception:
+        pass
+
+    # Combine research and knowledge
+    combined_research = ""
+    if research and knowledge:
+        combined_research = f"Historical Context: {knowledge} Research: {research}"
+    elif research:
+        combined_research = research
+    elif knowledge:
+        combined_research = f"Historical Context: {knowledge}"
+
+    return combined_research, news
 
 def analyze_market(symbol, bars_file, research, news):
     """Runs the market analysis."""
