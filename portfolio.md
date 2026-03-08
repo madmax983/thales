@@ -3577,6 +3577,9 @@
 | 2026-03-08 19:51:41 | BTCUSD | crypto:BTCUSD:sell:1772958714897 | Cross-validation failed: Strategies generated {'buy'} but signal recommended sell. |
 | 2026-03-08 19:51:41 | SPY | equities:SPY:buy:1772958714973 | No active strategy generated a signal (Strategies: BollingerBands, EmaCrossover, RsiMeanReversion, Macd, Supertrend, DonchianBreakout, ParabolicSar, KeltnerChannelBreakout, StochasticOscillator, AdxMomentum, IchimokuCloud, CciMomentum, ChaikinMoneyFlow, ChandelierExit, LinearRegressionTrend, ObvTrendFollowing, MoneyFlowIndex, ConnorsRsiMeanReversion, AwesomeOscillator, WilliamsR, VwmaCrossover, VwapReversion, VortexBreakout, RocMomentum, TrixMomentum, AdxMacdTrend, ZScoreMeanReversion, ElderRay, AroonOscillator, StochRsiMeanReversion, MacdRsiTrend, TsiTrend) |
 | 2026-03-08 19:51:42 | ETHUSD | crypto:ETHUSD:buy:1772958714946 | provider error: kraken api error: EGeneral:Invalid arguments:volume minimum not met |
+| 2026-03-08 20:39:01 | BTCUSD | crypto:BTCUSD:sell:1772958714897 | Cross-validation failed: Strategies generated {'buy'} but signal recommended sell. |
+| 2026-03-08 20:39:02 | SPY | equities:SPY:buy:1772958714973 | No active strategy generated a signal (Strategies: BollingerBands, EmaCrossover, RsiMeanReversion, Macd, Supertrend, DonchianBreakout, ParabolicSar, KeltnerChannelBreakout, StochasticOscillator, AdxMomentum, IchimokuCloud, CciMomentum, ChaikinMoneyFlow, ChandelierExit, LinearRegressionTrend, ObvTrendFollowing, MoneyFlowIndex, ConnorsRsiMeanReversion, AwesomeOscillator, WilliamsR, VwmaCrossover, VwapReversion, VortexBreakout, RocMomentum, TrixMomentum, AdxMacdTrend, ZScoreMeanReversion, ElderRay, AroonOscillator, StochRsiMeanReversion, MacdRsiTrend, TsiTrend) |
+| 2026-03-08 20:39:03 | ETHUSD | crypto:ETHUSD:buy:1772958714946 | provider error: kraken api error: EGeneral:Invalid arguments:volume minimum not met |
 
 ## Executed Trades
 
