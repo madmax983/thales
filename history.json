@@ -2542,7 +2542,7 @@
       "confidence": 0.7999999999999999,
       "timestamp_unix_ms": 1772958714946
     },
-    "outcome": null
+    "outcome": 0.0988989691086278
   },
   {
     "intent": {
@@ -2587,7 +2587,7 @@
       "confidence": 0.7999999999999999,
       "timestamp_unix_ms": 1772958714973
     },
-    "outcome": null
+    "outcome": 0.09889896910862782
   },
   {
     "intent": {
@@ -2632,7 +2632,7 @@
       "confidence": 0.7999999999999999,
       "timestamp_unix_ms": 1772958714946
     },
-    "outcome": null
+    "outcome": 0.0988989691086278
   },
   {
     "intent": {
@@ -2677,7 +2677,7 @@
       "confidence": 0.7999999999999999,
       "timestamp_unix_ms": 1772958714973
     },
-    "outcome": null
+    "outcome": 0.09889896910862782
   },
   {
     "intent": {
@@ -2766,6 +2766,96 @@
       "recommendation": "Trend Following (Long)",
       "confidence": 0.7999999999999999,
       "timestamp_unix_ms": 1773017304403
+    },
+    "outcome": null
+  },
+  {
+    "intent": {
+      "intent_id": "crypto:ETHUSD:buy:1773045084999",
+      "market": "crypto",
+      "symbol": "ETHUSD",
+      "side": "buy",
+      "size_hint": "1.071235",
+      "confidence": 0.7040000000000001,
+      "horizon": "1d",
+      "rationale": "Strategy: KeltnerChannelBreakout (70% (Boosted by high win rate), MA: 0.80). Reason: Keltner Breakout: Close 3351.14 > Upper 3153.98. Market Context: Trending Up (Short Term) (Medium Volatility). Found 19 similar past trades (20 on same symbol). Win Rate: 73.7%. Avg Return: 8.22% Research: Historical Context: [Source: knowledge.txt] Similar market conditions in Q4 2023 showed a strong bullish trend following consolidation periods for crypto assets. The market is currently exhibiting similar behavior. Research: [Source: ETH_Analyst_Report] Ethereum sentiment is improving following Dencun upgrade and potential spot ETF applications. Analysts are watching the growth of Layer 2 solutions.. News: [Source: news.txt] ETH outpaces major assets amid network improvements and increasing DeFi TVL.. (Buying strength in Overbought conditions) (Risk: $100, SL Dist: 93.35)",
+      "invalidation": "Price hits Stop Loss",
+      "schema_version": "v0",
+      "signal_type": "Entry",
+      "stop_loss": 3257.789640589059,
+      "take_profit": 3513.348743708972,
+      "order_type": "limit",
+      "limit_price": 3351.139840448321,
+      "stop_price": null,
+      "time_in_force": "GTC",
+      "execution_algo": "Limit",
+      "strategy": "KeltnerChannelBreakout"
+    },
+    "market_analysis": {
+      "symbol": "ETHUSD",
+      "market": "crypto",
+      "regime": "Trending Up (Short Term)",
+      "sentiment": "Bullish (Strong) (Overbought)",
+      "patterns": [
+        "Breakout (Upside)",
+        "Consolidation (Squeeze)"
+      ],
+      "key_levels": [
+        2882.4178745196914,
+        3120.1299973244545
+      ],
+      "volatility": "Medium",
+      "atr": 40.552225815162686,
+      "research_summary": "Historical Context: [Source: knowledge.txt] Similar market conditions in Q4 2023 showed a strong bullish trend following consolidation periods for crypto assets. The market is currently exhibiting similar behavior. Research: [Source: ETH_Analyst_Report] Ethereum sentiment is improving following Dencun upgrade and potential spot ETF applications. Analysts are watching the growth of Layer 2 solutions.",
+      "news_summary": "[Source: news.txt] ETH outpaces major assets amid network improvements and increasing DeFi TVL.",
+      "recommendation": "Trend Following (Long)",
+      "confidence": 0.7999999999999999,
+      "timestamp_unix_ms": 1773045084999
+    },
+    "outcome": null
+  },
+  {
+    "intent": {
+      "intent_id": "equities:SPY:buy:1773045085018",
+      "market": "equities",
+      "symbol": "SPY",
+      "side": "buy",
+      "size_hint": "7.397868",
+      "confidence": 0.7040000000000001,
+      "horizon": "1d",
+      "rationale": "Strategy: DonchianBreakout (70% (Boosted by high win rate), MA: 0.80). Reason: Breakout: Close 558.52 > Upper Channel 548.67. Market Context: Trending Up (Short Term) (Medium Volatility). Found 24 similar past trades (23 on same symbol). Win Rate: 79.2%. Avg Return: 7.19% Research: Historical Context: [Source: knowledge.txt] Similar market conditions in Q4 2023 showed a strong bullish trend following consolidation periods for equities. The market is currently exhibiting similar behavior. Research: [Source: WSJ_Equities_Report] S&P 500 companies are reporting robust quarterly earnings, exceeding analyst expectations in tech and energy sectors. The market is pricing in favorable interest rate policies.. News: [Source: news.txt] US stock market hits record highs as inflation concerns ease and corporate profits soar.. (Buying strength in Overbought conditions) (Risk: $100, SL Dist: 13.52)",
+      "invalidation": "Price hits Stop Loss",
+      "schema_version": "v0",
+      "signal_type": "Entry",
+      "stop_loss": 545.0058981363323,
+      "take_profit": 585.5581239514951,
+      "order_type": "limit",
+      "limit_price": 558.5233067413866,
+      "stop_price": null,
+      "time_in_force": "day",
+      "execution_algo": "Limit",
+      "strategy": "DonchianBreakout"
+    },
+    "market_analysis": {
+      "symbol": "SPY",
+      "market": "equities",
+      "regime": "Trending Up (Short Term)",
+      "sentiment": "Bullish (Strong) (Overbought)",
+      "patterns": [
+        "Breakout (Upside)",
+        "Consolidation (Squeeze)"
+      ],
+      "key_levels": [
+        480.40297908661506,
+        520.0216662207422
+      ],
+      "volatility": "Medium",
+      "atr": 6.758704302527127,
+      "research_summary": "Historical Context: [Source: knowledge.txt] Similar market conditions in Q4 2023 showed a strong bullish trend following consolidation periods for equities. The market is currently exhibiting similar behavior. Research: [Source: WSJ_Equities_Report] S&P 500 companies are reporting robust quarterly earnings, exceeding analyst expectations in tech and energy sectors. The market is pricing in favorable interest rate policies.",
+      "news_summary": "[Source: news.txt] US stock market hits record highs as inflation concerns ease and corporate profits soar.",
+      "recommendation": "Trend Following (Long)",
+      "confidence": 0.7999999999999999,
+      "timestamp_unix_ms": 1773045085018
     },
     "outcome": null
   }
