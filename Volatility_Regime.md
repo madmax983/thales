@@ -985,3 +985,228 @@
 **Volatility**: Medium
 **ATR**: 6.76
 **Assessment**: Trend Following (Long)
+
+### BTCUSD - 2026-03-09 00:30:11 (crypto)
+**Volatility**: Medium
+**ATR**: 764.82
+**Assessment**: Trend Following (Short)
+
+### BTCUSD - 2026-03-09 00:30:11 (crypto)
+**Volatility**: Medium
+**ATR**: 764.82
+**Assessment**: Trend Following (Short)
+
+### ETHUSD - 2026-03-09 00:30:11 (crypto)
+**Volatility**: Medium
+**ATR**: 40.55
+**Assessment**: Trend Following (Long)
+
+### ETHUSD - 2026-03-09 00:30:11 (crypto)
+**Volatility**: Medium
+**ATR**: 40.55
+**Assessment**: Trend Following (Long)
+
+### SPY - 2026-03-09 00:30:12 (equities)
+**Volatility**: Medium
+**ATR**: 6.76
+**Assessment**: Trend Following (Long)
+
+### SPY - 2026-03-09 00:30:12 (equities)
+**Volatility**: Medium
+**ATR**: 6.76
+**Assessment**: Trend Following (Long)
+
+### BTCUSD - 2026-03-09 00:37:10 (crypto)
+**Volatility**: Medium
+**ATR**: 764.82
+**Assessment**: Trend Following (Short)
+
+### BTCUSD - 2026-03-09 00:37:10 (crypto)
+**Volatility**: Medium
+**ATR**: 764.82
+**Assessment**: Trend Following (Short)
+
+### ETHUSD - 2026-03-09 00:37:10 (crypto)
+**Volatility**: Medium
+**ATR**: 40.55
+**Assessment**: Trend Following (Long)
+
+### ETHUSD - 2026-03-09 00:37:10 (crypto)
+**Volatility**: Medium
+**ATR**: 40.55
+**Assessment**: Trend Following (Long)
+
+### SPY - 2026-03-09 00:37:11 (equities)
+**Volatility**: Medium
+**ATR**: 6.76
+**Assessment**: Trend Following (Long)
+
+### SPY - 2026-03-09 00:37:11 (equities)
+**Volatility**: Medium
+**ATR**: 6.76
+**Assessment**: Trend Following (Long)
+
+### BTCUSD - 2026-03-09 00:38:37 (crypto)
+**Volatility**: Medium
+**ATR**: 764.82
+**Assessment**: Trend Following (Short)
+
+### BTCUSD - 2026-03-09 00:38:37 (crypto)
+**Volatility**: Medium
+**ATR**: 764.82
+**Assessment**: Trend Following (Short)
+
+### ETHUSD - 2026-03-09 00:38:37 (crypto)
+**Volatility**: Medium
+**ATR**: 40.55
+**Assessment**: Trend Following (Long)
+
+### ETHUSD - 2026-03-09 00:38:37 (crypto)
+**Volatility**: Medium
+**ATR**: 40.55
+**Assessment**: Trend Following (Long)
+
+### SPY - 2026-03-09 00:38:37 (equities)
+**Volatility**: Medium
+**ATR**: 6.76
+**Assessment**: Trend Following (Long)
+
+### SPY - 2026-03-09 00:38:37 (equities)
+**Volatility**: Medium
+**ATR**: 6.76
+**Assessment**: Trend Following (Long)
+
+### BTCUSD - 2026-03-09 00:39:08 (crypto)
+**Volatility**: Medium
+**ATR**: 764.82
+**Assessment**: Trend Following (Short)
+
+### BTCUSD - 2026-03-09 00:39:08 (crypto)
+**Volatility**: Medium
+**ATR**: 764.82
+**Assessment**: Trend Following (Short)
+
+### ETHUSD - 2026-03-09 00:39:08 (crypto)
+**Volatility**: Medium
+**ATR**: 40.55
+**Assessment**: Trend Following (Long)
+
+### ETHUSD - 2026-03-09 00:39:08 (crypto)
+**Volatility**: Medium
+**ATR**: 40.55
+**Assessment**: Trend Following (Long)
+
+### SPY - 2026-03-09 00:39:08 (equities)
+**Volatility**: Medium
+**ATR**: 6.76
+**Assessment**: Trend Following (Long)
+
+### SPY - 2026-03-09 00:39:08 (equities)
+**Volatility**: Medium
+**ATR**: 6.76
+**Assessment**: Trend Following (Long)
+
+### BTCUSD - 2026-03-09 00:40:21 (crypto)
+**Volatility**: Medium
+**ATR**: 764.82
+**Assessment**: Trend Following (Short)
+
+### BTCUSD - 2026-03-09 00:40:21 (crypto)
+**Volatility**: Medium
+**ATR**: 764.82
+**Assessment**: Trend Following (Short)
+
+### ETHUSD - 2026-03-09 00:40:21 (crypto)
+**Volatility**: Medium
+**ATR**: 40.55
+**Assessment**: Trend Following (Long)
+
+### ETHUSD - 2026-03-09 00:40:21 (crypto)
+**Volatility**: Medium
+**ATR**: 40.55
+**Assessment**: Trend Following (Long)
+
+### SPY - 2026-03-09 00:40:21 (equities)
+**Volatility**: Medium
+**ATR**: 6.76
+**Assessment**: Trend Following (Long)
+
+### SPY - 2026-03-09 00:40:21 (equities)
+**Volatility**: Medium
+**ATR**: 6.76
+**Assessment**: Trend Following (Long)
+
+### BTCUSD - 2026-03-09 00:46:16 (crypto)
+**Volatility**: Medium
+**ATR**: 764.82
+**Assessment**: Trend Following (Short)
+
+### ETHUSD - 2026-03-09 00:46:17 (crypto)
+**Volatility**: Medium
+**ATR**: 40.55
+**Assessment**: Trend Following (Long)
+
+### SPY - 2026-03-09 00:46:17 (equities)
+**Volatility**: Medium
+**ATR**: 6.76
+**Assessment**: Trend Following (Long)
+
+### BTCUSD - 2026-03-09 00:46:46 (crypto)
+**Volatility**: Medium
+**ATR**: 764.82
+**Assessment**: Trend Following (Short)
+
+### ETHUSD - 2026-03-09 00:46:46 (crypto)
+**Volatility**: Medium
+**ATR**: 40.55
+**Assessment**: Trend Following (Long)
+
+### SPY - 2026-03-09 00:46:46 (equities)
+**Volatility**: Medium
+**ATR**: 6.76
+**Assessment**: Trend Following (Long)
+
+### BTCUSD - 2026-03-09 00:47:11 (crypto)
+**Volatility**: Medium
+**ATR**: 764.82
+**Assessment**: Trend Following (Short)
+
+### ETHUSD - 2026-03-09 00:47:11 (crypto)
+**Volatility**: Medium
+**ATR**: 40.55
+**Assessment**: Trend Following (Long)
+
+### SPY - 2026-03-09 00:47:11 (equities)
+**Volatility**: Medium
+**ATR**: 6.76
+**Assessment**: Trend Following (Long)
+
+### BTCUSD - 2026-03-09 00:47:40 (crypto)
+**Volatility**: Medium
+**ATR**: 764.82
+**Assessment**: Trend Following (Short)
+
+### ETHUSD - 2026-03-09 00:47:40 (crypto)
+**Volatility**: Medium
+**ATR**: 40.55
+**Assessment**: Trend Following (Long)
+
+### SPY - 2026-03-09 00:47:40 (equities)
+**Volatility**: Medium
+**ATR**: 6.76
+**Assessment**: Trend Following (Long)
+
+### BTCUSD - 2026-03-09 00:48:24 (crypto)
+**Volatility**: Medium
+**ATR**: 764.82
+**Assessment**: Trend Following (Short)
+
+### ETHUSD - 2026-03-09 00:48:24 (crypto)
+**Volatility**: Medium
+**ATR**: 40.55
+**Assessment**: Trend Following (Long)
+
+### SPY - 2026-03-09 00:48:24 (equities)
+**Volatility**: Medium
+**ATR**: 6.76
+**Assessment**: Trend Following (Long)
