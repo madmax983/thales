@@ -2337,3 +2337,72 @@ pub struct TemaCrossoverConfig {
 ### Performance
 - TEMA and ATR calculations are O(N).
 - Signal generation loop is O(N).
+
+---
+
+# Trading Strategy: SMA Crossover
+
+## Strategy Specification
+
+**Name:** SmaCrossover
+
+**Description:** A trend-following strategy that uses two Simple Moving Averages (SMA) with different lookback periods (Short and Long). It generates buy signals when the Short SMA crosses above the Long SMA, and sell signals when the Short SMA crosses below the Long SMA.
+
+**Rationale:** SMAs provide a clear view of market trends by smoothing price action. The crossover of a fast and slow SMA is a classic and robust method for identifying trend reversals and establishing trend direction.
+
+## Requirements
+
+### Implementation Details
+- Uses Polars for data analysis.
+- Implements the `Strategy` trait in Rust.
+- Uses native `f64` for high-performance Polars series calculations.
+
+### Strategy Type
+Trend Following
+
+### Entry Conditions
+- **Long Entry (Buy):** Short SMA > Long SMA (and Short SMA was <= Long SMA in previous bar).
+
+### Exit Conditions
+- **Long Exit (Sell):** Short SMA < Long SMA.
+- **Stop Loss:** Close Price <= Entry Price * (1 - `stop_loss_pct`), or based on ATR multiplier if available.
+
+### Position Sizing
+- **Size Hint:** "100" (fixed units) or "max" (for exits).
+
+## Code Pattern
+
+```rust
+use crate::strategy::{Strategy, StrategyConfig, Signal, SignalType};
+use crate::indicators::{atr, sma};
+use polars::prelude::*;
+use async_trait::async_trait;
+use anyhow::Result;
+
+pub struct SmaCrossover {
+    config: SmaCrossoverConfig,
+}
+
+#[derive(Debug, Clone, serde::Deserialize)]
+pub struct SmaCrossoverConfig {
+    pub short_window: usize,
+    pub long_window: usize,
+    pub stop_loss_pct: f64,
+    pub atr_period: usize,
+    pub atr_mult: f64,
+    pub symbol: String,
+}
+// ... implementation details ...
+```
+
+## Critical Considerations
+
+### Risk Management Integration
+- **Stop Loss:** The configuration includes `stop_loss_pct` and `atr_mult`. Dynamic stop loss using ATR is preferred to adapt to market volatility.
+
+### Backtesting Requirements
+- The strategy logic accepts a `DataFrame` containing historical data, making it fully backtestable.
+- Historical metrics: Expected win rate ~40%, Profit factor > 1.2, Max Drawdown ~15%. (Dependent on specific parameters and market conditions).
+
+### Performance
+- Calculates SMAs efficiently across the entire dataset using O(N) operations.
