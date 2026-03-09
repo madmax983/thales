@@ -13,7 +13,7 @@ Evaluating SPY...
 - Signal type and strength (0-100%): Entry, Strength: 70.4%
 - Suggested size (quantity): 7.397868
 - Stop loss and take profit levels: Stop Loss: 545.0058981363323, Take Profit: 585.5581239514951
-- Clear reasoning (including historical context): Strategy: DonchianBreakout (70% (Boosted by high win rate), MA: 0.80). Reason: Breakout: Close 558.52 > Upper Channel 548.67. Market Context: Trending Up (Short Term) (Medium Volatility). Found 18 similar past trades (20 on same symbol). Win Rate: 77.8%. Avg Return: 8.26% (Buying strength in Overbought conditions) (Risk: $100, SL Dist: 13.52)
+- Clear reasoning (including historical context): Strategy: DonchianBreakout (70% (Boosted by high win rate), MA: 0.80). Reason: Breakout: Close 558.52 > Upper Channel 548.67. Market Context: Trending Up (Short Term) (Medium Volatility). Found 22 similar past trades (23 on same symbol). Win Rate: 77.3%. Avg Return: 6.95% (Buying strength in Overbought conditions) (Risk: $100, SL Dist: 13.52)
 
 ------------------
 
