@@ -26,6 +26,8 @@ use thales_cli::pattern_match;
 #[cfg(feature = "nova")]
 use thales_cli::seasonality;
 #[cfg(feature = "nova")]
+use thales_cli::stress_test;
+#[cfg(feature = "nova")]
 use thales_cli::synthetic_data;
 #[cfg(feature = "nova")]
 use thales_cli::volume_profile;
@@ -96,6 +98,23 @@ enum Commands {
         execution_algo: Option<String>,
         #[arg(long, default_value = "manual")]
         strategy: String,
+    },
+    #[cfg(feature = "nova")]
+    StressTest {
+        #[arg(long, default_value = "BollingerBands")]
+        strategy: String,
+        #[arg(long, default_value = "SYNTH")]
+        symbol: String,
+        #[arg(long, default_value = "100.0")]
+        initial_price: f64,
+        #[arg(long, default_value = "1000")]
+        num_bars: usize,
+        #[arg(long, default_value = "10000.0")]
+        initial_capital: f64,
+        #[arg(long, default_value = "100.0")]
+        risk_per_trade: f64,
+        #[arg(long)]
+        visualize: bool,
     },
     ValidateIntent {
         #[arg(long)]
@@ -441,6 +460,59 @@ fn run(command: Commands, raw: bool) -> Result<String, CliError> {
                 strategy,
             };
             ok_envelope(intent, vec![], raw)
+        }
+        #[cfg(feature = "nova")]
+        Commands::StressTest {
+            strategy,
+            symbol,
+            initial_price,
+            num_bars,
+            initial_capital,
+            risk_per_trade,
+            visualize,
+        } => {
+            let config = stress_test::StressTestConfig {
+                strategy,
+                symbol,
+                initial_price,
+                scenarios: vec![
+                    stress_test::StressScenario {
+                        name: "Bull Market".to_string(),
+                        drift: 0.001,
+                        volatility: 0.01,
+                    },
+                    stress_test::StressScenario {
+                        name: "Bear Market".to_string(),
+                        drift: -0.001,
+                        volatility: 0.02,
+                    },
+                    stress_test::StressScenario {
+                        name: "High Volatility".to_string(),
+                        drift: 0.0,
+                        volatility: 0.05,
+                    },
+                    stress_test::StressScenario {
+                        name: "Flat Market".to_string(),
+                        drift: 0.0,
+                        volatility: 0.01,
+                    },
+                ],
+                num_bars,
+                initial_capital,
+                risk_per_trade,
+            };
+
+            let rt =
+                tokio::runtime::Runtime::new().map_err(|e| CliError::Validation(e.to_string()))?;
+            let report = rt
+                .block_on(stress_test::run_stress_test(config))
+                .map_err(|e| CliError::Validation(e.to_string()))?;
+
+            if visualize {
+                stress_test::print_ascii_report(&report);
+            }
+
+            ok_envelope(report, vec![], raw)
         }
         Commands::ValidateIntent { input } => {
             let intent: TradeIntent = read_json_file(&input)?;

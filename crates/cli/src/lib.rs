@@ -35,6 +35,8 @@ pub mod seasonality;
 pub mod signals;
 pub mod strategy_factory;
 #[cfg(feature = "nova")]
+pub mod stress_test;
+#[cfg(feature = "nova")]
 pub mod synthetic_data;
 #[cfg(feature = "nova")]
 pub mod volume_profile;
