@@ -1,7 +1,67 @@
+//! Technical Market Analysis
+//!
+//! This module provides the core analytical engine for evaluating market conditions.
+//! It processes raw price data ([`BarSeries`]) to synthesize a comprehensive
+//! [`MarketAnalysis`] that includes:
+//!
+//! - **Market Regime Detection**: Identifying whether the market is trending up, trending down, or ranging.
+//! - **Sentiment Analysis**: Evaluating momentum and overbought/oversold conditions using indicators like RSI and MACD.
+//! - **Pattern Recognition**: Detecting structural patterns (e.g., Breakouts, Squeezes) and candlestick patterns (e.g., Doji, Engulfing).
+//! - **Key Levels**: Identifying significant support and resistance levels using Donchian Channels.
+//! - **Volatility Assessment**: Classifying the current volatility state (e.g., Low, High, Extreme) using ATR.
+//!
+//! The output of this module is used by the trading agent to make informed execution decisions.
+
 use contracts::{Bar, BarSeries, MarketAnalysis};
 use polars::prelude::*;
 use strategies::indicators::{atr, bollinger_bands, donchian_channels, macd, rsi, sma};
 
+/// Analyzes a series of market bars to generate a comprehensive market analysis.
+///
+/// This function is the primary entry point for technical evaluation. It calculates
+/// various indicators (SMA, RSI, MACD, ATR, Donchian Channels, Bollinger Bands) to
+/// determine the current market regime, sentiment, volatility, key levels, and patterns.
+///
+/// # Arguments
+///
+/// * `series` - A reference to the [`BarSeries`] containing the historical price data to analyze.
+///
+/// # Returns
+///
+/// Returns a [`MarketAnalysis`] struct populated with the findings. If the input series
+/// is empty, it returns a default "Unknown" state.
+///
+/// # Examples
+///
+/// ```rust
+/// use contracts::{Bar, BarSeries};
+/// use thales_cli::analysis::analyze;
+///
+/// // Create a dummy bar series
+/// let bars = vec![
+///     Bar {
+///         symbol: "BTCUSD".to_string(),
+///         market: "crypto".to_string(),
+///         timeframe: "1h".to_string(),
+///         timestamp_unix_ms: 1622505600000,
+///         open: 30000.0,
+///         high: 31000.0,
+///         low: 29000.0,
+///         close: 30500.0,
+///         volume: 1000.0,
+///     }
+/// ];
+/// let series = BarSeries {
+///     schema_version: "v0".to_string(),
+///     bars,
+/// };
+///
+/// // Run the analysis
+/// let report = analyze(&series);
+///
+/// assert_eq!(report.symbol, "BTCUSD");
+/// assert_eq!(report.market, "crypto");
+/// ```
 pub fn analyze(series: &BarSeries) -> MarketAnalysis {
     let bars = &series.bars;
     let symbol = bars.first().map(|b| b.symbol.clone()).unwrap_or_default();
