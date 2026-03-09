@@ -3601,6 +3601,7 @@
 | 2026-03-09 02:54:56 | ETHUSD | NO_REF | Conflict: Active strategies generated conflicting signals ({'sell', 'buy'}) for ETHUSD. |
 | 2026-03-09 02:54:56 | SPY | NO_REF | Conflict: Active strategies generated conflicting signals ({'sell', 'buy'}) for SPY. |
 | 2026-03-09 02:56:16 | MOGUSD | crypto:MOGUSD:buy:1773021600000 | provider error: kraken api error: EGeneral:Invalid arguments:volume minimum not met |
+| 2026-03-09 05:01:44 | PEPEUSD | CANCEL-OYAR7X-2QIHY-PZJVJ6 | Stale Order Cancellation |
 
 ## Executed Trades
 
