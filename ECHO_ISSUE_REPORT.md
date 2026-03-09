@@ -16,3 +16,20 @@ On the bright side, when I messed up the commands on purpose (like using `--time
 ## 💡 **The Fix**
 1. Provide a `dummy_data.json` in the repo that is mathematically *guaranteed* to trigger a signal for the `BollingerBands` strategy so the README example actually shows a real output structure. Or change the default example to use the `backtest` command first, which always outputs a list of past trades.
 2. Please remove or explain jargon like "OHLCV" (just say "price data"), "RAG" (just say "search history"), and "TWAP"/"VWAP" (just say "time/volume spreading"). Keep it simple!
+
+---
+
+# 🗣️ Echo: Getting Started example is broken
+
+## 🤦 **The Confusion**
+Tried to run the example command for step 2 in the README (`cargo run -p thales-cli -- verify-strategy ...`). The CLI spat out `error: unrecognized subcommand 'verify-strategy'`.
+
+## 🕵️ **The Reality**
+Turns out the subcommand in the codebase is actually `backtest`. The section header says "Verify Strategy (Backtest)" and it looks like someone renamed the command but didn't update the example block properly, or they got confused between the header and the command. Also, later down the README it mentions "Check Backtest: Run the backtest command (step 2)", making it even more confusing!
+
+## 💡 **The Fix**
+Update the code block in the README to actually use the `backtest` command.
+Change:
+`cargo run -p thales-cli -- verify-strategy`
+to:
+`cargo run -p thales-cli -- backtest`
