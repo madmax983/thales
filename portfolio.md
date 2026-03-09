@@ -3607,6 +3607,9 @@
 | 2026-03-09 07:06:59 | SPY | NO_REF | Conflict: Active strategies generated conflicting signals ({'sell', 'buy'}) for SPY. |
 | 2026-03-09 09:13:55 | BTCUSD | crypto:BTCUSD:sell:1773045084972 | No sellable balance available (BTCUSD -0.00000000) |
 | 2026-03-09 11:01:07 | BTCUSD | crypto:BTCUSD:sell:1773045084972 | No sellable balance available (BTCUSD -0.00000000) |
+| 2026-03-09 12:51:16 | BTCUSD | crypto:BTCUSD:sell:1773059339065 | Cross-validation failed: Strategies generated {'buy'} but signal recommended sell. |
+| 2026-03-09 12:51:16 | ETHUSD | crypto:ETHUSD:buy:1773059339103 | No active strategy generated a signal (Strategies: BollingerBands, EmaCrossover, RsiMeanReversion, Macd, Supertrend, DonchianBreakout, ParabolicSar, KeltnerChannelBreakout, StochasticOscillator, AdxMomentum, IchimokuCloud, CciMomentum, ChaikinMoneyFlow, ChandelierExit, LinearRegressionTrend, ObvTrendFollowing, MoneyFlowIndex, ConnorsRsiMeanReversion, AwesomeOscillator, WilliamsR, VwmaCrossover, VwapReversion, VortexBreakout, RocMomentum, TrixMomentum, AdxMacdTrend, ZScoreMeanReversion, ElderRay, AroonOscillator, StochRsiMeanReversion, MacdRsiTrend, TsiTrend) |
+| 2026-03-09 12:51:16 | SPY | equities:SPY:buy:1773059339126 | No active strategy generated a signal (Strategies: BollingerBands, EmaCrossover, RsiMeanReversion, Macd, Supertrend, DonchianBreakout, ParabolicSar, KeltnerChannelBreakout, StochasticOscillator, AdxMomentum, IchimokuCloud, CciMomentum, ChaikinMoneyFlow, ChandelierExit, LinearRegressionTrend, ObvTrendFollowing, MoneyFlowIndex, ConnorsRsiMeanReversion, AwesomeOscillator, WilliamsR, VwmaCrossover, VwapReversion, VortexBreakout, RocMomentum, TrixMomentum, AdxMacdTrend, ZScoreMeanReversion, ElderRay, AroonOscillator, StochRsiMeanReversion, MacdRsiTrend, TsiTrend) |
 
 ## Executed Trades
 
@@ -3724,3 +3727,9 @@
 | 2026-03-08 18:04:09 | SPY | NO_REF | No strategy signal generated. |
 | 2026-03-08 18:04:20 | QQQ | NO_REF | No strategy signal generated. |
 | 2026-03-08 18:04:31 | TQQQ | NO_REF | No strategy signal generated. |
+| 2026-03-09 12:47:26 | PEPEUSD | NO_REF | No strategy signal generated. |
+| 2026-03-09 12:47:41 | REKTUSD | NO_REF | No strategy signal generated. |
+| 2026-03-09 12:47:59 | MOGUSD | NO_REF | No strategy signal generated. |
+| 2026-03-09 12:48:14 | SPY | NO_REF | No strategy signal generated. |
+| 2026-03-09 12:48:30 | QQQ | NO_REF | No strategy signal generated. |
+| 2026-03-09 12:48:46 | TQQQ | NO_REF | No strategy signal generated. |
