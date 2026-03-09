@@ -10,7 +10,7 @@ This document lists the technical indicators implemented in the `crates/strategi
 
 ### Implementation Details
 - Uses `rust_decimal::Decimal` for all internal calculations to ensure precision.
-- Returns a Polars `Series` of `f64` values for compatibility with other analysis tools.
+- Returns a Polars `Series` of `f64` values (computed internally via Decimal) for compatibility with other analysis tools.
 - Handles missing data (nulls) by resetting the calculation window.
 
 ### Usage
@@ -42,7 +42,7 @@ let sma_series = sma::calculate(&df, period)?;
 ### Implementation Details
 - Uses `rust_decimal::Decimal` for precision.
 - Uses SMA of the first `period` values as the seed.
-- Returns a Polars `Series` of `f64` values.
+- Returns a Polars `Series` of `f64` values (computed internally via Decimal).
 
 ### Usage
 
@@ -73,7 +73,7 @@ let ema_series = ema::calculate(&df, period)?;
 ### Implementation Details
 - Uses `rust_decimal::Decimal` for precision.
 - Implements Wilder's Smoothing for the moving average calculation.
-- Returns a Polars `Series` of `f64` values (0-100).
+- Returns a Polars `Series` of `f64` values (computed internally via Decimal) (0-100).
 - Handles edge cases like flat prices (returns 50).
 
 ### Usage
@@ -105,7 +105,7 @@ let rsi_series = rsi::calculate(&df, period)?;
 ### Implementation Details
 - Uses `rust_decimal::Decimal` for precision.
 - Implements Wilder's Smoothing (RMA) for the moving average of True Range.
-- Returns a Polars `Series` of `f64` values.
+- Returns a Polars `Series` of `f64` values (computed internally via Decimal).
 - True Range uses Max(High-Low, |High-PrevClose|, |Low-PrevClose|).
 
 ### Usage
@@ -377,7 +377,7 @@ let (tenkan, kijun, span_a, span_b, chikou) = ichimoku::calculate(&df, tenkan, k
 ### Implementation Details
 - Uses `rust_decimal::Decimal` for precision.
 - Cumulative calculation.
-- Returns a Polars `Series` of `f64` values.
+- Returns a Polars `Series` of `f64` values (computed internally via Decimal).
 
 ### Usage
 
@@ -407,7 +407,7 @@ let obv_series = obv::calculate(&df)?;
 - Calculates Typical Price (High + Low + Close) / 3.
 - Calculates Raw Money Flow (Typical Price * Volume).
 - Uses rolling window sums of Positive and Negative Money Flows.
-- Returns a Polars `Series` of `f64` values (0-100).
+- Returns a Polars `Series` of `f64` values (computed internally via Decimal) (0-100).
 
 ### Usage
 
@@ -468,7 +468,7 @@ let (vi_plus, vi_minus) = vortex::calculate(&df, period)?;
 
 ### Implementation Details
 - Uses `rust_decimal::Decimal` for precision.
-- Returns a Polars `Series` of `f64` values.
+- Returns a Polars `Series` of `f64` values (computed internally via Decimal).
 
 ### Usage
 
@@ -501,7 +501,7 @@ let roc_series = roc::calculate(&df, period)?;
 - Calculates Typical Price (High + Low + Close) / 3.
 - Accumulates Price * Volume and Volume over the course of the day.
 - Uses `timestamp_unix_ms` to detect day changes and resets the accumulators.
-- Returns a Polars `Series` of `f64` values.
+- Returns a Polars `Series` of `f64` values (computed internally via Decimal).
 
 ### Usage
 
@@ -567,7 +567,7 @@ let (k, d) = stoch_rsi::calculate(&df, rsi_period, stoch_period, k_period, d_per
 ### Implementation Details
 - Uses `rust_decimal::Decimal` for all internal calculations to ensure precision.
 - Uses three successive passes of the `ema` indicator on the "close" column.
-- Returns a Polars `Series` of `f64` values representing the percentage rate of change.
+- Returns a Polars `Series` of `f64` values (computed internally via Decimal) representing the percentage rate of change.
 
 ### Usage
 
@@ -620,7 +620,7 @@ let (k_series, d_series) = stoch_rsi::calculate(&df, 14, 14, 3, 3).unwrap();
 ### Implementation Details
 - Uses `f64` for all internal calculations.
 - Uses three successive passes of the `ema` indicator on the "close" column.
-- Returns a Polars `Series` of `f64` values representing the TEMA.
+- Returns a Polars `Series` of `f64` values (computed internally via Decimal) representing the TEMA.
 
 ### Usage
 
@@ -641,3 +641,34 @@ let tema_series = tema::calculate(&df, period)?;
 - Returns `Result<Series>`.
 - The output Series is named "tema".
 - The first `period * 3` values will be null.
+
+## Weighted Moving Average (WMA)
+
+**Name:** WMA
+**Description:** Calculates the Weighted Moving Average, which places a greater weight on the most recent data points.
+**Rationale:** Used as a moving average that reacts more quickly to recent price changes than a Simple Moving Average (SMA), but without the exponential weighting of an EMA.
+
+### Implementation Details
+- Uses `rust_decimal::Decimal` for all internal calculations to ensure precision.
+- Returns a Polars `Series` of `f64` values (computed internally via Decimal).
+- Handles missing data (nulls) by resetting the calculation window or invalidating points correctly.
+
+### Usage
+
+```rust
+use strategies::indicators::wma;
+use polars::prelude::*;
+
+// Assuming df is a DataFrame with a "close" column
+let period = 14;
+let wma_series = wma::calculate(&df, period)?;
+```
+
+### Parameters
+- `data`: Reference to a Polars `DataFrame`. Must contain a numeric "close" column.
+- `period`: The lookback period (typically 9, 14, or 21).
+
+### Output
+- Returns `Result<Series>`.
+- The output Series is named "wma".
+- The first `period - 1` values will be null.
