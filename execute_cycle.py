@@ -50,6 +50,7 @@ TREND_FOLLOWING_STRATEGIES = {
     "VwmaCrossover",
     "ChandelierExit",
     "ObvTrendFollowing",
+    "TemaCrossover",
 }
 BREAKOUT_STRATEGIES = {
     "Supertrend",

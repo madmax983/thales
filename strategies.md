@@ -2268,3 +2268,71 @@ pub struct TsiTrendConfig {
 - **Entry Short:** `%K` crosses below `%D` while both are above the `overbought_threshold` (default 80).
 - **Exit Long:** Price hits stop loss (ATR-based) OR `%K` crosses below `%D` above the `overbought_threshold`.
 - **Exit Short:** Price hits stop loss (ATR-based) OR `%K` crosses above `%D` below the `oversold_threshold`.
+
+---
+
+# Trading Strategy: TEMA Crossover
+
+## Strategy Specification
+
+**Name:** TemaCrossover
+
+**Description:** A trend-following momentum strategy combining a fast and slow Triple Exponential Moving Average (TEMA). It enters long when the short TEMA crosses above the long TEMA. It exits long when the short TEMA crosses below the long TEMA, or when an ATR-based stop loss is hit.
+
+**Rationale:** TEMA reduces lag significantly compared to traditional EMAs or SMAs. When a fast TEMA crosses above a slow TEMA, it quickly identifies a new uptrend. Conversely, a bearish crossover signals an exit to protect capital. The ATR stop loss protects against extreme downward volatility.
+
+## Requirements
+
+### Implementation Details
+- Uses Polars for data analysis.
+- Implements the `Strategy` trait in Rust.
+- Uses `tema` and `atr` indicators.
+
+### Strategy Type
+TrendFollowing
+
+### Entry Conditions
+- **Long Entry (Buy):** Short TEMA crosses ABOVE Long TEMA.
+
+### Exit Conditions
+- **Long Exit (Sell):** Short TEMA crosses BELOW Long TEMA.
+- **Stop Loss:** Entry Price - (ATR * `atr_mult`).
+
+### Position Sizing
+- **Size Hint:** "100" (fixed units) or "max" (for exits).
+
+## Code Pattern
+
+```rust
+use crate::strategy::{Strategy, StrategyConfig, Signal, SignalType};
+use crate::indicators::{atr, tema};
+use polars::prelude::*;
+use async_trait::async_trait;
+use anyhow::Result;
+
+pub struct TemaCrossover {
+    config: TemaCrossoverConfig,
+}
+
+#[derive(Debug, Clone, serde::Deserialize)]
+pub struct TemaCrossoverConfig {
+    pub short_period: usize,
+    pub long_period: usize,
+    pub atr_period: usize,
+    pub atr_mult: f64,
+    pub symbol: String,
+}
+```
+
+## Critical Considerations
+
+### Risk Management Integration
+- **Stop Loss:** Uses ATR-based stop loss for dynamic risk control during high volatility.
+
+### Backtesting Requirements
+- Accepts `DataFrame` with historical data containing "close".
+- Requires data length enough to calculate TEMA for `long_period` (TEMA requires `3 * period - 2` bars).
+
+### Performance
+- TEMA and ATR calculations are O(N).
+- Signal generation loop is O(N).
