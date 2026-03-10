@@ -2337,3 +2337,72 @@ pub struct TemaCrossoverConfig {
 ### Performance
 - TEMA and ATR calculations are O(N).
 - Signal generation loop is O(N).
+
+---
+
+# Trading Strategy: DEMA Crossover
+
+## Strategy Specification
+
+**Name:** DemaCrossover
+
+**Description:** A trend-following strategy that generates signals based on the crossover of two Double Exponential Moving Averages (DEMA) of different periods.
+
+**Rationale:** The DEMA indicator reduces the lag associated with traditional simple or exponential moving averages, allowing the strategy to identify and react to trends earlier. Crossovers between a short-period DEMA and a long-period DEMA provide entry and exit signals.
+
+## Requirements
+
+### Implementation Details
+- Uses Polars for data analysis.
+- Implements the `Strategy` trait in Rust.
+- Uses `dema` and `atr` indicators.
+
+### Strategy Type
+TrendFollowing
+
+### Entry Conditions
+- **Long Entry (Buy):** Short DEMA crosses ABOVE Long DEMA.
+
+### Exit Conditions
+- **Long Exit (Sell):** Short DEMA crosses BELOW Long DEMA.
+- **Stop Loss:** Entry Price - (ATR * `stop_loss_atr_mult`).
+
+### Position Sizing
+- **Size Hint:** "100" (fixed units) or "max" (for exits).
+
+## Code Pattern
+
+```rust
+use crate::strategy::{Strategy, StrategyConfig, Signal, SignalType};
+use crate::indicators::{atr, dema};
+use polars::prelude::*;
+use async_trait::async_trait;
+use anyhow::Result;
+
+pub struct DemaCrossover {
+    config: DemaCrossoverConfig,
+}
+
+#[derive(Debug, Clone, serde::Deserialize)]
+pub struct DemaCrossoverConfig {
+    pub short_period: usize,
+    pub long_period: usize,
+    pub atr_period: usize,
+    pub stop_loss_atr_mult: f64,
+    pub symbol: String,
+}
+```
+
+## Critical Considerations
+
+### Risk Management Integration
+- **Stop Loss:** Uses ATR-based stop loss for risk control.
+- **Trend Filter:** Relying on DEMA reduces lag but can increase false signals in ranging markets compared to SMA/EMA.
+
+### Backtesting Requirements
+- Accepts `DataFrame` with historical data containing "close".
+- Requires data length > `long_period * 2`.
+
+### Performance
+- DEMA and ATR calculations are O(N).
+- Signal generation loop is O(N).

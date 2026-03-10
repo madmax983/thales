@@ -56,3 +56,4 @@ pub mod tema_crossover;
 pub mod vwma_crossover;
 pub mod williams_r;
 pub mod zscore_mean_reversion;
+pub mod dema_crossover;
