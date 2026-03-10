@@ -684,3 +684,38 @@ let wma_series = wma::calculate(&df, period)?;
 **Usage:** Used in trend-following strategies like `DemaCrossover`.
 **Parameters:**
 - `period`: The lookback period for the exponential moving averages.
+
+## Arnaud Legoux Moving Average (ALMA)
+
+**Name:** ALMA
+**Description:** Calculates the Arnaud Legoux Moving Average, which uses a Gaussian distribution offset to determine the weights of the moving average.
+**Rationale:** It aims to reduce lag while increasing smoothness compared to traditional moving averages, avoiding overshoot by focusing the weight on the center of the window offset by a specific factor.
+
+### Implementation Details
+- Uses `rust_decimal::Decimal` for precision.
+- Calculates window weights using a Gaussian function.
+- Returns a Polars `Series` of `f64` values (computed internally via Decimal).
+
+### Usage
+
+```rust
+use strategies::indicators::alma;
+use polars::prelude::*;
+
+// Assuming df is a DataFrame with a "close" column
+let period = 9;
+let offset = 0.85;
+let sigma = 6.0;
+let alma_series = alma::calculate(&df, period, offset, sigma)?;
+```
+
+### Parameters
+- `data`: Reference to a Polars `DataFrame`. Must contain a numeric "close" column.
+- `period`: The lookback window period (must be > 0).
+- `offset`: The offset factor (typically 0.85) controlling the center of the window.
+- `sigma`: The standard deviation factor (typically 6.0) for the Gaussian filter.
+
+### Output
+- Returns `Result<Series>`.
+- The output Series is named "alma".
+- The first `period - 1` values will be null.
