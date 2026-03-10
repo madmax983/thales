@@ -641,3 +641,34 @@ let tema_series = tema::calculate(&df, period)?;
 - Returns `Result<Series>`.
 - The output Series is named "tema".
 - The first `period * 3` values will be null.
+
+## Double Exponential Moving Average (DEMA)
+
+**Name:** DEMA
+**Description:** Calculates the Double Exponential Moving Average, an indicator designed to reduce the lag of traditional EMAs, making it more responsive to price changes.
+**Rationale:** Used as an alternative to simple or exponential moving averages for trend identification and crossover signals, providing a faster response to price changes.
+
+### Implementation Details
+- Uses `rust_decimal::Decimal` for precision internally as required by constraints.
+- Uses two successive passes of the `ema` indicator on the "close" column to compute DEMA = (2 * EMA1) - EMA2.
+- Returns a Polars `Series` of `f64` values representing the DEMA.
+
+### Usage
+
+```rust
+use strategies::indicators::dema;
+use polars::prelude::*;
+
+// Assuming df is a DataFrame with a "close" column
+let period = 9;
+let dema_series = dema::calculate(&df, period)?;
+```
+
+### Parameters
+- `data`: Reference to a Polars `DataFrame`. Must contain a numeric "close" column.
+- `period`: The lookback period (typically 9, 21, or 50).
+
+### Output
+- Returns `Result<Series>`.
+- The output Series is named "dema".
+- The first `period * 2` (approximate) values will be null.
