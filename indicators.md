@@ -558,6 +558,37 @@ let (k, d) = stoch_rsi::calculate(&df, rsi_period, stoch_period, k_period, d_per
 - The output Series are named "stoch_rsi_k" and "stoch_rsi_d".
 - The first `rsi_period + stoch_period + k_period + d_period - 3` values will generally be null depending on the periods.
 
+## Triple Exponential Moving Average (TEMA)
+
+**Name:** TEMA
+**Description:** Calculates the Triple Exponential Moving Average, designed to smooth price fluctuations and filter out volatility, significantly reducing the lag of traditional EMAs.
+**Rationale:** TEMA reduces the lag of EMAs, making it more responsive to price changes. It is calculated using a combination of a single EMA, double EMA, and triple EMA.
+
+### Implementation Details
+- Uses `rust_decimal::Decimal` (via the underlying `ema` indicator) for precision.
+- Calculates `TEMA = (3 * EMA1) - (3 * EMA2) + EMA3`.
+- Returns a Polars `Series` of `f64` values.
+
+### Usage
+
+```rust
+use strategies::indicators::tema;
+use polars::prelude::*;
+
+// Assuming df is a DataFrame with a "close" column
+let period = 14;
+let tema_series = tema::calculate(&df, period)?;
+```
+
+### Parameters
+- `data`: Reference to a Polars `DataFrame`. Must contain a numeric column named "close".
+- `period`: The lookback period (typically 9, 21, or 55).
+
+### Output
+- Returns `Result<Series>`.
+- The output Series is named "tema".
+- The first `period * 3` values will be null (due to triple EMA chaining).
+
 ## TRIX
 
 **Name:** TRIX

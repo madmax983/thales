@@ -2256,6 +2256,78 @@ pub struct TsiTrendConfig {
 - TSI, EMA, and ATR calculations are O(N).
 - Signal generation loop is O(N).
 
+---
+
+# Trading Strategy: TEMA Crossover
+
+## Strategy Specification
+
+**Name:** TemaCrossover
+
+**Description:** A trend-following strategy that uses three Triple Exponential Moving Averages (TEMA) with different lookback periods (Fast, Medium, and Slow). It generates buy signals when the Fast TEMA crosses above both the Medium and Slow TEMAs, and sell signals when the Fast TEMA crosses below both.
+
+**Rationale:** TEMA reduces the lag inherent in traditional EMAs by combining a single EMA, double EMA, and triple EMA. A triple crossover system provides multiple confirmation signals, filtering out false breakouts and capturing strong, sustained trends earlier.
+
+## Requirements
+
+### Implementation Details
+- Uses Polars for data analysis.
+- Implements the `Strategy` trait in Rust.
+- Uses `tema` indicator for efficient calculation.
+
+### Strategy Type
+Trend Following
+
+### Entry Conditions
+- **Long Entry (Buy):** Fast TEMA crosses ABOVE Medium TEMA AND Medium TEMA > Slow TEMA.
+- **Short Entry (Sell):** Fast TEMA crosses BELOW Medium TEMA AND Medium TEMA < Slow TEMA.
+
+### Exit Conditions
+- **Long Exit (Sell):** Fast TEMA crosses BELOW Medium TEMA.
+- **Short Exit (Buy):** Fast TEMA crosses ABOVE Medium TEMA.
+- **Stop Loss:** Fixed percentage (`stop_loss_pct`) from entry price.
+
+### Position Sizing
+- **Size Hint:** "100" (fixed units) or "max" (for exits).
+
+## Code Pattern
+
+```rust
+use crate::strategy::{Strategy, StrategyConfig, Signal, SignalType};
+use crate::indicators::tema;
+use polars::prelude::*;
+use async_trait::async_trait;
+use anyhow::Result;
+
+pub struct TemaCrossover {
+    config: TemaCrossoverConfig,
+}
+
+#[derive(Debug, Clone, serde::Deserialize)]
+pub struct TemaCrossoverConfig {
+    pub fast_period: usize,
+    pub medium_period: usize,
+    pub slow_period: usize,
+    pub stop_loss_pct: f64,
+    pub symbol: String,
+}
+```
+
+## Critical Considerations
+
+### Risk Management Integration
+- **Stop Loss:** Explicitly checks if current price drops below a percentage of the entry price to limit downside risk on false breakouts.
+
+### Backtesting Requirements
+- Accepts `DataFrame` with historical data.
+- Signal generation mimics real-time execution by iterating chronologically and updating state.
+
+### Performance
+- TEMA calculation involves multiple EMA passes (O(N)).
+- Signal generation loop is O(N).
+
+---
+
 ## StochRsiMeanReversion
 
 **Name:** StochRsiMeanReversion

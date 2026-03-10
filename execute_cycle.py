@@ -51,6 +51,7 @@ TREND_FOLLOWING_STRATEGIES = {
     "ChandelierExit",
     "ObvTrendFollowing",
     "TsiTrend",
+    "TemaCrossover",
 }
 BREAKOUT_STRATEGIES = {
     "Supertrend",
@@ -190,6 +191,8 @@ def get_active_strategies():
         strategies.append("MacdRsiTrend")
     if "TsiTrend" in content:
         strategies.append("TsiTrend")
+    if "TemaCrossover" in content:
+        strategies.append("TemaCrossover")
 
     return strategies
 
