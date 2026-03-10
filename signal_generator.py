@@ -83,7 +83,7 @@ def main():
         with open(analysis_file, "w") as f:
             json.dump(analysis, f)
 
-        # 4. Generate Signals (includes search history check, sizing, SL/TP)
+        # 4. Generate Signals (includes RAG check, sizing, SL/TP)
         symbol_intents = []
         for strategy in active_strategies:
             args = ["generate-signals", "--input", data_file, "--strategy", strategy, "--analysis", analysis_file]
