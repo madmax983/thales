@@ -31,3 +31,11 @@
 ## 2024-05-27 - The Silent Reports
 **Confusion:** The core analytical reporting modules (`analysis.rs` and `reporting.rs`) were largely undocumented. It was unclear how raw `BarSeries` data translated to a full `MarketAnalysis` state or how the formatted Markdown reports for `Signals.md` were generated and updated.
 **Clarification:** Added comprehensive module-level documentation and executable examples (`# Examples`) for `analyze`, `generate_report`, and the other reporting helper functions to bridge the gap between technical data and human-readable narrative.
+
+## 2024-05-28 - The Silent Simulation
+**Confusion:** The core CLI execution engine (, , , , ) lacked comprehensive documentation. Users could not understand how signals translated into trades, how history pending outcomes were resolved, or how synthetic data was formulated using Geometric Brownian Motion.
+**Clarification:** Added extensive module-level (`//!`) and item-level (`///`) documentation outlining the simulation loops, evaluation processes, struct definitions, and executable examples for strategy instantiation and backtesting.
+
+## 2024-05-28 - The Silent Simulation
+**Confusion:** The core CLI execution engine (backtest.rs, benchmark.rs, history.rs, strategy_factory.rs, synthetic_data.rs) lacked comprehensive documentation. Users could not understand how signals translated into trades, how history pending outcomes were resolved, or how synthetic data was formulated using Geometric Brownian Motion.
+**Clarification:** Added extensive module-level (`//!`) and item-level (`///`) documentation outlining the simulation loops, evaluation processes, struct definitions, and executable examples for strategy instantiation and backtesting.
