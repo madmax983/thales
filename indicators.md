@@ -610,3 +610,34 @@ use polars::prelude::*;
 // Parameters: data, rsi_period, stoch_period, k_period, d_period
 let (k_series, d_series) = stoch_rsi::calculate(&df, 14, 14, 3, 3).unwrap();
 ```
+
+## Triple Exponential Moving Average (TEMA)
+
+**Name:** TEMA
+**Description:** Calculates the Triple Exponential Moving Average (TEMA), designed to smooth price fluctuations while reducing the lag associated with traditional Exponential Moving Averages (EMA).
+**Rationale:** Standard EMAs inherently lag price action. TEMA attempts to eliminate this lag by subtracting out the nested EMAs, making it highly responsive to trend changes while still smoothing out noise.
+
+### Implementation Details
+- Uses three passes of the `ema` indicator on the "close" column.
+- Returns a Polars `Series` of `f64` values representing the TEMA.
+- Computes `(3 * EMA1) - (3 * EMA2) + EMA3`.
+
+### Usage
+
+```rust
+use strategies::indicators::tema;
+use polars::prelude::*;
+
+// Assuming df is a DataFrame with a "close" column
+let period = 14;
+let tema_series = tema::calculate(&df, period)?;
+```
+
+### Parameters
+- `data`: Reference to a Polars `DataFrame`. Must contain a numeric "close" column.
+- `period`: The lookback period (typically 9, 14, or 21).
+
+### Output
+- Returns `Result<Series>`.
+- The output Series is named "tema".
+- The first `period * 3 - 2` (approximate) values will be null due to cumulative warmup periods of the nested EMAs.
