@@ -672,3 +672,15 @@ let wma_series = wma::calculate(&df, period)?;
 - Returns `Result<Series>`.
 - The output Series is named "wma".
 - The first `period - 1` values will be null.
+
+## Double Exponential Moving Average (DEMA)
+
+**Name:** DEMA
+**Description:** Calculates the Double Exponential Moving Average.
+**Rationale:** The DEMA is designed to be a faster-moving indicator than the traditional EMA by calculating the EMA of the EMA, and then applying a specific weighting formula to reduce the lag associated with traditional moving averages.
+**Implementation Details:**
+- Uses the formula: `DEMA = (2 * EMA) - EMA(EMA)`.
+- Implemented natively using Polars Series for speed.
+**Usage:** Used in trend-following strategies like `DemaCrossover`.
+**Parameters:**
+- `period`: The lookback period for the exponential moving averages.

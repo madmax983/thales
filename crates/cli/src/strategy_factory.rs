@@ -10,6 +10,7 @@ use strategies::chandelier_exit::{ChandelierExit, ChandelierExitConfig};
 use strategies::connors_rsi_mean_reversion::{
     ConnorsRsiMeanReversion, ConnorsRsiMeanReversionConfig,
 };
+use strategies::dema_crossover::{DemaCrossover, DemaCrossoverConfig};
 use strategies::donchian_breakout::{DonchianBreakout, DonchianBreakoutConfig};
 use strategies::elder_ray::{ElderRay, ElderRayConfig};
 use strategies::ema_crossover::{EmaCrossover, EmaCrossoverConfig};
@@ -328,6 +329,17 @@ pub fn create_strategy(name: &str, symbol: &str) -> Result<Box<dyn Strategy>> {
             };
             Ok(Box::new(ZScoreMeanReversion::new(config)))
         }
+
+        "DemaCrossover" => {
+            let config = DemaCrossoverConfig {
+                short_period: 9,
+                long_period: 21,
+                stop_loss_atr_mult: 2.0,
+                atr_period: 14,
+                symbol: symbol.to_string(),
+            };
+            Ok(Box::new(DemaCrossover::new(config)))
+        }
         "TemaCrossover" => {
             let config = TemaCrossoverConfig {
                 symbol: symbol.to_string(),
@@ -415,6 +427,7 @@ pub fn list_strategies() -> Vec<&'static str> {
         "RocMomentum",
         "MacdRsiTrend",
         "TsiTrend",
+        "DemaCrossover",
         "TemaCrossover",
     ]
 }
