@@ -1,4 +1,5 @@
 pub mod adx;
+pub mod alma;
 pub mod aroon;
 pub mod atr;
 pub mod awesome_oscillator;
