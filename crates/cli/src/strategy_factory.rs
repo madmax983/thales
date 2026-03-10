@@ -35,6 +35,7 @@ use strategies::vwap_reversion::{VwapReversion, VwapReversionConfig};
 use strategies::vwma_crossover::{VwmaCrossover, VwmaCrossoverConfig};
 use strategies::williams_r::{WilliamsR, WilliamsRConfig};
 use strategies::zscore_mean_reversion::{ZScoreMeanReversion, ZScoreMeanReversionConfig};
+use strategies::sma_crossover::{SmaCrossover, SmaCrossoverConfig};
 
 pub fn create_strategy(name: &str, symbol: &str) -> Result<Box<dyn Strategy>> {
     match name {
@@ -335,6 +336,13 @@ pub fn create_strategy(name: &str, symbol: &str) -> Result<Box<dyn Strategy>> {
             };
             Ok(Box::new(TemaCrossover::new(config)))
         }
+        "SmaCrossover" => {
+            let config = SmaCrossoverConfig {
+                symbol: symbol.to_string(),
+                ..Default::default()
+            };
+            Ok(Box::new(SmaCrossover::new(config)))
+        }
         "StochRsiMeanReversion" => {
             let config = StochRsiMeanReversionConfig {
                 symbol: symbol.to_string(),
@@ -416,5 +424,6 @@ pub fn list_strategies() -> Vec<&'static str> {
         "MacdRsiTrend",
         "TsiTrend",
         "TemaCrossover",
+        "SmaCrossover",
     ]
 }
