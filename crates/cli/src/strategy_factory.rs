@@ -1,3 +1,30 @@
+//! A centralized factory for instantiating trading strategies.
+//!
+//! This module acts as the bridge between the CLI engine and the core `strategies` crate.
+//! It maps string identifiers to concrete strategy implementations, providing them with
+//! default configuration parameters.
+//!
+//! # Registration
+//!
+//! Whenever a new strategy is added to the `strategies` crate, it must be registered here
+//! in two places:
+//! 1. The [`create_strategy`] match arm to handle instantiation.
+//! 2. The [`list_strategies`] vector to expose it to the CLI, backtester, and benchmark suite.
+//!
+//! # Examples
+//!
+//! ```
+//! use thales_cli::strategy_factory::{create_strategy, list_strategies};
+//!
+//! // Check available strategies
+//! let strategies = list_strategies();
+//! assert!(strategies.contains(&"EmaCrossover"));
+//!
+//! // Instantiate a specific strategy
+//! let strategy = create_strategy("EmaCrossover", "AAPL").unwrap();
+//! assert_eq!(strategy.name(), "EmaCrossover");
+//! ```
+
 use anyhow::Result;
 use strategies::adx_macd_trend::{AdxMacdTrend, AdxMacdTrendConfig};
 use strategies::adx_momentum::{AdxMomentum, AdxMomentumConfig};
@@ -38,6 +65,21 @@ use strategies::williams_r::{WilliamsR, WilliamsRConfig};
 use strategies::wma_crossover::{WmaCrossover, WmaCrossoverConfig};
 use strategies::zscore_mean_reversion::{ZScoreMeanReversion, ZScoreMeanReversionConfig};
 
+/// Instantiates a trading strategy by name.
+///
+/// This function looks up the provided strategy name and returns an initialized,
+/// heap-allocated [`Strategy`] trait object. Default parameters are used for all
+/// configurations (e.g., standard lengths like 14 for RSI, 20 for Bollinger Bands).
+///
+/// # Arguments
+///
+/// * `name` - The exact PascalCase name of the strategy (e.g., `"Macd"`).
+/// * `symbol` - The trading pair or asset symbol (e.g., `"BTCUSD"`). This is injected
+///   into the strategy config to ensure generated signals correctly identify the asset.
+///
+/// # Errors
+///
+/// Returns an error if the specified `name` does not match any registered strategy.
 pub fn create_strategy(name: &str, symbol: &str) -> Result<Box<dyn Strategy>> {
     match name {
         "AroonOscillator" => {
@@ -405,6 +447,10 @@ pub fn create_strategy(name: &str, symbol: &str) -> Result<Box<dyn Strategy>> {
     }
 }
 
+/// Returns a list of all registered strategy names.
+///
+/// These names correspond exactly to the string literals expected by [`create_strategy`].
+/// This list powers the CLI auto-completion, benchmark suites, and agent scanning.
 pub fn list_strategies() -> Vec<&'static str> {
     vec![
         "AdxMacdTrend",

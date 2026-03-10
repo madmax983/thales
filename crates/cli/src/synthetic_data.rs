@@ -1,20 +1,71 @@
+//! Provides tools for generating synthetic market data for testing and simulations.
+//!
+//! This module uses [Geometric Brownian Motion (GBM)](https://en.wikipedia.org/wiki/Geometric_Brownian_motion)
+//! to simulate realistic price trajectories. It synthesizes full Open, High, Low, Close (OHLC)
+//! bars with randomized volume to allow robust strategy testing without relying solely on historical datasets.
+//!
+//! # Examples
+//!
+//! ```
+//! use thales_cli::synthetic_data::{generate_synthetic_data, SyntheticDataConfig};
+//!
+//! let config = SyntheticDataConfig {
+//!     symbol: "MOCK".to_string(),
+//!     initial_price: 150.0,
+//!     drift: 0.0002,      // Slight upward bias
+//!     volatility: 0.015,  // Daily volatility
+//!     num_bars: 100,      // Generate 100 bars
+//!     timeframe: "1d".to_string(),
+//!     start_time_ms: 1600000000000,
+//! };
+//!
+//! let series = generate_synthetic_data(config).unwrap();
+//! assert_eq!(series.bars.len(), 100);
+//! println!("Generated synthetic data for {}", series.bars[0].symbol);
+//! ```
+
 use anyhow::Result;
 use contracts::{Bar, BarSeries};
 use rand_distr::{Distribution, Normal};
 use serde::{Deserialize, Serialize};
 
-/// Configuration for synthetic data generation.
+/// Configuration for synthetic data generation via Geometric Brownian Motion.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct SyntheticDataConfig {
+    /// The ticker symbol for the generated series (e.g., "SYNTH").
     pub symbol: String,
+    /// The starting price for the first bar.
     pub initial_price: f64,
+    /// The expected return (mu) per time step. A positive value creates an uptrend.
     pub drift: f64,
+    /// The standard deviation (sigma) of returns per time step.
     pub volatility: f64,
+    /// The total number of OHLC bars to generate.
     pub num_bars: usize,
+    /// The string representation of the timeframe (e.g., "1m", "1h", "1d").
     pub timeframe: String,
+    /// The UNIX timestamp (ms) for the first bar.
     pub start_time_ms: i64,
 }
 
+/// Generates a [`BarSeries`] of synthetic market data using Geometric Brownian Motion.
+///
+/// # Process
+///
+/// 1. Iterates `num_bars` times.
+/// 2. Calculates the next `Close` price using the GBM formula:
+///    $S_{t+1} = S_t \exp\left( (\mu - \frac{\sigma^2}{2})\Delta t + \sigma \sqrt{\Delta t} Z \right)$
+///    where $Z$ is a random draw from a standard normal distribution.
+/// 3. Approximates `High` and `Low` prices by adding intra-bar noise scaled by the specified `volatility`.
+/// 4. Generates a randomized `Volume` centered around 1000.
+///
+/// # Arguments
+///
+/// * `config` - The specifications for the generated series.
+///
+/// # Errors
+///
+/// Returns an error if `num_bars` is `0`, or if there's an issue initializing the random number generator.
 pub fn generate_synthetic_data(config: SyntheticDataConfig) -> Result<BarSeries> {
     if config.num_bars == 0 {
         return Err(anyhow::anyhow!("num_bars must be greater than 0"));

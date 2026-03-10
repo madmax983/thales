@@ -1,3 +1,45 @@
+//! Provides a historical backtesting engine for quantitative trading strategies.
+//!
+//! This module allows you to run a trading [`Strategy`] against historical [`BarSeries`] data
+//! to evaluate its performance. It simulates trade execution, tracks open positions, applies
+//! stop-loss and take-profit logic, and generates a comprehensive [`BacktestResult`] containing
+//! equity curves and performance metrics.
+//!
+//! # Core Concepts
+//!
+//! - **Signal Generation:** The engine first passes the entire data series to the strategy to generate
+//!   a list of trading signals.
+//! - **Event-Driven Simulation:** It iterates chronologically bar-by-bar.
+//! - **Execution:** Signals generated on bar $N$ are executed at the Open price of bar $N+1$.
+//! - **Risk Management:** Stop-loss (SL) and take-profit (TP) levels attached to signals are evaluated
+//!   intrabar (using High/Low prices).
+//!
+//! # Examples
+//!
+//! ```no_run
+//! use thales_cli::backtest::{run_backtest, BacktestConfig};
+//! use contracts::{BarSeries, Bar};
+//!
+//! #[tokio::main]
+//! async fn main() {
+//!     let bars = BarSeries {
+//!         schema_version: "v0".to_string(),
+//!         bars: vec![], // Populate with historical data
+//!     };
+//!
+//!     let config = BacktestConfig {
+//!         initial_capital: 10_000.0,
+//!         risk_per_trade: 100.0, // Dollar amount to risk per trade
+//!     };
+//!
+//!     // Run the "EmaCrossover" strategy
+//!     let result = run_backtest(&bars, "EmaCrossover", config).await.unwrap();
+//!
+//!     println!("Final Equity: ${:.2}", result.final_equity);
+//!     println!("Win Rate: {:.2}%", result.metrics.win_rate * 100.0);
+//! }
+//! ```
+
 use crate::strategy_factory;
 use anyhow::Result;
 use contracts::BarSeries;
@@ -5,47 +47,80 @@ use polars::prelude::*;
 use serde::{Deserialize, Serialize};
 use strategies::strategy::{Signal, SignalType};
 
+/// Configuration parameters for a backtest run.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct BacktestConfig {
+    /// The starting account balance in the quote currency (e.g., USD).
     pub initial_capital: f64,
+    /// The maximum dollar amount willing to be lost on a single trade if the stop-loss is hit.
+    /// This is used to dynamically size positions if a signal provides a stop loss.
     pub risk_per_trade: f64,
 }
 
+/// The comprehensive output of a completed backtest simulation.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct BacktestResult {
+    /// The name of the strategy evaluated.
     pub strategy: String,
+    /// The asset symbol traded.
     pub symbol: String,
+    /// The timeframe of the data (e.g., "1d", "1h").
     pub timeframe: String,
+    /// The starting account balance.
     pub initial_capital: f64,
+    /// The ending account balance.
     pub final_equity: f64,
+    /// Aggregate performance statistics.
     pub metrics: BacktestMetrics,
+    /// A chronological ledger of all completed round-trip trades.
     pub trades: Vec<BacktestTrade>,
+    /// Time-series data representing the account balance at each evaluation step.
     pub equity_curve: Vec<EquityPoint>,
 }
 
+/// Key performance indicators (KPIs) summarizing strategy performance.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct BacktestMetrics {
+    /// Total percentage return over the backtest period.
     pub total_return_pct: f64,
+    /// Compound Annual Growth Rate (requires timestamps spanning > 0 days).
     pub cagr: f64,
+    /// The maximum peak-to-trough decline in equity, represented as a positive percentage (e.g., `0.15` for 15%).
     pub max_drawdown_pct: f64,
+    /// The percentage of trades that resulted in a positive PnL (0.0 to 1.0).
     pub win_rate: f64,
+    /// The ratio of gross profit to gross loss. A value > 1.0 indicates profitability.
     pub profit_factor: f64,
+    /// Total number of round-trip trades executed.
     pub total_trades: usize,
+    /// Number of trades with PnL > 0.
     pub winning_trades: usize,
+    /// Number of trades with PnL <= 0.
     pub losing_trades: usize,
 }
 
+/// Represents a single completed round-trip trade (Entry to Exit).
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct BacktestTrade {
+    /// A unique identifier for the trade execution.
     pub id: String,
+    /// The UNIX timestamp (ms) when the position was opened.
     pub entry_time: i64,
+    /// The UNIX timestamp (ms) when the position was closed.
     pub exit_time: i64,
+    /// The direction of the trade (`"long"` or `"short"`).
     pub side: String,
+    /// The number of shares/contracts traded.
     pub qty: f64,
+    /// The execution price at entry.
     pub entry_price: f64,
+    /// The execution price at exit.
     pub exit_price: f64,
+    /// The absolute profit or loss in the quote currency.
     pub pnl: f64,
+    /// The percentage return of the trade relative to the entry price.
     pub pnl_pct: f64,
+    /// The condition that triggered the exit (e.g., "Stop Loss", "Take Profit", "Signal Exit").
     pub exit_reason: String,
 }
 
@@ -74,6 +149,20 @@ struct OpenPosition {
 
 use strategies::strategy::Strategy;
 
+/// Executes a backtest using a registered strategy name.
+///
+/// This is a convenience wrapper around [`run_backtest_with_strategy`] that instantiates
+/// the strategy via the strategy factory.
+///
+/// # Arguments
+///
+/// * `bars` - The historical data series to evaluate. Must not be empty.
+/// * `strategy_name` - The exact registered name of the strategy (e.g., "RsiMeanReversion").
+/// * `config` - Capital and risk settings.
+///
+/// # Errors
+///
+/// Returns an error if the `bars` series is empty or if the `strategy_name` is unknown.
 pub async fn run_backtest(
     bars: &BarSeries,
     strategy_name: &str,
@@ -87,6 +176,20 @@ pub async fn run_backtest(
     run_backtest_with_strategy(bars, strategy, config).await
 }
 
+/// Executes a backtest using an explicit strategy instance.
+///
+/// # Process
+///
+/// 1. The full `BarSeries` is evaluated by the `strategy` to generate a timeline of raw [`Signal`]s.
+/// 2. The simulation iterates chronologically over the bars.
+/// 3. Signals emitted on bar $N$ create pending orders that execute at the Open of bar $N+1$.
+/// 4. Open positions are continuously evaluated against intrabar High/Low prices to trigger
+///    Stop-Loss or Take-Profit conditions.
+/// 5. Upon completion, metrics (Win Rate, Max Drawdown, CAGR) are calculated based on the finalized trade ledger.
+///
+/// # Panics
+///
+/// Intrabar stop-loss logic assumes logical high/low relationships (High >= Low).
 pub async fn run_backtest_with_strategy(
     bars: &BarSeries,
     strategy: Box<dyn Strategy>,

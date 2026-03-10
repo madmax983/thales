@@ -1,3 +1,38 @@
+//! Manages the lifecycle and state of historical trade records.
+//!
+//! This module provides functionality to read, update, and persist past trading signals
+//! (stored as JSON in a history file). It automatically determines if a signal's
+//! intended time horizon has expired and, if so, fetches historical price data to
+//! calculate the actual outcome (return percentage) of the trade.
+//!
+//! # Concepts
+//!
+//! - **History File:** A JSON file containing an array of [`HistoryEntry`] objects.
+//! - **Pending Outcomes:** Entries where `outcome` is `None` represent trades whose horizon
+//!   has not yet elapsed.
+//! - **Outcome Resolution:** Once the `entry_ts + horizon_ms < now`, the system uses the
+//!   provided `fetch_bars` closure to grab market data and calculate the final PnL.
+//!
+//! # Examples
+//!
+//! ```no_run
+//! use thales_cli::history::update_history;
+//! use std::path::Path;
+//! use contracts::Bar;
+//! use anyhow::Result;
+//!
+//! // A dummy fetch function that always returns empty data
+//! fn dummy_fetch(symbol: &str, timeframe: &str) -> Result<Vec<Bar>> {
+//!     Ok(vec![])
+//! }
+//!
+//! let history_path = Path::new("history.json");
+//!
+//! // Updates the history file in-place and returns the number of newly resolved trades
+//! let resolved_count = update_history(history_path, dummy_fetch).unwrap();
+//! println!("Resolved {} pending trades.", resolved_count);
+//! ```
+
 use crate::search_history::HistoryEntry;
 use anyhow::{Context, Result};
 use contracts::Bar;
@@ -24,6 +59,23 @@ fn parse_horizon(h: &str) -> i64 {
     86_400_000
 }
 
+/// Scans the history file for expired trades and updates their outcomes.
+///
+/// This function iterates through all [`HistoryEntry`] objects in the specified file.
+/// If an entry lacks an outcome and its intended duration (horizon) has passed, the function
+/// invokes `fetch_bars` to get the price data covering the trade period. It calculates the
+/// return percentage based on the Open price near the signal time and the Close price near
+/// the exit time, updates the entry, and writes the modified array back to disk.
+///
+/// # Arguments
+///
+/// * `history_path` - The path to the JSON history file. If the file doesn't exist, returns `0`.
+/// * `fetch_bars` - A closure or function pointer that takes a `symbol` and `timeframe`
+///   (e.g., "1h") and returns a `Result<Vec<Bar>>`.
+///
+/// # Returns
+///
+/// The number of history entries that were successfully updated with a new outcome.
 pub fn update_history<F>(history_path: &Path, fetch_bars: F) -> Result<usize>
 where
     F: Fn(&str, &str) -> Result<Vec<Bar>>,
