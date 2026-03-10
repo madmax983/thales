@@ -641,3 +641,35 @@ let tema_series = tema::calculate(&df, period)?;
 - Returns `Result<Series>`.
 - The output Series is named "tema".
 - The first `period * 3` values will be null.
+
+## Hull Moving Average (HMA)
+
+**Name:** Hull Moving Average (HMA)
+**Description:** Calculates the Hull Moving Average, an indicator designed to reduce the lag of traditional moving averages while retaining its smoothness.
+**Rationale:** Used as a moving average that is extremely responsive and fast, which makes it excellent for trend identification while staying close to the price.
+
+### Implementation Details
+- Uses `f64` and `rust_decimal::Decimal` internally for precision.
+- Built on top of Weighted Moving Average (WMA).
+- Formula: `HMA = WMA(2 * WMA(n/2) - WMA(n), sqrt(n))`.
+- Returns a Polars `Series` of `f64` values representing the HMA.
+
+### Usage
+
+```rust
+use strategies::indicators::hull_moving_average;
+use polars::prelude::*;
+
+// Assuming df is a DataFrame with a "close" column
+let period = 14;
+let hma_series = hull_moving_average::calculate(&df, period)?;
+```
+
+### Parameters
+- `data`: Reference to a Polars `DataFrame`. Must contain a numeric "close" column.
+- `period`: The lookback period (must be at least 2).
+
+### Output
+- Returns `Result<Series>`.
+- The output Series is named "hma".
+- The first several values will be null depending on the period.
