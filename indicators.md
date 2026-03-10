@@ -610,3 +610,33 @@ use polars::prelude::*;
 // Parameters: data, rsi_period, stoch_period, k_period, d_period
 let (k_series, d_series) = stoch_rsi::calculate(&df, 14, 14, 3, 3).unwrap();
 ```
+
+## Weighted Moving Average (WMA)
+
+**Name:** WMA
+**Description:** Calculates the Weighted Moving Average of price data over a specified lookback period. It places a greater weight on the most recent data points using linearly decreasing weights.
+**Rationale:** A trend-following indicator that responds more quickly to recent price changes than a simple moving average (SMA) by assigning linearly higher weights to newer data.
+
+### Implementation Details
+- Uses `rust_decimal::Decimal` for precision.
+- Returns a Polars `Series` of `f64` values.
+
+### Usage
+
+```rust
+use strategies::indicators::wma;
+use polars::prelude::*;
+
+// Assuming df is a DataFrame with a "close" column
+let period = 14;
+let wma_series = wma::calculate(&df, period)?;
+```
+
+### Parameters
+- `data`: Reference to a Polars `DataFrame`. Must contain a numeric column named "close".
+- `period`: The size of the moving window (must be > 0).
+
+### Output
+- Returns `Result<Series>`.
+- The output Series is named "wma".
+- The first `period - 1` values will be null.
