@@ -25,13 +25,17 @@ def run_command(args):
     return None
 
 def format_signal(intent):
-    direction = "Long" if intent['side'] == "buy" else "Short"
+    direction = "long" if intent['side'] == "buy" else "short"
     strength = intent.get('confidence', 0.0) * 100
     size = intent.get('size_hint', '0')
     sl = intent.get('stop_loss', 'None')
     tp = intent.get('take_profit', 'None')
     reason = intent.get('rationale', 'No reason provided.')
     signal_type = intent.get('signal_type', 'Entry')
+
+    # Clean up Rust enum string if present (e.g. SignalType::Entry -> Entry)
+    if "SignalType::" in signal_type:
+        signal_type = signal_type.replace("SignalType::", "")
 
     output = f"- Symbol and direction (long/short): {intent['symbol']} ({direction})\n"
     output += f"- Signal type and strength (0-100%): {signal_type}, Strength: {strength:.1f}%\n"
@@ -90,7 +94,8 @@ def main():
             intents = run_command(args)
             if intents:
                 for intent in intents:
-                    if intent.get("signal_type") == "Entry" and (not intent.get("stop_loss") or intent.get("stop_loss") == "None"):
+                    # Filter: Only allow Entry signals that have a valid stop loss
+                    if intent.get("signal_type") in ["Entry", "SignalType::Entry"] and (not intent.get("stop_loss") or intent.get("stop_loss") == "None"):
                         continue
 
                     # All signals must go through Risk Agent before execution
