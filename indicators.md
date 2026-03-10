@@ -672,3 +672,29 @@ let wma_series = wma::calculate(&df, period)?;
 - Returns `Result<Series>`.
 - The output Series is named "wma".
 - The first `period - 1` values will be null.
+
+## Double Exponential Moving Average (DEMA)
+
+**Name:** DEMA
+**Description:** Calculates the Double Exponential Moving Average, which is designed to reduce the lag inherent in traditional moving averages by subtracting a smoothed EMA from a doubled EMA.
+**Rationale:** Standard trend-following indicator used to smooth out price data and identify the direction of the trend, with less lag than SMA or EMA.
+
+### Implementation Details
+- Uses `rust_decimal::Decimal` for all internal financial calculations to ensure precision and avoid floating-point inaccuracies.
+- Employs vectorized operations via Polars where appropriate, and processes EMA results safely without `unwrap()`.
+- Implements edge cases correctly, returning empty or appropriately-sized structures with nulls for invalid periods.
+
+### Usage
+
+```rust
+use strategies::indicators::dema;
+use polars::prelude::*;
+
+// Assuming df is a DataFrame with a "close" column
+let period = 14;
+let dema_series = dema::calculate(&df, period)?;
+```
+
+### Parameters
+- `data`: Reference to a Polars `DataFrame`. Must contain a numeric column named "close".
+- `period`: The size of the moving window (must be > 0).
