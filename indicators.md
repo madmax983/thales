@@ -641,3 +641,33 @@ let tema_series = tema::calculate(&df, period)?;
 - Returns `Result<Series>`.
 - The output Series is named "tema".
 - The first `period * 3` values will be null.
+
+## Weighted Moving Average (WMA)
+
+**Name:** WMA
+**Description:** Calculates the Weighted Moving Average, an indicator designed to place more significance on recent price data compared to older data, reducing the lag inherent in simple moving averages.
+**Rationale:** Used as an alternative to simple moving averages for trend identification, providing a faster response to price changes by assigning linearly decreasing weights to older prices.
+
+### Implementation Details
+- Uses `rust_decimal::Decimal` for all internal calculations to ensure precision.
+- Returns a Polars `Series` of `f64` values representing the WMA.
+
+### Usage
+
+```rust
+use strategies::indicators::wma;
+use polars::prelude::*;
+
+// Assuming df is a DataFrame with a "close" column
+let period = 14;
+let wma_series = wma::calculate(&df, period)?;
+```
+
+### Parameters
+- `data`: Reference to a Polars `DataFrame`. Must contain a numeric "close" column.
+- `period`: The lookback period (must be > 0).
+
+### Output
+- Returns `Result<Series>`.
+- The output Series is named "wma".
+- The first `period - 1` values will be null.
