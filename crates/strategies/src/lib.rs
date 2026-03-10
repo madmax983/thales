@@ -30,6 +30,7 @@ pub mod cci_momentum;
 pub mod chaikin_money_flow;
 pub mod chandelier_exit;
 pub mod connors_rsi_mean_reversion;
+pub mod dema_crossover;
 pub mod donchian_breakout;
 pub mod elder_ray;
 pub mod ema_crossover;

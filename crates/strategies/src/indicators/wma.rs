@@ -42,9 +42,7 @@ pub fn calculate(data: &DataFrame, period: usize) -> Result<Series> {
         .context("DataFrame must contain 'close' column")?
         .cast(&DataType::Float64)?;
 
-    let close = close_s
-        .f64()
-        .context("Close column must be numeric")?;
+    let close = close_s.f64().context("Close column must be numeric")?;
 
     // Pre-extract into contiguous Vec<Option<Decimal>>
     let decimal_close: Vec<Option<Decimal>> = close
@@ -62,7 +60,8 @@ pub fn calculate(data: &DataFrame, period: usize) -> Result<Series> {
 
     // Sum of weights: n*(n+1)/2
     let denominator_usize = (period * (period + 1)) / 2;
-    let denominator = Decimal::from_usize(denominator_usize).context("Invalid period for WMA calculation")?;
+    let denominator =
+        Decimal::from_usize(denominator_usize).context("Invalid period for WMA calculation")?;
 
     for i in (period - 1)..decimal_close.len() {
         let mut sum = Decimal::ZERO;
