@@ -14,6 +14,8 @@ use thales_cli::{
 };
 
 #[cfg(feature = "nova")]
+use thales_cli::black_swan;
+#[cfg(feature = "nova")]
 use thales_cli::entropy;
 #[cfg(feature = "nova")]
 use thales_cli::fear_and_greed;
@@ -270,6 +272,21 @@ enum Commands {
         num_bars: usize,
         #[arg(long, default_value = "1d")]
         timeframe: String,
+    },
+    #[cfg(feature = "nova")]
+    SimulateBlackSwan {
+        #[arg(long)]
+        input: PathBuf,
+        #[arg(long)]
+        event_type: String,
+        #[arg(long)]
+        start_index: usize,
+        #[arg(long)]
+        duration: usize,
+        #[arg(long)]
+        multiplier: Option<f64>,
+        #[arg(long)]
+        seed: Option<u64>,
     },
 }
 
@@ -1124,6 +1141,68 @@ fn run(command: Commands, raw: bool) -> Result<String, CliError> {
                 .map_err(|e| CliError::Validation(e.to_string()))?;
 
             ok_envelope(series, vec![], raw)
+        }
+        #[cfg(feature = "nova")]
+        Commands::SimulateBlackSwan {
+            input,
+            event_type,
+            start_index,
+            duration,
+            multiplier,
+            seed,
+        } => {
+            let file_content = fs::read_to_string(&input)?;
+            let series: BarSeries =
+                match serde_json::from_str::<ResponseEnvelope<BarSeries>>(&file_content) {
+                    Ok(envelope) => envelope
+                        .data
+                        .ok_or(CliError::Validation("Envelope has no data".to_string()))?,
+                    Err(_) => serde_json::from_str::<BarSeries>(&file_content)?,
+                };
+
+            let mult = multiplier.unwrap_or(match event_type.as_str() {
+                "FlashCrash" => 0.30,      // 30% drop
+                "VolatilitySpike" => 5.0,  // 5x volatility
+                "LiquidityFreeze" => 0.05, // 95% volume drop
+                _ => {
+                    return Err(CliError::Validation(format!(
+                        "Unknown event_type: {}",
+                        event_type
+                    )));
+                }
+            });
+
+            let event = match event_type.as_str() {
+                "FlashCrash" => black_swan::BlackSwanEvent::FlashCrash {
+                    drop_pct: mult,
+                    duration_bars: duration,
+                },
+                "VolatilitySpike" => black_swan::BlackSwanEvent::VolatilitySpike {
+                    multiplier: mult,
+                    duration_bars: duration,
+                },
+                "LiquidityFreeze" => black_swan::BlackSwanEvent::LiquidityFreeze {
+                    volume_multiplier: mult,
+                    duration_bars: duration,
+                },
+                _ => {
+                    return Err(CliError::Validation(format!(
+                        "Unknown event_type: {}",
+                        event_type
+                    )));
+                }
+            };
+
+            let config = black_swan::BlackSwanConfig {
+                event,
+                start_index,
+                seed,
+            };
+
+            let modified_series = black_swan::inject_black_swan(&series, config)
+                .map_err(|e| CliError::Validation(e.to_string()))?;
+
+            ok_envelope(modified_series, vec![], raw)
         }
     }
 }
