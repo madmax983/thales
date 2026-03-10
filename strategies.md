@@ -2337,3 +2337,74 @@ pub struct TemaCrossoverConfig {
 ### Performance
 - TEMA and ATR calculations are O(N).
 - Signal generation loop is O(N).
+
+---
+
+# Trading Strategy: MACD Histogram Reversal
+
+## Strategy Specification
+
+**Name:** MacdHistogramReversal
+
+**Description:** Anticipates trend changes by looking for the MACD histogram to change direction (tick up while below zero, or tick down while above zero), indicating a shift in momentum before the actual MACD/Signal lines cross.
+
+**Rationale:** The histogram measures the distance between the MACD line and its Signal line. A contracting histogram often precedes a crossover, providing an earlier entry signal. This allows traders to get in ahead of the traditional MACD signal line crossover.
+
+## Requirements
+
+### Implementation Details
+- Uses Polars for data analysis.
+- Implements the `Strategy` trait in Rust.
+- Uses `macd` and `atr` indicators.
+
+### Strategy Type
+Momentum
+
+### Entry Conditions
+- **Long Entry (Buy):** Histogram is below zero, reached a bottom (prev < prev_prev), and ticked up (current > prev).
+- **Short Entry (Sell):** Histogram is above zero, reached a peak (prev > prev_prev), and ticked down (current < prev).
+
+### Exit Conditions
+- **Long Exit (Sell):** Histogram ticks down (current < prev) OR Stop Loss hit.
+- **Short Exit (Buy):** Histogram ticks up (current > prev) OR Stop Loss hit.
+- **Stop Loss:** Entry Price +/- (ATR * `stop_loss_atr_mult`).
+
+### Position Sizing
+- **Size Hint:** "100" (fixed units) or "max" (for exits).
+
+## Code Pattern
+
+```rust
+use crate::strategy::{Strategy, StrategyConfig, Signal, SignalType};
+use crate::indicators::{atr, macd};
+use polars::prelude::*;
+use async_trait::async_trait;
+use anyhow::Result;
+
+pub struct MacdHistogramReversal {
+    config: MacdHistogramReversalConfig,
+}
+
+#[derive(Debug, Clone, serde::Deserialize)]
+pub struct MacdHistogramReversalConfig {
+    pub macd_fast_period: usize,
+    pub macd_slow_period: usize,
+    pub macd_signal_period: usize,
+    pub stop_loss_atr_mult: f64,
+    pub atr_period: usize,
+    pub symbol: String,
+}
+```
+
+## Critical Considerations
+
+### Risk Management Integration
+- **Stop Loss:** Uses ATR-based stop loss to adapt to volatility and avoid getting stopped out by normal noise.
+
+### Backtesting Requirements
+- Accepts `DataFrame` with historical data containing "close".
+- Requires data length > `macd_slow_period + macd_signal_period`.
+
+### Performance
+- MACD and ATR calculations are O(N).
+- Signal generation loop is O(N).
