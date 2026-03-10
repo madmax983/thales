@@ -23,6 +23,7 @@ use strategies::obv_trend::{ObvTrendFollowing, ObvTrendFollowingConfig};
 use strategies::parabolic_sar::{ParabolicSar, ParabolicSarConfig};
 use strategies::roc_momentum::{RocMomentum, RocMomentumConfig};
 use strategies::rsi_mean_reversion::{RsiMeanReversion, RsiMeanReversionConfig};
+use strategies::sma_crossover::{SmaCrossover, SmaCrossoverConfig};
 use strategies::stoch_rsi_mean_reversion::{StochRsiMeanReversion, StochRsiMeanReversionConfig};
 use strategies::stochastic_oscillator::{StochasticOscillator, StochasticOscillatorConfig};
 use strategies::strategy::Strategy;
@@ -335,6 +336,13 @@ pub fn create_strategy(name: &str, symbol: &str) -> Result<Box<dyn Strategy>> {
             };
             Ok(Box::new(TemaCrossover::new(config)))
         }
+        "SmaCrossover" => {
+            let config = SmaCrossoverConfig {
+                symbol: symbol.to_string(),
+                ..Default::default()
+            };
+            Ok(Box::new(SmaCrossover::new(config)))
+        }
         "StochRsiMeanReversion" => {
             let config = StochRsiMeanReversionConfig {
                 symbol: symbol.to_string(),
@@ -416,5 +424,6 @@ pub fn list_strategies() -> Vec<&'static str> {
         "MacdRsiTrend",
         "TsiTrend",
         "TemaCrossover",
+        "SmaCrossover",
     ]
 }

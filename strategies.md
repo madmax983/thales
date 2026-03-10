@@ -2337,3 +2337,72 @@ pub struct TemaCrossoverConfig {
 ### Performance
 - TEMA and ATR calculations are O(N).
 - Signal generation loop is O(N).
+
+---
+
+# Trading Strategy: SMA Crossover
+
+## Strategy Specification
+
+**Name:** SmaCrossover
+
+**Description:** A trend-following strategy that generates signals based on the crossover of two Simple Moving Averages (SMA) of different periods.
+
+**Rationale:** Moving averages smooth out price data to help identify the direction of the trend. A crossover between a fast SMA and a slow SMA is a classic and robust way to detect a potential shift in the trend. When the fast SMA crosses above the slow SMA, it signals a bullish trend. When it crosses below, it signals a bearish trend.
+
+## Requirements
+
+### Implementation Details
+- Uses Polars for data analysis.
+- Implements the `Strategy` trait in Rust.
+- Uses `sma` and `atr` indicators.
+
+### Strategy Type
+TrendFollowing
+
+### Entry Conditions
+- **Long Entry (Buy):** Short SMA crosses ABOVE Long SMA.
+
+### Exit Conditions
+- **Long Exit (Sell):** Short SMA crosses BELOW Long SMA.
+- **Stop Loss:** Entry Price - (ATR * `stop_loss_atr_mult`).
+
+### Position Sizing
+- **Size Hint:** "100" (fixed units) or "max" (for exits).
+
+## Code Pattern
+
+```rust
+use crate::strategy::{Strategy, StrategyConfig, Signal, SignalType};
+use crate::indicators::{atr, sma};
+use polars::prelude::*;
+use async_trait::async_trait;
+use anyhow::Result;
+
+pub struct SmaCrossover {
+    config: SmaCrossoverConfig,
+}
+
+#[derive(Debug, Clone, serde::Deserialize)]
+pub struct SmaCrossoverConfig {
+    pub short_period: usize,
+    pub long_period: usize,
+    pub stop_loss_atr_mult: f64,
+    pub atr_period: usize,
+    pub symbol: String,
+}
+```
+
+## Critical Considerations
+
+### Risk Management Integration
+- **Stop Loss:** Uses ATR-based stop loss for dynamic risk control.
+- **Trend Filter:** A pure crossover strategy may generate false signals in ranging markets. Using longer periods can help filter out noise but adds lag.
+
+### Backtesting Requirements
+- Accepts `DataFrame` with historical data containing "close".
+- Requires data length > `long_period`.
+
+### Performance
+- SMA and ATR calculations are O(N).
+- Signal generation loop is O(N).
