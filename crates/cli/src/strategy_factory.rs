@@ -17,6 +17,7 @@ use strategies::ichimoku_cloud::{IchimokuCloud, IchimokuCloudConfig};
 use strategies::keltner_channel_breakout::{KeltnerChannelBreakout, KeltnerChannelBreakoutConfig};
 use strategies::linear_regression_trend::{LinearRegressionTrend, LinearRegressionTrendConfig};
 use strategies::macd::{Macd, MacdConfig};
+use strategies::macd_crossover::{MacdCrossover, MacdCrossoverConfig};
 use strategies::macd_rsi::{MacdRsiTrend, MacdRsiTrendConfig};
 use strategies::money_flow_index::{MoneyFlowIndex, MoneyFlowIndexConfig};
 use strategies::obv_trend::{ObvTrendFollowing, ObvTrendFollowingConfig};
@@ -117,6 +118,17 @@ pub fn create_strategy(name: &str, symbol: &str) -> Result<Box<dyn Strategy>> {
                 symbol: symbol.to_string(),
             };
             Ok(Box::new(Macd::new(config)))
+        }
+        "MacdCrossover" => {
+            let config = MacdCrossoverConfig {
+                fast_period: 12,
+                slow_period: 26,
+                signal_period: 9,
+                atr_period: 14,
+                stop_loss_atr_mult: 2.0,
+                symbol: symbol.to_string(),
+            };
+            Ok(Box::new(MacdCrossover::new(config)))
         }
         "Supertrend" => {
             let config = SupertrendConfig {
@@ -391,6 +403,7 @@ pub fn list_strategies() -> Vec<&'static str> {
         "EmaCrossover",
         "RsiMeanReversion",
         "Macd",
+        "MacdCrossover",
         "Supertrend",
         "DonchianBreakout",
         "ParabolicSar",

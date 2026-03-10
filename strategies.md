@@ -2185,6 +2185,62 @@ pub struct TrixMomentumConfig {
 
 ---
 
+# Trading Strategy: MacdCrossover
+
+## Strategy Specification
+
+**Name:** MacdCrossover
+
+**Description:** A momentum strategy based on the Moving Average Convergence Divergence (MACD) indicator. It triggers buy signals when the MACD line crosses above the signal line (bullish crossover) and sell signals when the MACD line crosses below the signal line (bearish crossover).
+
+**Rationale:** The MACD crossover is a classic trend-following and momentum indicator. When the faster MACD line crosses above the slower signal line, it suggests upward momentum is accelerating. Conversely, a bearish crossover suggests downward momentum is taking over.
+
+## Requirements
+
+### Implementation Details
+- Uses Polars for data analysis.
+- Implements the `Strategy` trait in Rust.
+- Uses `macd` and `atr` indicators for calculation.
+
+### Strategy Type
+Momentum
+
+### Entry Conditions
+- **Long Entry (Buy):** MACD Line crosses above MACD Signal Line
+
+### Exit Conditions
+- **Long Exit (Sell):** MACD Line crosses below MACD Signal Line
+
+### Position Sizing
+- **Size Hint:** "100" (fixed units) or "max" (for exits).
+- Uses ATR-based dynamic stop-loss to manage risk.
+
+## Code Pattern
+
+```rust
+use crate::strategy::{Strategy, StrategyConfig, Signal, SignalType};
+use polars::prelude::*;
+use async_trait::async_trait;
+use anyhow::Result;
+
+pub struct MacdCrossover {
+    config: MacdCrossoverConfig,
+}
+
+#[derive(Debug, Clone, serde::Deserialize)]
+pub struct MacdCrossoverConfig {
+    pub fast_period: usize,
+    pub slow_period: usize,
+    pub signal_period: usize,
+    pub atr_period: usize,
+    pub stop_loss_atr_mult: f64,
+    pub symbol: String,
+}
+// ... implementation details ...
+```
+
+---
+
 # Trading Strategy: TSI Trend
 
 ## Strategy Specification
