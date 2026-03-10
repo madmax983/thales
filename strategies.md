@@ -2268,3 +2268,37 @@ pub struct TsiTrendConfig {
 - **Entry Short:** `%K` crosses below `%D` while both are above the `overbought_threshold` (default 80).
 - **Exit Long:** Price hits stop loss (ATR-based) OR `%K` crosses below `%D` above the `overbought_threshold`.
 - **Exit Short:** Price hits stop loss (ATR-based) OR `%K` crosses above `%D` below the `oversold_threshold`.
+
+# Trading Strategy: TemaCrossover
+
+## Strategy Specification
+
+**Name:** TemaCrossover
+
+**Description:** A trend-following strategy that generates trade signals based on the crossover of two Triple Exponential Moving Averages (TEMA) with different lookback periods.
+
+**Rationale:** Using a short and long TEMA reduces the lag of a standard EMA. A bullish signal is generated when the short TEMA crosses above the long TEMA, and a bearish signal is generated when the short TEMA crosses below the long TEMA.
+
+## Requirements
+
+### Implementation Details
+- Uses Polars for data analysis.
+- Calculates two TEMAs based on `short_window` and `long_window`.
+- Dynamically computes position size hints based on recent ATR volatility data.
+
+### Strategy Type
+Trend Following
+
+### Entry Conditions
+- **Long Entry (Buy):** Short TEMA > Long TEMA and Previous Short TEMA <= Previous Long TEMA
+
+### Exit Conditions
+- **Long Exit (Sell):** Short TEMA < Long TEMA and Previous Short TEMA >= Previous Long TEMA
+
+### Position Sizing
+- **Size Hint:** "100" or equivalent unit size. Stop loss is determined primarily by ATR (Current Price - (ATR * ATR_Multiplier)).
+
+### Backtesting Requirements
+- **Expected Win Rate:** 45-55%
+- **Expected Sharpe Ratio:** 1.0 - 1.5
+- **Max Drawdown:** 15-20%

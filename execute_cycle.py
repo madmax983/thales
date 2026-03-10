@@ -30,6 +30,7 @@ MEAN_REVERSION_STRATEGIES = {
 TREND_FOLLOWING_STRATEGIES = {
     "LinearRegressionTrend",
     "ParabolicSar",
+    "TemaCrossover",
     "EmaCrossover",
     "AdxMacdTrend",
     "Supertrend",

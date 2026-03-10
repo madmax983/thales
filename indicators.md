@@ -610,3 +610,24 @@ use polars::prelude::*;
 // Parameters: data, rsi_period, stoch_period, k_period, d_period
 let (k_series, d_series) = stoch_rsi::calculate(&df, 14, 14, 3, 3).unwrap();
 ```
+
+## Triple Exponential Moving Average (TEMA)
+
+**Name:** TEMA
+**Description:** Calculates the Triple Exponential Moving Average (TEMA) of price data over a specified lookback period to reduce lag compared to a traditional EMA.
+**Rationale:** Standard trend-following indicator designed to react faster to price changes than EMA or SMA.
+
+### Implementation Details
+- TEMA = (3 * EMA1) - (3 * EMA2) + EMA3
+- Built using the existing EMA indicator.
+- Returns a Polars `Series` of `f64` values.
+
+### Usage
+
+```rust
+use strategies::indicators::tema;
+use polars::prelude::*;
+
+let data = DataFrame::new(vec![Series::new("close", &[1.0, 2.0, 3.0])]).unwrap();
+let tema_series = tema::calculate(&data, 14).unwrap();
+```
