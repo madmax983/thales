@@ -719,3 +719,33 @@ let alma_series = alma::calculate(&df, period, offset, sigma)?;
 - Returns `Result<Series>`.
 - The output Series is named "alma".
 - The first `period - 1` values will be null.
+
+## Chande Momentum Oscillator (CMO)
+
+**Name:** CMO
+**Description:** Calculates the Chande Momentum Oscillator, which measures the momentum of a given asset.
+**Rationale:** Used as a momentum indicator that ranges between -100 and +100 to identify overbought or oversold conditions, similar to RSI but uses differences in gains vs. losses over total movement.
+
+### Implementation Details
+- Uses `rust_decimal::Decimal` for all internal calculations to ensure precision.
+- Returns a Polars `Series` of `f64` values (computed internally via Decimal).
+
+### Usage
+
+```rust
+use strategies::indicators::cmo;
+use polars::prelude::*;
+
+// Assuming df is a DataFrame with a "close" column
+let period = 9;
+let cmo_series = cmo::calculate(&df, period)?;
+```
+
+### Parameters
+- `data`: Reference to a Polars `DataFrame`. Must contain a numeric "close" column.
+- `period`: The lookback period (typically 9 or 14).
+
+### Output
+- Returns `Result<Series>`.
+- The output Series is named "cmo".
+- The first `period` values will be null.
