@@ -2406,3 +2406,35 @@ pub struct DemaCrossoverConfig {
 ### Performance
 - DEMA and ATR calculations are O(N).
 - Signal generation loop is O(N).
+
+---
+
+# Trading Strategy: WMA Crossover
+
+## Strategy Specification
+
+**Name:** WmaCrossover
+
+**Description:** A trend-following strategy that utilizes the crossover of two Weighted Moving Averages (WMA). It buys when a shorter-period WMA crosses above a longer-period WMA, and sells when the shorter-period WMA crosses below the longer-period WMA.
+
+**Rationale:** The Weighted Moving Average assigns greater weight to more recent data points compared to a Simple Moving Average (SMA), allowing it to react more quickly to recent price changes. This makes the WMA Crossover strategy effective at capturing new trends early while filtering out some lag inherent in standard SMA crossovers.
+
+## Requirements
+
+### Implementation Details
+- Uses Polars for data analysis.
+- Implements the `Strategy` trait in Rust.
+- Utilizes the `wma::calculate` indicator logic.
+
+### Strategy Type
+Trend Following
+
+### Entry Conditions
+- **Long Entry (Buy):** Short WMA crosses above the Long WMA.
+
+### Exit Conditions
+- **Long Exit (Sell):** Short WMA crosses below the Long WMA or the dynamic ATR-based Stop Loss is triggered.
+
+### Position Sizing
+- **Size Hint:** "100" (fixed units) for entry, "max" for exits.
+- Relies on risk management downstream to size appropriately.

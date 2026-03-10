@@ -63,7 +63,12 @@ pub fn calculate(data: &DataFrame, period: usize) -> Result<Series> {
     let denominator =
         Decimal::from_usize(denominator_usize).context("Invalid period for WMA calculation")?;
 
-    for i in (period - 1)..decimal_close.len() {
+    for (i, wma_out) in wma_values
+        .iter_mut()
+        .enumerate()
+        .take(decimal_close.len())
+        .skip(period - 1)
+    {
         let mut sum = Decimal::ZERO;
         let mut valid = true;
 
@@ -93,7 +98,7 @@ pub fn calculate(data: &DataFrame, period: usize) -> Result<Series> {
 
         if valid {
             let wma = sum / denominator;
-            wma_values[i] = wma.to_f64();
+            *wma_out = wma.to_f64();
         }
     }
 

@@ -51,6 +51,7 @@ TREND_FOLLOWING_STRATEGIES = {
     "ChandelierExit",
     "ObvTrendFollowing",
     "TsiTrend",
+    "WmaCrossover",
 }
 BREAKOUT_STRATEGIES = {
     "Supertrend",

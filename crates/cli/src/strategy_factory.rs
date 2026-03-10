@@ -35,6 +35,7 @@ use strategies::vortex_breakout::{VortexBreakout, VortexBreakoutConfig};
 use strategies::vwap_reversion::{VwapReversion, VwapReversionConfig};
 use strategies::vwma_crossover::{VwmaCrossover, VwmaCrossoverConfig};
 use strategies::williams_r::{WilliamsR, WilliamsRConfig};
+use strategies::wma_crossover::{WmaCrossover, WmaCrossoverConfig};
 use strategies::zscore_mean_reversion::{ZScoreMeanReversion, ZScoreMeanReversionConfig};
 
 pub fn create_strategy(name: &str, symbol: &str) -> Result<Box<dyn Strategy>> {
@@ -298,6 +299,16 @@ pub fn create_strategy(name: &str, symbol: &str) -> Result<Box<dyn Strategy>> {
             };
             Ok(Box::new(VwmaCrossover::new(config)))
         }
+        "WmaCrossover" => {
+            let config = WmaCrossoverConfig {
+                short_window: 9,
+                long_window: 21,
+                stop_loss_atr_mult: 2.0,
+                atr_period: 14,
+                symbol: symbol.to_string(),
+            };
+            Ok(Box::new(WmaCrossover::new(config)))
+        }
         "VwapReversion" => {
             let config = VwapReversionConfig {
                 vwma_period: 20,
@@ -429,5 +440,6 @@ pub fn list_strategies() -> Vec<&'static str> {
         "TsiTrend",
         "DemaCrossover",
         "TemaCrossover",
+        "WmaCrossover",
     ]
 }
