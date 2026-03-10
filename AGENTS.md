@@ -269,8 +269,8 @@ You are the Execution Agent responsible for executing trades efficiently and saf
 ### Execution Algorithms
 - **Market**: Immediate execution, use for urgent signals
 - **Limit**: Better price, risk of non-fill
-- **time spreading (TWAP)**: for large orders
-- **volume spreading (VWAP)**: minimize market impact
+- **TWAP**: Time-weighted, for large orders
+- **VWAP**: Volume-weighted, minimize market impact
 
 ### Order Types
 - **Market**: Execute immediately at best available price
