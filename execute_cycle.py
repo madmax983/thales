@@ -33,6 +33,7 @@ TREND_FOLLOWING_STRATEGIES = {
     "EmaCrossover",
     "AdxMacdTrend",
     "Supertrend",
+    "SupertrendEmaCrossover",
     "KeltnerChannelBreakout",
     "DonchianBreakout",
     "ChaikinMoneyFlow",

@@ -2438,3 +2438,43 @@ Trend Following
 ### Position Sizing
 - **Size Hint:** "100" (fixed units) for entry, "max" for exits.
 - Relies on risk management downstream to size appropriately.
+
+---
+
+# Trading Strategy: SupertrendEmaCrossover
+
+## Strategy Specification
+
+**Name:** SupertrendEmaCrossover
+
+**Description:** A trend-following strategy that combines the Supertrend indicator and Exponential Moving Average (EMA) crossovers. It goes long when the Supertrend indicates an uptrend and the short-term EMA is above the long-term EMA, and goes short when the Supertrend indicates a downtrend and the short-term EMA is below the long-term EMA.
+
+**Rationale:** Supertrend clearly identifies the main trend, reducing false signals. EMA crossovers improve sensitivity to trend changes. Combining the two provides additional confirmation for entries, thus increasing reliability.
+
+## Requirements
+
+### Implementation Details
+- Uses Polars for data analysis.
+- Implements the `Strategy` trait in Rust.
+- Uses sliding window EMA calculation and ATR-based Supertrend.
+
+### Strategy Type
+Trend Following
+
+### Entry Conditions
+- **Long:** Supertrend indicates an uptrend (1) AND Short EMA crosses ABOVE Long EMA.
+- **Short:** Supertrend indicates a downtrend (-1) AND Short EMA crosses BELOW Long EMA.
+
+### Exit Conditions
+- **Exit Long:** Short EMA crosses BELOW Long EMA.
+- **Exit Short:** Short EMA crosses ABOVE Long EMA.
+
+### Position Sizing
+- Entries use a generic size hint of "100".
+- Exits use a size hint of "max" to close the entire position.
+- Includes dynamic stop-loss derived from the Average True Range (ATR).
+
+### Backtesting Requirements
+- **Expected Win Rate:** 45-55% (trend-following strategies typically have lower win rates but higher reward-to-risk ratios).
+- **Sharpe Ratio:** Expected > 1.2 in trending markets.
+- **Max Drawdown:** Expected to be controlled (<15%) due to ATR-based dynamic stop losses and Supertrend filtering.
