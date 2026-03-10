@@ -3,6 +3,8 @@ import json
 import os
 import datetime
 
+from execute_cycle import verify_risk
+
 CLI_PATH = "./target/release/thales-cli"
 HISTORY_PATH = "history.json"
 
@@ -90,6 +92,13 @@ def main():
                 for intent in intents:
                     if intent.get("signal_type") == "Entry" and (not intent.get("stop_loss") or intent.get("stop_loss") == "None"):
                         continue
+
+                    # All signals must go through Risk Agent before execution
+                    risk_ok, risk_reason = verify_risk(intent)
+                    if not risk_ok:
+                        print(f"Skipping signal for {symbol} due to Risk Agent rejection: {risk_reason}")
+                        continue
+
                     symbol_intents.append(intent)
 
         # Limit to 1-3 signals per symbol per day and resolve conflicts
