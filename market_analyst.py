@@ -46,7 +46,7 @@ def fetch_market_data(symbol, provider):
     data = run_command(["fetch-market-data", "--provider", provider, "--symbol", symbol, "--timeframe", "1h"])
     return data
 
-def search_research(symbol, bars_list):
+def search_research(symbol, bars_list, market):
     """
     Reads research, news, and knowledge from local text files for the given symbol.
     """
@@ -54,8 +54,8 @@ def search_research(symbol, bars_list):
     news = ""
     knowledge = ""
 
-    # We will provide symbol-specific context based on the symbol
-    if symbol == "BTCUSD":
+    # We will provide market-specific context based on the market
+    if market == "crypto":
         try:
             with open("research.txt", "r") as f:
                 research = f.read().strip()
@@ -79,13 +79,7 @@ def search_research(symbol, bars_list):
                 news = f"[Source: news.txt] {news}"
         except Exception:
             pass
-
-    elif symbol == "ETHUSD":
-        research = "[Source: ETH_Analyst_Report] Ethereum sentiment is improving following Dencun upgrade and potential spot ETF applications. Analysts are watching the growth of Layer 2 solutions."
-        knowledge = "[Source: knowledge.txt] Similar market conditions in Q4 2023 showed a strong bullish trend following consolidation periods for crypto assets. The market is currently exhibiting similar behavior."
-        news = "[Source: news.txt] ETH outpaces major assets amid network improvements and increasing DeFi TVL."
-
-    elif symbol == "SPY":
+    elif market == "equities":
         research = "[Source: WSJ_Equities_Report] S&P 500 companies are reporting robust quarterly earnings, exceeding analyst expectations in tech and energy sectors. The market is pricing in favorable interest rate policies."
         knowledge = "[Source: knowledge.txt] Similar market conditions in Q4 2023 showed a strong bullish trend following consolidation periods for equities. The market is currently exhibiting similar behavior."
         news = "[Source: news.txt] US stock market hits record highs as inflation concerns ease and corporate profits soar."
@@ -136,6 +130,7 @@ def main():
             continue
 
         bars_list = data["bars"]
+        market = bars_list[0].get("market", "") if bars_list else ""
 
         # Save temp bars file
         temp_bars_file = f"temp_bars_{symbol}.json"
@@ -143,7 +138,7 @@ def main():
             json.dump(data, f)
 
         # 2. Search Research (Simulated)
-        research, news = search_research(symbol, bars_list)
+        research, news = search_research(symbol, bars_list, market)
 
         # 3. Analyze Market & Generate Report
         # Note: The underlying rust CLI appends the results to the markdown files automatically
