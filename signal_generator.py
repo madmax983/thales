@@ -80,6 +80,7 @@ def main():
 
         # 4. Generate Signals (includes search history check, sizing, SL/TP)
         symbol_intents = []
+        import execute_cycle
         for strategy in active_strategies:
             args = ["generate-signals", "--input", data_file, "--strategy", strategy, "--analysis", analysis_file]
             if os.path.exists(HISTORY_PATH):
@@ -90,6 +91,13 @@ def main():
                 for intent in intents:
                     if intent.get("signal_type") == "Entry" and (not intent.get("stop_loss") or intent.get("stop_loss") == "None"):
                         continue
+
+                    # All signals must go through Risk Agent before execution
+                    risk_ok, risk_reason = execute_cycle.verify_risk(intent)
+                    if not risk_ok:
+                        print(f"Skipping signal for {intent.get('symbol', 'Unknown')}: Rejected by Risk Agent ({risk_reason})")
+                        continue
+
                     symbol_intents.append(intent)
 
         # Limit to 1-3 signals per symbol per day and resolve conflicts
