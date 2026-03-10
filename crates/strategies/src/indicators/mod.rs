@@ -27,5 +27,6 @@ pub mod vortex;
 pub mod vwap;
 pub mod vwma;
 pub mod trix;
+pub mod tsi;
 pub mod williams_r;
 pub mod zscore;

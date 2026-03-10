@@ -40,13 +40,13 @@ pub fn calculate(data: &DataFrame, period: usize) -> Result<Series> {
     // We need to pass the EMA as "close" to the next EMA calculation.
     // However, `ema::calculate` expects a DataFrame with a "close" column.
     // To do this, we create a temporary DataFrame.
-    let ema1_df = DataFrame::new(vec![ema1_series.rename("close".into()).clone()])
+    let ema1_df = DataFrame::new(vec![ema1_series.rename("close").clone()])
         .context("Failed to create temporary DataFrame for EMA1")?;
 
     // 2. Calculate Double EMA
     let mut ema2_series = ema::calculate(&ema1_df, period)?;
 
-    let ema2_df = DataFrame::new(vec![ema2_series.rename("close".into()).clone()])
+    let ema2_df = DataFrame::new(vec![ema2_series.rename("close").clone()])
         .context("Failed to create temporary DataFrame for EMA2")?;
 
     // 3. Calculate Triple EMA
@@ -60,7 +60,7 @@ pub fn calculate(data: &DataFrame, period: usize) -> Result<Series> {
 
     let hundred = Decimal::new(100, 0);
 
-    for i in 1..ema3_f64.len() {
+    for (i, trix_val) in trix_values.iter_mut().enumerate().take(ema3_f64.len()).skip(1) {
         let curr_opt = ema3_f64.get(i);
         let prev_opt = ema3_f64.get(i - 1);
 
@@ -72,12 +72,12 @@ pub fn calculate(data: &DataFrame, period: usize) -> Result<Series> {
                 if !prev_dec.is_zero() {
                     let change = (curr_dec - prev_dec) / prev_dec;
                     let trix = change * hundred;
-                    trix_values[i] = trix.to_f64();
+                    *trix_val = trix.to_f64();
                 } else {
-                    trix_values[i] = None;
+                    *trix_val = None;
                 }
             } else {
-                trix_values[i] = None;
+                *trix_val = None;
             }
         }
     }

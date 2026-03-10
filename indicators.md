@@ -588,3 +588,36 @@ let trix_series = trix::calculate(&df, period)?;
 - Returns `Result<Series>`.
 - The output Series is named "trix".
 - The first `period * 3` (approximate) values will be null.
+
+## True Strength Index (TSI)
+
+**Name:** True Strength Index (TSI)
+**Description:** Calculates the True Strength Index, a momentum oscillator based on a double EMA of price changes.
+**Rationale:** Used to measure the trend and its strength. It uses double-smoothed exponential moving averages of price changes to eliminate market noise and highlight the underlying trend.
+
+### Implementation Details
+- Uses `rust_decimal::Decimal` for price change calculations to ensure precision.
+- Uses two successive passes of the `ema` indicator on both the price change and absolute price change.
+- Returns a Polars `Series` of `f64` values representing the TSI (-100 to 100).
+
+### Usage
+
+```rust
+use strategies::indicators::tsi;
+use polars::prelude::*;
+
+// Assuming df is a DataFrame with a "close" column
+let long_period = 25;
+let short_period = 13;
+let tsi_series = tsi::calculate(&df, long_period, short_period)?;
+```
+
+### Parameters
+- `data`: Reference to a Polars `DataFrame`. Must contain a numeric "close" column.
+- `long_period`: The first smoothing period (typically 25).
+- `short_period`: The second smoothing period (typically 13).
+
+### Output
+- Returns `Result<Series>`.
+- The output Series is named "tsi".
+- Initial values before the EMA periods are properly primed will be null or 0.
