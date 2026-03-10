@@ -97,7 +97,7 @@ impl AlpacaClient {
                 limit_price: None,
             }),
         };
-        let url = format!("{}/orders", self.config.base_url.trim_end_matches('/'));
+        let url = format!("{}/v2/orders", self.config.base_url.trim_end_matches('/').trim_end_matches("/v2"));
 
         let response = self
             .http
@@ -139,8 +139,8 @@ impl AlpacaClient {
 
     pub fn fetch_open_orders(&self) -> Result<Vec<contracts::Order>, AlpacaProviderError> {
         let url = format!(
-            "{}/orders?status=open",
-            self.config.base_url.trim_end_matches('/')
+            "{}/v2/orders?status=open",
+            self.config.base_url.trim_end_matches('/').trim_end_matches("/v2")
         );
 
         let response = self
@@ -191,8 +191,8 @@ impl AlpacaClient {
 
     pub fn fetch_order(&self, order_id: &str) -> Result<contracts::Order, AlpacaProviderError> {
         let url = format!(
-            "{}/orders/{}",
-            self.config.base_url.trim_end_matches('/'),
+            "{}/v2/orders/{}",
+            self.config.base_url.trim_end_matches('/').trim_end_matches("/v2"),
             order_id
         );
 
@@ -238,8 +238,8 @@ impl AlpacaClient {
 
     pub fn cancel_order(&self, order_id: &str) -> Result<(), AlpacaProviderError> {
         let url = format!(
-            "{}/orders/{}",
-            self.config.base_url.trim_end_matches('/'),
+            "{}/v2/orders/{}",
+            self.config.base_url.trim_end_matches('/').trim_end_matches("/v2"),
             order_id
         );
 
@@ -330,7 +330,7 @@ impl AlpacaClient {
     }
 
     pub fn fetch_positions(&self) -> Result<Vec<AlpacaPosition>, AlpacaProviderError> {
-        let url = format!("{}/positions", self.config.base_url.trim_end_matches('/'));
+        let url = format!("{}/v2/positions", self.config.base_url.trim_end_matches('/').trim_end_matches("/v2"));
 
         let response = self
             .http
@@ -352,7 +352,7 @@ impl AlpacaClient {
     }
 
     pub fn fetch_account(&self) -> Result<AlpacaAccount, AlpacaProviderError> {
-        let url = format!("{}/v2/account", self.config.base_url.trim_end_matches('/'));
+        let url = format!("{}/v2/account", self.config.base_url.trim_end_matches('/').trim_end_matches("/v2"));
 
         let response = self
             .http

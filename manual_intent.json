@@ -1,0 +1,19 @@
+{
+  "intent_id": "equities:SPY:buy:1772578800000",
+  "market": "equities",
+  "symbol": "SPY",
+  "side": "buy",
+  "size_hint": "1",
+  "confidence": 0.99,
+  "horizon": "1d",
+  "rationale": "Manual Buy Test",
+  "invalidation": "Test",
+  "schema_version": "v0",
+  "signal_type": "Entry",
+  "stop_loss": 500.0,
+  "take_profit": 600.0,
+  "order_type": "market",
+  "time_in_force": "day",
+  "execution_algo": "Market",
+  "strategy": "Manual"
+}

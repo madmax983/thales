@@ -1,0 +1,1 @@
+sed -i 's/self.config.base_url.trim_end_matches('\''\/'\'').trim_end_matches("\/v2")/self.config.base_url.trim_end_matches('\''\/'\'').trim_end_matches("\/v2").trim_end_matches('\''\/'\'')/g' crates/providers/alpaca/src/lib.rs
