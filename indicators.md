@@ -588,3 +588,67 @@ let trix_series = trix::calculate(&df, period)?;
 - Returns `Result<Series>`.
 - The output Series is named "trix".
 - The first `period * 3` (approximate) values will be null.
+
+## True Strength Index (TSI)
+
+**Name:** True Strength Index (TSI)
+**Description:** A momentum oscillator based on a double exponential moving average (EMA) of price changes.
+**Rationale:** TSI smooths price changes to eliminate noise and identify momentum and overbought/oversold conditions more accurately.
+
+### Implementation Details
+- Uses `rust_decimal::Decimal` for precision.
+- Uses `ema` calculations internally on momentum (Close - Previous Close) and absolute momentum.
+- Returns a Polars `Series` of `f64` values.
+
+### Usage
+
+```rust
+use strategies::indicators::tsi;
+use polars::prelude::*;
+
+// Assuming df is a DataFrame with a "close" column
+let long_period = 25;
+let short_period = 13;
+let tsi_series = tsi::calculate(&df, long_period, short_period)?;
+```
+
+### Parameters
+- `data`: Reference to a Polars `DataFrame`. Must contain a numeric column named "close".
+- `long_period`: The first EMA period (typically 25).
+- `short_period`: The second EMA period (typically 13).
+
+### Output
+- Returns `Result<Series>`.
+- The output Series is named "tsi".
+- The first values will be null depending on the periods.
+
+## Weighted Moving Average (WMA)
+
+**Name:** Weighted Moving Average (WMA)
+**Description:** Calculates the average of price data over a specified lookback period, placing a greater weight on the most recent data points.
+**Rationale:** Provides a smoother trend line than SMA while being more responsive to recent price changes. It is used to identify the direction of the trend and filter out noise.
+
+### Implementation Details
+- Uses `rust_decimal::Decimal` for all internal financial calculations to ensure precision without floating-point errors.
+- Weights are assigned linearly, with the most recent data point receiving the highest weight (equal to the period).
+- Returns a Polars `Series` of `f64` values for compatibility with other tools.
+
+### Usage
+
+```rust
+use strategies::indicators::wma;
+use polars::prelude::*;
+
+// Assuming df is a DataFrame with a "close" column
+let period = 14;
+let wma_series = wma::calculate(&df, period)?;
+```
+
+### Parameters
+- `data`: Reference to a Polars `DataFrame`. Must contain a numeric column named "close".
+- `period`: The size of the moving window (must be > 0).
+
+### Output
+- Returns `Result<Series>`.
+- The output Series is named "wma".
+- The first `period - 1` values will be null.
