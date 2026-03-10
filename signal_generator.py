@@ -25,7 +25,7 @@ def run_command(args):
     return None
 
 def format_signal(intent):
-    direction = "long" if intent['side'] == "buy" else "short"
+    direction = "long" if str(intent.get('side', '')).lower() == "buy" else "short"
     strength = intent.get('confidence', 0.0) * 100
     size = intent.get('size_hint', '0')
     sl = intent.get('stop_loss', 'None')
@@ -34,8 +34,7 @@ def format_signal(intent):
     signal_type = intent.get('signal_type', 'Entry')
 
     # Clean up Rust enum string if present (e.g. SignalType::Entry -> Entry)
-    if "SignalType::" in signal_type:
-        signal_type = signal_type.replace("SignalType::", "")
+    signal_type = signal_type.replace("SignalType::", "")
 
     output = f"- Symbol and direction (long/short): {intent['symbol']} ({direction})\n"
     output += f"- Signal type and strength (0-100%): {signal_type}, Strength: {strength:.1f}%\n"
@@ -94,9 +93,36 @@ def main():
             intents = run_command(args)
             if intents:
                 for intent in intents:
+                    # Size positions based on volatility
+                    volatility_label = analysis.get("volatility", "").lower() if analysis else ""
+                    size_hint_str = intent.get("size_hint", "0")
+                    if size_hint_str != "max":
+                        try:
+                            size_hint_val = float(size_hint_str)
+                            if "high" in volatility_label or "extreme" in volatility_label:
+                                size_hint_val *= 0.5
+                            elif "low" in volatility_label:
+                                size_hint_val *= 1.5
+                            intent["size_hint"] = f"{size_hint_val:.6f}"
+                        except ValueError:
+                            pass
+
                     # Filter: Only allow Entry signals that have a valid stop loss
-                    if intent.get("signal_type") in ["Entry", "SignalType::Entry"] and (not intent.get("stop_loss") or intent.get("stop_loss") == "None"):
+                    is_entry = intent.get("signal_type") in ["Entry", "SignalType::Entry"]
+                    if is_entry and (not intent.get("stop_loss") or intent.get("stop_loss") == "None"):
                         continue
+
+                    # Filter: Do not chase moves - wait for pullbacks
+                    # Check the 'sentiment' string from analysis
+                    if is_entry and analysis:
+                        sentiment = analysis.get("sentiment", "").lower()
+                        side = str(intent.get('side', '')).lower()
+                        if side == "buy" and "(overbought)" in sentiment:
+                            print(f"Skipping long signal for {symbol}: Chasing move (Sentiment is Overbought)")
+                            continue
+                        elif side == "sell" and "(oversold)" in sentiment:
+                            print(f"Skipping short signal for {symbol}: Chasing move (Sentiment is Oversold)")
+                            continue
 
                     # All signals must go through Risk Agent before execution
                     risk_ok, risk_reason = verify_risk(intent)
@@ -112,8 +138,9 @@ def main():
         # Resolve conflicting directions (only keep the direction of the highest confidence signal)
         if symbol_intents:
             primary_direction = symbol_intents[0].get('side', 'buy')
-            filtered_intents = [intent for intent in symbol_intents if intent.get('side', 'buy') == primary_direction]
-            all_intents.extend(filtered_intents[:3])
+            # Limit strictly to 3 signals per symbol per day
+            filtered_intents = [intent for intent in symbol_intents if intent.get('side', 'buy') == primary_direction][:3]
+            all_intents.extend(filtered_intents)
 
         # Cleanup
         if os.path.exists(data_file):
