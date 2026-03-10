@@ -588,3 +588,35 @@ let trix_series = trix::calculate(&df, period)?;
 - Returns `Result<Series>`.
 - The output Series is named "trix".
 - The first `period * 3` (approximate) values will be null.
+
+## Weighted Moving Average (WMA)
+
+**Name:** WMA
+**Description:** Calculates the Weighted Moving Average, which applies a linearly increasing weight to each price in the lookback period, placing more significance on recent data.
+**Rationale:** Trend-following indicator that reacts more quickly to recent price changes than a simple moving average, but is less prone to whipsaws than an exponential moving average.
+
+### Implementation Details
+- Uses `rust_decimal::Decimal` for all internal calculations to ensure precision.
+- Implements an O(N) sliding window algorithm to ensure `<100ms` performance requirements.
+- Returns a Polars `Series` of `f64` values for compatibility with other analysis tools.
+- Handles missing data (nulls) by resetting the calculation window.
+
+### Usage
+
+```rust
+use strategies::indicators::wma;
+use polars::prelude::*;
+
+// Assuming df is a DataFrame with a "close" column
+let period = 14;
+let wma_series = wma::calculate(&df, period)?;
+```
+
+### Parameters
+- `data`: Reference to a Polars `DataFrame`. Must contain a numeric column named "close".
+- `period`: The size of the moving window (must be > 0).
+
+### Output
+- Returns `Result<Series>`.
+- The output Series is named "wma".
+- The first `period - 1` values will be null.
