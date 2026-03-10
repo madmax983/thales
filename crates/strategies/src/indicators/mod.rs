@@ -29,4 +29,5 @@ pub mod vortex;
 pub mod vwap;
 pub mod vwma;
 pub mod williams_r;
+pub mod wma;
 pub mod zscore;
