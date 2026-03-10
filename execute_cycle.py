@@ -361,7 +361,7 @@ def get_candidates_from_signals():
         if os.environ.get("SIMULATION") == "true":
             provider = "paper"
         else:
-            provider = "kraken" if market == "crypto" else "alpaca"
+            provider = "kraken"
 
         # Extract JSON
         json_match = re.search(r"```json\s*(\{.*?\})\s*```", chunk, re.DOTALL)
@@ -483,12 +483,12 @@ def scan_markets():
             for symbol in crypto:
                 candidates.append({"provider": "kraken", "symbol": symbol, "market": "crypto"})
 
-        # Equities (Alpaca)
-        print("Scanning Alpaca (Equities)...")
-        equities = run_command(["scan-market", "--provider", "alpaca"])
+        # Equities (Kraken)
+        print("Scanning Kraken (Equities)...")
+        equities = run_command(["scan-market", "--provider", "kraken"])
         if equities:
             for symbol in equities:
-                candidates.append({"provider": "alpaca", "symbol": symbol, "market": "equities"})
+                candidates.append({"provider": "kraken", "symbol": symbol, "market": "equities"})
 
     return candidates
 
@@ -547,14 +547,8 @@ def evaluate_candidate(candidate, strategies, portfolio_path=None):
         if intents:
             # Enrich intent with provider and strategy info
             for intent in intents:
-                # Use scan provider for intent unless it's equities, then execute on Kraken
-                # We fetch data from Alpaca (provider) but execute on Kraken.
-                if provider == "paper":
-                    intent["provider"] = "paper"
-                elif candidate.get("market") == "equities":
-                    intent["provider"] = "kraken"
-                else:
-                    intent["provider"] = provider
+                # Use scan provider for intent
+                intent["provider"] = provider
 
                 if effective_analysis:
                     intent["_market_analysis"] = effective_analysis
@@ -1352,7 +1346,7 @@ def main():
     if os.environ.get("SIMULATION") == "true":
         run_command(["update-signal-history", "--input", "history.json", "--provider", "paper"])
     else:
-        # Run for both providers to cover all assets
+        # Run for kraken provider to cover all assets
         run_command(["update-signal-history", "--input", "history.json", "--provider", "kraken"])
         run_command(["update-signal-history", "--input", "history.json", "--provider", "alpaca"])
 
