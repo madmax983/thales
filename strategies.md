@@ -2481,6 +2481,55 @@ Trend Following
 
 ---
 
+# Trading Strategy: HMA Crossover
+
+## Strategy Specification
+
+**Name:** HmaCrossover
+
+**Description:** A trend-following strategy that generates signals based on the crossover of two Hull Moving Averages (HMA) of different periods.
+
+**Rationale:** The HMA indicator aims to eliminate lag altogether while improving smoothing compared to traditional moving averages. Crossovers between a fast and slow HMA provide timely entry and exit signals for trending markets without the typical delay of SMAs or EMAs.
+
+## Requirements
+
+### Implementation Details
+- Uses Polars for data analysis.
+- Implements the `Strategy` trait in Rust.
+- Uses `hma` and `atr` indicators.
+
+### Strategy Type
+TrendFollowing
+
+### Entry Conditions
+- **Long Entry (Buy):** Short HMA crosses ABOVE Long HMA.
+
+### Exit Conditions
+- **Long Exit (Sell):** Short HMA crosses BELOW Long HMA.
+- **Stop Loss:** Entry Price - (ATR * `stop_loss_atr_mult`).
+
+### Position Sizing
+- **Size Hint:** "100" (fixed units) or "max" (for exits).
+
+## Critical Considerations
+
+### Risk Management Integration
+- **Stop Loss:** Uses ATR-based stop loss for risk control.
+- **Trend Filter:** Relying on HMA eliminates lag but can increase false signals in ranging markets. Best used in strong trending conditions.
+
+### Backtesting Requirements
+- Accepts `DataFrame` with historical data containing "close".
+- Requires data length > `long_period * 2`.
+- **Expected Win Rate:** 45-55%
+- **Expected Sharpe Ratio:** > 1.2
+- **Max Drawdown:** < 15%
+
+### Performance
+- HMA and ATR calculations are O(N).
+- Signal generation loop is O(N).
+
+---
+
 # Trading Strategy: AlmaCrossover
 
 ## Strategy Specification

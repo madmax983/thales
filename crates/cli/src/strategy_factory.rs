@@ -42,6 +42,7 @@ use strategies::dema_crossover::{DemaCrossover, DemaCrossoverConfig};
 use strategies::donchian_breakout::{DonchianBreakout, DonchianBreakoutConfig};
 use strategies::elder_ray::{ElderRay, ElderRayConfig};
 use strategies::ema_crossover::{EmaCrossover, EmaCrossoverConfig};
+use strategies::hma_crossover::{HmaCrossover, HmaCrossoverConfig};
 use strategies::ichimoku_cloud::{IchimokuCloud, IchimokuCloudConfig};
 use strategies::keltner_channel_breakout::{KeltnerChannelBreakout, KeltnerChannelBreakoutConfig};
 use strategies::linear_regression_trend::{LinearRegressionTrend, LinearRegressionTrendConfig};
@@ -377,6 +378,16 @@ pub fn create_strategy(name: &str, symbol: &str) -> Result<Box<dyn Strategy>> {
             };
             Ok(Box::new(WmaCrossover::new(config)))
         }
+        "HmaCrossover" => {
+            let config = HmaCrossoverConfig {
+                short_period: 9,
+                long_period: 21,
+                stop_loss_atr_mult: 2.0,
+                atr_period: 14,
+                symbol: symbol.to_string(),
+            };
+            Ok(Box::new(HmaCrossover::new(config)))
+        }
         "VwapReversion" => {
             let config = VwapReversionConfig {
                 vwma_period: 20,
@@ -515,5 +526,6 @@ pub fn list_strategies() -> Vec<&'static str> {
         "DemaCrossover",
         "TemaCrossover",
         "WmaCrossover",
+        "HmaCrossover",
     ]
 }
