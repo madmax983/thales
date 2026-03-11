@@ -100,9 +100,9 @@ def main():
                         try:
                             size_hint_val = float(size_hint_str)
                             if "high" in volatility_label or "extreme" in volatility_label:
-                                size_hint_val *= 0.10
+                                size_hint_val *= 0.5
                             elif "low" in volatility_label:
-                                size_hint_val *= 0.02
+                                size_hint_val *= 1.5
                             intent["size_hint"] = f"{size_hint_val:.6f}"
                         except ValueError:
                             pass
@@ -163,15 +163,34 @@ def main():
                             except (FileNotFoundError, json.JSONDecodeError, KeyError, ValueError, IndexError) as e:
                                 print(f"Warning: Failed to compute fallback stop loss for {symbol}: {e}")
 
-                    # Filter: Only allow Entry/ScaleIn signals that have a valid stop loss
-                    if (is_entry or is_scale_in) and (not intent.get("stop_loss") or intent.get("stop_loss") == "None"):
+                    # Filter: Never generate signals without proper analysis
+                    if not analysis:
+                        print(f"Skipping signal for {symbol}: No proper analysis available.")
+                        continue
+
+                    # Filter: Only allow Entry/ScaleIn signals that have a valid stop loss and take profit
+                    if (is_entry or is_scale_in) and (
+                        not intent.get("stop_loss") or intent.get("stop_loss") == "None" or
+                        not intent.get("take_profit") or intent.get("take_profit") == "None"
+                    ):
+                        print(f"Skipping signal for {symbol}: Missing mandatory stop loss or take profit.")
+                        continue
+
+                    # Filter: Check historical trades before generating new signals
+                    rationale = intent.get("rationale") or ""
+                    # A robust check looking for the exact failure phrase in the RAG tool output
+                    if is_entry and "No similar past trades found" in rationale:
+                        print(f"Skipping signal for {symbol}: No historical context found.")
                         continue
 
                     # Filter: Do not chase moves - wait for pullbacks
-                    # Check the 'sentiment' string from analysis
-                    if is_entry and analysis:
-                        sentiment = analysis.get("sentiment", "").lower()
+                    # Check the 'sentiment' string from analysis and rationale
+                    if is_entry:
                         side = str(intent.get('side', '')).lower()
+                        sentiment = analysis.get("sentiment", "").lower()
+
+                        # We specifically look for (Overbought) / (Oversold) in the sentiment
+                        # To avoid false positives on rationale like "not overbought", we check sentiment primarily.
                         if side == "buy" and "(overbought)" in sentiment:
                             print(f"Skipping long signal for {symbol}: Chasing move (Sentiment is Overbought)")
                             continue
