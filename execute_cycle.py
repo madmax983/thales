@@ -17,6 +17,7 @@ SIGNALS_PATH = "Signals.md"
 ARCHIVE_PATH = "Signals_Archive.md"
 
 MEAN_REVERSION_STRATEGIES = {
+    "CmoMeanReversion",
     "WilliamsR",
     "RsiMeanReversion",
     "StochasticOscillator",

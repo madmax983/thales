@@ -20,6 +20,7 @@
 //! - [`money_flow_index::MoneyFlowIndex`] - Mean reversion using Money Flow Index (MFI).
 //! - [`connors_rsi_mean_reversion::ConnorsRsiMeanReversion`] - Mean reversion using Connors RSI (CRSI).
 //! - [`awesome_oscillator::AwesomeOscillator`] - Momentum strategy using Awesome Oscillator (AO).
+//! - [`cmo_mean_reversion::CmoMeanReversion`] - Mean reversion strategy using Chande Momentum Oscillator.
 
 pub mod adx_macd_trend;
 pub mod adx_momentum;
@@ -30,6 +31,7 @@ pub mod bollinger_bands;
 pub mod cci_momentum;
 pub mod chaikin_money_flow;
 pub mod chandelier_exit;
+pub mod cmo_mean_reversion;
 pub mod connors_rsi_mean_reversion;
 pub mod dema_crossover;
 pub mod donchian_breakout;

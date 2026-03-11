@@ -35,6 +35,7 @@ use strategies::bollinger_bands::{BollingerBandsConfig, BollingerBandsMeanRevers
 use strategies::cci_momentum::{CciMomentum, CciMomentumConfig};
 use strategies::chaikin_money_flow::{ChaikinMoneyFlow, ChaikinMoneyFlowConfig};
 use strategies::chandelier_exit::{ChandelierExit, ChandelierExitConfig};
+use strategies::cmo_mean_reversion::{CmoMeanReversion, CmoMeanReversionConfig};
 use strategies::connors_rsi_mean_reversion::{
     ConnorsRsiMeanReversion, ConnorsRsiMeanReversionConfig,
 };
@@ -304,6 +305,17 @@ pub fn create_strategy(name: &str, symbol: &str) -> Result<Box<dyn Strategy>> {
             };
             Ok(Box::new(ChandelierExit::new(config)))
         }
+        "CmoMeanReversion" => {
+            let config = CmoMeanReversionConfig {
+                cmo_period: 9,
+                oversold_threshold: -50.0,
+                overbought_threshold: 50.0,
+                stop_loss_atr_mult: 2.0,
+                atr_period: 14,
+                symbol: symbol.to_string(),
+            };
+            Ok(Box::new(CmoMeanReversion::new(config)))
+        }
         "LinearRegressionTrend" => {
             let config = LinearRegressionTrendConfig {
                 period: 20,
@@ -509,6 +521,7 @@ pub fn list_strategies() -> Vec<&'static str> {
         "CciMomentum",
         "ChaikinMoneyFlow",
         "ChandelierExit",
+        "CmoMeanReversion",
         "LinearRegressionTrend",
         "ObvTrendFollowing",
         "MoneyFlowIndex",
