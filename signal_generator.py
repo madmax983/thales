@@ -20,7 +20,7 @@ def run_command(args):
             data = json.loads(result.stdout[start:])
             if data.get("status") == "ok":
                 return data.get("data")
-    except:
+    except Exception:
         pass
     return None
 
