@@ -20,7 +20,7 @@ def run_command(args):
             data = json.loads(result.stdout[start:])
             if data.get("status") == "ok":
                 return data.get("data")
-    except Exception:
+    except (json.JSONDecodeError, ValueError, KeyError):
         pass
     return None
 
@@ -107,33 +107,64 @@ def main():
                         except ValueError:
                             pass
 
-                    # Set protective stop loss if missing for Entry signals
-                    is_entry = intent.get("signal_type") in ["Entry", "SignalType::Entry"]
-                    if is_entry and (not intent.get("stop_loss") or intent.get("stop_loss") == "None"):
+                    # Handle Signal Types: Entry, Exit, ScaleIn, ScaleOut
+                    signal_type_raw = intent.get("signal_type", "")
+                    is_entry = signal_type_raw in ["Entry", "SignalType::Entry"]
+                    is_exit = signal_type_raw in ["Exit", "SignalType::Exit"]
+                    is_scale_in = signal_type_raw in ["ScaleIn", "SignalType::ScaleIn"]
+                    is_scale_out = signal_type_raw in ["ScaleOut", "SignalType::ScaleOut"]
+
+                    if is_exit:
+                        intent["size_hint"] = "max"
+                        intent.pop("stop_loss", None)
+                        intent.pop("take_profit", None)
+                    elif is_scale_out:
                         try:
-                            with open(data_file, "r") as f:
-                                b_data = json.load(f)
-                                if "bars" in b_data and len(b_data["bars"]) > 0:
-                                    last_close = float(b_data["bars"][-1]["close"])
-                                    side = str(intent.get('side', '')).lower()
+                            current_sz = float(intent.get("size_hint", "0"))
+                            intent["size_hint"] = f"{(current_sz * 0.5):.6f}"
+                        except ValueError:
+                            pass
+                        intent.pop("stop_loss", None)
+                        intent.pop("take_profit", None)
+                    elif is_entry or is_scale_in:
+                        if is_scale_in:
+                            try:
+                                current_sz = float(intent.get("size_hint", "0"))
+                                intent["size_hint"] = f"{(current_sz * 0.5):.6f}"
+                            except ValueError:
+                                pass
 
-                                    # Calculate stop loss distance based on volatility
-                                    volatility_label = analysis.get("volatility", "").lower() if analysis else ""
-                                    sl_pct = 0.05
-                                    if "high" in volatility_label or "extreme" in volatility_label:
-                                        sl_pct = 0.10
-                                    elif "low" in volatility_label:
-                                        sl_pct = 0.02
+                        if not intent.get("stop_loss") or intent.get("stop_loss") == "None":
+                            try:
+                                with open(data_file, "r") as f:
+                                    b_data = json.load(f)
+                                    if "bars" in b_data and len(b_data["bars"]) > 0:
+                                        last_close = float(b_data["bars"][-1]["close"])
+                                        side = str(intent.get('side', '')).lower()
 
-                                    if side == "buy":
-                                        intent["stop_loss"] = last_close * (1.0 - sl_pct)
-                                    elif side == "sell":
-                                        intent["stop_loss"] = last_close * (1.0 + sl_pct)
-                        except (FileNotFoundError, json.JSONDecodeError, KeyError, ValueError, IndexError) as e:
-                            print(f"Warning: Failed to compute fallback stop loss for {symbol}: {e}")
+                                        # Calculate stop loss distance based on volatility
+                                        volatility_label = analysis.get("volatility", "").lower() if analysis else ""
+                                        sl_pct = 0.05
+                                        if "high" in volatility_label or "extreme" in volatility_label:
+                                            sl_pct = 0.10
+                                        elif "low" in volatility_label:
+                                            sl_pct = 0.02
 
-                    # Filter: Only allow Entry signals that have a valid stop loss
-                    if is_entry and (not intent.get("stop_loss") or intent.get("stop_loss") == "None"):
+                                        tp_pct = sl_pct * 2.0
+
+                                        if side == "buy":
+                                            intent["stop_loss"] = last_close * (1.0 - sl_pct)
+                                            if not intent.get("take_profit") or intent.get("take_profit") == "None":
+                                                intent["take_profit"] = last_close * (1.0 + tp_pct)
+                                        elif side == "sell":
+                                            intent["stop_loss"] = last_close * (1.0 + sl_pct)
+                                            if not intent.get("take_profit") or intent.get("take_profit") == "None":
+                                                intent["take_profit"] = last_close * (1.0 - tp_pct)
+                            except (FileNotFoundError, json.JSONDecodeError, KeyError, ValueError, IndexError) as e:
+                                print(f"Warning: Failed to compute fallback stop loss for {symbol}: {e}")
+
+                    # Filter: Only allow Entry/ScaleIn signals that have a valid stop loss
+                    if (is_entry or is_scale_in) and (not intent.get("stop_loss") or intent.get("stop_loss") == "None"):
                         continue
 
                     # Filter: Do not chase moves - wait for pullbacks
