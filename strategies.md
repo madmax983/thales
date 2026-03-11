@@ -1,3 +1,34 @@
+# Trading Strategy: CMO Mean Reversion
+
+## Strategy Specification
+
+**Name:** CmoMeanReversion
+
+**Description:** A mean reversion strategy based on the Chande Momentum Oscillator (CMO). It buys when the asset is oversold (CMO crosses above a negative threshold) and sells when overbought (CMO crosses below a positive threshold).
+
+**Rationale:** The Chande Momentum Oscillator directly measures momentum on a -100 to +100 scale by dividing the difference of gains and losses by the sum of total price movements. It identifies clear overbought and oversold conditions with high accuracy, establishing high win rate opportunities when momentum reverts.
+
+## Requirements
+
+### Implementation Details
+- Uses Polars for data analysis.
+- Implements the `Strategy` trait in Rust.
+- Calculates ATR for dynamic stop losses.
+
+### Strategy Type
+Mean Reversion
+
+### Entry Conditions
+- **Long Entry (Buy):** CMO crosses above `-oversold_threshold` (e.g. -50).
+
+### Exit Conditions
+- **Long Exit (Sell):** CMO crosses below `overbought_threshold` (e.g. +50).
+
+### Position Sizing
+- **Size Hint:** "100" for entry, "max" for exit.
+
+---
+
 # Trading Strategy: Bollinger Bands
 
 ## Strategy Specification
