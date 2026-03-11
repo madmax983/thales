@@ -100,9 +100,9 @@ def main():
                         try:
                             size_hint_val = float(size_hint_str)
                             if "high" in volatility_label or "extreme" in volatility_label:
-                                size_hint_val *= 0.5
+                                size_hint_val *= 0.10
                             elif "low" in volatility_label:
-                                size_hint_val *= 1.5
+                                size_hint_val *= 0.02
                             intent["size_hint"] = f"{size_hint_val:.6f}"
                         except ValueError:
                             pass
