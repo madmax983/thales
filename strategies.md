@@ -2478,3 +2478,74 @@ Trend Following
 - **Expected Win Rate:** 45-55% (trend-following strategies typically have lower win rates but higher reward-to-risk ratios).
 - **Sharpe Ratio:** Expected > 1.2 in trending markets.
 - **Max Drawdown:** Expected to be controlled (<15%) due to ATR-based dynamic stop losses and Supertrend filtering.
+
+---
+
+# Trading Strategy: AlmaCrossover
+
+## Strategy Specification
+
+**Name:** AlmaCrossover
+
+**Description:** A trend-following strategy that generates signals based on the crossover of two Arnaud Legoux Moving Averages (ALMA) of different periods.
+
+**Rationale:** The ALMA indicator aims to reduce lag while increasing smoothness compared to traditional moving averages. Crossovers between a fast and slow ALMA provide timely entry and exit signals for trending markets.
+
+## Requirements
+
+### Implementation Details
+- Uses Polars for data analysis.
+- Implements the `Strategy` trait in Rust.
+- Uses `alma` and `atr` indicators.
+
+### Strategy Type
+TrendFollowing
+
+### Entry Conditions
+- **Long Entry (Buy):** Fast ALMA crosses ABOVE Slow ALMA.
+
+### Exit Conditions
+- **Long Exit (Sell):** Fast ALMA crosses BELOW Slow ALMA.
+- **Stop Loss:** Entry Price - (ATR * `stop_loss_atr_mult`).
+
+### Position Sizing
+- **Size Hint:** "100" (fixed units) or "max" (for exits).
+
+## Code Pattern
+
+```rust
+use crate::strategy::{Strategy, StrategyConfig, Signal, SignalType};
+use crate::indicators::{atr, alma};
+use polars::prelude::*;
+use async_trait::async_trait;
+use anyhow::Result;
+
+pub struct AlmaCrossover {
+    config: AlmaCrossoverConfig,
+}
+
+#[derive(Debug, Clone, serde::Deserialize)]
+pub struct AlmaCrossoverConfig {
+    pub fast_period: usize,
+    pub slow_period: usize,
+    pub offset: f64,
+    pub sigma: f64,
+    pub stop_loss_atr_mult: f64,
+    pub atr_period: usize,
+    pub symbol: String,
+}
+```
+
+## Critical Considerations
+
+### Risk Management Integration
+- **Stop Loss:** Uses ATR-based stop loss for risk control.
+- **Trend Filter:** Relying on ALMA reduces lag but can increase false signals in ranging markets. Best used in strong trending conditions.
+
+### Backtesting Requirements
+- Accepts `DataFrame` with historical data containing "close".
+- Requires data length > `slow_period`.
+
+### Performance
+- ALMA and ATR calculations are O(N).
+- Signal generation loop is O(N).
