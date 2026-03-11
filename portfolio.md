@@ -3666,6 +3666,9 @@
 | 2026-03-11 13:42:26 | BTCUSD | crypto:BTCUSD:sell:1773231690373 | No sellable balance available (BTCUSD -0.00000000) |
 | 2026-03-11 15:11:08 | BTCUSD | crypto:BTCUSD:sell:1773231690373 | No sellable balance available (BTCUSD -0.00000000) |
 | 2026-03-11 15:51:19 | BTCUSD | crypto:BTCUSD:sell:1773231690373 | No sellable balance available (BTCUSD -0.00000000) |
+| 2026-03-11 16:46:38 | ETHUSD | crypto:ETHUSD:buy:1773231690387 | No active strategy generated a signal (Strategies: BollingerBands, EmaCrossover, RsiMeanReversion, Macd, Supertrend, DonchianBreakout, ParabolicSar, KeltnerChannelBreakout, StochasticOscillator, AdxMomentum, IchimokuCloud, CciMomentum, ChaikinMoneyFlow, ChandelierExit, LinearRegressionTrend, ObvTrendFollowing, MoneyFlowIndex, ConnorsRsiMeanReversion, AlmaCrossover, AwesomeOscillator, WilliamsR, VwmaCrossover, VwapReversion, VortexBreakout, RocMomentum, TrixMomentum, AdxMacdTrend, ZScoreMeanReversion, ElderRay, AroonOscillator, StochRsiMeanReversion, MacdRsiTrend, TsiTrend, HmaCrossover) |
+| 2026-03-11 16:46:39 | SPY | equities:SPY:buy:1773231690400 | No active strategy generated a signal (Strategies: BollingerBands, EmaCrossover, RsiMeanReversion, Macd, Supertrend, DonchianBreakout, ParabolicSar, KeltnerChannelBreakout, StochasticOscillator, AdxMomentum, IchimokuCloud, CciMomentum, ChaikinMoneyFlow, ChandelierExit, LinearRegressionTrend, ObvTrendFollowing, MoneyFlowIndex, ConnorsRsiMeanReversion, AlmaCrossover, AwesomeOscillator, WilliamsR, VwmaCrossover, VwapReversion, VortexBreakout, RocMomentum, TrixMomentum, AdxMacdTrend, ZScoreMeanReversion, ElderRay, AroonOscillator, StochRsiMeanReversion, MacdRsiTrend, TsiTrend, HmaCrossover) |
+| 2026-03-11 16:46:39 | BTCUSD | crypto:BTCUSD:sell:1773231690373 | No sellable balance available (BTCUSD -0.00000000) |
 
 ## Executed Trades
 
