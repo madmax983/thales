@@ -107,8 +107,32 @@ def main():
                         except ValueError:
                             pass
 
-                    # Filter: Only allow Entry signals that have a valid stop loss
+                    # Set protective stop loss if missing for Entry signals
                     is_entry = intent.get("signal_type") in ["Entry", "SignalType::Entry"]
+                    if is_entry and (not intent.get("stop_loss") or intent.get("stop_loss") == "None"):
+                        try:
+                            with open(data_file, "r") as f:
+                                b_data = json.load(f)
+                                if "bars" in b_data and len(b_data["bars"]) > 0:
+                                    last_close = float(b_data["bars"][-1]["close"])
+                                    side = str(intent.get('side', '')).lower()
+
+                                    # Calculate stop loss distance based on volatility
+                                    volatility_label = analysis.get("volatility", "").lower() if analysis else ""
+                                    sl_pct = 0.05
+                                    if "high" in volatility_label or "extreme" in volatility_label:
+                                        sl_pct = 0.10
+                                    elif "low" in volatility_label:
+                                        sl_pct = 0.02
+
+                                    if side == "buy":
+                                        intent["stop_loss"] = last_close * (1.0 - sl_pct)
+                                    elif side == "sell":
+                                        intent["stop_loss"] = last_close * (1.0 + sl_pct)
+                        except (FileNotFoundError, json.JSONDecodeError, KeyError, ValueError, IndexError) as e:
+                            print(f"Warning: Failed to compute fallback stop loss for {symbol}: {e}")
+
+                    # Filter: Only allow Entry signals that have a valid stop loss
                     if is_entry and (not intent.get("stop_loss") or intent.get("stop_loss") == "None"):
                         continue
 
