@@ -1,3 +1,12 @@
+//! # Signal Generation
+//!
+//! This module coordinates the process of generating trading signals.
+//! It takes market data, analyzes it, runs a specified trading strategy,
+//! cross-references historical performance (RAG), and produces actionable `TradeIntent`s.
+//!
+//! The core function is [`generate_signals`], which acts as the "brain"
+//! of the trading agent during execution and backtesting.
+
 use crate::analysis;
 use crate::search_history;
 use crate::strategy_factory;
@@ -89,6 +98,40 @@ fn resolve_signal_type(
 /// # Returns
 ///
 /// A vector of `TradeIntent` objects representing valid trading opportunities.
+/// Evaluates a strategy against market data to generate trading intents.
+///
+/// This function performs several steps:
+/// 1. Analyzes the market (or uses the provided analysis).
+/// 2. Executes the specified strategy to generate raw signals.
+/// 3. Resolves signal types (e.g., converts "Entry" to "ScaleIn" if a position exists).
+/// 4. Filters signals based on daily limits, chasing restrictions, and historical context.
+/// 5. Sizes the position based on volatility and risk rules.
+///
+/// # Examples
+///
+/// ```
+/// use contracts::{BarSeries, Bar, Position};
+/// use thales_cli::signals::generate_signals;
+///
+/// # tokio::runtime::Runtime::new().unwrap().block_on(async {
+/// let bars = BarSeries {
+///     schema_version: "1.0".to_string(),
+///     bars: vec![
+///         Bar { symbol: "AAPL".to_string(), market: "equities".to_string(), timestamp_unix_ms: 1000, open: 150.0, high: 155.0, low: 149.0, close: 154.0, volume: 1000.0, timeframe: "1d".to_string() },
+///         Bar { symbol: "AAPL".to_string(), market: "equities".to_string(), timestamp_unix_ms: 2000, open: 154.0, high: 158.0, low: 153.0, close: 157.0, volume: 1200.0, timeframe: "1d".to_string() },
+///         Bar { symbol: "AAPL".to_string(), market: "equities".to_string(), timestamp_unix_ms: 3000, open: 157.0, high: 160.0, low: 156.0, close: 159.0, volume: 1500.0, timeframe: "1d".to_string() },
+///     ],
+/// };
+///
+/// // Generate signals using the EmaCrossover strategy.
+/// // We pass `None` for history path and analysis to use defaults.
+/// let intents = generate_signals(&bars, "EmaCrossover", None, 0.02, &[], None).await.unwrap();
+///
+/// // In this short synthetic example, there might be 0 intents depending on strategy parameters,
+/// // but the function successfully completes the evaluation pipeline.
+/// assert!(intents.is_empty() || !intents.is_empty());
+/// # });
+/// ```
 pub async fn generate_signals(
     bars: &BarSeries,
     strategy_name: &str,

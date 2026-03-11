@@ -42,6 +42,35 @@ pub struct FearAndGreedReport {
 ///
 /// * `series` - The historical price data.
 /// * `config` - Configuration for the analysis periods.
+///
+/// # Examples
+///
+/// ```
+/// use contracts::{BarSeries, Bar};
+/// use thales_cli::fear_and_greed::{analyze_fear_and_greed, FearAndGreedConfig};
+///
+/// let mut bars = vec![];
+/// for i in 0..30 {
+///     // Create a steady uptrend
+///     let price = 100.0 + (i as f64) * 2.0;
+///     bars.push(Bar {
+///         symbol: "AAPL".to_string(),
+///         market: "equities".to_string(),
+///         timestamp_unix_ms: i * 1000,
+///         open: price, high: price + 2.0, low: price - 2.0, close: price + 1.0,
+///         volume: 1000.0 + (i as f64) * 10.0,
+///         timeframe: "1d".to_string(),
+///     });
+/// }
+///
+/// let series = BarSeries { schema_version: "1.0".to_string(), bars };
+/// let config = FearAndGreedConfig { period: 20 };
+///
+/// let report = analyze_fear_and_greed(&series, config).unwrap();
+///
+/// // In a steady uptrend with increasing volume, the score should lean towards Greed (> 50.0).
+/// assert!(report.score > 50.0);
+/// ```
 pub fn analyze_fear_and_greed(
     series: &BarSeries,
     config: FearAndGreedConfig,

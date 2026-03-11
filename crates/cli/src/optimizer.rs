@@ -1,3 +1,12 @@
+//! # Strategy Optimization
+//!
+//! This module provides a Genetic Algorithm to find the optimal parameters
+//! for a given trading strategy.
+//!
+//! By simulating many generations of parameter combinations ("genomes") against
+//! historical data, it attempts to maximize the return (fitness function) while
+//! managing risk. It uses random mutations and crossovers to explore the parameter space.
+
 use crate::backtest::{self, BacktestConfig};
 use crate::strategy_factory;
 use anyhow::Result;
@@ -7,6 +16,19 @@ use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use std::collections::HashMap;
 
+/// Configuration for the Genetic Algorithm optimizer.
+///
+/// # Examples
+///
+/// ```
+/// use thales_cli::optimizer::OptimizationConfig;
+///
+/// let config = OptimizationConfig {
+///     population_size: 50,
+///     generations: 20,
+///     mutation_rate: 0.1,
+/// };
+/// ```
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct OptimizationConfig {
     pub population_size: usize,
@@ -23,6 +45,30 @@ pub enum ParamType {
     Float { min: f64, max: f64 },
 }
 
+/// A request to optimize a specific strategy.
+///
+/// # Examples
+///
+/// ```
+/// use thales_cli::optimizer::{OptimizationRequest, OptimizationConfig, ParamType};
+/// use std::collections::HashMap;
+///
+/// let mut params = HashMap::new();
+/// params.insert("fast_period".to_string(), ParamType::Int { min: 5, max: 20 });
+/// params.insert("slow_period".to_string(), ParamType::Int { min: 21, max: 50 });
+///
+/// let request = OptimizationRequest {
+///     strategy: "EmaCrossover".to_string(),
+///     initial_capital: 10000.0,
+///     risk_per_trade: 0.02,
+///     config: OptimizationConfig {
+///         population_size: 20,
+///         generations: 10,
+///         mutation_rate: 0.1,
+///     },
+///     params,
+/// };
+/// ```
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct OptimizationRequest {
     pub strategy: String,
@@ -60,6 +106,46 @@ pub struct OptimizationResult {
     pub generations_completed: usize,
 }
 
+/// Runs the genetic algorithm optimizer to find the best strategy parameters.
+///
+/// # Examples
+///
+/// ```
+/// use contracts::{BarSeries, Bar};
+/// use thales_cli::optimizer::{optimize, OptimizationRequest, OptimizationConfig, ParamType};
+/// use std::collections::HashMap;
+///
+/// # tokio::runtime::Runtime::new().unwrap().block_on(async {
+/// let bars = BarSeries {
+///     schema_version: "1.0".to_string(),
+///     bars: vec![
+///         Bar { symbol: "AAPL".to_string(), market: "equities".to_string(), timestamp_unix_ms: 1000, open: 150.0, high: 155.0, low: 149.0, close: 154.0, volume: 1000.0, timeframe: "1d".to_string() },
+///         Bar { symbol: "AAPL".to_string(), market: "equities".to_string(), timestamp_unix_ms: 2000, open: 154.0, high: 158.0, low: 153.0, close: 157.0, volume: 1200.0, timeframe: "1d".to_string() },
+///         Bar { symbol: "AAPL".to_string(), market: "equities".to_string(), timestamp_unix_ms: 3000, open: 157.0, high: 160.0, low: 156.0, close: 159.0, volume: 1500.0, timeframe: "1d".to_string() },
+///     ],
+/// };
+///
+/// let mut params = HashMap::new();
+/// params.insert("fast_period".to_string(), ParamType::Int { min: 2, max: 5 });
+/// params.insert("slow_period".to_string(), ParamType::Int { min: 6, max: 10 });
+///
+/// let request = OptimizationRequest {
+///     strategy: "EmaCrossover".to_string(),
+///     initial_capital: 10000.0,
+///     risk_per_trade: 0.02,
+///     config: OptimizationConfig {
+///         population_size: 2,
+///         generations: 1,
+///         mutation_rate: 0.1,
+///     },
+///     params,
+/// };
+///
+/// let result = optimize(&request, &bars).await.unwrap();
+/// // Fitness can be negative depending on strategy performance on the short dummy data
+/// assert!(result.generations_completed == 1);
+/// # });
+/// ```
 pub async fn optimize(
     request: &OptimizationRequest,
     bars: &BarSeries,

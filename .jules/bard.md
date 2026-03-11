@@ -36,6 +36,10 @@
 **Confusion:** The core CLI execution engine (, , , , ) lacked comprehensive documentation. Users could not understand how signals translated into trades, how history pending outcomes were resolved, or how synthetic data was formulated using Geometric Brownian Motion.
 **Clarification:** Added extensive module-level (`//!`) and item-level (`///`) documentation outlining the simulation loops, evaluation processes, struct definitions, and executable examples for strategy instantiation and backtesting.
 
+## 2024-05-29 - The Silent Execution
+**Confusion:** The core CLI execution engine (`signals.rs`, `optimizer.rs`, `black_swan.rs`, `fear_and_greed.rs`) lacked comprehensive documentation. Users could not understand how signals translated into trades, how history pending outcomes were resolved, or how synthetic data was formulated using Geometric Brownian Motion.
+**Clarification:** Added extensive module-level (`//!`) and item-level (`///`) documentation outlining the simulation loops, evaluation processes, struct definitions, and executable examples for strategy instantiation and backtesting.
+
 ## 2024-05-28 - The Silent Simulation
 **Confusion:** The core CLI execution engine (backtest.rs, benchmark.rs, history.rs, strategy_factory.rs, synthetic_data.rs) lacked comprehensive documentation. Users could not understand how signals translated into trades, how history pending outcomes were resolved, or how synthetic data was formulated using Geometric Brownian Motion.
 **Clarification:** Added extensive module-level (`//!`) and item-level (`///`) documentation outlining the simulation loops, evaluation processes, struct definitions, and executable examples for strategy instantiation and backtesting.

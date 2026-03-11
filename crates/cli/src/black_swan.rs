@@ -55,6 +55,36 @@ pub struct BlackSwanConfig {
 /// Injects a Black Swan event into a BarSeries.
 ///
 /// Returns a new `BarSeries` with the simulated event applied, leaving the original unchanged.
+///
+/// # Examples
+///
+/// ```
+/// use contracts::{BarSeries, Bar};
+/// use thales_cli::black_swan::{inject_black_swan, BlackSwanConfig, BlackSwanEvent};
+///
+/// let mut bars = vec![];
+/// for i in 0..10 {
+///     bars.push(Bar {
+///         symbol: "AAPL".to_string(),
+///         market: "equities".to_string(),
+///         timestamp_unix_ms: i * 1000,
+///         open: 100.0, high: 105.0, low: 95.0, close: 100.0, volume: 1000.0,
+///         timeframe: "1d".to_string(),
+///     });
+/// }
+///
+/// let series = BarSeries { schema_version: "1.0".to_string(), bars };
+///
+/// let config = BlackSwanConfig {
+///     event: BlackSwanEvent::FlashCrash { drop_pct: 0.30, duration_bars: 2 },
+///     start_index: 5,
+///     seed: Some(42),
+/// };
+///
+/// let new_series = inject_black_swan(&series, config).unwrap();
+/// // By index 7 (5 + 2), the close price should be roughly 70.0 (30% drop from 100)
+/// assert!(new_series.bars[7].close < 75.0);
+/// ```
 pub fn inject_black_swan(series: &BarSeries, config: BlackSwanConfig) -> Result<BarSeries> {
     let mut modified_bars = series.bars.clone();
     let n = modified_bars.len();
