@@ -61,7 +61,12 @@ pub fn calculate(data: &DataFrame, period: usize) -> Result<Series> {
 
     let hundred = Decimal::from(100);
 
-    for (i, cmo_val) in cmo_values.iter_mut().enumerate().take(decimal_close.len()).skip(period) {
+    for (i, cmo_val) in cmo_values
+        .iter_mut()
+        .enumerate()
+        .take(decimal_close.len())
+        .skip(period)
+    {
         let mut sum_gains = Decimal::ZERO;
         let mut sum_losses = Decimal::ZERO;
         let mut valid = true;
