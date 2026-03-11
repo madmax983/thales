@@ -28,6 +28,7 @@
 use anyhow::Result;
 use strategies::adx_macd_trend::{AdxMacdTrend, AdxMacdTrendConfig};
 use strategies::adx_momentum::{AdxMomentum, AdxMomentumConfig};
+use strategies::alma_crossover::{AlmaCrossover, AlmaCrossoverConfig};
 use strategies::aroon_oscillator::{AroonOscillator, AroonOscillatorConfig};
 use strategies::awesome_oscillator::{AwesomeOscillator, AwesomeOscillatorConfig};
 use strategies::bollinger_bands::{BollingerBandsConfig, BollingerBandsMeanReversion};
@@ -223,6 +224,18 @@ pub fn create_strategy(name: &str, symbol: &str) -> Result<Box<dyn Strategy>> {
                 symbol: symbol.to_string(),
             };
             Ok(Box::new(StochasticOscillator::new(config)))
+        }
+        "AlmaCrossover" => {
+            let config = AlmaCrossoverConfig {
+                fast_period: 9,
+                slow_period: 21,
+                offset: 0.85,
+                sigma: 6.0,
+                stop_loss_atr_mult: 2.0,
+                atr_period: 14,
+                symbol: symbol.to_string(),
+            };
+            Ok(Box::new(AlmaCrossover::new(config)))
         }
         "AdxMacdTrend" => {
             let config = AdxMacdTrendConfig {
@@ -466,6 +479,7 @@ pub fn create_strategy(name: &str, symbol: &str) -> Result<Box<dyn Strategy>> {
 /// This list powers the CLI auto-completion, benchmark suites, and agent scanning.
 pub fn list_strategies() -> Vec<&'static str> {
     vec![
+        "AlmaCrossover",
         "AdxMacdTrend",
         "AroonOscillator",
         "BollingerBands",
