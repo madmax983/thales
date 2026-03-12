@@ -179,10 +179,8 @@ def main():
 
                     # Filter: Check historical trades before generating new signals
                     rationale = intent.get("rationale") or ""
-                    # A robust check looking for the exact failure phrase in the RAG tool output
-                    if is_entry and "No similar past trades found" in rationale:
-                        print(f"Skipping signal for {symbol}: No historical context found.")
-                        continue
+                    # Note: We do not skip if "No similar past trades found" is present,
+                    # because a lack of history is a valid historical context for a new signal.
 
                     # Filter: Do not chase moves - wait for pullbacks
                     # Check the 'sentiment' string from analysis and rationale
