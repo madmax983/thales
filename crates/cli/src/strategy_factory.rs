@@ -54,6 +54,7 @@ use strategies::obv_trend::{ObvTrendFollowing, ObvTrendFollowingConfig};
 use strategies::parabolic_sar::{ParabolicSar, ParabolicSarConfig};
 use strategies::roc_momentum::{RocMomentum, RocMomentumConfig};
 use strategies::rsi_mean_reversion::{RsiMeanReversion, RsiMeanReversionConfig};
+use strategies::sma_crossover::{SmaCrossover, SmaCrossoverConfig};
 use strategies::stoch_rsi_mean_reversion::{StochRsiMeanReversion, StochRsiMeanReversionConfig};
 use strategies::stochastic_oscillator::{StochasticOscillator, StochasticOscillatorConfig};
 use strategies::strategy::Strategy;
@@ -132,6 +133,16 @@ pub fn create_strategy(name: &str, symbol: &str) -> Result<Box<dyn Strategy>> {
                 symbol: symbol.to_string(),
             };
             Ok(Box::new(EmaCrossover::new(config)))
+        }
+        "SmaCrossover" => {
+            let config = SmaCrossoverConfig {
+                short_period: 9,
+                long_period: 21,
+                stop_loss_atr_mult: 2.0,
+                atr_period: 14,
+                symbol: symbol.to_string(),
+            };
+            Ok(Box::new(SmaCrossover::new(config)))
         }
         "ElderRay" => {
             let config = ElderRayConfig {
@@ -540,5 +551,6 @@ pub fn list_strategies() -> Vec<&'static str> {
         "TemaCrossover",
         "WmaCrossover",
         "HmaCrossover",
+        "SmaCrossover",
     ]
 }
