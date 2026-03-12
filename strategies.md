@@ -2735,3 +2735,80 @@ Mean Reversion
 
 ### Position Sizing
 - **Size Hint:** "100" (fixed units) for entry, "max" for exits.
+
+---
+
+# Trading Strategy: EmaRsiTrendFollowing
+
+## Strategy Specification
+
+**Name:** EmaRsiTrendFollowing
+
+**Description:** A quantitative trading strategy that uses Exponential Moving Averages (EMA) and the Relative Strength Index (RSI) to capture short-term momentum and identify trend reversals.
+
+**Rationale:** The strategy combines the trend-following capabilities of EMAs with the momentum confirmation of RSI. A short-term EMA crossing above a long-term EMA suggests an emerging uptrend, while RSI confirming momentum strength (e.g., RSI > 50) provides additional confidence for long entries. Conversely, a bearish EMA crossover with RSI < 50 signals a downtrend. Using both indicators reduces false signals by ensuring conflux between trend direction and momentum.
+
+## Requirements
+
+### Implementation Details
+- Uses Polars for data analysis.
+- Implements the `Strategy` trait in Rust.
+- Uses `ema` and `rsi` indicators.
+
+### Strategy Type
+TrendFollowing
+
+### Entry Conditions
+- **Long Entry (Buy):** Short EMA crosses ABOVE Long EMA and RSI > Buy Threshold.
+- **Short Entry (Sell):** Short EMA crosses BELOW Long EMA and RSI < Sell Threshold.
+
+### Exit Conditions
+- **Long Exit (Sell):** Short EMA crosses BELOW Long EMA and RSI < Sell Threshold.
+- **Short Exit (Buy):** Short EMA crosses ABOVE Long EMA and RSI > Buy Threshold.
+- **Stop Loss:** Entry Price +/- (ATR * `stop_loss_atr_mult`).
+
+### Position Sizing
+- **Size Hint:** "100" (fixed units) or "max" (for exits).
+
+## Code Pattern
+
+```rust
+use crate::strategy::{Strategy, StrategyConfig, Signal, SignalType};
+use crate::indicators::{atr, ema, rsi};
+use polars::prelude::*;
+use async_trait::async_trait;
+use anyhow::Result;
+
+pub struct EmaRsiTrendFollowing {
+    config: EmaRsiTrendFollowingConfig,
+}
+
+#[derive(Debug, Clone, serde::Deserialize)]
+pub struct EmaRsiTrendFollowingConfig {
+    pub short_ema_period: usize,
+    pub long_ema_period: usize,
+    pub rsi_period: usize,
+    pub rsi_buy_threshold: f64,
+    pub rsi_sell_threshold: f64,
+    pub stop_loss_atr_mult: f64,
+    pub atr_period: usize,
+    pub symbol: String,
+}
+```
+
+## Critical Considerations
+
+### Risk Management Integration
+- **Stop Loss:** Uses ATR-based stop loss for dynamic risk control.
+- **Trend Filter:** Combining EMA crossovers with RSI momentum filters helps eliminate false positive entries during ranging or weak trend markets.
+
+### Backtesting Requirements
+- Accepts `DataFrame` with historical data containing "close".
+- Requires data length > max(`long_ema_period`, `rsi_period`).
+- **Expected Win Rate:** 45-55%
+- **Expected Sharpe Ratio:** > 1.2
+- **Max Drawdown:** < 15%
+
+### Performance
+- EMA, RSI, and ATR calculations are O(N).
+- Signal generation loop is O(N).
