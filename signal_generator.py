@@ -26,6 +26,7 @@ def run_command(args):
 
 def format_signal(intent):
     direction = "long" if str(intent.get('side', '')).lower() == "buy" else "short"
+    direction = direction.lower()
     strength = intent.get('confidence', 0.0) * 100
     size = intent.get('size_hint', '0')
     sl = intent.get('stop_loss', 'None')
