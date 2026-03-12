@@ -442,6 +442,20 @@ pub fn create_strategy(name: &str, symbol: &str) -> Result<Box<dyn Strategy>> {
             };
             Ok(Box::new(ZScoreMeanReversion::new(config)))
         }
+        "BollingerRsiMeanReversion" => {
+            use strategies::bollinger_rsi::{BollingerRsiConfig, BollingerRsiMeanReversion};
+            let config = BollingerRsiConfig {
+                bb_period: 20,
+                bb_std_dev: 2.0,
+                rsi_period: 14,
+                rsi_oversold: 30.0,
+                rsi_overbought: 70.0,
+                stop_loss_atr_mult: 2.0,
+                atr_period: 14,
+                symbol: symbol.to_string(),
+            };
+            Ok(Box::new(BollingerRsiMeanReversion::new(config)))
+        }
 
         "DemaCrossover" => {
             let config = DemaCrossoverConfig {
@@ -543,6 +557,7 @@ pub fn list_strategies() -> Vec<&'static str> {
         "VwapReversion",
         "VortexBreakout",
         "ZScoreMeanReversion",
+        "BollingerRsiMeanReversion",
         "StochRsiMeanReversion",
         "RocMomentum",
         "MacdRsiTrend",

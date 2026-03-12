@@ -2703,3 +2703,35 @@ pub struct SmaCrossoverConfig {
 ### Performance
 - SMA and ATR calculations are O(N).
 - Signal generation loop is O(N).
+
+---
+
+# Trading Strategy: Bollinger RSI Mean Reversion
+
+## Strategy Specification
+
+**Name:** BollingerRsiMeanReversion
+
+**Description:** A mean-reversion strategy combining Bollinger Bands and the Relative Strength Index (RSI).
+
+**Rationale:** The strategy capitalizes on overextended price movements. It assumes that when price crosses below the lower Bollinger Band while RSI is oversold, the asset is undervalued and due for a bounce. Conversely, when price crosses above the upper Bollinger Band while RSI is overbought, the asset is overvalued and likely to retrace. Combining both indicators reduces false signals.
+
+## Requirements
+
+### Implementation Details
+- Uses Polars for data analysis.
+- Implements the `Strategy` trait in Rust.
+- Uses `bollinger_bands`, `rsi`, and `atr` indicators.
+
+### Strategy Type
+Mean Reversion
+
+### Entry Conditions
+- **Long Entry (Buy):** Price closes below the Lower Bollinger Band AND RSI is less than the oversold threshold.
+
+### Exit Conditions
+- **Long Exit (Sell):** Price closes above the Upper Bollinger Band OR RSI is greater than the overbought threshold OR Stop Loss is hit.
+- **Stop Loss:** Entry Price - (ATR * `stop_loss_atr_mult`).
+
+### Position Sizing
+- **Size Hint:** "100" (fixed units) for entry, "max" for exits.
