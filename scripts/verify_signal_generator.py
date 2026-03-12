@@ -106,7 +106,7 @@ def test_breakout_signal():
                     print(f"PASS: Size Hint valid (>0): {size}")
                 else:
                     print(f"FAIL: Invalid Size Hint: {size}")
-            except:
+            except (ValueError, TypeError):
                 if sig.get("size_hint") == "max":
                      print(f"PASS: Size Hint is 'max'")
                 else:
