@@ -2629,3 +2629,77 @@ pub struct AlmaCrossoverConfig {
 ### Performance
 - ALMA and ATR calculations are O(N).
 - Signal generation loop is O(N).
+
+---
+
+# Trading Strategy: SMA Crossover
+
+## Strategy Specification
+
+**Name:** SmaCrossover
+
+**Description:** A trend-following strategy that generates signals based on the crossover of two Simple Moving Averages (SMA) of different periods.
+
+**Rationale:** The SMA Crossover strategy is a classic trend-following approach. It reduces market noise by averaging past prices, allowing traders to identify the general direction of the trend. A fast SMA crossing above a slow SMA suggests an emerging uptrend (bullish), while a fast SMA crossing below a slow SMA suggests an emerging downtrend (bearish).
+
+## Requirements
+
+### Implementation Details
+- Uses Polars for data analysis.
+- Implements the `Strategy` trait in Rust.
+- Uses `sma` and `atr` indicators.
+
+### Strategy Type
+TrendFollowing
+
+### Entry Conditions
+- **Long Entry (Buy):** Short SMA crosses ABOVE Long SMA.
+- **Short Entry (Sell):** Short SMA crosses BELOW Long SMA.
+
+### Exit Conditions
+- **Long Exit (Sell):** Short SMA crosses BELOW Long SMA.
+- **Short Exit (Buy):** Short SMA crosses ABOVE Long SMA.
+- **Stop Loss:** Entry Price +/- (ATR * `stop_loss_atr_mult`).
+
+### Position Sizing
+- **Size Hint:** "100" (fixed units) or "max" (for exits).
+
+## Code Pattern
+
+```rust
+use crate::strategy::{Strategy, StrategyConfig, Signal, SignalType};
+use crate::indicators::{atr, sma};
+use polars::prelude::*;
+use async_trait::async_trait;
+use anyhow::Result;
+
+pub struct SmaCrossover {
+    config: SmaCrossoverConfig,
+}
+
+#[derive(Debug, Clone, serde::Deserialize)]
+pub struct SmaCrossoverConfig {
+    pub short_period: usize,
+    pub long_period: usize,
+    pub stop_loss_atr_mult: f64,
+    pub atr_period: usize,
+    pub symbol: String,
+}
+```
+
+## Critical Considerations
+
+### Risk Management Integration
+- **Stop Loss:** Uses ATR-based stop loss for dynamic risk control.
+- **Trend Filter:** Relying on SMA can increase lag and produce false signals in ranging markets. Best used in strong trending conditions or combined with other filters.
+
+### Backtesting Requirements
+- Accepts `DataFrame` with historical data containing "close".
+- Requires data length > `long_period`.
+- **Expected Win Rate:** 40-50%
+- **Expected Sharpe Ratio:** > 1.0
+- **Max Drawdown:** < 20%
+
+### Performance
+- SMA and ATR calculations are O(N).
+- Signal generation loop is O(N).

@@ -21,6 +21,7 @@
 //! - [`connors_rsi_mean_reversion::ConnorsRsiMeanReversion`] - Mean reversion using Connors RSI (CRSI).
 //! - [`awesome_oscillator::AwesomeOscillator`] - Momentum strategy using Awesome Oscillator (AO).
 //! - [`cmo_mean_reversion::CmoMeanReversion`] - Mean reversion strategy using Chande Momentum Oscillator.
+//! - [`sma_crossover::SmaCrossover`] - Trend following using SMA crossovers.
 
 pub mod adx_macd_trend;
 pub mod adx_momentum;
@@ -49,6 +50,7 @@ pub mod obv_trend;
 pub mod parabolic_sar;
 pub mod roc_momentum;
 pub mod rsi_mean_reversion;
+pub mod sma_crossover;
 pub mod stoch_rsi_mean_reversion;
 pub mod stochastic_oscillator;
 pub mod strategy;
