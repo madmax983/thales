@@ -3,6 +3,9 @@ name = "strategies"
 version = "0.1.0"
 edition = "2021"
 
+[features]
+nova = []
+
 [dependencies]
 contracts = { path = "../contracts" }
 anyhow = "1.0"

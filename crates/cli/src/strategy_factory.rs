@@ -492,6 +492,19 @@ pub fn create_strategy(name: &str, symbol: &str) -> Result<Box<dyn Strategy>> {
             };
             Ok(Box::new(TsiTrend::new(config)))
         }
+        #[cfg(feature = "nova")]
+        "EntropyStrategy" => {
+            let config = strategies::experimental::entropy_strategy::EntropyStrategyConfig {
+                window_size: 20,
+                num_bins: 10,
+                entropy_threshold: 0.5,
+                stop_loss_pct: 0.05,
+                symbol: symbol.to_string(),
+            };
+            Ok(Box::new(
+                strategies::experimental::entropy_strategy::EntropyStrategy::new(config),
+            ))
+        }
         _ => Err(anyhow::anyhow!("Unknown strategy: {}", name)),
     }
 }
@@ -540,5 +553,7 @@ pub fn list_strategies() -> Vec<&'static str> {
         "TemaCrossover",
         "WmaCrossover",
         "HmaCrossover",
+        #[cfg(feature = "nova")]
+        "EntropyStrategy",
     ]
 }
