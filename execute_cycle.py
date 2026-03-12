@@ -1351,9 +1351,6 @@ def main():
     # 0. Manage Active Orders (Cancel Stale)
     manage_orders()
 
-    # 0b. Archive Stale Signals
-    archive_signals(days=1)
-
     # 0c. Update Signal History
     if os.environ.get("SIMULATION") == "true":
         run_command(["update-signal-history", "--input", "history.json", "--provider", "paper"])
@@ -1376,6 +1373,9 @@ def main():
     # 2. Scan Markets + Get from Signals.md
     scanned_candidates = scan_markets()
     signal_candidates = get_candidates_from_signals()
+
+    # 0b. Archive Stale Signals after they have been processed and logged as stale
+    archive_signals(days=1)
 
     # Merge candidates (prefer signal candidates if duplicates?)
     # Priority: Signals.md candidates > Scanned candidates
