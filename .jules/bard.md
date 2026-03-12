@@ -43,3 +43,6 @@
 ## 2024-05-28 - The Silent Simulation
 **Confusion:** The core CLI execution engine (backtest.rs, benchmark.rs, history.rs, strategy_factory.rs, synthetic_data.rs) lacked comprehensive documentation. Users could not understand how signals translated into trades, how history pending outcomes were resolved, or how synthetic data was formulated using Geometric Brownian Motion.
 **Clarification:** Added extensive module-level (`//!`) and item-level (`///`) documentation outlining the simulation loops, evaluation processes, struct definitions, and executable examples for strategy instantiation and backtesting.
+## 2024-05-30 - The Silent Bollingers
+**Confusion:** The classic Bollinger Bands strategy lacked documentation for its configuration parameters and why it was built, leaving users confused as to what the numbers meant.
+**Clarification:** Documented `BollingerBandsMeanReversion` and `BollingerBandsConfig` with executable examples, outlining the meaning behind std deviations and window sizes.
