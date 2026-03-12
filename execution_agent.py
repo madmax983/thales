@@ -120,7 +120,7 @@ def refine_intent(intent, current_price=None):
                 is_very_large = True
             elif size > 1000.0:
                 is_large = True
-    except:
+    except (ValueError, TypeError):
         pass
 
     if is_very_large:
@@ -221,7 +221,7 @@ def log_trade(intent, result, slippage=None):
              qty = float(size) if size != "max" else 0.0
              if qty > 0:
                  max_risk = f"{abs(entry - stop) * qty:.2f}"
-        except:
+        except (ValueError, TypeError):
              pass
 
     signal_ref = intent.get("intent_id", "MANUAL")
