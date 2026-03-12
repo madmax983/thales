@@ -39,6 +39,7 @@ pub mod dema_crossover;
 pub mod donchian_breakout;
 pub mod elder_ray;
 pub mod ema_crossover;
+pub mod ema_rsi_trend;
 pub mod hma_crossover;
 pub mod ichimoku_cloud;
 pub mod indicators;

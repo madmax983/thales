@@ -43,6 +43,7 @@ use strategies::dema_crossover::{DemaCrossover, DemaCrossoverConfig};
 use strategies::donchian_breakout::{DonchianBreakout, DonchianBreakoutConfig};
 use strategies::elder_ray::{ElderRay, ElderRayConfig};
 use strategies::ema_crossover::{EmaCrossover, EmaCrossoverConfig};
+use strategies::ema_rsi_trend::{EmaRsiTrendFollowing, EmaRsiTrendFollowingConfig};
 use strategies::hma_crossover::{HmaCrossover, HmaCrossoverConfig};
 use strategies::ichimoku_cloud::{IchimokuCloud, IchimokuCloudConfig};
 use strategies::keltner_channel_breakout::{KeltnerChannelBreakout, KeltnerChannelBreakoutConfig};
@@ -133,6 +134,19 @@ pub fn create_strategy(name: &str, symbol: &str) -> Result<Box<dyn Strategy>> {
                 symbol: symbol.to_string(),
             };
             Ok(Box::new(EmaCrossover::new(config)))
+        }
+        "EmaRsiTrendFollowing" => {
+            let config = EmaRsiTrendFollowingConfig {
+                short_ema_period: 9,
+                long_ema_period: 21,
+                rsi_period: 14,
+                rsi_buy_threshold: 50.0,
+                rsi_sell_threshold: 50.0,
+                stop_loss_atr_mult: 2.0,
+                atr_period: 14,
+                symbol: symbol.to_string(),
+            };
+            Ok(Box::new(EmaRsiTrendFollowing::new(config)))
         }
         "SmaCrossover" => {
             let config = SmaCrossoverConfig {
@@ -567,5 +581,6 @@ pub fn list_strategies() -> Vec<&'static str> {
         "WmaCrossover",
         "HmaCrossover",
         "SmaCrossover",
+        "EmaRsiTrendFollowing",
     ]
 }
