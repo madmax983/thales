@@ -1,3 +1,18 @@
+//! 🎻 **The Bollinger Bands Tale**
+//!
+//! A classical tale of mean reversion! When the market strays too far from its average,
+//! the invisible hand pulls it back. This module tells that story through the lens of
+//! standard deviations.
+//!
+//! The `BollingerBandsMeanReversion` strategy calculates a Simple Moving Average (SMA) and
+//! upper/lower bands based on standard deviations. It enters trades when the price pierces
+//! a band (expecting a reversion) and exits when it crosses the mean.
+//!
+//! # The Strategy
+//! - **Go Long**: When the closing price dips *below* the lower band.
+//! - **Go Short**: When the closing price peaks *above* the upper band.
+//! - **Exit**: When the price crosses the SMA, realizing the reversion to the mean.
+
 use crate::strategy::{Signal, SignalType, Strategy, StrategyConfig, StrategyType};
 use anyhow::Result;
 use async_trait::async_trait;
@@ -6,16 +21,63 @@ use rust_decimal::prelude::*;
 use rust_decimal::Decimal;
 use serde::{Deserialize, Serialize};
 
+/// 🎻 **Bollinger Bands Configuration**
+///
+/// The magical parameters that define our bands of support and resistance.
+/// By tuning these, you control how tightly the bands hug the price action.
+///
+/// # Examples
+///
+/// ```rust
+/// use strategies::bollinger_bands::BollingerBandsConfig;
+///
+/// let config = BollingerBandsConfig {
+///     window_size: 20,          // The classic 20-period moving average
+///     num_std_dev: 2.0,         // Two standard deviations capture ~95% of action
+///     stop_loss_pct: 0.05,      // A 5% safety net
+///     symbol: "BTCUSD".into(),  // The asset we trade
+/// };
+/// ```
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct BollingerBandsConfig {
+    /// The number of periods for the Simple Moving Average (SMA).
     pub window_size: usize,
+    /// The multiplier for standard deviation to set the band width.
     pub num_std_dev: f64,
+    /// The percentage drop to trigger a stop loss (e.g., `0.05` for 5%).
     pub stop_loss_pct: f64,
+    /// The specific market symbol to generate signals for.
     pub symbol: String,
 }
 
 impl StrategyConfig for BollingerBandsConfig {}
 
+/// 🎻 **The Mean Reversion Oracle**
+///
+/// This strategy watches the [`BollingerBandsConfig`] boundaries. When the market
+/// is oversold (below the lower band) it whispers "buy". When the market is overbought
+/// (above the upper band) it cautions "sell".
+///
+/// It implements the `Strategy` trait, allowing it to generate standard `Signal`s
+/// from a Polars `DataFrame`.
+///
+/// # Examples
+///
+/// ```rust
+/// use strategies::bollinger_bands::{BollingerBandsMeanReversion, BollingerBandsConfig};
+/// use strategies::strategy::Strategy;
+///
+/// let config = BollingerBandsConfig {
+///     window_size: 20,
+///     num_std_dev: 2.0,
+///     stop_loss_pct: 0.05,
+///     symbol: "BTCUSD".into(),
+/// };
+///
+/// let strategy = BollingerBandsMeanReversion::new(config);
+/// assert_eq!(strategy.name(), "BollingerBands");
+/// ```
+#[doc(alias = "BBands")]
 pub struct BollingerBandsMeanReversion {
     config: BollingerBandsConfig,
 }
