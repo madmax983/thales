@@ -56,6 +56,7 @@ TREND_FOLLOWING_STRATEGIES = {
     "TsiTrend",
     "WmaCrossover",
     "HmaCrossover",
+    "FractalBreakout",
 }
 BREAKOUT_STRATEGIES = {
     "Supertrend",

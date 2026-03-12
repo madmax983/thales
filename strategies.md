@@ -57,6 +57,11 @@ Mean Reversion
 
 ### Position Sizing
 - **Size Hint:** "100" (fixed units) or "max" (for exits).
+
+### Backtesting Requirements
+- **Expected Win Rate:** 40-50% (Breakout strategies often have lower win rates but high R:R ratios).
+- **Expected Sharpe Ratio:** > 1.0 in trending markets.
+- **Max Drawdown:** < 15% (controlled via ATR-based dynamic stops).
 - In a real implementation, this would be dynamic based on portfolio value and risk limits.
 
 ## Code Pattern
@@ -2629,3 +2634,19 @@ pub struct AlmaCrossoverConfig {
 ### Performance
 - ALMA and ATR calculations are O(N).
 - Signal generation loop is O(N).
+
+# Trading Strategy: FractalBreakout
+## Strategy Specification
+**Name:** FractalBreakout
+**Description:** Breakout strategy based on Williams Fractals.
+**Rationale:** Breaks of local high/low fractals signal trend continuation.
+## Requirements
+### Strategy Type
+TrendFollowing
+### Entry Conditions
+- **Long Entry (Buy):** Close price > most recent bearish fractal high.
+### Exit Conditions
+- **Long Exit (Sell):** Close price < most recent bullish fractal low.
+- **Stop Loss:** Entry Price - (ATR * `stop_loss_atr_mult`).
+### Position Sizing
+- **Size Hint:** "100" (fixed units) or "max" (for exits).

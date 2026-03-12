@@ -43,6 +43,7 @@ use strategies::dema_crossover::{DemaCrossover, DemaCrossoverConfig};
 use strategies::donchian_breakout::{DonchianBreakout, DonchianBreakoutConfig};
 use strategies::elder_ray::{ElderRay, ElderRayConfig};
 use strategies::ema_crossover::{EmaCrossover, EmaCrossoverConfig};
+use strategies::fractal_breakout::{FractalBreakout, FractalBreakoutConfig};
 use strategies::hma_crossover::{HmaCrossover, HmaCrossoverConfig};
 use strategies::ichimoku_cloud::{IchimokuCloud, IchimokuCloudConfig};
 use strategies::keltner_channel_breakout::{KeltnerChannelBreakout, KeltnerChannelBreakoutConfig};
@@ -492,6 +493,15 @@ pub fn create_strategy(name: &str, symbol: &str) -> Result<Box<dyn Strategy>> {
             };
             Ok(Box::new(TsiTrend::new(config)))
         }
+        "FractalBreakout" => {
+            let config = FractalBreakoutConfig {
+                window: 2,
+                stop_loss_atr_mult: 2.0,
+                atr_period: 14,
+                symbol: symbol.to_string(),
+            };
+            Ok(Box::new(FractalBreakout::new(config)))
+        }
         _ => Err(anyhow::anyhow!("Unknown strategy: {}", name)),
     }
 }
@@ -540,5 +550,6 @@ pub fn list_strategies() -> Vec<&'static str> {
         "TemaCrossover",
         "WmaCrossover",
         "HmaCrossover",
+        "FractalBreakout",
     ]
 }
