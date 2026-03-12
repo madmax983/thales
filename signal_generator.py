@@ -105,7 +105,7 @@ def main():
                             elif "low" in volatility_label:
                                 size_hint_val *= 1.5
                             intent["size_hint"] = f"{size_hint_val:.6f}"
-                        except ValueError:
+                        except (ValueError, TypeError):
                             pass
 
                     # Handle Signal Types: Entry, Exit, ScaleIn, ScaleOut
@@ -123,7 +123,7 @@ def main():
                         try:
                             current_sz = float(intent.get("size_hint", "0"))
                             intent["size_hint"] = f"{(current_sz * 0.5):.6f}"
-                        except ValueError:
+                        except (ValueError, TypeError):
                             pass
                         intent.pop("stop_loss", None)
                         intent.pop("take_profit", None)
@@ -132,7 +132,7 @@ def main():
                             try:
                                 current_sz = float(intent.get("size_hint", "0"))
                                 intent["size_hint"] = f"{(current_sz * 0.5):.6f}"
-                            except ValueError:
+                            except (ValueError, TypeError):
                                 pass
 
                         if not intent.get("stop_loss") or intent.get("stop_loss") == "None":
