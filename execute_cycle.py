@@ -1497,6 +1497,7 @@ def main():
             elif outcome == "submitted":
                 print(f"Order submitted (not filled yet). Status: {status}")
                 log_submitted(intent, exec_res)
+                update_history(intent)
             elif outcome == "rejected":
                 reason = f"Order rejected with status '{status}'"
                 print(reason)
