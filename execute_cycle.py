@@ -1464,8 +1464,16 @@ def main():
                 print(f"  {cand['symbol']}: All {len(raw_signals)} signals rejected due to conflicts.")
             else:
                 # No signals generated at all.
-                # If this candidate came from Signals.md, we should log that we skipped it.
-                if cand.get("raw_analysis_json"):
+                if getattr(run_command, "last_error", None):
+                    reason = f"Invalid input: {run_command.last_error}"
+                    print(f"  {cand['symbol']}: {reason}")
+                    dummy_intent = {
+                        "symbol": cand["symbol"],
+                        "intent_id": cand.get("signal_ref", "NO_REF"),
+                        "rationale": reason
+                    }
+                    log_skipped(dummy_intent, reason)
+                elif cand.get("raw_analysis_json"):
                      reason = f"No active strategy generated a signal (Strategies: {', '.join(strategies)})"
                      print(f"  {cand['symbol']}: {reason}")
                      # Create a dummy intent for logging
