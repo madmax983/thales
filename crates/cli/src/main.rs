@@ -20,6 +20,8 @@ use thales_cli::entropy;
 #[cfg(feature = "nova")]
 use thales_cli::fear_and_greed;
 #[cfg(feature = "nova")]
+use thales_cli::market_phases;
+#[cfg(feature = "nova")]
 use thales_cli::markov_chain;
 #[cfg(feature = "nova")]
 use thales_cli::monte_carlo;
@@ -206,6 +208,17 @@ enum Commands {
         num_bins: usize,
         #[arg(long, default_value = "0.70")]
         value_area_pct: f64,
+        #[arg(long)]
+        visualize: bool,
+    },
+    #[cfg(feature = "nova")]
+    AnalyzeMarketPhases {
+        #[arg(long)]
+        input: PathBuf,
+        #[arg(long, default_value = "50")]
+        short_window: usize,
+        #[arg(long, default_value = "200")]
+        long_window: usize,
         #[arg(long)]
         visualize: bool,
     },
@@ -964,6 +977,35 @@ fn run(command: Commands, raw: bool) -> Result<String, CliError> {
 
             if visualize {
                 volume_profile::print_ascii_profile(&report);
+            }
+
+            ok_envelope(report, vec![], raw)
+        }
+        #[cfg(feature = "nova")]
+        Commands::AnalyzeMarketPhases {
+            input,
+            short_window,
+            long_window,
+            visualize,
+        } => {
+            let file_content = fs::read_to_string(&input)?;
+            let series: BarSeries =
+                match serde_json::from_str::<ResponseEnvelope<BarSeries>>(&file_content) {
+                    Ok(envelope) => envelope
+                        .data
+                        .ok_or(CliError::Validation("Envelope has no data".to_string()))?,
+                    Err(_) => serde_json::from_str::<BarSeries>(&file_content)?,
+                };
+
+            let config = market_phases::MarketPhasesConfig {
+                short_window,
+                long_window,
+            };
+            let report = market_phases::analyze_market_phases(&series, config)
+                .map_err(|e| CliError::Validation(e.to_string()))?;
+
+            if visualize {
+                market_phases::print_ascii_market_phases(&report);
             }
 
             ok_envelope(report, vec![], raw)
