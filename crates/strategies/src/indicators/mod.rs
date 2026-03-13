@@ -13,6 +13,7 @@ pub mod dema;
 pub mod donchian_channels;
 pub mod elder_ray;
 pub mod ema;
+pub mod fisher_transform;
 pub mod ichimoku;
 pub mod keltner_channels;
 pub mod linear_regression;

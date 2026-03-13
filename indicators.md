@@ -749,3 +749,35 @@ let cmo_series = cmo::calculate(&df, period)?;
 - Returns `Result<Series>`.
 - The output Series is named "cmo".
 - The first `period` values will be null.
+
+## Fisher Transform
+
+**Name:** Fisher Transform
+**Description:** Converts price data into a normal distribution (Gaussian) to clearly identify price extremes and turning points.
+**Rationale:** Standard indicators like RSI or Stochastic can stay overbought/oversold for long periods. The Fisher Transform forces prices into a bell curve, creating sharp peaks and troughs that clearly identify reversals.
+
+### Implementation Details
+- Uses `rust_decimal::Decimal` for all internal math logic to maintain precision, especially for limits and natural logarithms.
+- Dynamically finds `MinLow` and `MaxHigh` over the period and normalizes the median price.
+- Contains mathematical bounds check to limit inputs to the natural log function.
+
+### Usage
+
+```rust
+use strategies::indicators::fisher_transform;
+use polars::prelude::*;
+
+// Assuming df is a DataFrame with "high" and "low" columns
+let period = 9;
+let (fisher, fisher_signal) = fisher_transform::calculate(&df, period)?;
+```
+
+### Parameters
+- `data`: Reference to a Polars `DataFrame`. Must contain numeric columns "high" and "low".
+- `period`: The size of the rolling window (standard is 9 or 10).
+
+### Output
+- Returns `Result<(Series, Series)>`.
+- First series is the `fisher` transform values.
+- Second series is the `fisher_signal` which is the previous value of the fisher transform.
+- The first `period - 1` values will be null.

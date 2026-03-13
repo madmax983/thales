@@ -2478,3 +2478,54 @@ Trend Following
 - **Expected Win Rate:** 45-55% (trend-following strategies typically have lower win rates but higher reward-to-risk ratios).
 - **Sharpe Ratio:** Expected > 1.2 in trending markets.
 - **Max Drawdown:** Expected to be controlled (<15%) due to ATR-based dynamic stop losses and Supertrend filtering.
+
+# Trading Strategy: Fisher Transform
+
+## Strategy Specification
+
+**Name:** FisherTransform
+
+**Description:** A mean-reversion strategy utilizing the Fisher Transform indicator to identify turning points and price extremes. It enters long when the indicator crosses above its signal line from an oversold level, and enters short (or exits long) when crossing below its signal line from an overbought level.
+
+**Rationale:** The Fisher Transform forces price data into a normal distribution, creating sharp, distinct peaks and valleys. This helps in precisely identifying market reversals before traditional lagging indicators do.
+
+## Requirements
+
+### Implementation Details
+- Uses Polars and `rust_decimal::Decimal` for precision mathematical scaling and normalization.
+- Includes dynamic stop-losses using ATR.
+
+### Strategy Type
+Mean Reversion
+
+### Entry Conditions
+- **Long Entry (Buy):** Fisher Transform crosses ABOVE its signal line while BELOW the oversold threshold (default -1.5).
+
+### Exit Conditions
+- **Long Exit (Sell):** Fisher Transform crosses BELOW its signal line while ABOVE the overbought threshold (default +1.5).
+
+### Position Sizing
+- **Size Hint:** "100" (fixed) or "max" (exit).
+
+## Code Pattern
+
+```rust
+use crate::strategy::{Strategy, StrategyConfig, Signal, SignalType};
+use polars::prelude::*;
+use async_trait::async_trait;
+use anyhow::Result;
+
+pub struct FisherTransform {
+    config: FisherTransformConfig,
+}
+
+#[derive(Debug, Clone, serde::Deserialize)]
+pub struct FisherTransformConfig {
+    pub period: usize,
+    pub oversold_threshold: f64,
+    pub overbought_threshold: f64,
+    pub stop_loss_atr_mult: f64,
+    pub atr_period: usize,
+    pub symbol: String,
+}
+```

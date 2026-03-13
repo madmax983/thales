@@ -34,6 +34,7 @@ pub mod dema_crossover;
 pub mod donchian_breakout;
 pub mod elder_ray;
 pub mod ema_crossover;
+pub mod fisher_transform;
 pub mod ichimoku_cloud;
 pub mod indicators;
 pub mod keltner_channel_breakout;

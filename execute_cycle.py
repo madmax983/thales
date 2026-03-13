@@ -26,6 +26,7 @@ MEAN_REVERSION_STRATEGIES = {
     "VwapReversion",
     "BollingerBands",
     "StochRsiMeanReversion",
+    "FisherTransform",
 }
 TREND_FOLLOWING_STRATEGIES = {
     "LinearRegressionTrend",

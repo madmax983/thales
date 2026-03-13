@@ -41,6 +41,7 @@ use strategies::dema_crossover::{DemaCrossover, DemaCrossoverConfig};
 use strategies::donchian_breakout::{DonchianBreakout, DonchianBreakoutConfig};
 use strategies::elder_ray::{ElderRay, ElderRayConfig};
 use strategies::ema_crossover::{EmaCrossover, EmaCrossoverConfig};
+use strategies::fisher_transform::{FisherTransform, FisherTransformConfig};
 use strategies::ichimoku_cloud::{IchimokuCloud, IchimokuCloudConfig};
 use strategies::keltner_channel_breakout::{KeltnerChannelBreakout, KeltnerChannelBreakoutConfig};
 use strategies::linear_regression_trend::{LinearRegressionTrend, LinearRegressionTrendConfig};
@@ -129,6 +130,17 @@ pub fn create_strategy(name: &str, symbol: &str) -> Result<Box<dyn Strategy>> {
                 symbol: symbol.to_string(),
             };
             Ok(Box::new(EmaCrossover::new(config)))
+        }
+        "FisherTransform" => {
+            let config = FisherTransformConfig {
+                period: 9,
+                oversold_threshold: -1.5,
+                overbought_threshold: 1.5,
+                stop_loss_atr_mult: 2.0,
+                atr_period: 14,
+                symbol: symbol.to_string(),
+            };
+            Ok(Box::new(FisherTransform::new(config)))
         }
         "ElderRay" => {
             let config = ElderRayConfig {
@@ -471,6 +483,7 @@ pub fn list_strategies() -> Vec<&'static str> {
         "BollingerBands",
         "ElderRay",
         "EmaCrossover",
+        "FisherTransform",
         "RsiMeanReversion",
         "Macd",
         "Supertrend",
