@@ -544,6 +544,9 @@ def evaluate_candidate(candidate, strategies, portfolio_path=None):
     # Fetch Data
     bars = run_command(["fetch-market-data", "--provider", provider, "--symbol", symbol, "--timeframe", "1h"])
     if not bars or not isinstance(bars, dict) or not bars.get("bars"):
+        err = getattr(run_command, "last_error", None)
+        if err:
+            candidate["error"] = err
         return []
 
     # Save temp bars
@@ -1466,13 +1469,18 @@ def main():
                 # No signals generated at all.
                 # If this candidate came from Signals.md, we should log that we skipped it.
                 if cand.get("raw_analysis_json"):
-                     reason = f"No active strategy generated a signal (Strategies: {', '.join(strategies)})"
+                     if cand.get("error"):
+                         reason = f"Invalid input: {cand['error']}"
+                         rationale = reason
+                     else:
+                         reason = f"No active strategy generated a signal (Strategies: {', '.join(strategies)})"
+                         rationale = "Signal from Signals.md not validated by any active strategy"
                      print(f"  {cand['symbol']}: {reason}")
                      # Create a dummy intent for logging
                      dummy_intent = {
                          "symbol": cand["symbol"],
                          "intent_id": cand.get("signal_ref", "NO_STRATEGY_SIGNAL"),
-                         "rationale": "Signal from Signals.md not validated by any active strategy"
+                         "rationale": rationale
                      }
                      log_skipped(dummy_intent, reason)
 
