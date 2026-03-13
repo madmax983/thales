@@ -2846,3 +2846,78 @@ MeanReversion
 
 ### Position Sizing
 - **Size Hint:** "100" (fixed units) for entry, "max" for exits.
+
+---
+
+# Trading Strategy: Triple SMA Crossover
+
+## Strategy Specification
+
+**Name:** TripleSmaCrossover
+
+**Description:** A trend-following strategy that generates signals based on the crossover of three Simple Moving Averages (SMA): Short, Medium, and Long.
+
+**Rationale:** Using three moving averages reduces false signals compared to a dual moving average crossover. A bullish signal is only generated when all three moving averages align in an upward direction (Short > Medium > Long), and a bearish signal when they align in a downward direction. Exits occur when the short-term moving average crosses the medium-term moving average.
+
+## Requirements
+
+### Implementation Details
+- Uses Polars for data analysis.
+- Implements the `Strategy` trait in Rust.
+- Uses `sma` and `atr` indicators.
+
+### Strategy Type
+TrendFollowing
+
+### Entry Conditions
+- **Long Entry (Buy):** Short SMA > Medium SMA > Long SMA (and not previously true).
+- **Short Entry (Sell):** Short SMA < Medium SMA < Long SMA (and not previously true).
+
+### Exit Conditions
+- **Long Exit (Sell):** Short SMA < Medium SMA.
+- **Short Exit (Buy):** Short SMA > Medium SMA.
+- **Stop Loss:** Entry Price +/- (ATR * `stop_loss_atr_mult`).
+
+### Position Sizing
+- **Size Hint:** "100" (fixed units) or "max" (for exits).
+
+## Code Pattern
+
+```rust
+use crate::strategy::{Strategy, StrategyConfig, Signal, SignalType};
+use crate::indicators::{atr, sma};
+use polars::prelude::*;
+use async_trait::async_trait;
+use anyhow::Result;
+
+pub struct TripleSmaCrossover {
+    config: TripleSmaCrossoverConfig,
+}
+
+#[derive(Debug, Clone, serde::Deserialize)]
+pub struct TripleSmaCrossoverConfig {
+    pub short_period: usize,
+    pub medium_period: usize,
+    pub long_period: usize,
+    pub stop_loss_atr_mult: f64,
+    pub atr_period: usize,
+    pub symbol: String,
+}
+```
+
+## Critical Considerations
+
+### Risk Management Integration
+- **Stop Loss:** Uses ATR-based stop loss for dynamic risk control.
+- **Trend Filter:** Requiring three moving averages to align acts as a stronger trend filter, delaying entries but increasing confidence.
+
+### Backtesting Requirements
+- Accepts `DataFrame` with historical data containing "close".
+- Requires data length > `long_period`.
+- **Expected Win Rate:** 40-50%
+- **Expected Sharpe Ratio:** > 1.0
+- **Max Drawdown:** < 15%
+
+### Performance
+- SMA and ATR calculations are O(N).
+- Signal generation loop is O(N).
