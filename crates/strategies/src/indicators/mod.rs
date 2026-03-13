@@ -35,3 +35,4 @@ pub mod vwma;
 pub mod williams_r;
 pub mod wma;
 pub mod zscore;
+pub mod hma;

@@ -749,3 +749,22 @@ let cmo_series = cmo::calculate(&df, period)?;
 - Returns `Result<Series>`.
 - The output Series is named "cmo".
 - The first `period` values will be null.
+
+## Hull Moving Average (HMA)
+
+**Name:** Hull Moving Average (HMA)
+
+**Description:** Calculates the Hull Moving Average, developed by Alan Hull. HMA aims to reduce lag while maintaining a smooth curve.
+
+**Rationale:** Standard moving averages like SMA and EMA often suffer from significant lag. The HMA reduces this lag by combining multiple weighted moving averages (WMAs) of different periods, producing a line that stays closer to recent price action while remaining exceptionally smooth.
+
+### Implementation Details
+- Implemented using Polars DataFrame interface for vectorized operations.
+- Uses `rust_decimal::Decimal` for all financial calculations.
+
+### Input Parameters
+- `data`: DataFrame containing at least a "close" column.
+- `period`: Lookback period for the base WMA calculation (must be at least 2).
+
+### Output Type
+- Returns a Polars Series containing the calculated HMA values as `f64`.
