@@ -9,6 +9,7 @@ pub mod chandelier_exit;
 pub mod cmf;
 pub mod cmo;
 pub mod connors_rsi;
+pub mod custom_indicator;
 pub mod dema;
 pub mod donchian_channels;
 pub mod elder_ray;

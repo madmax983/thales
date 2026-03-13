@@ -749,3 +749,34 @@ let cmo_series = cmo::calculate(&df, period)?;
 - Returns `Result<Series>`.
 - The output Series is named "cmo".
 - The first `period` values will be null.
+
+## Custom Indicator
+
+**Name:** Custom Indicator
+**Description:** A placeholder indicator.
+**Rationale:** Standard trend-following indicator used to smooth out price data.
+
+### Implementation Details
+- Uses `rust_decimal::Decimal` for all internal calculations to ensure precision.
+- Returns a Polars `Series` of `f64` values (computed internally via Decimal) for compatibility with other analysis tools.
+- Handles missing data (nulls) by resetting the calculation window.
+
+### Usage
+
+```rust
+use strategies::indicators::custom_indicator;
+use polars::prelude::*;
+
+// Assuming df is a DataFrame with a "close" column
+let period = 14;
+let result_series = custom_indicator::calculate(&df, period)?;
+```
+
+### Parameters
+- `data`: Reference to a Polars `DataFrame`. Must contain a numeric column named "close".
+- `period`: The size of the moving window (must be > 0).
+
+### Output
+- Returns `Result<Series>`.
+- The output Series is named "custom_indicator".
+- The first `period - 1` values will be null.
