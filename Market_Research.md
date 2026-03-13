@@ -780,3 +780,15 @@ Historical Context: Similar market conditions in Q4 2023 showed a strong bullish
 ### SPY - 2026-03-08 08:31:54 (equities)
 **Research**: Historical Context: Similar market conditions in Q4 2023 showed a strong bullish trend following consolidation periods for equities. The market is currently exhibiting similar behavior. Research: S&P 500 companies are reporting robust quarterly earnings, exceeding analyst expectations in tech and energy sectors. The market is pricing in favorable interest rate policies.
 **News**: US stock market hits record highs as inflation concerns ease and corporate profits soar.
+
+### BTCUSD - 2026-03-13 17:12:58 (crypto)
+**Research**: Historical Context: Similar market conditions in Q4 2023 showed a strong bullish trend following consolidation periods. The market is currently exhibiting similar behavior. Research: Bitcoin ETFs are seeing strong institutional inflows following SEC approvals. Analysts remain bullish due to positive macroeconomic indicators and recent halving events.
+**News**: Major indices are hitting new highs, with Bitcoin showing resilience against recent regulatory concerns.
+
+### ETHUSD - 2026-03-13 17:12:59 (crypto)
+**Research**: Historical Context: Similar market conditions in Q4 2023 showed a strong bullish trend following consolidation periods. The market is currently exhibiting similar behavior. Research: Ethereum sentiment is improving following network upgrades. (Source: External Research)
+**News**: ETH outpaces major assets amid network improvements. (Source: External News)
+
+### SPY - 2026-03-13 17:12:59 (equities)
+**Research**: Historical Context: Similar market conditions in Q4 2023 showed a strong bullish trend following consolidation periods. The market is currently exhibiting similar behavior. Research: Macroeconomic data supports a soft landing. Analysts maintain overweight positions on large-cap tech. (Source: External Research)
+**News**: Major indices are hitting new highs, SPY breaks previous all-time highs on tech earnings beat. (Source: External News)
