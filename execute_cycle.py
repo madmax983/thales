@@ -114,7 +114,7 @@ def run_command(args):
         if stdout:
             print(stdout)
         return None
-    except Exception as e:
+    except (ValueError, TypeError, json.JSONDecodeError, KeyError, IndexError, FileNotFoundError, subprocess.SubprocessError) as e:
         run_command.last_error = str(e)
         print(f"Exception running command {cmd}: {e}")
         return None
@@ -290,7 +290,7 @@ def archive_signals(days=2):
                 ts = data.get("timestamp_unix_ms", 0)
                 if (now - ts) > cutoff_ms:
                     is_stale = True
-            except:
+            except (ValueError, TypeError, json.JSONDecodeError, KeyError, IndexError, FileNotFoundError):
                 pass
 
         # Also check header timestamp if JSON missing/parse error?
@@ -399,7 +399,7 @@ def get_candidates_from_signals():
         if json_match:
             try:
                 raw_json = json.loads(json_match.group(1))
-            except:
+            except (ValueError, TypeError, json.JSONDecodeError, KeyError, IndexError, FileNotFoundError):
                 pass
 
 # Check for Staleness (24 hours = 86400000 ms)
@@ -685,7 +685,7 @@ def update_history(intent):
         try:
             with open(HISTORY_PATH, "r") as f:
                 history = json.load(f)
-        except Exception as e:
+        except (ValueError, TypeError, json.JSONDecodeError, KeyError, IndexError, FileNotFoundError, subprocess.SubprocessError) as e:
             print(f"Warning: Failed to load history.json: {e}")
             # Backup corrupted file
             timestamp = datetime.now().strftime("%Y%m%d%H%M%S")
@@ -693,7 +693,7 @@ def update_history(intent):
             try:
                 shutil.copy(HISTORY_PATH, backup_path)
                 print(f"Backed up corrupted history to {backup_path}")
-            except Exception as copy_err:
+            except OSError as copy_err:
                 print(f"Failed to backup corrupted history: {copy_err}")
             history = []
 
@@ -827,7 +827,7 @@ def log_trade(intent, result, slippage=None):
              stop = float(sl)
              qty = float(size)
              max_risk = f"{abs(entry - stop) * qty:.2f}"
-        except:
+        except (ValueError, TypeError, json.JSONDecodeError, KeyError, IndexError, FileNotFoundError):
              pass
 
     signal_ref = intent["intent_id"].replace("|", "\\|")
@@ -882,7 +882,7 @@ def log_submitted(intent, result):
              stop = float(sl)
              qty = float(size)
              max_risk = f"{abs(entry - stop) * qty:.2f}"
-        except:
+        except (ValueError, TypeError, json.JSONDecodeError, KeyError, IndexError, FileNotFoundError):
              pass
 
     signal_ref = intent.get("intent_id", "-").replace("|", "\\|")
@@ -1283,7 +1283,7 @@ def refine_intent(intent, current_price=None):
                 is_very_large = True
             elif size > 1000.0:
                 is_large = True
-    except:
+    except (ValueError, TypeError, json.JSONDecodeError, KeyError, IndexError, FileNotFoundError):
         pass
 
     if is_very_large:
