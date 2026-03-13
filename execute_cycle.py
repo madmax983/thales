@@ -544,6 +544,8 @@ def evaluate_candidate(candidate, strategies, portfolio_path=None):
     # Fetch Data
     bars = run_command(["fetch-market-data", "--provider", provider, "--symbol", symbol, "--timeframe", "1h"])
     if not bars or not isinstance(bars, dict) or not bars.get("bars"):
+        if run_command.last_error:
+            return [{"error": f"Invalid input: {run_command.last_error}"}]
         return []
 
     # Save temp bars
@@ -1453,6 +1455,18 @@ def main():
         for cand in selected_candidates:
             # Generate signals from all strategies
             raw_signals = evaluate_candidate(cand, strategies, portfolio_path)
+
+            # Handle evaluate_candidate errors (e.g. invalid pairs)
+            if raw_signals and isinstance(raw_signals, list) and len(raw_signals) > 0 and "error" in raw_signals[0]:
+                reason = raw_signals[0]["error"]
+                print(f"  {cand['symbol']}: {reason}")
+                dummy_intent = {
+                    "symbol": cand["symbol"],
+                    "intent_id": cand.get("signal_ref", "NO_REF"),
+                    "rationale": "Evaluation failed"
+                }
+                log_skipped(dummy_intent, reason)
+                continue
 
             # Resolve conflicts (per candidate)
             valid_signals = resolve_conflicts(raw_signals, cand)
