@@ -22,6 +22,8 @@ pub mod entropy;
 pub mod fear_and_greed;
 pub mod history;
 #[cfg(feature = "nova")]
+pub mod market_phases;
+#[cfg(feature = "nova")]
 pub mod markov_chain;
 #[cfg(feature = "nova")]
 pub mod monte_carlo;
