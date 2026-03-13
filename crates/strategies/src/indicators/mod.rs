@@ -15,6 +15,7 @@ pub mod elder_ray;
 pub mod ema;
 pub mod hma;
 pub mod ichimoku;
+pub mod kama;
 pub mod keltner_channels;
 pub mod linear_regression;
 pub mod macd;
