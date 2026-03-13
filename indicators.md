@@ -749,3 +749,39 @@ let cmo_series = cmo::calculate(&df, period)?;
 - Returns `Result<Series>`.
 - The output Series is named "cmo".
 - The first `period` values will be null.
+
+## Kaufman's Adaptive Moving Average (KAMA)
+
+**Name:** KAMA
+**Description:** Calculates Kaufman's Adaptive Moving Average, an intelligent moving average that adapts to market volatility.
+**Rationale:** It moves closely with prices when noise is low, and smooths out the trend when noise is high.
+
+### Implementation Details
+- Uses `rust_decimal::Decimal` for precision.
+- Calculates Efficiency Ratio (ER) based on price direction and volatility.
+- Smooths the output using fast and slow EMA constants.
+- Returns a Polars `Series` of `f64` values (computed internally via Decimal).
+
+### Usage
+
+```rust
+use strategies::indicators::kama;
+use polars::prelude::*;
+
+// Assuming df is a DataFrame with a "close" column
+let period = 10;
+let fast_period = 2;
+let slow_period = 30;
+let kama_series = kama::calculate(&df, period, fast_period, slow_period)?;
+```
+
+### Parameters
+- `data`: Reference to a Polars `DataFrame`. Must contain a numeric "close" column.
+- `period`: Efficiency Ratio lookback period (typically 10).
+- `fast_period`: Fast EMA smoothing period (typically 2).
+- `slow_period`: Slow EMA smoothing period (typically 30).
+
+### Output
+- Returns `Result<Series>`.
+- The output Series is named "kama".
+- The first `period` values will be null.
