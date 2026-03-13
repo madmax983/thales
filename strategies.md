@@ -2812,3 +2812,37 @@ pub struct EmaRsiTrendFollowingConfig {
 ### Performance
 - EMA, RSI, and ATR calculations are O(N).
 - Signal generation loop is O(N).
+
+---
+
+# Trading Strategy: Supertrend RSI
+
+## Strategy Specification
+
+**Name:** SupertrendRsi
+
+**Description:** A mean-reversion and trend-following hybrid strategy combining Supertrend and the Relative Strength Index (RSI).
+
+**Rationale:** The strategy capitalizes on the trend direction provided by Supertrend, while using RSI to find optimal entry points during pullbacks. It assumes that when the trend is up (Supertrend) and the asset is oversold (RSI), it is a good buying opportunity. Exit relies on the Supertrend flipping direction.
+
+## Requirements
+
+### Implementation Details
+- Uses Polars for data analysis.
+- Implements the `Strategy` trait in Rust.
+- Uses `supertrend`, `rsi`, and `atr` indicators.
+
+### Strategy Type
+MeanReversion
+
+### Entry Conditions
+- **Long Entry (Buy):** Price closes above Supertrend AND RSI < Oversold.
+- **Short Entry (Sell):** Price closes below Supertrend AND RSI > Overbought.
+
+### Exit Conditions
+- **Long Exit (Sell):** Supertrend flips to Bearish.
+- **Short Exit (Buy):** Supertrend flips to Bullish.
+- **Stop Loss:** Entry Price +/- (ATR * `stop_loss_atr_mult`).
+
+### Position Sizing
+- **Size Hint:** "100" (fixed units) for entry, "max" for exits.
