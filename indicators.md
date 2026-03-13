@@ -749,3 +749,34 @@ let cmo_series = cmo::calculate(&df, period)?;
 - Returns `Result<Series>`.
 - The output Series is named "cmo".
 - The first `period` values will be null.
+
+## Smoothed Moving Average (SMMA)
+
+**Name:** SMMA
+**Description:** Calculates the Smoothed Moving Average, which is an exponential moving average (EMA) with a smoothing factor (alpha) equal to `1 / N`, where N is the period.
+**Rationale:** It gives recent prices equal weighting to historic prices as it takes all available data into account, making it smoother than an EMA or SMA.
+
+### Implementation Details
+- Uses `rust_decimal::Decimal` for all internal calculations to ensure precision.
+- The first value is calculated as a Simple Moving Average (SMA).
+- Returns a Polars `Series` of `f64` values (computed internally via Decimal).
+
+### Usage
+
+```rust
+use strategies::indicators::smma;
+use polars::prelude::*;
+
+// Assuming df is a DataFrame with a "close" column
+let period = 14;
+let smma_series = smma::calculate(&df, period)?;
+```
+
+### Parameters
+- `data`: Reference to a Polars `DataFrame`. Must contain a numeric "close" column.
+- `period`: The lookback period (typically 14).
+
+### Output
+- Returns `Result<Series>`.
+- The output Series is named "smma".
+- The first `period - 1` values will be null.

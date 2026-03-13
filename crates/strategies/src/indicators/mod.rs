@@ -24,6 +24,7 @@ pub mod parabolic_sar;
 pub mod roc;
 pub mod rsi;
 pub mod sma;
+pub mod smma;
 pub mod stoch_rsi;
 pub mod stochastic;
 pub mod supertrend;
