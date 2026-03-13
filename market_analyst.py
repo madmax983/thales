@@ -46,6 +46,36 @@ def fetch_market_data(symbol, provider):
     data = run_command(["fetch-market-data", "--provider", provider, "--symbol", symbol, "--timeframe", "1h"])
     return data
 
+import re
+
+def filter_context(text, symbol):
+    """Filters sentences that contain keywords not related to the symbol."""
+    if not text:
+        return ""
+
+    asset_keywords = {
+        "BTCUSD": ["bitcoin", "btc", "halving"],
+        "ETHUSD": ["ethereum", "eth"],
+        "SPY": ["s&p", "spy", "stock market", "equities"]
+    }
+
+    exclude_keywords = []
+    for sym, keywords in asset_keywords.items():
+        if sym != symbol:
+            exclude_keywords.extend(keywords)
+
+    sentences = re.split(r'(?<=[.!?])\s+', text)
+    filtered = []
+    for s in sentences:
+        if not s.strip():
+            continue
+        s_lower = s.lower()
+        if any(k in s_lower for k in exclude_keywords):
+            continue
+        filtered.append(s)
+
+    return " ".join(filtered).strip()
+
 def search_research(symbol, bars_list, market):
     """
     Reads research, news, and knowledge from local text files for the given symbol.
@@ -58,7 +88,7 @@ def search_research(symbol, bars_list, market):
     if market == "crypto":
         try:
             with open("research.txt", "r") as f:
-                research = f.read().strip()
+                research = filter_context(f.read().strip(), symbol)
             if research:
                 research = f"[Source: research.txt] {research}"
         except Exception:
@@ -66,7 +96,7 @@ def search_research(symbol, bars_list, market):
 
         try:
             with open("knowledge.txt", "r") as f:
-                knowledge = f.read().strip()
+                knowledge = filter_context(f.read().strip(), symbol)
             if knowledge:
                 knowledge = f"[Source: knowledge.txt] {knowledge}"
         except Exception:
@@ -74,7 +104,7 @@ def search_research(symbol, bars_list, market):
 
         try:
             with open("news.txt", "r") as f:
-                news = f.read().strip()
+                news = filter_context(f.read().strip(), symbol)
             if news:
                 news = f"[Source: news.txt] {news}"
         except Exception:
