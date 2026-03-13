@@ -46,3 +46,6 @@
 ## 2024-05-30 - The Silent Bollingers
 **Confusion:** The classic Bollinger Bands strategy lacked documentation for its configuration parameters and why it was built, leaving users confused as to what the numbers meant.
 **Clarification:** Documented `BollingerBandsMeanReversion` and `BollingerBandsConfig` with executable examples, outlining the meaning behind std deviations and window sizes.
+## 2024-05-31 - The Silent Oscillator
+**Confusion:** The Awesome Oscillator strategy lacked any documentation explaining its logic, configuration, or how the crossover system triggered signals, leaving users completely blind.
+**Clarification:** Documented `AwesomeOscillator` and `AwesomeOscillatorConfig` with a storytelling approach, adding executable examples, field documentation, and an explanation of the Zero-Line Crossover mechanism.

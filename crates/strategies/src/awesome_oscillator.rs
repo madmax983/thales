@@ -1,3 +1,20 @@
+//! 🎻 **The Awesome Oscillator (AO) Story**
+//!
+//! When the market moves, it doesn't just go up or down; it breathes with momentum.
+//! The Awesome Oscillator is a momentum indicator developed by Bill Williams that compares
+//! recent market momentum to general market momentum over a broader frame of reference.
+//!
+//! Unlike traditional moving averages that calculate using the closing price, the AO
+//! takes the simple moving average (SMA) of the *median price* `(High + Low) / 2`.
+//! It subtracts a slow SMA from a fast SMA to reveal the market's hidden pulse.
+//!
+//! # The Strategy: "Zero-Line Crossover"
+//! - **Go Long**: When the Awesome Oscillator crosses from negative to positive (above zero).
+//! - **Go Short**: When the Awesome Oscillator crosses from positive to negative (below zero).
+//!
+//! This module implements a systematic trend-following approach, catching shifts in
+//! momentum precisely as they breach the zero line.
+
 use crate::indicators::{atr, awesome_oscillator};
 use crate::strategy::{Signal, SignalType, Strategy, StrategyConfig, StrategyType};
 use anyhow::Result;
@@ -7,22 +24,71 @@ use rust_decimal::prelude::*;
 use rust_decimal::Decimal;
 use serde::{Deserialize, Serialize};
 
+/// 🎻 **Awesome Oscillator Configuration**
+///
+/// The settings that govern how quickly the strategy responds to market momentum changes.
+///
+/// # Examples
+///
+/// ```rust
+/// use strategies::awesome_oscillator::AwesomeOscillatorConfig;
+///
+/// let config = AwesomeOscillatorConfig {
+///     fast_period: 5,           // Standard fast SMA of median price
+///     slow_period: 34,          // Standard slow SMA of median price
+///     stop_loss_atr_mult: 2.0,  // Dynamic stop loss based on volatility
+///     atr_period: 14,           // Lookback period for ATR
+///     symbol: "ETHUSD".into(),  // The asset symbol
+/// };
+/// ```
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct AwesomeOscillatorConfig {
+    /// The number of periods for the Fast Simple Moving Average.
     pub fast_period: usize,
+    /// The number of periods for the Slow Simple Moving Average.
     pub slow_period: usize,
+    /// The multiplier for the Average True Range (ATR) to set the stop-loss distance.
     pub stop_loss_atr_mult: f64,
+    /// The lookback period for calculating the ATR.
     pub atr_period: usize,
+    /// The specific market symbol to generate signals for.
     pub symbol: String,
 }
 
 impl StrategyConfig for AwesomeOscillatorConfig {}
 
+/// 🎻 **The Awesome Oscillator Strategist**
+///
+/// This strategy watches the Awesome Oscillator (AO) values. It patiently waits for
+/// momentum to shift decisively across the zero line before issuing an entry signal.
+///
+/// It implements the `Strategy` trait, allowing it to evaluate a Polars `DataFrame`
+/// and produce actionable trading `Signal`s complete with dynamic stop-losses and take-profits.
+///
+/// # Examples
+///
+/// ```rust
+/// use strategies::awesome_oscillator::{AwesomeOscillator, AwesomeOscillatorConfig};
+/// use strategies::strategy::Strategy;
+///
+/// let config = AwesomeOscillatorConfig {
+///     fast_period: 5,
+///     slow_period: 34,
+///     stop_loss_atr_mult: 2.0,
+///     atr_period: 14,
+///     symbol: "ETHUSD".into(),
+/// };
+///
+/// let strategy = AwesomeOscillator::new(config);
+/// assert_eq!(strategy.name(), "AwesomeOscillator");
+/// ```
+#[doc(alias = "AO")]
 pub struct AwesomeOscillator {
     config: AwesomeOscillatorConfig,
 }
 
 impl AwesomeOscillator {
+    /// Creates a new `AwesomeOscillator` strategy instance with the given configuration.
     pub fn new(config: AwesomeOscillatorConfig) -> Self {
         Self { config }
     }
