@@ -330,6 +330,27 @@ def archive_signals(days=2):
                 output = output.lstrip("\n")
             f.write(output)
 
+def get_executed_signal_refs():
+    """Reads portfolio.md to get a set of already executed/submitted signal IDs."""
+    if not os.path.exists(PORTFOLIO_PATH):
+        return set()
+
+    with open(PORTFOLIO_PATH, 'r') as f:
+        content = f.read()
+
+    executed_refs = set()
+    match = re.search(r"## Executed Trades\n(.*?)(?:\n## |$)", content, re.DOTALL)
+    if match:
+        table_lines = match.group(1).strip().split('\n')
+        for line in table_lines:
+            if line.startswith('|') and not line.startswith('| Date/Time') and not line.startswith('|---'):
+                parts = [p.strip() for p in line.split('|')]
+                if len(parts) > 10:
+                    signal_ref = parts[10]
+                    if signal_ref and signal_ref != '-' and signal_ref != 'None':
+                        executed_refs.add(signal_ref.replace("\\|", "|"))
+    return executed_refs
+
 def get_candidates_from_signals():
     """Parses Signals.md for potential candidates."""
     if not os.path.exists(SIGNALS_PATH):
@@ -339,6 +360,7 @@ def get_candidates_from_signals():
         content = f.read()
 
     candidates = {}
+    executed_refs = get_executed_signal_refs()
 
     # New parsing logic to handle sections and extract full context
     chunks = re.split(r"\n## ", content)
@@ -391,6 +413,18 @@ def get_candidates_from_signals():
 
             side_str = expected_side if expected_side else "unknown"
             signal_ref = f"{market}:{symbol}:{side_str}:{ts}"
+
+            if signal_ref in executed_refs:
+                reason = f"Signal already executed/submitted (Ref: {signal_ref})"
+                print(f"Skipping already processed signal for {symbol}: {reason}")
+
+                dummy_intent = {
+                     "symbol": symbol,
+                     "intent_id": signal_ref,
+                     "rationale": "Signal already processed"
+                }
+                log_skipped(dummy_intent, reason)
+                continue
 
             now = int(datetime.now().timestamp() * 1000)
             if (now - ts) > 86400000:
