@@ -685,6 +685,36 @@ let wma_series = wma::calculate(&df, period)?;
 **Parameters:**
 - `period`: The lookback period for the exponential moving averages.
 
+## Hull Moving Average (HMA)
+
+**Name:** Hull Moving Average (HMA)
+**Description:** Calculates the Hull Moving Average, which reduces lag while improving smoothing compared to other moving averages.
+**Rationale:** Used to identify the current market trend. It is faster and smoother than SMA or EMA, making it highly responsive to recent price changes.
+
+### Implementation Details
+- Uses `rust_decimal::Decimal` for precision.
+- Formula: `HMA = WMA(2 * WMA(n/2) - WMA(n), sqrt(n))`.
+- Returns a Polars `Series` of `f64` values (computed internally via Decimal).
+
+### Usage
+
+```rust
+use strategies::indicators::hma;
+use polars::prelude::*;
+
+// Assuming df is a DataFrame with a "close" column
+let period = 14;
+let hma_series = hma::calculate(&df, period)?;
+```
+
+### Parameters
+- `data`: Reference to a Polars `DataFrame`. Must contain a numeric "close" column.
+- `period`: The lookback period (must be >= 2).
+
+### Output
+- Returns `Result<Series>`.
+- The output Series is named "hma".
+
 ## Arnaud Legoux Moving Average (ALMA)
 
 **Name:** ALMA

@@ -61,7 +61,12 @@ pub fn calculate(data: &DataFrame, period: usize) -> Result<Series> {
 
     let hundred = Decimal::from(100);
 
-    for i in period..decimal_close.len() {
+    for (i, cmo_out) in cmo_values
+        .iter_mut()
+        .enumerate()
+        .take(decimal_close.len())
+        .skip(period)
+    {
         let mut sum_gains = Decimal::ZERO;
         let mut sum_losses = Decimal::ZERO;
         let mut valid = true;
@@ -88,9 +93,9 @@ pub fn calculate(data: &DataFrame, period: usize) -> Result<Series> {
             let total_movement = sum_gains + sum_losses;
             if total_movement > Decimal::ZERO {
                 let cmo = ((sum_gains - sum_losses) / total_movement) * hundred;
-                cmo_values[i] = cmo.to_f64();
+                *cmo_out = cmo.to_f64();
             } else {
-                cmo_values[i] = Some(0.0);
+                *cmo_out = Some(0.0);
             }
         }
     }
