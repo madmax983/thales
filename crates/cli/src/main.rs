@@ -631,12 +631,31 @@ fn run(command: Commands, raw: bool) -> Result<String, CliError> {
 
             let mut warnings = Vec::new();
             if intents.is_empty() {
-                warnings.push("No signals triggered. Strategies only generate signals if the condition is met on the latest available candle.".to_string());
+                let latest_time = series
+                    .bars
+                    .last()
+                    .map(|b| {
+                        chrono::DateTime::from_timestamp_millis(b.timestamp_unix_ms)
+                            .map(|dt| dt.format("%Y-%m-%d %H:%M").to_string())
+                            .unwrap_or_default()
+                    })
+                    .unwrap_or_default();
+
+                let warning_msg = if !latest_time.is_empty() {
+                    format!(
+                        "No signals triggered for latest candle ({}). Strategies only generate signals if the condition is met on the latest available candle.",
+                        latest_time
+                    )
+                } else {
+                    "No signals triggered. Strategies only generate signals if the condition is met on the latest available candle.".to_string()
+                };
+
+                warnings.push(warning_msg.clone());
 
                 // If running interactively, alert the user directly
                 use std::io::IsTerminal;
                 if std::io::stdout().is_terminal() {
-                    eprintln!("⚠️ No signals triggered for the latest candle.");
+                    eprintln!("⚠️ {}", warning_msg);
                 }
             }
 
