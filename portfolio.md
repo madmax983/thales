@@ -3650,6 +3650,12 @@
 | 2026-03-10 21:50:30 | ETHUSD | crypto:ETHUSD:buy:1773173903639 | Cross-validation failed: Strategies generated {'sell'} but signal recommended buy. |
 | 2026-03-10 21:50:30 | SPY | equities:SPY:buy:1773173903653 | No active strategy generated a signal (Strategies: BollingerBands, EmaCrossover, RsiMeanReversion, Macd, Supertrend, DonchianBreakout, ParabolicSar, KeltnerChannelBreakout, StochasticOscillator, AdxMomentum, IchimokuCloud, CciMomentum, ChaikinMoneyFlow, ChandelierExit, LinearRegressionTrend, ObvTrendFollowing, MoneyFlowIndex, ConnorsRsiMeanReversion, AwesomeOscillator, WilliamsR, VwmaCrossover, VwapReversion, VortexBreakout, RocMomentum, TrixMomentum, AdxMacdTrend, ZScoreMeanReversion, ElderRay, AroonOscillator, StochRsiMeanReversion, MacdRsiTrend, TsiTrend) |
 | 2026-03-10 21:50:30 | BTCUSD | crypto:BTCUSD:sell:1773173903624 | No sellable balance available (BTC 0.00000000) |
+| 2026-03-13 17:24:35 | BTCUSD | NO_REF | Conflict: Active strategies generated conflicting signals ({'sell', 'buy'}) for BTCUSD. |
+| 2026-03-13 17:24:35 | ETHUSD | NO_REF | Conflict: Active strategies generated conflicting signals ({'sell', 'buy'}) for ETHUSD. |
+| 2026-03-13 17:24:35 | SPY | NO_REF | Conflict: Active strategies generated conflicting signals ({'sell', 'buy'}) for SPY. |
+| 2026-03-13 17:26:40 | BTCUSD | NO_REF | Conflict: Active strategies generated conflicting signals ({'sell', 'buy'}) for BTCUSD. |
+| 2026-03-13 17:26:40 | ETHUSD | NO_REF | Conflict: Active strategies generated conflicting signals ({'sell', 'buy'}) for ETHUSD. |
+| 2026-03-13 17:28:38 | SPY | NO_STRATEGY_SIGNAL | Invalid input: provider error: missing required environment variable: KRAKEN_API_KEY |
 
 ## Executed Trades
 

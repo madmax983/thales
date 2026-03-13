@@ -501,9 +501,11 @@ def evaluate_candidate(candidate, strategies, portfolio_path=None):
     symbol = candidate["symbol"]
 
     # Fetch Data
+    run_command.last_error = None
     bars = run_command(["fetch-market-data", "--provider", provider, "--symbol", symbol, "--timeframe", "1h"])
     if not bars or not isinstance(bars, dict) or not bars.get("bars"):
-        return []
+        reason = run_command.last_error or "Failed to fetch market data"
+        return [], reason
 
     # Save temp bars
     safe_symbol = symbol.replace("/", "_")
@@ -565,7 +567,7 @@ def evaluate_candidate(candidate, strategies, portfolio_path=None):
     if os.path.exists(temp_bars_file):
         os.remove(temp_bars_file)
 
-    return all_generated_intents
+    return all_generated_intents, None
 
 def resolve_conflicts(intents, candidate):
     """
@@ -1411,7 +1413,7 @@ def main():
         print("Evaluating candidates...")
         for cand in selected_candidates:
             # Generate signals from all strategies
-            raw_signals = evaluate_candidate(cand, strategies, portfolio_path)
+            raw_signals, fetch_error = evaluate_candidate(cand, strategies, portfolio_path)
 
             # Resolve conflicts (per candidate)
             valid_signals = resolve_conflicts(raw_signals, cand)
@@ -1425,7 +1427,10 @@ def main():
                 # No signals generated at all.
                 # If this candidate came from Signals.md, we should log that we skipped it.
                 if cand.get("raw_analysis_json"):
-                     reason = f"No active strategy generated a signal (Strategies: {', '.join(strategies)})"
+                     if fetch_error:
+                         reason = f"Invalid input: {fetch_error}"
+                     else:
+                         reason = f"No active strategy generated a signal (Strategies: {', '.join(strategies)})"
                      print(f"  {cand['symbol']}: {reason}")
                      # Create a dummy intent for logging
                      dummy_intent = {
