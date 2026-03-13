@@ -52,6 +52,7 @@ pub mod obv_trend;
 pub mod parabolic_sar;
 pub mod roc_momentum;
 pub mod rsi_mean_reversion;
+pub mod schaff_trend_cycle;
 pub mod sma_crossover;
 pub mod stoch_rsi_mean_reversion;
 pub mod stochastic_oscillator;

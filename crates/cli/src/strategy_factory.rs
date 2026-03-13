@@ -55,6 +55,7 @@ use strategies::obv_trend::{ObvTrendFollowing, ObvTrendFollowingConfig};
 use strategies::parabolic_sar::{ParabolicSar, ParabolicSarConfig};
 use strategies::roc_momentum::{RocMomentum, RocMomentumConfig};
 use strategies::rsi_mean_reversion::{RsiMeanReversion, RsiMeanReversionConfig};
+use strategies::schaff_trend_cycle::{SchaffTrendCycle, SchaffTrendCycleConfig};
 use strategies::sma_crossover::{SmaCrossover, SmaCrossoverConfig};
 use strategies::stoch_rsi_mean_reversion::{StochRsiMeanReversion, StochRsiMeanReversionConfig};
 use strategies::stochastic_oscillator::{StochasticOscillator, StochasticOscillatorConfig};
@@ -460,6 +461,19 @@ pub fn create_strategy(name: &str, symbol: &str) -> Result<Box<dyn Strategy>> {
             };
             Ok(Box::new(VortexBreakout::new(config)))
         }
+        "SchaffTrendCycle" => {
+            let config = SchaffTrendCycleConfig {
+                macd_fast_period: 23,
+                macd_slow_period: 50,
+                stc_period: 10,
+                oversold_threshold: 25.0,
+                overbought_threshold: 75.0,
+                stop_loss_atr_mult: 2.0,
+                atr_period: 14,
+                symbol: symbol.to_string(),
+            };
+            Ok(Box::new(SchaffTrendCycle::new(config)))
+        }
         "TripleSmaCrossover" => {
             let config = TripleSmaCrossoverConfig {
                 short_period: 9,
@@ -597,6 +611,7 @@ pub fn list_strategies() -> Vec<&'static str> {
         "VwmaCrossover",
         "VwapReversion",
         "VortexBreakout",
+        "SchaffTrendCycle",
         "TripleSmaCrossover",
         "ZScoreMeanReversion",
         "BollingerRsiMeanReversion",

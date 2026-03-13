@@ -2706,6 +2706,40 @@ pub struct SmaCrossoverConfig {
 
 ---
 
+# Trading Strategy: Schaff Trend Cycle
+
+## Strategy Specification
+
+**Name:** SchaffTrendCycle
+
+**Description:** The Schaff Trend Cycle (STC) indicator is a technical analysis tool that combines elements of moving averages (MACD) and the stochastic oscillator to identify market trends and potential reversals. It oscillates between 0 and 100, with levels above 75 indicating bullish momentum and levels below 25 indicating bearish momentum.
+
+**Rationale:** The STC indicator improves upon the standard MACD by adding a cyclical component using the stochastic oscillator formula on the MACD values, resulting in smoother and faster responses to trend changes with fewer false signals.
+
+## Requirements
+
+### Implementation Details
+- Uses Polars for data analysis.
+- Implements the `Strategy` trait in Rust.
+- Uses custom `stc` and `atr` indicators.
+
+### Strategy Type
+Momentum / Trend Following
+
+### Entry Conditions
+- **Long Entry (Buy):** STC crosses ABOVE the `oversold_threshold` (e.g., 25).
+- **Short Entry (Sell):** STC crosses BELOW the `overbought_threshold` (e.g., 75).
+
+### Exit Conditions
+- **Long Exit (Sell):** STC crosses BELOW the `overbought_threshold` (e.g., 75).
+- **Short Exit (Buy):** STC crosses ABOVE the `oversold_threshold` (e.g., 25).
+- **Stop Loss:** Entry Price +/- (ATR * `stop_loss_atr_mult`).
+
+### Position Sizing
+- **Size Hint:** "100" (fixed units) or "max" (for exits).
+
+---
+
 # Trading Strategy: Bollinger RSI Mean Reversion
 
 ## Strategy Specification
