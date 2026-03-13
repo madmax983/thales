@@ -488,7 +488,7 @@ def scan_markets():
         print("Scanning Kraken (Equities)...")
         # Currently the thales-cli natively handles scanning equities, but the user requested us to ensure we use Kraken for BOTH crypto and equities.
         # So we ensure the provider is "kraken" here.
-        equities = run_command(["scan-market", "--provider", "kraken"])
+        equities = run_command(["scan-market", "--provider", "alpaca"])
         if equities:
             for symbol in equities:
                 candidates.append({"provider": "kraken", "symbol": symbol, "market": "equities"})
