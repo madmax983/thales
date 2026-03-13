@@ -93,6 +93,12 @@ def main():
             intents = run_command(args)
             if intents:
                 for intent in intents:
+                    # Clean signal_type and format direction directly on the intent object
+                    if "SignalType::" in intent.get("signal_type", ""):
+                        intent["signal_type"] = intent["signal_type"].replace("SignalType::", "")
+
+                    intent["direction"] = "long" if str(intent.get('side', '')).lower() == "buy" else "short"
+
                     # Size positions based on volatility
                     volatility_label = analysis.get("volatility", "").lower() if analysis else ""
                     size_hint_str = intent.get("size_hint", "0")
