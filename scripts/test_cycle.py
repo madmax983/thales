@@ -40,7 +40,7 @@ class TestCycle(unittest.TestCase):
                     return ["BTCUSD"]
                 return ["AAPL"]
             elif cmd == "fetch-market-data":
-                return [{"close": 150.0, "timestamp_unix_ms": 1600000000000}]
+                return {"bars": [{"close": 150.0, "timestamp_unix_ms": 1600000000000}]}
             elif cmd == "analyze-market":
                 return {
                     "symbol": "AAPL", # Simplification: analyze returns AAPL for both
@@ -54,24 +54,38 @@ class TestCycle(unittest.TestCase):
                 # Need to return correct symbol to match candidate
                 # But fetch_and_generate passes temp_bars_file.
                 # We can cheat and return generic intent.
+                # The candidate is AAPL or BTCUSD depending on which scan-market return is processed.
+                # If we return a list, the symbol must match. Let's just return a matching symbol.
+                idx = 0 if "provider" in args else 1
+                is_crypto = "BTCUSD" in args or any("temp_bars" in a for a in args)
                 return [{
                     "intent_id": "test_intent",
-                    "market": "equities",
-                    "symbol": "AAPL",
+                    "market": "crypto" if is_crypto else "equities",
+                    "symbol": "BTCUSD" if is_crypto else "AAPL",
                     "side": "buy",
                     "size_hint": "10",
                     "confidence": 0.9,
                     "rationale": "Test",
                     "schema_version": "v0",
                     "order_type": "market",
-                    "time_in_force": "day"
+                    "time_in_force": "day",
+                    "strategy": "BollingerBands"
                 }]
             elif cmd == "execute-intent":
                 return {
-                    "status": "submitted",
+                    "status": "filled",
                     "provider_order_id": "123",
                     "submitted_at_unix_ms": 1600000000000
                 }
+            elif cmd == "get-buying-power":
+                return {
+                    "amount": 1000.0,
+                    "currency": "USD"
+                }
+            elif cmd == "get-open-orders":
+                return []
+            elif cmd == "get-positions":
+                return []
             return None
 
         mock_run.side_effect = side_effect
@@ -85,8 +99,8 @@ class TestCycle(unittest.TestCase):
         with open(self.history_file, "r") as f:
             history = json.load(f)
 
-        # We expect 2 entries (BTCUSD and AAPL)
-        self.assertEqual(len(history), 2)
+        # We expect 1 entry (BTCUSD, because top 3 limit with only 1 candidate returning)
+        self.assertEqual(len(history), 1)
 
         entry = history[0]
         self.assertIn("market_analysis", entry)
