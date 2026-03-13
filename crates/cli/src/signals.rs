@@ -2,7 +2,7 @@
 //!
 //! This module coordinates the process of generating trading signals.
 //! It takes market data, analyzes it, runs a specified trading strategy,
-//! cross-references historical performance (RAG), and produces actionable `TradeIntent`s.
+//! cross-references historical performance (search history), and produces actionable `TradeIntent`s.
 //!
 //! The core function is [`generate_signals`], which acts as the "brain"
 //! of the trading agent during execution and backtesting.

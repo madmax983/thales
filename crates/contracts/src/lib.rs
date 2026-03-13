@@ -72,7 +72,7 @@ pub struct TradeIntent {
     pub stop_price: Option<f64>,
     /// The time in force for the order (e.g., "GTC", "IOC", "day").
     pub time_in_force: String,
-    /// The execution algorithm to use (e.g., "Market", "Limit", "time spreading (TWAP)", "volume spreading (VWAP)").
+    /// The execution algorithm to use (e.g., "Market", "Limit", "time spreading", "volume spreading").
     #[serde(default)]
     pub execution_algo: Option<String>,
     /// The strategy that generated this intent (e.g., "BollingerBands").

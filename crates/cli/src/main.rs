@@ -618,7 +618,7 @@ fn run(command: Commands, raw: bool) -> Result<String, CliError> {
 
             let mut warnings = Vec::new();
             if intents.is_empty() {
-                warnings.push("No signals triggered. Strategies only generate signals if the condition is met on the latest available candle.".to_string());
+                warnings.push("No signals triggered for latest candle".to_string());
 
                 // If running interactively, alert the user directly
                 use std::io::IsTerminal;

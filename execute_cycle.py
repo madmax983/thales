@@ -1233,7 +1233,7 @@ def refine_intent(intent, current_price=None):
     algo = "Limit"
     order_type = "limit"
 
-    # Check for Large Size -> TWAP/VWAP
+    # Check for Large Size -> time spreading/volume spreading
     is_large = False
     is_very_large = False
     try:
@@ -1249,13 +1249,13 @@ def refine_intent(intent, current_price=None):
         pass
 
     if is_very_large:
-        algo = "VWAP"
-        order_type = "limit" # Simulate VWAP with Limit for now, provider logs Algo
-        print("Selected VWAP algorithm to minimize market impact for very large order.")
+        algo = "volume spreading"
+        order_type = "limit" # Simulate volume spreading with Limit for now, provider logs Algo
+        print("Selected volume spreading algorithm to minimize market impact for very large order.")
     elif is_large:
-        algo = "TWAP"
-        order_type = "limit" # Simulate TWAP with Limit for now, provider logs Algo
-        print("Selected TWAP algorithm for large order.")
+        algo = "time spreading"
+        order_type = "limit" # Simulate time spreading with Limit for now, provider logs Algo
+        print("Selected time spreading algorithm for large order.")
     elif confidence >= 0.8 or size_hint == "max":
         # High confidence or Exits -> Market (Urgent)
         algo = "Market"

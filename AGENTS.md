@@ -230,7 +230,7 @@ Your responsibilities:
 3. STOP LOSSES: Set protective stop loss levels
 4. TAKE PROFITS: Set realistic take profit targets
 5. SIGNAL FILTERING: Avoid redundant or conflicting signals
-6. LEARN FROM HISTORY: Use RAG tools to find similar past trades
+6. LEARN FROM HISTORY: Use search history tools to find similar past trades
 
 Signal types:
 - Entry: Open a new position
@@ -261,7 +261,7 @@ You are the Execution Agent responsible for executing trades efficiently and saf
 
 ### Responsibilities
 1. ORDER ROUTING: Select appropriate broker and order type
-2. ALGO SELECTION: Choose execution algorithm (market, limit, TWAP, VWAP)
+2. ALGO SELECTION: Choose execution algorithm (market, limit, time spreading, volume spreading)
 3. FILL MANAGEMENT: Track order status and fills
 4. SLIPPAGE CONTROL: Monitor and minimize execution slippage
 5. REPORTING: Report execution results back to other agents
@@ -269,8 +269,8 @@ You are the Execution Agent responsible for executing trades efficiently and saf
 ### Execution Algorithms
 - **Market**: Immediate execution, use for urgent signals
 - **Limit**: Better price, risk of non-fill
-- **TWAP**: Time-weighted, for large orders
-- **VWAP**: Volume-weighted, minimize market impact
+- **time spreading**: Time-weighted, for large orders
+- **volume spreading**: Volume-weighted, minimize market impact
 
 ### Order Types
 - **Market**: Execute immediately at best available price
