@@ -783,3 +783,35 @@ let kama_series = kama::calculate(&df, period, fast_ema_period, slow_ema_period)
 - Returns `Result<Series>`.
 - The output Series is named "kama".
 - The first `period` values will be null.
+
+## Force Index (FI)
+
+**Name:** Force Index
+**Description:** Alexander Elder's Force Index combines price movement and volume to measure the strength of bulls and bears in the market.
+**Rationale:** It captures the direction, extent, and volume of price changes. A positive Force Index indicates bulls are in control, while a negative value indicates bears are in control. It's often smoothed with an Exponential Moving Average (EMA).
+
+### Implementation Details
+- Uses `rust_decimal::Decimal` for precision.
+- Calculates raw Force Index as `(Close[i] - Close[i-1]) * Volume[i]`.
+- Smooths the raw result using the `ema` indicator.
+- Returns a Polars `Series` of `f64` values (computed internally via Decimal).
+
+### Usage
+
+```rust
+use strategies::indicators::force_index;
+use polars::prelude::*;
+
+// Assuming df is a DataFrame with "close" and "volume" columns
+let period = 13;
+let fi_series = force_index::calculate(&df, period)?;
+```
+
+### Parameters
+- `data`: Reference to a Polars `DataFrame`. Must contain numeric "close" and "volume" columns.
+- `period`: The EMA smoothing period (typically 1 or 13). A period of 1 returns the raw Force Index.
+
+### Output
+- Returns `Result<Series>`.
+- The output Series is named "force_index".
+- Depending on the period, initial values will be null.
