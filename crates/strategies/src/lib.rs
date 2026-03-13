@@ -26,6 +26,7 @@ pub mod adx_momentum;
 pub mod aroon_oscillator;
 pub mod awesome_oscillator;
 pub mod bollinger_bands;
+pub mod bollinger_rsi;
 pub mod cci_momentum;
 pub mod chaikin_money_flow;
 pub mod chandelier_exit;

@@ -2478,3 +2478,41 @@ Trend Following
 - **Expected Win Rate:** 45-55% (trend-following strategies typically have lower win rates but higher reward-to-risk ratios).
 - **Sharpe Ratio:** Expected > 1.2 in trending markets.
 - **Max Drawdown:** Expected to be controlled (<15%) due to ATR-based dynamic stop losses and Supertrend filtering.
+
+---
+
+# Trading Strategy: Bollinger RSI Mean Reversion
+
+## Strategy Specification
+
+**Name:** BollingerRsi
+
+**Description:** A combined mean reversion strategy that requires both Bollinger Bands and RSI conditions to align before taking a trade. It buys when the price breaks below the lower Bollinger Band AND RSI crosses above the oversold threshold. It sells when the price breaks above the upper Bollinger Band AND RSI crosses below the overbought threshold.
+
+**Rationale:** Using Bollinger Bands alone can lead to false signals in strong trends. Adding an RSI filter ensures that momentum is shifting back toward the mean before entering a trade, improving the win rate.
+
+## Requirements
+
+### Implementation Details
+- Uses Polars for data analysis.
+- Implements the `Strategy` trait in Rust.
+- Uses sliding window calculation for Bollinger Bands and native `rsi` indicator.
+
+### Strategy Type
+Mean Reversion
+
+### Entry Conditions
+- **Long Entry (Buy):** Close Price < Lower Bollinger Band AND RSI crosses above oversold threshold.
+- **Short Entry (Sell):** Close Price > Upper Bollinger Band AND RSI crosses below overbought threshold.
+
+### Exit Conditions
+- **Long Exit (Sell):** Close Price crosses above Mean Bollinger Band OR RSI crosses above 50 (Neutral) OR Stop Loss hit.
+- **Short Exit (Buy):** Close Price crosses below Mean Bollinger Band OR RSI crosses below 50 (Neutral) OR Stop Loss hit.
+
+### Position Sizing
+- **Size Hint:** "100" (fixed units) or "max" (for exits).
+
+### Expected Performance Metrics
+- **Win Rate:** 60-65% (Mean reversion combined with momentum filter improves accuracy).
+- **Sharpe Ratio:** 1.2 - 1.5 (Consistent small wins with tight stop losses).
+- **Max Drawdown:** 10-15% (Risk management caps downside).

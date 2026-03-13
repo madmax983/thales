@@ -61,6 +61,7 @@ pub fn calculate(data: &DataFrame, period: usize) -> Result<Series> {
 
     let hundred = Decimal::from(100);
 
+    #[allow(clippy::needless_range_loop)]
     for i in period..decimal_close.len() {
         let mut sum_gains = Decimal::ZERO;
         let mut sum_losses = Decimal::ZERO;
