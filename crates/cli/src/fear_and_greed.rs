@@ -50,7 +50,7 @@ pub struct FearAndGreedReport {
 /// use thales_cli::fear_and_greed::{analyze_fear_and_greed, FearAndGreedConfig};
 ///
 /// let mut bars = vec![];
-/// for i in 0..30 {
+/// for i in 0..45 {
 ///     // Create a steady uptrend
 ///     let price = 100.0 + (i as f64) * 2.0;
 ///     bars.push(Bar {

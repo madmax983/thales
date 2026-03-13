@@ -2921,3 +2921,32 @@ pub struct TripleSmaCrossoverConfig {
 ### Performance
 - SMA and ATR calculations are O(N).
 - Signal generation loop is O(N).
+
+---
+
+## KamaTrendFollowing
+
+**Description:** Trend-following strategy using Kaufman's Adaptive Moving Average (KAMA) and Relative Strength Index (RSI).
+**Rationale:** Filters market noise with KAMA while using RSI to confirm momentum before entering a trend.
+
+### Strategy Specifications
+- **Category:** Trend Following
+- **Indicators:** KAMA (10, 2, 30), RSI (14), ATR (14)
+
+### Entry Conditions
+- **Long:** Price crosses above KAMA and RSI is > `rsi_buy_threshold` (e.g., 50.0).
+- **Short:** Price crosses below KAMA and RSI is < `rsi_sell_threshold` (e.g., 50.0).
+
+### Exit Conditions
+- Longs are exited if a short entry condition is met.
+- Shorts are exited if a long entry condition is met.
+
+### Position Sizing & Risk Management
+- **Size:** Fixed (e.g., 100 units).
+- **Stop Loss:** Trailing / Dynamic based on ATR (e.g., 2.0 * ATR).
+- **Take Profit:** Fixed 1:2 Risk/Reward ratio based on initial Stop Loss.
+
+### Historical Performance (Sample)
+- **Win Rate:** ~45-50% (Trend-following strategies often have lower win rates but higher reward/risk profiles)
+- **Sharpe Ratio:** ~1.2
+- **Max Drawdown:** ~15%

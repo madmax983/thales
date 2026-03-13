@@ -43,6 +43,7 @@ pub mod ema_rsi_trend;
 pub mod hma_crossover;
 pub mod ichimoku_cloud;
 pub mod indicators;
+pub mod kama_trend;
 pub mod keltner_channel_breakout;
 pub mod linear_regression_trend;
 pub mod macd;

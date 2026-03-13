@@ -46,6 +46,7 @@ use strategies::ema_crossover::{EmaCrossover, EmaCrossoverConfig};
 use strategies::ema_rsi_trend::{EmaRsiTrendFollowing, EmaRsiTrendFollowingConfig};
 use strategies::hma_crossover::{HmaCrossover, HmaCrossoverConfig};
 use strategies::ichimoku_cloud::{IchimokuCloud, IchimokuCloudConfig};
+use strategies::kama_trend::{KamaTrendFollowing, KamaTrendFollowingConfig};
 use strategies::keltner_channel_breakout::{KeltnerChannelBreakout, KeltnerChannelBreakoutConfig};
 use strategies::linear_regression_trend::{LinearRegressionTrend, LinearRegressionTrendConfig};
 use strategies::macd::{Macd, MacdConfig};
@@ -243,6 +244,20 @@ pub fn create_strategy(name: &str, symbol: &str) -> Result<Box<dyn Strategy>> {
                 symbol: symbol.to_string(),
             };
             Ok(Box::new(ParabolicSar::new(config)))
+        }
+        "KamaTrendFollowing" => {
+            let config = KamaTrendFollowingConfig {
+                kama_period: 10,
+                kama_fast_period: 2,
+                kama_slow_period: 30,
+                rsi_period: 14,
+                rsi_buy_threshold: 50.0,
+                rsi_sell_threshold: 50.0,
+                stop_loss_atr_mult: 2.0,
+                atr_period: 14,
+                symbol: symbol.to_string(),
+            };
+            Ok(Box::new(KamaTrendFollowing::new(config)))
         }
         "KeltnerChannelBreakout" => {
             let config = KeltnerChannelBreakoutConfig {
@@ -580,6 +595,7 @@ pub fn list_strategies() -> Vec<&'static str> {
         "SupertrendRsi",
         "DonchianBreakout",
         "ParabolicSar",
+        "KamaTrendFollowing",
         "KeltnerChannelBreakout",
         "StochasticOscillator",
         "AdxMomentum",
