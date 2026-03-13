@@ -58,6 +58,7 @@ pub mod stochastic_oscillator;
 pub mod strategy;
 pub mod supertrend;
 pub mod supertrend_ema_crossover;
+pub mod supertrend_rsi;
 pub mod tema_crossover;
 pub mod trix_momentum;
 pub mod tsi_trend;

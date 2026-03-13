@@ -259,7 +259,9 @@ mod tests {
         // Expect Entry at index 3 (4000) or 4 (5000) depending on exact EMA lag
         assert!(!signals.is_empty(), "Should generate signals");
 
-        let entry = signals.iter().find(|s| s.signal_type == SignalType::Entry && s.side == "sell");
+        let entry = signals
+            .iter()
+            .find(|s| s.signal_type == SignalType::Entry && s.side == "sell");
         assert!(entry.is_some());
 
         Ok(())
