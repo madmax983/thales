@@ -159,7 +159,7 @@ impl Strategy for TripleSmaCrossover {
                 let prev_exit_long = sp >= mp;
 
                 if curr_exit_long && prev_exit_long {
-                     signals.push(Signal {
+                    signals.push(Signal {
                         signal_type: SignalType::Exit,
                         symbol: self.config.symbol.clone(),
                         side: "sell".to_string(),
@@ -176,12 +176,12 @@ impl Strategy for TripleSmaCrossover {
                     });
                 }
 
-                 // Exit Short
+                // Exit Short
                 let curr_exit_short = sc > mc;
                 let prev_exit_short = sp <= mp;
 
                 if curr_exit_short && prev_exit_short {
-                     signals.push(Signal {
+                    signals.push(Signal {
                         signal_type: SignalType::Exit,
                         symbol: self.config.symbol.clone(),
                         side: "buy".to_string(),
@@ -231,7 +231,9 @@ mod tests {
         let closes = vec![10.0, 10.0, 10.0, 10.0, 12.0, 14.0, 16.0, 18.0, 10.0, 8.0];
         let highs = vec![10.5, 10.5, 10.5, 10.5, 12.5, 14.5, 16.5, 18.5, 10.5, 8.5];
         let lows = vec![9.5, 9.5, 9.5, 9.5, 11.5, 13.5, 15.5, 17.5, 9.5, 7.5];
-        let timestamps = vec![1000i64, 2000, 3000, 4000, 5000, 6000, 7000, 8000, 9000, 10000];
+        let timestamps = vec![
+            1000i64, 2000, 3000, 4000, 5000, 6000, 7000, 8000, 9000, 10000,
+        ];
 
         let df = df!(
             "timestamp_unix_ms" => timestamps,
@@ -244,16 +246,20 @@ mod tests {
 
         assert!(signals.len() >= 2);
 
-        let entry = signals.iter().find(|s| s.signal_type == SignalType::Entry && s.side == "buy");
+        let entry = signals
+            .iter()
+            .find(|s| s.signal_type == SignalType::Entry && s.side == "buy");
         assert!(entry.is_some());
 
-        let exit = signals.iter().find(|s| s.signal_type == SignalType::Exit && s.side == "sell");
+        let exit = signals
+            .iter()
+            .find(|s| s.signal_type == SignalType::Exit && s.side == "sell");
         assert!(exit.is_some());
 
         Ok(())
     }
 
-     #[tokio::test]
+    #[tokio::test]
     async fn test_parameter_validation() {
         let mut strategy = TripleSmaCrossover::new(TripleSmaCrossoverConfig::default());
         let new_params = serde_json::json!({

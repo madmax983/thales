@@ -39,7 +39,9 @@ pub fn analyze_market_phases(
     }
 
     if config.short_window >= config.long_window {
-        return Err(anyhow::anyhow!("short_window must be strictly less than long_window"));
+        return Err(anyhow::anyhow!(
+            "short_window must be strictly less than long_window"
+        ));
     }
 
     if series.bars.len() < config.long_window {

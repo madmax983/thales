@@ -46,7 +46,7 @@ cargo run -p thales-cli -- fetch-market-data \
   --timeframe 1h > market_data.json
 ```
 
-### 2. Verify Strategy (Backtest)
+### 2. Backtest Strategy
 Run a backtest on the fetched data to see how the strategy performs over time.
 
 ```bash
