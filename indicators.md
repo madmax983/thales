@@ -749,3 +749,33 @@ let cmo_series = cmo::calculate(&df, period)?;
 - Returns `Result<Series>`.
 - The output Series is named "cmo".
 - The first `period` values will be null.
+
+## Momentum (MOM)
+
+**Name:** Momentum (MOM)
+**Description:** Measures the rate of change of a security's price.
+**Rationale:** Momentum compares the current price with the previous price from a number of periods ago. Positive values indicate an upward trend; negative values indicate a downward trend.
+
+### Implementation Details
+- Uses `rust_decimal::Decimal` for precision calculation.
+- Calculates Current Close - Close N periods ago.
+- Returns a Polars `Series` of `f64` values (computed internally via Decimal).
+
+### Usage
+
+```rust
+use strategies::indicators::mom;
+use polars::prelude::*;
+
+// Assuming df is a DataFrame with "close" column
+let mom_series = mom::calculate(&df, 14)?;
+```
+
+### Parameters
+- `data`: Reference to a Polars `DataFrame`. Must contain a numeric "close" column.
+- `period`: The lookback period (typically 10 or 14).
+
+### Output
+- Returns `Result<Series>`.
+- The output Series is named "mom".
+- The first `period` values will be null.
