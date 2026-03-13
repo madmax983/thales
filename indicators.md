@@ -749,3 +749,34 @@ let cmo_series = cmo::calculate(&df, period)?;
 - Returns `Result<Series>`.
 - The output Series is named "cmo".
 - The first `period` values will be null.
+
+## Detrended Price Oscillator (DPO)
+
+**Name:** DPO
+**Description:** Calculates the Detrended Price Oscillator, an indicator designed to remove trend from price and make it easier to identify short-term cycles.
+**Rationale:** Standard DPO is used to identify overbought/oversold levels by eliminating long-term trends from the price data.
+
+### Implementation Details
+- Uses `rust_decimal::Decimal` for all internal calculations to ensure precision.
+- Returns a Polars `Series` of `f64` values (computed internally via Decimal) for compatibility with other analysis tools.
+- Shifts the simple moving average (SMA) by `(period / 2) + 1` days to center it and compute the DPO.
+
+### Usage
+
+```rust
+use strategies::indicators::dpo;
+use polars::prelude::*;
+
+// Assuming df is a DataFrame with a "close" column
+let period = 20;
+let dpo_series = dpo::calculate(&df, period)?;
+```
+
+### Parameters
+- `data`: Reference to a Polars `DataFrame`. Must contain a numeric column named "close".
+- `period`: The size of the moving window for the SMA calculation (must be > 0).
+
+### Output
+- Returns `Result<Series>`.
+- The output Series is named "dpo".
+- The first `period - 1 + (period / 2) + 1` values will be null, reflecting the shifted nature of the SMA.
