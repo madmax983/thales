@@ -36,7 +36,6 @@ use strategies::cci_momentum::{CciMomentum, CciMomentumConfig};
 use strategies::chaikin_money_flow::{ChaikinMoneyFlow, ChaikinMoneyFlowConfig};
 use strategies::chandelier_exit::{ChandelierExit, ChandelierExitConfig};
 use strategies::cmo_mean_reversion::{CmoMeanReversion, CmoMeanReversionConfig};
-use strategies::kama_crossover::{KamaCrossover, KamaCrossoverConfig};
 use strategies::connors_rsi_mean_reversion::{
     ConnorsRsiMeanReversion, ConnorsRsiMeanReversionConfig,
 };
@@ -47,6 +46,7 @@ use strategies::ema_crossover::{EmaCrossover, EmaCrossoverConfig};
 use strategies::ema_rsi_trend::{EmaRsiTrendFollowing, EmaRsiTrendFollowingConfig};
 use strategies::hma_crossover::{HmaCrossover, HmaCrossoverConfig};
 use strategies::ichimoku_cloud::{IchimokuCloud, IchimokuCloudConfig};
+use strategies::kama_crossover::{KamaCrossover, KamaCrossoverConfig};
 use strategies::keltner_channel_breakout::{KeltnerChannelBreakout, KeltnerChannelBreakoutConfig};
 use strategies::linear_regression_trend::{LinearRegressionTrend, LinearRegressionTrendConfig};
 use strategies::macd::{Macd, MacdConfig};

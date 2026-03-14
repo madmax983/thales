@@ -1,3 +1,37 @@
+//! # Stochastic Oscillator Strategy
+//!
+//! The Stochastic Oscillator is a momentum indicator comparing a particular closing
+//! price of a security to a range of its prices over a certain period of time.
+//! It is used to generate overbought and oversold trading signals, utilizing a 0-100 bounded
+//! range of values.
+//!
+//! ## Overview
+//!
+//! The strategy uses two main lines:
+//! - `%K`: The current market rate for the currency pair or the fast stochastic indicator.
+//! - `%D`: The moving average of `%K`, known as the slow stochastic indicator.
+//!
+//! Signals are generated when `%K` crosses `%D` in extreme zones:
+//! - **Buy Signal**: When `%K` crosses above `%D` while both are below the oversold threshold (e.g., 20).
+//! - **Sell Signal**: When `%K` crosses below `%D` while both are above the overbought threshold (e.g., 80).
+//!
+//! ## Configuration Example
+//!
+//! ```rust
+//! use strategies::stochastic_oscillator::StochasticOscillatorConfig;
+//!
+//! let config = StochasticOscillatorConfig {
+//!     k_period: 14,
+//!     k_smoothing: 3,
+//!     d_period: 3,
+//!     oversold_threshold: 20.0,
+//!     overbought_threshold: 80.0,
+//!     stop_loss_atr_mult: 2.0,
+//!     atr_period: 14,
+//!     symbol: "BTCUSD".to_string(),
+//! };
+//! ```
+
 use crate::indicators::{atr, stochastic};
 use crate::strategy::{Signal, SignalType, Strategy, StrategyConfig, StrategyType};
 use anyhow::Result;
@@ -5,25 +39,61 @@ use async_trait::async_trait;
 use polars::prelude::*;
 use serde::{Deserialize, Serialize};
 
+/// Configuration for the Stochastic Oscillator Strategy.
+///
+/// This struct holds all the parameters needed to calculate the Stochastic lines
+/// and manage risk using Average True Range (ATR).
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct StochasticOscillatorConfig {
+    /// The number of periods to look back for the highest high and lowest low to calculate the fast %K. (e.g., 14)
     pub k_period: usize,
+    /// The number of periods to smooth the fast %K to get the slow %K. (e.g., 3)
     pub k_smoothing: usize,
+    /// The number of periods to calculate the moving average of the slow %K to get the %D. (e.g., 3)
     pub d_period: usize,
+    /// The lower threshold below which the market is considered oversold. (e.g., 20)
     pub oversold_threshold: f64,
+    /// The upper threshold above which the market is considered overbought. (e.g., 80)
     pub overbought_threshold: f64,
+    /// The multiplier for ATR to calculate the stop-loss distance from the entry price.
     pub stop_loss_atr_mult: f64,
+    /// The period for calculating the Average True Range (ATR).
     pub atr_period: usize,
+    /// The trading pair symbol the strategy is applied to.
     pub symbol: String,
 }
 
 impl StrategyConfig for StochasticOscillatorConfig {}
 
+/// Stochastic Oscillator Strategy implementation.
+///
+/// Implements the `Strategy` trait to generate trading signals based on the
+/// configuration provided during initialization.
 pub struct StochasticOscillator {
     config: StochasticOscillatorConfig,
 }
 
 impl StochasticOscillator {
+    /// Creates a new instance of the strategy with the provided configuration.
+    ///
+    /// ## Examples
+    ///
+    /// ```rust
+    /// use strategies::stochastic_oscillator::{StochasticOscillator, StochasticOscillatorConfig};
+    ///
+    /// let config = StochasticOscillatorConfig {
+    ///     k_period: 14,
+    ///     k_smoothing: 3,
+    ///     d_period: 3,
+    ///     oversold_threshold: 20.0,
+    ///     overbought_threshold: 80.0,
+    ///     stop_loss_atr_mult: 2.0,
+    ///     atr_period: 14,
+    ///     symbol: "BTCUSD".to_string(),
+    /// };
+    ///
+    /// let strategy = StochasticOscillator::new(config);
+    /// ```
     pub fn new(config: StochasticOscillatorConfig) -> Self {
         Self { config }
     }
