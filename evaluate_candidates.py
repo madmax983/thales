@@ -30,7 +30,8 @@ STRATEGIES = [
     "AdxMomentum", "IchimokuCloud", "CciMomentum", "LinearRegressionTrend", "ObvTrendFollowing",
     "MoneyFlowIndex", "ConnorsRsiMeanReversion", "AwesomeOscillator", "WilliamsR",
     "VwmaCrossover", "VwapReversion", "VortexBreakout", "ZScoreMeanReversion",
-    "ChaikinMoneyFlow", "ElderRay", "ChandelierExit", "AroonOscillator", "RocMomentum"
+    "ChaikinMoneyFlow", "ElderRay", "ChandelierExit", "AroonOscillator", "RocMomentum",
+    "KamaCrossover"
 ]
 
 def run_cmd(cmd):

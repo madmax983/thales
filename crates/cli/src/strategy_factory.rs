@@ -36,6 +36,7 @@ use strategies::cci_momentum::{CciMomentum, CciMomentumConfig};
 use strategies::chaikin_money_flow::{ChaikinMoneyFlow, ChaikinMoneyFlowConfig};
 use strategies::chandelier_exit::{ChandelierExit, ChandelierExitConfig};
 use strategies::cmo_mean_reversion::{CmoMeanReversion, CmoMeanReversionConfig};
+use strategies::kama_crossover::{KamaCrossover, KamaCrossoverConfig};
 use strategies::connors_rsi_mean_reversion::{
     ConnorsRsiMeanReversion, ConnorsRsiMeanReversionConfig,
 };
@@ -90,6 +91,20 @@ use strategies::zscore_mean_reversion::{ZScoreMeanReversion, ZScoreMeanReversion
 /// Returns an error if the specified `name` does not match any registered strategy.
 pub fn create_strategy(name: &str, symbol: &str) -> Result<Box<dyn Strategy>> {
     match name {
+        "KamaCrossover" => {
+            let config = KamaCrossoverConfig {
+                short_period: 10,
+                long_period: 30,
+                short_fast_ema_period: 2,
+                short_slow_ema_period: 30,
+                long_fast_ema_period: 2,
+                long_slow_ema_period: 30,
+                stop_loss_atr_mult: 2.0,
+                atr_period: 14,
+                symbol: symbol.to_string(),
+            };
+            Ok(Box::new(KamaCrossover::new(config)))
+        }
         "AroonOscillator" => {
             let config = AroonOscillatorConfig {
                 symbol: symbol.to_string(),
@@ -567,6 +582,7 @@ pub fn create_strategy(name: &str, symbol: &str) -> Result<Box<dyn Strategy>> {
 /// This list powers the CLI auto-completion, benchmark suites, and agent scanning.
 pub fn list_strategies() -> Vec<&'static str> {
     vec![
+        "KamaCrossover",
         "AlmaCrossover",
         "AdxMacdTrend",
         "AroonOscillator",
