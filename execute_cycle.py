@@ -1119,6 +1119,8 @@ def verify_risk(intent):
             # Kraken minimum order sizes (approximate, hardcoded for safety)
             # https://support.kraken.com/hc/en-us/articles/205893708-Minimum-order-size-volume-for-trading
             min_sizes = {
+                "BTC/USD": 0.0001,
+                "ETH/USD": 0.001,
                 "BTCUSD": 0.0001,
                 "ETHUSD": 0.001,
             }
@@ -1555,7 +1557,7 @@ def main():
             print(f"Algorithm: {intent['execution_algo']}")
 
         # Ensure we always pass a stop loss, according to agent rules "Always set stop losses when available"
-        if not intent.get("stop_loss"):
+        if intent.get("stop_loss") in [None, "None", "-"]:
             print("Warning: Missing stop loss, adding safety default stop loss")
             # If no stop loss was provided by the strategy but we are going to trade,
             # risk management must apply. Let's apply a naive 5% safety buffer.

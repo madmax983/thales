@@ -279,7 +279,16 @@ def execute_agent(intent_file):
 
     # For now, process the first intent, or loop through them
     for intent in intents:
-        provider = intent.get("provider", "paper")
+        # Route correctly
+        provider = "paper"
+        if os.environ.get("SIMULATION") != "true":
+            market = intent.get("market", "")
+            if market == "equities":
+                provider = "alpaca"
+            else:
+                provider = "kraken"
+
+        intent["provider"] = provider
 
         # 1. Manage Orders (Stale & Partial Fills)
         manage_orders(provider)
@@ -294,7 +303,7 @@ def execute_agent(intent_file):
             current_price = bars[-1].get("close")
 
         # 3. Always set stop losses when available
-        if not intent.get("stop_loss"):
+        if intent.get("stop_loss") in [None, "None", "-"]:
             print("Warning: Missing stop loss. Applying safety default stop loss.")
             if current_price:
                 if intent["side"] == "buy":
