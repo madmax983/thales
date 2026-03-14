@@ -844,3 +844,33 @@ let vpt_series = vpt::calculate(&df)?;
 - Returns `Result<Series>`.
 - The output Series is named "vpt".
 - The first value will be null.
+
+## Accumulation/Distribution Line (ADL)
+
+**Name:** Accumulation/Distribution Line (ADL)
+**Description:** A volume-based indicator designed to measure the cumulative flow of money into and out of an asset.
+**Rationale:** It helps assess whether the asset is being accumulated (bought) or distributed (sold). Divergences between the ADL and the asset's price often signal an impending trend reversal.
+
+### Implementation Details
+- Uses `rust_decimal::Decimal` for precision.
+- Calculates Money Flow Multiplier (MFM) for each period based on high, low, and close.
+- Calculates Money Flow Volume (MFV) by multiplying MFM with volume.
+- Cumulatively sums the MFV to form the Accumulation/Distribution Line.
+- Returns a Polars `Series` of `f64` values (computed internally via Decimal).
+
+### Usage
+
+```rust
+use strategies::indicators::adl;
+use polars::prelude::*;
+
+// Assuming df is a DataFrame with "high", "low", "close", and "volume" columns
+let adl_series = adl::calculate(&df)?;
+```
+
+### Parameters
+- `data`: Reference to a Polars `DataFrame`. Must contain numeric "high", "low", "close", and "volume" columns.
+
+### Output
+- Returns `Result<Series>`.
+- The output Series is named "adl".
