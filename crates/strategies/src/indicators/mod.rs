@@ -7,6 +7,7 @@ pub mod awesome_oscillator;
 pub mod bollinger_bands;
 pub mod cci;
 pub mod chandelier_exit;
+pub mod choppiness_index;
 pub mod cmf;
 pub mod cmo;
 pub mod connors_rsi;
