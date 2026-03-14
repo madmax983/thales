@@ -892,3 +892,39 @@ let adl_series = adl::calculate(&df)?;
 use strategies::indicators::volume_oscillator;
 use polars::prelude::*;
 ```
+
+## Percentage Price Oscillator (PPO)
+
+**Name:** PPO
+**Description:** Calculates the Percentage Price Oscillator, which measures the percentage difference between two moving averages (typically exponential).
+**Rationale:** Similar to MACD, but normalized as a percentage. This allows for comparing the indicator across different assets or different timeframes of the same asset, as it is not affected by the absolute price level.
+
+### Implementation Details
+- Uses `rust_decimal::Decimal` iteratively for all math calculations to ensure financial precision, explicitly converting from and to `f64` only for Polars boundaries.
+- Built on top of the `ema` indicator.
+- Formula: `((Fast EMA - Slow EMA) / Slow EMA) * 100`.
+- Returns a Polars `Series` of `f64` values (computed internally via Decimal).
+
+### Usage
+
+```rust
+use strategies::indicators::ppo;
+use polars::prelude::*;
+
+// Assuming df is a DataFrame with a "close" column
+let fast_period = 12;
+let slow_period = 26;
+let signal_period = 9;
+let (ppo_line, signal_line, histogram) = ppo::calculate(&df, fast_period, slow_period, signal_period)?;
+```
+
+### Parameters
+- `data`: Reference to a Polars `DataFrame`. Must contain a numeric "close" column.
+- `fast_period`: Fast EMA period (typically 12).
+- `slow_period`: Slow EMA period (typically 26).
+- `signal_period`: Signal Line EMA period (typically 9).
+
+### Output
+- Returns `Result<(Series, Series, Series)>` representing the PPO Line, Signal Line, and Histogram.
+- Series are named "ppo_line", "ppo_signal", and "ppo_hist".
+- Initial values will be null until the slowest moving average has enough data.
