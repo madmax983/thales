@@ -1524,13 +1524,6 @@ def main():
         print(f"Reasoning: {intent.get('rationale', 'None')}")
         print("------------------\n")
 
-        # Risk Agent Check
-        risk_ok, risk_reason = verify_risk(intent)
-        if not risk_ok:
-            print(f"Skipping {intent['symbol']}: {risk_reason}")
-            log_skipped(intent, f"Rejected by Risk Agent: {risk_reason}")
-            continue
-
         # Fetch latest price for execution logic
         current_price = get_latest_price(intent["provider"], intent["symbol"])
 
@@ -1546,6 +1539,13 @@ def main():
         if not sell_ok:
             print(f"Skipping {intent['symbol']}: {sell_reason}")
             log_skipped(intent, sell_reason)
+            continue
+
+        # Risk Agent Check
+        risk_ok, risk_reason = verify_risk(intent)
+        if not risk_ok:
+            print(f"Skipping {intent['symbol']}: {risk_reason}")
+            log_skipped(intent, f"Rejected by Risk Agent: {risk_reason}")
             continue
 
         # Refine Intent (Algo Selection)
