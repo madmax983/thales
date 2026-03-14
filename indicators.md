@@ -874,3 +874,21 @@ let adl_series = adl::calculate(&df)?;
 ### Output
 - Returns `Result<Series>`.
 - The output Series is named "adl".
+
+## Volume Oscillator
+
+**Name:** Volume Oscillator
+**Description:** Calculates the difference between two moving averages of volume, expressed as a percentage.
+**Rationale:** Identifies whether volume trend is increasing or decreasing, confirming price trends.
+
+### Implementation Details
+- Uses `rust_decimal::Decimal` (via SMA) for calculations to ensure precision.
+- Returns a Polars `Series` of `f64` values.
+- Positive values indicate increasing short-term volume.
+
+### Usage
+
+```rust
+use strategies::indicators::volume_oscillator;
+use polars::prelude::*;
+```

@@ -67,6 +67,7 @@ pub mod tsi_trend;
 pub mod vortex_breakout;
 pub mod vwap_reversion;
 pub mod vwma_crossover;
+pub mod volume_oscillator_trend;
 pub mod williams_r;
 pub mod wma_crossover;
 pub mod zscore_mean_reversion;

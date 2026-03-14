@@ -35,6 +35,7 @@ pub mod trix;
 pub mod tsi;
 pub mod vortex;
 pub mod vpt;
+pub mod volume_oscillator;
 pub mod vwap;
 pub mod vwma;
 pub mod williams_r;

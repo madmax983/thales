@@ -2999,3 +2999,23 @@ pub struct TripleSmaCrossoverConfig {
 ### Performance
 - SMA and ATR calculations are O(N).
 - Signal generation loop is O(N).
+
+# Trading Strategy: Volume Oscillator Trend
+
+## Strategy Specification
+
+**Name:** VolumeOscillatorTrend
+
+**Description:** A trend following strategy that uses the Volume Oscillator to confirm volume expansion alongside price trends defined by a Simple Moving Average. It enters long when the Volume Oscillator crosses above zero while price is above its SMA, and short when the VO crosses zero while price is below SMA.
+
+**Rationale:** Expanding volume (VO > 0) often precedes or confirms significant price moves. Combining volume expansion with a price trend filter ensures trades are taken in the direction of the dominant momentum backed by participation.
+
+## Requirements
+
+### Implementation Details
+- Uses Polars for data analysis.
+- Implements the `Strategy` trait in Rust.
+- Calculates ATR for dynamic stop losses.
+
+### Strategy Type
+Trend Following
