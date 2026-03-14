@@ -928,3 +928,33 @@ let (ppo_line, signal_line, histogram) = ppo::calculate(&df, fast_period, slow_p
 - Returns `Result<(Series, Series, Series)>` representing the PPO Line, Signal Line, and Histogram.
 - Series are named "ppo_line", "ppo_signal", and "ppo_hist".
 - Initial values will be null until the slowest moving average has enough data.
+
+## Choppiness Index (CHOP)
+
+**Name:** CHOP
+**Description:** Calculates the Choppiness Index, a volatility indicator designed to determine if the market is choppy (trading sideways) or not choppy (trading within a trend in either direction).
+**Rationale:** It helps traders determine whether to use trend-following or mean-reverting strategies based on the current market condition. A higher value indicates choppiness, while a lower value indicates a strong trend.
+
+### Implementation Details
+- Uses `rust_decimal::Decimal` iteratively for all math calculations to ensure financial precision, explicitly converting from and to `f64` only for Polars boundaries.
+- Returns a Polars `Series` of `f64` values (computed internally via Decimal).
+
+### Usage
+
+```rust
+use strategies::indicators::choppiness_index;
+use polars::prelude::*;
+
+// Assuming df is a DataFrame with "high", "low", "close" columns
+let period = 14;
+let chop_series = choppiness_index::calculate(&df, period)?;
+```
+
+### Parameters
+- `data`: Reference to a Polars `DataFrame`. Must contain numeric "high", "low", and "close" columns.
+- `period`: The lookback period (typically 14).
+
+### Output
+- Returns `Result<Series>`.
+- The output Series is named "choppiness_index".
+- The first `period - 1` values will be null.
