@@ -114,7 +114,7 @@ def run_command(args):
         if stdout:
             print(stdout)
         return None
-    except Exception as e:
+    except (OSError, subprocess.SubprocessError) as e:
         run_command.last_error = str(e)
         print(f"Exception running command {cmd}: {e}")
         return None
@@ -687,7 +687,7 @@ def update_history(intent):
         try:
             with open(HISTORY_PATH, "r") as f:
                 history = json.load(f)
-        except Exception as e:
+        except (OSError, json.JSONDecodeError) as e:
             print(f"Warning: Failed to load history.json: {e}")
             # Backup corrupted file
             timestamp = datetime.now().strftime("%Y%m%d%H%M%S")
@@ -695,7 +695,7 @@ def update_history(intent):
             try:
                 shutil.copy(HISTORY_PATH, backup_path)
                 print(f"Backed up corrupted history to {backup_path}")
-            except Exception as copy_err:
+            except OSError as copy_err:
                 print(f"Failed to backup corrupted history: {copy_err}")
             history = []
 
