@@ -290,7 +290,7 @@ def archive_signals(days=2):
                 ts = data.get("timestamp_unix_ms", 0)
                 if (now - ts) > cutoff_ms:
                     is_stale = True
-            except:
+            except (json.JSONDecodeError, ValueError, TypeError):
                 pass
 
         # Also check header timestamp if JSON missing/parse error?
@@ -399,7 +399,7 @@ def get_candidates_from_signals():
         if json_match:
             try:
                 raw_json = json.loads(json_match.group(1))
-            except:
+            except json.JSONDecodeError:
                 pass
 
 # Check for Staleness (24 hours = 86400000 ms)
@@ -829,7 +829,7 @@ def log_trade(intent, result, slippage=None):
              stop = float(sl)
              qty = float(size)
              max_risk = f"{abs(entry - stop) * qty:.2f}"
-        except:
+        except (ValueError, TypeError):
              pass
 
     signal_ref = intent["intent_id"].replace("|", "\\|")
@@ -884,7 +884,7 @@ def log_submitted(intent, result):
              stop = float(sl)
              qty = float(size)
              max_risk = f"{abs(entry - stop) * qty:.2f}"
-        except:
+        except (ValueError, TypeError):
              pass
 
     signal_ref = intent.get("intent_id", "-").replace("|", "\\|")
@@ -1285,7 +1285,7 @@ def refine_intent(intent, current_price=None):
                 is_very_large = True
             elif size > 1000.0:
                 is_large = True
-    except:
+    except (ValueError, TypeError):
         pass
 
     if is_very_large:
