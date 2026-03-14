@@ -2632,6 +2632,84 @@ pub struct AlmaCrossoverConfig {
 
 ---
 
+# Trading Strategy: KAMA Crossover
+
+## Strategy Specification
+
+**Name:** KamaCrossover
+
+**Description:** A trend-following strategy that generates signals based on the crossover of two Kaufman's Adaptive Moving Averages (KAMA) of different periods.
+
+**Rationale:** The KAMA Crossover strategy is a trend-following approach that adapts to market noise. By using KAMA, the moving average closely follows prices when price swings are relatively small and noise is low, and adjusts to moving averages when prices swing widely and noise is high. A fast KAMA crossing above a slow KAMA suggests an emerging uptrend (bullish), while a fast KAMA crossing below a slow KAMA suggests an emerging downtrend (bearish).
+
+## Requirements
+
+### Implementation Details
+- Uses Polars for data analysis.
+- Implements the `Strategy` trait in Rust.
+- Uses `kama` and `atr` indicators.
+
+### Strategy Type
+TrendFollowing
+
+### Entry Conditions
+- **Long Entry (Buy):** Short KAMA crosses ABOVE Long KAMA.
+- **Short Entry (Sell):** Short KAMA crosses BELOW Long KAMA.
+
+### Exit Conditions
+- **Long Exit (Sell):** Short KAMA crosses BELOW Long KAMA.
+- **Short Exit (Buy):** Short KAMA crosses ABOVE Long KAMA.
+- **Stop Loss:** Entry Price +/- (ATR * `stop_loss_atr_mult`).
+
+### Position Sizing
+- **Size Hint:** "100" (fixed units) or "max" (for exits).
+
+## Code Pattern
+
+```rust
+use crate::strategy::{Strategy, StrategyConfig, Signal, SignalType};
+use crate::indicators::{atr, kama};
+use polars::prelude::*;
+use async_trait::async_trait;
+use anyhow::Result;
+
+pub struct KamaCrossover {
+    config: KamaCrossoverConfig,
+}
+
+#[derive(Debug, Clone, serde::Deserialize)]
+pub struct KamaCrossoverConfig {
+    pub short_period: usize,
+    pub long_period: usize,
+    pub short_fast_ema_period: usize,
+    pub short_slow_ema_period: usize,
+    pub long_fast_ema_period: usize,
+    pub long_slow_ema_period: usize,
+    pub stop_loss_atr_mult: f64,
+    pub atr_period: usize,
+    pub symbol: String,
+}
+```
+
+## Critical Considerations
+
+### Risk Management Integration
+- **Stop Loss:** Uses ATR-based stop loss for dynamic risk control.
+- **Trend Filter:** Adaptive nature of KAMA reduces false signals in ranging markets compared to SMA/EMA crossovers.
+
+### Backtesting Requirements
+- Accepts `DataFrame` with historical data containing "close".
+- Requires data length > `long_period`.
+- **Expected Win Rate:** 45-55%
+- **Expected Sharpe Ratio:** > 1.2
+- **Max Drawdown:** < 15%
+
+### Performance
+- KAMA and ATR calculations are O(N).
+- Signal generation loop is O(N).
+
+---
+
 # Trading Strategy: SMA Crossover
 
 ## Strategy Specification
