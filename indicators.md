@@ -815,3 +815,32 @@ let fi_series = force_index::calculate(&df, period)?;
 - Returns `Result<Series>`.
 - The output Series is named "force_index".
 - Depending on the period, initial values will be null.
+
+## Volume Price Trend (VPT)
+
+**Name:** VPT
+**Description:** Calculates the Volume Price Trend, a momentum indicator that uses volume to confirm price trends or warn of potential reversals.
+**Rationale:** Used as a momentum indicator that correlates volume with price changes. A rising VPT confirms an upward trend, while a divergence between VPT and price can signal a trend reversal.
+
+### Implementation Details
+- Uses `rust_decimal::Decimal` for all internal calculations to ensure precision.
+- Returns a Polars `Series` of `f64` values (computed internally via Decimal).
+- Cumulative calculation where current VPT = Previous VPT + Volume * ((Current Close - Previous Close) / Previous Close).
+
+### Usage
+
+```rust
+use strategies::indicators::vpt;
+use polars::prelude::*;
+
+// Assuming df is a DataFrame with "close" and "volume" columns
+let vpt_series = vpt::calculate(&df)?;
+```
+
+### Parameters
+- `data`: Reference to a Polars `DataFrame`. Must contain numeric "close" and "volume" columns.
+
+### Output
+- Returns `Result<Series>`.
+- The output Series is named "vpt".
+- The first value will be null.
