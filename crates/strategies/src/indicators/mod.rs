@@ -33,6 +33,7 @@ pub mod tema;
 pub mod trix;
 pub mod tsi;
 pub mod vortex;
+pub mod vpt;
 pub mod vwap;
 pub mod vwma;
 pub mod williams_r;

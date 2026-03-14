@@ -97,17 +97,17 @@ pub fn calculate(data: &DataFrame, period: usize) -> Result<Series> {
         }
     }
 
-    let raw_fi_series = Series::new("close".into(), raw_fi_values);
+    let raw_fi_series = Series::new("close", raw_fi_values);
     let temp_df = DataFrame::new(vec![raw_fi_series])?;
 
     if period == 1 {
         let mut s = temp_df.column("close")?.clone();
-        s.rename("force_index".into());
+        s.rename("force_index");
         return Ok(s);
     }
 
     let mut ema_series = ema::calculate(&temp_df, period)?;
-    ema_series.rename("force_index".into());
+    ema_series.rename("force_index");
 
     Ok(ema_series)
 }
