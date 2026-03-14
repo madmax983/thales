@@ -54,6 +54,7 @@ TREND_FOLLOWING_STRATEGIES = {
     "ChandelierExit",
     "ObvTrendFollowing",
     "TsiTrend",
+    "VolumeOscillatorTrend",
     "WmaCrossover",
     "HmaCrossover",
 }
@@ -199,6 +200,8 @@ def get_active_strategies():
         strategies.append("TsiTrend")
     if "HmaCrossover" in content:
         strategies.append("HmaCrossover")
+    if "VolumeOscillatorTrend" in content:
+        strategies.append("VolumeOscillatorTrend")
 
     return strategies
 

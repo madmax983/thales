@@ -70,6 +70,7 @@ use strategies::tsi_trend::{TsiTrend, TsiTrendConfig};
 use strategies::vortex_breakout::{VortexBreakout, VortexBreakoutConfig};
 use strategies::vwap_reversion::{VwapReversion, VwapReversionConfig};
 use strategies::vwma_crossover::{VwmaCrossover, VwmaCrossoverConfig};
+use strategies::volume_oscillator_trend::{VolumeOscillatorTrend, VolumeOscillatorTrendConfig};
 use strategies::williams_r::{WilliamsR, WilliamsRConfig};
 use strategies::wma_crossover::{WmaCrossover, WmaCrossoverConfig};
 use strategies::zscore_mean_reversion::{ZScoreMeanReversion, ZScoreMeanReversionConfig};
@@ -486,6 +487,17 @@ pub fn create_strategy(name: &str, symbol: &str) -> Result<Box<dyn Strategy>> {
             };
             Ok(Box::new(TripleSmaCrossover::new(config)))
         }
+        "VolumeOscillatorTrend" => {
+            let config = VolumeOscillatorTrendConfig {
+                short_period: 14,
+                long_period: 28,
+                price_sma_period: 20,
+                stop_loss_atr_mult: 2.0,
+                atr_period: 14,
+                symbol: symbol.to_string(),
+            };
+            Ok(Box::new(VolumeOscillatorTrend::new(config)))
+        }
         "ZScoreMeanReversion" => {
             let config = ZScoreMeanReversionConfig {
                 period: 20,
@@ -614,6 +626,7 @@ pub fn list_strategies() -> Vec<&'static str> {
         "VwapReversion",
         "VortexBreakout",
         "TripleSmaCrossover",
+        "VolumeOscillatorTrend",
         "ZScoreMeanReversion",
         "BollingerRsiMeanReversion",
         "StochRsiMeanReversion",
