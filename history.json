@@ -714,13 +714,13 @@
         "Consolidation (Squeeze)"
       ],
       "key_levels": [
-        1.521e-07,
-        1.6615000000000004e-07,
-        1.668e-07,
-        1.735e-07
+        1.521e-7,
+        1.6615000000000004e-7,
+        1.668e-7,
+        1.735e-7
       ],
       "volatility": "Medium",
-      "atr": 2.182728796137914e-09,
+      "atr": 2.182728796137914e-9,
       "research_summary": "High volatility, speculative interest.",
       "news_summary": "Meme coin hype cycle.",
       "recommendation": "Trend Following (Short)",
@@ -762,13 +762,13 @@
         "Consolidation (Squeeze)"
       ],
       "key_levels": [
-        1.521e-07,
-        1.6615000000000004e-07,
-        1.668e-07,
-        1.735e-07
+        1.521e-7,
+        1.6615000000000004e-7,
+        1.668e-7,
+        1.735e-7
       ],
       "volatility": "Medium",
-      "atr": 2.182728796137914e-09,
+      "atr": 2.182728796137914e-9,
       "research_summary": "High volatility, speculative interest.",
       "news_summary": "Meme coin hype cycle.",
       "recommendation": "Trend Following (Short)",
@@ -810,13 +810,13 @@
         "Consolidation (Squeeze)"
       ],
       "key_levels": [
-        1.521e-07,
-        1.6615000000000004e-07,
-        1.668e-07,
-        1.735e-07
+        1.521e-7,
+        1.6615000000000004e-7,
+        1.668e-7,
+        1.735e-7
       ],
       "volatility": "Medium",
-      "atr": 2.182728796137914e-09,
+      "atr": 2.182728796137914e-9,
       "research_summary": "High volatility, speculative interest.",
       "news_summary": "Meme coin hype cycle.",
       "recommendation": "Trend Following (Short)",
@@ -3532,7 +3532,7 @@
       "confidence": 0.7999999999999999,
       "timestamp_unix_ms": 1773360674902
     },
-    "outcome": null
+    "outcome": 0.006009569008758747
   },
   {
     "intent": {
@@ -3622,7 +3622,7 @@
       "confidence": 0.7999999999999999,
       "timestamp_unix_ms": 1773360674902
     },
-    "outcome": null
+    "outcome": 0.006009569008758747
   },
   {
     "intent": {
@@ -3712,7 +3712,7 @@
       "confidence": 0.7999999999999999,
       "timestamp_unix_ms": 1773360674902
     },
-    "outcome": null
+    "outcome": 0.006009569008758747
   },
   {
     "intent": {
