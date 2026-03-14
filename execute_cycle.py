@@ -58,6 +58,7 @@ TREND_FOLLOWING_STRATEGIES = {
     "VptTrendFollowing",
     "WmaCrossover",
     "HmaCrossover",
+    "PpoRsiTrend",
 }
 BREAKOUT_STRATEGIES = {
     "Supertrend",
@@ -165,6 +166,8 @@ def get_active_strategies():
         strategies.append("LinearRegressionTrend")
     if "VptTrendFollowing" in content:
         strategies.append("VptTrendFollowing")
+    if "PpoRsiTrend" in content:
+        strategies.append("PpoRsiTrend")
     if "ObvTrendFollowing" in content:
         strategies.append("ObvTrendFollowing")
     if "MoneyFlowIndex" in content:

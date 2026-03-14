@@ -23,10 +23,7 @@ impl StrategyConfig for VptTrendConfig {}
 
 impl VptTrendConfig {
     pub fn validate(&self) -> Result<()> {
-        if self.vpt_sma_period == 0
-            || self.price_sma_period == 0
-            || self.atr_period == 0
-        {
+        if self.vpt_sma_period == 0 || self.price_sma_period == 0 || self.atr_period == 0 {
             anyhow::bail!("Periods must be > 0");
         }
         Ok(())
@@ -73,7 +70,7 @@ impl Strategy for VptTrend {
 
         // Calculate SMA of VPT
         // Rename column to "close" as SMA indicator expects "close" column
-        vpt_df_for_sma.rename("vpt", "close".into())?;
+        vpt_df_for_sma.rename("vpt", "close")?;
 
         let vpt_sma_series = sma::calculate(&vpt_df_for_sma, self.config.vpt_sma_period)?;
         let vpt_sma_arr = vpt_sma_series.f64()?;

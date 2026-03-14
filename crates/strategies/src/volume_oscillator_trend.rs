@@ -45,11 +45,18 @@ impl Strategy for VolumeOscillatorTrend {
         let close = close_series.f64()?;
         let timestamp = data.column("timestamp_unix_ms")?.i64()?;
 
-        if close.len() <= self.config.long_period.max(self.config.price_sma_period).max(self.config.atr_period) {
+        if close.len()
+            <= self
+                .config
+                .long_period
+                .max(self.config.price_sma_period)
+                .max(self.config.atr_period)
+        {
             return Ok(vec![]);
         }
 
-        let vo_series = volume_oscillator::calculate(data, self.config.short_period, self.config.long_period)?;
+        let vo_series =
+            volume_oscillator::calculate(data, self.config.short_period, self.config.long_period)?;
         let vo = vo_series.f64()?;
 
         let sma_series = sma::calculate(data, self.config.price_sma_period)?;
@@ -68,8 +75,14 @@ impl Strategy for VolumeOscillatorTrend {
             let curr_atr = atr.get(i);
             let ts = timestamp.get(i);
 
-            if let (Some(p_vo), Some(c_vo), Some(price), Some(sma_val), Some(atr_val), Some(time_ms)) =
-                (prev_vo, curr_vo, curr_close, curr_sma, curr_atr, ts)
+            if let (
+                Some(p_vo),
+                Some(c_vo),
+                Some(price),
+                Some(sma_val),
+                Some(atr_val),
+                Some(time_ms),
+            ) = (prev_vo, curr_vo, curr_close, curr_sma, curr_atr, ts)
             {
                 // Buy: VO crosses above 0 and Price is above SMA
                 if p_vo <= 0.0 && c_vo > 0.0 && price > sma_val {
@@ -111,7 +124,7 @@ impl Strategy for VolumeOscillatorTrend {
                 // But typically, a momentum loss (VO < 0) just exits the position.
                 // Let's emit both exit sides when VO drops < 0, as we don't hold state here.
                 if p_vo >= 0.0 && c_vo < 0.0 {
-                     signals.push(Signal {
+                    signals.push(Signal {
                         signal_type: SignalType::Exit,
                         symbol: self.config.symbol.clone(),
                         side: "sell".to_string(),
@@ -143,7 +156,11 @@ impl Strategy for VolumeOscillatorTrend {
     async fn update_params(&mut self, params: serde_json::Value) -> Result<()> {
         let new_config: VolumeOscillatorTrendConfig = serde_json::from_value(params)?;
         // Validation
-        if new_config.short_period == 0 || new_config.long_period == 0 || new_config.price_sma_period == 0 || new_config.atr_period == 0 {
+        if new_config.short_period == 0
+            || new_config.long_period == 0
+            || new_config.price_sma_period == 0
+            || new_config.atr_period == 0
+        {
             anyhow::bail!("Periods must be > 0");
         }
         if new_config.short_period >= new_config.long_period {
@@ -174,7 +191,8 @@ mod tests {
             // i=3: v=50 (long=(10+10+50)/3=23.3, short=(10+50)/2=30, vo > 0)
             // SMA(2) on close: i=3: (12+14)/2 = 13. price=14 > 13.
             "volume" => &[10.0, 10.0, 10.0, 50.0, 10.0]
-        ).unwrap()
+        )
+        .unwrap()
     }
 
     fn create_sell_test_data() -> DataFrame {
@@ -186,7 +204,8 @@ mod tests {
             // VO crosses 0.
             // SMA(2) on close: i=3: (13+11)/2 = 12. price=11 < 12.
             "volume" => &[10.0, 10.0, 10.0, 50.0, 10.0]
-        ).unwrap()
+        )
+        .unwrap()
     }
 
     fn create_exit_test_data() -> DataFrame {
@@ -201,7 +220,8 @@ mod tests {
             // i=2: 50 (long=50, short=50, vo=0)
             // i=3: 10 (long=(50+50+10)/3=36.6, short=(50+10)/2=30, vo < 0)
             "volume" => &[50.0, 50.0, 50.0, 10.0, 50.0]
-        ).unwrap()
+        )
+        .unwrap()
     }
 
     #[tokio::test]
@@ -220,8 +240,13 @@ mod tests {
         let strategy = VolumeOscillatorTrend::new(config);
         let signals = strategy.generate_signals(&data).await?;
 
-        let buy_signal = signals.iter().find(|s| s.side == "buy" && s.signal_type == SignalType::Entry);
-        assert!(buy_signal.is_some(), "Expected a buy entry signal when VO crosses 0 and Price > SMA");
+        let buy_signal = signals
+            .iter()
+            .find(|s| s.side == "buy" && s.signal_type == SignalType::Entry);
+        assert!(
+            buy_signal.is_some(),
+            "Expected a buy entry signal when VO crosses 0 and Price > SMA"
+        );
 
         Ok(())
     }
@@ -242,8 +267,13 @@ mod tests {
         let strategy = VolumeOscillatorTrend::new(config);
         let signals = strategy.generate_signals(&data).await?;
 
-        let sell_signal = signals.iter().find(|s| s.side == "sell" && s.signal_type == SignalType::Entry);
-        assert!(sell_signal.is_some(), "Expected a sell entry signal when VO crosses 0 and Price < SMA");
+        let sell_signal = signals
+            .iter()
+            .find(|s| s.side == "sell" && s.signal_type == SignalType::Entry);
+        assert!(
+            sell_signal.is_some(),
+            "Expected a sell entry signal when VO crosses 0 and Price < SMA"
+        );
 
         Ok(())
     }
@@ -265,7 +295,10 @@ mod tests {
         let signals = strategy.generate_signals(&data).await?;
 
         let exit_signal = signals.iter().find(|s| s.signal_type == SignalType::Exit);
-        assert!(exit_signal.is_some(), "Expected an exit signal when VO crosses below 0");
+        assert!(
+            exit_signal.is_some(),
+            "Expected an exit signal when VO crosses below 0"
+        );
 
         Ok(())
     }
