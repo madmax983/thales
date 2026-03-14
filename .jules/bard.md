@@ -49,3 +49,6 @@
 ## 2024-05-31 - The Silent Oscillator
 **Confusion:** The Awesome Oscillator strategy lacked any documentation explaining its logic, configuration, or how the crossover system triggered signals, leaving users completely blind.
 **Clarification:** Documented `AwesomeOscillator` and `AwesomeOscillatorConfig` with a storytelling approach, adding executable examples, field documentation, and an explanation of the Zero-Line Crossover mechanism.
+## 2024-06-01 - The Silent Stochastic
+**Confusion:** The Stochastic Oscillator strategy lacked any module or struct-level documentation, leaving users confused about the specific parameters required and how signals were generated using %K and %D crossovers.
+**Clarification:** Added module-level documentation and executable examples (`# Examples`) for `StochasticOscillatorConfig` and `StochasticOscillator`, detailing the exact crossing logic for oversold and overbought zones.

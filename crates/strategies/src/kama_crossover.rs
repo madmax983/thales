@@ -200,9 +200,15 @@ mod tests {
         let strategy = KamaCrossover::new(config);
 
         // Prices needed for KAMA calculation
-        let closes = vec![10.0, 10.5, 10.2, 10.8, 11.0, 11.5, 11.2, 11.8, 12.0, 12.5, 11.0, 9.0];
-        let highs = vec![10.5, 11.0, 10.7, 11.3, 11.5, 12.0, 11.7, 12.3, 12.5, 13.0, 12.0, 10.0];
-        let lows = vec![9.5, 10.0, 9.7, 10.3, 10.5, 11.0, 10.7, 11.3, 11.5, 12.0, 10.0, 8.0];
+        let closes = vec![
+            10.0, 10.5, 10.2, 10.8, 11.0, 11.5, 11.2, 11.8, 12.0, 12.5, 11.0, 9.0,
+        ];
+        let highs = vec![
+            10.5, 11.0, 10.7, 11.3, 11.5, 12.0, 11.7, 12.3, 12.5, 13.0, 12.0, 10.0,
+        ];
+        let lows = vec![
+            9.5, 10.0, 9.7, 10.3, 10.5, 11.0, 10.7, 11.3, 11.5, 12.0, 10.0, 8.0,
+        ];
         let timestamps: Vec<i64> = (0..closes.len()).map(|i| (i as i64) * 1000).collect();
 
         let df = df!(
@@ -236,13 +242,19 @@ mod tests {
         config.long_period = 10;
         let res = config.validate();
         assert!(res.is_err());
-        assert_eq!(res.unwrap_err().to_string(), "Short period must be less than long period");
+        assert_eq!(
+            res.unwrap_err().to_string(),
+            "Short period must be less than long period"
+        );
 
         config.short_period = 0;
         config.long_period = 30;
         let res2 = config.validate();
         assert!(res2.is_err());
-        assert_eq!(res2.unwrap_err().to_string(), "Periods must be greater than 0");
+        assert_eq!(
+            res2.unwrap_err().to_string(),
+            "Periods must be greater than 0"
+        );
 
         Ok(())
     }
