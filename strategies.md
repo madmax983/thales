@@ -3019,3 +3019,71 @@ pub struct TripleSmaCrossoverConfig {
 
 ### Strategy Type
 Trend Following
+
+# Trading Strategy: VPT Trend Following
+
+## Strategy Specification
+
+**Name:** VptTrendFollowing
+
+**Description:** A trend-following strategy based on the Volume Price Trend (VPT) indicator.
+
+**Rationale:** The strategy combines the momentum and volume features of the VPT indicator with price trends. When the VPT crosses above its SMA while the price is above its SMA, it signals a strong upward trend confirmed by volume. Conversely, a cross below signals a downward trend.
+
+## Requirements
+
+### Implementation Details
+- Uses Polars for data analysis.
+- Implements the `Strategy` trait in Rust.
+- Calculates ATR for dynamic stop losses.
+
+### Strategy Type
+Trend Following
+
+### Entry Conditions
+- **Long Entry (Buy):** VPT crosses above its SMA and Price is greater than the Price SMA.
+- **Short Entry (Sell):** VPT crosses below its SMA and Price is less than the Price SMA.
+
+### Exit Conditions
+- **Long Exit:** VPT crosses below its SMA.
+- **Short Exit:** VPT crosses above its SMA.
+- **Stop Loss:** Entry Price +/- (ATR * `stop_loss_atr_mult`).
+
+### Position Sizing
+- **Size Hint:** "100" (fixed units) for entry, "max" for exits.
+
+## Code Pattern
+
+```rust
+use crate::strategy::{Strategy, StrategyConfig, Signal, SignalType};
+use crate::indicators::{atr, sma, vpt};
+use polars::prelude::*;
+use async_trait::async_trait;
+use anyhow::Result;
+
+pub struct VptTrend {
+    config: VptTrendConfig,
+}
+
+#[derive(Debug, Clone, serde::Deserialize)]
+pub struct VptTrendConfig {
+    pub vpt_sma_period: usize,
+    pub price_sma_period: usize,
+    pub stop_loss_atr_mult: f64,
+    pub atr_period: usize,
+    pub symbol: String,
+}
+```
+
+## Critical Considerations
+
+### Risk Management Integration
+- **Stop Loss:** Uses ATR-based stop loss for dynamic risk control.
+- **Max Position Size:** Size hint controls entry exposure.
+
+### Backtesting Requirements
+- Accepts `DataFrame` with historical data containing "close", "high", "low", and "volume".
+- Required parameters: `vpt_sma_period`, `price_sma_period`, `atr_period`.
+
+### Performance
+- VPT, SMA, and ATR calculations are optimized.

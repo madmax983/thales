@@ -55,6 +55,7 @@ TREND_FOLLOWING_STRATEGIES = {
     "ObvTrendFollowing",
     "TsiTrend",
     "VolumeOscillatorTrend",
+    "VptTrendFollowing",
     "WmaCrossover",
     "HmaCrossover",
 }
@@ -162,6 +163,8 @@ def get_active_strategies():
         strategies.append("ChandelierExit")
     if "LinearRegressionTrend" in content:
         strategies.append("LinearRegressionTrend")
+    if "VptTrendFollowing" in content:
+        strategies.append("VptTrendFollowing")
     if "ObvTrendFollowing" in content:
         strategies.append("ObvTrendFollowing")
     if "MoneyFlowIndex" in content:
