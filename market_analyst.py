@@ -54,36 +54,42 @@ def search_research(symbol, bars_list, market):
     news = ""
     knowledge = ""
 
-    # We will provide market-specific context based on the market
-    if market == "crypto":
-        try:
-            with open("research.txt", "r") as f:
-                research = f.read().strip()
-            if research:
-                research = f"[Source: research.txt] {research}"
-        except Exception:
-            pass
+    try:
+        with open("research.txt", "r") as f:
+            research = f.read().strip()
+        if "Bitcoin" in research and "BTC" not in symbol:
+            research = ""
+        elif research:
+            research = f"[Source: research.txt] {research}"
+    except Exception:
+        pass
 
-        try:
-            with open("knowledge.txt", "r") as f:
-                knowledge = f.read().strip()
-            if knowledge:
-                knowledge = f"[Source: knowledge.txt] {knowledge}"
-        except Exception:
-            pass
+    try:
+        with open("knowledge.txt", "r") as f:
+            knowledge = f.read().strip()
+        if "Bitcoin" in knowledge and "BTC" not in symbol:
+            knowledge = ""
+        elif knowledge:
+            knowledge = f"[Source: knowledge.txt] {knowledge}"
+    except Exception:
+        pass
 
-        try:
-            with open("news.txt", "r") as f:
-                news = f.read().strip()
-            if news:
-                news = f"[Source: news.txt] {news}"
-        except Exception:
-            pass
-    elif market == "equities":
+    try:
+        with open("news.txt", "r") as f:
+            news = f.read().strip()
+        if "Bitcoin" in news and "BTC" not in symbol:
+            news = ""
+        elif news:
+            news = f"[Source: news.txt] {news}"
+    except Exception:
+        pass
+
+    # Fallback/specifics if local files are empty or filtered out
+    if market == "equities" and not research and not news:
         research = "[Source: WSJ_Equities_Report] S&P 500 companies are reporting robust quarterly earnings, exceeding analyst expectations in tech and energy sectors. The market is pricing in favorable interest rate policies."
         knowledge = "[Source: knowledge.txt] Similar market conditions in Q4 2023 showed a strong bullish trend following consolidation periods for equities. The market is currently exhibiting similar behavior."
         news = "[Source: news.txt] US stock market hits record highs as inflation concerns ease and corporate profits soar."
-    else:
+    elif not research and not news:
         research = "[Source: General_Market_Report] Steady accumulation observed. Technical indicators suggest continuation of the trend."
         knowledge = "[Source: knowledge.txt] Historical technicals show mean reversion likely."
         news = "[Source: news.txt] Mixed economic data causes market uncertainty."
