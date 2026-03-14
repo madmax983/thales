@@ -54,6 +54,7 @@ use strategies::macd_rsi::{MacdRsiTrend, MacdRsiTrendConfig};
 use strategies::money_flow_index::{MoneyFlowIndex, MoneyFlowIndexConfig};
 use strategies::obv_trend::{ObvTrendFollowing, ObvTrendFollowingConfig};
 use strategies::parabolic_sar::{ParabolicSar, ParabolicSarConfig};
+use strategies::ppo_rsi_trend::{PpoRsiTrend, PpoRsiTrendConfig};
 use strategies::roc_momentum::{RocMomentum, RocMomentumConfig};
 use strategies::rsi_mean_reversion::{RsiMeanReversion, RsiMeanReversionConfig};
 use strategies::sma_crossover::{SmaCrossover, SmaCrossoverConfig};
@@ -67,11 +68,11 @@ use strategies::tema_crossover::{TemaCrossover, TemaCrossoverConfig};
 use strategies::triple_sma_crossover::{TripleSmaCrossover, TripleSmaCrossoverConfig};
 use strategies::trix_momentum::{TrixMomentum, TrixMomentumConfig};
 use strategies::tsi_trend::{TsiTrend, TsiTrendConfig};
+use strategies::volume_oscillator_trend::{VolumeOscillatorTrend, VolumeOscillatorTrendConfig};
 use strategies::vortex_breakout::{VortexBreakout, VortexBreakoutConfig};
+use strategies::vpt_trend::{VptTrend, VptTrendConfig};
 use strategies::vwap_reversion::{VwapReversion, VwapReversionConfig};
 use strategies::vwma_crossover::{VwmaCrossover, VwmaCrossoverConfig};
-use strategies::volume_oscillator_trend::{VolumeOscillatorTrend, VolumeOscillatorTrendConfig};
-use strategies::vpt_trend::{VptTrend, VptTrendConfig};
 use strategies::williams_r::{WilliamsR, WilliamsRConfig};
 use strategies::wma_crossover::{WmaCrossover, WmaCrossoverConfig};
 use strategies::zscore_mean_reversion::{ZScoreMeanReversion, ZScoreMeanReversionConfig};
@@ -584,6 +585,20 @@ pub fn create_strategy(name: &str, symbol: &str) -> Result<Box<dyn Strategy>> {
             };
             Ok(Box::new(MacdRsiTrend::new(config)))
         }
+        "PpoRsiTrend" => {
+            let config = PpoRsiTrendConfig {
+                ppo_fast_period: 12,
+                ppo_slow_period: 26,
+                ppo_signal_period: 9,
+                rsi_period: 14,
+                rsi_buy_threshold: 50.0,
+                rsi_sell_threshold: 50.0,
+                atr_period: 14,
+                stop_loss_atr_mult: 2.0,
+                symbol: symbol.to_string(),
+            };
+            Ok(Box::new(PpoRsiTrend::new(config)))
+        }
         "TsiTrend" => {
             let config = TsiTrendConfig {
                 long_period: 25,
@@ -651,5 +666,6 @@ pub fn list_strategies() -> Vec<&'static str> {
         "HmaCrossover",
         "SmaCrossover",
         "EmaRsiTrendFollowing",
+        "PpoRsiTrend",
     ]
 }

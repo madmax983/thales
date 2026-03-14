@@ -46,8 +46,10 @@ pub fn calculate(
     }
 
     // Calculate Fast and Slow EMAs
-    let fast_ema_series = ema::calculate(data, fast_period).context("Failed to calculate Fast EMA")?;
-    let slow_ema_series = ema::calculate(data, slow_period).context("Failed to calculate Slow EMA")?;
+    let fast_ema_series =
+        ema::calculate(data, fast_period).context("Failed to calculate Fast EMA")?;
+    let slow_ema_series =
+        ema::calculate(data, slow_period).context("Failed to calculate Slow EMA")?;
 
     let fast_ema = fast_ema_series.f64()?;
     let slow_ema = slow_ema_series.f64()?;
@@ -81,7 +83,7 @@ pub fn calculate(
     // Calculate Signal Line = EMA(PPO Line, signal_period)
     let temp_df = DataFrame::new(vec![ppo_line.clone()])?;
     let mut temp_df = temp_df;
-    temp_df.rename("ppo_line", "close".into())?;
+    temp_df.rename("ppo_line", "close")?;
 
     let mut signal_line =
         ema::calculate(&temp_df, signal_period).context("Failed to calculate Signal Line")?;
