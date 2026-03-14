@@ -20,6 +20,8 @@ pub mod black_swan;
 pub mod entropy;
 #[cfg(feature = "nova")]
 pub mod fear_and_greed;
+#[cfg(feature = "nova")]
+pub mod fractal_dimension;
 pub mod history;
 #[cfg(feature = "nova")]
 pub mod market_phases;

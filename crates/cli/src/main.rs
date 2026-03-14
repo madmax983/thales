@@ -20,6 +20,8 @@ use thales_cli::entropy;
 #[cfg(feature = "nova")]
 use thales_cli::fear_and_greed;
 #[cfg(feature = "nova")]
+use thales_cli::fractal_dimension;
+#[cfg(feature = "nova")]
 use thales_cli::market_phases;
 #[cfg(feature = "nova")]
 use thales_cli::markov_chain;
@@ -219,6 +221,15 @@ enum Commands {
         short_window: usize,
         #[arg(long, default_value = "200")]
         long_window: usize,
+        #[arg(long)]
+        visualize: bool,
+    },
+    #[cfg(feature = "nova")]
+    AnalyzeFractalDimension {
+        #[arg(long)]
+        input: PathBuf,
+        #[arg(long, default_value = "10")]
+        k_max: usize,
         #[arg(long)]
         visualize: bool,
     },
@@ -1025,6 +1036,32 @@ fn run(command: Commands, raw: bool) -> Result<String, CliError> {
 
             if visualize {
                 market_phases::print_ascii_market_phases(&report);
+            }
+
+            ok_envelope(report, vec![], raw)
+        }
+        #[cfg(feature = "nova")]
+        Commands::AnalyzeFractalDimension {
+            input,
+            k_max,
+            visualize,
+        } => {
+            let file_content = fs::read_to_string(&input)?;
+            let series: BarSeries =
+                match serde_json::from_str::<ResponseEnvelope<BarSeries>>(&file_content) {
+                    Ok(envelope) => envelope
+                        .data
+                        .ok_or(CliError::Validation("Envelope has no data".to_string()))?,
+                    Err(_) => serde_json::from_str::<BarSeries>(&file_content)?,
+                };
+
+            let config = fractal_dimension::FractalConfig { k_max };
+
+            let report = fractal_dimension::analyze_fractal_dimension(&series, config)
+                .map_err(|e| CliError::Validation(e.to_string()))?;
+
+            if visualize {
+                fractal_dimension::print_ascii_fractal_dimension(&report);
             }
 
             ok_envelope(report, vec![], raw)

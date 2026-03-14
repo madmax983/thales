@@ -42,11 +42,11 @@ pub fn calculate(data: &DataFrame) -> Result<Series> {
         .f64()
         .context("Volume column must be numeric (f64)")?;
 
-    let mut vpt_values: Vec<Option<f64>> = vec![None; close.len()];
     let mut current_vpt = Decimal::ZERO;
     let mut initialized = false;
+    let mut vpt_values: Vec<Option<f64>> = vec![None; close.len()];
 
-    for i in 1..close.len() {
+    for (i, val) in vpt_values.iter_mut().enumerate().skip(1) {
         let curr_close_opt = close.get(i);
         let prev_close_opt = close.get(i - 1);
         let vol_opt = volume.get(i);
@@ -58,7 +58,7 @@ pub fn calculate(data: &DataFrame) -> Result<Series> {
 
             if prev_c_dec.is_zero() {
                 // Cannot divide by zero
-                vpt_values[i] = None;
+                *val = None;
                 continue;
             }
 
@@ -66,13 +66,13 @@ pub fn calculate(data: &DataFrame) -> Result<Series> {
             let vpt_change = v_dec * price_change_pct;
 
             current_vpt += vpt_change;
-            vpt_values[i] = Some(current_vpt.to_f64().unwrap_or(0.0));
+            *val = Some(current_vpt.to_f64().unwrap_or(0.0));
             initialized = true;
         } else if initialized {
             // Carry forward previous value if data is missing, similar to OBV
-            vpt_values[i] = Some(current_vpt.to_f64().unwrap_or(0.0));
+            *val = Some(current_vpt.to_f64().unwrap_or(0.0));
         } else {
-            vpt_values[i] = None;
+            *val = None;
         }
     }
 
