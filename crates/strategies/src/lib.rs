@@ -33,6 +33,7 @@ pub mod bollinger_rsi;
 pub mod cci_momentum;
 pub mod chaikin_money_flow;
 pub mod chandelier_exit;
+pub mod choppiness_index_trend;
 pub mod cmo_mean_reversion;
 pub mod connors_rsi_mean_reversion;
 pub mod dema_crossover;
