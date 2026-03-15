@@ -3976,6 +3976,16 @@
 | 2026-03-14 22:48:30 | BTCUSD | crypto:BTCUSD:sell:1773520020377 | No active strategy generated a signal (Strategies: BollingerBands, EmaCrossover, RsiMeanReversion, Macd, Supertrend, DonchianBreakout, ParabolicSar, KeltnerChannelBreakout, StochasticOscillator, AdxMomentum, IchimokuCloud, CciMomentum, ChaikinMoneyFlow, ChandelierExit, LinearRegressionTrend, VptTrendFollowing, PpoRsiTrend, ObvTrendFollowing, MoneyFlowIndex, ConnorsRsiMeanReversion, AlmaCrossover, AwesomeOscillator, WilliamsR, VwmaCrossover, VwapReversion, VortexBreakout, RocMomentum, TrixMomentum, AdxMacdTrend, ZScoreMeanReversion, ElderRay, AroonOscillator, StochRsiMeanReversion, MacdRsiTrend, TsiTrend, HmaCrossover, VolumeOscillatorTrend) |
 | 2026-03-14 22:48:31 | ETHUSD | crypto:ETHUSD:buy:1773519880522 | No active strategy generated a signal (Strategies: BollingerBands, EmaCrossover, RsiMeanReversion, Macd, Supertrend, DonchianBreakout, ParabolicSar, KeltnerChannelBreakout, StochasticOscillator, AdxMomentum, IchimokuCloud, CciMomentum, ChaikinMoneyFlow, ChandelierExit, LinearRegressionTrend, VptTrendFollowing, PpoRsiTrend, ObvTrendFollowing, MoneyFlowIndex, ConnorsRsiMeanReversion, AlmaCrossover, AwesomeOscillator, WilliamsR, VwmaCrossover, VwapReversion, VortexBreakout, RocMomentum, TrixMomentum, AdxMacdTrend, ZScoreMeanReversion, ElderRay, AroonOscillator, StochRsiMeanReversion, MacdRsiTrend, TsiTrend, HmaCrossover, VolumeOscillatorTrend) |
 | 2026-03-14 22:48:31 | SPY | equities:SPY:buy:1773519880535 | Invalid input: provider error: kraken api error: EQuery:Unknown asset pair |
+| 2026-03-15 01:11:34 | BTCUSD | crypto:BTCUSD:sell:1773447418852 | Signal too old (24.9 hours > 24 hours) |
+| 2026-03-15 01:11:34 | ETHUSD | crypto:ETHUSD:buy:1773447418866 | Signal already executed/submitted (Ref: crypto:ETHUSD:buy:1773447418866) |
+| 2026-03-15 01:11:34 | SPY | equities:SPY:buy:1773447418879 | Signal already executed/submitted (Ref: equities:SPY:buy:1773447418879) |
+| 2026-03-15 01:11:34 | ETHUSD | crypto:ETHUSD:buy:1773490710456 | Signal already executed/submitted (Ref: crypto:ETHUSD:buy:1773490710456) |
+| 2026-03-15 01:11:34 | SPY | equities:SPY:buy:1773490710473 | Signal already executed/submitted (Ref: equities:SPY:buy:1773490710473) |
+| 2026-03-15 01:11:34 | ETHUSD | crypto:ETHUSD:buy:1773520020391 | Signal already executed/submitted (Ref: crypto:ETHUSD:buy:1773520020391) |
+| 2026-03-15 01:11:34 | SPY | equities:SPY:buy:1773520020403 | Signal already executed/submitted (Ref: equities:SPY:buy:1773520020403) |
+| 2026-03-15 01:11:35 | BTCUSD | crypto:BTCUSD:sell:1773520020377 | Cross-validation failed: Strategies generated {'buy'} but signal recommended sell. |
+| 2026-03-15 01:11:36 | SPY | equities:SPY:buy:1773519880535 | Invalid input: provider error: kraken api error: EQuery:Unknown asset pair |
+| 2026-03-15 01:11:36 | ETHUSD | crypto:ETHUSD:buy:1773519880522 | Rejected by Risk Agent: Position size below exchange minimum for ETHUSD (0.00010148 < 0.001) |
 
 ## Executed Trades
 
