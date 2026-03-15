@@ -161,8 +161,6 @@ def get_active_strategies():
         strategies.append("CciMomentum")
     if "ChaikinMoneyFlow" in content:
         strategies.append("ChaikinMoneyFlow")
-    if "ChaikinOscillatorMomentum" in content:
-        strategies.append("ChaikinOscillatorMomentum")
     if "ChandelierExit" in content:
         strategies.append("ChandelierExit")
     if "LinearRegressionTrend" in content:

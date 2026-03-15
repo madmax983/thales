@@ -34,6 +34,7 @@ use strategies::awesome_oscillator::{AwesomeOscillator, AwesomeOscillatorConfig}
 use strategies::bollinger_bands::{BollingerBandsConfig, BollingerBandsMeanReversion};
 use strategies::cci_momentum::{CciMomentum, CciMomentumConfig};
 use strategies::chaikin_money_flow::{ChaikinMoneyFlow, ChaikinMoneyFlowConfig};
+use strategies::chaikin_oscillator_momentum::{ChaikinOscillatorMomentum, ChaikinOscillatorMomentumConfig};
 use strategies::chandelier_exit::{ChandelierExit, ChandelierExitConfig};
 use strategies::choppiness_index_trend::{ChoppinessIndexTrend, ChoppinessIndexTrendConfig};
 use strategies::cmo_mean_reversion::{CmoMeanReversion, CmoMeanReversionConfig};
@@ -378,6 +379,16 @@ pub fn create_strategy(name: &str, symbol: &str) -> Result<Box<dyn Strategy>> {
             };
             Ok(Box::new(ChaikinMoneyFlow::new(config)))
         }
+        "ChaikinOscillatorMomentum" => {
+            let config = ChaikinOscillatorMomentumConfig {
+                fast_period: 3,
+                slow_period: 10,
+                stop_loss_atr_mult: 2.0,
+                atr_period: 14,
+                symbol: symbol.to_string(),
+            };
+            Ok(Box::new(ChaikinOscillatorMomentum::new(config)))
+        }
         "ChandelierExit" => {
             let config = ChandelierExitConfig {
                 period: 22,
@@ -675,6 +686,7 @@ pub fn list_strategies() -> Vec<&'static str> {
         "IchimokuCloud",
         "CciMomentum",
         "ChaikinMoneyFlow",
+        "ChaikinOscillatorMomentum",
         "ChandelierExit",
         "ChoppinessIndexTrend",
         "CmoMeanReversion",
