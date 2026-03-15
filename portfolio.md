@@ -4136,6 +4136,22 @@
 | 2026-03-15 20:19:39 | MOGUSD | NO_REF | Conflict: Active strategies generated conflicting signals ({'sell', 'buy'}) for MOGUSD. |
 | 2026-03-15 20:19:39 | BTTUSD | crypto:BTTUSD:sell:1773604800000 | Unable to determine sellable balance for kraken:BTTUSD |
 | 2026-03-15 20:19:39 | COQUSD | crypto:COQUSD:sell:1773604800000 | Unable to determine sellable balance for kraken:COQUSD |
+| 2026-03-15 21:19:19 | BTCUSD | crypto:BTCUSD:sell:1773519880507 | Signal too old (24.9 hours > 24 hours) |
+| 2026-03-15 21:19:19 | ETHUSD | crypto:ETHUSD:buy:1773519880522 | Signal already executed/submitted (Ref: crypto:ETHUSD:buy:1773519880522) |
+| 2026-03-15 21:19:19 | SPY | equities:SPY:buy:1773519880535 | Signal already executed/submitted (Ref: equities:SPY:buy:1773519880535) |
+| 2026-03-15 21:19:19 | BTCUSD | crypto:BTCUSD:sell:1773520020377 | Signal too old (24.9 hours > 24 hours) |
+| 2026-03-15 21:19:19 | ETHUSD | crypto:ETHUSD:buy:1773520020391 | Signal already executed/submitted (Ref: crypto:ETHUSD:buy:1773520020391) |
+| 2026-03-15 21:19:19 | SPY | equities:SPY:buy:1773520020403 | Signal already executed/submitted (Ref: equities:SPY:buy:1773520020403) |
+| 2026-03-15 21:19:19 | ETHUSD | crypto:ETHUSD:buy:1773578063237 | Signal already executed/submitted (Ref: crypto:ETHUSD:buy:1773578063237) |
+| 2026-03-15 21:19:19 | SPY | equities:SPY:buy:1773578063311 | Signal already executed/submitted (Ref: equities:SPY:buy:1773578063311) |
+| 2026-03-15 21:19:20 | BTCUSD | crypto:BTCUSD:sell:1773606558891 | Cross-validation failed: Strategies generated {'buy'} but signal recommended sell. |
+| 2026-03-15 21:19:20 | ETHUSD | crypto:ETHUSD:buy:1773606558907 | Cross-validation failed: Strategies generated {'sell'} but signal recommended buy. |
+| 2026-03-15 21:19:21 | SPY | equities:SPY:buy:1773606558923 | Invalid input: provider error: kraken api error: EQuery:Unknown asset pair |
+| 2026-03-15 21:26:35 | ETHUSD | crypto:ETHUSD:buy:1773578063237 | Signal already executed/submitted (Ref: crypto:ETHUSD:buy:1773578063237) |
+| 2026-03-15 21:26:35 | SPY | equities:SPY:buy:1773578063311 | Signal already executed/submitted (Ref: equities:SPY:buy:1773578063311) |
+| 2026-03-15 21:26:36 | BTCUSD | crypto:BTCUSD:sell:1773606558891 | Cross-validation failed: Strategies generated {'buy'} but signal recommended sell. |
+| 2026-03-15 21:26:37 | SPY | equities:SPY:buy:1773606558923 | Invalid input: provider error: kraken api error: EQuery:Unknown asset pair |
+| 2026-03-15 21:26:37 | ETHUSD | crypto:ETHUSD:buy:1773606558907 | Rejected by Risk Agent: Position size below exchange minimum for ETHUSD (9.93e-05 < 0.001) |
 
 ## Executed Trades
 
