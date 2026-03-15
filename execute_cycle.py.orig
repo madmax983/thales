@@ -161,8 +161,6 @@ def get_active_strategies():
         strategies.append("CciMomentum")
     if "ChaikinMoneyFlow" in content:
         strategies.append("ChaikinMoneyFlow")
-    if "ChaikinOscillatorMomentum" in content:
-        strategies.append("ChaikinOscillatorMomentum")
     if "ChandelierExit" in content:
         strategies.append("ChandelierExit")
     if "LinearRegressionTrend" in content:
@@ -1600,8 +1598,7 @@ def main():
 
         if not result and provider == "kraken" and intent.get("market") == "crypto":
             last_err = getattr(run_command, "last_error", "") or ""
-            last_err_lower = last_err.lower()
-            if "insufficient funds" in last_err_lower or "invalid volume" in last_err_lower or "volume minimum" in last_err_lower:
+            if "Insufficient funds" in last_err or "invalid volume" in last_err:
                 print(f"Kraken execution failed ({last_err}), falling back to paper execution...")
                 intent["provider"] = "paper"
                 provider = "paper"

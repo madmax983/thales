@@ -3192,3 +3192,33 @@ TrendFollowing
 - Fixed 100 units base per trade (dynamic sizing allowed depending on risk context).
 - Stop Loss placed at entry price minus `stop_loss_atr_mult` * ATR for Long positions (plus for Short).
 - Take profit placed at a 2:1 Reward to Risk ratio.
+---
+
+# Trading Strategy: Chaikin Oscillator Momentum
+
+## Strategy Specification
+
+**Name:** ChaikinOscillatorMomentum
+
+**Description:** A momentum strategy based on the Chaikin Oscillator. It buys when the oscillator crosses above 0 and sells when it crosses below 0.
+
+**Rationale:** The Chaikin Oscillator measures the momentum of the Accumulation/Distribution Line. A crossover above 0 indicates increasing buying pressure (accumulation), while a crossover below 0 indicates increasing selling pressure (distribution).
+
+## Requirements
+
+### Implementation Details
+- Uses Polars for data analysis.
+- Implements the `Strategy` trait in Rust.
+- Calculates ATR for dynamic stop losses.
+
+### Strategy Type
+Momentum
+
+### Entry Conditions
+- **Long Entry (Buy):** Chaikin Oscillator crosses above 0.
+
+### Exit Conditions
+- **Long Exit (Sell):** Chaikin Oscillator crosses below 0.
+
+### Position Sizing
+- **Size Hint:** "100" for entry, "max" for exit.
