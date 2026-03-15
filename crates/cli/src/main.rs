@@ -30,6 +30,8 @@ use thales_cli::monte_carlo;
 #[cfg(feature = "nova")]
 use thales_cli::pattern_match;
 #[cfg(feature = "nova")]
+use thales_cli::renko;
+#[cfg(feature = "nova")]
 use thales_cli::seasonality;
 #[cfg(feature = "nova")]
 use thales_cli::synthetic_data;
@@ -311,6 +313,15 @@ enum Commands {
         multiplier: Option<f64>,
         #[arg(long)]
         seed: Option<u64>,
+    },
+    #[cfg(feature = "nova")]
+    AnalyzeRenko {
+        #[arg(long)]
+        input: PathBuf,
+        #[arg(long, default_value = "10.0")]
+        brick_size: f64,
+        #[arg(long)]
+        visualize: bool,
     },
 }
 
@@ -1301,6 +1312,32 @@ fn run(command: Commands, raw: bool) -> Result<String, CliError> {
                 .map_err(|e| CliError::Validation(e.to_string()))?;
 
             ok_envelope(modified_series, vec![], raw)
+        }
+        #[cfg(feature = "nova")]
+        Commands::AnalyzeRenko {
+            input,
+            brick_size,
+            visualize,
+        } => {
+            let file_content = fs::read_to_string(&input)?;
+            let series: BarSeries =
+                match serde_json::from_str::<ResponseEnvelope<BarSeries>>(&file_content) {
+                    Ok(envelope) => envelope
+                        .data
+                        .ok_or(CliError::Validation("Envelope has no data".to_string()))?,
+                    Err(_) => serde_json::from_str::<BarSeries>(&file_content)?,
+                };
+
+            let config = renko::RenkoConfig { brick_size };
+
+            let report = renko::analyze_renko(&series, config)
+                .map_err(|e| CliError::Validation(e.to_string()))?;
+
+            if visualize {
+                renko::print_ascii_renko(&report);
+            }
+
+            ok_envelope(report, vec![], raw)
         }
     }
 }
