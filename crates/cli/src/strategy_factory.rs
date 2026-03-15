@@ -35,6 +35,7 @@ use strategies::bollinger_bands::{BollingerBandsConfig, BollingerBandsMeanRevers
 use strategies::cci_momentum::{CciMomentum, CciMomentumConfig};
 use strategies::chaikin_money_flow::{ChaikinMoneyFlow, ChaikinMoneyFlowConfig};
 use strategies::chandelier_exit::{ChandelierExit, ChandelierExitConfig};
+use strategies::choppiness_index_trend::{ChoppinessIndexTrend, ChoppinessIndexTrendConfig};
 use strategies::cmo_mean_reversion::{CmoMeanReversion, CmoMeanReversionConfig};
 use strategies::connors_rsi_mean_reversion::{
     ConnorsRsiMeanReversion, ConnorsRsiMeanReversionConfig,
@@ -109,6 +110,17 @@ pub fn create_strategy(name: &str, symbol: &str) -> Result<Box<dyn Strategy>> {
                 symbol: symbol.to_string(),
             };
             Ok(Box::new(KamaCrossover::new(config)))
+        }
+        "ChoppinessIndexTrend" => {
+            let config = ChoppinessIndexTrendConfig {
+                chop_period: 14,
+                chop_threshold: 61.8,
+                sma_period: 20,
+                stop_loss_atr_mult: 2.0,
+                atr_period: 14,
+                symbol: symbol.to_string(),
+            };
+            Ok(Box::new(ChoppinessIndexTrend::new(config)))
         }
         "AroonOscillator" => {
             let config = AroonOscillatorConfig {
@@ -664,6 +676,7 @@ pub fn list_strategies() -> Vec<&'static str> {
         "CciMomentum",
         "ChaikinMoneyFlow",
         "ChandelierExit",
+        "ChoppinessIndexTrend",
         "CmoMeanReversion",
         "LinearRegressionTrend",
         "ForceIndexTrend",

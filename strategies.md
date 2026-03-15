@@ -3134,6 +3134,39 @@ Trend Following
 - Stop Loss placed at entry price minus `stop_loss_atr_mult` * ATR for Long positions (plus for Short).
 - Take profit placed at a 2:1 Reward to Risk ratio.
 
+---
+
+# Trading Strategy: Choppiness Index Trend
+
+## Strategy Specification
+
+**Name:** ChoppinessIndexTrend
+
+**Description:** A trend-following strategy that generates signals based on the Choppiness Index (CHOP) and a Simple Moving Average (SMA).
+
+**Rationale:** The Choppiness Index determines whether the market is choppy (trading sideways) or trending. When the market transitions from choppy to trending (CHOP drops below a threshold), the strategy uses a Simple Moving Average to determine the direction of the trend and enters a position.
+
+## Requirements
+
+### Implementation Details
+- Uses Polars for data analysis.
+- Implements the `Strategy` trait in Rust.
+- Uses `choppiness_index`, `sma`, and `atr` indicators.
+
+### Strategy Type
+TrendFollowing
+
+### Entry Conditions
+- **Long Entry (Buy):** CHOP drops below the threshold (e.g., 61.8) AND Price > SMA.
+- **Short Entry (Sell):** CHOP drops below the threshold AND Price < SMA.
+
+### Exit Conditions
+- **Long/Short Exit:** CHOP rises above the threshold (indicating a return to choppiness).
+- **Stop Loss:** Entry Price +/- (ATR * `stop_loss_atr_mult`).
+
+### Position Sizing
+- **Size Hint:** "100" (fixed units) for entry, "max" for exits.
+
 ### Historical Performance (Sample Metrics)
 - **Expected Win Rate:** 55% - 62%
 - **Sharpe Ratio:** 1.4
