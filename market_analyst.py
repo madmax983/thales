@@ -162,6 +162,50 @@ def main():
             if analysis.get("volatility") == "High" or analysis.get("volatility") == "Extreme":
                  print(f"ALERT: High Volatility Detected!")
 
+            from datetime import datetime
+            import math
+
+            ts = analysis.get("timestamp_unix_ms")
+            if ts:
+                dt = datetime.fromtimestamp(ts / 1000.0)
+                dt_str = dt.strftime("%Y-%m-%d %H:%M:%S")
+
+                market_val = analysis.get("market", "")
+                sentiment_val = analysis.get("sentiment", "")
+                confidence_val = analysis.get("confidence", 0) * 100
+
+                with open("Market_Regime.md", "a") as f:
+                    f.write(f"\n### {symbol} - {dt_str} ({market_val})\n")
+                    f.write(f"**Regime**: {regime}\n")
+                    f.write(f"**Sentiment**: {sentiment_val}\n")
+                    f.write(f"**Confidence**: {confidence_val:.2f}%\n")
+
+                volatility_val = analysis.get("volatility", "")
+                atr_val = analysis.get("atr", 0)
+                recommendation_val = analysis.get("recommendation", "")
+
+                with open("Volatility_Regime.md", "a") as f:
+                    f.write(f"\n### {symbol} - {dt_str} ({market_val})\n")
+                    f.write(f"**Volatility**: {volatility_val}\n")
+                    if atr_val is not None and not math.isnan(atr_val):
+                        f.write(f"**ATR**: {atr_val:.2f}\n")
+                    else:
+                        f.write(f"**ATR**: N/A\n")
+                    f.write(f"**Assessment**: {recommendation_val}\n")
+
+                with open("Market_Research.md", "a") as f:
+                    f.write(f"\n### {symbol} - {dt_str} ({market_val})\n")
+
+                    if research:
+                        f.write(f"**Research**: {research}\n")
+                    else:
+                        f.write(f"**Research**: None\n")
+
+                    if news:
+                        f.write(f"**News**: {news}\n")
+                    else:
+                        f.write(f"**News**: None\n")
+
         # Cleanup
         if os.path.exists(temp_bars_file):
             os.remove(temp_bars_file)
