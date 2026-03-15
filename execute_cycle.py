@@ -1142,9 +1142,11 @@ def verify_risk(intent):
             is_entry = True
 
     if is_entry:
-        if stop_loss is None:
+        if not stop_loss or stop_loss == "None" or stop_loss == "-":
              return False, "Missing Stop Loss for Entry"
-        if intent.get("take_profit") is None:
+
+        tp_val = intent.get("take_profit")
+        if not tp_val or tp_val == "None" or tp_val == "-":
              return False, "Missing Take Profit for Entry"
 
     # 3. Check Confidence
@@ -1560,7 +1562,8 @@ def main():
             print(f"Algorithm: {intent['execution_algo']}")
 
         # Ensure we always pass a stop loss, according to agent rules "Always set stop losses when available"
-        if not intent.get("stop_loss"):
+        sl_val = intent.get("stop_loss")
+        if not sl_val or sl_val == "None" or sl_val == "-":
             print("Warning: Missing stop loss, adding safety default stop loss")
             # If no stop loss was provided by the strategy but we are going to trade,
             # risk management must apply. Let's apply a naive 5% safety buffer.

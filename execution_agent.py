@@ -294,7 +294,8 @@ def execute_agent(intent_file):
             current_price = bars[-1].get("close")
 
         # 3. Always set stop losses when available
-        if not intent.get("stop_loss"):
+        sl_val = intent.get("stop_loss")
+        if not sl_val or sl_val == "None" or sl_val == "-":
             print("Warning: Missing stop loss. Applying safety default stop loss.")
             if current_price:
                 if intent["side"] == "buy":
