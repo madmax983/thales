@@ -27,7 +27,7 @@ for a in ALL_ASSETS:
 STRATEGIES = [
     "BollingerBands", "EmaCrossover", "RsiMeanReversion", "Macd", "Supertrend",
     "DonchianBreakout", "ParabolicSar", "KeltnerChannelBreakout", "StochasticOscillator",
-    "AdxMomentum", "IchimokuCloud", "CciMomentum", "LinearRegressionTrend", "ObvTrendFollowing",
+    "AdxMomentum", "IchimokuCloud", "CciMomentum", "LinearRegressionTrend", "ForceIndexTrend", "ObvTrendFollowing",
     "MoneyFlowIndex", "ConnorsRsiMeanReversion", "AwesomeOscillator", "WilliamsR",
     "VwmaCrossover", "VwapReversion", "VortexBreakout", "ZScoreMeanReversion",
     "ChaikinMoneyFlow", "ElderRay", "ChandelierExit", "AroonOscillator", "RocMomentum",

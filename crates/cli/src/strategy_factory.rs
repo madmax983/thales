@@ -44,6 +44,7 @@ use strategies::donchian_breakout::{DonchianBreakout, DonchianBreakoutConfig};
 use strategies::elder_ray::{ElderRay, ElderRayConfig};
 use strategies::ema_crossover::{EmaCrossover, EmaCrossoverConfig};
 use strategies::ema_rsi_trend::{EmaRsiTrendFollowing, EmaRsiTrendFollowingConfig};
+use strategies::force_index_trend::{ForceIndexTrend, ForceIndexTrendConfig};
 use strategies::hma_crossover::{HmaCrossover, HmaCrossoverConfig};
 use strategies::ichimoku_cloud::{IchimokuCloud, IchimokuCloudConfig};
 use strategies::kama_crossover::{KamaCrossover, KamaCrossoverConfig};
@@ -384,6 +385,17 @@ pub fn create_strategy(name: &str, symbol: &str) -> Result<Box<dyn Strategy>> {
             };
             Ok(Box::new(LinearRegressionTrend::new(config)))
         }
+        "ForceIndexTrend" => {
+            let config = ForceIndexTrendConfig {
+                fi_period: 13,
+                fi_ema_period: 13,
+                price_ema_period: 22,
+                stop_loss_atr_mult: 2.0,
+                atr_period: 14,
+                symbol: symbol.to_string(),
+            };
+            Ok(Box::new(ForceIndexTrend::new(config)))
+        }
         "ObvTrendFollowing" => {
             let config = ObvTrendFollowingConfig {
                 obv_sma_period: 20,
@@ -643,6 +655,7 @@ pub fn list_strategies() -> Vec<&'static str> {
         "ChandelierExit",
         "CmoMeanReversion",
         "LinearRegressionTrend",
+        "ForceIndexTrend",
         "ObvTrendFollowing",
         "MoneyFlowIndex",
         "ConnorsRsiMeanReversion",
