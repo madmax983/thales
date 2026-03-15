@@ -17,7 +17,7 @@ Currently, the `thales-cli` toolkit allows users to fetch data, generate *curren
 ### ✅ Must Have (MVP)
 1.  **CLI Command:** A new `backtest` command in `thales-cli`.
 2.  **Historical Simulation:**
-    *   Accepts a JSON file containing `BarSeries` (OHLCV data).
+    *   Accepts a JSON file containing `BarSeries` (price data).
     *   Replays the data bar-by-bar (or vectorized equivalents where safe).
     *   Generates signals at each step using the specified `Strategy`.
 3.  **Execution Simulation:**
@@ -37,7 +37,7 @@ Currently, the `thales-cli` toolkit allows users to fetch data, generate *curren
 
 ### 🚫 Out of Scope (Phase 1)
 *   **Multi-Asset Backtesting:** The MVP will test one symbol at a time.
-*   **Tick-Level Granularity:** We will use OHLCV bars only.
+*   **Tick-Level Granularity:** We will use price data bars only.
 *   **Complex Commission Models:** We will assume a flat fee or zero fee for now.
 *   **Slippage Models:** We will assume perfect execution at the next Open (or trigger price).
 
