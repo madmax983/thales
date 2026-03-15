@@ -1576,6 +1576,10 @@ def main():
                 log_skipped(intent, "Missing stop loss and current price unavailable")
                 continue
 
+        # Route equities to alpaca
+        if intent.get("market") == "equities" and intent.get("provider") == "kraken":
+            intent["provider"] = "alpaca"
+
         provider = intent["provider"]
         print(f"Executing {intent['side']} {intent['symbol']} via {provider}...")
 
