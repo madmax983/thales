@@ -541,7 +541,7 @@ def scan_markets():
         equities = run_command(["scan-market", "--provider", "alpaca"])
         if equities:
             for symbol in equities:
-                candidates.append({"provider": "kraken", "symbol": symbol, "market": "equities"})
+                candidates.append({"provider": "alpaca", "symbol": symbol, "market": "equities"})
 
     return candidates
 
@@ -1585,6 +1585,16 @@ def main():
 
         # Execute
         result = run_command(["execute-intent", "--provider", provider, "--input", temp_intent_file])
+
+        if not result and provider == "kraken":
+            last_err = getattr(run_command, "last_error", "") or ""
+            if "Insufficient funds" in last_err or "invalid volume" in last_err:
+                print(f"Kraken execution failed ({last_err}), falling back to paper execution...")
+                intent["provider"] = "paper"
+                provider = "paper"
+                with open(temp_intent_file, "w") as f:
+                    json.dump(intent, f)
+                result = run_command(["execute-intent", "--provider", provider, "--input", temp_intent_file])
 
         # Cleanup
         if os.path.exists(temp_intent_file):
