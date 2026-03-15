@@ -4029,6 +4029,19 @@
 | 2026-03-15 08:46:48 | SPY | equities:SPY:buy:1773520020403 | Signal already executed/submitted (Ref: equities:SPY:buy:1773520020403) |
 | 2026-03-15 08:46:49 | BTCUSD | crypto:BTCUSD:sell:1773520020377 | No active strategy generated a signal (Strategies: BollingerBands, EmaCrossover, RsiMeanReversion, Macd, Supertrend, DonchianBreakout, ParabolicSar, KeltnerChannelBreakout, StochasticOscillator, AdxMomentum, IchimokuCloud, CciMomentum, ChaikinMoneyFlow, ChandelierExit, LinearRegressionTrend, VptTrendFollowing, PpoRsiTrend, ObvTrendFollowing, MoneyFlowIndex, ConnorsRsiMeanReversion, AlmaCrossover, AwesomeOscillator, WilliamsR, VwmaCrossover, VwapReversion, VortexBreakout, RocMomentum, TrixMomentum, AdxMacdTrend, ZScoreMeanReversion, ElderRay, AroonOscillator, StochRsiMeanReversion, MacdRsiTrend, TsiTrend, HmaCrossover, VolumeOscillatorTrend) |
 | 2026-03-15 08:46:51 | PEPEUSD | crypto:PEPEUSD:buy:1773561600000 | provider error: kraken api error: EGeneral:Invalid arguments:volume minimum not met |
+| 2026-03-15 13:29:32 | BTCUSD | crypto:BTCUSD:sell:1773490660214 | Signal too old (25.2 hours > 24 hours) |
+| 2026-03-15 13:29:32 | ETHUSD | crypto:ETHUSD:buy:1773490660230 | Signal already executed/submitted (Ref: crypto:ETHUSD:buy:1773490660230) |
+| 2026-03-15 13:29:32 | SPY | equities:SPY:buy:1773490660245 | Signal already executed/submitted (Ref: equities:SPY:buy:1773490660245) |
+| 2026-03-15 13:29:32 | BTCUSD | crypto:BTCUSD:sell:1773490710419 | Signal too old (25.2 hours > 24 hours) |
+| 2026-03-15 13:29:32 | ETHUSD | crypto:ETHUSD:buy:1773490710456 | Signal already executed/submitted (Ref: crypto:ETHUSD:buy:1773490710456) |
+| 2026-03-15 13:29:32 | SPY | equities:SPY:buy:1773490710473 | Signal already executed/submitted (Ref: equities:SPY:buy:1773490710473) |
+| 2026-03-15 13:29:32 | ETHUSD | crypto:ETHUSD:buy:1773519880522 | Signal already executed/submitted (Ref: crypto:ETHUSD:buy:1773519880522) |
+| 2026-03-15 13:29:32 | SPY | equities:SPY:buy:1773519880535 | Signal already executed/submitted (Ref: equities:SPY:buy:1773519880535) |
+| 2026-03-15 13:29:32 | ETHUSD | crypto:ETHUSD:buy:1773520020391 | Signal already executed/submitted (Ref: crypto:ETHUSD:buy:1773520020391) |
+| 2026-03-15 13:29:32 | SPY | equities:SPY:buy:1773520020403 | Signal already executed/submitted (Ref: equities:SPY:buy:1773520020403) |
+| 2026-03-15 13:29:33 | BTCUSD | crypto:BTCUSD:sell:1773578063206 | No active strategy generated a signal (Strategies: BollingerBands, EmaCrossover, RsiMeanReversion, Macd, Supertrend, DonchianBreakout, ParabolicSar, KeltnerChannelBreakout, StochasticOscillator, AdxMomentum, IchimokuCloud, CciMomentum, ChaikinMoneyFlow, ChandelierExit, LinearRegressionTrend, VptTrendFollowing, PpoRsiTrend, ObvTrendFollowing, MoneyFlowIndex, ConnorsRsiMeanReversion, AlmaCrossover, AwesomeOscillator, WilliamsR, VwmaCrossover, VwapReversion, VortexBreakout, RocMomentum, TrixMomentum, AdxMacdTrend, ZScoreMeanReversion, ElderRay, AroonOscillator, StochRsiMeanReversion, MacdRsiTrend, TsiTrend, HmaCrossover, VolumeOscillatorTrend) |
+| 2026-03-15 13:29:33 | ETHUSD | crypto:ETHUSD:buy:1773578063237 | Cross-validation failed: Strategies generated {'sell'} but signal recommended buy. |
+| 2026-03-15 13:29:33 | SPY | equities:SPY:buy:1773578063311 | No active strategy generated a signal (Strategies: BollingerBands, EmaCrossover, RsiMeanReversion, Macd, Supertrend, DonchianBreakout, ParabolicSar, KeltnerChannelBreakout, StochasticOscillator, AdxMomentum, IchimokuCloud, CciMomentum, ChaikinMoneyFlow, ChandelierExit, LinearRegressionTrend, VptTrendFollowing, PpoRsiTrend, ObvTrendFollowing, MoneyFlowIndex, ConnorsRsiMeanReversion, AlmaCrossover, AwesomeOscillator, WilliamsR, VwmaCrossover, VwapReversion, VortexBreakout, RocMomentum, TrixMomentum, AdxMacdTrend, ZScoreMeanReversion, ElderRay, AroonOscillator, StochRsiMeanReversion, MacdRsiTrend, TsiTrend, HmaCrossover, VolumeOscillatorTrend) |
 
 ## Executed Trades
 
