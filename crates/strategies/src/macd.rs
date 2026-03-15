@@ -1,3 +1,12 @@
+//! Moving Average Convergence Divergence (MACD) Strategy.
+//!
+//! This module implements a classic momentum and trend-following strategy based on the
+//! MACD indicator. It goes long when the MACD line crosses above the Signal line (bullish momentum)
+//! and short when the MACD line crosses below the Signal line (bearish momentum).
+//!
+//! The strategy incorporates an Average True Range (ATR) based trailing stop loss
+//! to protect profits during volatile price movements.
+
 use crate::indicators::{atr, macd};
 use crate::strategy::{Signal, SignalType, Strategy, StrategyConfig, StrategyType};
 use anyhow::Result;
@@ -7,19 +16,67 @@ use rust_decimal::prelude::ToPrimitive;
 use rust_decimal::Decimal;
 use serde::{Deserialize, Serialize};
 
+/// Configuration parameters for the `Macd` strategy.
+///
+/// # Examples
+///
+/// ```rust
+/// use strategies::macd::MacdConfig;
+///
+/// let config = MacdConfig {
+///     fast_period: 12,
+///     slow_period: 26,
+///     signal_period: 9,
+///     stop_loss_pct: 0.05,
+///     atr_period: 14,
+///     atr_mult: 2.0,
+///     symbol: "BTCUSD".to_string(),
+/// };
+///
+/// assert_eq!(config.fast_period, 12);
+/// ```
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct MacdConfig {
+    /// The lookback period for the fast Exponential Moving Average (EMA).
     pub fast_period: usize,
+    /// The lookback period for the slow Exponential Moving Average (EMA).
     pub slow_period: usize,
+    /// The lookback period for the MACD signal line (an EMA of the MACD line).
     pub signal_period: usize,
+    /// A fixed percentage stop loss, though ATR is generally preferred.
     pub stop_loss_pct: f64,
+    /// The lookback period for calculating the Average True Range (ATR).
     pub atr_period: usize,
+    /// The multiplier applied to the ATR to calculate the trailing stop loss distance.
     pub atr_mult: f64,
+    /// The market symbol this strategy is targeting (e.g., "BTCUSD").
     pub symbol: String,
 }
 
 impl StrategyConfig for MacdConfig {}
 
+/// A trend-following strategy based on the Moving Average Convergence Divergence (MACD) indicator.
+///
+/// The MACD represents the relationship between two moving averages of a security's price.
+/// This implementation relies on the crossover between the MACD line and the Signal line.
+///
+/// # Examples
+///
+/// ```rust
+/// use strategies::macd::{Macd, MacdConfig};
+///
+/// let config = MacdConfig {
+///     fast_period: 12,
+///     slow_period: 26,
+///     signal_period: 9,
+///     stop_loss_pct: 0.05,
+///     atr_period: 14,
+///     atr_mult: 2.0,
+///     symbol: "ETHUSD".to_string(),
+/// };
+///
+/// let strategy = Macd::new(config);
+/// ```
 pub struct Macd {
     config: MacdConfig,
 }

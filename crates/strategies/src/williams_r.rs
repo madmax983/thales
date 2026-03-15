@@ -1,3 +1,13 @@
+//! Williams %R Momentum Strategy.
+//!
+//! This module implements a mean-reversion strategy based on the Williams %R indicator.
+//! Williams %R is a momentum indicator that moves between 0 and -100 and measures overbought
+//! and oversold levels. The strategy triggers long positions when the asset is oversold
+//! and short positions when the asset is overbought.
+//!
+//! The strategy utilizes an Average True Range (ATR) based stop loss to manage risk dynamically
+//! according to current market volatility.
+
 use crate::indicators::{atr, williams_r};
 use crate::strategy::{Signal, SignalType, Strategy, StrategyConfig, StrategyType};
 use anyhow::Result;
@@ -7,18 +17,63 @@ use rust_decimal::prelude::*;
 use rust_decimal::Decimal;
 use serde::{Deserialize, Serialize};
 
+/// Configuration parameters for the `WilliamsR` strategy.
+///
+/// # Examples
+///
+/// ```rust
+/// use strategies::williams_r::WilliamsRConfig;
+///
+/// let config = WilliamsRConfig {
+///     period: 14,
+///     oversold_threshold: -80.0,
+///     overbought_threshold: -20.0,
+///     stop_loss_atr_mult: 2.0,
+///     atr_period: 14,
+///     symbol: "BTCUSD".to_string(),
+/// };
+///
+/// assert_eq!(config.period, 14);
+/// ```
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct WilliamsRConfig {
+    /// The lookback period for calculating the Williams %R indicator.
     pub period: usize,
+    /// The threshold below which the asset is considered oversold (e.g., -80.0), triggering a buy signal.
     pub oversold_threshold: f64,
+    /// The threshold above which the asset is considered overbought (e.g., -20.0), triggering a sell signal.
     pub overbought_threshold: f64,
+    /// The multiplier applied to the ATR to calculate the trailing stop loss distance.
     pub stop_loss_atr_mult: f64,
+    /// The lookback period for calculating the Average True Range (ATR).
     pub atr_period: usize,
+    /// The market symbol this strategy is targeting (e.g., "BTCUSD").
     pub symbol: String,
 }
 
 impl StrategyConfig for WilliamsRConfig {}
 
+/// A mean-reversion strategy based on the Williams %R indicator.
+///
+/// The Williams %R indicator is used to identify overbought and oversold conditions
+/// in the market. The strategy generates signals when the indicator crosses specific thresholds.
+///
+/// # Examples
+///
+/// ```rust
+/// use strategies::williams_r::{WilliamsR, WilliamsRConfig};
+///
+/// let config = WilliamsRConfig {
+///     period: 14,
+///     oversold_threshold: -80.0,
+///     overbought_threshold: -20.0,
+///     stop_loss_atr_mult: 2.0,
+///     atr_period: 14,
+///     symbol: "ETHUSD".to_string(),
+/// };
+///
+/// let strategy = WilliamsR::new(config);
+/// ```
 pub struct WilliamsR {
     config: WilliamsRConfig,
 }
