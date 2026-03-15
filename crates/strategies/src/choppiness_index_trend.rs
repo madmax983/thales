@@ -89,7 +89,9 @@ impl Strategy for ChoppinessIndexTrend {
             ) {
                 // Entry condition: Market transitions from choppy to trending
                 // (CHOP crosses below threshold) AND price direction relative to SMA confirms trend
-                if prev_chop_val >= self.config.chop_threshold && chop_val < self.config.chop_threshold {
+                if prev_chop_val >= self.config.chop_threshold
+                    && chop_val < self.config.chop_threshold
+                {
                     if price > sma_val {
                         // Long Entry
                         let sl_dist = atr_val * stop_loss_mult_dec;
@@ -133,7 +135,9 @@ impl Strategy for ChoppinessIndexTrend {
 
                 // Exit condition: Market transitions from trending to choppy
                 // (CHOP crosses above threshold)
-                if prev_chop_val < self.config.chop_threshold && chop_val >= self.config.chop_threshold {
+                if prev_chop_val < self.config.chop_threshold
+                    && chop_val >= self.config.chop_threshold
+                {
                     // Because we do not track state here, we emit exits for both sides
                     // to ensure any open position is closed. The execution engine handles
                     // ignoring exits for positions we do not hold.
@@ -316,8 +320,14 @@ mod tests {
             }
         }
 
-        assert!(has_buy_entry, "Expected a Long Entry signal during the strong uptrend phase");
-        assert!(has_exit, "Expected an Exit signal during the consolidation phase");
+        assert!(
+            has_buy_entry,
+            "Expected a Long Entry signal during the strong uptrend phase"
+        );
+        assert!(
+            has_exit,
+            "Expected an Exit signal during the consolidation phase"
+        );
 
         Ok(())
     }
