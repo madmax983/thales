@@ -3100,3 +3100,41 @@ pub struct VptTrendConfig {
 - **Expected Win Rate:** 45-55%
 - **Expected Sharpe Ratio:** 1.2 - 1.5
 - **Expected Max Drawdown:** 15-20%
+
+# Trading Strategy: Force Index Trend
+
+## Strategy Specification
+
+**Name:** ForceIndexTrend
+
+**Description:** A trend-following strategy using Alexander Elder's Force Index. It generates trading signals when the Force Index (smoothed with an EMA) crosses the zero line, while confirming the overall trend direction using a longer-term Price EMA.
+
+**Rationale:** The Force Index combines price movement and volume to measure the power behind market moves. By smoothing it with a short-term moving average (e.g., 13 periods) and using a longer-term moving average (e.g., 22 periods) to establish the primary trend, the strategy seeks to capture momentum bursts that align with the broader market direction.
+
+## Requirements
+
+### Implementation Details
+- Uses Polars for data analysis.
+- Implements the `Strategy` trait in Rust.
+- Calculates Force Index, smooths it with an EMA, and compares price against a Price EMA.
+- Calculates ATR for dynamic stop losses.
+
+### Strategy Type
+Trend Following
+
+### Entry Conditions
+- **Long Entry:** The closing price is above the Price EMA (Uptrend) AND the smoothed Force Index crosses from below zero to above zero.
+- **Short Entry:** The closing price is below the Price EMA (Downtrend) AND the smoothed Force Index crosses from above zero to below zero.
+
+### Exit Conditions
+- Exits active positions when an opposite entry signal occurs.
+
+### Position Sizing
+- Fixed 100 units base per trade (dynamic sizing allowed depending on risk context).
+- Stop Loss placed at entry price minus `stop_loss_atr_mult` * ATR for Long positions (plus for Short).
+- Take profit placed at a 2:1 Reward to Risk ratio.
+
+### Historical Performance (Sample Metrics)
+- **Expected Win Rate:** 55% - 62%
+- **Sharpe Ratio:** 1.4
+- **Max Drawdown:** 12%

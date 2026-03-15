@@ -54,6 +54,7 @@ TREND_FOLLOWING_STRATEGIES = {
     "ChandelierExit",
     "ObvTrendFollowing",
     "TsiTrend",
+    "ForceIndexTrend",
     "VolumeOscillatorTrend",
     "VptTrendFollowing",
     "WmaCrossover",
