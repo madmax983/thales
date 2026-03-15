@@ -3640,6 +3640,8 @@
 | 2026-03-10 09:37:53 | BTCUSD | crypto:BTCUSD:sell:1773131059368 | Cross-validation failed: Strategies generated {'buy'} but signal recommended sell. |
 | 2026-03-10 09:37:53 | ETHUSD | crypto:ETHUSD:buy:1773131059395 | Cross-validation failed: Strategies generated {'sell'} but signal recommended buy. |
 | 2026-03-10 09:37:53 | SPY | equities:SPY:buy:1773131059412 | No active strategy generated a signal (Strategies: BollingerBands, EmaCrossover, RsiMeanReversion, Macd, Supertrend, DonchianBreakout, ParabolicSar, KeltnerChannelBreakout, StochasticOscillator, AdxMomentum, IchimokuCloud, CciMomentum, ChaikinMoneyFlow, ChandelierExit, LinearRegressionTrend, ObvTrendFollowing, MoneyFlowIndex, ConnorsRsiMeanReversion, AwesomeOscillator, WilliamsR, VwmaCrossover, VwapReversion, VortexBreakout, RocMomentum, TrixMomentum, AdxMacdTrend, ZScoreMeanReversion, ElderRay, AroonOscillator, StochRsiMeanReversion, MacdRsiTrend, TsiTrend) |
+| 2026-03-14 23:53:50 | BTTUSD | NO_REF | Conflict: Active strategies generated conflicting signals ({'buy', 'sell'}) for BTTUSD. |
+| 2026-03-14 23:53:51 | KINUSD | NO_REF | Conflict: Active strategies generated conflicting signals ({'sell', 'buy'}) for KINUSD. |
 
 ## Executed Trades
 
