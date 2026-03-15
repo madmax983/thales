@@ -4167,6 +4167,11 @@
 | 2026-03-15 21:52:56 | BTCUSD | crypto:BTCUSD:sell:1773606558891 | Cross-validation failed: Strategies generated {'buy'} but signal recommended sell. |
 | 2026-03-15 21:52:57 | SPY | equities:SPY:buy:1773606558923 | No active strategy generated a signal (Strategies: BollingerBands, EmaCrossover, RsiMeanReversion, Macd, Supertrend, DonchianBreakout, ParabolicSar, KeltnerChannelBreakout, StochasticOscillator, AdxMomentum, IchimokuCloud, CciMomentum, ChaikinMoneyFlow, ChandelierExit, LinearRegressionTrend, VptTrendFollowing, PpoRsiTrend, ObvTrendFollowing, MoneyFlowIndex, ConnorsRsiMeanReversion, AlmaCrossover, AwesomeOscillator, WilliamsR, VwmaCrossover, VwapReversion, VortexBreakout, RocMomentum, TrixMomentum, AdxMacdTrend, ZScoreMeanReversion, ElderRay, AroonOscillator, StochRsiMeanReversion, MacdRsiTrend, TsiTrend, HmaCrossover, VolumeOscillatorTrend) |
 | 2026-03-15 21:52:57 | ETHUSD | crypto:ETHUSD:buy:1773606558907 | Rejected by Risk Agent: Position size below exchange minimum for ETHUSD (9.906e-05 < 0.001) |
+| 2026-03-15 23:00:59 | ETHUSD | crypto:ETHUSD:buy:1773578063237 | Signal already executed/submitted (Ref: crypto:ETHUSD:buy:1773578063237) |
+| 2026-03-15 23:00:59 | SPY | equities:SPY:buy:1773578063311 | Signal already executed/submitted (Ref: equities:SPY:buy:1773578063311) |
+| 2026-03-15 23:01:00 | BTCUSD | crypto:BTCUSD:sell:1773606558891 | Cross-validation failed: Strategies generated {'buy'} but signal recommended sell. |
+| 2026-03-15 23:01:01 | SPY | equities:SPY:buy:1773606558923 | No active strategy generated a signal (Strategies: BollingerBands, EmaCrossover, RsiMeanReversion, Macd, Supertrend, DonchianBreakout, ParabolicSar, KeltnerChannelBreakout, StochasticOscillator, AdxMomentum, IchimokuCloud, CciMomentum, ChaikinMoneyFlow, ChandelierExit, LinearRegressionTrend, VptTrendFollowing, PpoRsiTrend, ObvTrendFollowing, MoneyFlowIndex, ConnorsRsiMeanReversion, AlmaCrossover, AwesomeOscillator, WilliamsR, VwmaCrossover, VwapReversion, VortexBreakout, RocMomentum, TrixMomentum, AdxMacdTrend, ZScoreMeanReversion, ElderRay, AroonOscillator, StochRsiMeanReversion, MacdRsiTrend, TsiTrend, HmaCrossover, VolumeOscillatorTrend) |
+| 2026-03-15 23:01:01 | ETHUSD | crypto:ETHUSD:buy:1773606558907 | Rejected by Risk Agent: Position size below exchange minimum for ETHUSD (9.675e-05 < 0.001) |
 
 ## Executed Trades
 

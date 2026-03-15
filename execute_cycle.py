@@ -1598,7 +1598,8 @@ def main():
 
         if not result and provider == "kraken" and intent.get("market") == "crypto":
             last_err = getattr(run_command, "last_error", "") or ""
-            if "Insufficient funds" in last_err or "invalid volume" in last_err:
+            last_err_lower = last_err.lower()
+            if "insufficient funds" in last_err_lower or "invalid volume" in last_err_lower or "volume minimum" in last_err_lower:
                 print(f"Kraken execution failed ({last_err}), falling back to paper execution...")
                 intent["provider"] = "paper"
                 provider = "paper"
