@@ -958,3 +958,37 @@ let chop_series = choppiness_index::calculate(&df, period)?;
 - Returns `Result<Series>`.
 - The output Series is named "choppiness_index".
 - The first `period - 1` values will be null.
+
+## Chaikin Oscillator
+
+**Name:** Chaikin Oscillator
+**Description:** Calculates the Chaikin Oscillator, which measures the momentum of the Accumulation/Distribution Line (ADL) using the MACD formula.
+**Rationale:** It helps traders anticipate changes in the ADL by measuring its momentum. A cross above zero indicates buying pressure, while a cross below zero indicates selling pressure. It is often used to spot divergences with price.
+
+### Implementation Details
+- Uses `rust_decimal::Decimal` iteratively for all math calculations to ensure financial precision, explicitly converting from and to `f64` only for Polars boundaries.
+- Built on top of the `adl` and `ema` indicators.
+- Formula: `Fast EMA of ADL - Slow EMA of ADL`.
+- Returns a Polars `Series` of `f64` values (computed internally via Decimal).
+
+### Usage
+
+```rust
+use strategies::indicators::chaikin_oscillator;
+use polars::prelude::*;
+
+// Assuming df is a DataFrame with "high", "low", "close", "volume" columns
+let fast_period = 3;
+let slow_period = 10;
+let chaikin_series = chaikin_oscillator::calculate(&df, fast_period, slow_period)?;
+```
+
+### Parameters
+- `data`: Reference to a Polars `DataFrame`. Must contain numeric "high", "low", "close", and "volume" columns.
+- `fast_period`: Fast EMA period (typically 3).
+- `slow_period`: Slow EMA period (typically 10).
+
+### Output
+- Returns `Result<Series>`.
+- The output Series is named "chaikin_oscillator".
+- Initial values will be null until the slow EMA has enough data points to compute.
