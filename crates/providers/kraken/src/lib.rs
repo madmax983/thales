@@ -825,6 +825,20 @@ struct KrakenAssetPairsResponse {
     result: Option<HashMap<String, KrakenAssetPairInfo>>,
 }
 
+/// Information about an asset pair on Kraken, critical for proper numeric precision.
+///
+/// Ensures correct formatting of `price` and `volume` prior to placing an order.
+///
+/// # Examples
+///
+/// ```rust
+/// use kraken_provider::KrakenAssetPairInfo;
+///
+/// let json = r#"{ "pair_decimals": 5, "lot_decimals": 8 }"#;
+/// let info: KrakenAssetPairInfo = serde_json::from_str(json).unwrap();
+/// assert_eq!(info.pair_decimals, 5);
+/// assert_eq!(info.lot_decimals, 8);
+/// ```
 #[derive(Debug, Clone, Deserialize)]
 pub struct KrakenAssetPairInfo {
     #[serde(default)]
@@ -839,6 +853,22 @@ struct KrakenTickerResponse {
     result: Option<HashMap<String, KrakenTickerInfo>>,
 }
 
+/// Real-time ticker metrics required to analyze live pricing and spread dynamics.
+///
+/// # Examples
+///
+/// ```rust
+/// use kraken_provider::KrakenTickerInfo;
+///
+/// let json = r#"{
+///     "a": ["50000.0", "1", "1.0"], "b": ["49000.0", "2", "2.0"],
+///     "c": ["49500.0", "0.5"], "v": ["1000.0", "2000.0"],
+///     "p": ["49600.0", "49700.0"], "t": [100, 200],
+///     "l": ["48000.0", "47000.0"], "h": ["51000.0", "52000.0"], "o": "49000.0"
+/// }"#;
+/// let ticker: KrakenTickerInfo = serde_json::from_str(json).unwrap();
+/// assert_eq!(ticker.o, "49000.0");
+/// ```
 #[derive(Debug, Clone, Deserialize)]
 pub struct KrakenTickerInfo {
     pub a: Vec<String>,
@@ -864,6 +894,21 @@ struct KrakenBalanceResponse {
     result: Option<HashMap<String, String>>,
 }
 
+/// Detailed structural representation of a margin position execution state.
+///
+/// # Examples
+///
+/// ```rust
+/// use kraken_provider::KrakenOpenPosition;
+///
+/// let json = r#"{
+///     "ordertxid": "O123-456", "pair": "XXBTZUSD", "time": 1616660000.0,
+///     "type": "buy", "ordertype": "market", "cost": "50000.0",
+///     "fee": "100.0", "vol": "1.0", "vol_closed": "0.0", "margin": "10000.0"
+/// }"#;
+/// let position: KrakenOpenPosition = serde_json::from_str(json).unwrap();
+/// assert_eq!(position.type_, "buy");
+/// ```
 #[derive(Debug, Clone, Deserialize)]
 pub struct KrakenOpenPosition {
     pub ordertxid: String,
@@ -914,6 +959,18 @@ struct KrakenOrderDescription {
     ordertype: String,
 }
 
+/// High-level errors specific to interactions with the Kraken exchange API.
+///
+/// These outline failures in authentication mapping, routing execution payloads, and schema validation.
+///
+/// # Examples
+///
+/// ```rust
+/// use kraken_provider::KrakenProviderError;
+///
+/// let err = KrakenProviderError::InvalidSide("hold".to_string());
+/// assert_eq!(err.to_string(), "invalid side: hold");
+/// ```
 #[derive(Debug, Error)]
 pub enum KrakenProviderError {
     #[error("missing required environment variable: {0}")]

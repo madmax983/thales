@@ -4,6 +4,21 @@ use polars::prelude::*;
 use super::ema;
 
 /// Elder Ray Indicator Components
+///
+/// # Examples
+///
+/// ```rust
+/// use polars::prelude::*;
+/// use strategies::indicators::elder_ray::ElderRayOutput;
+///
+/// let output = ElderRayOutput {
+///     ema: Series::new("ema", &[1.0, 2.0]),
+///     bull_power: Series::new("bull_power", &[0.5, 0.6]),
+///     bear_power: Series::new("bear_power", &[-0.1, -0.2]),
+/// };
+///
+/// assert_eq!(output.ema.name(), "ema");
+/// ```
 #[derive(Debug, Clone)]
 pub struct ElderRayOutput {
     pub ema: Series,

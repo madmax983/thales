@@ -3,6 +3,35 @@ use polars::prelude::*;
 
 type SarResult = Result<(Vec<Option<f64>>, Vec<Option<bool>>)>;
 
+/// Calculates the Parabolic Stop and Reverse (SAR) indicator.
+///
+/// # Arguments
+///
+/// * `high` - A `Series` containing the high prices.
+/// * `low` - A `Series` containing the low prices.
+/// * `initial_af` - The initial acceleration factor (typically 0.02).
+/// * `max_af` - The maximum acceleration factor (typically 0.2).
+/// * `step_af` - The step size for the acceleration factor (typically 0.02).
+///
+/// # Returns
+///
+/// A tuple containing:
+/// * `sar_values`: The calculated SAR values.
+/// * `trend_values`: A boolean array where `true` indicates an uptrend and `false` indicates a downtrend.
+///
+/// # Examples
+///
+/// ```rust
+/// use polars::prelude::*;
+/// use strategies::indicators::parabolic_sar::parabolic_sar;
+///
+/// let highs = Series::new("high", &[10.0, 11.0, 12.0]);
+/// let lows = Series::new("low", &[9.0, 10.0, 11.0]);
+///
+/// let (sar, trend) = parabolic_sar(&highs, &lows, 0.02, 0.2, 0.02).unwrap();
+/// assert_eq!(sar.len(), 3);
+/// assert_eq!(trend.len(), 3);
+/// ```
 pub fn parabolic_sar(
     high: &Series,
     low: &Series,

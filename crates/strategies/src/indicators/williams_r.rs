@@ -1,6 +1,8 @@
 use anyhow::Result;
 use polars::prelude::*;
 
+use std::collections::VecDeque;
+
 /// Calculates the Williams %R indicator.
 ///
 /// %R = (Highest High - Close) / (Highest High - Lowest Low) * -100
@@ -13,8 +15,22 @@ use polars::prelude::*;
 /// # Returns
 ///
 /// A `Series` containing the %R values. The first `period - 1` values will be null.
-use std::collections::VecDeque;
-
+///
+/// # Examples
+///
+/// ```rust
+/// use polars::prelude::*;
+/// use strategies::indicators::williams_r::calculate;
+///
+/// let df = df!(
+///     "high" => &[12.0, 11.0, 10.0, 11.0, 12.0],
+///     "low" => &[10.0, 9.0, 8.0, 9.0, 10.0],
+///     "close" => &[11.0, 10.0, 9.0, 10.0, 11.0]
+/// ).unwrap();
+///
+/// let result = calculate(&df, 3).unwrap();
+/// assert_eq!(result.name(), "williams_r");
+/// ```
 pub fn calculate(data: &DataFrame, period: usize) -> Result<Series> {
     let high = data.column("high")?.f64()?;
     let low = data.column("low")?.f64()?;

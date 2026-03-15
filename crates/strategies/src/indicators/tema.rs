@@ -37,10 +37,11 @@ pub fn calculate(data: &DataFrame, period: usize) -> Result<Series> {
 
     let mut tema_values: Vec<Option<f64>> = vec![None; ema1_f64.len()];
 
-    for i in 0..ema1_f64.len() {
-        if let (Some(e1), Some(e2), Some(e3)) = (ema1_f64.get(i), ema2_f64.get(i), ema3_f64.get(i)) {
+    for (i, val) in tema_values.iter_mut().enumerate().take(ema1_f64.len()) {
+        if let (Some(e1), Some(e2), Some(e3)) = (ema1_f64.get(i), ema2_f64.get(i), ema3_f64.get(i))
+        {
             let tema = (3.0 * e1) - (3.0 * e2) + e3;
-            tema_values[i] = Some(tema);
+            *val = Some(tema);
         }
     }
 
