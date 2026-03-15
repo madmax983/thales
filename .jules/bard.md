@@ -52,3 +52,7 @@
 ## 2024-06-01 - The Silent Stochastic
 **Confusion:** The Stochastic Oscillator strategy lacked any module or struct-level documentation, leaving users confused about the specific parameters required and how signals were generated using %K and %D crossovers.
 **Clarification:** Added module-level documentation and executable examples (`# Examples`) for `StochasticOscillatorConfig` and `StochasticOscillator`, detailing the exact crossing logic for oversold and overbought zones.
+
+## 2024-06-02 - The Silent Indicators
+**Confusion:** The MACD and Williams %R strategies lacked comprehensive documentation, making their configuration parameters confusing and their underlying financial concepts opaque to new users.
+**Clarification:** Added module-level documentation (`//!`) explaining the concepts behind MACD crossovers and Williams %R overbought/oversold levels, and included executable `# Examples` for both strategy configurations and their instantiation.

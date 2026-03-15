@@ -93,8 +93,8 @@ pub fn calculate(data: &DataFrame, period: usize) -> Result<Series> {
     let mut tr_sum = Decimal::ZERO;
 
     // Initialize the first window
-    for j in 0..period {
-        tr_sum += tr_values[j];
+    for &tr_val in tr_values.iter().take(period) {
+        tr_sum += tr_val;
     }
 
     for i in (period - 1)..len {
