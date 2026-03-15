@@ -401,7 +401,7 @@ def get_candidates_from_signals():
         if os.environ.get("SIMULATION") == "true":
             provider = "paper"
         else:
-            provider = "kraken"
+            provider = "alpaca" if market == "equities" else "kraken"
 
         # Extract JSON
         json_match = re.search(r"```json\s*(\{.*?\})\s*```", chunk, re.DOTALL)
@@ -538,7 +538,7 @@ def scan_markets():
         # Equities (Kraken)
         print("Scanning Kraken (Equities)...")
         # Currently the thales-cli natively handles scanning equities via Alpaca, but the user requested us to ensure we use Kraken for BOTH crypto and equities.
-        # We scan using alpaca to get the equity symbols, but assign the provider as "kraken" to route trades and data via Kraken.
+        # We scan using alpaca to get the equity symbols, but assign the provider as "alpaca" to route trades and data via Alpaca.
         equities = run_command(["scan-market", "--provider", "alpaca"])
         if equities:
             for symbol in equities:
@@ -554,8 +554,9 @@ def evaluate_candidate(candidate, strategies, portfolio_path=None):
     # Fetch Data
     bars = run_command(["fetch-market-data", "--provider", provider, "--symbol", symbol, "--timeframe", "1h"])
     if not bars or not isinstance(bars, dict) or not bars.get("bars"):
-        if run_command.last_error:
-            candidate["error"] = run_command.last_error
+        last_error = getattr(run_command, 'last_error', '')
+        if last_error:
+            candidate["error"] = last_error
         return []
 
     # Save temp bars
@@ -1631,7 +1632,7 @@ def main():
                 print(reason)
                 log_skipped(intent, reason)
         else:
-            reason = run_command.last_error or "Execution failed."
+            reason = getattr(run_command, 'last_error', '') or "Execution failed."
             print(f"Execution failed: {reason}")
             log_skipped(intent, reason)
 
