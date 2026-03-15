@@ -4152,6 +4152,21 @@
 | 2026-03-15 21:26:36 | BTCUSD | crypto:BTCUSD:sell:1773606558891 | Cross-validation failed: Strategies generated {'buy'} but signal recommended sell. |
 | 2026-03-15 21:26:37 | SPY | equities:SPY:buy:1773606558923 | Invalid input: provider error: kraken api error: EQuery:Unknown asset pair |
 | 2026-03-15 21:26:37 | ETHUSD | crypto:ETHUSD:buy:1773606558907 | Rejected by Risk Agent: Position size below exchange minimum for ETHUSD (9.93e-05 < 0.001) |
+| 2026-03-15 21:41:25 | ETHUSD | crypto:ETHUSD:buy:1773578063237 | Signal already executed/submitted (Ref: crypto:ETHUSD:buy:1773578063237) |
+| 2026-03-15 21:41:25 | SPY | equities:SPY:buy:1773578063311 | Signal already executed/submitted (Ref: equities:SPY:buy:1773578063311) |
+| 2026-03-15 21:41:26 | BTCUSD | crypto:BTCUSD:sell:1773606558891 | Cross-validation failed: Strategies generated {'buy'} but signal recommended sell. |
+| 2026-03-15 21:41:27 | SPY | equities:SPY:buy:1773606558923 | Invalid input: provider error: kraken api error: EQuery:Unknown asset pair |
+| 2026-03-15 21:41:27 | ETHUSD | crypto:ETHUSD:buy:1773606558907 | Rejected by Risk Agent: Position size below exchange minimum for ETHUSD (9.895e-05 < 0.001) |
+| 2026-03-15 21:51:54 | ETHUSD | crypto:ETHUSD:buy:1773578063237 | Signal already executed/submitted (Ref: crypto:ETHUSD:buy:1773578063237) |
+| 2026-03-15 21:51:54 | SPY | equities:SPY:buy:1773578063311 | Signal already executed/submitted (Ref: equities:SPY:buy:1773578063311) |
+| 2026-03-15 21:51:55 | BTCUSD | crypto:BTCUSD:sell:1773606558891 | Cross-validation failed: Strategies generated {'buy'} but signal recommended sell. |
+| 2026-03-15 21:51:56 | SPY | equities:SPY:buy:1773606558923 | No active strategy generated a signal (Strategies: BollingerBands, EmaCrossover, RsiMeanReversion, Macd, Supertrend, DonchianBreakout, ParabolicSar, KeltnerChannelBreakout, StochasticOscillator, AdxMomentum, IchimokuCloud, CciMomentum, ChaikinMoneyFlow, ChandelierExit, LinearRegressionTrend, VptTrendFollowing, PpoRsiTrend, ObvTrendFollowing, MoneyFlowIndex, ConnorsRsiMeanReversion, AlmaCrossover, AwesomeOscillator, WilliamsR, VwmaCrossover, VwapReversion, VortexBreakout, RocMomentum, TrixMomentum, AdxMacdTrend, ZScoreMeanReversion, ElderRay, AroonOscillator, StochRsiMeanReversion, MacdRsiTrend, TsiTrend, HmaCrossover, VolumeOscillatorTrend) |
+| 2026-03-15 21:51:56 | ETHUSD | crypto:ETHUSD:buy:1773606558907 | Rejected by Risk Agent: Position size below exchange minimum for ETHUSD (9.911e-05 < 0.001) |
+| 2026-03-15 21:52:55 | ETHUSD | crypto:ETHUSD:buy:1773578063237 | Signal already executed/submitted (Ref: crypto:ETHUSD:buy:1773578063237) |
+| 2026-03-15 21:52:55 | SPY | equities:SPY:buy:1773578063311 | Signal already executed/submitted (Ref: equities:SPY:buy:1773578063311) |
+| 2026-03-15 21:52:56 | BTCUSD | crypto:BTCUSD:sell:1773606558891 | Cross-validation failed: Strategies generated {'buy'} but signal recommended sell. |
+| 2026-03-15 21:52:57 | SPY | equities:SPY:buy:1773606558923 | No active strategy generated a signal (Strategies: BollingerBands, EmaCrossover, RsiMeanReversion, Macd, Supertrend, DonchianBreakout, ParabolicSar, KeltnerChannelBreakout, StochasticOscillator, AdxMomentum, IchimokuCloud, CciMomentum, ChaikinMoneyFlow, ChandelierExit, LinearRegressionTrend, VptTrendFollowing, PpoRsiTrend, ObvTrendFollowing, MoneyFlowIndex, ConnorsRsiMeanReversion, AlmaCrossover, AwesomeOscillator, WilliamsR, VwmaCrossover, VwapReversion, VortexBreakout, RocMomentum, TrixMomentum, AdxMacdTrend, ZScoreMeanReversion, ElderRay, AroonOscillator, StochRsiMeanReversion, MacdRsiTrend, TsiTrend, HmaCrossover, VolumeOscillatorTrend) |
+| 2026-03-15 21:52:57 | ETHUSD | crypto:ETHUSD:buy:1773606558907 | Rejected by Risk Agent: Position size below exchange minimum for ETHUSD (9.906e-05 < 0.001) |
 
 ## Executed Trades
 
@@ -4321,3 +4336,9 @@
 | 2026-03-15 04:08:25 | SPY | NO_REF | No strategy signal generated. |
 | 2026-03-15 04:08:39 | QQQ | NO_REF | No strategy signal generated. |
 | 2026-03-15 04:08:52 | TQQQ | NO_REF | No strategy signal generated. |
+| 2026-03-15 21:44:50 | PEPEUSD | NO_REF | No strategy signal generated. |
+| 2026-03-15 21:45:05 | REKTUSD | NO_REF | No strategy signal generated. |
+| 2026-03-15 21:45:21 | MOGUSD | NO_REF | No strategy signal generated. |
+| 2026-03-15 21:45:37 | SPY | NO_REF | No strategy signal generated. |
+| 2026-03-15 21:45:51 | QQQ | NO_REF | No strategy signal generated. |
+| 2026-03-15 21:46:06 | TQQQ | NO_REF | No strategy signal generated. |

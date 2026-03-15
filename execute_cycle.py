@@ -401,7 +401,10 @@ def get_candidates_from_signals():
         if os.environ.get("SIMULATION") == "true":
             provider = "paper"
         else:
-            provider = "kraken"
+            if market == "equities":
+                provider = "alpaca"
+            else:
+                provider = "kraken"
 
         # Extract JSON
         json_match = re.search(r"```json\s*(\{.*?\})\s*```", chunk, re.DOTALL)
@@ -535,12 +538,12 @@ def scan_markets():
             for symbol in crypto:
                 candidates.append({"provider": "kraken", "symbol": symbol, "market": "crypto"})
 
-        # Equities (Kraken)
-        print("Scanning Kraken (Equities)...")
-        equities = run_command(["scan-market", "--provider", "kraken"])
+        # Equities (Alpaca)
+        print("Scanning Alpaca (Equities)...")
+        equities = run_command(["scan-market", "--provider", "alpaca"])
         if equities:
             for symbol in equities:
-                candidates.append({"provider": "kraken", "symbol": symbol, "market": "equities"})
+                candidates.append({"provider": "alpaca", "symbol": symbol, "market": "equities"})
 
     return candidates
 
@@ -1577,9 +1580,9 @@ def main():
                 log_skipped(intent, "Missing stop loss and current price unavailable")
                 continue
 
-        # Do not route equities to alpaca
-        # if intent.get("market") == "equities" and intent.get("provider") == "kraken":
-        #     intent["provider"] = "alpaca"
+        # Route equities to kraken during execution as per user intent
+        if intent.get("market") == "equities" and intent.get("provider") == "alpaca":
+             intent["provider"] = "kraken"
 
         provider = intent["provider"]
         print(f"Executing {intent['side']} {intent['symbol']} via {provider}...")
@@ -1593,7 +1596,7 @@ def main():
         # Execute
         result = run_command(["execute-intent", "--provider", provider, "--input", temp_intent_file])
 
-        if not result and provider == "kraken":
+        if not result and provider == "kraken" and intent.get("market") == "crypto":
             last_err = getattr(run_command, "last_error", "") or ""
             if "Insufficient funds" in last_err or "invalid volume" in last_err:
                 print(f"Kraken execution failed ({last_err}), falling back to paper execution...")
