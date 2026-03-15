@@ -34,6 +34,8 @@ pub mod optimizer;
 pub mod pairs_trading;
 #[cfg(feature = "nova")]
 pub mod pattern_match;
+#[cfg(feature = "nova")]
+pub mod renko;
 pub mod reporting;
 pub mod search_history;
 #[cfg(feature = "nova")]
