@@ -31,7 +31,7 @@ STRATEGIES = [
     "MoneyFlowIndex", "ConnorsRsiMeanReversion", "AwesomeOscillator", "WilliamsR",
     "VwmaCrossover", "VwapReversion", "VortexBreakout", "ZScoreMeanReversion",
     "ChaikinMoneyFlow", "ElderRay", "ChandelierExit", "AroonOscillator", "RocMomentum",
-    "KamaCrossover", "VolumeOscillatorTrend", "VptTrendFollowing", "PpoRsiTrend"
+    "KamaCrossover", "VolumeOscillatorTrend", "VptTrendFollowing", "PpoRsiTrend", "TrixCrossover"
 ]
 
 def run_cmd(cmd):

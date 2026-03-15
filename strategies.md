@@ -3138,3 +3138,24 @@ Trend Following
 - **Expected Win Rate:** 55% - 62%
 - **Sharpe Ratio:** 1.4
 - **Max Drawdown:** 12%
+
+## TrixCrossover
+**Description:** Momentum trend-following strategy based on the TRIX indicator and its SMA signal line.
+**Rationale:** Captures major market trends by identifying when momentum shifts directions. The TRIX indicator effectively filters out market noise.
+
+### Requirements
+- **Strategy Type:** Momentum
+- **Implementation:** Rust (`TrixCrossover`)
+
+### Entry Conditions
+- **Long:** TRIX crosses ABOVE its Signal line, and TRIX is below zero.
+- **Short:** TRIX crosses BELOW its Signal line, and TRIX is above zero.
+
+### Exit Conditions
+- **Long:** TRIX crosses BELOW its Signal line.
+- **Short:** TRIX crosses ABOVE its Signal line.
+
+### Position Sizing
+- Fixed 100 units base per trade (dynamic sizing allowed depending on risk context).
+- Stop Loss placed at entry price minus `stop_loss_atr_mult` * ATR for Long positions (plus for Short).
+- Take profit placed at a 2:1 Reward to Risk ratio.

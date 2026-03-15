@@ -67,6 +67,7 @@ use strategies::supertrend_ema_crossover::{SupertrendEmaCrossover, SupertrendEma
 use strategies::supertrend_rsi::{SupertrendRsi, SupertrendRsiConfig};
 use strategies::tema_crossover::{TemaCrossover, TemaCrossoverConfig};
 use strategies::triple_sma_crossover::{TripleSmaCrossover, TripleSmaCrossoverConfig};
+use strategies::trix_crossover::{TrixCrossover, TrixCrossoverConfig};
 use strategies::trix_momentum::{TrixMomentum, TrixMomentumConfig};
 use strategies::tsi_trend::{TsiTrend, TsiTrendConfig};
 use strategies::volume_oscillator_trend::{VolumeOscillatorTrend, VolumeOscillatorTrendConfig};
@@ -125,6 +126,16 @@ pub fn create_strategy(name: &str, symbol: &str) -> Result<Box<dyn Strategy>> {
                 symbol: symbol.to_string(),
             };
             Ok(Box::new(TrixMomentum::new(config)))
+        }
+        "TrixCrossover" => {
+            let config = TrixCrossoverConfig {
+                trix_period: 15,
+                trix_signal_period: 9,
+                stop_loss_atr_mult: 2.0,
+                atr_period: 14,
+                symbol: symbol.to_string(),
+            };
+            Ok(Box::new(TrixCrossover::new(config)))
         }
         "AwesomeOscillator" => {
             let config = AwesomeOscillatorConfig {
@@ -672,6 +683,7 @@ pub fn list_strategies() -> Vec<&'static str> {
         "StochRsiMeanReversion",
         "RocMomentum",
         "MacdRsiTrend",
+        "TrixCrossover",
         "TsiTrend",
         "DemaCrossover",
         "TemaCrossover",
