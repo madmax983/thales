@@ -23,7 +23,7 @@ for asset in assets:
                     side = data['data'][0].get('side')
                     if side:
                         sides.add(side)
-        except Exception as e:
+        except (OSError, json.JSONDecodeError, ValueError, TypeError, IndexError, KeyError) as e:
             print(f"Error parsing {file}: {e}")
 
     symbol = f"{asset.upper()}USD" if asset != 'spy' else "SPY"

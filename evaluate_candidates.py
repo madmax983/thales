@@ -42,7 +42,7 @@ def run_cmd(cmd):
         data = json.loads(result.stdout)
         if data.get("status") == "ok":
             return data.get("data")
-    except:
+    except (json.JSONDecodeError, ValueError, TypeError, OSError, IndexError, KeyError, subprocess.CalledProcessError, subprocess.SubprocessError):
         pass
     return None
 
@@ -52,7 +52,7 @@ def run_cmd_raw(cmd):
         return None
     try:
         return json.loads(result.stdout)
-    except:
+    except (json.JSONDecodeError, ValueError, TypeError, OSError, IndexError, KeyError, subprocess.CalledProcessError, subprocess.SubprocessError):
         pass
     return None
 
@@ -83,7 +83,7 @@ def parse_signals_md():
                             "confidence": float(parts[5].replace("%", "")) if "%" in parts[5] else 0.0,
                             "ref": f"{parts[2]}:{parts[3]}:{parts[4].lower()}:{parts[1]}"
                         })
-                    except:
+                    except (ValueError, IndexError, TypeError, KeyError):
                         pass
     return signals
 
@@ -180,7 +180,7 @@ def main():
                 else:
                     err_msg = exec_data.get("errors", ["Execution Failed"])[0]
                     append_to_portfolio(f"| {now_str} | {symbol} | NO_REF | provider error: {err_msg} |")
-            except:
+            except (json.JSONDecodeError, ValueError, TypeError, IndexError, KeyError, OSError):
                 append_to_portfolio(f"| {now_str} | {symbol} | NO_REF | Execution Failed |")
         else:
             print(f"  No valid signals for {symbol}")

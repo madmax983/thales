@@ -18,7 +18,7 @@ def run_command(args):
         else:
             print(f"CLI Error: {data}")
             return None
-    except Exception as e:
+    except (json.JSONDecodeError, ValueError, TypeError, KeyError, subprocess.CalledProcessError) as e:
         print(f"Exception: {e}")
         return None
 

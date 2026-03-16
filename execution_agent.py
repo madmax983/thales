@@ -33,7 +33,7 @@ def run_command(args):
             return None
 
         return None
-    except Exception as e:
+    except (OSError, subprocess.SubprocessError) as e:
         print(f"Exception running command {cmd}: {e}")
         return None
 

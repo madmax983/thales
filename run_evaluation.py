@@ -41,7 +41,7 @@ def run_cmd(cmd):
         data = json.loads(result.stdout)
         if data.get("status") == "ok":
             return data.get("data")
-    except:
+    except (json.JSONDecodeError, ValueError, TypeError, OSError, IndexError, KeyError, subprocess.CalledProcessError, subprocess.SubprocessError):
         pass
     return None
 
@@ -80,7 +80,7 @@ def parse_signals_md():
                             "confidence": float(parts[5].replace("%", "")) if "%" in parts[5] else 0.0,
                             "ref": f"{parts[2]}:{parts[3]}:{parts[4].lower()}:{parts[1]}"
                         })
-                    except:
+                    except (ValueError, IndexError, TypeError, KeyError):
                         pass
     return signals
 
@@ -185,7 +185,7 @@ def main():
                     if sl != "-" and price != "Market":
                         try:
                             max_risk = f"{abs(float(price) - float(sl)) * float(qty):.2f}"
-                        except:
+                        except (ValueError, TypeError):
                             max_risk = "100" # fallback
                     else:
                         if sl != "-": max_risk = "100"
@@ -197,7 +197,7 @@ def main():
                     err_msg = exec_data.get("errors", ["Execution Failed"])[0]
                     append_to_portfolio(f"| {now_str} | {symbol} | NO_REF | provider error: {err_msg} |")
                     print(f"  Execution failed: {err_msg}")
-            except Exception as e:
+            except (json.JSONDecodeError, ValueError, TypeError, IndexError, KeyError, OSError) as e:
                 append_to_portfolio(f"| {now_str} | {symbol} | NO_REF | Execution Failed: {str(e)} |")
                 print(f"  Execution failed exception: {str(e)}")
         else:

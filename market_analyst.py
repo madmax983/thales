@@ -36,7 +36,7 @@ def run_command(args):
             return None
 
         return None
-    except Exception as e:
+    except (OSError, subprocess.SubprocessError) as e:
         print(f"Exception running command {cmd}: {e}")
         return None
 
@@ -61,7 +61,7 @@ def search_research(symbol, bars_list, market):
             research = ""
         elif research:
             research = f"[Source: research.txt] {research}"
-    except Exception:
+    except OSError:
         pass
 
     try:
@@ -71,7 +71,7 @@ def search_research(symbol, bars_list, market):
             knowledge = ""
         elif knowledge:
             knowledge = f"[Source: knowledge.txt] {knowledge}"
-    except Exception:
+    except OSError:
         pass
 
     try:
@@ -81,7 +81,7 @@ def search_research(symbol, bars_list, market):
             news = ""
         elif news:
             news = f"[Source: news.txt] {news}"
-    except Exception:
+    except OSError:
         pass
 
     # Fallback/specifics if local files are empty or filtered out

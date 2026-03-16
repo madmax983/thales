@@ -25,17 +25,23 @@ def run_command(args):
     return None
 
 def format_signal(intent):
-    direction = "long" if str(intent.get('side', '')).lower() == "buy" else "short"
-    direction = direction.lower()
+    # Clean up Rust enum string if present (e.g. SignalType::Entry -> Entry)
+    signal_type_raw = intent.get('signal_type', 'Entry')
+    signal_type = signal_type_raw.replace("SignalType::", "")
+    intent['signal_type'] = signal_type
+
+    side_raw = str(intent.get('side', '')).lower()
+    if side_raw == "buy":
+        intent['side'] = "long"
+    elif side_raw == "sell":
+        intent['side'] = "short"
+
+    direction = intent.get('side', 'long')
     strength = intent.get('confidence', 0.0) * 100
     size = intent.get('size_hint', '0')
     sl = intent.get('stop_loss', 'None')
     tp = intent.get('take_profit', 'None')
     reason = intent.get('rationale', 'No reason provided.')
-    signal_type = intent.get('signal_type', 'Entry')
-
-    # Clean up Rust enum string if present (e.g. SignalType::Entry -> Entry)
-    signal_type = signal_type.replace("SignalType::", "")
 
     output = f"- Symbol and direction (long/short): {intent['symbol']} ({direction})\n"
     output += f"- Signal type and strength (0-100%): {signal_type}, Strength: {strength:.1f}%\n"
@@ -153,11 +159,11 @@ def main():
 
                                         tp_pct = sl_pct * 2.0
 
-                                        if side == "buy":
+                                        if side == "buy" or side == "long":
                                             intent["stop_loss"] = last_close * (1.0 - sl_pct)
                                             if not intent.get("take_profit") or intent.get("take_profit") == "None":
                                                 intent["take_profit"] = last_close * (1.0 + tp_pct)
-                                        elif side == "sell":
+                                        elif side == "sell" or side == "short":
                                             intent["stop_loss"] = last_close * (1.0 + sl_pct)
                                             if not intent.get("take_profit") or intent.get("take_profit") == "None":
                                                 intent["take_profit"] = last_close * (1.0 - tp_pct)
@@ -191,10 +197,10 @@ def main():
 
                         # We specifically look for (Overbought) / (Oversold) in the sentiment
                         # To avoid false positives on rationale like "not overbought", we check sentiment primarily.
-                        if side == "buy" and "(overbought)" in sentiment:
+                        if (side == "buy" or side == "long") and "(overbought)" in sentiment:
                             print(f"Skipping long signal for {symbol}: Chasing move (Sentiment is Overbought)")
                             continue
-                        elif side == "sell" and "(oversold)" in sentiment:
+                        elif (side == "sell" or side == "short") and "(oversold)" in sentiment:
                             print(f"Skipping short signal for {symbol}: Chasing move (Sentiment is Oversold)")
                             continue
 
@@ -214,6 +220,15 @@ def main():
             primary_direction = symbol_intents[0].get('side', 'buy')
             # Limit strictly to 3 signals per symbol per day
             filtered_intents = [intent for intent in symbol_intents if intent.get('side', 'buy') == primary_direction][:3]
+            for intent in filtered_intents:
+                intent_side = str(intent.get('side', '')).lower()
+                if intent_side == "buy":
+                    intent['side'] = "long"
+                elif intent_side == "sell":
+                    intent['side'] = "short"
+
+                signal_type_raw = intent.get('signal_type', 'Entry')
+                intent['signal_type'] = signal_type_raw.replace("SignalType::", "")
             all_intents.extend(filtered_intents)
 
         # Cleanup
