@@ -1556,7 +1556,7 @@ def main():
         # Refine Intent (Algo Selection)
         intent = refine_intent(intent, current_price)
 
-        # Risk Agent Check (after algo selection and provider route)
+        # Risk Agent Check (after algo selection and provider routing)
         risk_ok, risk_reason = verify_risk(intent)
         if not risk_ok:
             print(f"Skipping {intent['symbol']}: {risk_reason}")

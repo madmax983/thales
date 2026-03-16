@@ -4210,6 +4210,25 @@
 | 2026-03-16 05:30:16 | BTCUSD | crypto:BTCUSD:sell:1773622999320 | Cross-validation failed: Strategies generated {'buy'} but signal recommended sell. |
 | 2026-03-16 05:30:17 | SPY | equities:SPY:buy:1773606558923 | No active strategy generated a signal (Strategies: BollingerBands, EmaCrossover, RsiMeanReversion, Macd, Supertrend, DonchianBreakout, ParabolicSar, KeltnerChannelBreakout, StochasticOscillator, AdxMomentum, IchimokuCloud, CciMomentum, ChaikinMoneyFlow, ChandelierExit, LinearRegressionTrend, VptTrendFollowing, PpoRsiTrend, ObvTrendFollowing, MoneyFlowIndex, ConnorsRsiMeanReversion, AlmaCrossover, AwesomeOscillator, WilliamsR, VwmaCrossover, VwapReversion, VortexBreakout, RocMomentum, TrixMomentum, AdxMacdTrend, ZScoreMeanReversion, ElderRay, AroonOscillator, StochRsiMeanReversion, MacdRsiTrend, TsiTrend, HmaCrossover, VolumeOscillatorTrend) |
 | 2026-03-16 05:30:17 | ETHUSD | crypto:ETHUSD:buy:1773606558907 | Rejected by Risk Agent: Position size below exchange minimum for ETHUSD (9.339e-05 < 0.001) |
+| 2026-03-16 16:19:21 | BTCUSD | crypto:BTCUSD:sell:1773563491504 | Signal too old (31.8 hours > 24 hours) |
+| 2026-03-16 16:19:21 | ETHUSD | crypto:ETHUSD:buy:1773563491519 | Signal too old (31.8 hours > 24 hours) |
+| 2026-03-16 16:19:21 | SPY | equities:SPY:buy:1773563491532 | Signal too old (31.8 hours > 24 hours) |
+| 2026-03-16 16:19:21 | BTCUSD | crypto:BTCUSD:sell:1773577770062 | Signal too old (27.8 hours > 24 hours) |
+| 2026-03-16 16:19:21 | ETHUSD | crypto:ETHUSD:buy:1773577770100 | Signal too old (27.8 hours > 24 hours) |
+| 2026-03-16 16:19:21 | SPY | equities:SPY:buy:1773577770122 | Signal too old (27.8 hours > 24 hours) |
+| 2026-03-16 16:19:21 | BTCUSD | crypto:BTCUSD:sell:1773577958810 | Signal too old (27.8 hours > 24 hours) |
+| 2026-03-16 16:19:21 | ETHUSD | crypto:ETHUSD:buy:1773577958842 | Signal too old (27.8 hours > 24 hours) |
+| 2026-03-16 16:19:21 | SPY | equities:SPY:buy:1773577958871 | Signal too old (27.8 hours > 24 hours) |
+| 2026-03-16 16:19:21 | BTCUSD | crypto:BTCUSD:sell:1773578063206 | Signal too old (27.7 hours > 24 hours) |
+| 2026-03-16 16:19:21 | ETHUSD | crypto:ETHUSD:buy:1773578063237 | Signal already executed/submitted (Ref: crypto:ETHUSD:buy:1773578063237) |
+| 2026-03-16 16:19:21 | SPY | equities:SPY:buy:1773578063311 | Signal already executed/submitted (Ref: equities:SPY:buy:1773578063311) |
+| 2026-03-16 16:19:21 | ETHUSD | crypto:ETHUSD:buy:1773622924757 | Signal already executed/submitted (Ref: crypto:ETHUSD:buy:1773622924757) |
+| 2026-03-16 16:19:21 | SPY | equities:SPY:buy:1773622924772 | Signal already executed/submitted (Ref: equities:SPY:buy:1773622924772) |
+| 2026-03-16 16:19:21 | ETHUSD | crypto:ETHUSD:buy:1773622999355 | Signal already executed/submitted (Ref: crypto:ETHUSD:buy:1773622999355) |
+| 2026-03-16 16:19:21 | SPY | equities:SPY:buy:1773622999371 | Signal already executed/submitted (Ref: equities:SPY:buy:1773622999371) |
+| 2026-03-16 16:19:22 | BTCUSD | crypto:BTCUSD:sell:1773622999320 | No active strategy generated a signal (Strategies: BollingerBands, EmaCrossover, RsiMeanReversion, Macd, Supertrend, DonchianBreakout, ParabolicSar, KeltnerChannelBreakout, StochasticOscillator, AdxMomentum, IchimokuCloud, CciMomentum, ChaikinMoneyFlow, ChandelierExit, LinearRegressionTrend, VptTrendFollowing, PpoRsiTrend, ObvTrendFollowing, MoneyFlowIndex, ConnorsRsiMeanReversion, AlmaCrossover, AwesomeOscillator, WilliamsR, VwmaCrossover, VwapReversion, VortexBreakout, RocMomentum, TrixMomentum, AdxMacdTrend, ZScoreMeanReversion, ElderRay, AroonOscillator, StochRsiMeanReversion, MacdRsiTrend, TsiTrend, HmaCrossover, VolumeOscillatorTrend) |
+| 2026-03-16 16:19:22 | ETHUSD | crypto:ETHUSD:buy:1773606558907 | Cross-validation failed: Strategies generated {'sell'} but signal recommended buy. |
+| 2026-03-16 16:19:23 | SPY | equities:SPY:buy:1773606558923 | No active strategy generated a signal (Strategies: BollingerBands, EmaCrossover, RsiMeanReversion, Macd, Supertrend, DonchianBreakout, ParabolicSar, KeltnerChannelBreakout, StochasticOscillator, AdxMomentum, IchimokuCloud, CciMomentum, ChaikinMoneyFlow, ChandelierExit, LinearRegressionTrend, VptTrendFollowing, PpoRsiTrend, ObvTrendFollowing, MoneyFlowIndex, ConnorsRsiMeanReversion, AlmaCrossover, AwesomeOscillator, WilliamsR, VwmaCrossover, VwapReversion, VortexBreakout, RocMomentum, TrixMomentum, AdxMacdTrend, ZScoreMeanReversion, ElderRay, AroonOscillator, StochRsiMeanReversion, MacdRsiTrend, TsiTrend, HmaCrossover, VolumeOscillatorTrend) |
 
 ## Executed Trades
 
