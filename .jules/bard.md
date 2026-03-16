@@ -56,3 +56,6 @@
 ## 2024-06-02 - The Silent Indicators
 **Confusion:** The MACD and Williams %R strategies lacked comprehensive documentation, making their configuration parameters confusing and their underlying financial concepts opaque to new users.
 **Clarification:** Added module-level documentation (`//!`) explaining the concepts behind MACD crossovers and Williams %R overbought/oversold levels, and included executable `# Examples` for both strategy configurations and their instantiation.
+## 2024-06-03 - The Silent Reversion
+**Confusion:** The RSI Mean Reversion strategy lacked module and struct-level documentation, leaving users confused about the specific parameters required and how signals were generated using oversold and overbought zones.
+**Clarification:** Added module-level documentation and executable examples (`# Examples`) for `RsiMeanReversionConfig` and `RsiMeanReversion`, detailing the exact crossing logic for oversold and overbought zones, and configuring the ATR trailing stop loss.

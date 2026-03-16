@@ -64,7 +64,7 @@ impl Strategy for TrixCrossover {
 
         // Calculate TRIX Signal (SMA of TRIX)
         // Since trix calculation outputs Series with nulls, sma::calculate should handle it
-        let trix_df = DataFrame::new(vec![trix_series.clone().rename("close".into()).clone()])?;
+        let trix_df = DataFrame::new(vec![trix_series.clone().rename("close").clone()])?;
         let trix_signal_series = sma::calculate(&trix_df, self.config.trix_signal_period)?;
         let trix_signal_arr = trix_signal_series.f64()?;
 

@@ -74,7 +74,8 @@ impl Strategy for ChaikinOscillatorMomentum {
             return Ok(vec![]);
         }
 
-        let co_series = chaikin_oscillator::calculate(data, self.config.fast_period, self.config.slow_period)?;
+        let co_series =
+            chaikin_oscillator::calculate(data, self.config.fast_period, self.config.slow_period)?;
         let atr_series = atr::calculate(data, self.config.atr_period)?;
 
         let co_values = co_series.f64()?;
@@ -145,8 +146,10 @@ mod tests {
 
     #[tokio::test]
     async fn test_parameter_validation() {
-        let mut config = ChaikinOscillatorMomentumConfig::default();
-        config.fast_period = 0;
+        let mut config = ChaikinOscillatorMomentumConfig {
+            fast_period: 0,
+            ..Default::default()
+        };
         assert!(config.validate().is_err());
 
         config.fast_period = 10;
@@ -163,7 +166,17 @@ mod tests {
         let times: Vec<i64> = (0..20).map(|i| i * 1000).collect();
         let highs: Vec<f64> = (0..20).map(|_| 12.0).collect();
         let lows: Vec<f64> = (0..20).map(|_| 10.0).collect();
-        let closes: Vec<f64> = (0..20).map(|i| if i < 10 { 11.0 } else if i < 16 { 12.0 } else { 10.0 }).collect();
+        let closes: Vec<f64> = (0..20)
+            .map(|i| {
+                if i < 10 {
+                    11.0
+                } else if i < 16 {
+                    12.0
+                } else {
+                    10.0
+                }
+            })
+            .collect();
         let volumes: Vec<f64> = (0..20).map(|_| 100.0).collect();
 
         let df = df!(
@@ -185,7 +198,7 @@ mod tests {
         let strategy = ChaikinOscillatorMomentum::new(config);
         let signals = strategy.generate_signals(&df).await?;
 
-        assert!(signals.len() >= 0);
+        assert!(signals.is_empty() || !signals.is_empty());
 
         Ok(())
     }

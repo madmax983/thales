@@ -35,7 +35,9 @@ use strategies::awesome_oscillator::{AwesomeOscillator, AwesomeOscillatorConfig}
 use strategies::bollinger_bands::{BollingerBandsConfig, BollingerBandsMeanReversion};
 use strategies::cci_momentum::{CciMomentum, CciMomentumConfig};
 use strategies::chaikin_money_flow::{ChaikinMoneyFlow, ChaikinMoneyFlowConfig};
-use strategies::chaikin_oscillator_momentum::{ChaikinOscillatorMomentum, ChaikinOscillatorMomentumConfig};
+use strategies::chaikin_oscillator_momentum::{
+    ChaikinOscillatorMomentum, ChaikinOscillatorMomentumConfig,
+};
 use strategies::chandelier_exit::{ChandelierExit, ChandelierExitConfig};
 use strategies::choppiness_index_trend::{ChoppinessIndexTrend, ChoppinessIndexTrendConfig};
 use strategies::cmo_mean_reversion::{CmoMeanReversion, CmoMeanReversionConfig};

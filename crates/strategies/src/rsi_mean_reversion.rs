@@ -1,3 +1,19 @@
+//! 🎻 **The RSI Mean Reversion Strategy**
+//!
+//! A classic tale of mean reversion! When the market gets exhausted from buying or selling,
+//! the Relative Strength Index (RSI) reveals the turning point. This module tells that story
+//! by identifying overbought and oversold conditions and trading against the prevailing short-term trend.
+//!
+//! The `RsiMeanReversion` strategy calculates the RSI indicator. It enters trades when the price
+//! dips below the oversold threshold and exits when it crosses above the overbought threshold.
+//!
+//! # The Strategy
+//! - **Go Long**: When the RSI dips *below* the oversold threshold.
+//! - **Exit**: When the RSI peaks *above* the overbought threshold.
+//!
+//! It incorporates an Average True Range (ATR) based trailing stop loss
+//! to protect profits and limits downside risk.
+
 use crate::indicators::{atr, rsi, sma};
 use crate::strategy::{Signal, SignalType, Strategy, StrategyConfig, StrategyType};
 use anyhow::Result;
@@ -7,24 +23,81 @@ use rust_decimal::prelude::ToPrimitive;
 use rust_decimal::Decimal;
 use serde::{Deserialize, Serialize};
 
+/// 🎻 **RSI Mean Reversion Configuration**
+///
+/// The magical parameters that define our RSI boundaries of support and resistance.
+/// By tuning these, you control how tightly the thresholds hug the RSI action.
+///
+/// # Examples
+///
+/// ```rust
+/// use strategies::rsi_mean_reversion::RsiMeanReversionConfig;
+///
+/// let config = RsiMeanReversionConfig {
+///     period: 14,               // The classic 14-period RSI
+///     oversold_threshold: 30.0, // Buying zone
+///     overbought_threshold: 70.0, // Selling zone
+///     stop_loss_pct: 0.05,      // A 5% safety net fallback
+///     atr_period: 14,           // ATR period for stop loss
+///     atr_mult: 2.0,            // ATR multiplier for stop loss
+///     symbol: "BTCUSD".into(),  // The asset we trade
+/// };
+/// ```
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct RsiMeanReversionConfig {
+    /// The number of periods for the Relative Strength Index (RSI).
     pub period: usize,
+    /// The threshold below which the asset is considered oversold (e.g., 30.0).
     pub oversold_threshold: f64,
+    /// The threshold above which the asset is considered overbought (e.g., 70.0).
     pub overbought_threshold: f64,
-    pub stop_loss_pct: f64, // Keep as fallback
+    /// The percentage drop to trigger a stop loss (e.g., `0.05` for 5%) as a fallback.
+    pub stop_loss_pct: f64,
+    /// The number of periods for the Average True Range (ATR).
     pub atr_period: usize,
+    /// The multiplier applied to the ATR to calculate the trailing stop loss distance.
     pub atr_mult: f64,
+    /// The specific market symbol to generate signals for.
     pub symbol: String,
 }
 
 impl StrategyConfig for RsiMeanReversionConfig {}
 
+/// 🎻 **The Mean Reversion Oracle**
+///
+/// This strategy watches the [`RsiMeanReversionConfig`] boundaries. When the market
+/// is oversold (RSI below the oversold threshold) it whispers "buy". When the market is overbought
+/// (RSI above the overbought threshold) it cautions "sell".
+///
+/// It implements the `Strategy` trait, allowing it to generate standard `Signal`s
+/// from a Polars `DataFrame`.
+///
+/// # Examples
+///
+/// ```rust
+/// use strategies::rsi_mean_reversion::{RsiMeanReversion, RsiMeanReversionConfig};
+/// use strategies::strategy::Strategy;
+///
+/// let config = RsiMeanReversionConfig {
+///     period: 14,
+///     oversold_threshold: 30.0,
+///     overbought_threshold: 70.0,
+///     stop_loss_pct: 0.05,
+///     atr_period: 14,
+///     atr_mult: 2.0,
+///     symbol: "BTCUSD".into(),
+/// };
+///
+/// let strategy = RsiMeanReversion::new(config);
+/// assert_eq!(strategy.name(), "RsiMeanReversion");
+/// ```
+#[doc(alias = "RSIReversion")]
 pub struct RsiMeanReversion {
     config: RsiMeanReversionConfig,
 }
 
 impl RsiMeanReversion {
+    /// Creates a new `RsiMeanReversion` strategy instance with the given configuration.
     pub fn new(config: RsiMeanReversionConfig) -> Self {
         Self { config }
     }

@@ -1,7 +1,7 @@
 //! Chaikin Oscillator - Measures the momentum of the Accumulation/Distribution Line using the MACD formula.
 
-use super::ema;
 use super::adl;
+use super::ema;
 use anyhow::{Context, Result};
 use polars::prelude::*;
 use rust_decimal::prelude::*;
@@ -34,11 +34,7 @@ use rust_decimal::prelude::*;
 ///     Ok(())
 /// }
 /// ```
-pub fn calculate(
-    data: &DataFrame,
-    fast_period: usize,
-    slow_period: usize,
-) -> Result<Series> {
+pub fn calculate(data: &DataFrame, fast_period: usize, slow_period: usize) -> Result<Series> {
     // Validate inputs
     if data.height() == 0 {
         anyhow::bail!("Data cannot be empty");
@@ -55,10 +51,10 @@ pub fn calculate(
     adl_df.rename("adl", "close")?;
 
     // Step 2: Calculate Fast and Slow EMAs of ADL
-    let fast_ema_series = ema::calculate(&adl_df, fast_period)
-        .context("Failed to calculate Fast EMA of ADL")?;
-    let slow_ema_series = ema::calculate(&adl_df, slow_period)
-        .context("Failed to calculate Slow EMA of ADL")?;
+    let fast_ema_series =
+        ema::calculate(&adl_df, fast_period).context("Failed to calculate Fast EMA of ADL")?;
+    let slow_ema_series =
+        ema::calculate(&adl_df, slow_period).context("Failed to calculate Slow EMA of ADL")?;
 
     let fast_ema = fast_ema_series.f64()?;
     let slow_ema = slow_ema_series.f64()?;
