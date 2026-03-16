@@ -70,7 +70,7 @@ impl Strategy for AdlMomentum {
 
         // Rename ADL series to "close" to pass it to standard indicators like EMA
         let mut adl_df = DataFrame::new(vec![adl_series.clone()])?;
-        adl_df.rename("adl", "close".into())?;
+        adl_df.rename("adl", "close")?;
 
         // Calculate EMA of ADL
         let adl_ema_series = ema::calculate(&adl_df, self.config.adl_sma_period)?;
@@ -98,13 +98,7 @@ impl Strategy for AdlMomentum {
 
             let atr_opt = atr_arr.get(i).and_then(Decimal::from_f64_retain);
 
-            if let (
-                Some(price),
-                Some(adl_curr),
-                Some(adl_prev),
-                Some(ema_curr),
-                Some(ema_prev),
-            ) = (
+            if let (Some(price), Some(adl_curr), Some(adl_prev), Some(ema_curr), Some(ema_prev)) = (
                 price_opt,
                 adl_curr_opt,
                 adl_prev_opt,

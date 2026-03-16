@@ -111,23 +111,21 @@ pub fn analyze_renko(series: &BarSeries, config: RenkoConfig) -> Result<RenkoRep
             let is_up = diff > 0.0;
 
             // Handle reversal requirement (price must move 2x brick size in opposite direction)
-            if let Some(last_up) = last_brick_is_up {
-                if is_up != last_up {
-                    // It's a reversal. The first "brick size" of movement just covers the body of the previous brick.
-                    // We only form actual reversal bricks if the movement is >= 2x brick size.
-                    if num_bricks >= 2 {
-                        // The first 'brick_size' movement cancels out the previous brick's body to start the reversal.
-                        num_bricks -= 1;
-                        // The reference price effectively shifts to the *open* of the previous brick before stepping.
-                        if is_up {
-                            current_reference_price += config.brick_size;
-                        } else {
-                            current_reference_price -= config.brick_size;
-                        }
+            if last_brick_is_up.is_some() && is_up != last_brick_is_up.unwrap() {
+                // It's a reversal. The first "brick size" of movement just covers the body of the previous brick.
+                // We only form actual reversal bricks if the movement is >= 2x brick size.
+                if num_bricks >= 2 {
+                    // The first 'brick_size' movement cancels out the previous brick's body to start the reversal.
+                    num_bricks -= 1;
+                    // The reference price effectively shifts to the *open* of the previous brick before stepping.
+                    if is_up {
+                        current_reference_price += config.brick_size;
                     } else {
-                        // Not enough movement for a reversal brick
-                        continue;
+                        current_reference_price -= config.brick_size;
                     }
+                } else {
+                    // Not enough movement for a reversal brick
+                    continue;
                 }
             }
 
