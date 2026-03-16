@@ -1091,7 +1091,7 @@ def adjust_sell_size_to_sellable_balance(intent):
     )
     return True, "Size adjusted to available sellable balance"
 
-def verify_risk(intent):
+def verify_risk(intent, current_price=None):
     """
     Risk Agent logic to verify trade intent before execution.
     Returns (bool, reason).
@@ -1127,9 +1127,15 @@ def verify_risk(intent):
                 "BTCUSD": 0.0001,
                 "ETHUSD": 0.001,
             }
-            if intent.get("provider") == "kraken" and symbol in min_sizes:
-                if size < min_sizes[symbol]:
+            if intent.get("provider") == "kraken":
+                if symbol in min_sizes and size < min_sizes[symbol]:
                     return False, f"Position size below exchange minimum for {symbol} ({size} < {min_sizes[symbol]})"
+
+                if current_price and current_price > 0:
+                    order_value = size * current_price
+                    # General safety check, volume should be at least ~5 USD.
+                    if order_value < 5.0:
+                        return False, f"Order value below exchange minimum 5.0 USD (Volume: {order_value:.2f})"
         except ValueError:
             return False, f"Invalid size format: {size_hint}"
 
@@ -1547,7 +1553,7 @@ def main():
             continue
 
         # Risk Agent Check
-        risk_ok, risk_reason = verify_risk(intent)
+        risk_ok, risk_reason = verify_risk(intent, current_price)
         if not risk_ok:
             print(f"Skipping {intent['symbol']}: {risk_reason}")
             log_skipped(intent, f"Rejected by Risk Agent: {risk_reason}")
