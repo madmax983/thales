@@ -958,3 +958,38 @@ let chop_series = choppiness_index::calculate(&df, period)?;
 - Returns `Result<Series>`.
 - The output Series is named "choppiness_index".
 - The first `period - 1` values will be null.
+
+## Ultimate Oscillator (UO)
+
+**Name:** UO
+**Description:** Calculates the Ultimate Oscillator, a momentum oscillator that uses three different timeframes to reduce volatility and false signals.
+**Rationale:** Standard momentum oscillators often suffer from premature overbought/oversold signals in strong trends. The Ultimate Oscillator attempts to correct this by combining short, medium, and long-term price action, placing heavier weight on the shorter timeframes while still incorporating the broader trend context.
+
+### Implementation Details
+- Uses `rust_decimal::Decimal` iteratively for all math calculations to ensure financial precision, explicitly converting from and to `f64` only for Polars boundaries.
+- Employs an efficient O(N) sliding window sum helper to avoid nested loops for True Range and Buying Pressure summations over the three distinct periods.
+- Returns a Polars `Series` of `f64` values (computed internally via Decimal).
+
+### Usage
+
+```rust
+use strategies::indicators::ultimate_oscillator;
+use polars::prelude::*;
+
+// Assuming df is a DataFrame with "high", "low", and "close" columns
+let period1 = 7;
+let period2 = 14;
+let period3 = 28;
+let uo_series = ultimate_oscillator::calculate(&df, period1, period2, period3)?;
+```
+
+### Parameters
+- `data`: Reference to a Polars `DataFrame`. Must contain numeric "high", "low", and "close" columns.
+- `period1`: Short timeframe period (typically 7).
+- `period2`: Medium timeframe period (typically 14).
+- `period3`: Long timeframe period (typically 28).
+
+### Output
+- Returns `Result<Series>`.
+- The output Series is named "ultimate_oscillator".
+- The first `max(period1, period2, period3)` values will be null.

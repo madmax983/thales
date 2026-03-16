@@ -38,9 +38,15 @@ pub fn calculate(data: &DataFrame, period: usize) -> Result<Series> {
         anyhow::bail!("Period must be at least 2");
     }
 
-    let high = data.column("high").context("Missing 'high' column")?.f64()?;
+    let high = data
+        .column("high")
+        .context("Missing 'high' column")?
+        .f64()?;
     let low = data.column("low").context("Missing 'low' column")?.f64()?;
-    let close = data.column("close").context("Missing 'close' column")?.f64()?;
+    let close = data
+        .column("close")
+        .context("Missing 'close' column")?
+        .f64()?;
 
     // Ensure data validity
     if high.null_count() > 0 || low.null_count() > 0 || close.null_count() > 0 {
@@ -77,7 +83,8 @@ pub fn calculate(data: &DataFrame, period: usize) -> Result<Series> {
             tr_values.push(h - l);
         } else {
             let prev_c_f64 = close.get(i - 1).context("Failed to get previous close")?;
-            let prev_c = Decimal::from_f64_retain(prev_c_f64).context("Failed to convert prev close to Decimal")?;
+            let prev_c = Decimal::from_f64_retain(prev_c_f64)
+                .context("Failed to convert prev close to Decimal")?;
             let tr1 = h - l;
             let tr2 = (h - prev_c).abs();
             let tr3 = (l - prev_c).abs();
@@ -111,8 +118,12 @@ pub fn calculate(data: &DataFrame, period: usize) -> Result<Series> {
         for j in (i + 1 - period)..=i {
             let h = high_decimals[j];
             let l = low_decimals[j];
-            if h > max_h { max_h = h; }
-            if l < min_l { min_l = l; }
+            if h > max_h {
+                max_h = h;
+            }
+            if l < min_l {
+                min_l = l;
+            }
         }
 
         let range = max_h - min_l;

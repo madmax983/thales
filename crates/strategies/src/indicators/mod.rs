@@ -35,6 +35,7 @@ pub mod supertrend;
 pub mod tema;
 pub mod trix;
 pub mod tsi;
+pub mod ultimate_oscillator;
 pub mod volume_oscillator;
 pub mod vortex;
 pub mod vpt;

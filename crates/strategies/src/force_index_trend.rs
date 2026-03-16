@@ -96,14 +96,13 @@ impl Strategy for ForceIndexTrend {
 
             let atr_opt = atr_arr.get(i);
 
-            if let (
-                Some(fi_ema_c),
-                Some(fi_ema_p),
-                Some(price),
-                Some(price_ema_c),
-                Some(atr_val),
-            ) = (fi_ema_curr, fi_ema_prev, price_curr, price_ema_curr_val, atr_opt)
-            {
+            if let (Some(fi_ema_c), Some(fi_ema_p), Some(price), Some(price_ema_c), Some(atr_val)) = (
+                fi_ema_curr,
+                fi_ema_prev,
+                price_curr,
+                price_ema_curr_val,
+                atr_opt,
+            ) {
                 let price_dec = Decimal::from_f64_retain(price).unwrap_or(Decimal::ZERO);
                 let atr_dec = Decimal::from_f64_retain(atr_val).unwrap_or(Decimal::ZERO);
 
@@ -198,8 +197,8 @@ mod tests {
     #[tokio::test]
     async fn test_force_index_signals() -> Result<()> {
         let config = ForceIndexTrendConfig {
-            fi_period: 1,       // raw FI
-            fi_ema_period: 2,   // SMA of FI
+            fi_period: 1,     // raw FI
+            fi_ema_period: 2, // SMA of FI
             price_ema_period: 2,
             stop_loss_atr_mult: 2.0,
             atr_period: 2,
