@@ -29,8 +29,17 @@ def format_signal(intent):
     direction = direction.lower()
     strength = intent.get('confidence', 0.0) * 100
     size = intent.get('size_hint', '0')
-    sl = intent.get('stop_loss', 'None')
-    tp = intent.get('take_profit', 'None')
+
+    def format_price(val):
+        if val in [None, 'None', '-']:
+            return 'None'
+        try:
+            return f"{float(val):.4f}".rstrip('0').rstrip('.') if '.' in f"{float(val):.4f}" else f"{float(val):.4f}"
+        except (ValueError, TypeError):
+            return str(val)
+
+    sl = format_price(intent.get('stop_loss', 'None'))
+    tp = format_price(intent.get('take_profit', 'None'))
     reason = intent.get('rationale', 'No reason provided.')
     signal_type = intent.get('signal_type', 'Entry')
 
