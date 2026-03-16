@@ -161,8 +161,6 @@ def get_active_strategies():
         strategies.append("CciMomentum")
     if "ChaikinMoneyFlow" in content:
         strategies.append("ChaikinMoneyFlow")
-    if "ChaikinOscillatorMomentum" in content:
-        strategies.append("ChaikinOscillatorMomentum")
     if "ChandelierExit" in content:
         strategies.append("ChandelierExit")
     if "LinearRegressionTrend" in content:
@@ -1537,6 +1535,10 @@ def main():
         # Fetch latest price for execution logic
         current_price = get_latest_price(intent["provider"], intent["symbol"])
 
+        # Route equities to kraken during execution as per user intent
+        if intent.get("market") == "equities" and intent.get("provider") == "alpaca":
+             intent["provider"] = "kraken"
+
         # Cap buy size to available account funds before execution.
         size_ok, size_reason = adjust_buy_size_to_buying_power(intent, current_price)
         if not size_ok:
@@ -1581,10 +1583,6 @@ def main():
                 print("Skipping execution: Cannot determine safe stop loss without current price.")
                 log_skipped(intent, "Missing stop loss and current price unavailable")
                 continue
-
-        # Route equities to kraken during execution as per user intent
-        if intent.get("market") == "equities" and intent.get("provider") == "alpaca":
-             intent["provider"] = "kraken"
 
         provider = intent["provider"]
         print(f"Executing {intent['side']} {intent['symbol']} via {provider}...")
