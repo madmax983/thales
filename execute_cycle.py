@@ -1553,15 +1553,15 @@ def main():
             log_skipped(intent, sell_reason)
             continue
 
-        # Risk Agent Check
+        # Refine Intent (Algo Selection)
+        intent = refine_intent(intent, current_price)
+
+        # Risk Agent Check (after algo selection and provider route)
         risk_ok, risk_reason = verify_risk(intent)
         if not risk_ok:
             print(f"Skipping {intent['symbol']}: {risk_reason}")
             log_skipped(intent, f"Rejected by Risk Agent: {risk_reason}")
             continue
-
-        # Refine Intent (Algo Selection)
-        intent = refine_intent(intent, current_price)
         print(f"Order Type: {intent['order_type'].upper()}")
         if intent.get("execution_algo"):
             print(f"Algorithm: {intent['execution_algo']}")
@@ -1599,7 +1599,7 @@ def main():
         if not result and provider == "kraken" and intent.get("market") == "crypto":
             last_err = getattr(run_command, "last_error", "") or ""
             last_err_lower = last_err.lower()
-            if "insufficient funds" in last_err_lower or "invalid volume" in last_err_lower or "volume minimum" in last_err_lower:
+            if "eorder:insufficient funds" in last_err_lower or "insufficient funds" in last_err_lower or "invalid volume" in last_err_lower or "volume minimum" in last_err_lower:
                 print(f"Kraken execution failed ({last_err}), falling back to paper execution...")
                 intent["provider"] = "paper"
                 provider = "paper"
