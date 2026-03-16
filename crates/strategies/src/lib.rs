@@ -23,6 +23,7 @@
 //! - [`cmo_mean_reversion::CmoMeanReversion`] - Mean reversion strategy using Chande Momentum Oscillator.
 //! - [`sma_crossover::SmaCrossover`] - Trend following using SMA crossovers.
 
+pub mod adl_momentum;
 pub mod adx_macd_trend;
 pub mod adx_momentum;
 pub mod alma_crossover;

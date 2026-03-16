@@ -26,6 +26,7 @@
 //! ```
 
 use anyhow::Result;
+use strategies::adl_momentum::{AdlMomentum, AdlMomentumConfig};
 use strategies::adx_macd_trend::{AdxMacdTrend, AdxMacdTrendConfig};
 use strategies::adx_momentum::{AdxMomentum, AdxMomentumConfig};
 use strategies::alma_crossover::{AlmaCrossover, AlmaCrossoverConfig};
@@ -567,6 +568,15 @@ pub fn create_strategy(name: &str, symbol: &str) -> Result<Box<dyn Strategy>> {
             };
             Ok(Box::new(ZScoreMeanReversion::new(config)))
         }
+        "AdlMomentum" => {
+            let config = AdlMomentumConfig {
+                adl_sma_period: 14,
+                stop_loss_atr_mult: 2.0,
+                atr_period: 14,
+                symbol: symbol.to_string(),
+            };
+            Ok(Box::new(AdlMomentum::new(config)))
+        }
         "BollingerRsiMeanReversion" => {
             use strategies::bollinger_rsi::{BollingerRsiConfig, BollingerRsiMeanReversion};
             let config = BollingerRsiConfig {
@@ -666,6 +676,7 @@ pub fn create_strategy(name: &str, symbol: &str) -> Result<Box<dyn Strategy>> {
 /// This list powers the CLI auto-completion, benchmark suites, and agent scanning.
 pub fn list_strategies() -> Vec<&'static str> {
     vec![
+        "AdlMomentum",
         "KamaCrossover",
         "AlmaCrossover",
         "AdxMacdTrend",

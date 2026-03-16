@@ -3222,3 +3222,29 @@ Momentum
 
 ### Position Sizing
 - **Size Hint:** "100" for entry, "max" for exit.
+
+## AdlMomentum
+
+### Strategy Specification
+
+**Name:** AdlMomentum
+
+**Description:** Momentum strategy based on the Accumulation/Distribution Line (ADL). It uses an EMA of the ADL to determine momentum and trend direction.
+
+**Rationale:** The ADL tracks money flow by considering both price and volume. When the ADL crosses above its EMA, it indicates positive momentum and accumulation. When it crosses below, it indicates distribution and negative momentum.
+
+### Requirements
+
+#### Strategy Type
+Momentum
+
+#### Entry Conditions
+- Enter Long when ADL crosses ABOVE its EMA (`adl_sma_period`).
+
+#### Exit Conditions
+- Exit Long when ADL crosses BELOW its EMA (`adl_sma_period`).
+
+#### Position Sizing
+- Base sizing is configured per intent.
+- `size_hint` is set to `100` on entry and `max` on exit.
+- Includes a dynamic stop-loss based on Average True Range (`stop_loss_atr_mult`).
