@@ -548,6 +548,13 @@ def scan_markets():
 
 def evaluate_candidate(candidate, strategies, portfolio_path=None):
     """Fetches data and generates signals for a candidate using all active strategies."""
+    # Ensure proper provider routing for data fetching
+    if os.environ.get("SIMULATION") != "true":
+        if candidate.get("market") == "equities":
+            candidate["provider"] = "alpaca"
+        elif candidate.get("market") == "crypto":
+            candidate["provider"] = "kraken"
+
     provider = candidate["provider"]
     symbol = candidate["symbol"]
 
@@ -1528,6 +1535,13 @@ def main():
         print(f"Take Profit: {intent.get('take_profit', 'None')}")
         print(f"Reasoning: {intent.get('rationale', 'None')}")
         print("------------------\n")
+
+        # Route equities to Alpaca correctly, and crypto to Kraken
+        if os.environ.get("SIMULATION") != "true":
+            if intent.get("market") == "equities":
+                intent["provider"] = "alpaca"
+            elif intent.get("market") == "crypto":
+                intent["provider"] = "kraken"
 
         # Fetch latest price for execution logic
         current_price = get_latest_price(intent["provider"], intent["symbol"])
