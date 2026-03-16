@@ -1546,7 +1546,7 @@ def main():
             log_skipped(intent, sell_reason)
             continue
 
-        # Risk Agent Check
+        # Risk Agent Check MUST happen AFTER size adjustments
         risk_ok, risk_reason = verify_risk(intent)
         if not risk_ok:
             print(f"Skipping {intent['symbol']}: {risk_reason}")
@@ -1560,7 +1560,8 @@ def main():
             print(f"Algorithm: {intent['execution_algo']}")
 
         # Ensure we always pass a stop loss, according to agent rules "Always set stop losses when available"
-        if not intent.get("stop_loss"):
+        sl = intent.get("stop_loss")
+        if sl is None or str(sl).strip().lower() == "none" or str(sl).strip() == "-":
             print("Warning: Missing stop loss, adding safety default stop loss")
             # If no stop loss was provided by the strategy but we are going to trade,
             # risk management must apply. Let's apply a naive 5% safety buffer.
