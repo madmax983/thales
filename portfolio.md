@@ -4240,6 +4240,22 @@
 | 2026-03-16 11:08:47 | BTCUSD | crypto:BTCUSD:sell:1773650025863 | No active strategy generated a signal (Strategies: BollingerBands, EmaCrossover, RsiMeanReversion, Macd, Supertrend, DonchianBreakout, ParabolicSar, KeltnerChannelBreakout, StochasticOscillator, AdxMomentum, IchimokuCloud, CciMomentum, ChaikinMoneyFlow, ChandelierExit, LinearRegressionTrend, VptTrendFollowing, PpoRsiTrend, ObvTrendFollowing, MoneyFlowIndex, ConnorsRsiMeanReversion, AlmaCrossover, AwesomeOscillator, WilliamsR, VwmaCrossover, VwapReversion, VortexBreakout, RocMomentum, TrixMomentum, AdxMacdTrend, ZScoreMeanReversion, ElderRay, AroonOscillator, StochRsiMeanReversion, MacdRsiTrend, TsiTrend, HmaCrossover, VolumeOscillatorTrend) |
 | 2026-03-16 11:08:48 | SPY | equities:SPY:buy:1773650025896 | No active strategy generated a signal (Strategies: BollingerBands, EmaCrossover, RsiMeanReversion, Macd, Supertrend, DonchianBreakout, ParabolicSar, KeltnerChannelBreakout, StochasticOscillator, AdxMomentum, IchimokuCloud, CciMomentum, ChaikinMoneyFlow, ChandelierExit, LinearRegressionTrend, VptTrendFollowing, PpoRsiTrend, ObvTrendFollowing, MoneyFlowIndex, ConnorsRsiMeanReversion, AlmaCrossover, AwesomeOscillator, WilliamsR, VwmaCrossover, VwapReversion, VortexBreakout, RocMomentum, TrixMomentum, AdxMacdTrend, ZScoreMeanReversion, ElderRay, AroonOscillator, StochRsiMeanReversion, MacdRsiTrend, TsiTrend, HmaCrossover, VolumeOscillatorTrend) |
 | 2026-03-16 11:08:48 | ETHUSD | crypto:ETHUSD:buy:1773650025881 | Rejected by Risk Agent: Position size below exchange minimum for ETHUSD (9.307e-05 < 0.001) |
+| 2026-03-16 12:39:11 | BTCUSD | crypto:BTCUSD:sell:1773577770062 | Signal too old (24.2 hours > 24 hours) |
+| 2026-03-16 12:39:11 | ETHUSD | crypto:ETHUSD:buy:1773577770100 | Signal too old (24.2 hours > 24 hours) |
+| 2026-03-16 12:39:11 | SPY | equities:SPY:buy:1773577770122 | Signal too old (24.2 hours > 24 hours) |
+| 2026-03-16 12:39:11 | BTCUSD | crypto:BTCUSD:sell:1773577958810 | Signal too old (24.1 hours > 24 hours) |
+| 2026-03-16 12:39:11 | ETHUSD | crypto:ETHUSD:buy:1773577958842 | Signal too old (24.1 hours > 24 hours) |
+| 2026-03-16 12:39:11 | SPY | equities:SPY:buy:1773577958871 | Signal too old (24.1 hours > 24 hours) |
+| 2026-03-16 12:39:11 | BTCUSD | crypto:BTCUSD:sell:1773578063206 | Signal too old (24.1 hours > 24 hours) |
+| 2026-03-16 12:39:11 | ETHUSD | crypto:ETHUSD:buy:1773578063237 | Signal already executed/submitted (Ref: crypto:ETHUSD:buy:1773578063237) |
+| 2026-03-16 12:39:11 | SPY | equities:SPY:buy:1773578063311 | Signal already executed/submitted (Ref: equities:SPY:buy:1773578063311) |
+| 2026-03-16 12:39:11 | ETHUSD | crypto:ETHUSD:buy:1773622924757 | Signal already executed/submitted (Ref: crypto:ETHUSD:buy:1773622924757) |
+| 2026-03-16 12:39:11 | SPY | equities:SPY:buy:1773622924772 | Signal already executed/submitted (Ref: equities:SPY:buy:1773622924772) |
+| 2026-03-16 12:39:11 | ETHUSD | crypto:ETHUSD:buy:1773622999355 | Signal already executed/submitted (Ref: crypto:ETHUSD:buy:1773622999355) |
+| 2026-03-16 12:39:11 | SPY | equities:SPY:buy:1773622999371 | Signal already executed/submitted (Ref: equities:SPY:buy:1773622999371) |
+| 2026-03-16 12:39:12 | BTCUSD | crypto:BTCUSD:sell:1773650025863 | Cross-validation failed: Strategies generated {'buy'} but signal recommended sell. |
+| 2026-03-16 12:39:12 | SPY | equities:SPY:buy:1773650025896 | Cross-validation failed: Strategies generated {'sell'} but signal recommended buy. |
+| 2026-03-16 12:39:13 | ETHUSD | crypto:ETHUSD:buy:1773650025881 | Rejected by Risk Agent: Position size below exchange minimum for ETHUSD (9.262e-05 < 0.001) |
 
 ## Executed Trades
 
