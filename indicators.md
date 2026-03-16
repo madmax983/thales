@@ -958,3 +958,25 @@ let chop_series = choppiness_index::calculate(&df, period)?;
 - Returns `Result<Series>`.
 - The output Series is named "choppiness_index".
 - The first `period - 1` values will be null.
+
+## Know Sure Thing (KST)
+
+**Name:** KST
+**Description:** Calculates the Know Sure Thing (KST) oscillator developed by Martin Pring. It is based on the smoothed rate of change (ROC) for four different timeframes.
+**Rationale:** Momentum oscillator used to identify major cycle turns by calculating a weighted sum of four smoothed rates of change.
+
+### Implementation Details
+- Uses `rust_decimal::Decimal` for all internal calculations to ensure precision.
+- Returns a Polars `Series` of `f64` values (computed internally via Decimal) for compatibility with other analysis tools.
+- Complex momentum oscillator requiring multiple input parameters.
+
+### Usage
+
+```rust
+use strategies::indicators::kst;
+use polars::prelude::*;
+
+// Requires 8 parameters: 4 ROC periods and 4 SMA periods
+// Standard Pring short periods: r1=10, r2=15, r3=20, r4=30, s1=10, s2=10, s3=10, s4=15
+let kst_series = kst::calculate(&df, 10, 15, 20, 30, 10, 10, 10, 15).unwrap();
+```
