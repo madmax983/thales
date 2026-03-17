@@ -992,3 +992,38 @@ let chaikin_series = chaikin_oscillator::calculate(&df, fast_period, slow_period
 - Returns `Result<Series>`.
 - The output Series is named "chaikin_oscillator".
 - Initial values will be null until the slow EMA has enough data points to compute.
+
+## Ultimate Oscillator (UO)
+
+**Name:** UO
+**Description:** Calculates the Ultimate Oscillator, a momentum indicator designed by Larry Williams. It measures buying pressure across three different timeframes to reduce false divergence signals.
+**Rationale:** It improves upon traditional oscillators by combining three different time periods (typically 7, 14, and 28). This helps to avoid the early divergence signals that often plague single-period oscillators. Readings below 30 denote oversold conditions, and readings above 70 denote overbought conditions.
+
+### Implementation Details
+- Uses `rust_decimal::Decimal` iteratively for all math calculations to ensure financial precision, explicitly converting from and to `f64` only for Polars boundaries.
+- True Range and Buying Pressure are calculated. Null/missing values are properly propagated without corrupting calculations.
+- Returns a Polars `Series` of `f64` values (computed internally via Decimal).
+
+### Usage
+
+```rust
+use strategies::indicators::ultimate_oscillator;
+use polars::prelude::*;
+
+// Assuming df is a DataFrame with "high", "low", and "close" columns
+let period1 = 7;
+let period2 = 14;
+let period3 = 28;
+let uo_series = ultimate_oscillator::calculate(&df, period1, period2, period3)?;
+```
+
+### Parameters
+- `data`: Reference to a Polars `DataFrame`. Must contain numeric "high", "low", and "close" columns.
+- `period1`: Short lookback period (typically 7).
+- `period2`: Medium lookback period (typically 14).
+- `period3`: Long lookback period (typically 28). `period1 < period2 < period3` must hold true.
+
+### Output
+- Returns `Result<Series>`.
+- The output Series is named "ultimate_oscillator".
+- Initial values up to `period3` will be null until enough data is gathered.
