@@ -1543,9 +1543,13 @@ def main():
         print(f"Reasoning: {intent.get('rationale', 'None')}")
         print("------------------\n")
 
-        # Route both crypto and equities to Kraken as per direct API access
+        # Route equities to Alpaca and crypto to Kraken
         if os.environ.get("SIMULATION") != "true":
-            intent["provider"] = "kraken"
+            market = intent.get("market", "")
+            if market == "equities":
+                intent["provider"] = "alpaca"
+            else:
+                intent["provider"] = "kraken"
 
         # Fetch latest price for execution logic
         current_price = get_latest_price(intent["provider"], intent["symbol"])
