@@ -59,3 +59,7 @@
 ## 2024-06-03 - The Silent Reversion
 **Confusion:** The RSI Mean Reversion strategy lacked module and struct-level documentation, leaving users confused about the specific parameters required and how signals were generated using oversold and overbought zones.
 **Clarification:** Added module-level documentation and executable examples (`# Examples`) for `RsiMeanReversionConfig` and `RsiMeanReversion`, detailing the exact crossing logic for oversold and overbought zones, and configuring the ATR trailing stop loss.
+
+## 2024-06-04 - The Silent KAMA
+**Confusion:** The Kaufman's Adaptive Moving Average (KAMA) Crossover strategy lacked any module-level or struct-level documentation, making it difficult to understand its parameters or how it adjusts its smoothing constant based on market volatility to prevent whipsaws.
+**Clarification:** Added module-level (`//!`) and struct-level documentation for `KamaCrossoverConfig` and `KamaCrossover`, explaining the crossover logic and including an executable `# Examples` JSON deserialization snippet.

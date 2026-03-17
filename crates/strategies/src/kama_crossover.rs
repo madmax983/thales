@@ -1,3 +1,19 @@
+//! # Kaufman's Adaptive Moving Average (KAMA) Crossover Strategy
+//!
+//! This module implements a trend-following strategy based on the crossover of two Kaufman's
+//! Adaptive Moving Averages (KAMA): a "short" (fast) KAMA and a "long" (slow) KAMA.
+//!
+//! Unlike traditional Simple Moving Averages (SMA) or Exponential Moving Averages (EMA),
+//! KAMA adjusts its smoothing constant based on market volatility. It becomes less responsive
+//! during periods of high "noise" (choppy sideways markets) to avoid false signals, and more
+//! responsive during clear, directional trends.
+//!
+//! ## Signal Logic
+//! - **Bullish Crossover (Entry Long):** The short KAMA crosses *above* the long KAMA, suggesting
+//!   a new upward trend is forming. A dynamic stop-loss is set using the Average True Range (ATR).
+//! - **Bearish Crossover (Exit Long):** The short KAMA crosses *below* the long KAMA, suggesting
+//!   the upward trend has broken down.
+
 use crate::indicators::{atr, kama};
 use crate::strategy::{Signal, SignalType, Strategy, StrategyConfig, StrategyType};
 use anyhow::{bail, Result};
@@ -7,16 +23,50 @@ use rust_decimal::prelude::ToPrimitive;
 use rust_decimal::Decimal;
 use serde::{Deserialize, Serialize};
 
+/// Configuration for the [`KamaCrossover`] strategy.
+///
+/// This struct defines the lookback periods and scaling factors required to construct both
+/// the short and long KAMA indicators, as well as the dynamic ATR-based stop-loss.
+///
+/// # Examples
+/// ```
+/// use strategies::kama_crossover::KamaCrossoverConfig;
+///
+/// let json = r#"{
+///     "short_period": 10,
+///     "long_period": 30,
+///     "short_fast_ema_period": 2,
+///     "short_slow_ema_period": 30,
+///     "long_fast_ema_period": 2,
+///     "long_slow_ema_period": 30,
+///     "stop_loss_atr_mult": 2.0,
+///     "atr_period": 14,
+///     "symbol": "BTCUSD"
+/// }"#;
+///
+/// let config: KamaCrossoverConfig = serde_json::from_str(json).unwrap();
+/// assert_eq!(config.short_period, 10);
+/// assert_eq!(config.symbol, "BTCUSD");
+/// ```
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct KamaCrossoverConfig {
+    /// The lookback period for the Efficiency Ratio (ER) of the short KAMA.
     pub short_period: usize,
+    /// The lookback period for the Efficiency Ratio (ER) of the long KAMA.
     pub long_period: usize,
+    /// The fast EMA constant for the short KAMA.
     pub short_fast_ema_period: usize,
+    /// The slow EMA constant for the short KAMA.
     pub short_slow_ema_period: usize,
+    /// The fast EMA constant for the long KAMA.
     pub long_fast_ema_period: usize,
+    /// The slow EMA constant for the long KAMA.
     pub long_slow_ema_period: usize,
+    /// The multiplier applied to the ATR to determine the stop-loss distance.
     pub stop_loss_atr_mult: f64,
+    /// The lookback period for calculating the Average True Range (ATR).
     pub atr_period: usize,
+    /// The trading symbol this strategy monitors (e.g., "BTCUSD").
     pub symbol: String,
 }
 
@@ -39,6 +89,11 @@ impl Default for KamaCrossoverConfig {
 impl StrategyConfig for KamaCrossoverConfig {}
 
 impl KamaCrossoverConfig {
+    /// Validates the configuration parameters.
+    ///
+    /// # Errors
+    /// Returns an error if any period is zero, or if the `short_period` is greater than or equal
+    /// to the `long_period`.
     pub fn validate(&self) -> Result<()> {
         if self.short_period == 0 || self.long_period == 0 {
             bail!("Periods must be greater than 0");
@@ -53,11 +108,16 @@ impl KamaCrossoverConfig {
     }
 }
 
+/// A trend-following strategy utilizing the crossover of two Kaufman's Adaptive Moving Averages (KAMA).
+///
+/// This strategy reduces whipsaws in sideways markets by relying on KAMA's volatility-adjusted
+/// smoothing, initiating long positions only when the faster KAMA breaks above the slower KAMA.
 pub struct KamaCrossover {
     config: KamaCrossoverConfig,
 }
 
 impl KamaCrossover {
+    /// Creates a new `KamaCrossover` strategy with the provided configuration.
     pub fn new(config: KamaCrossoverConfig) -> Self {
         Self { config }
     }

@@ -28,9 +28,7 @@ impl TripleEmaCrossoverConfig {
             anyhow::bail!("Periods must be greater than 0");
         }
         if self.short_period >= self.medium_period || self.medium_period >= self.long_period {
-            anyhow::bail!(
-                "Periods must be strictly increasing: short < medium < long"
-            );
+            anyhow::bail!("Periods must be strictly increasing: short < medium < long");
         }
         if self.stop_loss_atr_mult <= 0.0 {
             anyhow::bail!("stop_loss_atr_mult must be greater than 0");
@@ -96,14 +94,8 @@ impl Strategy for TripleEmaCrossover {
             let prev_medium = medium_ema_f64.get(i - 1);
             let prev_long = long_ema_f64.get(i - 1);
 
-            if let (
-                Some(s),
-                Some(m),
-                Some(l),
-                Some(ps),
-                Some(pm),
-                Some(pl),
-            ) = (short, medium, long, prev_short, prev_medium, prev_long)
+            if let (Some(s), Some(m), Some(l), Some(ps), Some(pm), Some(pl)) =
+                (short, medium, long, prev_short, prev_medium, prev_long)
             {
                 let is_bullish = s > m && m > l;
                 let prev_is_bullish = ps > pm && pm > pl;
@@ -113,7 +105,7 @@ impl Strategy for TripleEmaCrossover {
                 let current_atr = atr_f64.get(i).unwrap_or(0.0);
                 let current_close = close_f64.get(i).unwrap_or(0.0);
                 let current_ts = match timestamp_i64 {
-                    Some(ref ts) => ts.get(i).unwrap_or(0),
+                    Some(ts) => ts.get(i).unwrap_or(0),
                     None => 0,
                 };
 
@@ -291,7 +283,10 @@ mod tests {
             }
         }
 
-        assert!(has_buy || has_sell || has_exit, "Expected at least one signal");
+        assert!(
+            has_buy || has_sell || has_exit,
+            "Expected at least one signal"
+        );
 
         Ok(())
     }
@@ -300,8 +295,8 @@ mod tests {
     async fn test_triple_ema_crossover_known_values() -> Result<()> {
         // Small dataset to hit known values
         let close_data = vec![
-            10.0, 10.0, 10.0, 10.0, 10.0, 10.0, 10.0, 10.0, 10.0, 10.0,
-            12.0, 14.0, 16.0, 18.0, 20.0, 22.0, 24.0, 26.0, 28.0, 30.0,
+            10.0, 10.0, 10.0, 10.0, 10.0, 10.0, 10.0, 10.0, 10.0, 10.0, 12.0, 14.0, 16.0, 18.0,
+            20.0, 22.0, 24.0, 26.0, 28.0, 30.0,
         ];
         let df = df!(
             "close" => &close_data,
@@ -328,7 +323,10 @@ mod tests {
             }
         }
 
-        assert!(found_long_entry, "Expected a long entry when trend starts increasing");
+        assert!(
+            found_long_entry,
+            "Expected a long entry when trend starts increasing"
+        );
         Ok(())
     }
 }
