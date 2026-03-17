@@ -1550,6 +1550,9 @@ def main():
         # Fetch latest price for execution logic
         current_price = get_latest_price(intent["provider"], intent["symbol"])
 
+        # Refine Intent (Algo Selection)
+        intent = refine_intent(intent, current_price)
+
         # Cap buy size to available account funds before execution.
         size_ok, size_reason = adjust_buy_size_to_buying_power(intent, current_price)
         if not size_ok:
@@ -1563,9 +1566,6 @@ def main():
             print(f"Skipping {intent['symbol']}: {sell_reason}")
             log_skipped(intent, sell_reason)
             continue
-
-        # Refine Intent (Algo Selection)
-        intent = refine_intent(intent, current_price)
 
         # Risk Agent Check (after algo selection and provider route)
         risk_ok, risk_reason = verify_risk(intent, current_price)
