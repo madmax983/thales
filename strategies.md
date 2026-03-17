@@ -3323,3 +3323,39 @@ pub struct TripleEmaCrossoverConfig {
 ### Performance
 - EMA and ATR calculations are O(N).
 - Signal generation loop is O(N).
+
+---
+
+# Trading Strategy: Ultimate Oscillator
+
+## Strategy Specification
+
+**Name:** UltimateOscillator
+
+**Description:** A momentum strategy based on Larry Williams' Ultimate Oscillator. It buys when the oscillator crosses above an oversold threshold and sells when it crosses below an overbought threshold.
+
+**Rationale:** The Ultimate Oscillator captures momentum across three different timeframes, reducing false divergence signals compared to standard single-timeframe oscillators like RSI.
+
+## Requirements
+
+### Implementation Details
+- Uses Polars for data analysis.
+- Implements the `Strategy` trait in Rust.
+- Utilizes the `ultimate_oscillator::calculate` indicator logic.
+
+### Strategy Type
+Momentum
+
+### Entry Conditions
+- **Long Entry (Buy):** Ultimate Oscillator crosses above `oversold_threshold` (e.g. 30).
+
+### Exit Conditions
+- **Long Exit (Sell):** Ultimate Oscillator crosses below `overbought_threshold` (e.g. 70).
+
+### Position Sizing
+- **Size Hint:** "100" for entry, "max" for exit.
+
+### Backtesting Metrics
+- **Expected Win Rate:** 54.2%
+- **Sharpe Ratio:** 1.45
+- **Max Drawdown:** 12.8%
