@@ -1543,19 +1543,12 @@ def main():
         print(f"Reasoning: {intent.get('rationale', 'None')}")
         print("------------------\n")
 
-        # Route equities to Alpaca correctly, and crypto to Kraken
+        # Route both crypto and equities to Kraken as per direct API access
         if os.environ.get("SIMULATION") != "true":
-            if intent.get("market") == "equities":
-                intent["provider"] = "alpaca"
-            elif intent.get("market") == "crypto":
-                intent["provider"] = "kraken"
+            intent["provider"] = "kraken"
 
         # Fetch latest price for execution logic
         current_price = get_latest_price(intent["provider"], intent["symbol"])
-
-        # Route equities to kraken during execution as per user intent
-        if intent.get("market") == "equities" and intent.get("provider") == "alpaca":
-             intent["provider"] = "kraken"
 
         # Cap buy size to available account funds before execution.
         size_ok, size_reason = adjust_buy_size_to_buying_power(intent, current_price)
@@ -1614,7 +1607,7 @@ def main():
         # Execute
         result = run_command(["execute-intent", "--provider", provider, "--input", temp_intent_file])
 
-        if not result and provider == "kraken" and intent.get("market") == "crypto":
+        if not result and provider == "kraken":
             last_err = getattr(run_command, "last_error", "") or ""
             last_err_lower = last_err.lower()
             if "eorder:insufficient funds" in last_err_lower or "insufficient funds" in last_err_lower or "invalid volume" in last_err_lower or "volume minimum" in last_err_lower:
