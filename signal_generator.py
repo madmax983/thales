@@ -195,8 +195,8 @@ def main():
                     # Filter: Check historical trades before generating new signals
                     rationale = intent.get("rationale") or ""
                     if "No similar past trades found" in rationale:
-                        print(f"Skipping signal for {symbol}: No similar past trades found.")
-                        continue
+                        print(f"Note: No similar past trades found for {symbol}.")
+                        # We don't skip the signal, we just note it as it might be a valid new setup
 
                     # Filter: Do not chase moves - wait for pullbacks
                     # Check the 'sentiment' string from analysis and rationale
