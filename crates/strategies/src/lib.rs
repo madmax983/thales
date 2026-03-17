@@ -80,3 +80,4 @@ pub mod wma_crossover;
 pub mod zscore_mean_reversion;
 
 pub mod chaikin_oscillator_momentum;
+pub mod ultimate_oscillator;
