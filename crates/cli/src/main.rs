@@ -28,6 +28,8 @@ use thales_cli::markov_chain;
 #[cfg(feature = "nova")]
 use thales_cli::monte_carlo;
 #[cfg(feature = "nova")]
+use thales_cli::order_blocks;
+#[cfg(feature = "nova")]
 use thales_cli::pattern_match;
 #[cfg(feature = "nova")]
 use thales_cli::renko;
@@ -212,6 +214,17 @@ enum Commands {
         num_bins: usize,
         #[arg(long, default_value = "0.70")]
         value_area_pct: f64,
+        #[arg(long)]
+        visualize: bool,
+    },
+    #[cfg(feature = "nova")]
+    AnalyzeOrderBlocks {
+        #[arg(long)]
+        input: PathBuf,
+        #[arg(long, default_value = "3")]
+        atr_period: usize,
+        #[arg(long, default_value = "2.0")]
+        expansion_multiplier: f64,
         #[arg(long)]
         visualize: bool,
     },
@@ -1335,6 +1348,40 @@ fn run(command: Commands, raw: bool) -> Result<String, CliError> {
 
             if visualize {
                 renko::print_ascii_renko(&report);
+            }
+
+            if visualize {
+                renko::print_ascii_renko(&report);
+            }
+
+            ok_envelope(report, vec![], raw)
+        }
+        #[cfg(feature = "nova")]
+        Commands::AnalyzeOrderBlocks {
+            input,
+            atr_period,
+            expansion_multiplier,
+            visualize,
+        } => {
+            let file_content = fs::read_to_string(&input)?;
+            let series: BarSeries =
+                match serde_json::from_str::<ResponseEnvelope<BarSeries>>(&file_content) {
+                    Ok(envelope) => envelope
+                        .data
+                        .ok_or(CliError::Validation("Envelope has no data".to_string()))?,
+                    Err(_) => serde_json::from_str::<BarSeries>(&file_content)?,
+                };
+
+            let config = order_blocks::OrderBlocksConfig {
+                atr_period,
+                expansion_multiplier,
+            };
+
+            let report = order_blocks::analyze_order_blocks(&series, config)
+                .map_err(|e| CliError::Validation(e.to_string()))?;
+
+            if visualize {
+                order_blocks::print_ascii_order_blocks(&report);
             }
 
             ok_envelope(report, vec![], raw)

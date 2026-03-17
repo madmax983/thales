@@ -31,6 +31,8 @@ pub mod markov_chain;
 pub mod monte_carlo;
 pub mod optimizer;
 #[cfg(feature = "nova")]
+pub mod order_blocks;
+#[cfg(feature = "nova")]
 pub mod pairs_trading;
 #[cfg(feature = "nova")]
 pub mod pattern_match;
