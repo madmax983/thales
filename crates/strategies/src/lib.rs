@@ -65,6 +65,7 @@ pub mod supertrend;
 pub mod supertrend_ema_crossover;
 pub mod supertrend_rsi;
 pub mod tema_crossover;
+pub mod triple_ema_crossover;
 pub mod triple_sma_crossover;
 pub mod trix_crossover;
 pub mod trix_momentum;

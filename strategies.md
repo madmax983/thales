@@ -3248,3 +3248,78 @@ Momentum
 - Base sizing is configured per intent.
 - `size_hint` is set to `100` on entry and `max` on exit.
 - Includes a dynamic stop-loss based on Average True Range (`stop_loss_atr_mult`).
+
+---
+
+# Trading Strategy: Triple EMA Crossover
+
+## Strategy Specification
+
+**Name:** TripleEmaCrossover
+
+**Description:** A trend-following strategy that generates signals based on the crossover of three Exponential Moving Averages (EMA): Short, Medium, and Long.
+
+**Rationale:** Using three exponential moving averages reduces false signals compared to a dual moving average crossover, while reacting faster to price changes than simple moving averages. A bullish signal is only generated when all three moving averages align in an upward direction (Short > Medium > Long), and a bearish signal when they align in a downward direction. Exits occur when the short-term moving average crosses the medium-term moving average.
+
+## Requirements
+
+### Implementation Details
+- Uses Polars for data analysis.
+- Implements the `Strategy` trait in Rust.
+- Uses `ema` and `atr` indicators.
+
+### Strategy Type
+TrendFollowing
+
+### Entry Conditions
+- **Long Entry (Buy):** Short EMA > Medium EMA > Long EMA (and not previously true).
+- **Short Entry (Sell):** Short EMA < Medium EMA < Long EMA (and not previously true).
+
+### Exit Conditions
+- **Long Exit (Sell):** Short EMA < Medium EMA.
+- **Short Exit (Buy):** Short EMA > Medium EMA.
+- **Stop Loss:** Entry Price +/- (ATR * `stop_loss_atr_mult`).
+
+### Position Sizing
+- **Size Hint:** "100" (fixed units) or "max" (for exits).
+
+## Code Pattern
+
+```rust
+use crate::strategy::{Strategy, StrategyConfig, Signal, SignalType};
+use crate::indicators::{atr, ema};
+use polars::prelude::*;
+use async_trait::async_trait;
+use anyhow::Result;
+
+pub struct TripleEmaCrossover {
+    config: TripleEmaCrossoverConfig,
+}
+
+#[derive(Debug, Clone, serde::Deserialize)]
+pub struct TripleEmaCrossoverConfig {
+    pub short_period: usize,
+    pub medium_period: usize,
+    pub long_period: usize,
+    pub stop_loss_atr_mult: f64,
+    pub atr_period: usize,
+    pub symbol: String,
+}
+```
+
+## Critical Considerations
+
+### Risk Management Integration
+- **Stop Loss:** Uses ATR-based stop loss for dynamic risk control.
+- **Trend Filter:** Requiring three moving averages to align acts as a stronger trend filter, delaying entries but increasing confidence.
+
+### Backtesting Requirements
+- Accepts `DataFrame` with historical data containing "close".
+- Requires data length > `long_period`.
+- **Expected Win Rate:** 40-50%
+- **Expected Sharpe Ratio:** > 1.0
+- **Max Drawdown:** < 15%
+
+### Performance
+- EMA and ATR calculations are O(N).
+- Signal generation loop is O(N).
