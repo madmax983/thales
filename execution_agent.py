@@ -279,6 +279,19 @@ def execute_agent(intent_file):
 
     # For now, process the first intent, or loop through them
     for intent in intents:
+        # ORDER ROUTING: Select appropriate broker and order type
+        if os.environ.get("SIMULATION") == "true":
+            intent["provider"] = "paper"
+        else:
+            market = intent.get("market", "")
+            explicit_provider = intent.get("provider", "")
+            if market == "equities" and explicit_provider != "kraken":
+                intent["provider"] = "alpaca"
+            elif market == "crypto":
+                intent["provider"] = "kraken"
+            elif not explicit_provider or explicit_provider == "paper":
+                intent["provider"] = "kraken"
+
         provider = intent.get("provider", "paper")
 
         # 1. Manage Orders (Stale & Partial Fills)
@@ -293,7 +306,13 @@ def execute_agent(intent_file):
             bars.sort(key=lambda x: x.get("timestamp_unix_ms", 0))
             current_price = bars[-1].get("close")
 
-        # 3. Always set stop losses when available
+        # 3. Refine Intent (Algo Selection & Order Type)
+        intent = refine_intent(intent, current_price)
+        print(f"Order Type: {intent['order_type'].upper()}")
+        if intent.get("execution_algo"):
+            print(f"Algorithm: {intent['execution_algo']}")
+
+        # 4. Always set stop losses when available
         sl_val = intent.get("stop_loss")
         if not sl_val or sl_val == "None" or sl_val == "-":
             print("Warning: Missing stop loss. Applying safety default stop loss.")
@@ -305,12 +324,6 @@ def execute_agent(intent_file):
             else:
                 print("Cannot determine safe stop loss without current price. Aborting.")
                 continue
-
-        # 4. Refine Intent (Algo Selection & Order Type)
-        intent = refine_intent(intent, current_price)
-        print(f"Order Type: {intent['order_type'].upper()}")
-        if intent.get("execution_algo"):
-            print(f"Algorithm: {intent['execution_algo']}")
 
         # 5. Execute Intent
         print(f"Executing {intent['side']} {intent['symbol']} via {provider}...")
