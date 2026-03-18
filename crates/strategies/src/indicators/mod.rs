@@ -13,6 +13,7 @@ pub mod cmf;
 pub mod cmo;
 pub mod connors_rsi;
 pub mod dema;
+pub mod disparity_index;
 pub mod donchian_channels;
 pub mod elder_ray;
 pub mod ema;

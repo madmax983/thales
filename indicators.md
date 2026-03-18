@@ -228,6 +228,37 @@ let (long_exit, short_exit) = chandelier_exit::calculate(&df, period, multiplier
 - The output Series are named "chandelier_long" and "chandelier_short".
 - The first `period - 1` values will be null.
 
+## Disparity Index
+
+**Name:** Disparity Index
+**Description:** Measures the relative position of the latest closing price to a chosen moving average.
+**Rationale:** Helps identify overbought or oversold conditions and potential trend reversals by quantifying the distance between the price and its moving average.
+
+### Implementation Details
+- Uses `rust_decimal::Decimal` for all internal calculations to ensure precision.
+- Returns a Polars `Series` of `f64` values representing the percentage difference.
+- Handles missing data and explicitly checks for nulls.
+
+### Usage
+
+```rust
+use strategies::indicators::disparity_index;
+use polars::prelude::*;
+
+// Assuming df is a DataFrame with a "close" column
+let period = 14;
+let disparity_series = disparity_index::calculate(&df, period)?;
+```
+
+### Parameters
+- `data`: Reference to a Polars `DataFrame`. Must contain a numeric column named "close".
+- `period`: The size of the moving window for the SMA (must be > 0).
+
+### Output
+- Returns `Result<Series>`.
+- The output Series is named "disparity_index".
+- The first `period - 1` values will be null.
+
 ## Donchian Channels
 
 **Name:** Donchian Channels
