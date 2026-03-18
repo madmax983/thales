@@ -97,7 +97,9 @@ pub fn calculate(
             None => None,
         };
 
-        if let (Some(ch), Some(cl), Some(cc), Some(pc)) = (curr_high, curr_low, curr_close, prev_close) {
+        if let (Some(ch), Some(cl), Some(cc), Some(pc)) =
+            (curr_high, curr_low, curr_close, prev_close)
+        {
             let true_low = cl.min(pc);
             let true_high = ch.max(pc);
 
@@ -111,6 +113,7 @@ pub fn calculate(
     // but computing rolling sum properly is better.
     // For simplicity and to match other indicators in this crate, we iterate,
     // but we correctly handle None values to avoid corrupting data with $0.00.
+    #[allow(clippy::needless_range_loop)]
     for i in period3..len {
         let mut valid = true;
         let mut sum_bp1 = Decimal::ZERO;
@@ -192,10 +195,14 @@ mod tests {
         assert!(res_empty.is_err());
         assert_eq!(res_empty.unwrap_err().to_string(), "Data cannot be empty");
 
-        let df_invalid_periods = df!("high" => &[10.0, 11.0], "low" => &[9.0, 10.0], "close" => &[9.5, 10.5])?;
+        let df_invalid_periods =
+            df!("high" => &[10.0, 11.0], "low" => &[9.0, 10.0], "close" => &[9.5, 10.5])?;
         let res_invalid = calculate(&df_invalid_periods, 14, 7, 28);
         assert!(res_invalid.is_err());
-        assert_eq!(res_invalid.unwrap_err().to_string(), "Periods must be strictly increasing: period1 < period2 < period3");
+        assert_eq!(
+            res_invalid.unwrap_err().to_string(),
+            "Periods must be strictly increasing: period1 < period2 < period3"
+        );
 
         let res_short = calculate(&df_invalid_periods, 2, 4, 6)?;
         assert_eq!(res_short.len(), 2);
@@ -226,7 +233,12 @@ mod tests {
 
         for i in 28..50 {
             if let Some(val) = out.get(i) {
-                assert!((0.0..=100.0).contains(&val), "UO {} out of bounds at {}", val, i);
+                assert!(
+                    (0.0..=100.0).contains(&val),
+                    "UO {} out of bounds at {}",
+                    val,
+                    i
+                );
             }
         }
 
