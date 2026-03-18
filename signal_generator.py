@@ -24,6 +24,27 @@ def run_command(args):
         pass
     return None
 
+def count_recent_signals(symbol, history_path):
+    if not os.path.exists(history_path):
+        return 0
+    try:
+        with open(history_path, "r") as f:
+            history = json.load(f)
+    except (json.JSONDecodeError, OSError):
+        return 0
+
+    now_ms = int(datetime.datetime.now(datetime.timezone.utc).timestamp() * 1000)
+    day_ms = 24 * 60 * 60 * 1000
+    count = 0
+    for entry in history:
+        intent = entry.get("intent", {})
+        if intent.get("symbol") == symbol:
+            analysis = entry.get("market_analysis", {})
+            ts = analysis.get("timestamp_unix_ms", 0)
+            if now_ms - ts <= day_ms:
+                count += 1
+    return count
+
 def format_signal(intent):
     side = str(intent.get('side', '')).lower()
     if side == "buy":
@@ -98,6 +119,16 @@ def main():
             continue
         with open(analysis_file, "w") as f:
             json.dump(analysis, f)
+
+        recent_signals_count = count_recent_signals(symbol, HISTORY_PATH)
+        if recent_signals_count >= 3:
+            print(f"Skipping {symbol}: Already reached daily limit of 3 signals.")
+            # Cleanup
+            if os.path.exists(data_file):
+                os.remove(data_file)
+            if os.path.exists(analysis_file):
+                os.remove(analysis_file)
+            continue
 
         # 4. Generate Signals (includes RAG check, sizing, SL/TP)
         symbol_intents = []
@@ -228,7 +259,8 @@ def main():
         if symbol_intents:
             primary_direction = symbol_intents[0].get('side', 'buy')
             # Limit strictly to 3 signals per symbol per day
-            filtered_intents = [intent for intent in symbol_intents if intent.get('side', 'buy') == primary_direction][:3]
+            allowance = max(0, 3 - recent_signals_count)
+            filtered_intents = [intent for intent in symbol_intents if intent.get('side', 'buy') == primary_direction][:allowance]
             all_intents.extend(filtered_intents)
 
         # Cleanup
