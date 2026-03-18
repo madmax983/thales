@@ -402,7 +402,7 @@ def get_candidates_from_signals():
             provider = "paper"
         else:
             if market == "equities":
-                provider = "alpaca"
+                provider = "kraken"
             else:
                 provider = "kraken"
 
@@ -538,12 +538,12 @@ def scan_markets():
             for symbol in crypto:
                 candidates.append({"provider": "kraken", "symbol": symbol, "market": "crypto"})
 
-        # Equities (Alpaca)
-        print("Scanning Alpaca (Equities)...")
-        equities = run_command(["scan-market", "--provider", "alpaca"])
+        # Equities (Kraken)
+        print("Scanning Kraken (Equities)...")
+        equities = run_command(["scan-market", "--provider", "kraken"])
         if equities:
             for symbol in equities:
-                candidates.append({"provider": "alpaca", "symbol": symbol, "market": "equities"})
+                candidates.append({"provider": "kraken", "symbol": symbol, "market": "equities"})
 
     return candidates
 
@@ -552,7 +552,7 @@ def evaluate_candidate(candidate, strategies, portfolio_path=None):
     # Ensure proper provider routing for data fetching
     if os.environ.get("SIMULATION") != "true":
         if candidate.get("market") == "equities":
-            candidate["provider"] = "alpaca"
+            candidate["provider"] = "kraken"
         elif candidate.get("market") == "crypto":
             candidate["provider"] = "kraken"
 
@@ -1543,11 +1543,11 @@ def main():
         print(f"Reasoning: {intent.get('rationale', 'None')}")
         print("------------------\n")
 
-        # Route equities to Alpaca and crypto to Kraken
+        # Route both equities and crypto to Kraken
         if os.environ.get("SIMULATION") != "true":
             market = intent.get("market", "")
             if market == "equities":
-                intent["provider"] = "alpaca"
+                intent["provider"] = "kraken"
             else:
                 intent["provider"] = "kraken"
 

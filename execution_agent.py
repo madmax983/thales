@@ -286,7 +286,7 @@ def execute_agent(intent_file):
             market = intent.get("market", "")
             explicit_provider = intent.get("provider", "")
             if market == "equities" and explicit_provider != "kraken":
-                intent["provider"] = "alpaca"
+                intent["provider"] = "kraken"
             elif market == "crypto":
                 intent["provider"] = "kraken"
             elif not explicit_provider or explicit_provider == "paper":
