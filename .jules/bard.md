@@ -63,3 +63,6 @@
 ## 2024-06-04 - The Silent KAMA
 **Confusion:** The Kaufman's Adaptive Moving Average (KAMA) Crossover strategy lacked any module-level or struct-level documentation, making it difficult to understand its parameters or how it adjusts its smoothing constant based on market volatility to prevent whipsaws.
 **Clarification:** Added module-level (`//!`) and struct-level documentation for `KamaCrossoverConfig` and `KamaCrossover`, explaining the crossover logic and including an executable `# Examples` JSON deserialization snippet.
+## 2024-06-05 - The Silent Ultimate
+**Confusion:** The Ultimate Oscillator strategy lacked module-level documentation, leaving users confused about the specific parameters required (periods 1, 2, 3), how they combine into a weighted calculation, and how signals were generated using oversold and overbought zones.
+**Clarification:** Added module-level documentation and executable examples (`# Examples`) for `UltimateOscillatorConfig` and `UltimateOscillator`, detailing the exact crossing logic for oversold and overbought zones, and configuring the ATR trailing stop loss.

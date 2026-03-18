@@ -1,3 +1,19 @@
+//! Ultimate Oscillator Strategy
+//!
+//! The Ultimate Oscillator is a momentum oscillator designed to capture momentum
+//! across three different timeframes. The multi-timeframe objective means that the
+//! indicator has less volatility and fewer trade signals compared to an oscillator
+//! that relies on a single timeframe.
+//!
+//! # Strategy Logic
+//! - **Buy Signal**: Triggered when the Ultimate Oscillator crosses *above* the
+//!   oversold threshold (default: 30), suggesting that downward momentum has
+//!   exhausted and a reversal is starting.
+//! - **Sell Signal**: Triggered when the Ultimate Oscillator crosses *below* the
+//!   overbought threshold (default: 70), indicating upward momentum is fading.
+//! - **Stop Loss**: Set using the Average True Range (ATR) to adjust dynamically
+//!   to market volatility.
+
 use crate::indicators::{atr, ultimate_oscillator};
 use crate::strategy::{Signal, SignalType, Strategy, StrategyConfig, StrategyType};
 use anyhow::{bail, Result};
@@ -5,20 +21,57 @@ use async_trait::async_trait;
 use polars::prelude::*;
 use serde::{Deserialize, Serialize};
 
+/// Configuration for the Ultimate Oscillator strategy.
+///
+/// # Examples
+/// ```
+/// use strategies::ultimate_oscillator::UltimateOscillatorConfig;
+///
+/// let json = r#"{
+///     "period1": 7,
+///     "period2": 14,
+///     "period3": 28,
+///     "oversold_threshold": 30.0,
+///     "overbought_threshold": 70.0,
+///     "stop_loss_atr_mult": 2.0,
+///     "max_position_size": 100.0,
+///     "atr_period": 14,
+///     "symbol": "AAPL"
+/// }"#;
+///
+/// let config: UltimateOscillatorConfig = serde_json::from_str(json).unwrap();
+/// assert_eq!(config.period1, 7);
+/// assert_eq!(config.symbol, "AAPL");
+/// ```
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct UltimateOscillatorConfig {
+    /// The shortest lookback period (typically 7).
     pub period1: usize,
+    /// The medium lookback period (typically 14).
     pub period2: usize,
+    /// The longest lookback period (typically 28).
     pub period3: usize,
+    /// The threshold below which the asset is considered oversold (typically 30).
     pub oversold_threshold: f64,
+    /// The threshold above which the asset is considered overbought (typically 70).
     pub overbought_threshold: f64,
+    /// The multiplier applied to the ATR to determine the stop-loss distance.
     pub stop_loss_atr_mult: f64,
+    /// The maximum position size to allocate for a single trade.
     pub max_position_size: f64,
+    /// The lookback period for calculating the Average True Range (ATR).
     pub atr_period: usize,
+    /// The trading symbol this strategy monitors (e.g., "AAPL").
     pub symbol: String,
 }
 
 impl UltimateOscillatorConfig {
+    /// Validates the configuration parameters.
+    ///
+    /// # Errors
+    /// Returns an error if periods are not strictly increasing, if thresholds are
+    /// invalid (e.g., negative or overlapping), or if position sizing parameters
+    /// are not positive.
     pub fn validate(&self) -> Result<()> {
         if self.period1 == 0 || self.period2 == 0 || self.period3 == 0 {
             bail!("Periods must be strictly positive");
@@ -50,11 +103,17 @@ impl UltimateOscillatorConfig {
 
 impl StrategyConfig for UltimateOscillatorConfig {}
 
+/// A momentum-based trading strategy utilizing the Ultimate Oscillator.
 pub struct UltimateOscillator {
-    config: UltimateOscillatorConfig,
+    /// The configuration parameters for the strategy.
+    pub config: UltimateOscillatorConfig,
 }
 
 impl UltimateOscillator {
+    /// Creates a new `UltimateOscillator` strategy with the provided configuration.
+    ///
+    /// # Errors
+    /// Returns an error if the configuration parameters fail validation.
     pub fn new(config: UltimateOscillatorConfig) -> Result<Self> {
         config.validate()?;
         Ok(Self { config })
@@ -83,20 +142,19 @@ impl Strategy for UltimateOscillator {
             self.config.period3,
         )?;
         let mut uo_series = uo.clone().into_series();
-        uo_series.rename("uo".into());
+        uo_series.rename("uo");
         let atr_vals = atr::calculate(data, self.config.atr_period)?;
         let mut atr_series_base = atr_vals.clone().into_series();
-        atr_series_base.rename("atr".into());
+        atr_series_base.rename("atr");
 
-        let df = data.clone()
+        let df = data
+            .clone()
             .lazy()
             .with_columns(vec![
                 lit(uo_series).alias("uo"),
                 lit(atr_series_base).alias("atr"),
             ])
-            .with_columns(vec![
-                col("uo").shift(lit(1)).alias("prev_uo"),
-            ])
+            .with_columns(vec![col("uo").shift(lit(1)).alias("prev_uo")])
             .collect()?;
 
         let mut signals = Vec::new();
@@ -107,11 +165,12 @@ impl Strategy for UltimateOscillator {
         let atr_series = df.column("atr")?.f64()?;
         let timestamps = df.column("timestamp_unix_ms")?.i64()?;
 
-        let iter = uo_series.into_iter()
-            .zip(prev_uo_series.into_iter())
-            .zip(close_series.into_iter())
-            .zip(atr_series.into_iter())
-            .zip(timestamps.into_iter())
+        let iter = uo_series
+            .into_iter()
+            .zip(prev_uo_series)
+            .zip(close_series)
+            .zip(atr_series)
+            .zip(timestamps)
             .skip(self.config.period3);
 
         for ((((current_uo, prev_uo), current_close), current_atr), current_ts) in iter {
@@ -124,7 +183,9 @@ impl Strategy for UltimateOscillator {
             ) = (current_uo, prev_uo, current_close, current_atr, current_ts)
             {
                 // Entry Logic (Long)
-                if prev_uo <= self.config.oversold_threshold && current_uo > self.config.oversold_threshold {
+                if prev_uo <= self.config.oversold_threshold
+                    && current_uo > self.config.oversold_threshold
+                {
                     let stop_loss = current_close - (current_atr * self.config.stop_loss_atr_mult);
                     signals.push(Signal {
                         signal_type: SignalType::Entry,
@@ -140,8 +201,10 @@ impl Strategy for UltimateOscillator {
                 }
 
                 // Exit Logic (Long)
-                if prev_uo >= self.config.overbought_threshold && current_uo < self.config.overbought_threshold {
-                     signals.push(Signal {
+                if prev_uo >= self.config.overbought_threshold
+                    && current_uo < self.config.overbought_threshold
+                {
+                    signals.push(Signal {
                         signal_type: SignalType::Exit,
                         symbol: self.config.symbol.clone(),
                         side: "sell".to_string(),
