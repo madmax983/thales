@@ -643,6 +643,14 @@ def resolve_conflicts(intents, candidate):
     signal_ref = candidate.get("signal_ref", "NO_REF")
     expected_side = candidate.get("expected_side")
 
+    sides = set(intent["side"] for intent in intents)
+    if len(sides) > 1:
+        reason = f"CONFLICT: Conflicting signals (Buy and Sell) detected for {symbol}. Trading halted for this asset."
+        print(f"  {symbol}: {reason}")
+        dummy_intent = {"symbol": symbol, "intent_id": signal_ref}
+        log_skipped(dummy_intent, reason)
+        return []
+
     if expected_side:
         valid_intents = [i for i in intents if i["side"] == expected_side]
         if not valid_intents:
@@ -653,14 +661,6 @@ def resolve_conflicts(intents, candidate):
             log_skipped(dummy_intent, reason)
             return []
         intents = valid_intents
-
-    sides = set(intent["side"] for intent in intents)
-    if len(sides) > 1:
-        reason = f"Conflict: Active strategies generated conflicting signals ({sides}) for {symbol}."
-        print(f"  {symbol}: {reason}")
-        dummy_intent = {"symbol": symbol, "intent_id": signal_ref}
-        log_skipped(dummy_intent, reason)
-        return []
 
     analysis = intents[0].get("_market_analysis")
     def score_intent(intent):
