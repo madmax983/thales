@@ -19,6 +19,8 @@ pub mod black_swan;
 #[cfg(feature = "nova")]
 pub mod entropy;
 #[cfg(feature = "nova")]
+pub mod experimental;
+#[cfg(feature = "nova")]
 pub mod fear_and_greed;
 #[cfg(feature = "nova")]
 pub mod fractal_dimension;

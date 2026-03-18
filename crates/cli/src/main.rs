@@ -51,6 +51,13 @@ struct Cli {
 
 #[derive(Debug, Subcommand)]
 enum Commands {
+    #[cfg(feature = "nova")]
+    ExportCsv {
+        #[arg(long)]
+        input: PathBuf,
+        #[arg(long)]
+        output: PathBuf,
+    },
     Backtest {
         #[arg(long)]
         input: PathBuf,
@@ -353,6 +360,20 @@ fn main() {
 
 fn run(command: Commands, raw: bool) -> Result<String, CliError> {
     match command {
+        #[cfg(feature = "nova")]
+        Commands::ExportCsv { input, output } => {
+            let file_content = fs::read_to_string(&input)?;
+            let series: BarSeries =
+                match serde_json::from_str::<ResponseEnvelope<BarSeries>>(&file_content) {
+                    Ok(envelope) => envelope
+                        .data
+                        .ok_or(CliError::Validation("Envelope has no data".to_string()))?,
+                    Err(_) => serde_json::from_str::<BarSeries>(&file_content)?,
+                };
+            thales_cli::experimental::export::export_bar_series_to_csv(&series, &output)
+                .map_err(|e| CliError::Validation(e.to_string()))?;
+            ok_envelope(json!({"status": "success", "file": output}), vec![], raw)
+        }
         Commands::Backtest {
             input,
             strategy,
