@@ -55,8 +55,6 @@ def format_signal(intent):
         direction = side
 
     strength = intent.get('confidence', 0.0) * 100
-    size = intent.get('size_hint', '0')
-
     def format_price(val):
         if val in [None, 'None', '-']:
             return 'None'
@@ -65,6 +63,7 @@ def format_signal(intent):
         except (ValueError, TypeError):
             return str(val)
 
+    size = format_price(intent.get('size_hint', '0'))
     sl = format_price(intent.get('stop_loss', 'None'))
     tp = format_price(intent.get('take_profit', 'None'))
     reason = intent.get('rationale', 'No reason provided.')
@@ -245,7 +244,17 @@ def main():
                             continue
 
                     # All signals must go through Risk Agent before execution
-                    risk_ok, risk_reason = verify_risk(intent)
+                    try:
+                        with open(data_file, "r") as f:
+                            b_data = json.load(f)
+                            if "bars" in b_data and len(b_data["bars"]) > 0:
+                                last_close = float(b_data["bars"][-1]["close"])
+                                risk_ok, risk_reason = verify_risk(intent, current_price=last_close)
+                            else:
+                                risk_ok, risk_reason = verify_risk(intent)
+                    except (FileNotFoundError, json.JSONDecodeError, KeyError, ValueError, IndexError):
+                        risk_ok, risk_reason = verify_risk(intent)
+
                     if not risk_ok:
                         print(f"Skipping signal for {symbol} due to Risk Agent rejection: {risk_reason}")
                         continue
