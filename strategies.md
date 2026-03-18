@@ -3359,3 +3359,76 @@ Momentum
 - **Expected Win Rate:** 54.2%
 - **Sharpe Ratio:** 1.45
 - **Max Drawdown:** 12.8%
+
+---
+
+# Trading Strategy: Relative Vigor Index Trend
+
+## Strategy Specification
+
+**Name:** RelativeVigorIndexTrend
+
+**Description:** A momentum and trend-following strategy based on the Relative Vigor Index (RVI). It identifies momentum shifts by comparing the asset's closing price to its trading range.
+
+**Rationale:** The RVI oscillates around zero and measures the power behind price movements. A crossover of the RVI line above its Signal line (a smoothed average of the RVI) signals that bullish momentum is accelerating, offering an entry point. Conversely, a crossover below signals accelerating bearish momentum.
+
+## Requirements
+
+### Implementation Details
+- Uses Polars for data analysis.
+- Implements the `Strategy` trait in Rust.
+- Uses the custom `rvi` and `atr` indicators.
+
+### Strategy Type
+Trend Following / Momentum
+
+### Entry Conditions
+- **Long Entry (Buy):** RVI crosses ABOVE the Signal Line.
+- **Short Entry (Sell):** RVI crosses BELOW the Signal Line.
+
+### Exit Conditions
+- **Long Exit (Sell):** RVI crosses BELOW the Signal Line or Stop Loss is hit.
+- **Short Exit (Buy):** RVI crosses ABOVE the Signal Line or Stop Loss is hit.
+- **Stop Loss:** Entry Price +/- (ATR * `stop_loss_atr_mult`).
+
+### Position Sizing
+- **Size Hint:** "100" (fixed units) or "max" (for exits).
+
+## Code Pattern
+
+```rust
+use crate::strategy::{Strategy, StrategyConfig, Signal, SignalType};
+use crate::indicators::{atr, rvi};
+use polars::prelude::*;
+use async_trait::async_trait;
+use anyhow::Result;
+
+pub struct RelativeVigorIndexTrend {
+    config: RelativeVigorIndexTrendConfig,
+}
+
+#[derive(Debug, Clone, serde::Deserialize)]
+pub struct RelativeVigorIndexTrendConfig {
+    pub period: usize,
+    pub stop_loss_atr_mult: f64,
+    pub atr_period: usize,
+    pub symbol: String,
+}
+```
+
+## Critical Considerations
+
+### Risk Management Integration
+- **Stop Loss:** Uses ATR-based stop loss to adapt to current market volatility.
+- **Take Profit:** Sets a take profit at 2x the risk distance (2 * ATR).
+
+### Backtesting Requirements
+- Accepts `DataFrame` with historical data containing "open", "high", "low", and "close".
+- Requires data length > `period + 6`.
+- **Expected Win Rate:** ~45-55% (typical for momentum oscillators in trending markets).
+- **Expected Sharpe Ratio:** > 1.2
+- **Max Drawdown:** < 15%
+
+### Performance
+- RVI, Signal Line, and ATR calculations are O(N).
+- Signal generation loop is O(N).
