@@ -1075,7 +1075,9 @@ def adjust_sell_size_to_sellable_balance(intent):
     sellable_balance, asset = fetch_sellable_balance(provider, symbol)
 
     if sellable_balance is None:
-        return False, f"Unable to determine sellable balance for {provider}:{symbol}"
+        # Fall back to returning True if we can't determine it (Kraken API error like missing balance for ZBCN)
+        print(f"Unable to determine sellable balance for {provider}:{symbol}, proceeding with original size")
+        return True, "Unable to determine sellable balance, proceeding with original size"
     if sellable_balance <= 0:
         return False, f"No sellable balance available ({asset} {sellable_balance:.8f})"
 
