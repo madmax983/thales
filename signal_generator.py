@@ -180,7 +180,7 @@ def main():
                             except (ValueError, TypeError):
                                 pass
 
-                        if not intent.get("stop_loss") or intent.get("stop_loss") in ["None", "0", "0.0"]:
+                        if not intent.get("stop_loss") or str(intent.get("stop_loss")) in ["None", "0", "0.0"]:
                             try:
                                 with open(data_file, "r") as f:
                                     b_data = json.load(f)
@@ -200,11 +200,11 @@ def main():
 
                                         if side == "buy":
                                             intent["stop_loss"] = last_close * (1.0 - sl_pct)
-                                            if not intent.get("take_profit") or intent.get("take_profit") in ["None", "0", "0.0"]:
+                                            if not intent.get("take_profit") or str(intent.get("take_profit")) in ["None", "0", "0.0"]:
                                                 intent["take_profit"] = last_close * (1.0 + tp_pct)
                                         elif side == "sell":
                                             intent["stop_loss"] = last_close * (1.0 + sl_pct)
-                                            if not intent.get("take_profit") or intent.get("take_profit") in ["None", "0", "0.0"]:
+                                            if not intent.get("take_profit") or str(intent.get("take_profit")) in ["None", "0", "0.0"]:
                                                 intent["take_profit"] = last_close * (1.0 - tp_pct)
                             except (FileNotFoundError, json.JSONDecodeError, KeyError, ValueError, IndexError) as e:
                                 print(f"Warning: Failed to compute fallback stop loss for {symbol}: {e}")
@@ -216,8 +216,8 @@ def main():
 
                     # Filter: Only allow Entry/ScaleIn signals that have a valid stop loss and take profit
                     if (is_entry or is_scale_in) and (
-                        not intent.get("stop_loss") or intent.get("stop_loss") in ["None", "0", "0.0"] or
-                        not intent.get("take_profit") or intent.get("take_profit") in ["None", "0", "0.0"]
+                        not intent.get("stop_loss") or str(intent.get("stop_loss")) in ["None", "0", "0.0"] or
+                        not intent.get("take_profit") or str(intent.get("take_profit")) in ["None", "0", "0.0"]
                     ):
                         print(f"Skipping signal for {symbol}: Missing mandatory stop loss or take profit.")
                         continue
