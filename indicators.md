@@ -1075,3 +1075,34 @@ let uo_series = ultimate_oscillator::calculate(&df, period1, period2, period3)?;
 use strategies::indicators::zlema;
 use polars::prelude::*;
 ```
+
+## Vertical Horizontal Filter (VHF)
+
+**Name:** VHF
+**Description:** Calculates the Vertical Horizontal Filter (VHF), which determines whether prices are in a trending phase or a congestion phase.
+**Rationale:** VHF measures the degree to which prices are trending. A rising VHF indicates a developing trend, while a falling VHF suggests the market is entering a congestion phase. It helps traders decide whether to use trend-following indicators or oscillators.
+
+### Implementation Details
+- Uses `rust_decimal::Decimal` iteratively for all math calculations to ensure financial precision, explicitly converting from and to `f64` only for Polars boundaries.
+- Formula: `(Highest Close - Lowest Close) / Sum of absolute price changes over period`.
+- Returns a Polars `Series` of `f64` values (computed internally via Decimal).
+
+### Usage
+
+```rust
+use strategies::indicators::vhf;
+use polars::prelude::*;
+
+// Assuming df is a DataFrame with a "close" column
+let period = 28;
+let vhf_series = vhf::calculate(&df, period)?;
+```
+
+### Parameters
+- `data`: Reference to a Polars `DataFrame`. Must contain a numeric "close" column.
+- `period`: The lookback period (typically 28).
+
+### Output
+- Returns `Result<Series>`.
+- The output Series is named "vhf".
+- The first `period` values will be null.
