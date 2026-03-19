@@ -199,13 +199,13 @@ def main():
                                         tp_pct = sl_pct * 2.0
 
                                         if side == "buy":
-                                            intent["stop_loss"] = last_close * (1.0 - sl_pct)
+                                            intent["stop_loss"] = str(last_close * (1.0 - sl_pct))
                                             if not intent.get("take_profit") or str(intent.get("take_profit")) in ["None", "0", "0.0"]:
-                                                intent["take_profit"] = last_close * (1.0 + tp_pct)
+                                                intent["take_profit"] = str(last_close * (1.0 + tp_pct))
                                         elif side == "sell":
-                                            intent["stop_loss"] = last_close * (1.0 + sl_pct)
+                                            intent["stop_loss"] = str(last_close * (1.0 + sl_pct))
                                             if not intent.get("take_profit") or str(intent.get("take_profit")) in ["None", "0", "0.0"]:
-                                                intent["take_profit"] = last_close * (1.0 - tp_pct)
+                                                intent["take_profit"] = str(last_close * (1.0 - tp_pct))
                             except (FileNotFoundError, json.JSONDecodeError, KeyError, ValueError, IndexError) as e:
                                 print(f"Warning: Failed to compute fallback stop loss for {symbol}: {e}")
 
@@ -214,12 +214,11 @@ def main():
                         print(f"Skipping signal for {symbol}: No proper analysis available.")
                         continue
 
-                    # Filter: Only allow Entry/ScaleIn signals that have a valid stop loss and take profit
+                    # Filter: Only allow Entry/ScaleIn signals that have a valid stop loss
                     if (is_entry or is_scale_in) and (
-                        not intent.get("stop_loss") or str(intent.get("stop_loss")) in ["None", "0", "0.0"] or
-                        not intent.get("take_profit") or str(intent.get("take_profit")) in ["None", "0", "0.0"]
+                        not intent.get("stop_loss") or str(intent.get("stop_loss")) in ["None", "0", "0.0"]
                     ):
-                        print(f"Skipping signal for {symbol}: Missing mandatory stop loss or take profit.")
+                        print(f"Skipping signal for {symbol}: Missing mandatory stop loss.")
                         continue
 
                     # Filter: Check historical trades before generating new signals
@@ -234,12 +233,12 @@ def main():
                         side = str(intent.get('side', '')).lower()
                         sentiment = analysis.get("sentiment", "").lower()
 
-                        # We specifically look for (Overbought) / (Oversold) in the sentiment
+                        # We specifically look for (overbought) / (oversold) in the sentiment
                         # To avoid false positives on rationale like "not overbought", we check sentiment primarily.
-                        if side == "buy" and "(overbought)" in sentiment:
+                        if side == "buy" and "overbought" in sentiment:
                             print(f"Skipping long signal for {symbol}: Chasing move (Sentiment is Overbought)")
                             continue
-                        elif side == "sell" and "(oversold)" in sentiment:
+                        elif side == "sell" and "oversold" in sentiment:
                             print(f"Skipping short signal for {symbol}: Chasing move (Sentiment is Oversold)")
                             continue
 
