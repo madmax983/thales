@@ -1106,3 +1106,36 @@ let vhf_series = vhf::calculate(&df, period)?;
 - Returns `Result<Series>`.
 - The output Series is named "vhf".
 - The first `period` values will be null.
+
+## Know Sure Thing (KST)
+
+**Name:** KST
+**Description:** Calculates the Know Sure Thing oscillator, a momentum oscillator based on the smoothed rate of change for four different timeframes.
+**Rationale:** KST identifies major stock market cycle junctures by capturing price momentum across four different time cycles.
+
+### Implementation Details
+- Uses `rust_decimal::Decimal` for calculations.
+- Returns a tuple of two Polars `Series` of `f64` values: the KST line and its Signal line.
+
+### Usage
+
+```rust
+use strategies::indicators::kst;
+use polars::prelude::*;
+
+// Assuming df is a DataFrame with "close" column
+let roc_periods = [10, 15, 20, 30];
+let sma_periods = [10, 10, 10, 15];
+let signal_period = 9;
+let (kst_line, kst_signal) = kst::calculate(&df, roc_periods, sma_periods, signal_period)?;
+```
+
+### Parameters
+- `data`: Reference to a Polars `DataFrame`. Must contain a numeric "close" column.
+- `roc_periods`: Array of 4 lookback periods for ROC.
+- `sma_periods`: Array of 4 lookback periods for smoothing the ROCs.
+- `signal_period`: Lookback period for the KST signal line.
+
+### Output
+- Returns `Result<(Series, Series)>` representing the KST Line and Signal Line.
+- Series are named "kst" and "kst_signal".
