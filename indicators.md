@@ -1058,3 +1058,36 @@ let uo_series = ultimate_oscillator::calculate(&df, period1, period2, period3)?;
 - Returns `Result<Series>`.
 - The output Series is named "ultimate_oscillator".
 - Initial values up to `period3` will be null until enough data is gathered.
+
+## Mass Index
+
+**Name:** Mass Index
+**Description:** Identifies trend reversals by measuring the widening and narrowing of the range between high and low prices.
+**Rationale:** The Mass Index is designed to identify trend reversals by analyzing the range between high and low prices. A widening range suggests a potential reversal, while a narrowing range indicates a continuation of the current trend.
+
+### Implementation Details
+- Uses `rust_decimal::Decimal` iteratively for all math calculations to ensure financial precision.
+- Built on top of the `ema` indicator.
+- Formula: Sum of `EMA(High - Low, 9) / EMA(EMA(High - Low, 9), 9)` over 25 periods.
+- Returns a Polars `Series` of `f64` values.
+
+### Usage
+
+```rust
+use strategies::indicators::mass_index;
+use polars::prelude::*;
+
+// Assuming df is a DataFrame with "high" and "low" columns
+let ema_period = 9;
+let sum_period = 25;
+let mass_index_series = mass_index::calculate(&df, ema_period, sum_period)?;
+```
+
+### Parameters
+- `data`: Reference to a Polars `DataFrame`. Must contain numeric "high" and "low" columns.
+- `ema_period`: EMA lookback period (typically 9).
+- `sum_period`: Sum lookback period (typically 25).
+
+### Output
+- Returns `Result<Series>`.
+- The output Series is named "mass_index".
