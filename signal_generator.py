@@ -259,6 +259,23 @@ def main():
                         print(f"Skipping signal for {symbol} due to Risk Agent rejection: {risk_reason}")
                         continue
 
+                    # Format numerical values safely to 4 decimal places
+                    for field in ["size_hint", "stop_loss", "take_profit"]:
+                        val = intent.get(field)
+                        if val not in [None, 'None', '-']:
+                            try:
+                                formatted_val = f"{float(val):.4f}".rstrip('0').rstrip('.') if '.' in f"{float(val):.4f}" else f"{float(val):.4f}"
+                                intent[field] = formatted_val
+                            except (ValueError, TypeError):
+                                intent[field] = str(val)
+
+                    # Map buy/sell to long/short
+                    side = str(intent.get('side', '')).lower()
+                    if side == "buy":
+                        intent['side'] = "long"
+                    elif side == "sell":
+                        intent['side'] = "short"
+
                     symbol_intents.append(intent)
 
         # Limit to 1-3 signals per symbol per day and resolve conflicts
@@ -266,10 +283,10 @@ def main():
 
         # Resolve conflicting directions (only keep the direction of the highest confidence signal)
         if symbol_intents:
-            primary_direction = symbol_intents[0].get('side', 'buy')
+            primary_direction = symbol_intents[0].get('side', 'long')
             # Limit strictly to 3 signals per symbol per day
             allowance = max(0, 3 - recent_signals_count)
-            filtered_intents = [intent for intent in symbol_intents if intent.get('side', 'buy') == primary_direction][:allowance]
+            filtered_intents = [intent for intent in symbol_intents if intent.get('side', 'long') == primary_direction][:allowance]
             all_intents.extend(filtered_intents)
 
         # Cleanup
