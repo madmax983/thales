@@ -49,3 +49,4 @@ pub mod wma;
 pub mod zlema;
 pub mod zscore;
 pub mod vhf;
+pub mod kst;
