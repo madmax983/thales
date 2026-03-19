@@ -1613,17 +1613,6 @@ def main():
         # Execute
         result = run_command(["execute-intent", "--provider", provider, "--input", temp_intent_file])
 
-        if not result and provider == "kraken":
-            last_err = getattr(run_command, "last_error", "") or ""
-            last_err_lower = last_err.lower()
-            if "eorder:insufficient funds" in last_err_lower or "insufficient funds" in last_err_lower or "invalid volume" in last_err_lower or "volume minimum" in last_err_lower:
-                print(f"Kraken execution failed ({last_err}), falling back to paper execution...")
-                intent["provider"] = "paper"
-                provider = "paper"
-                with open(temp_intent_file, "w") as f:
-                    json.dump(intent, f)
-                result = run_command(["execute-intent", "--provider", provider, "--input", temp_intent_file])
-
         # Cleanup
         if os.path.exists(temp_intent_file):
             os.remove(temp_intent_file)
