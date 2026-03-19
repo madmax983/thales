@@ -1058,3 +1058,20 @@ let uo_series = ultimate_oscillator::calculate(&df, period1, period2, period3)?;
 - Returns `Result<Series>`.
 - The output Series is named "ultimate_oscillator".
 - Initial values up to `period3` will be null until enough data is gathered.
+
+## ZLEMA
+
+**Name:** ZLEMA
+**Description:** Zero Lag Exponential Moving Average.
+**Rationale:** A variation of EMA that reduces lag by adding momentum over a specific lag period.
+
+### Implementation Details
+- Uses `rust_decimal::Decimal`.
+- Returns a Polars `Series` of `f64` values.
+
+### Usage
+
+```rust
+use strategies::indicators::zlema;
+use polars::prelude::*;
+```

@@ -1,30 +1,17 @@
-1. **Implement Strategy Struct and Config using `write_file`**
-   * Use `write_file` to create `crates/strategies/src/sma_crossover.rs`.
-   * The file will define `SmaCrossover` and `SmaCrossoverConfig` (with fields: `short_period`, `long_period`, `stop_loss_atr_mult`, `atr_period`, `symbol`).
-   * Include imports for `sma` and `atr` from the `indicators` module.
-   * Implement the `Strategy` trait for `SmaCrossover`, covering the `generate_signals` and `update_params` methods.
-   * Add a `#[cfg(test)]` module containing:
-     - `test_sma_crossover_signals`: mock a Polars `DataFrame` with `close`, `high`, `low`, `timestamp_unix_ms`, and `volume` spanning enough bars for ATR and SMA. Verify that a `SignalType::Entry` with `side: "buy"` is generated on the crossover.
-     - `test_empty_data`: verify `generate_signals` returns `Ok(vec![])` or an appropriate empty handling without panicking.
-     - `test_update_params`: instantiate `SmaCrossoverConfig`, call `update_params` with valid serialized JSON parameters, and assert the config fields are updated.
-
-2. **Verify file creation using `run_in_bash_session`**
-   * Run `cat crates/strategies/src/sma_crossover.rs` to ensure the strategy file is written correctly.
-
-3. **Export the strategy module using `replace_with_git_merge_diff`**
-   * Use `replace_with_git_merge_diff` on `crates/strategies/src/lib.rs` to add `pub mod sma_crossover;` and its strategy documentation block: `//! - [\`sma_crossover::SmaCrossover\`] - Trend following using SMA crossovers.`.
-
-4. **Register the strategy in the CLI using `replace_with_git_merge_diff`**
-   * Use `replace_with_git_merge_diff` on `crates/cli/src/strategy_factory.rs` to include the `SmaCrossover` configuration parsing in `create_strategy` and append `"SmaCrossover"` to `list_strategies()`.
-
-5. **Verify codebase modifications using `run_in_bash_session`**
-   * Run `git diff` to ensure changes are correctly applied to `lib.rs` and `strategy_factory.rs`.
-
-6. **Run checks using `run_in_bash_session`**
-   * Run `cargo fmt --all`, `cargo test`, and `cargo clippy --all-targets --all-features -- -D warnings` to verify code format, correctness, and style.
-
-7. **Complete pre-commit steps**
-   * Complete pre-commit steps to ensure proper testing, verification, review, and reflection are done.
-
-8. **Submit**
-   * Use the `attempt_completion` tool to complete the task.
+1. **Explore codebase and requirements.**
+   - I will check the `indicators.md` file and other files to understand the ZLEMA specification or any unrendered templates. I notice the prompt mentions `{{name}}`, `{{description}}`, `{{rationale}}`, `{{inputs}}`, `{{output_type}}`, `{{context}}`. Since the variables are unrendered, I will act autonomously and implement a standard missing technical indicator. I have selected **ZLEMA (Zero Lag Exponential Moving Average)**.
+2. **Implement `zlema.rs`**.
+   - Create a new file `crates/strategies/src/indicators/zlema.rs` containing the ZLEMA implementation using `rust_decimal::Decimal`, taking a `&DataFrame` and a `period: usize`.
+   - The implementation will use `rust_decimal::Decimal` internally and handle errors correctly without `unwrap()`.
+   - The lag is calculated as `(period - 1) / 2`. The adjusted data is `Close + (Close - Close[lag])`. Then an EMA is applied to this adjusted data.
+   - Include 3 comprehensive test cases: `test_known_values`, `test_edge_cases`, `test_realistic_data`.
+3. **Register module**.
+   - Update `crates/strategies/src/indicators/mod.rs` to include `pub mod zlema;`.
+4. **Run tests**.
+   - Use `run_in_bash_session` to run `cargo test --package strategies`.
+5. **Update documentation**.
+   - Append ZLEMA documentation to `indicators.md`.
+6. **Pre-commit step**.
+   - Complete pre-commit steps to ensure proper testing, verification, review, and reflection are done.
+7. **Submit**.
+   - Use `submit` to submit the changes.
