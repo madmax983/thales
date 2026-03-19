@@ -1,4 +1,4 @@
-use anyhow::{Context, Result};
+use anyhow::Result;
 use polars::prelude::*;
 use rust_decimal::prelude::*;
 use rust_decimal::Decimal;
@@ -36,16 +36,45 @@ pub fn calculate(data: &DataFrame, period: usize) -> Result<DataFrame> {
     // Compute Num & Den for each period i >= 3
     for i in 3..len {
         let (o0, h0, l0, c0) = (open.get(i), high.get(i), low.get(i), close.get(i));
-        let (o1, h1, l1, c1) = (open.get(i-1), high.get(i-1), low.get(i-1), close.get(i-1));
-        let (o2, h2, l2, c2) = (open.get(i-2), high.get(i-2), low.get(i-2), close.get(i-2));
-        let (o3, h3, l3, c3) = (open.get(i-3), high.get(i-3), low.get(i-3), close.get(i-3));
+        let (o1, h1, l1, c1) = (
+            open.get(i - 1),
+            high.get(i - 1),
+            low.get(i - 1),
+            close.get(i - 1),
+        );
+        let (o2, h2, l2, c2) = (
+            open.get(i - 2),
+            high.get(i - 2),
+            low.get(i - 2),
+            close.get(i - 2),
+        );
+        let (o3, h3, l3, c3) = (
+            open.get(i - 3),
+            high.get(i - 3),
+            low.get(i - 3),
+            close.get(i - 3),
+        );
 
         if let (
-            Some(o0), Some(h0), Some(l0), Some(c0),
-            Some(o1), Some(h1), Some(l1), Some(c1),
-            Some(o2), Some(h2), Some(l2), Some(c2),
-            Some(o3), Some(h3), Some(l3), Some(c3)
-        ) = (o0, h0, l0, c0, o1, h1, l1, c1, o2, h2, l2, c2, o3, h3, l3, c3) {
+            Some(o0),
+            Some(h0),
+            Some(l0),
+            Some(c0),
+            Some(o1),
+            Some(h1),
+            Some(l1),
+            Some(c1),
+            Some(o2),
+            Some(h2),
+            Some(l2),
+            Some(c2),
+            Some(o3),
+            Some(h3),
+            Some(l3),
+            Some(c3),
+        ) = (
+            o0, h0, l0, c0, o1, h1, l1, c1, o2, h2, l2, c2, o3, h3, l3, c3,
+        ) {
             let o0d = Decimal::from_f64_retain(o0).unwrap_or(Decimal::ZERO);
             let h0d = Decimal::from_f64_retain(h0).unwrap_or(Decimal::ZERO);
             let l0d = Decimal::from_f64_retain(l0).unwrap_or(Decimal::ZERO);
@@ -133,9 +162,9 @@ pub fn calculate(data: &DataFrame, period: usize) -> Result<DataFrame> {
     for i in 3..len {
         if let (Some(r0), Some(r1), Some(r2), Some(r3)) = (
             rvi_values[i],
-            rvi_values[i-1],
-            rvi_values[i-2],
-            rvi_values[i-3]
+            rvi_values[i - 1],
+            rvi_values[i - 2],
+            rvi_values[i - 3],
         ) {
             let sig = (r0 + 2.0 * r1 + 2.0 * r2 + r3) / 6.0;
             signal_values[i] = Some(sig);
@@ -144,7 +173,7 @@ pub fn calculate(data: &DataFrame, period: usize) -> Result<DataFrame> {
 
     let rvi_series = Series::new("rvi", rvi_values);
     let signal_series = Series::new("rvi_signal", signal_values);
-    let mut df = DataFrame::new(vec![rvi_series, signal_series])?;
+    let df = DataFrame::new(vec![rvi_series, signal_series])?;
 
     Ok(df)
 }

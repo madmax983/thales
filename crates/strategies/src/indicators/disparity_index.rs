@@ -50,7 +50,9 @@ pub fn calculate(data: &DataFrame, period: usize) -> Result<Series> {
         .context("Close column must be numeric (f64)")?;
 
     let sma_series = sma::calculate(data, period).context("Failed to calculate SMA")?;
-    let sma_f64 = sma_series.f64().context("SMA series must be numeric (f64)")?;
+    let sma_f64 = sma_series
+        .f64()
+        .context("SMA series must be numeric (f64)")?;
 
     let mut disparity_vals: Vec<Option<f64>> = Vec::with_capacity(close.len());
     let hundred = Decimal::new(100, 0);
@@ -122,7 +124,10 @@ mod tests {
         let df_empty = DataFrame::default();
         let res_empty = calculate(&df_empty, 5);
         assert!(res_empty.is_err());
-        assert!(res_empty.unwrap_err().to_string().contains("Data cannot be empty"));
+        assert!(res_empty
+            .unwrap_err()
+            .to_string()
+            .contains("Data cannot be empty"));
 
         // Single data point
         let df_single = df!("close" => &[10.0])?;
@@ -146,7 +151,9 @@ mod tests {
 
     #[test]
     fn test_realistic_data() -> Result<()> {
-        let values: Vec<f64> = (0..50).map(|i| 100.0 + (i as f64 * 0.1).sin() * 10.0).collect();
+        let values: Vec<f64> = (0..50)
+            .map(|i| 100.0 + (i as f64 * 0.1).sin() * 10.0)
+            .collect();
         let df = df!("close" => values)?;
         let result = calculate(&df, 14)?;
 
@@ -158,7 +165,12 @@ mod tests {
         for i in 14..50 {
             let val = out.get(i).unwrap();
             // Disparity should be a relatively small percentage for a sine wave
-            assert!(val > -50.0 && val < 50.0, "Disparity {} out of expected range at index {}", val, i);
+            assert!(
+                val > -50.0 && val < 50.0,
+                "Disparity {} out of expected range at index {}",
+                val,
+                i
+            );
         }
 
         Ok(())

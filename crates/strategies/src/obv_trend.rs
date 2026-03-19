@@ -1,3 +1,19 @@
+//! On-Balance Volume (OBV) Trend Following Strategy.
+//!
+//! This module implements a volume-based strategy designed to confirm price trends
+//! and identify potential breakouts before they happen.
+//!
+//! # The Story
+//! Price is what you pay, but volume is the effort behind the move.
+//! On-Balance Volume adds volume on up days and subtracts it on down days.
+//! By comparing the OBV line against its own Simple Moving Average (SMA), we can see
+//! if the "smart money" is accumulating or distributing the asset.
+//!
+//! - **Bullish Signal:** When OBV crosses *above* its SMA, buying pressure is increasing.
+//! - **Bearish Signal:** When OBV crosses *below* its SMA, selling pressure is taking over.
+//!
+//! This strategy uses these volume momentum shifts to generate entries and exits.
+
 use crate::indicators::{atr, obv, sma};
 use crate::strategy::{Signal, SignalType, Strategy, StrategyConfig, StrategyType};
 use anyhow::Result;
@@ -7,6 +23,25 @@ use rust_decimal::prelude::*;
 use rust_decimal::Decimal;
 use serde::{Deserialize, Serialize};
 
+/// Configuration for the [`ObvTrendFollowing`] strategy.
+///
+/// Defines the period for the OBV's signal line (SMA), as well as risk management settings.
+///
+/// # Examples
+///
+/// ```rust
+/// use strategies::obv_trend::ObvTrendFollowingConfig;
+///
+/// let json = r#"{
+///     "obv_sma_period": 20,
+///     "stop_loss_atr_mult": 2.0,
+///     "atr_period": 14,
+///     "symbol": "ETHUSD"
+/// }"#;
+///
+/// let config: ObvTrendFollowingConfig = serde_json::from_str(json).unwrap();
+/// assert_eq!(config.obv_sma_period, 20);
+/// ```
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ObvTrendFollowingConfig {
     pub obv_sma_period: usize, // Signal line period
@@ -17,6 +52,14 @@ pub struct ObvTrendFollowingConfig {
 
 impl StrategyConfig for ObvTrendFollowingConfig {}
 
+/// The OBV Trend Following strategy implementation.
+///
+/// Generates signals when the On-Balance Volume indicator crosses its own Simple Moving Average.
+///
+/// # Panics
+///
+/// This strategy will return an error (but not panic) if the input `DataFrame`
+/// lacks the required columns (`close`, `volume`, `high`, `low`, `timestamp_unix_ms`).
 pub struct ObvTrendFollowing {
     config: ObvTrendFollowingConfig,
 }

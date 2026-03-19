@@ -1,3 +1,17 @@
+//! Exponential Moving Average (EMA) Crossover Strategy.
+//!
+//! This module implements a classic trend-following strategy using two EMAs:
+//! a fast (short-term) EMA and a slow (long-term) EMA.
+//!
+//! # The Story
+//! Moving averages smooth out price data to reveal the underlying trend.
+//! By comparing two EMAs of different periods, we can identify momentum shifts:
+//! - **The Golden Cross:** When the fast EMA crosses above the slow EMA, it suggests bullish momentum.
+//! - **The Death Cross:** When the fast EMA crosses below the slow EMA, it suggests bearish momentum.
+//!
+//! This strategy uses the crossover to generate entry and exit signals, coupled with an
+//! Average True Range (ATR) trailing stop loss for risk management.
+
 use crate::indicators::{atr, ema};
 use crate::strategy::{Signal, SignalType, Strategy, StrategyConfig, StrategyType};
 use anyhow::Result;
@@ -7,6 +21,27 @@ use rust_decimal::prelude::ToPrimitive;
 use rust_decimal::Decimal;
 use serde::{Deserialize, Serialize};
 
+/// Configuration for the [`EmaCrossover`] strategy.
+///
+/// Defines the periods for the fast and slow EMAs, as well as risk management parameters.
+///
+/// # Examples
+///
+/// ```rust
+/// use strategies::ema_crossover::EmaCrossoverConfig;
+///
+/// let json = r#"{
+///     "short_window": 9,
+///     "long_window": 21,
+///     "stop_loss_pct": 0.05,
+///     "atr_period": 14,
+///     "atr_mult": 2.0,
+///     "symbol": "BTCUSD"
+/// }"#;
+///
+/// let config: EmaCrossoverConfig = serde_json::from_str(json).unwrap();
+/// assert_eq!(config.short_window, 9);
+/// ```
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct EmaCrossoverConfig {
     pub short_window: usize,
@@ -19,6 +54,14 @@ pub struct EmaCrossoverConfig {
 
 impl StrategyConfig for EmaCrossoverConfig {}
 
+/// The EMA Crossover strategy implementation.
+///
+/// Generates signals based on the crossing of short and long EMAs.
+///
+/// # Panics
+///
+/// This strategy will return an error (but not panic) if the input `DataFrame`
+/// lacks the required columns (`close`, `high`, `low`, `timestamp_unix_ms`).
 pub struct EmaCrossover {
     config: EmaCrossoverConfig,
 }
