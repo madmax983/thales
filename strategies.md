@@ -3472,3 +3472,24 @@ pub struct RelativeVigorIndexTrendConfig {
 ### Performance
 - RVI, Signal Line, and ATR calculations are O(N).
 - Signal generation loop is O(N).
+
+## Know Sure Thing (KST) Trend Following
+**Name:** KstTrend
+**Description:** A trend-following strategy using the Know Sure Thing (KST) oscillator, a momentum indicator based on the smoothed rate of change across four timeframes.
+**Rationale:** KST captures major market cycle junctures. This strategy buys when KST crosses above its signal line (momentum turning positive) and sells when it crosses below (momentum turning negative).
+
+### Strategy Specification
+- **Type:** Trend Following
+- **Entry Conditions:**
+  - Buy: KST crosses ABOVE the Signal Line.
+  - Sell: KST crosses BELOW the Signal Line.
+- **Exit Conditions:** Stop loss hit (calculated using ATR multiplier from entry price).
+
+### Requirements
+- **Data:** `close` price for KST calculation. `high`, `low`, `close` for ATR calculation.
+- **Indicators:** KST (Know Sure Thing), ATR (Average True Range).
+
+### Expected Backtesting Metrics
+- **Win Rate:** 40% - 45% (Typical for trend following, relying on large wins to offset frequent small losses).
+- **Sharpe Ratio:** 0.8 - 1.2.
+- **Max Drawdown:** 15% - 25% (Depends heavily on the ATR stop-loss multiplier and market regime).
