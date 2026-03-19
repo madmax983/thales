@@ -401,10 +401,8 @@ def get_candidates_from_signals():
         if os.environ.get("SIMULATION") == "true":
             provider = "paper"
         else:
-            if market == "equities":
-                provider = "kraken"
-            else:
-                provider = "kraken"
+            # Route both equities and crypto to kraken
+            provider = "kraken"
 
         # Extract JSON
         json_match = re.search(r"```json\s*(\{.*?\})\s*```", chunk, re.DOTALL)
@@ -551,10 +549,8 @@ def evaluate_candidate(candidate, strategies, portfolio_path=None):
     """Fetches data and generates signals for a candidate using all active strategies."""
     # Ensure proper provider routing for data fetching
     if os.environ.get("SIMULATION") != "true":
-        if candidate.get("market") == "equities":
-            candidate["provider"] = "kraken"
-        elif candidate.get("market") == "crypto":
-            candidate["provider"] = "kraken"
+        # Route both equities and crypto to kraken
+        candidate["provider"] = "kraken"
 
     provider = candidate["provider"]
     symbol = candidate["symbol"]
@@ -651,16 +647,6 @@ def resolve_conflicts(intents, candidate):
         log_skipped(dummy_intent, reason)
         return []
 
-    if expected_side:
-        valid_intents = [i for i in intents if i["side"] == expected_side]
-        if not valid_intents:
-            invalid_sides = set(i["side"] for i in intents)
-            reason = f"Cross-validation failed: Strategies generated {invalid_sides} but signal recommended {expected_side}."
-            print(f"  {symbol}: {reason}")
-            dummy_intent = {"symbol": symbol, "intent_id": signal_ref}
-            log_skipped(dummy_intent, reason)
-            return []
-        intents = valid_intents
 
     analysis = intents[0].get("_market_analysis")
     def score_intent(intent):
@@ -1547,11 +1533,7 @@ def main():
 
         # Route both equities and crypto to Kraken
         if os.environ.get("SIMULATION") != "true":
-            market = intent.get("market", "")
-            if market == "equities":
-                intent["provider"] = "kraken"
-            else:
-                intent["provider"] = "kraken"
+            intent["provider"] = "kraken"
 
         # Fetch latest price for execution logic
         current_price = get_latest_price(intent["provider"], intent["symbol"])
