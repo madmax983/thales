@@ -647,6 +647,16 @@ def resolve_conflicts(intents, candidate):
         log_skipped(dummy_intent, reason)
         return []
 
+    if expected_side:
+        valid_intents = [i for i in intents if i["side"] == expected_side]
+        if not valid_intents:
+            invalid_sides = set(i["side"] for i in intents)
+            reason = f"Cross-validation failed: Strategies generated {invalid_sides} but signal recommended {expected_side}."
+            print(f"  {symbol}: {reason}")
+            dummy_intent = {"symbol": symbol, "intent_id": signal_ref}
+            log_skipped(dummy_intent, reason)
+            return []
+        intents = valid_intents
 
     analysis = intents[0].get("_market_analysis")
     def score_intent(intent):
@@ -1422,6 +1432,12 @@ def main():
     # 2. Scan Markets + Get from Signals.md
     scanned_candidates = scan_markets()
     signal_candidates = get_candidates_from_signals()
+
+    if not scanned_candidates and not signal_candidates:
+        print("No candidates found in scan or signals (files empty or stale). Doing nothing.")
+        with open(PORTFOLIO_PATH, "a") as f:
+            f.write(f"\n# Execution Attempt {datetime.now()}\nInput files (Signals.md or scan) are empty, stale, or contradictory. Aborting.\n")
+        return
 
     # 0b. Archive Stale Signals after they have been processed and logged as stale
     archive_signals(days=1)
