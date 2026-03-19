@@ -43,7 +43,11 @@ impl MacdTrendFollower {
         if config.fast_period >= config.slow_period {
             anyhow::bail!("fast_period must be less than slow_period");
         }
-        if config.fast_period == 0 || config.slow_period == 0 || config.signal_period == 0 || config.atr_period == 0 {
+        if config.fast_period == 0
+            || config.slow_period == 0
+            || config.signal_period == 0
+            || config.atr_period == 0
+        {
             anyhow::bail!("All periods must be greater than 0");
         }
         Ok(Self { config })
@@ -105,13 +109,12 @@ impl Strategy for MacdTrendFollower {
                 Some(sig_p),
                 Some(price),
                 Some(atr_val),
-            ) = (
-                macd_curr, macd_prev, sig_curr, sig_prev, price_opt, atr_opt,
-            ) {
+            ) = (macd_curr, macd_prev, sig_curr, sig_prev, price_opt, atr_opt)
+            {
                 let price_dec = Decimal::from_f64_retain(price).unwrap_or(Decimal::ZERO);
                 let atr_dec = Decimal::from_f64_retain(atr_val).unwrap_or(Decimal::ZERO);
-                let sl_mult =
-                    Decimal::from_f64_retain(self.config.stop_loss_atr_mult).unwrap_or(Decimal::ZERO);
+                let sl_mult = Decimal::from_f64_retain(self.config.stop_loss_atr_mult)
+                    .unwrap_or(Decimal::ZERO);
                 let two_dec = Decimal::from(2);
 
                 // Long Entry: MACD Line crosses above Signal Line.
@@ -201,7 +204,11 @@ impl Strategy for MacdTrendFollower {
         if new_config.fast_period >= new_config.slow_period {
             anyhow::bail!("fast_period must be less than slow_period");
         }
-        if new_config.fast_period == 0 || new_config.slow_period == 0 || new_config.signal_period == 0 || new_config.atr_period == 0 {
+        if new_config.fast_period == 0
+            || new_config.slow_period == 0
+            || new_config.signal_period == 0
+            || new_config.atr_period == 0
+        {
             anyhow::bail!("All periods must be greater than 0");
         }
         self.config = new_config;
@@ -237,12 +244,21 @@ mod tests {
         let signals = strategy.generate_signals(&df).await?;
 
         // We expect some exit and entry signals since the data goes up strongly then down strongly
-        let exits = signals.iter().filter(|s| s.signal_type == SignalType::Exit).count();
-        let entries = signals.iter().filter(|s| s.signal_type == SignalType::Entry).count();
+        let exits = signals
+            .iter()
+            .filter(|s| s.signal_type == SignalType::Exit)
+            .count();
+        let entries = signals
+            .iter()
+            .filter(|s| s.signal_type == SignalType::Entry)
+            .count();
 
         assert!(exits > 0, "Expected at least one exit signal");
         assert!(entries > 0, "Expected at least one entry signal");
-        assert_eq!(exits, entries, "Expected exits and entries to match due to crossover reversals");
+        assert_eq!(
+            exits, entries,
+            "Expected exits and entries to match due to crossover reversals"
+        );
 
         Ok(())
     }

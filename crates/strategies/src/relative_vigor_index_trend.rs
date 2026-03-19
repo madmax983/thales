@@ -91,11 +91,9 @@ impl Strategy for RelativeVigorIndexTrend {
             let price_opt = close_arr.get(i);
             let atr_opt = atr_arr.get(i);
 
-            if let (
-                Some(r_c), Some(r_p),
-                Some(s_c), Some(s_p),
-                Some(price), Some(atr_val)
-            ) = (rvi_curr, rvi_prev, sig_curr, sig_prev, price_opt, atr_opt) {
+            if let (Some(r_c), Some(r_p), Some(s_c), Some(s_p), Some(price), Some(atr_val)) =
+                (rvi_curr, rvi_prev, sig_curr, sig_prev, price_opt, atr_opt)
+            {
                 let price_dec = Decimal::from_f64_retain(price).unwrap_or(Decimal::ZERO);
                 let atr_dec = Decimal::from_f64_retain(atr_val).unwrap_or(Decimal::ZERO);
 
@@ -110,10 +108,7 @@ impl Strategy for RelativeVigorIndexTrend {
                         confidence: 0.8,
                         stop_loss: None,
                         take_profit: None,
-                        reason: format!(
-                            "RVI Crossover Up: RVI {:.2} > Signal {:.2}",
-                            r_c, s_c
-                        ),
+                        reason: format!("RVI Crossover Up: RVI {:.2} > Signal {:.2}", r_c, s_c),
                         timestamp_ms: timestamp,
                     });
 
@@ -130,10 +125,7 @@ impl Strategy for RelativeVigorIndexTrend {
                         confidence: 0.8,
                         stop_loss: Some(sl.to_f64().unwrap_or(0.0)),
                         take_profit: Some(tp.to_f64().unwrap_or(0.0)),
-                        reason: format!(
-                            "RVI Crossover Up: RVI {:.2} > Signal {:.2}",
-                            r_c, s_c
-                        ),
+                        reason: format!("RVI Crossover Up: RVI {:.2} > Signal {:.2}", r_c, s_c),
                         timestamp_ms: timestamp,
                     });
                 }
@@ -148,10 +140,7 @@ impl Strategy for RelativeVigorIndexTrend {
                         confidence: 0.8,
                         stop_loss: None,
                         take_profit: None,
-                        reason: format!(
-                            "RVI Crossover Down: RVI {:.2} < Signal {:.2}",
-                            r_c, s_c
-                        ),
+                        reason: format!("RVI Crossover Down: RVI {:.2} < Signal {:.2}", r_c, s_c),
                         timestamp_ms: timestamp,
                     });
 
@@ -168,10 +157,7 @@ impl Strategy for RelativeVigorIndexTrend {
                         confidence: 0.8,
                         stop_loss: Some(sl.to_f64().unwrap_or(0.0)),
                         take_profit: Some(tp.to_f64().unwrap_or(0.0)),
-                        reason: format!(
-                            "RVI Crossover Down: RVI {:.2} < Signal {:.2}",
-                            r_c, s_c
-                        ),
+                        reason: format!("RVI Crossover Down: RVI {:.2} < Signal {:.2}", r_c, s_c),
                         timestamp_ms: timestamp,
                     });
                 }
@@ -282,7 +268,7 @@ mod tests {
             .collect();
 
         // One of them should be non-empty because there's a trend change
-        assert!(entries_long.len() > 0 || entries_short.len() > 0);
+        assert!(!entries_long.is_empty() || !entries_short.is_empty());
 
         Ok(())
     }

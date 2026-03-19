@@ -66,3 +66,7 @@
 ## 2024-06-05 - The Silent Ultimate
 **Confusion:** The Ultimate Oscillator strategy lacked module-level documentation, leaving users confused about the specific parameters required (periods 1, 2, 3), how they combine into a weighted calculation, and how signals were generated using oversold and overbought zones.
 **Clarification:** Added module-level documentation and executable examples (`# Examples`) for `UltimateOscillatorConfig` and `UltimateOscillator`, detailing the exact crossing logic for oversold and overbought zones, and configuring the ATR trailing stop loss.
+
+## 2024-06-06 - The Silent Crossover and The Hidden Volume
+**Confusion:** The EMA Crossover and OBV Trend Following strategies lacked module-level documentation and struct documentation. Users were left to guess what configuration parameters like `short_window` and `obv_sma_period` actually meant in the context of the respective strategy concepts.
+**Clarification:** Added storytelling module-level documentation to `ema_crossover.rs` and `obv_trend.rs` explaining the financial theories behind moving average crossovers and on-balance volume. Added executable doctests for configuration structs to guide proper initialization.
