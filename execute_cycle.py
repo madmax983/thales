@@ -1156,11 +1156,11 @@ def verify_risk(intent, current_price=None):
             is_entry = True
 
     if is_entry:
-        if not stop_loss or stop_loss == "None" or stop_loss == "-":
+        if not stop_loss or str(stop_loss) in ["None", "-", "0", "0.0"]:
              return False, "Missing Stop Loss for Entry"
 
         tp_val = intent.get("take_profit")
-        if not tp_val or tp_val == "None" or tp_val == "-":
+        if not tp_val or str(tp_val) in ["None", "-", "0", "0.0"]:
              return False, "Missing Take Profit for Entry"
 
     # 3. Check Confidence
