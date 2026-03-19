@@ -2632,6 +2632,46 @@ pub struct AlmaCrossoverConfig {
 
 ---
 
+# Trading Strategy: MACD Trend Follower
+
+## Strategy Specification
+
+**Name:** MacdTrendFollower
+
+**Description:** A trend-following strategy based on the Moving Average Convergence Divergence (MACD) indicator. It enters long when the MACD line crosses above the Signal line, and enters short when the MACD line crosses below the Signal line.
+
+**Rationale:** The MACD is a powerful trend-following momentum indicator. Crossovers between the MACD line and its Signal line help identify shifts in momentum and the start of new trends. This strategy captures those trends and manages risk dynamically using an ATR-based stop loss.
+
+## Requirements
+
+### Implementation Details
+- Uses Polars for data analysis and signal generation.
+- Implements the `Strategy` trait in Rust.
+- Utilizes custom `macd` and `atr` indicators.
+- Validates parameters to ensure correct ranges (e.g., `fast_period < slow_period`).
+
+### Strategy Type
+Trend Following
+
+### Entry Conditions
+- **Long Entry (Buy):** MACD Line crosses ABOVE Signal Line.
+- **Short Entry (Sell):** MACD Line crosses BELOW Signal Line.
+
+### Exit Conditions
+- **Long Exit (Sell):** MACD Line crosses BELOW Signal Line or Stop Loss is hit.
+- **Short Exit (Buy):** MACD Line crosses ABOVE Signal Line or Stop Loss is hit.
+- **Stop Loss:** Entry Price +/- (ATR * `stop_loss_atr_mult`).
+
+### Position Sizing
+- **Size Hint:** "100" (fixed units) or "max" (for exits).
+
+### Expected Backtesting Metrics
+- **Expected Win Rate:** 45% - 50%
+- **Expected Sharpe Ratio:** > 1.2
+- **Max Drawdown:** < 20%
+
+---
+
 # Trading Strategy: KAMA Crossover
 
 ## Strategy Specification
