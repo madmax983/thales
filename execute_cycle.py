@@ -1585,7 +1585,7 @@ def main():
 
         # Ensure we always pass a stop loss, according to agent rules "Always set stop losses when available"
         sl_val = intent.get("stop_loss")
-        if not sl_val or sl_val == "None" or sl_val == "-":
+        if not sl_val or str(sl_val) in ["None", "-", "0", "0.0"]:
             print("Warning: Missing stop loss, adding safety default stop loss")
             # If no stop loss was provided by the strategy but we are going to trade,
             # risk management must apply. Let's apply a naive 5% safety buffer.
