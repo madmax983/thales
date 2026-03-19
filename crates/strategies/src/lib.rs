@@ -83,3 +83,4 @@ pub mod zscore_mean_reversion;
 pub mod chaikin_oscillator_momentum;
 pub mod relative_vigor_index_trend;
 pub mod ultimate_oscillator;
+pub mod kst_trend;

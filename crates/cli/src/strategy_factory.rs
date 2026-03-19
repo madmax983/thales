@@ -65,6 +65,7 @@ use strategies::roc_momentum::{RocMomentum, RocMomentumConfig};
 use strategies::rsi_mean_reversion::{RsiMeanReversion, RsiMeanReversionConfig};
 use strategies::sma_crossover::{SmaCrossover, SmaCrossoverConfig};
 use strategies::stoch_rsi_mean_reversion::{StochRsiMeanReversion, StochRsiMeanReversionConfig};
+use strategies::kst_trend::{KstTrend, KstTrendConfig};
 use strategies::stochastic_oscillator::{StochasticOscillator, StochasticOscillatorConfig};
 use strategies::strategy::Strategy;
 use strategies::supertrend::{Supertrend, SupertrendConfig};
@@ -657,6 +658,13 @@ pub fn create_strategy(name: &str, symbol: &str) -> Result<Box<dyn Strategy>> {
             };
             Ok(Box::new(PpoRsiTrend::new(config)))
         }
+        "KstTrend" => {
+            let config = KstTrendConfig {
+                symbol: symbol.to_string(),
+                ..Default::default()
+            };
+            Ok(Box::new(KstTrend::new(config)))
+        }
         "TsiTrend" => {
             let config = TsiTrendConfig {
                 long_period: 25,
@@ -730,5 +738,6 @@ pub fn list_strategies() -> Vec<&'static str> {
         "SmaCrossover",
         "EmaRsiTrendFollowing",
         "PpoRsiTrend",
+        "KstTrend",
     ]
 }
