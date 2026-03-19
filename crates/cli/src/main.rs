@@ -58,6 +58,13 @@ enum Commands {
         #[arg(long)]
         output: PathBuf,
     },
+    #[cfg(feature = "nova")]
+    ExportObj {
+        #[arg(long)]
+        input: PathBuf,
+        #[arg(long)]
+        output: PathBuf,
+    },
     Backtest {
         #[arg(long)]
         input: PathBuf,
@@ -371,6 +378,20 @@ fn run(command: Commands, raw: bool) -> Result<String, CliError> {
                     Err(_) => serde_json::from_str::<BarSeries>(&file_content)?,
                 };
             thales_cli::experimental::export::export_bar_series_to_csv(&series, &output)
+                .map_err(|e| CliError::Validation(e.to_string()))?;
+            ok_envelope(json!({"status": "success", "file": output}), vec![], raw)
+        }
+        #[cfg(feature = "nova")]
+        Commands::ExportObj { input, output } => {
+            let file_content = fs::read_to_string(&input)?;
+            let series: BarSeries =
+                match serde_json::from_str::<ResponseEnvelope<BarSeries>>(&file_content) {
+                    Ok(envelope) => envelope
+                        .data
+                        .ok_or(CliError::Validation("Envelope has no data".to_string()))?,
+                    Err(_) => serde_json::from_str::<BarSeries>(&file_content)?,
+                };
+            thales_cli::experimental::export::export_bar_series_to_obj(&series, &output)
                 .map_err(|e| CliError::Validation(e.to_string()))?;
             ok_envelope(json!({"status": "success", "file": output}), vec![], raw)
         }
