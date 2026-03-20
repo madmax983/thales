@@ -1169,3 +1169,40 @@ let dpo_series = dpo::calculate(&df, period)?;
 ### Output
 - Returns `Result<Series>`.
 - The output Series is named "dpo".
+
+## Schaff Trend Cycle (STC)
+
+**Name:** STC
+**Description:** Calculates the Schaff Trend Cycle (STC), an oscillator that combines the MACD and Stochastic indicators to identify trends and provide buy/sell signals.
+**Rationale:** The STC improves upon the MACD by applying a double stochastic smoothing, which helps to reduce lag and identify trend cycles more rapidly and accurately. It oscillates between 0 and 100, providing clear overbought and oversold thresholds.
+
+### Implementation Details
+- Uses `rust_decimal::Decimal` for precision in calculations.
+- Depends on the MACD indicator for its base calculation.
+- Applies double stochastic logic (calculating %K, smoothing to get %D, then calculating %K of %D and smoothing again).
+- Returns a Polars `Series` of `f64` values.
+
+### Usage
+
+```rust
+use strategies::indicators::stc;
+use polars::prelude::*;
+
+// Assuming df is a DataFrame with a "close" column
+let fast_period = 23;
+let slow_period = 50;
+let cycle_period = 10;
+let d_period = 3;
+let stc_series = stc::calculate(&df, fast_period, slow_period, cycle_period, d_period)?;
+```
+
+### Parameters
+- `data`: Reference to a Polars `DataFrame`. Must contain a numeric column named "close".
+- `fast_period`: Fast MACD EMA period (typically 23).
+- `slow_period`: Slow MACD EMA period (typically 50).
+- `cycle_period`: Stochastic cycle period (typically 10).
+- `d_period`: Stochastic smoothing period (typically 3).
+
+### Output
+- Returns `Result<Series>`.
+- The output Series is named "stc".

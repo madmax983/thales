@@ -64,6 +64,7 @@ use strategies::parabolic_sar::{ParabolicSar, ParabolicSarConfig};
 use strategies::ppo_rsi_trend::{PpoRsiTrend, PpoRsiTrendConfig};
 use strategies::roc_momentum::{RocMomentum, RocMomentumConfig};
 use strategies::rsi_mean_reversion::{RsiMeanReversion, RsiMeanReversionConfig};
+use strategies::schaff_trend_cycle::{SchaffTrendCycle, SchaffTrendCycleConfig};
 use strategies::sma_crossover::{SmaCrossover, SmaCrossoverConfig};
 use strategies::stoch_rsi_mean_reversion::{StochRsiMeanReversion, StochRsiMeanReversionConfig};
 use strategies::stochastic_oscillator::{StochasticOscillator, StochasticOscillatorConfig};
@@ -689,6 +690,20 @@ pub fn create_strategy(name: &str, symbol: &str) -> Result<Box<dyn Strategy>> {
             };
             Ok(Box::new(VhfTrendFollowing::new(config)))
         }
+        "SchaffTrendCycle" => {
+            let config = SchaffTrendCycleConfig {
+                fast_period: 23,
+                slow_period: 50,
+                cycle_period: 10,
+                d_period: 3,
+                oversold_threshold: 25.0,
+                overbought_threshold: 75.0,
+                atr_period: 14,
+                stop_loss_atr_mult: 2.0,
+                symbol: symbol.to_string(),
+            };
+            Ok(Box::new(SchaffTrendCycle::new(config)))
+        }
         _ => Err(anyhow::anyhow!("Unknown strategy: {}", name)),
     }
 }
@@ -753,5 +768,6 @@ pub fn list_strategies() -> Vec<&'static str> {
         "PpoRsiTrend",
         "KstTrend",
         "VhfTrendFollowing",
+        "SchaffTrendCycle",
     ]
 }

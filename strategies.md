@@ -3532,3 +3532,42 @@ Trend Following
 - **Expected Win Rate:** ~45-50%
 - **Expected Sharpe Ratio:** > 1.0
 - **Max Drawdown:** < 20%
+
+---
+
+# Trading Strategy: Schaff Trend Cycle
+
+## Strategy Specification
+
+**Name:** SchaffTrendCycle
+
+**Description:** A momentum-based oscillator strategy utilizing the Schaff Trend Cycle (STC) indicator. It identifies market trends by applying double stochastic smoothing to the MACD, reducing lag compared to standard MACD.
+
+**Rationale:** The STC improves upon the MACD by acknowledging the cyclical nature of trends. It oscillates between 0 and 100, providing clear overbought and oversold thresholds, and generates faster, more reliable buy and sell signals by minimizing lag.
+
+## Requirements
+
+### Implementation Details
+- Uses Polars for data analysis.
+- Implements the `Strategy` trait in Rust.
+- Uses custom `stc` and `atr` indicators.
+
+### Strategy Type
+Momentum
+
+### Entry Conditions
+- **Long Entry (Buy):** STC crosses ABOVE the `oversold_threshold` (e.g., 25).
+- **Short Entry (Sell):** STC crosses BELOW the `overbought_threshold` (e.g., 75).
+
+### Exit Conditions
+- **Long Exit (Sell):** STC drops below the `overbought_threshold` after being overbought.
+- **Short Exit (Buy):** STC rises above the `oversold_threshold` after being oversold.
+- **Stop Loss:** Entry Price +/- (ATR * `stop_loss_atr_mult`).
+
+### Position Sizing
+- **Size Hint:** "100" (fixed units) for entry, "max" for exits.
+
+### Expected Backtesting Metrics
+- **Expected Win Rate:** ~55-60%
+- **Expected Sharpe Ratio:** > 1.2
+- **Max Drawdown:** < 15%
