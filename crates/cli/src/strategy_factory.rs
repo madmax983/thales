@@ -76,6 +76,7 @@ use strategies::triple_sma_crossover::{TripleSmaCrossover, TripleSmaCrossoverCon
 use strategies::trix_crossover::{TrixCrossover, TrixCrossoverConfig};
 use strategies::trix_momentum::{TrixMomentum, TrixMomentumConfig};
 use strategies::tsi_trend::{TsiTrend, TsiTrendConfig};
+use strategies::vhf_trend::{VhfTrendFollowing, VhfTrendFollowingConfig};
 use strategies::volume_oscillator_trend::{VolumeOscillatorTrend, VolumeOscillatorTrendConfig};
 use strategies::vortex_breakout::{VortexBreakout, VortexBreakoutConfig};
 use strategies::vpt_trend::{VptTrend, VptTrendConfig};
@@ -676,6 +677,18 @@ pub fn create_strategy(name: &str, symbol: &str) -> Result<Box<dyn Strategy>> {
             };
             Ok(Box::new(TsiTrend::new(config)))
         }
+        "VhfTrendFollowing" => {
+            let config = VhfTrendFollowingConfig {
+                vhf_period: 28,
+                trend_threshold: 0.4,
+                sma_period: 20,
+                stop_loss_atr_mult: 2.0,
+                atr_period: 14,
+                max_position_size: 100.0,
+                symbol: symbol.to_string(),
+            };
+            Ok(Box::new(VhfTrendFollowing::new(config)))
+        }
         _ => Err(anyhow::anyhow!("Unknown strategy: {}", name)),
     }
 }
@@ -739,5 +752,6 @@ pub fn list_strategies() -> Vec<&'static str> {
         "EmaRsiTrendFollowing",
         "PpoRsiTrend",
         "KstTrend",
+        "VhfTrendFollowing",
     ]
 }
