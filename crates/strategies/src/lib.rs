@@ -71,6 +71,7 @@ pub mod triple_sma_crossover;
 pub mod trix_crossover;
 pub mod trix_momentum;
 pub mod tsi_trend;
+pub mod vhf_trend;
 pub mod volume_oscillator_trend;
 pub mod vortex_breakout;
 pub mod vpt_trend;

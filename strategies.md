@@ -3493,3 +3493,42 @@ pub struct RelativeVigorIndexTrendConfig {
 - **Win Rate:** 40% - 45% (Typical for trend following, relying on large wins to offset frequent small losses).
 - **Sharpe Ratio:** 0.8 - 1.2.
 - **Max Drawdown:** 15% - 25% (Depends heavily on the ATR stop-loss multiplier and market regime).
+
+---
+
+# Trading Strategy: VHF Trend Following
+
+## Strategy Specification
+
+**Name:** VhfTrendFollowing
+
+**Description:** A trend-following strategy based on the Vertical Horizontal Filter (VHF) indicator. It determines whether a market is in a trending or congestion phase.
+
+**Rationale:** The VHF indicator helps in identifying the strength of a trend. High VHF values indicate a strong trend, while low values indicate a ranging market. This strategy enters trades when the VHF indicates a strong trend and uses an SMA to determine the direction of the trend.
+
+## Requirements
+
+### Implementation Details
+- Uses Polars for data analysis.
+- Implements the `Strategy` trait in Rust.
+- Uses `vhf`, `sma`, and `atr` indicators.
+
+### Strategy Type
+Trend Following
+
+### Entry Conditions
+- **Long Entry (Buy):** VHF > `trend_threshold` AND Close Price > SMA(`sma_period`).
+- **Short Entry (Sell):** VHF > `trend_threshold` AND Close Price < SMA(`sma_period`).
+
+### Exit Conditions
+- **Long Exit (Sell):** VHF < `trend_threshold` OR Close Price < SMA(`sma_period`).
+- **Short Exit (Buy):** VHF < `trend_threshold` OR Close Price > SMA(`sma_period`).
+- **Stop Loss:** Entry Price +/- (ATR * `stop_loss_atr_mult`).
+
+### Position Sizing
+- **Size Hint:** "100" (fixed units) for entry, "max" for exits.
+
+### Expected Backtesting Metrics
+- **Expected Win Rate:** ~45-50%
+- **Expected Sharpe Ratio:** > 1.0
+- **Max Drawdown:** < 20%
