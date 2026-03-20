@@ -18,6 +18,8 @@ use thales_cli::black_swan;
 #[cfg(feature = "nova")]
 use thales_cli::entropy;
 #[cfg(feature = "nova")]
+use thales_cli::experimental::similarity_search;
+#[cfg(feature = "nova")]
 use thales_cli::fear_and_greed;
 #[cfg(feature = "nova")]
 use thales_cli::fractal_dimension;
@@ -347,6 +349,17 @@ enum Commands {
         input: PathBuf,
         #[arg(long, default_value = "10.0")]
         brick_size: f64,
+        #[arg(long)]
+        visualize: bool,
+    },
+    #[cfg(feature = "nova")]
+    AnalyzeSimilarity {
+        #[arg(long)]
+        input: PathBuf,
+        #[arg(long, default_value = "10")]
+        window_size: usize,
+        #[arg(long, default_value = "5")]
+        top_k: usize,
         #[arg(long)]
         visualize: bool,
     },
@@ -1424,6 +1437,33 @@ fn run(command: Commands, raw: bool) -> Result<String, CliError> {
 
             if visualize {
                 order_blocks::print_ascii_order_blocks(&report);
+            }
+
+            ok_envelope(report, vec![], raw)
+        }
+        #[cfg(feature = "nova")]
+        Commands::AnalyzeSimilarity {
+            input,
+            window_size,
+            top_k,
+            visualize,
+        } => {
+            let file_content = fs::read_to_string(&input)?;
+            let series: BarSeries =
+                match serde_json::from_str::<ResponseEnvelope<BarSeries>>(&file_content) {
+                    Ok(envelope) => envelope
+                        .data
+                        .ok_or(CliError::Validation("Envelope has no data".to_string()))?,
+                    Err(_) => serde_json::from_str::<BarSeries>(&file_content)?,
+                };
+
+            let config = similarity_search::SimilarityConfig { window_size, top_k };
+
+            let report = similarity_search::find_similar_patterns(&series, config)
+                .map_err(|e| CliError::Validation(e.to_string()))?;
+
+            if visualize {
+                similarity_search::print_ascii_similarities(&report);
             }
 
             ok_envelope(report, vec![], raw)
