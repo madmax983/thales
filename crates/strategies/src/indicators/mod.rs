@@ -50,3 +50,4 @@ pub mod williams_r;
 pub mod wma;
 pub mod zlema;
 pub mod zscore;
+pub mod dpo;

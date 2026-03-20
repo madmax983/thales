@@ -1139,3 +1139,33 @@ let (kst_line, kst_signal) = kst::calculate(&df, roc_periods, sma_periods, signa
 ### Output
 - Returns `Result<(Series, Series)>` representing the KST Line and Signal Line.
 - Series are named "kst" and "kst_signal".
+
+## Detrended Price Oscillator (DPO)
+
+**Name:** DPO
+**Description:** Calculates the Detrended Price Oscillator (DPO), an indicator designed to remove trend from price and make it easier to identify cycles.
+**Rationale:** Standard momentum/cycle indicator used to smooth out price data and identify short-term cycles. DPO isolates cycles by comparing the current price to an older moving average.
+
+### Implementation Details
+- Uses `rust_decimal::Decimal` for all internal calculations to ensure precision.
+- Returns a Polars `Series` of `f64` values (computed internally via Decimal) for compatibility with other analysis tools.
+- Displacement back is calculated as `(period / 2) + 1`.
+
+### Usage
+
+```rust
+use strategies::indicators::dpo;
+use polars::prelude::*;
+
+// Assuming df is a DataFrame with a "close" column
+let period = 20;
+let dpo_series = dpo::calculate(&df, period)?;
+```
+
+### Parameters
+- `data`: Reference to a Polars `DataFrame`. Must contain a numeric column named "close".
+- `period`: The size of the moving window (must be > 0).
+
+### Output
+- Returns `Result<Series>`.
+- The output Series is named "dpo".
