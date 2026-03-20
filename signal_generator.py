@@ -180,7 +180,8 @@ def main():
                             except (ValueError, TypeError):
                                 pass
 
-                        if not intent.get("stop_loss") or str(intent.get("stop_loss")) in ["None", "0", "0.0"]:
+                        sl_val = intent.get("stop_loss")
+                        if not sl_val or str(sl_val) in ["None", "-", "0", "0.0"]:
                             try:
                                 with open(data_file, "r") as f:
                                     b_data = json.load(f)
@@ -200,11 +201,13 @@ def main():
 
                                         if side == "buy":
                                             intent["stop_loss"] = str(last_close * (1.0 - sl_pct))
-                                            if not intent.get("take_profit") or str(intent.get("take_profit")) in ["None", "0", "0.0"]:
+                                            tp_val = intent.get("take_profit")
+                                            if not tp_val or str(tp_val) in ["None", "-", "0", "0.0"]:
                                                 intent["take_profit"] = str(last_close * (1.0 + tp_pct))
                                         elif side == "sell":
                                             intent["stop_loss"] = str(last_close * (1.0 + sl_pct))
-                                            if not intent.get("take_profit") or str(intent.get("take_profit")) in ["None", "0", "0.0"]:
+                                            tp_val = intent.get("take_profit")
+                                            if not tp_val or str(tp_val) in ["None", "-", "0", "0.0"]:
                                                 intent["take_profit"] = str(last_close * (1.0 - tp_pct))
                             except (FileNotFoundError, json.JSONDecodeError, KeyError, ValueError, IndexError) as e:
                                 print(f"Warning: Failed to compute fallback stop loss for {symbol}: {e}")
@@ -215,8 +218,9 @@ def main():
                         continue
 
                     # Filter: Only allow Entry/ScaleIn signals that have a valid stop loss
+                    sl_val_check = intent.get("stop_loss")
                     if (is_entry or is_scale_in) and (
-                        not intent.get("stop_loss") or str(intent.get("stop_loss")) in ["None", "0", "0.0"]
+                        not sl_val_check or str(sl_val_check) in ["None", "-", "0", "0.0"]
                     ):
                         print(f"Skipping signal for {symbol}: Missing mandatory stop loss.")
                         continue
@@ -228,7 +232,6 @@ def main():
                         # We don't skip the signal, we just note it as it might be a valid new setup
 
                     # Filter: Do not chase moves - wait for pullbacks
-                    # Check the 'sentiment' string from analysis and rationale
                     if is_entry:
                         side = str(intent.get('side', '')).lower()
                         sentiment = analysis.get("sentiment", "").lower()
