@@ -41,7 +41,9 @@ pub fn calculate(
     }
 
     // Check if close column has nulls
-    let close_col = data.column("close").context("DataFrame must contain 'close' column")?;
+    let close_col = data
+        .column("close")
+        .context("DataFrame must contain 'close' column")?;
     if close_col.null_count() > 0 {
         anyhow::bail!("Close column contains null values");
     }
@@ -98,20 +100,35 @@ pub fn calculate(
     let d3_weight = Decimal::from(3);
     let d4_weight = Decimal::from(4);
 
-    for (((v1, v2), v3), v4) in rcma1.into_iter().zip(rcma2.into_iter()).zip(rcma3.into_iter()).zip(rcma4.into_iter()) {
+    for (((v1, v2), v3), v4) in rcma1
+        .into_iter()
+        .zip(rcma2.into_iter())
+        .zip(rcma3.into_iter())
+        .zip(rcma4.into_iter())
+    {
         if let (Some(val1), Some(val2), Some(val3), Some(val4)) = (v1, v2, v3, v4) {
             if val1.is_nan() || val2.is_nan() || val3.is_nan() || val4.is_nan() {
                 kst_values.push(None);
                 continue;
             }
 
-            let d1 = Decimal::from_f64_retain(val1).context("Invalid f64 for Decimal conversion")? * d1_weight;
-            let d2 = Decimal::from_f64_retain(val2).context("Invalid f64 for Decimal conversion")? * d2_weight;
-            let d3 = Decimal::from_f64_retain(val3).context("Invalid f64 for Decimal conversion")? * d3_weight;
-            let d4 = Decimal::from_f64_retain(val4).context("Invalid f64 for Decimal conversion")? * d4_weight;
+            let d1 = Decimal::from_f64_retain(val1)
+                .context("Invalid f64 for Decimal conversion")?
+                * d1_weight;
+            let d2 = Decimal::from_f64_retain(val2)
+                .context("Invalid f64 for Decimal conversion")?
+                * d2_weight;
+            let d3 = Decimal::from_f64_retain(val3)
+                .context("Invalid f64 for Decimal conversion")?
+                * d3_weight;
+            let d4 = Decimal::from_f64_retain(val4)
+                .context("Invalid f64 for Decimal conversion")?
+                * d4_weight;
 
             let kst = d1 + d2 + d3 + d4;
-            kst_values.push(Some(kst.to_f64().context("Failed to convert Decimal to f64")?));
+            kst_values.push(Some(
+                kst.to_f64().context("Failed to convert Decimal to f64")?,
+            ));
         } else {
             kst_values.push(None);
         }

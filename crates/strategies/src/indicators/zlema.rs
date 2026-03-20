@@ -95,7 +95,7 @@ pub fn calculate(data: &DataFrame, period: usize) -> Result<Series> {
                         zlema_values.push(None);
                     }
                 }
-            },
+            }
             _ => {
                 // Invalid or Missing value (NaN, None, etc.)
                 zlema_values.push(None);
@@ -106,7 +106,7 @@ pub fn calculate(data: &DataFrame, period: usize) -> Result<Series> {
         }
     }
 
-    let s = Series::new("zlema".into(), zlema_values);
+    let s = Series::new("zlema", zlema_values);
     Ok(s)
 }
 
