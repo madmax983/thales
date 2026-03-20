@@ -56,7 +56,24 @@ impl StrategyConfig for ObvTrendFollowingConfig {}
 ///
 /// Generates signals when the On-Balance Volume indicator crosses its own Simple Moving Average.
 ///
-/// # Panics
+/// # Examples
+///
+/// ```rust
+/// use strategies::obv_trend::{ObvTrendFollowing, ObvTrendFollowingConfig};
+/// use strategies::strategy::Strategy;
+///
+/// let config = ObvTrendFollowingConfig {
+///     obv_sma_period: 20,
+///     stop_loss_atr_mult: 2.0,
+///     atr_period: 14,
+///     symbol: "ETHUSD".to_string(),
+/// };
+///
+/// let strategy = ObvTrendFollowing::new(config);
+/// assert_eq!(strategy.name(), "ObvTrendFollowing");
+/// ```
+///
+/// # Errors
 ///
 /// This strategy will return an error (but not panic) if the input `DataFrame`
 /// lacks the required columns (`close`, `volume`, `high`, `low`, `timestamp_unix_ms`).

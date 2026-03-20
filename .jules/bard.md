@@ -70,3 +70,6 @@
 ## 2024-06-06 - The Silent Crossover and The Hidden Volume
 **Confusion:** The EMA Crossover and OBV Trend Following strategies lacked module-level documentation and struct documentation. Users were left to guess what configuration parameters like `short_window` and `obv_sma_period` actually meant in the context of the respective strategy concepts.
 **Clarification:** Added storytelling module-level documentation to `ema_crossover.rs` and `obv_trend.rs` explaining the financial theories behind moving average crossovers and on-balance volume. Added executable doctests for configuration structs to guide proper initialization.
+## 2024-06-07 - The Silent Volume
+**Confusion:** The OBV Trend Following strategy lacked executable examples for its configuration and strategy initialization, making it difficult for users to understand how to set it up.
+**Clarification:** Added executable doctests for `ObvTrendFollowingConfig` and `ObvTrendFollowing` structs.

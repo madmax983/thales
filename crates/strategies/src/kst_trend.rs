@@ -3,8 +3,8 @@ use anyhow::Result;
 use async_trait::async_trait;
 use polars::prelude::*;
 
-use serde::{Deserialize, Serialize};
 use chrono::Utc;
+use serde::{Deserialize, Serialize};
 
 use crate::indicators::{atr, kst};
 
@@ -81,7 +81,10 @@ impl Strategy for KstTrend {
         let sig_vals = signal_series.f64()?;
         let atr_vals = atr_series.f64()?;
 
-        let ts_col = data.column("timestamp").ok().and_then(|c| c.datetime().ok());
+        let ts_col = data
+            .column("timestamp")
+            .ok()
+            .and_then(|c| c.datetime().ok());
 
         // Need at least 2 points to check crossover
         for i in 1..closes.len() {
@@ -118,7 +121,10 @@ impl Strategy for KstTrend {
                         confidence: 0.8,
                         stop_loss: Some(stop_loss),
                         take_profit: None,
-                        reason: format!("KST ({:.2}) crossed above Signal ({:.2})", curr_kst, curr_sig),
+                        reason: format!(
+                            "KST ({:.2}) crossed above Signal ({:.2})",
+                            curr_kst, curr_sig
+                        ),
                         timestamp_ms: ts,
                     });
                 }
@@ -133,7 +139,10 @@ impl Strategy for KstTrend {
                         confidence: 0.8,
                         stop_loss: Some(stop_loss),
                         take_profit: None,
-                        reason: format!("KST ({:.2}) crossed below Signal ({:.2})", curr_kst, curr_sig),
+                        reason: format!(
+                            "KST ({:.2}) crossed below Signal ({:.2})",
+                            curr_kst, curr_sig
+                        ),
                         timestamp_ms: ts,
                     });
                 }
@@ -198,7 +207,7 @@ mod tests {
         let signals = strategy.generate_signals(&df).await?;
 
         // We expect at least one buy signal as momentum turned positive
-        assert!(signals.len() > 0);
+        assert!(!signals.is_empty());
 
         // Find a buy signal
         let buy_signals: Vec<_> = signals.iter().filter(|s| s.side == "buy").collect();
@@ -252,10 +261,13 @@ mod tests {
         let signals = strategy.generate_signals(&df).await?;
 
         // Expect at least one sell signal
-        assert!(signals.len() > 0);
+        assert!(!signals.is_empty());
 
         let sell_signals: Vec<_> = signals.iter().filter(|s| s.side == "sell").collect();
-        assert!(!sell_signals.is_empty(), "Expected at least one sell signal");
+        assert!(
+            !sell_signals.is_empty(),
+            "Expected at least one sell signal"
+        );
 
         let signal = sell_signals.last().unwrap();
         assert_eq!(signal.symbol, "TEST");

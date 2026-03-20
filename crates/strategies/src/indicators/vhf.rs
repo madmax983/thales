@@ -70,8 +70,16 @@ pub fn calculate(data: &DataFrame, period: usize) -> Result<Series> {
 
                 if diffs_window.len() == period && closes_window.len() == period + 1 {
                     // Safe because closes_window.len() == period + 1 > 0
-                    let max_close = closes_window.iter().copied().reduce(|a, b| a.max(b)).unwrap_or(Decimal::ZERO);
-                    let min_close = closes_window.iter().copied().reduce(|a, b| a.min(b)).unwrap_or(Decimal::ZERO);
+                    let max_close = closes_window
+                        .iter()
+                        .copied()
+                        .reduce(|a, b| a.max(b))
+                        .unwrap_or(Decimal::ZERO);
+                    let min_close = closes_window
+                        .iter()
+                        .copied()
+                        .reduce(|a, b| a.min(b))
+                        .unwrap_or(Decimal::ZERO);
                     let numerator = max_close - min_close;
 
                     if sum_diffs.is_zero() {
@@ -136,7 +144,11 @@ mod tests {
         assert!((val4 - 0.5).abs() < 1e-6, "Expected 0.5, got {}", val4);
 
         let val5 = out.get(5).context("Expected value at index 5")?;
-        assert!((val5 - 0.6666666666666666).abs() < 1e-6, "Expected 0.666..., got {}", val5);
+        assert!(
+            (val5 - 0.6666666666666666).abs() < 1e-6,
+            "Expected 0.666..., got {}",
+            val5
+        );
 
         Ok(())
     }
