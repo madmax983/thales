@@ -1215,3 +1215,27 @@ let stc_series = stc::calculate(&df, fast_period, slow_period, cycle_period, d_p
 ```rust
 let dpo_series = dpo::calculate(&data, 20)?;
 ```
+
+---
+
+## Fisher Transform
+
+**Name:** Fisher Transform
+**Description:** Converts price data into a Gaussian normal distribution to identify potential turning points and trends.
+**Rationale:** Standard price action doesn't have a normal distribution, creating noise. The Fisher Transform transforms prices to have sharp peaks and troughs, filtering out minor fluctuations and highlighting real reversals clearly.
+**Implementation Details:**
+- Uses `rust_decimal::Decimal` for precision.
+- Implements Ehlers' formula: `F = 0.5 * ln((1 + X) / (1 - X))` where X is the price normalized between -1 and 1 over a period.
+- Uses exponential smoothing on both the normalized values and the final transform.
+- Fallback logic checks for "high" and "low" columns, using "close" if absent.
+
+### Usage
+
+```rust
+use strategies::indicators::fisher_transform;
+use polars::prelude::*;
+
+// Requires a DataFrame `df` with "high" and "low" (or "close") columns
+let period = 9;
+let fisher_series = fisher_transform::calculate(&df, period)?;
+```
