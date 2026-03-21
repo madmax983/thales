@@ -68,7 +68,8 @@ pub fn calculate(data: &DataFrame, period: usize) -> Result<Series> {
 
             if count > period {
                 if let Some(old_val) = close_vec[i - period] {
-                    window_sum -= Decimal::from_f64_retain(old_val).context("Failed to parse close as Decimal")?;
+                    window_sum -= Decimal::from_f64_retain(old_val)
+                        .context("Failed to parse close as Decimal")?;
                 }
                 count -= 1;
             }
@@ -92,9 +93,13 @@ pub fn calculate(data: &DataFrame, period: usize) -> Result<Series> {
         let sma_idx = i + displacement;
         if sma_idx < n {
             if let (Some(close_val), Some(sma_val)) = (close_vec[i], sma_values[sma_idx]) {
-                let close_dec = Decimal::from_f64_retain(close_val).context("Failed to parse close as Decimal")?;
+                let close_dec = Decimal::from_f64_retain(close_val)
+                    .context("Failed to parse close as Decimal")?;
                 let dpo = close_dec - sma_val;
-                dpo_values[i] = Some(dpo.to_f64().context("Failed to convert DPO Decimal back to f64")?);
+                dpo_values[i] = Some(
+                    dpo.to_f64()
+                        .context("Failed to convert DPO Decimal back to f64")?,
+                );
             }
         }
     }

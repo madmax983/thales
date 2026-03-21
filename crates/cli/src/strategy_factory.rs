@@ -45,6 +45,9 @@ use strategies::connors_rsi_mean_reversion::{
     ConnorsRsiMeanReversion, ConnorsRsiMeanReversionConfig,
 };
 use strategies::dema_crossover::{DemaCrossover, DemaCrossoverConfig};
+use strategies::disparity_index_reversion::{
+    DisparityIndexReversion, DisparityIndexReversionConfig,
+};
 use strategies::donchian_breakout::{DonchianBreakout, DonchianBreakoutConfig};
 use strategies::elder_ray::{ElderRay, ElderRayConfig};
 use strategies::ema_crossover::{EmaCrossover, EmaCrossoverConfig};
@@ -704,6 +707,13 @@ pub fn create_strategy(name: &str, symbol: &str) -> Result<Box<dyn Strategy>> {
             };
             Ok(Box::new(SchaffTrendCycle::new(config)))
         }
+        "DisparityIndexReversion" => {
+            let config = DisparityIndexReversionConfig {
+                symbol: symbol.to_string(),
+                ..Default::default()
+            };
+            Ok(Box::new(DisparityIndexReversion::new(config)))
+        }
         _ => Err(anyhow::anyhow!("Unknown strategy: {}", name)),
     }
 }
@@ -769,5 +779,6 @@ pub fn list_strategies() -> Vec<&'static str> {
         "KstTrend",
         "VhfTrendFollowing",
         "SchaffTrendCycle",
+        "DisparityIndexReversion",
     ]
 }

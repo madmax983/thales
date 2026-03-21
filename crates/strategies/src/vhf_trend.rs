@@ -130,8 +130,9 @@ impl Strategy for VhfTrendFollowing {
                 Some(price_c),
                 Some(price_p),
                 Some(atr_val),
-            ) = (vhf_curr, vhf_prev, sma_curr, sma_prev, price_curr, price_prev, atr_opt)
-            {
+            ) = (
+                vhf_curr, vhf_prev, sma_curr, sma_prev, price_curr, price_prev, atr_opt,
+            ) {
                 let price_dec = Decimal::from_f64_retain(price_c).unwrap_or(Decimal::ZERO);
                 let atr_dec = Decimal::from_f64_retain(atr_val).unwrap_or(Decimal::ZERO);
 
@@ -168,7 +169,11 @@ impl Strategy for VhfTrendFollowing {
                 }
 
                 // Long Entry
-                if vhf_c > self.config.trend_threshold && price_c > sma_c && (vhf_p <= self.config.trend_threshold || price_p <= sma_p) && !active_long {
+                if vhf_c > self.config.trend_threshold
+                    && price_c > sma_c
+                    && (vhf_p <= self.config.trend_threshold || price_p <= sma_p)
+                    && !active_long
+                {
                     let sl = price_dec - (atr_dec * sl_mult);
                     let risk = price_dec - sl;
                     let tp = price_dec + (risk * two_dec);
@@ -181,13 +186,20 @@ impl Strategy for VhfTrendFollowing {
                         confidence: 0.8,
                         stop_loss: Some(sl.to_f64().unwrap_or(0.0)),
                         take_profit: Some(tp.to_f64().unwrap_or(0.0)),
-                        reason: format!("VHF Trend Up: VHF {:.2} > {}, Price {:.2} > SMA {:.2}", vhf_c, self.config.trend_threshold, price_c, sma_c),
+                        reason: format!(
+                            "VHF Trend Up: VHF {:.2} > {}, Price {:.2} > SMA {:.2}",
+                            vhf_c, self.config.trend_threshold, price_c, sma_c
+                        ),
                         timestamp_ms: timestamp,
                     });
                     active_long = true;
                 }
                 // Short Entry
-                else if vhf_c > self.config.trend_threshold && price_c < sma_c && (vhf_p <= self.config.trend_threshold || price_p >= sma_p) && !active_short {
+                else if vhf_c > self.config.trend_threshold
+                    && price_c < sma_c
+                    && (vhf_p <= self.config.trend_threshold || price_p >= sma_p)
+                    && !active_short
+                {
                     let sl = price_dec + (atr_dec * sl_mult);
                     let risk = sl - price_dec;
                     let tp = price_dec - (risk * two_dec);
@@ -200,7 +212,10 @@ impl Strategy for VhfTrendFollowing {
                         confidence: 0.8,
                         stop_loss: Some(sl.to_f64().unwrap_or(0.0)),
                         take_profit: Some(tp.to_f64().unwrap_or(0.0)),
-                        reason: format!("VHF Trend Down: VHF {:.2} > {}, Price {:.2} < SMA {:.2}", vhf_c, self.config.trend_threshold, price_c, sma_c),
+                        reason: format!(
+                            "VHF Trend Down: VHF {:.2} > {}, Price {:.2} < SMA {:.2}",
+                            vhf_c, self.config.trend_threshold, price_c, sma_c
+                        ),
                         timestamp_ms: timestamp,
                     });
                     active_short = true;
@@ -226,8 +241,10 @@ mod tests {
 
     #[test]
     fn test_parameter_validation() {
-        let mut config = VhfTrendFollowingConfig::default();
-        config.vhf_period = 0;
+        let mut config = VhfTrendFollowingConfig {
+            vhf_period: 0,
+            ..Default::default()
+        };
         let res = VhfTrendFollowing::validate_config(&config);
         assert!(res.is_err());
         assert_eq!(res.unwrap_err().to_string(), "vhf_period must be > 0");
@@ -248,13 +265,19 @@ mod tests {
         config.stop_loss_atr_mult = 0.0;
         let res = VhfTrendFollowing::validate_config(&config);
         assert!(res.is_err());
-        assert_eq!(res.unwrap_err().to_string(), "stop_loss_atr_mult must be > 0");
+        assert_eq!(
+            res.unwrap_err().to_string(),
+            "stop_loss_atr_mult must be > 0"
+        );
 
         config.stop_loss_atr_mult = 2.0;
         config.max_position_size = 0.0;
         let res = VhfTrendFollowing::validate_config(&config);
         assert!(res.is_err());
-        assert_eq!(res.unwrap_err().to_string(), "max_position_size must be > 0");
+        assert_eq!(
+            res.unwrap_err().to_string(),
+            "max_position_size must be > 0"
+        );
     }
 
     #[tokio::test]
