@@ -162,7 +162,9 @@ def main():
 
             # 4. Execute Intent
             # To execute, we need to pass the file path
-            exec_cmd = f"cargo run -p thales-cli -- execute-intent --provider {provider} --input {intent_file}"
+            # Route both equities and crypto to Kraken ONLY for execution
+            exec_provider = "kraken" if os.environ.get("SIMULATION") != "true" else "paper"
+            exec_cmd = f"cargo run -p thales-cli -- execute-intent --provider {exec_provider} --input {intent_file}"
             exec_res = subprocess.run(exec_cmd, shell=True, capture_output=True, text=True)
 
             try:

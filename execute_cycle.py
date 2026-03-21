@@ -209,6 +209,34 @@ def get_active_strategies():
         strategies.append("HmaCrossover")
     if "VolumeOscillatorTrend" in content:
         strategies.append("VolumeOscillatorTrend")
+    if "ChaikinOscillatorMomentum" in content:
+        strategies.append("ChaikinOscillatorMomentum")
+    if "KstTrend" in content:
+        strategies.append("KstTrend")
+    if "RelativeVigorIndexTrend" in content:
+        strategies.append("RelativeVigorIndexTrend")
+    if "UltimateOscillator" in content:
+        strategies.append("UltimateOscillator")
+    if "DpoBreakout" in content:
+        strategies.append("DpoBreakout")
+    if "DisparityIndexReversion" in content:
+        strategies.append("DisparityIndexReversion")
+    if "SchaffTrendCycle" in content:
+        strategies.append("SchaffTrendCycle")
+    if "VhfTrendFollowing" in content:
+        strategies.append("VhfTrendFollowing")
+    if "FisherTransformReversal" in content:
+        strategies.append("FisherTransformReversal")
+    if "EmaRsiTrendFollowing" in content:
+        strategies.append("EmaRsiTrendFollowing")
+    if "TripleSmaCrossover" in content:
+        strategies.append("TripleSmaCrossover")
+    if "TripleEmaCrossover" in content:
+        strategies.append("TripleEmaCrossover")
+    if "KamaCrossover" in content:
+        strategies.append("KamaCrossover")
+    if "BollingerRsiMeanReversion" in content:
+        strategies.append("BollingerRsiMeanReversion")
 
     return strategies
 
@@ -401,8 +429,8 @@ def get_candidates_from_signals():
         if os.environ.get("SIMULATION") == "true":
             provider = "paper"
         else:
-            # Route both equities and crypto to kraken
-            provider = "kraken"
+            # Route based on market
+            provider = "alpaca" if market == "equities" else "kraken"
 
         # Extract JSON
         json_match = re.search(r"```json\s*(\{.*?\})\s*```", chunk, re.DOTALL)
@@ -541,17 +569,12 @@ def scan_markets():
         equities = run_command(["scan-market", "--provider", "alpaca"])
         if equities:
             for symbol in equities:
-                candidates.append({"provider": "kraken", "symbol": symbol, "market": "equities"})
+                candidates.append({"provider": "alpaca", "symbol": symbol, "market": "equities"})
 
     return candidates
 
 def evaluate_candidate(candidate, strategies, portfolio_path=None):
     """Fetches data and generates signals for a candidate using all active strategies."""
-    # Ensure proper provider routing for data fetching
-    if os.environ.get("SIMULATION") != "true":
-        # Route both equities and crypto to kraken
-        candidate["provider"] = "kraken"
-
     provider = candidate["provider"]
     symbol = candidate["symbol"]
 
@@ -1547,12 +1570,12 @@ def main():
         print(f"Reasoning: {intent.get('rationale', 'None')}")
         print("------------------\n")
 
-        # Route both equities and crypto to Kraken
+        # Fetch latest price for execution logic using original provider
+        current_price = get_latest_price(intent.get("provider", "kraken"), intent["symbol"])
+
+        # Route both equities and crypto to Kraken ONLY for execution
         if os.environ.get("SIMULATION") != "true":
             intent["provider"] = "kraken"
-
-        # Fetch latest price for execution logic
-        current_price = get_latest_price(intent["provider"], intent["symbol"])
 
         # Refine Intent (Algo Selection)
         intent = refine_intent(intent, current_price)
