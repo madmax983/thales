@@ -1,3 +1,16 @@
+//! Chaikin Oscillator Momentum Strategy
+//!
+//! This module implements a momentum strategy based on the Chaikin Oscillator indicator.
+//! The Chaikin Oscillator applies a MACD-like calculation to the Accumulation/Distribution Line (ADL).
+//! It measures the momentum of the ADL to anticipate changes in direction.
+//!
+//! # The Strategy
+//! The strategy generates signals based on zero-line crossovers of the Chaikin Oscillator:
+//! - **Entry Signal:** Triggers when the Chaikin Oscillator crosses above the zero line.
+//! - **Exit Signal:** Triggers when the Chaikin Oscillator crosses below the zero line.
+//!
+//! Risk is managed using an Average True Range (ATR) based stop loss on entry.
+
 use crate::indicators::{atr, chaikin_oscillator};
 use crate::strategy::{Signal, SignalType, Strategy, StrategyConfig, StrategyType};
 use anyhow::Result;
@@ -5,12 +18,32 @@ use async_trait::async_trait;
 use polars::prelude::*;
 use serde::{Deserialize, Serialize};
 
+/// Configuration parameters for the `ChaikinOscillatorMomentum` strategy.
+///
+/// # Examples
+///
+/// ```rust
+/// use strategies::chaikin_oscillator_momentum::ChaikinOscillatorMomentumConfig;
+///
+/// let config = ChaikinOscillatorMomentumConfig {
+///     fast_period: 3,
+///     slow_period: 10,
+///     stop_loss_atr_mult: 2.0,
+///     atr_period: 14,
+///     symbol: "AAPL".to_string(),
+/// };
+/// ```
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ChaikinOscillatorMomentumConfig {
+    /// The fast moving average period for the Chaikin Oscillator calculation.
     pub fast_period: usize,
+    /// The slow moving average period for the Chaikin Oscillator calculation.
     pub slow_period: usize,
+    /// The multiplier for the Average True Range to set the stop loss distance.
     pub stop_loss_atr_mult: f64,
+    /// The lookback period for calculating the Average True Range.
     pub atr_period: usize,
+    /// The trading symbol to evaluate.
     pub symbol: String,
 }
 
@@ -46,11 +79,36 @@ impl ChaikinOscillatorMomentumConfig {
 
 impl StrategyConfig for ChaikinOscillatorMomentumConfig {}
 
+/// The Chaikin Oscillator Momentum strategy implementation.
+///
+/// This strategy utilizes zero-line crossovers of the Chaikin Oscillator to identify
+/// buying and selling opportunities.
+///
+/// # Examples
+///
+/// ```rust
+/// use strategies::chaikin_oscillator_momentum::{ChaikinOscillatorMomentum, ChaikinOscillatorMomentumConfig};
+/// use strategies::strategy::Strategy;
+///
+/// let config = ChaikinOscillatorMomentumConfig {
+///     fast_period: 3,
+///     slow_period: 10,
+///     stop_loss_atr_mult: 2.0,
+///     atr_period: 14,
+///     symbol: "BTCUSD".to_string(),
+/// };
+///
+/// let strategy = ChaikinOscillatorMomentum::new(config);
+/// assert_eq!(strategy.name(), "ChaikinOscillatorMomentum");
+/// ```
 pub struct ChaikinOscillatorMomentum {
     config: ChaikinOscillatorMomentumConfig,
 }
 
 impl ChaikinOscillatorMomentum {
+    /// Constructs a new `ChaikinOscillatorMomentum` strategy from the provided configuration.
+    ///
+    /// The configuration is validated upon creation.
     pub fn new(config: ChaikinOscillatorMomentumConfig) -> Self {
         let _ = config.validate();
         Self { config }

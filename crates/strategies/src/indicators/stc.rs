@@ -57,7 +57,11 @@ pub fn calculate(
             let mut lowest = Decimal::MAX;
             let mut valid = true;
 
-            for val_opt in macd_decimals.iter().take(i + 1).skip(i + 1 - safe_cycle_period) {
+            for val_opt in macd_decimals
+                .iter()
+                .take(i + 1)
+                .skip(i + 1 - safe_cycle_period)
+            {
                 if let Some(val) = val_opt {
                     if *val > highest {
                         highest = *val;

@@ -1,3 +1,18 @@
+//! Chaikin Money Flow (CMF) Strategy
+//!
+//! This module implements a momentum strategy based on the Chaikin Money Flow indicator.
+//! CMF measures buying and selling pressure over a specific period by combining price
+//! and volume data.
+//!
+//! # The Strategy
+//! The strategy generates signals based on CMF crossovers relative to configurable thresholds:
+//! - **Entry Signal:** Triggers when the CMF value crosses above the `buy_threshold`.
+//! - **Exit Signal:** Triggers when the CMF value crosses below the `sell_threshold`.
+//!
+//! Position sizing is based on a fixed value, and the initial stop loss is
+//! determined using the Average True Range (ATR) scaled by a configurable multiplier.
+//! This is a momentum strategy designed to ride the trend until an exit signal is generated.
+
 use crate::indicators::{atr, cmf};
 use crate::strategy::{Signal, SignalType, Strategy, StrategyConfig, StrategyType};
 use anyhow::Result;
@@ -7,23 +22,69 @@ use rust_decimal::prelude::ToPrimitive;
 use rust_decimal::Decimal;
 use serde::{Deserialize, Serialize};
 
+/// Configuration parameters for the `ChaikinMoneyFlow` strategy.
+///
+/// # Examples
+///
+/// ```rust
+/// use strategies::chaikin_money_flow::ChaikinMoneyFlowConfig;
+///
+/// let config = ChaikinMoneyFlowConfig {
+///     period: 20,
+///     buy_threshold: 0.05,
+///     sell_threshold: -0.05,
+///     stop_loss_atr_mult: 2.0,
+///     atr_period: 14,
+///     symbol: "AAPL".to_string(),
+/// };
+/// ```
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ChaikinMoneyFlowConfig {
+    /// The lookback period for calculating the Chaikin Money Flow.
     pub period: usize,
+    /// The CMF value above which a buy signal is generated.
     pub buy_threshold: f64,
+    /// The CMF value below which a sell signal is generated.
     pub sell_threshold: f64,
+    /// The multiplier for the Average True Range to set the stop loss distance.
     pub stop_loss_atr_mult: f64,
+    /// The lookback period for calculating the Average True Range.
     pub atr_period: usize,
+    /// The trading symbol to evaluate.
     pub symbol: String,
 }
 
 impl StrategyConfig for ChaikinMoneyFlowConfig {}
 
+/// The Chaikin Money Flow strategy implementation.
+///
+/// This strategy uses CMF crossovers to identify potential entry and exit points,
+/// applying ATR-based stop losses for risk management.
+///
+/// # Examples
+///
+/// ```rust
+/// use strategies::chaikin_money_flow::{ChaikinMoneyFlow, ChaikinMoneyFlowConfig};
+/// use strategies::strategy::Strategy;
+///
+/// let config = ChaikinMoneyFlowConfig {
+///     period: 20,
+///     buy_threshold: 0.1,
+///     sell_threshold: -0.1,
+///     stop_loss_atr_mult: 1.5,
+///     atr_period: 14,
+///     symbol: "BTCUSD".to_string(),
+/// };
+///
+/// let strategy = ChaikinMoneyFlow::new(config);
+/// assert_eq!(strategy.name(), "ChaikinMoneyFlow");
+/// ```
 pub struct ChaikinMoneyFlow {
     config: ChaikinMoneyFlowConfig,
 }
 
 impl ChaikinMoneyFlow {
+    /// Constructs a new `ChaikinMoneyFlow` strategy from the provided configuration.
     pub fn new(config: ChaikinMoneyFlowConfig) -> Self {
         Self { config }
     }
