@@ -73,3 +73,7 @@
 ## 2024-06-07 - The Silent Volume
 **Confusion:** The OBV Trend Following strategy lacked executable examples for its configuration and strategy initialization, making it difficult for users to understand how to set it up.
 **Clarification:** Added executable doctests for `ObvTrendFollowingConfig` and `ObvTrendFollowing` structs.
+
+## 2024-06-08 - The Silent Momentum
+**Confusion:** The Chaikin Money Flow and Chaikin Oscillator Momentum strategies lacked any documentation, leaving users guessing about the exact rules that triggered signals and the rationale behind their configurations.
+**Clarification:** Added module-level documentation and executable examples (`# Examples`) for `ChaikinMoneyFlowConfig`, `ChaikinMoneyFlow`, `ChaikinOscillatorMomentumConfig`, and `ChaikinOscillatorMomentum`. Detailed the exact logic for zero-line crossovers and risk management.

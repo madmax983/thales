@@ -101,8 +101,13 @@ impl Strategy for ZlemaCrossover {
                 Some(prev_short),
                 Some(prev_long),
                 Some(atr_val),
-            ) = (short_zlema, long_zlema, prev_short_zlema, prev_long_zlema, atr_val_opt)
-            {
+            ) = (
+                short_zlema,
+                long_zlema,
+                prev_short_zlema,
+                prev_long_zlema,
+                atr_val_opt,
+            ) {
                 let stop_loss_dist = atr_val * self.config.stop_loss_atr_mult;
                 let take_profit_dist = atr_val * self.config.take_profit_atr_mult;
 
@@ -229,7 +234,10 @@ mod tests {
         )?;
 
         let signals = strategy.generate_signals(&df).await?;
-        assert!(signals.is_empty(), "Empty dataframe should produce no signals");
+        assert!(
+            signals.is_empty(),
+            "Empty dataframe should produce no signals"
+        );
 
         Ok(())
     }
@@ -259,7 +267,10 @@ mod tests {
         let timestamps: Vec<i64> = (0..20).map(|i| 1000 + i as i64 * 1000).collect();
         // High ATR from massive spikes
         let highs = closes.iter().map(|c| c + 100.0).collect::<Vec<_>>();
-        let lows = closes.iter().map(|c| if *c > 100.0 { c - 100.0 } else { 0.0 }).collect::<Vec<_>>();
+        let lows = closes
+            .iter()
+            .map(|c| if *c > 100.0 { c - 100.0 } else { 0.0 })
+            .collect::<Vec<_>>();
 
         let df = df!(
             "timestamp_unix_ms" => timestamps,
@@ -281,7 +292,7 @@ mod tests {
             .collect();
 
         // We expect at least one signal around the spikes
-        assert!(!entries.is_empty() || signals.len() > 0);
+        assert!(!entries.is_empty() || !signals.is_empty());
 
         Ok(())
     }
