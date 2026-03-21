@@ -49,6 +49,7 @@ use strategies::disparity_index_reversion::{
     DisparityIndexReversion, DisparityIndexReversionConfig,
 };
 use strategies::donchian_breakout::{DonchianBreakout, DonchianBreakoutConfig};
+use strategies::dpo_breakout::{DpoBreakout, DpoBreakoutConfig};
 use strategies::elder_ray::{ElderRay, ElderRayConfig};
 use strategies::ema_crossover::{EmaCrossover, EmaCrossoverConfig};
 use strategies::ema_rsi_trend::{EmaRsiTrendFollowing, EmaRsiTrendFollowingConfig};
@@ -722,6 +723,13 @@ pub fn create_strategy(name: &str, symbol: &str) -> Result<Box<dyn Strategy>> {
             };
             Ok(Box::new(DisparityIndexReversion::new(config)))
         }
+        "DpoBreakout" => {
+            let config = DpoBreakoutConfig {
+                symbol: symbol.to_string(),
+                ..Default::default()
+            };
+            Ok(Box::new(DpoBreakout::new(config)))
+        }
         _ => Err(anyhow::anyhow!("Unknown strategy: {}", name)),
     }
 }
@@ -789,5 +797,6 @@ pub fn list_strategies() -> Vec<&'static str> {
         "VhfTrendFollowing",
         "SchaffTrendCycle",
         "DisparityIndexReversion",
+        "DpoBreakout",
     ]
 }
