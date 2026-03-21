@@ -4311,6 +4311,8 @@
 | 2026-03-21 13:05:08 | REKTUSD | crypto:REKTUSD:buy:1774098000000 | Rejected by Risk Agent: Order value below exchange minimum fiat volume (0.21 < 5.0) |
 | 2026-03-21 13:05:09 | COQUSD | crypto:COQUSD:buy:1774098000000 | Rejected by Risk Agent: Order value below exchange minimum fiat volume (0.21 < 5.0) |
 | 2026-03-21 13:05:09 | SHIBUSD | crypto:SHIBUSD:buy:1774098000000 | Rejected by Risk Agent: Order value below exchange minimum fiat volume (0.21 < 5.0) |
+| 2026-03-21 16:12:38 | PEPEUSD | NO_REF | CONFLICT: Conflicting signals (Buy and Sell) detected for PEPEUSD. Trading halted for this asset. |
+| 2026-03-21 16:12:41 | REKTUSD | crypto:REKTUSD:sell:1774108800000 | provider error: kraken api error: EOrder:Insufficient funds |
 
 ## Executed Trades
 
