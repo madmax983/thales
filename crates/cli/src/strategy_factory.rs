@@ -82,6 +82,9 @@ use strategies::supertrend_ema_crossover::{SupertrendEmaCrossover, SupertrendEma
 use strategies::supertrend_rsi::{SupertrendRsi, SupertrendRsiConfig};
 use strategies::tema_crossover::{TemaCrossover, TemaCrossoverConfig};
 use strategies::triple_sma_crossover::{TripleSmaCrossover, TripleSmaCrossoverConfig};
+use strategies::triple_ema_crossover::{TripleEmaCrossover, TripleEmaCrossoverConfig};
+use strategies::relative_vigor_index_trend::{RelativeVigorIndexTrend, RelativeVigorIndexTrendConfig};
+use strategies::ultimate_oscillator::{UltimateOscillator, UltimateOscillatorConfig};
 use strategies::trix_crossover::{TrixCrossover, TrixCrossoverConfig};
 use strategies::trix_momentum::{TrixMomentum, TrixMomentumConfig};
 use strategies::tsi_trend::{TsiTrend, TsiTrendConfig};
@@ -562,6 +565,40 @@ pub fn create_strategy(name: &str, symbol: &str) -> Result<Box<dyn Strategy>> {
             };
             Ok(Box::new(TripleSmaCrossover::new(config)))
         }
+        "TripleEmaCrossover" => {
+            let config = TripleEmaCrossoverConfig {
+                short_period: 9,
+                medium_period: 21,
+                long_period: 50,
+                stop_loss_atr_mult: 2.0,
+                atr_period: 14,
+                symbol: symbol.to_string(),
+            };
+            Ok(Box::new(TripleEmaCrossover::new(config)?))
+        }
+        "UltimateOscillator" => {
+            let config = UltimateOscillatorConfig {
+                period1: 7,
+                period2: 14,
+                period3: 28,
+                oversold_threshold: 30.0,
+                overbought_threshold: 70.0,
+                stop_loss_atr_mult: 2.0,
+                max_position_size: 100.0,
+                atr_period: 14,
+                symbol: symbol.to_string(),
+            };
+            Ok(Box::new(UltimateOscillator::new(config)?))
+        }
+        "RelativeVigorIndexTrend" => {
+            let config = RelativeVigorIndexTrendConfig {
+                period: 10,
+                stop_loss_atr_mult: 2.0,
+                atr_period: 14,
+                symbol: symbol.to_string(),
+            };
+            Ok(Box::new(RelativeVigorIndexTrend::new(config)))
+        }
         "VolumeOscillatorTrend" => {
             let config = VolumeOscillatorTrendConfig {
                 short_period: 14,
@@ -800,6 +837,9 @@ pub fn list_strategies() -> Vec<&'static str> {
         "VwapReversion",
         "VortexBreakout",
         "TripleSmaCrossover",
+        "TripleEmaCrossover",
+        "UltimateOscillator",
+        "RelativeVigorIndexTrend",
         "VolumeOscillatorTrend",
         "VptTrendFollowing",
         "ZlemaCrossover",
