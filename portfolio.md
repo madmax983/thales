@@ -4303,6 +4303,8 @@
 | 2026-03-19 18:21:22 | BTCUSD | crypto:BTCUSD:sell:1773735559157 | Signal too old (58.0 hours > 24 hours) |
 | 2026-03-19 18:21:22 | ETHUSD | crypto:ETHUSD:buy:1773735559173 | Signal too old (58.0 hours > 24 hours) |
 | 2026-03-19 18:21:22 | SPY | equities:SPY:buy:1773735559189 | Signal too old (58.0 hours > 24 hours) |
+| 2026-03-21 09:57:44 | COQUSD | crypto:COQUSD:buy:1774083600000 | Rejected by Risk Agent: Order value below exchange minimum fiat volume (0.21 < 5.0) |
+| 2026-03-21 09:57:45 | MOGUSD | crypto:MOGUSD:buy:1774083600000 | Rejected by Risk Agent: Order value below exchange minimum fiat volume (0.21 < 5.0) |
 
 ## Executed Trades
 
