@@ -60,6 +60,7 @@ TREND_FOLLOWING_STRATEGIES = {
     "WmaCrossover",
     "HmaCrossover",
     "PpoRsiTrend",
+    "DoubleEmaCrossover",
 }
 BREAKOUT_STRATEGIES = {
     "Supertrend",
@@ -237,6 +238,8 @@ def get_active_strategies():
         strategies.append("KamaCrossover")
     if "BollingerRsiMeanReversion" in content:
         strategies.append("BollingerRsiMeanReversion")
+    if "DoubleEmaCrossover" in content:
+        strategies.append("DoubleEmaCrossover")
 
     return strategies
 

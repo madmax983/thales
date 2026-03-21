@@ -182,14 +182,18 @@ mod tests {
 
     #[tokio::test]
     async fn test_parameter_validation() {
-        let mut config = FisherTransformReversalConfig::default();
-        config.period = 0;
-        assert!(FisherTransformReversal::new(config).is_err());
+        let config1 = FisherTransformReversalConfig {
+            period: 0,
+            ..Default::default()
+        };
+        assert!(FisherTransformReversal::new(config1).is_err());
 
-        let mut config = FisherTransformReversalConfig::default();
-        config.overbought_threshold = -2.0;
-        config.oversold_threshold = 2.0;
-        assert!(FisherTransformReversal::new(config).is_err());
+        let config2 = FisherTransformReversalConfig {
+            overbought_threshold: -2.0,
+            oversold_threshold: 2.0,
+            ..Default::default()
+        };
+        assert!(FisherTransformReversal::new(config2).is_err());
     }
 
     #[tokio::test]
