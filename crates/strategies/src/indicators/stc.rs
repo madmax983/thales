@@ -57,10 +57,14 @@ pub fn calculate(
             let mut lowest = Decimal::MAX;
             let mut valid = true;
 
-            for j in (i + 1 - safe_cycle_period)..=i {
-                if let Some(val) = macd_decimals[j] {
-                    if val > highest { highest = val; }
-                    if val < lowest { lowest = val; }
+            for val_opt in macd_decimals.iter().take(i + 1).skip(i + 1 - safe_cycle_period) {
+                if let Some(val) = val_opt {
+                    if *val > highest {
+                        highest = *val;
+                    }
+                    if *val < lowest {
+                        lowest = *val;
+                    }
                 } else {
                     valid = false;
                     break;
@@ -92,10 +96,14 @@ pub fn calculate(
             let mut lowest = Decimal::MAX;
             let mut valid = true;
 
-            for j in (i + 1 - safe_cycle_period)..=i {
-                if let Some(val) = d1[j] {
-                    if val > highest { highest = val; }
-                    if val < lowest { lowest = val; }
+            for val_opt in d1.iter().take(i + 1).skip(i + 1 - safe_cycle_period) {
+                if let Some(val) = val_opt {
+                    if *val > highest {
+                        highest = *val;
+                    }
+                    if *val < lowest {
+                        lowest = *val;
+                    }
                 } else {
                     valid = false;
                     break;
@@ -159,7 +167,6 @@ fn calculate_ema(data: &[Option<Decimal>], period: usize) -> Vec<Option<Decimal>
     ema_values
 }
 
-
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -191,7 +198,12 @@ mod tests {
         // STC is bounded between 0 and 100
         for i in 10..stc_vals.len() {
             if let Some(val) = stc_vals.get(i) {
-                assert!(val >= 0.0 && val <= 100.0, "STC out of bounds at index {}: {}", i, val);
+                assert!(
+                    (0.0..=100.0).contains(&val),
+                    "STC out of bounds at index {}: {}",
+                    i,
+                    val
+                );
             }
         }
 

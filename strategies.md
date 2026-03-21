@@ -2555,6 +2555,45 @@ TrendFollowing
 - **Expected Sharpe Ratio:** > 1.2
 - **Max Drawdown:** < 15%
 
+---
+
+# Trading Strategy: Disparity Index Reversion
+
+## Strategy Specification
+
+**Name:** DisparityIndexReversion
+
+**Description:** A mean reversion strategy based on the Disparity Index, which measures the relative position of the latest closing price to a chosen moving average.
+
+**Rationale:** When the price deviates significantly from its moving average (high disparity), it is likely to revert to the mean. Extreme negative values suggest oversold conditions, while extreme positive values suggest overbought conditions.
+
+## Requirements
+
+### Implementation Details
+- Uses Polars for data analysis.
+- Implements the `Strategy` trait in Rust.
+- Uses the `disparity_index` and `atr` indicators.
+
+### Strategy Type
+Mean Reversion
+
+### Entry Conditions
+- **Long Entry (Buy):** Disparity Index drops below the `oversold_threshold` (e.g., -5%).
+- **Short Entry (Sell):** Disparity Index rises above the `overbought_threshold` (e.g., +5%).
+
+### Exit Conditions
+- **Long Exit (Sell):** Disparity Index rises above 0 (returns to mean).
+- **Short Exit (Buy):** Disparity Index drops below 0 (returns to mean).
+- **Stop Loss:** Entry Price +/- (ATR * `stop_loss_atr_mult`).
+
+### Position Sizing
+- **Size Hint:** "100" for entry, "max" for exits.
+
+### Expected Backtesting Metrics
+- **Expected Win Rate:** 50% - 60% (typical for mean reversion)
+- **Sharpe Ratio:** > 1.0
+- **Max Drawdown:** < 15%
+
 ### Performance
 - HMA and ATR calculations are O(N).
 - Signal generation loop is O(N).

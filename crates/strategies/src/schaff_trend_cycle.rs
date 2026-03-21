@@ -4,7 +4,6 @@ use anyhow::Result;
 use async_trait::async_trait;
 use polars::prelude::*;
 
-
 use serde::{Deserialize, Serialize};
 
 /// Configuration parameters for the `SchaffTrendCycle` strategy.
@@ -121,12 +120,15 @@ impl Strategy for SchaffTrendCycle {
             let price_opt = close_arr.get(i);
             let atr_opt = atr_arr.get(i);
 
-            if let (Some(stc_c), Some(stc_p), Some(price)) = (stc_curr_opt, stc_prev_opt, price_opt) {
+            if let (Some(stc_c), Some(stc_p), Some(price)) = (stc_curr_opt, stc_prev_opt, price_opt)
+            {
                 // Long Entry: STC crosses above oversold_threshold
-                let cross_above_oversold = stc_p <= self.config.oversold_threshold && stc_c > self.config.oversold_threshold;
+                let cross_above_oversold = stc_p <= self.config.oversold_threshold
+                    && stc_c > self.config.oversold_threshold;
 
                 // Short Entry: STC crosses below overbought_threshold
-                let cross_below_overbought = stc_p >= self.config.overbought_threshold && stc_c < self.config.overbought_threshold;
+                let cross_below_overbought = stc_p >= self.config.overbought_threshold
+                    && stc_c < self.config.overbought_threshold;
 
                 if cross_above_oversold {
                     let sl_dist = atr_opt.unwrap_or(price * 0.05) * self.config.stop_loss_atr_mult;
@@ -141,7 +143,10 @@ impl Strategy for SchaffTrendCycle {
                         confidence: 0.8,
                         stop_loss: Some(sl),
                         take_profit: Some(tp),
-                        reason: format!("STC {:.2} crossed above oversold threshold {:.2}", stc_c, self.config.oversold_threshold),
+                        reason: format!(
+                            "STC {:.2} crossed above oversold threshold {:.2}",
+                            stc_c, self.config.oversold_threshold
+                        ),
                         timestamp_ms: timestamp,
                     });
                 } else if cross_below_overbought {
@@ -157,14 +162,19 @@ impl Strategy for SchaffTrendCycle {
                         confidence: 0.8,
                         stop_loss: Some(sl),
                         take_profit: Some(tp),
-                        reason: format!("STC {:.2} crossed below overbought threshold {:.2}", stc_c, self.config.overbought_threshold),
+                        reason: format!(
+                            "STC {:.2} crossed below overbought threshold {:.2}",
+                            stc_c, self.config.overbought_threshold
+                        ),
                         timestamp_ms: timestamp,
                     });
                 }
 
                 // Exits (optional, often momentum strategies just reverse, but here we explicitly close if momentum drops back)
                 // Long Exit: Momentum turns back down from overbought
-                if stc_p >= self.config.overbought_threshold && stc_c < self.config.overbought_threshold {
+                if stc_p >= self.config.overbought_threshold
+                    && stc_c < self.config.overbought_threshold
+                {
                     signals.push(Signal {
                         signal_type: SignalType::Exit,
                         symbol: self.config.symbol.clone(),
@@ -173,13 +183,17 @@ impl Strategy for SchaffTrendCycle {
                         confidence: 0.8,
                         stop_loss: None,
                         take_profit: None,
-                        reason: format!("STC {:.2} dropped below overbought threshold {:.2}", stc_c, self.config.overbought_threshold),
+                        reason: format!(
+                            "STC {:.2} dropped below overbought threshold {:.2}",
+                            stc_c, self.config.overbought_threshold
+                        ),
                         timestamp_ms: timestamp,
                     });
                 }
 
                 // Short Exit: Momentum turns back up from oversold
-                if stc_p <= self.config.oversold_threshold && stc_c > self.config.oversold_threshold {
+                if stc_p <= self.config.oversold_threshold && stc_c > self.config.oversold_threshold
+                {
                     signals.push(Signal {
                         signal_type: SignalType::Exit,
                         symbol: self.config.symbol.clone(),
@@ -188,7 +202,10 @@ impl Strategy for SchaffTrendCycle {
                         confidence: 0.8,
                         stop_loss: None,
                         take_profit: None,
-                        reason: format!("STC {:.2} rose above oversold threshold {:.2}", stc_c, self.config.oversold_threshold),
+                        reason: format!(
+                            "STC {:.2} rose above oversold threshold {:.2}",
+                            stc_c, self.config.oversold_threshold
+                        ),
                         timestamp_ms: timestamp,
                     });
                 }
@@ -249,8 +266,14 @@ mod tests {
         let signals = strategy.generate_signals(&df).await?;
 
         // We should get both Entry and Exit signals
-        let entries: Vec<_> = signals.iter().filter(|s| s.signal_type == SignalType::Entry).collect();
-        let exits: Vec<_> = signals.iter().filter(|s| s.signal_type == SignalType::Exit).collect();
+        let entries: Vec<_> = signals
+            .iter()
+            .filter(|s| s.signal_type == SignalType::Entry)
+            .collect();
+        let exits: Vec<_> = signals
+            .iter()
+            .filter(|s| s.signal_type == SignalType::Exit)
+            .collect();
 
         assert!(!entries.is_empty(), "No entry signals generated");
         assert!(!exits.is_empty(), "No exit signals generated");
@@ -263,8 +286,12 @@ mod tests {
         let mut long_entry = false;
         let mut short_entry = false;
         for e in entries {
-            if e.side == "buy" { long_entry = true; }
-            if e.side == "sell" { short_entry = true; }
+            if e.side == "buy" {
+                long_entry = true;
+            }
+            if e.side == "sell" {
+                short_entry = true;
+            }
         }
 
         assert!(long_entry, "No long entry generated");
@@ -290,7 +317,10 @@ mod tests {
         let strategy = SchaffTrendCycle::new(config);
 
         // Assert parameters were corrected to safe values
-        assert!(strategy.config.fast_period < strategy.config.slow_period, "Fast period must be < slow period");
+        assert!(
+            strategy.config.fast_period < strategy.config.slow_period,
+            "Fast period must be < slow period"
+        );
         assert_eq!(strategy.config.fast_period, 19); // 20 - 1
         assert_eq!(strategy.config.cycle_period, 1);
     }
