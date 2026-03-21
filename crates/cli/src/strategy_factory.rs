@@ -52,6 +52,9 @@ use strategies::donchian_breakout::{DonchianBreakout, DonchianBreakoutConfig};
 use strategies::dpo_breakout::{DpoBreakout, DpoBreakoutConfig};
 use strategies::elder_ray::{ElderRay, ElderRayConfig};
 use strategies::ema_crossover::{EmaCrossover, EmaCrossoverConfig};
+use strategies::fisher_transform_reversal::{
+    FisherTransformReversal, FisherTransformReversalConfig,
+};
 use strategies::ema_rsi_trend::{EmaRsiTrendFollowing, EmaRsiTrendFollowingConfig};
 use strategies::force_index_trend::{ForceIndexTrend, ForceIndexTrendConfig};
 use strategies::hma_crossover::{HmaCrossover, HmaCrossoverConfig};
@@ -179,6 +182,18 @@ pub fn create_strategy(name: &str, symbol: &str) -> Result<Box<dyn Strategy>> {
                 symbol: symbol.to_string(),
             };
             Ok(Box::new(BollingerBandsMeanReversion::new(config)))
+        }
+        "FisherTransformReversal" => {
+            let config = FisherTransformReversalConfig {
+                period: 9,
+                overbought_threshold: 1.5,
+                oversold_threshold: -1.5,
+                atr_period: 14,
+                atr_multiplier: 2.0,
+                max_position_size: 1.0,
+                symbol: symbol.to_string(),
+            };
+            Ok(Box::new(FisherTransformReversal::new(config)?))
         }
         "EmaCrossover" => {
             let config = EmaCrossoverConfig {
@@ -748,6 +763,7 @@ pub fn list_strategies() -> Vec<&'static str> {
         "BollingerBands",
         "ElderRay",
         "EmaCrossover",
+        "FisherTransformReversal",
         "RsiMeanReversion",
         "Macd",
         "Supertrend",

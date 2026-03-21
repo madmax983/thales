@@ -3663,3 +3663,42 @@ Momentum
 - Win Rate: ~40-50%
 - Sharpe Ratio: >1.0
 - Max Drawdown: <15%
+
+---
+
+# Trading Strategy: Fisher Transform Reversal
+
+## Strategy Specification
+
+**Name:** FisherTransformReversal
+
+**Description:** A mean reversion strategy based on John F. Ehlers' Fisher Transform. It converts prices to a Gaussian normal distribution to identify precise turning points, entering trades when extreme values (overbought/oversold) reverse and crossing back over previous values.
+
+**Rationale:** Financial prices do not follow a normal distribution, making standard oscillators prone to false signals and noise. The Fisher Transform normalizes prices, creating sharp, clear peaks and troughs that highlight imminent trend reversals.
+
+## Requirements
+
+### Implementation Details
+- Uses Polars for data analysis and generating signals.
+- Implements the `Strategy` trait in Rust.
+- Utilizes the `fisher_transform` and `atr` indicators.
+
+### Strategy Type
+Mean Reversion
+
+### Entry Conditions
+- **Long Entry:** The Fisher Transform crosses above its previous value while in oversold territory (e.g., <= -1.5).
+- **Short Entry:** The Fisher Transform crosses below its previous value while in overbought territory (e.g., >= 1.5).
+
+### Exit Conditions
+- **Long Exit:** The Fisher Transform crosses above the zero line or turns downward (crosses below previous value) while still above overbought threshold.
+- **Short Exit:** The Fisher Transform crosses below the zero line or turns upward (crosses above previous value) while still below oversold threshold.
+
+### Risk Management
+- **Stop Loss:** Initial stop loss set using Average True Range (ATR) multiplied by a configured factor (e.g., 2.0x ATR) from the entry price.
+- **Position Sizing:** Utilizes a fixed maximum position size parameter.
+
+## Expected Backtesting Metrics
+- **Win Rate:** 55% - 65% (Mean reversion tends to have higher win rates)
+- **Sharpe Ratio:** > 1.2
+- **Max Drawdown:** < 15%
