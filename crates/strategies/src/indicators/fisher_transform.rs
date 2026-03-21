@@ -93,8 +93,7 @@ pub fn calculate(data: &DataFrame, period: usize) -> Result<Series> {
         // Normalize the price to a value between -1 and 1
         let x = if range > Decimal::ZERO {
             let p_norm = (price - lowest_low) / range; // 0 to 1
-            let scaled = p_norm * Decimal::TWO - Decimal::ONE; // -1 to 1
-            scaled
+            p_norm * Decimal::TWO - Decimal::ONE // -1 to 1
         } else {
             Decimal::ZERO
         };

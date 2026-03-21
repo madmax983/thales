@@ -3666,6 +3666,45 @@ Momentum
 
 ---
 
+# Trading Strategy: Double EMA Crossover
+
+## Strategy Specification
+
+**Name:** DoubleEmaCrossover
+
+**Description:** A trend-following strategy that generates signals based on the crossover of two Double Exponential Moving Averages (DEMA).
+
+**Rationale:** The Double Exponential Moving Average (DEMA) reduces lag compared to traditional EMAs, making it more responsive to price changes. A fast DEMA crossing above a slow DEMA suggests an emerging uptrend, while a cross below suggests a downtrend.
+
+## Requirements
+
+### Implementation Details
+- Uses Polars for data analysis.
+- Implements the `Strategy` trait in Rust.
+- Uses `dema` and `atr` indicators.
+
+### Strategy Type
+Trend Following
+
+### Entry Conditions
+- **Long Entry:** Fast DEMA crosses ABOVE Slow DEMA.
+- **Short Entry:** Fast DEMA crosses BELOW Slow DEMA.
+
+### Exit Conditions
+- **Long Exit:** Fast DEMA crosses BELOW Slow DEMA OR Stop Loss is hit.
+- **Short Exit:** Fast DEMA crosses ABOVE Slow DEMA OR Stop Loss is hit.
+- **Stop Loss:** Entry Price +/- (ATR * `stop_loss_atr_mult`).
+
+### Position Sizing
+- **Size Hint:** "100" (fixed units) for entry, "max" for exits.
+
+### Expected Backtesting Metrics
+- **Expected Win Rate:** 45-55%
+- **Sharpe Ratio:** > 1.2
+- **Max Drawdown:** < 15%
+
+---
+
 # Trading Strategy: Fisher Transform Reversal
 
 ## Strategy Specification
