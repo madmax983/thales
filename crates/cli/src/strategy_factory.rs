@@ -88,6 +88,7 @@ use strategies::vwap_reversion::{VwapReversion, VwapReversionConfig};
 use strategies::vwma_crossover::{VwmaCrossover, VwmaCrossoverConfig};
 use strategies::williams_r::{WilliamsR, WilliamsRConfig};
 use strategies::wma_crossover::{WmaCrossover, WmaCrossoverConfig};
+use strategies::zlema_crossover::{ZlemaCrossover, ZlemaCrossoverConfig};
 use strategies::zscore_mean_reversion::{ZScoreMeanReversion, ZScoreMeanReversionConfig};
 
 /// Instantiates a trading strategy by name.
@@ -565,6 +566,13 @@ pub fn create_strategy(name: &str, symbol: &str) -> Result<Box<dyn Strategy>> {
             };
             Ok(Box::new(VptTrend::new(config)))
         }
+        "ZlemaCrossover" => {
+            let config = ZlemaCrossoverConfig {
+                symbol: symbol.to_string(),
+                ..ZlemaCrossoverConfig::default()
+            };
+            Ok(Box::new(ZlemaCrossover::new(config)))
+        }
         "ZScoreMeanReversion" => {
             let config = ZScoreMeanReversionConfig {
                 period: 20,
@@ -762,6 +770,7 @@ pub fn list_strategies() -> Vec<&'static str> {
         "TripleSmaCrossover",
         "VolumeOscillatorTrend",
         "VptTrendFollowing",
+        "ZlemaCrossover",
         "ZScoreMeanReversion",
         "BollingerRsiMeanReversion",
         "StochRsiMeanReversion",

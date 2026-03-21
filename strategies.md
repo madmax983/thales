@@ -1,3 +1,36 @@
+# Trading Strategy: ZLEMA Crossover
+
+## Strategy Specification
+
+**Name:** ZlemaCrossover
+
+**Description:** A trend following strategy that uses two Zero Lag Exponential Moving Averages (ZLEMA). It enters a long position when the faster ZLEMA crosses above the slower ZLEMA, and exits when it crosses below.
+
+**Rationale:** The Zero Lag Exponential Moving Average is designed to eliminate the lag inherently present in standard moving averages. By identifying crossovers earlier than a standard EMA or SMA crossover strategy, it attempts to capture trend continuations and reversals with less delay.
+
+## Requirements
+
+### Implementation Details
+- Uses Polars for data analysis and generating signals.
+- Implements the `Strategy` trait in Rust.
+- Utilizes the `zlema` and `atr` indicators.
+
+### Strategy Type
+Trend Following
+
+### Entry Conditions
+- **Long Entry (Buy):** Short ZLEMA crosses above Long ZLEMA.
+
+### Exit Conditions
+- **Long Exit (Sell):** Short ZLEMA crosses below Long ZLEMA.
+
+### Expected Backtesting Metrics
+- **Win Rate:** ~45-55%
+- **Sharpe Ratio:** > 1.2
+- **Max Drawdown:** < 15%
+
+---
+
 # Trading Strategy: CMO Mean Reversion
 
 ## Strategy Specification
