@@ -4486,3 +4486,14 @@
 | 2026-03-15 21:45:37 | SPY | NO_REF | No strategy signal generated. |
 | 2026-03-15 21:45:51 | QQQ | NO_REF | No strategy signal generated. |
 | 2026-03-15 21:46:06 | TQQQ | NO_REF | No strategy signal generated. |
+| 2026-03-21 10:47:32 | PEPEUSD | NO_REF | No strategy signal generated. |
+| 2026-03-21 10:47:52 | REKTUSD | NO_REF | provider error: provider error: kraken api error: EOrder:Insufficient funds |
+| 2026-03-21 10:48:12 | MOGUSD | NO_REF | No strategy signal generated. |
+| 2026-03-21 10:48:31 | SPY | NO_REF | No strategy signal generated. |
+| 2026-03-21 10:48:49 | QQQ | NO_REF | No strategy signal generated. |
+| 2026-03-21 10:49:09 | TQQQ | NO_REF | No strategy signal generated. |
+| 2026-03-21 10:53:36 | COQUSD | NO_REF | No active strategy generated a signal |
+| 2026-03-21 10:53:55 | BONKUSD | NO_REF | No active strategy generated a signal |
+| 2026-03-21 10:54:05 | SPY | NO_REF | No active strategy generated a signal |
+| 2026-03-21 10:54:05 | COQUSD | NO_REF | No active strategy generated a signal |
+| 2026-03-21 10:54:05 | BONKUSD | NO_REF | No active strategy generated a signal |
