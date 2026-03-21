@@ -4313,6 +4313,18 @@
 | 2026-03-21 13:05:09 | SHIBUSD | crypto:SHIBUSD:buy:1774098000000 | Rejected by Risk Agent: Order value below exchange minimum fiat volume (0.21 < 5.0) |
 | 2026-03-21 16:12:38 | PEPEUSD | NO_REF | CONFLICT: Conflicting signals (Buy and Sell) detected for PEPEUSD. Trading halted for this asset. |
 | 2026-03-21 16:12:41 | REKTUSD | crypto:REKTUSD:sell:1774108800000 | provider error: kraken api error: EOrder:Insufficient funds |
+| 2026-03-21 17:39:37 | BONKUSD | NO_REF | CONFLICT: Conflicting signals (Buy and Sell) detected for BONKUSD. Trading halted for this asset. |
+| 2026-03-21 17:39:37 | PEPEUSD | crypto:PEPEUSD:sell:1774112400000 | No sellable balance available (PEPE 0.00000000) |
+| 2026-03-21 17:39:38 | SHIBUSD | crypto:SHIBUSD:sell:1774112400000 | provider error: kraken api error: EOrder:Insufficient funds |
+| 2026-03-21 17:45:02 | BONKUSD | NO_REF | CONFLICT: Conflicting signals (Buy and Sell) detected for BONKUSD. Trading halted for this asset. |
+| 2026-03-21 17:45:03 | PEPEUSD | crypto:PEPEUSD:sell:1774112400000 | No sellable balance available (PEPE 0.00000000) |
+| 2026-03-21 17:45:03 | SHIBUSD | crypto:SHIBUSD:sell:1774112400000 | provider error: kraken api error: EOrder:Insufficient funds |
+| 2026-03-21 17:46:10 | BONKUSD | NO_REF | CONFLICT: Conflicting signals (Buy and Sell) detected for BONKUSD. Trading halted for this asset. |
+| 2026-03-21 17:46:10 | PEPEUSD | crypto:PEPEUSD:sell:1774112400000 | No sellable balance available (PEPE 0.00000000) |
+| 2026-03-21 17:46:11 | SHIBUSD | crypto:SHIBUSD:sell:1774112400000 | provider error: kraken api error: EOrder:Insufficient funds |
+| 2026-03-21 17:48:20 | COQUSD | NO_REF | CONFLICT: Conflicting signals (Buy and Sell) detected for COQUSD. Trading halted for this asset. |
+| 2026-03-21 17:48:21 | BONKUSD | NO_REF | CONFLICT: Conflicting signals (Buy and Sell) detected for BONKUSD. Trading halted for this asset. |
+| 2026-03-21 17:48:22 | SHIBUSD | crypto:SHIBUSD:sell:1774112400000 | provider error: kraken api error: EOrder:Insufficient funds |
 
 ## Executed Trades
 
