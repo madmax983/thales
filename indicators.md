@@ -1206,3 +1206,12 @@ let stc_series = stc::calculate(&df, fast_period, slow_period, cycle_period, d_p
 ### Output
 - Returns `Result<Series>`.
 - The output Series is named "stc".
+
+## Detrended Price Oscillator (DPO)
+- **Description:** Strips out long-term trends from price data so traders can see short-term cycles more clearly. Unlike most oscillators, it is backward-looking by design and shifts price backward on the chart.
+- **Rationale:** By removing the impact of long-term trends, the DPO enables traders to identify recurring patterns, estimate the length of price cycles, and measure short-term volatility more effectively.
+- **Implementation:** Formula: `Price from (n / 2 + 1 periods ago) - n-period SMA`. Implemented in `crates/strategies/src/indicators/dpo.rs`.
+- **Usage:**
+```rust
+let dpo_series = dpo::calculate(&data, 20)?;
+```

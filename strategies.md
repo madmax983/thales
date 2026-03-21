@@ -3643,3 +3643,23 @@ Momentum
 - **Expected Win Rate:** ~55-60%
 - **Expected Sharpe Ratio:** > 1.2
 - **Max Drawdown:** < 15%
+
+## DpoBreakout
+**Description:** Detrended Price Oscillator (DPO) Breakout Strategy.
+**Rationale:** The Detrended Price Oscillator strips out long-term trends from price data to highlight short-term cycles. A breakout above or below the zero line indicates a potential shift in momentum and a cyclical turning point, independent of the broader trend.
+
+### Strategy Specification
+- **Indicator:** Detrended Price Oscillator (DPO) and ATR for risk management.
+- **Entry Conditions:** Enter long when DPO crosses above the zero line.
+- **Exit Conditions:** Exit long when DPO crosses below the zero line.
+- **Position Sizing:** Configurable max position size.
+- **Risk Management:** ATR-based trailing stop loss or percentage fallback.
+
+### Requirements
+- Polars for vectorized calculation.
+- Native `Decimal` usage to avoid float imprecision.
+
+### Expected Backtesting Metrics
+- Win Rate: ~40-50%
+- Sharpe Ratio: >1.0
+- Max Drawdown: <15%
