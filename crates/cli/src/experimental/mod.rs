@@ -2,3 +2,4 @@
 pub mod cycle_analysis;
 pub mod export;
 pub mod similarity_search;
+pub mod trading_card;
