@@ -37,6 +37,7 @@ pub mod chandelier_exit;
 pub mod choppiness_index_trend;
 pub mod cmo_mean_reversion;
 pub mod connors_rsi_mean_reversion;
+pub mod coppock_curve;
 pub mod dema_crossover;
 pub mod disparity_index_reversion;
 pub mod donchian_breakout;
