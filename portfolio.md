@@ -4352,6 +4352,11 @@
 | 2026-03-22 08:51:23 | MOGUSD | crypto:MOGUSD:buy:1774166400000 | Rejected by Risk Agent: Order value below exchange minimum fiat volume (4.56 < 5.0) |
 | 2026-03-22 08:51:23 | PEPEUSD | crypto:PEPEUSD:buy:1774166400000 | Rejected by Risk Agent: Order value below exchange minimum fiat volume (4.56 < 5.0) |
 | 2026-03-22 08:51:23 | BONKUSD | crypto:BONKUSD:buy:1774166400000 | Rejected by Risk Agent: Order value below exchange minimum fiat volume (4.56 < 5.0) |
+| 2026-03-22 18:11:27 | MOGUSD | crypto:MOGUSD:buy:1774202400000 | Rejected by Risk Agent: Order value below exchange minimum fiat volume (4.56 < 5.0) |
+| 2026-03-22 18:11:27 | CHEEMSUSD | crypto:CHEEMSUSD:buy:1774202400000 | Rejected by Risk Agent: Order value below exchange minimum fiat volume (4.56 < 5.0) |
+| 2026-03-22 18:14:11 | BONKUSD | crypto:BONKUSD:buy:1774202400000 | Rejected by Risk Agent: Order value below exchange minimum fiat volume (4.56 < 5.0) |
+| 2026-03-22 18:14:11 | MOGUSD | crypto:MOGUSD:buy:1774202400000 | Rejected by Risk Agent: Order value below exchange minimum fiat volume (4.56 < 5.0) |
+| 2026-03-22 18:14:11 | CHEEMSUSD | crypto:CHEEMSUSD:buy:1774202400000 | Rejected by Risk Agent: Order value below exchange minimum fiat volume (4.56 < 5.0) |
 
 ## Executed Trades
 
