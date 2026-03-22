@@ -4335,6 +4335,9 @@
 | 2026-03-21 23:08:40 | PEPEUSD | crypto:PEPEUSD:buy:1774134000000 | Rejected by Risk Agent: Order value below exchange minimum fiat volume (4.56 < 5.0) |
 | 2026-03-21 23:08:41 | MOGUSD | crypto:MOGUSD:sell:1774134000000 | provider error: kraken api error: EOrder:Insufficient funds |
 | 2026-03-21 23:08:42 | SHIBUSD | crypto:SHIBUSD:sell:1774134000000 | provider error: kraken api error: EOrder:Insufficient funds |
+| 2026-03-22 01:07:59 | PEPEUSD | NO_REF | CONFLICT: Conflicting signals (Buy and Sell) detected for PEPEUSD. Trading halted for this asset. |
+| 2026-03-22 01:08:00 | BONKUSD | NO_REF | CONFLICT: Conflicting signals (Buy and Sell) detected for BONKUSD. Trading halted for this asset. |
+| 2026-03-22 01:08:00 | MOGUSD | crypto:MOGUSD:buy:1774141200000 | Rejected by Risk Agent: Order value below exchange minimum fiat volume (4.56 < 5.0) |
 
 ## Executed Trades
 
