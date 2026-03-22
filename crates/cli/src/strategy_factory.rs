@@ -44,6 +44,7 @@ use strategies::cmo_mean_reversion::{CmoMeanReversion, CmoMeanReversionConfig};
 use strategies::connors_rsi_mean_reversion::{
     ConnorsRsiMeanReversion, ConnorsRsiMeanReversionConfig,
 };
+use strategies::coppock_curve::{CoppockCurve, CoppockCurveConfig};
 use strategies::dema_crossover::{DemaCrossover, DemaCrossoverConfig};
 use strategies::disparity_index_reversion::{
     DisparityIndexReversion, DisparityIndexReversionConfig,
@@ -792,6 +793,13 @@ pub fn create_strategy(name: &str, symbol: &str) -> Result<Box<dyn Strategy>> {
             };
             Ok(Box::new(DoubleEmaCrossover::new(config)))
         }
+        "CoppockCurve" => {
+            let config = CoppockCurveConfig {
+                symbol: symbol.to_string(),
+                ..Default::default()
+            };
+            Ok(Box::new(CoppockCurve::new(config)?))
+        }
         _ => Err(anyhow::anyhow!("Unknown strategy: {}", name)),
     }
 }
@@ -865,5 +873,6 @@ pub fn list_strategies() -> Vec<&'static str> {
         "DisparityIndexReversion",
         "DpoBreakout",
         "DoubleEmaCrossover",
+        "CoppockCurve",
     ]
 }

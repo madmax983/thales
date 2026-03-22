@@ -3741,3 +3741,42 @@ Mean Reversion
 - **Win Rate:** 55% - 65% (Mean reversion tends to have higher win rates)
 - **Sharpe Ratio:** > 1.2
 - **Max Drawdown:** < 15%
+
+---
+
+# Trading Strategy: Coppock Curve Trend
+
+## Strategy Specification
+
+**Name:** CoppockCurve
+
+**Description:** A trend-following momentum strategy based on the Coppock Curve indicator. The strategy generates signals when the curve crosses above or below the zero line, indicating major market upturns or downturns.
+
+**Rationale:** The Coppock Curve is a smoothed momentum indicator originally designed to spot long-term buying opportunities in indices. Adapting it to daily/hourly data captures shifts in momentum. The WMA smooths the sum of the two ROCs, filtering out false signals while capturing genuine trend reversals.
+
+## Requirements
+
+### Implementation Details
+- Uses Polars for data analysis.
+- Implements the `Strategy` trait in Rust.
+- Uses `roc`, `wma`, and `atr` indicators.
+
+### Strategy Type
+Trend Following
+
+### Entry Conditions
+- **Long Entry (Buy):** Coppock Curve crosses ABOVE zero.
+- **Short Entry (Sell):** Coppock Curve crosses BELOW zero.
+
+### Exit Conditions
+- **Long Exit (Sell):** Coppock Curve crosses BELOW zero OR Stop Loss is hit.
+- **Short Exit (Buy):** Coppock Curve crosses ABOVE zero OR Stop Loss is hit.
+- **Stop Loss:** Entry Price +/- (ATR * `stop_loss_atr_mult`).
+
+### Position Sizing
+- **Size Hint:** Bounded by `max_position_size`.
+
+### Expected Backtesting Metrics
+- **Expected Win Rate:** 45-55%
+- **Expected Sharpe Ratio:** > 1.2
+- **Max Drawdown:** < 15%

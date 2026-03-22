@@ -1,0 +1,52 @@
+--- crates/strategies/src/coppock_curve.rs
++++ crates/strategies/src/coppock_curve.rs
+@@ -259,28 +259,33 @@
+
+         let strategy = CoppockCurve::new(config)?;
+
+-        // Engineer prices such that ROC(3) + ROC(2) becomes negative then positive,
+-        // and WMA(2) crosses 0.
+-        // ROC is calculated as (Price - Price[n]) / Price[n] * 100
+-
+-        // At i=0: 100
+-        // At i=1: 100
+-        // At i=2: 100
+-        // At i=3: 90. ROC(2)=(90-100)/100=-10. ROC(3)=(90-100)/100=-10. Sum=-20.
+-        // At i=4: 80. ROC(2)=(80-100)/100=-20. ROC(3)=(80-100)/100=-20. Sum=-40.
+-        // WMA(2) of Sum at i=4: (2*-40 + 1*-20)/3 = -100/3 = -33.3 (Negative! Crossed below zero!)
+-        // At i=5: 110. ROC(2)=(110-90)/90 = +22.2. ROC(3)=(110-100)/100 = +10. Sum = +32.2.
+-        // At i=6: 120. ROC(2)=(120-80)/80 = +50. ROC(3)=(120-90)/90 = +33.3. Sum = +83.3.
+-        // WMA(2) of Sum at i=6: (2*83.3 + 1*32.2)/3 = +66.2 (Positive! Crossed above zero!)
+-
+         let df = df!(
+-            "timestamp_unix_ms" => &[1000i64, 2000, 3000, 4000, 5000, 6000, 7000],
+-            "open"  => &[100.0, 100.0, 100.0, 90.0, 80.0, 110.0, 120.0],
+-            "high"  => &[101.0, 101.0, 101.0, 91.0, 81.0, 111.0, 121.0],
+-            "low"   => &[99.0, 99.0, 99.0, 89.0, 79.0, 109.0, 119.0],
+-            "close" => &[100.0, 100.0, 100.0, 90.0, 80.0, 110.0, 120.0]
++            "timestamp_unix_ms" => &[
++                1000i64, 2000, 3000, 4000, 5000, 6000, 7000, 8000, 9000
++            ],
++            "open"  => &[100.0, 100.0, 100.0, 100.0, 90.0, 80.0, 110.0, 120.0, 120.0],
++            "high"  => &[101.0, 101.0, 101.0, 101.0, 91.0, 81.0, 111.0, 121.0, 121.0],
++            "low"   => &[99.0, 99.0, 99.0, 99.0, 89.0, 79.0, 109.0, 119.0, 119.0],
++            "close" => &[100.0, 100.0, 100.0, 100.0, 90.0, 80.0, 110.0, 120.0, 120.0]
+         )?;
+
+         let signals = strategy.generate_signals(&df).await?;
+
+-        // Expect Entry Short (cross below 0) at i=4
++        let short_entry = signals
++            .iter()
++            .find(|s| s.signal_type == SignalType::Entry && s.side == "sell");
++        assert!(short_entry.is_some(), "Should generate short entry signal");
++        assert_eq!(short_entry.unwrap().timestamp_ms, 6000); // i=5 is 6000ms
++
+         let long_entry = signals
+             .iter()
+             .find(|s| s.signal_type == SignalType::Entry && s.side == "buy");
+         assert!(long_entry.is_some(), "Should generate long entry signal");
+-        assert_eq!(long_entry.unwrap().timestamp_ms, 6000); // i=5 is 6000ms
++        assert_eq!(long_entry.unwrap().timestamp_ms, 8000); // i=7 is 8000ms
+
+         Ok(())
