@@ -27,6 +27,10 @@ MEAN_REVERSION_STRATEGIES = {
     "VwapReversion",
     "BollingerBands",
     "StochRsiMeanReversion",
+    "FisherTransformReversal",
+    "SupertrendRsi",
+    "DisparityIndexReversion",
+    "BollingerRsiMeanReversion",
 }
 TREND_FOLLOWING_STRATEGIES = {
     "AlmaCrossover",
@@ -61,6 +65,22 @@ TREND_FOLLOWING_STRATEGIES = {
     "HmaCrossover",
     "PpoRsiTrend",
     "DoubleEmaCrossover",
+    "AdlMomentum",
+    "KamaCrossover",
+    "ChaikinOscillatorMomentum",
+    "ChoppinessIndexTrend",
+    "TripleSmaCrossover",
+    "TripleEmaCrossover",
+    "RelativeVigorIndexTrend",
+    "ZlemaCrossover",
+    "TrixCrossover",
+    "DemaCrossover",
+    "TemaCrossover",
+    "SmaCrossover",
+    "EmaRsiTrendFollowing",
+    "KstTrend",
+    "VhfTrendFollowing",
+    "DpoBreakout",
 }
 BREAKOUT_STRATEGIES = {
     "Supertrend",
@@ -68,6 +88,8 @@ BREAKOUT_STRATEGIES = {
     "CciMomentum",
     "ParabolicSar",
     "DonchianBreakout",
+    "UltimateOscillator",
+    "SchaffTrendCycle",
 }
 EXECUTED_STATUSES = {"filled", "executed", "closed"}
 SUBMITTED_STATUSES = {
@@ -136,109 +158,131 @@ def get_active_strategies():
         content = f.read()
 
     strategies = []
-    if "BollingerBandsMeanReversion" in content or "BollingerBands" in content:
+    if re.search(r'\b(BollingerBandsMeanReversion|BollingerBands)\b', content):
         strategies.append("BollingerBands")
-    if "EmaCrossover" in content:
-        strategies.append("EmaCrossover")
-    if "RsiMeanReversion" in content:
-        strategies.append("RsiMeanReversion")
-    if "Macd" in content:
-        strategies.append("Macd")
-    if "Supertrend" in content:
-        strategies.append("Supertrend")
-    if "DonchianBreakout" in content:
-        strategies.append("DonchianBreakout")
-    if "ParabolicSar" in content:
-        strategies.append("ParabolicSar")
-    if "KeltnerChannelBreakout" in content:
-        strategies.append("KeltnerChannelBreakout")
-    if "StochasticOscillator" in content:
-        strategies.append("StochasticOscillator")
-    if "AdxMomentum" in content:
-        strategies.append("AdxMomentum")
-    if "IchimokuCloud" in content:
-        strategies.append("IchimokuCloud")
-    if "CciMomentum" in content:
-        strategies.append("CciMomentum")
-    if "ChaikinMoneyFlow" in content:
-        strategies.append("ChaikinMoneyFlow")
-    if "ChandelierExit" in content:
-        strategies.append("ChandelierExit")
-    if "LinearRegressionTrend" in content:
-        strategies.append("LinearRegressionTrend")
-    if "VptTrendFollowing" in content:
-        strategies.append("VptTrendFollowing")
-    if "PpoRsiTrend" in content:
-        strategies.append("PpoRsiTrend")
-    if "ObvTrendFollowing" in content:
-        strategies.append("ObvTrendFollowing")
-    if "MoneyFlowIndex" in content:
-        strategies.append("MoneyFlowIndex")
-    if "ConnorsRsiMeanReversion" in content:
-        strategies.append("ConnorsRsiMeanReversion")
-    if "AlmaCrossover" in content:
-        strategies.append("AlmaCrossover")
-    if "AwesomeOscillator" in content:
-        strategies.append("AwesomeOscillator")
-    if "WilliamsR" in content:
-        strategies.append("WilliamsR")
-    if "VwmaCrossover" in content:
-        strategies.append("VwmaCrossover")
-    if "VwapReversion" in content:
-        strategies.append("VwapReversion")
-    if "VortexBreakout" in content:
-        strategies.append("VortexBreakout")
-    if "RocMomentum" in content:
-        strategies.append("RocMomentum")
-    if "TrixMomentum" in content:
-        strategies.append("TrixMomentum")
-    if "AdxMacdTrend" in content:
-        strategies.append("AdxMacdTrend")
-    if "ZScoreMeanReversion" in content:
-        strategies.append("ZScoreMeanReversion")
-    if "ElderRay" in content:
-        strategies.append("ElderRay")
-    if "AroonOscillator" in content:
-        strategies.append("AroonOscillator")
-    if "StochRsiMeanReversion" in content:
-        strategies.append("StochRsiMeanReversion")
-    if "MacdRsiTrend" in content:
-        strategies.append("MacdRsiTrend")
-    if "TsiTrend" in content:
-        strategies.append("TsiTrend")
-    if "HmaCrossover" in content:
-        strategies.append("HmaCrossover")
-    if "VolumeOscillatorTrend" in content:
-        strategies.append("VolumeOscillatorTrend")
-    if "ChaikinOscillatorMomentum" in content:
-        strategies.append("ChaikinOscillatorMomentum")
-    if "KstTrend" in content:
-        strategies.append("KstTrend")
-    if "RelativeVigorIndexTrend" in content:
-        strategies.append("RelativeVigorIndexTrend")
-    if "UltimateOscillator" in content:
-        strategies.append("UltimateOscillator")
-    if "DpoBreakout" in content:
-        strategies.append("DpoBreakout")
-    if "DisparityIndexReversion" in content:
-        strategies.append("DisparityIndexReversion")
-    if "SchaffTrendCycle" in content:
-        strategies.append("SchaffTrendCycle")
-    if "VhfTrendFollowing" in content:
-        strategies.append("VhfTrendFollowing")
-    if "FisherTransformReversal" in content:
-        strategies.append("FisherTransformReversal")
-    if "EmaRsiTrendFollowing" in content:
-        strategies.append("EmaRsiTrendFollowing")
-    if "TripleSmaCrossover" in content:
-        strategies.append("TripleSmaCrossover")
-    if "TripleEmaCrossover" in content:
-        strategies.append("TripleEmaCrossover")
-    if "KamaCrossover" in content:
+    if re.search(r'\bAdlMomentum\b', content):
+        strategies.append("AdlMomentum")
+    if re.search(r'\bKamaCrossover\b', content):
         strategies.append("KamaCrossover")
-    if "BollingerRsiMeanReversion" in content:
+    if re.search(r'\bAlmaCrossover\b', content):
+        strategies.append("AlmaCrossover")
+    if re.search(r'\bAdxMacdTrend\b', content):
+        strategies.append("AdxMacdTrend")
+    if re.search(r'\bAroonOscillator\b', content):
+        strategies.append("AroonOscillator")
+    if re.search(r'\bElderRay\b', content):
+        strategies.append("ElderRay")
+    if re.search(r'\bEmaCrossover\b', content):
+        strategies.append("EmaCrossover")
+    if re.search(r'\bFisherTransformReversal\b', content):
+        strategies.append("FisherTransformReversal")
+    if re.search(r'\bRsiMeanReversion\b', content):
+        strategies.append("RsiMeanReversion")
+    if re.search(r'\bMacd\b', content):
+        strategies.append("Macd")
+    if re.search(r'\bSupertrend\b', content):
+        strategies.append("Supertrend")
+    if re.search(r'\bSupertrendEmaCrossover\b', content):
+        strategies.append("SupertrendEmaCrossover")
+    if re.search(r'\bSupertrendRsi\b', content):
+        strategies.append("SupertrendRsi")
+    if re.search(r'\bDonchianBreakout\b', content):
+        strategies.append("DonchianBreakout")
+    if re.search(r'\bParabolicSar\b', content):
+        strategies.append("ParabolicSar")
+    if re.search(r'\bKeltnerChannelBreakout\b', content):
+        strategies.append("KeltnerChannelBreakout")
+    if re.search(r'\bStochasticOscillator\b', content):
+        strategies.append("StochasticOscillator")
+    if re.search(r'\bAdxMomentum\b', content):
+        strategies.append("AdxMomentum")
+    if re.search(r'\bIchimokuCloud\b', content):
+        strategies.append("IchimokuCloud")
+    if re.search(r'\bCciMomentum\b', content):
+        strategies.append("CciMomentum")
+    if re.search(r'\bChaikinMoneyFlow\b', content):
+        strategies.append("ChaikinMoneyFlow")
+    if re.search(r'\bChaikinOscillatorMomentum\b', content):
+        strategies.append("ChaikinOscillatorMomentum")
+    if re.search(r'\bChandelierExit\b', content):
+        strategies.append("ChandelierExit")
+    if re.search(r'\bChoppinessIndexTrend\b', content):
+        strategies.append("ChoppinessIndexTrend")
+    if re.search(r'\bCmoMeanReversion\b', content):
+        strategies.append("CmoMeanReversion")
+    if re.search(r'\bLinearRegressionTrend\b', content):
+        strategies.append("LinearRegressionTrend")
+    if re.search(r'\bForceIndexTrend\b', content):
+        strategies.append("ForceIndexTrend")
+    if re.search(r'\bObvTrendFollowing\b', content):
+        strategies.append("ObvTrendFollowing")
+    if re.search(r'\bMoneyFlowIndex\b', content):
+        strategies.append("MoneyFlowIndex")
+    if re.search(r'\bConnorsRsiMeanReversion\b', content):
+        strategies.append("ConnorsRsiMeanReversion")
+    if re.search(r'\bAwesomeOscillator\b', content):
+        strategies.append("AwesomeOscillator")
+    if re.search(r'\bWilliamsR\b', content):
+        strategies.append("WilliamsR")
+    if re.search(r'\bVwmaCrossover\b', content):
+        strategies.append("VwmaCrossover")
+    if re.search(r'\bVwapReversion\b', content):
+        strategies.append("VwapReversion")
+    if re.search(r'\bVortexBreakout\b', content):
+        strategies.append("VortexBreakout")
+    if re.search(r'\bTripleSmaCrossover\b', content):
+        strategies.append("TripleSmaCrossover")
+    if re.search(r'\bTripleEmaCrossover\b', content):
+        strategies.append("TripleEmaCrossover")
+    if re.search(r'\bUltimateOscillator\b', content):
+        strategies.append("UltimateOscillator")
+    if re.search(r'\bRelativeVigorIndexTrend\b', content):
+        strategies.append("RelativeVigorIndexTrend")
+    if re.search(r'\bVolumeOscillatorTrend\b', content):
+        strategies.append("VolumeOscillatorTrend")
+    if re.search(r'\bVptTrendFollowing\b', content):
+        strategies.append("VptTrendFollowing")
+    if re.search(r'\bZlemaCrossover\b', content):
+        strategies.append("ZlemaCrossover")
+    if re.search(r'\bZScoreMeanReversion\b', content):
+        strategies.append("ZScoreMeanReversion")
+    if re.search(r'\bBollingerRsiMeanReversion\b', content):
         strategies.append("BollingerRsiMeanReversion")
-    if "DoubleEmaCrossover" in content:
+    if re.search(r'\bStochRsiMeanReversion\b', content):
+        strategies.append("StochRsiMeanReversion")
+    if re.search(r'\bRocMomentum\b', content):
+        strategies.append("RocMomentum")
+    if re.search(r'\bMacdRsiTrend\b', content):
+        strategies.append("MacdRsiTrend")
+    if re.search(r'\bTrixCrossover\b', content):
+        strategies.append("TrixCrossover")
+    if re.search(r'\bTsiTrend\b', content):
+        strategies.append("TsiTrend")
+    if re.search(r'\bDemaCrossover\b', content):
+        strategies.append("DemaCrossover")
+    if re.search(r'\bTemaCrossover\b', content):
+        strategies.append("TemaCrossover")
+    if re.search(r'\bWmaCrossover\b', content):
+        strategies.append("WmaCrossover")
+    if re.search(r'\bHmaCrossover\b', content):
+        strategies.append("HmaCrossover")
+    if re.search(r'\bSmaCrossover\b', content):
+        strategies.append("SmaCrossover")
+    if re.search(r'\bEmaRsiTrendFollowing\b', content):
+        strategies.append("EmaRsiTrendFollowing")
+    if re.search(r'\bPpoRsiTrend\b', content):
+        strategies.append("PpoRsiTrend")
+    if re.search(r'\bKstTrend\b', content):
+        strategies.append("KstTrend")
+    if re.search(r'\bVhfTrendFollowing\b', content):
+        strategies.append("VhfTrendFollowing")
+    if re.search(r'\bSchaffTrendCycle\b', content):
+        strategies.append("SchaffTrendCycle")
+    if re.search(r'\bDisparityIndexReversion\b', content):
+        strategies.append("DisparityIndexReversion")
+    if re.search(r'\bDpoBreakout\b', content):
+        strategies.append("DpoBreakout")
+    if re.search(r'\bDoubleEmaCrossover\b', content):
         strategies.append("DoubleEmaCrossover")
 
     return strategies
