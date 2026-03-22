@@ -90,6 +90,7 @@ use strategies::triple_sma_crossover::{TripleSmaCrossover, TripleSmaCrossoverCon
 use strategies::trix_crossover::{TrixCrossover, TrixCrossoverConfig};
 use strategies::trix_momentum::{TrixMomentum, TrixMomentumConfig};
 use strategies::tsi_trend::{TsiTrend, TsiTrendConfig};
+use strategies::ttm_squeeze::{TtmSqueeze, TtmSqueezeConfig};
 use strategies::ultimate_oscillator::{UltimateOscillator, UltimateOscillatorConfig};
 use strategies::vhf_trend::{VhfTrendFollowing, VhfTrendFollowingConfig};
 use strategies::volume_oscillator_trend::{VolumeOscillatorTrend, VolumeOscillatorTrendConfig};
@@ -800,6 +801,13 @@ pub fn create_strategy(name: &str, symbol: &str) -> Result<Box<dyn Strategy>> {
             };
             Ok(Box::new(CoppockCurve::new(config)?))
         }
+        "TtmSqueeze" => {
+            let config = TtmSqueezeConfig {
+                symbol: symbol.to_string(),
+                ..Default::default()
+            };
+            Ok(Box::new(TtmSqueeze::new(config)?))
+        }
         _ => Err(anyhow::anyhow!("Unknown strategy: {}", name)),
     }
 }
@@ -874,5 +882,6 @@ pub fn list_strategies() -> Vec<&'static str> {
         "DpoBreakout",
         "DoubleEmaCrossover",
         "CoppockCurve",
+        "TtmSqueeze",
     ]
 }
