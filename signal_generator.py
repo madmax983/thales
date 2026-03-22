@@ -181,7 +181,11 @@ def main():
                                 pass
 
                         sl_val = intent.get("stop_loss")
-                        if not sl_val or str(sl_val) in ["None", "-", "0", "0.0"]:
+                        tp_val = intent.get("take_profit")
+                        missing_sl = not sl_val or str(sl_val) in ["None", "-", "0", "0.0"]
+                        missing_tp = not tp_val or str(tp_val) in ["None", "-", "0", "0.0"]
+
+                        if missing_sl or missing_tp:
                             try:
                                 with open(data_file, "r") as f:
                                     b_data = json.load(f)
@@ -200,17 +204,37 @@ def main():
                                         tp_pct = sl_pct * 2.0
 
                                         if side == "buy":
-                                            intent["stop_loss"] = str(last_close * (1.0 - sl_pct))
-                                            tp_val = intent.get("take_profit")
-                                            if not tp_val or str(tp_val) in ["None", "-", "0", "0.0"]:
-                                                intent["take_profit"] = str(last_close * (1.0 + tp_pct))
+                                            if missing_sl:
+                                                intent["stop_loss"] = str(last_close * (1.0 - sl_pct))
+                                            if missing_tp:
+                                                if not missing_sl and str(sl_val) not in ["None", "-", "0", "0.0"]:
+                                                    try:
+                                                        sl_dist = last_close - float(sl_val)
+                                                        if sl_dist > 0:
+                                                            intent["take_profit"] = str(last_close + (sl_dist * 2.0))
+                                                        else:
+                                                            intent["take_profit"] = str(last_close * (1.0 + tp_pct))
+                                                    except (ValueError, TypeError):
+                                                        intent["take_profit"] = str(last_close * (1.0 + tp_pct))
+                                                else:
+                                                    intent["take_profit"] = str(last_close * (1.0 + tp_pct))
                                         elif side == "sell":
-                                            intent["stop_loss"] = str(last_close * (1.0 + sl_pct))
-                                            tp_val = intent.get("take_profit")
-                                            if not tp_val or str(tp_val) in ["None", "-", "0", "0.0"]:
-                                                intent["take_profit"] = str(last_close * (1.0 - tp_pct))
+                                            if missing_sl:
+                                                intent["stop_loss"] = str(last_close * (1.0 + sl_pct))
+                                            if missing_tp:
+                                                if not missing_sl and str(sl_val) not in ["None", "-", "0", "0.0"]:
+                                                    try:
+                                                        sl_dist = float(sl_val) - last_close
+                                                        if sl_dist > 0:
+                                                            intent["take_profit"] = str(last_close - (sl_dist * 2.0))
+                                                        else:
+                                                            intent["take_profit"] = str(last_close * (1.0 - tp_pct))
+                                                    except (ValueError, TypeError):
+                                                        intent["take_profit"] = str(last_close * (1.0 - tp_pct))
+                                                else:
+                                                    intent["take_profit"] = str(last_close * (1.0 - tp_pct))
                             except (FileNotFoundError, json.JSONDecodeError, KeyError, ValueError, IndexError) as e:
-                                print(f"Warning: Failed to compute fallback stop loss for {symbol}: {e}")
+                                print(f"Warning: Failed to compute fallback SL/TP for {symbol}: {e}")
 
                     # Filter: Never generate signals without proper analysis
                     if not analysis:
