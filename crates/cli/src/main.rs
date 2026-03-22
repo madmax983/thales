@@ -63,6 +63,15 @@ enum Commands {
         output: PathBuf,
     },
     #[cfg(feature = "nova")]
+    ExportCard {
+        #[arg(long)]
+        input: PathBuf,
+        #[arg(long)]
+        output: PathBuf,
+        #[arg(long, default_value = "Market Entity")]
+        title: String,
+    },
+    #[cfg(feature = "nova")]
     ExportObj {
         #[arg(long)]
         input: PathBuf,
@@ -404,6 +413,19 @@ fn run(command: Commands, raw: bool) -> Result<String, CliError> {
             thales_cli::experimental::export::export_bar_series_to_csv(&series, &output)
                 .map_err(|e| CliError::Validation(e.to_string()))?;
             ok_envelope(json!({"status": "success", "file": output}), vec![], raw)
+        }
+        #[cfg(feature = "nova")]
+        Commands::ExportCard {
+            input,
+            output,
+            title,
+        } => {
+            let series: BarSeries = read_json_file(&input)?;
+            thales_cli::experimental::trading_card::export_trading_card_svg(
+                &series, &title, output,
+            )
+            .map_err(|e: anyhow::Error| CliError::Validation(e.to_string()))?;
+            ok_envelope("Exported Trading Card successfully", vec![], raw)
         }
         #[cfg(feature = "nova")]
         Commands::ExportObj { input, output } => {
