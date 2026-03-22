@@ -73,8 +73,8 @@ impl Strategy for DpoBreakout {
 
         let mut signals = Vec::new();
 
-        let atr_mult_dec = Decimal::from_f64_retain(self.config.stop_loss_atr_mult)
-            .unwrap_or(Decimal::new(2, 0));
+        let atr_mult_dec =
+            Decimal::from_f64_retain(self.config.stop_loss_atr_mult).unwrap_or(Decimal::new(2, 0));
 
         let size_hint = self.config.max_position_size.to_string();
 
@@ -157,10 +157,18 @@ mod tests {
         // We need enough data to calculate DPO and SMA and ATR
         // Let's create a clear cross above 0 then below 0
         // SMA(4)
-        let closes = vec![10.0, 10.0, 10.0, 10.0, 12.0, 14.0, 16.0, 14.0, 12.0, 10.0, 8.0, 6.0];
-        let highs = vec![11.0, 11.0, 11.0, 11.0, 13.0, 15.0, 17.0, 15.0, 13.0, 11.0, 9.0, 7.0];
-        let lows = vec![9.0, 9.0, 9.0, 9.0, 11.0, 13.0, 15.0, 13.0, 11.0, 9.0, 7.0, 5.0];
-        let timestamps = vec![1000, 2000, 3000, 4000, 5000, 6000, 7000, 8000, 9000, 10000, 11000, 12000];
+        let closes = vec![
+            10.0, 10.0, 10.0, 10.0, 12.0, 14.0, 16.0, 14.0, 12.0, 10.0, 8.0, 6.0,
+        ];
+        let highs = vec![
+            11.0, 11.0, 11.0, 11.0, 13.0, 15.0, 17.0, 15.0, 13.0, 11.0, 9.0, 7.0,
+        ];
+        let lows = vec![
+            9.0, 9.0, 9.0, 9.0, 11.0, 13.0, 15.0, 13.0, 11.0, 9.0, 7.0, 5.0,
+        ];
+        let timestamps = vec![
+            1000, 2000, 3000, 4000, 5000, 6000, 7000, 8000, 9000, 10000, 11000, 12000,
+        ];
 
         let df = df!(
             "timestamp_unix_ms" => timestamps,
@@ -202,7 +210,10 @@ mod tests {
 
         let result = strategy.generate_signals(&df).await;
         assert!(result.is_err());
-        assert_eq!(result.unwrap_err().to_string(), "Period must be greater than 0");
+        assert_eq!(
+            result.unwrap_err().to_string(),
+            "Period must be greater than 0"
+        );
 
         Ok(())
     }

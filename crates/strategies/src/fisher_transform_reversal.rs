@@ -100,14 +100,19 @@ impl Strategy for FisherTransformReversal {
                 // Long Entry: Fisher crosses above oversold and signal line (previous)
                 let long_entry = c_fisher > p_fisher && p_fisher <= self.config.oversold_threshold;
                 // Short Entry: Fisher crosses below overbought and signal line
-                let short_entry = c_fisher < p_fisher && p_fisher >= self.config.overbought_threshold;
+                let short_entry =
+                    c_fisher < p_fisher && p_fisher >= self.config.overbought_threshold;
 
                 let stop_loss_dist = atr_val * self.config.atr_multiplier;
 
                 // Exit conditions
                 // Long Exit: Fisher goes above 0 or turns down
-                let long_exit = in_long && (c_fisher > 0.0 || (c_fisher < p_fisher && c_fisher > self.config.overbought_threshold));
-                let short_exit = in_short && (c_fisher < 0.0 || (c_fisher > p_fisher && c_fisher < self.config.oversold_threshold));
+                let long_exit = in_long
+                    && (c_fisher > 0.0
+                        || (c_fisher < p_fisher && c_fisher > self.config.overbought_threshold));
+                let short_exit = in_short
+                    && (c_fisher < 0.0
+                        || (c_fisher > p_fisher && c_fisher < self.config.oversold_threshold));
 
                 if long_exit {
                     signals.push(Signal {
@@ -118,7 +123,10 @@ impl Strategy for FisherTransformReversal {
                         confidence: 1.0,
                         stop_loss: None,
                         take_profit: None,
-                        reason: format!("Fisher crossed above 0 or turned down (val: {:.2})", c_fisher),
+                        reason: format!(
+                            "Fisher crossed above 0 or turned down (val: {:.2})",
+                            c_fisher
+                        ),
                         timestamp_ms: ts,
                     });
                     in_long = false;
@@ -131,7 +139,10 @@ impl Strategy for FisherTransformReversal {
                         confidence: 1.0,
                         stop_loss: None,
                         take_profit: None,
-                        reason: format!("Fisher crossed below 0 or turned up (val: {:.2})", c_fisher),
+                        reason: format!(
+                            "Fisher crossed below 0 or turned up (val: {:.2})",
+                            c_fisher
+                        ),
                         timestamp_ms: ts,
                     });
                     in_short = false;
@@ -144,7 +155,10 @@ impl Strategy for FisherTransformReversal {
                         confidence: 1.0,
                         stop_loss: Some(price - stop_loss_dist),
                         take_profit: None, // Could add dynamic TP
-                        reason: format!("Fisher crossed above oversold ({:.2} -> {:.2})", p_fisher, c_fisher),
+                        reason: format!(
+                            "Fisher crossed above oversold ({:.2} -> {:.2})",
+                            p_fisher, c_fisher
+                        ),
                         timestamp_ms: ts,
                     });
                     in_long = true;
@@ -158,7 +172,10 @@ impl Strategy for FisherTransformReversal {
                         confidence: 1.0,
                         stop_loss: Some(price + stop_loss_dist),
                         take_profit: None,
-                        reason: format!("Fisher crossed below overbought ({:.2} -> {:.2})", p_fisher, c_fisher),
+                        reason: format!(
+                            "Fisher crossed below overbought ({:.2} -> {:.2})",
+                            p_fisher, c_fisher
+                        ),
                         timestamp_ms: ts,
                     });
                     in_short = true;
@@ -208,7 +225,11 @@ mod tests {
         // Downward trend to oversold, then reversal up
         let mut price = 100.0;
         for i in 0..50 {
-            if i < 25 { price -= 2.0; } else { price += 2.0; }
+            if i < 25 {
+                price -= 2.0;
+            } else {
+                price += 2.0;
+            }
             highs.push(price + 1.0);
             lows.push(price - 1.0);
             closes.push(price);
@@ -220,7 +241,8 @@ mod tests {
             "low" => lows,
             "close" => closes,
             "timestamp_unix_ms" => ts
-        ).unwrap();
+        )
+        .unwrap();
 
         let config = FisherTransformReversalConfig {
             period: 9,
@@ -239,6 +261,10 @@ mod tests {
 
         let first_entry = signals.iter().find(|s| s.signal_type == SignalType::Entry);
         assert!(first_entry.is_some(), "Should have an entry signal");
-        assert_eq!(first_entry.unwrap().side, "buy", "First entry should be buy due to downward trend reversal");
+        assert_eq!(
+            first_entry.unwrap().side,
+            "buy",
+            "First entry should be buy due to downward trend reversal"
+        );
     }
 }

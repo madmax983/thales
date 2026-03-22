@@ -49,14 +49,14 @@ use strategies::disparity_index_reversion::{
     DisparityIndexReversion, DisparityIndexReversionConfig,
 };
 use strategies::donchian_breakout::{DonchianBreakout, DonchianBreakoutConfig};
-use strategies::dpo_breakout::{DpoBreakout, DpoBreakoutConfig};
 use strategies::double_ema_crossover::{DoubleEmaCrossover, DoubleEmaCrossoverConfig};
+use strategies::dpo_breakout::{DpoBreakout, DpoBreakoutConfig};
 use strategies::elder_ray::{ElderRay, ElderRayConfig};
 use strategies::ema_crossover::{EmaCrossover, EmaCrossoverConfig};
+use strategies::ema_rsi_trend::{EmaRsiTrendFollowing, EmaRsiTrendFollowingConfig};
 use strategies::fisher_transform_reversal::{
     FisherTransformReversal, FisherTransformReversalConfig,
 };
-use strategies::ema_rsi_trend::{EmaRsiTrendFollowing, EmaRsiTrendFollowingConfig};
 use strategies::force_index_trend::{ForceIndexTrend, ForceIndexTrendConfig};
 use strategies::hma_crossover::{HmaCrossover, HmaCrossoverConfig};
 use strategies::ichimoku_cloud::{IchimokuCloud, IchimokuCloudConfig};
@@ -70,6 +70,9 @@ use strategies::money_flow_index::{MoneyFlowIndex, MoneyFlowIndexConfig};
 use strategies::obv_trend::{ObvTrendFollowing, ObvTrendFollowingConfig};
 use strategies::parabolic_sar::{ParabolicSar, ParabolicSarConfig};
 use strategies::ppo_rsi_trend::{PpoRsiTrend, PpoRsiTrendConfig};
+use strategies::relative_vigor_index_trend::{
+    RelativeVigorIndexTrend, RelativeVigorIndexTrendConfig,
+};
 use strategies::roc_momentum::{RocMomentum, RocMomentumConfig};
 use strategies::rsi_mean_reversion::{RsiMeanReversion, RsiMeanReversionConfig};
 use strategies::schaff_trend_cycle::{SchaffTrendCycle, SchaffTrendCycleConfig};
@@ -81,13 +84,12 @@ use strategies::supertrend::{Supertrend, SupertrendConfig};
 use strategies::supertrend_ema_crossover::{SupertrendEmaCrossover, SupertrendEmaCrossoverConfig};
 use strategies::supertrend_rsi::{SupertrendRsi, SupertrendRsiConfig};
 use strategies::tema_crossover::{TemaCrossover, TemaCrossoverConfig};
-use strategies::triple_sma_crossover::{TripleSmaCrossover, TripleSmaCrossoverConfig};
 use strategies::triple_ema_crossover::{TripleEmaCrossover, TripleEmaCrossoverConfig};
-use strategies::relative_vigor_index_trend::{RelativeVigorIndexTrend, RelativeVigorIndexTrendConfig};
-use strategies::ultimate_oscillator::{UltimateOscillator, UltimateOscillatorConfig};
+use strategies::triple_sma_crossover::{TripleSmaCrossover, TripleSmaCrossoverConfig};
 use strategies::trix_crossover::{TrixCrossover, TrixCrossoverConfig};
 use strategies::trix_momentum::{TrixMomentum, TrixMomentumConfig};
 use strategies::tsi_trend::{TsiTrend, TsiTrendConfig};
+use strategies::ultimate_oscillator::{UltimateOscillator, UltimateOscillatorConfig};
 use strategies::vhf_trend::{VhfTrendFollowing, VhfTrendFollowingConfig};
 use strategies::volume_oscillator_trend::{VolumeOscillatorTrend, VolumeOscillatorTrendConfig};
 use strategies::vortex_breakout::{VortexBreakout, VortexBreakoutConfig};

@@ -67,9 +67,13 @@ pub fn calculate(data: &DataFrame, period: usize) -> Result<Series> {
                     let h_dec = Decimal::from_f64_retain(h_val).unwrap_or(Decimal::ZERO);
                     let l_dec = Decimal::from_f64_retain(l_val).unwrap_or(Decimal::ZERO);
 
-                    if h_dec > highest_high { highest_high = h_dec; }
-                    if l_dec < lowest_low { lowest_low = l_dec; }
-                },
+                    if h_dec > highest_high {
+                        highest_high = h_dec;
+                    }
+                    if l_dec < lowest_low {
+                        lowest_low = l_dec;
+                    }
+                }
                 _ => {
                     valid_window = false;
                     break;
