@@ -77,3 +77,7 @@
 ## 2024-06-08 - The Silent Momentum
 **Confusion:** The Chaikin Money Flow and Chaikin Oscillator Momentum strategies lacked any documentation, leaving users guessing about the exact rules that triggered signals and the rationale behind their configurations.
 **Clarification:** Added module-level documentation and executable examples (`# Examples`) for `ChaikinMoneyFlowConfig`, `ChaikinMoneyFlow`, `ChaikinOscillatorMomentumConfig`, and `ChaikinOscillatorMomentum`. Detailed the exact logic for zero-line crossovers and risk management.
+
+## 2026-03-22 - The Silent Contracts
+**Confusion:** Core contracts in `crates/contracts/src/lib.rs` (like `ExecutionRequest`, `ExecutionResult`, `MarketAnalysis`, `Position`, and `Order`) lacked executable examples, making it unclear how to instantiate or test them.
+**Clarification:** Added `# Examples` sections with executable doctests to all major data structures in `crates/contracts/src/lib.rs` to demonstrate typical initialization and assertions.
