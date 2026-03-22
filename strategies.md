@@ -2590,6 +2590,45 @@ TrendFollowing
 
 ---
 
+# Trading Strategy: TTM Squeeze
+
+## Strategy Specification
+
+**Name:** TtmSqueeze
+
+**Description:** A volatility and momentum strategy that capitalizes on periods of low volatility (the "squeeze") followed by a breakout, identified when Bollinger Bands move outside of Keltner Channels. The direction of the trade is determined by momentum.
+
+**Rationale:** Markets alternate between periods of high and low volatility. By identifying a period of extreme low volatility (a squeeze), traders can anticipate a significant price movement. Momentum confirms the direction.
+
+## Requirements
+
+### Implementation Details
+- Uses Polars for data analysis.
+- Implements the `Strategy` trait in Rust.
+- Uses `bollinger_bands`, `keltner_channels`, `sma`, and `atr` indicators.
+
+### Strategy Type
+Momentum
+
+### Entry Conditions
+- **Long Entry (Buy):** Squeeze turns OFF (from ON) AND Momentum > 0.
+- **Short Entry (Sell):** Squeeze turns OFF (from ON) AND Momentum < 0.
+
+### Exit Conditions
+- **Long Exit (Sell):** Momentum decreases (Momentum < previous Momentum) OR Stop Loss is hit.
+- **Short Exit (Buy):** Momentum increases (Momentum > previous Momentum) OR Stop Loss is hit.
+- **Stop Loss:** Entry Price +/- (ATR * `stop_loss_atr_mult`).
+
+### Position Sizing
+- **Size Hint:** "100" (fixed units) for entry, "max" for exits.
+
+### Expected Backtesting Metrics
+- **Expected Win Rate:** ~45-55%
+- **Expected Sharpe Ratio:** > 1.2
+- **Max Drawdown:** < 15%
+
+---
+
 # Trading Strategy: Disparity Index Reversion
 
 ## Strategy Specification
