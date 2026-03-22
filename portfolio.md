@@ -4349,6 +4349,9 @@
 | 2026-03-22 06:58:03 | MOGUSD | crypto:MOGUSD:buy:1774159200000 | Rejected by Risk Agent: Order value below exchange minimum fiat volume (4.56 < 5.0) |
 | 2026-03-22 07:03:28 | MOGUSD | NO_REF | CONFLICT: Conflicting signals (Buy and Sell) detected for MOGUSD. Trading halted for this asset. |
 | 2026-03-22 07:03:29 | PEPEUSD | NO_REF | CONFLICT: Conflicting signals (Buy and Sell) detected for PEPEUSD. Trading halted for this asset. |
+| 2026-03-22 08:51:23 | MOGUSD | crypto:MOGUSD:buy:1774166400000 | Rejected by Risk Agent: Order value below exchange minimum fiat volume (4.56 < 5.0) |
+| 2026-03-22 08:51:23 | PEPEUSD | crypto:PEPEUSD:buy:1774166400000 | Rejected by Risk Agent: Order value below exchange minimum fiat volume (4.56 < 5.0) |
+| 2026-03-22 08:51:23 | BONKUSD | crypto:BONKUSD:buy:1774166400000 | Rejected by Risk Agent: Order value below exchange minimum fiat volume (4.56 < 5.0) |
 
 ## Executed Trades
 
