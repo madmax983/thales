@@ -203,7 +203,7 @@ def main():
 
                                         tp_pct = sl_pct * 2.0
 
-                                        if side == "buy":
+                                        if side == "buy" or side == "long":
                                             if missing_sl:
                                                 intent["stop_loss"] = str(last_close * (1.0 - sl_pct))
                                             if missing_tp:
@@ -218,7 +218,7 @@ def main():
                                                         intent["take_profit"] = str(last_close * (1.0 + tp_pct))
                                                 else:
                                                     intent["take_profit"] = str(last_close * (1.0 + tp_pct))
-                                        elif side == "sell":
+                                        elif side == "sell" or side == "short":
                                             if missing_sl:
                                                 intent["stop_loss"] = str(last_close * (1.0 + sl_pct))
                                             if missing_tp:
