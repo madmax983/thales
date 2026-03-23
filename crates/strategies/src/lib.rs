@@ -52,6 +52,7 @@ pub mod hma_crossover;
 pub mod ichimoku_cloud;
 pub mod indicators;
 pub mod kama_crossover;
+pub mod kdj_indicator;
 pub mod keltner_channel_breakout;
 pub mod linear_regression_trend;
 pub mod macd;

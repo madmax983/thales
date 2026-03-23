@@ -23,6 +23,7 @@ pub mod force_index;
 pub mod hma;
 pub mod ichimoku;
 pub mod kama;
+pub mod kdj;
 pub mod keltner_channels;
 pub mod kst;
 pub mod linear_regression;

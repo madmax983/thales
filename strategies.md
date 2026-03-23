@@ -2588,6 +2588,39 @@ TrendFollowing
 - **Expected Sharpe Ratio:** > 1.2
 - **Max Drawdown:** < 15%
 
+## KdjIndicatorStrategy
+
+### Strategy Specification
+- **Name:** KDJ Indicator Trading Strategy
+- **Description:** A mean-reversion and momentum strategy based on the KDJ indicator. It relies on the fast %K line, slow %D line, and divergence %J line to identify overbought/oversold conditions and trend reversals.
+- **Rationale:** KDJ extends the Stochastic Oscillator by adding the J line, which represents the divergence of %K from %D. The J line is highly sensitive to price momentum, often crossing above/below 0 or 100 before actual price reversals occur, making it a strong leading indicator.
+
+### Requirements
+- Polars implementation.
+- Backtestable logic.
+- Returns explicit signals (buy/sell).
+- Integrates ATR-based Stop Loss.
+
+### Strategy Type
+MeanReversion
+
+### Entry Conditions
+- **Long Entry:** %J line crosses above 0 (oversold reversal) OR %K crosses above %D while both are below 20.
+- **Short Entry:** %J line crosses below 100 (overbought reversal) OR %K crosses below %D while both are above 80.
+
+### Exit Conditions
+- **Long Exit:** %J line crosses above 100 OR %K crosses below %D.
+- **Short Exit:** %J line crosses below 0 OR %K crosses above %D.
+- **Stop Loss:** Calculated via ATR distance (e.g. `price - ATR * stop_loss_atr_mult`).
+
+### Position Sizing
+- Fixed allocation bounded by `max_position_size` per trade.
+
+### Expected Backtesting Metrics
+- **Expected Win Rate:** 50-60%
+- **Expected Sharpe Ratio:** > 1.0
+- **Max Drawdown:** < 15%
+
 ---
 
 # Trading Strategy: TTM Squeeze
