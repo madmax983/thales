@@ -262,10 +262,10 @@ def main():
 
                         # We specifically look for (overbought) / (oversold) in the sentiment
                         # To avoid false positives on rationale like "not overbought", we check sentiment primarily.
-                        if side == "buy" and "overbought" in sentiment:
+                        if side in ["buy", "long"] and "overbought" in sentiment:
                             print(f"Skipping long signal for {symbol}: Chasing move (Sentiment is Overbought)")
                             continue
-                        elif side == "sell" and "oversold" in sentiment:
+                        elif side in ["sell", "short"] and "oversold" in sentiment:
                             print(f"Skipping short signal for {symbol}: Chasing move (Sentiment is Oversold)")
                             continue
 
