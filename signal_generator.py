@@ -139,6 +139,11 @@ def main():
             intents = run_command(args)
             if intents:
                 for intent in intents:
+                    # Filter: Never generate signals without proper analysis
+                    if not analysis:
+                        print(f"Skipping signal for {symbol}: No proper analysis available.")
+                        continue
+
                     # Size positions based on volatility
                     volatility_label = analysis.get("volatility", "").lower() if analysis else ""
                     size_hint_str = intent.get("size_hint", "0")
@@ -149,7 +154,8 @@ def main():
                                 size_hint_val *= 0.5
                             elif "low" in volatility_label:
                                 size_hint_val *= 1.5
-                            intent["size_hint"] = f"{size_hint_val:.6f}"
+                            formatted_sz = f"{size_hint_val:.4f}".rstrip('0').rstrip('.') if '.' in f"{size_hint_val:.4f}" else f"{size_hint_val:.4f}"
+                            intent["size_hint"] = formatted_sz if formatted_sz else "0"
                         except (ValueError, TypeError):
                             pass
 
@@ -167,7 +173,8 @@ def main():
                     elif is_scale_out:
                         try:
                             current_sz = float(intent.get("size_hint", "0"))
-                            intent["size_hint"] = f"{(current_sz * 0.5):.6f}"
+                            formatted_sz = f"{(current_sz * 0.5):.4f}".rstrip('0').rstrip('.') if '.' in f"{(current_sz * 0.5):.4f}" else f"{(current_sz * 0.5):.4f}"
+                            intent["size_hint"] = formatted_sz if formatted_sz else "0"
                         except (ValueError, TypeError):
                             pass
                         intent.pop("stop_loss", None)
@@ -176,7 +183,8 @@ def main():
                         if is_scale_in:
                             try:
                                 current_sz = float(intent.get("size_hint", "0"))
-                                intent["size_hint"] = f"{(current_sz * 0.5):.6f}"
+                                formatted_sz = f"{(current_sz * 0.5):.4f}".rstrip('0').rstrip('.') if '.' in f"{(current_sz * 0.5):.4f}" else f"{(current_sz * 0.5):.4f}"
+                                intent["size_hint"] = formatted_sz if formatted_sz else "0"
                             except (ValueError, TypeError):
                                 pass
 
@@ -235,11 +243,6 @@ def main():
                                                     intent["take_profit"] = str(last_close * (1.0 - tp_pct))
                             except (FileNotFoundError, json.JSONDecodeError, KeyError, ValueError, IndexError) as e:
                                 print(f"Warning: Failed to compute fallback SL/TP for {symbol}: {e}")
-
-                    # Filter: Never generate signals without proper analysis
-                    if not analysis:
-                        print(f"Skipping signal for {symbol}: No proper analysis available.")
-                        continue
 
                     # Filter: Only allow Entry/ScaleIn signals that have a valid stop loss
                     sl_val_check = intent.get("stop_loss")
