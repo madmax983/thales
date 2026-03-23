@@ -22,6 +22,8 @@ use thales_cli::experimental::cycle_analysis;
 #[cfg(feature = "nova")]
 use thales_cli::experimental::similarity_search;
 #[cfg(feature = "nova")]
+use thales_cli::experimental::strategy_correlation;
+#[cfg(feature = "nova")]
 use thales_cli::fear_and_greed;
 #[cfg(feature = "nova")]
 use thales_cli::fractal_dimension;
@@ -380,6 +382,19 @@ enum Commands {
         input: PathBuf,
         #[arg(long, default_value = "5")]
         max_cycles: usize,
+        #[arg(long)]
+        visualize: bool,
+    },
+    #[cfg(feature = "nova")]
+    AnalyzeStrategyCorrelation {
+        #[arg(long)]
+        input: PathBuf,
+        #[arg(long)]
+        strategies: Option<Vec<String>>,
+        #[arg(long, default_value = "10000.0")]
+        initial_capital: f64,
+        #[arg(long, default_value = "100.0")]
+        risk: f64,
         #[arg(long)]
         visualize: bool,
     },
@@ -1523,6 +1538,46 @@ fn run(command: Commands, raw: bool) -> Result<String, CliError> {
 
             if visualize {
                 cycle_analysis::print_ascii_cycles(&report);
+            }
+
+            ok_envelope(report, vec![], raw)
+        }
+        #[cfg(feature = "nova")]
+        Commands::AnalyzeStrategyCorrelation {
+            input,
+            strategies,
+            initial_capital,
+            risk,
+            visualize,
+        } => {
+            let file_content = fs::read_to_string(&input)?;
+            let series: BarSeries =
+                match serde_json::from_str::<ResponseEnvelope<BarSeries>>(&file_content) {
+                    Ok(envelope) => envelope
+                        .data
+                        .ok_or(CliError::Validation("Envelope has no data".to_string()))?,
+                    Err(_) => serde_json::from_str::<BarSeries>(&file_content)?,
+                };
+
+            let config = strategy_correlation::CorrelationConfig {
+                initial_capital,
+                risk_per_trade: risk,
+                strategies: strategies.unwrap_or_default(),
+            };
+
+            let rt = tokio::runtime::Builder::new_current_thread()
+                .enable_all()
+                .build()
+                .map_err(|e| CliError::Provider(format!("Failed to create runtime: {}", e)))?;
+
+            let report = rt
+                .block_on(async {
+                    strategy_correlation::analyze_correlations(&series, config).await
+                })
+                .map_err(|e| CliError::Validation(e.to_string()))?;
+
+            if visualize {
+                strategy_correlation::print_ascii_correlations(&report);
             }
 
             ok_envelope(report, vec![], raw)
