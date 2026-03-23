@@ -66,6 +66,7 @@ TREND_FOLLOWING_STRATEGIES = {
     "PpoRsiTrend",
     "DoubleEmaCrossover",
     "AdlMomentum",
+    "KdjIndicatorStrategy",
     "KamaCrossover",
     "ChaikinOscillatorMomentum",
     "ChoppinessIndexTrend",
@@ -162,6 +163,8 @@ def get_active_strategies():
         strategies.append("BollingerBands")
     if re.search(r'\bAdlMomentum\b', content):
         strategies.append("AdlMomentum")
+    if re.search(r'\bKdjIndicatorStrategy\b', content):
+        strategies.append("KdjIndicatorStrategy")
     if re.search(r'\bKamaCrossover\b', content):
         strategies.append("KamaCrossover")
     if re.search(r'\bAlmaCrossover\b', content):
