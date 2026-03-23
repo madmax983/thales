@@ -4396,6 +4396,8 @@
 | 2026-03-23 18:08:43 | MOGUSD | crypto:MOGUSD:buy:1774288800000 | Rejected by Risk Agent: Order value below exchange minimum fiat volume (0.61 < 5.0) |
 | 2026-03-23 20:06:18 | MOGUSD | crypto:MOGUSD:buy:1774296000000 | Rejected by Risk Agent: Order value below exchange minimum fiat volume (0.61 < 5.0) |
 | 2026-03-23 20:06:18 | SHIBUSD | crypto:SHIBUSD:sell:1774296000000 | provider error: kraken api error: EOrder:Insufficient funds |
+| 2026-03-23 20:57:56 | MOGUSD | crypto:MOGUSD:buy:1774296000000 | Rejected by Risk Agent: Order value below exchange minimum fiat volume (0.61 < 5.0) |
+| 2026-03-23 20:57:57 | SHIBUSD | crypto:SHIBUSD:sell:1774296000000 | provider error: kraken api error: EOrder:Insufficient funds |
 
 ## Executed Trades
 
