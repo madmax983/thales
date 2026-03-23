@@ -1316,6 +1316,10 @@ def manage_orders():
                          "confidence": 1.0, # High confidence for adjustment
                          "rationale": f"Adjusting partial fill for order {order['id']}",
                          "intent_id": f"ADJUST-{order['id']}",
+                         "horizon": "Unknown",
+                         "invalidation": "None",
+                         "schema_version": "v0",
+                         "time_in_force": "GTC",
                          "order_type": "market",
                          "execution_algo": "Market"
                      }
@@ -1361,6 +1365,13 @@ def refine_intent(intent, current_price=None):
     Refines trade intent with Algo Selection and Order Type.
     Updates intent in-place.
     """
+    intent.setdefault("horizon", "Unknown")
+    intent.setdefault("invalidation", "None")
+    intent.setdefault("schema_version", "v0")
+    intent.setdefault("time_in_force", "GTC")
+    if "intent_id" not in intent:
+        intent["intent_id"] = f"{intent.get('market', 'unknown')}:{intent.get('symbol', 'unknown')}:{intent.get('side', 'unknown')}:v0"
+
     confidence = intent.get("confidence", 0.0)
     size_hint = intent.get("size_hint", "0")
 

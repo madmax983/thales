@@ -81,6 +81,10 @@ def manage_orders(provider):
                     "confidence": 1.0,
                     "rationale": f"Adjusting partial fill for order {order['id']}",
                     "intent_id": f"ADJUST-{order['id']}",
+                    "horizon": "Unknown",
+                    "invalidation": "None",
+                    "schema_version": "v0",
+                    "time_in_force": "GTC",
                     "order_type": "market",
                     "execution_algo": "Market"
                 }
@@ -105,6 +109,13 @@ def refine_intent(intent, current_price=None):
     ALGO SELECTION: Choose execution algorithm (market, limit, TWAP, VWAP)
     ORDER ROUTING: Select appropriate broker and order type
     """
+    intent.setdefault("horizon", "Unknown")
+    intent.setdefault("invalidation", "None")
+    intent.setdefault("schema_version", "v0")
+    intent.setdefault("time_in_force", "GTC")
+    if "intent_id" not in intent:
+        intent["intent_id"] = f"{intent.get('market', 'unknown')}:{intent.get('symbol', 'unknown')}:{intent.get('side', 'unknown')}:v0"
+
     confidence = intent.get("confidence", 0.0)
     size_hint = intent.get("size_hint", "0")
 
