@@ -4379,6 +4379,9 @@
 | 2026-03-23 10:54:38 | MOGUSD | NO_REF | CONFLICT: Conflicting signals (Buy and Sell) detected for MOGUSD. Trading halted for this asset. |
 | 2026-03-23 10:54:40 | SHIBUSD | NO_REF | CONFLICT: Conflicting signals (Buy and Sell) detected for SHIBUSD. Trading halted for this asset. |
 | 2026-03-23 10:54:40 | PEPEUSD | crypto:PEPEUSD:buy:1774260000000 | Rejected by Risk Agent: Order value below exchange minimum fiat volume (0.61 < 5.0) |
+| 2026-03-23 13:29:20 | MOGUSD | NO_REF | CONFLICT: Conflicting signals (Buy and Sell) detected for MOGUSD. Trading halted for this asset. |
+| 2026-03-23 13:29:23 | SHIBUSD | NO_REF | CONFLICT: Conflicting signals (Buy and Sell) detected for SHIBUSD. Trading halted for this asset. |
+| 2026-03-23 13:29:23 | PEPEUSD | crypto:PEPEUSD:sell:1774270800000 | No sellable balance available (PEPE 0.00000000) |
 
 ## Executed Trades
 
