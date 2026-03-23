@@ -1239,3 +1239,34 @@ use polars::prelude::*;
 let period = 9;
 let fisher_series = fisher_transform::calculate(&df, period)?;
 ```
+
+## Ease of Movement (EOM)
+
+**Name:** Ease of Movement (EOM)
+**Description:** Relates an asset's price change to its volume. It helps identify how easily a price can move up or down based on volume.
+**Rationale:** High EOM values indicate prices are rising on low volume (easy movement). Low EOM values indicate prices are falling on low volume.
+
+### Implementation Details
+- Uses `rust_decimal::Decimal` iteratively for all math calculations to ensure financial precision, explicitly converting from and to `f64` only for Polars boundaries.
+- Formula: `Distance Moved / Box Ratio`, smoothed by an N-period SMA.
+- Returns a Polars `Series` of `f64` values (computed internally via Decimal).
+
+### Usage
+
+```rust
+use strategies::indicators::eom;
+use polars::prelude::*;
+
+// Assuming df is a DataFrame with "high", "low", and "volume" columns
+let period = 14;
+let eom_series = eom::calculate(&df, period)?;
+```
+
+### Parameters
+- `data`: Reference to a Polars `DataFrame`. Must contain numeric "high", "low", and "volume" columns.
+- `period`: The lookback period (typically 14) for smoothing the 1-period EOM.
+
+### Output
+- Returns `Result<Series>`.
+- The output Series is named "eom".
+- Initial values will be null until the SMA has enough data points to compute.
