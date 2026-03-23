@@ -88,9 +88,11 @@ If you get `{"status":"ok", "data":[], "warnings": ["No signals triggered..."]}`
 ### 5. Execute Trades
 Execute the generated trade intents.
 
+> **WARNING**: Using `--provider kraken` will execute a **LIVE** trade if you have API keys configured. Use `--provider paper` to simulate execution safely!
+
 ```bash
 cargo run -p thales-cli -- execute-intent \
-  --provider kraken \
+  --provider paper \
   --input signals.json
 ```
 
