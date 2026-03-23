@@ -4369,6 +4369,10 @@
 | 2026-03-23 05:59:12 | PEPEUSD | CANCEL-OFIEQR-5Y6MI-YMI4MM | Stale Order Cancellation |
 | 2026-03-23 05:59:17 | SHIBUSD | NO_REF | CONFLICT: Conflicting signals (Buy and Sell) detected for SHIBUSD. Trading halted for this asset. |
 | 2026-03-23 05:59:18 | PEPEUSD | crypto:PEPEUSD:buy:1774242000000 | provider error: kraken api error: EOrder:Insufficient funds |
+| 2026-03-23 06:43:32 | MOGUSD | CANCEL-OLDJAR-KEM4O-LWPK33 | Stale Order Cancellation |
+| 2026-03-23 06:43:35 | MOGUSD | NO_REF | CONFLICT: Conflicting signals (Buy and Sell) detected for MOGUSD. Trading halted for this asset. |
+| 2026-03-23 06:43:36 | SHIBUSD | NO_REF | CONFLICT: Conflicting signals (Buy and Sell) detected for SHIBUSD. Trading halted for this asset. |
+| 2026-03-23 06:43:37 | PEPEUSD | crypto:PEPEUSD:sell:1774245600000 | No sellable balance available (PEPE 0.00000000) |
 
 ## Executed Trades
 
