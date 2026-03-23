@@ -22,6 +22,7 @@
 //! - [`awesome_oscillator::AwesomeOscillator`] - Momentum strategy using Awesome Oscillator (AO).
 //! - [`cmo_mean_reversion::CmoMeanReversion`] - Mean reversion strategy using Chande Momentum Oscillator.
 //! - [`sma_crossover::SmaCrossover`] - Trend following using SMA crossovers.
+//! - [`coppock_curve::CoppockCurve`] - Trend following using the Coppock Curve.
 
 pub mod adl_momentum;
 pub mod adx_macd_trend;
