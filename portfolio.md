@@ -4391,6 +4391,11 @@
 | 2026-03-23 17:32:47 | MOGUSD | NO_REF | CONFLICT: Conflicting signals (Buy and Sell) detected for MOGUSD. Trading halted for this asset. |
 | 2026-03-23 17:32:48 | SHIBUSD | NO_REF | CONFLICT: Conflicting signals (Buy and Sell) detected for SHIBUSD. Trading halted for this asset. |
 | 2026-03-23 17:32:49 | PEPEUSD | crypto:PEPEUSD:buy:1774285200000 | Rejected by Risk Agent: Order value below exchange minimum fiat volume (0.61 < 5.0) |
+| 2026-03-23 18:15:13 | MOGUSD | crypto:MOGUSD:buy:1774288800000 | Rejected by Risk Agent: Order value below exchange minimum fiat volume (0.61 < 5.0) |
+| 2026-03-23 18:16:00 | BTCUSD | NO_REF | CONFLICT: Conflicting signals (Buy and Sell) detected for BTCUSD. Trading halted for this asset. |
+| 2026-03-23 18:16:01 | ETHUSD | NO_REF | CONFLICT: Conflicting signals (Buy and Sell) detected for ETHUSD. Trading halted for this asset. |
+| 2026-03-23 18:16:01 | SPY | NO_REF | CONFLICT: Conflicting signals (Buy and Sell) detected for SPY. Trading halted for this asset. |
+| 2026-03-23 18:16:42 | MOGUSD | crypto:MOGUSD:buy:1774288800000 | Rejected by Risk Agent: Order value below exchange minimum fiat volume (0.61 < 5.0) |
 
 ## Executed Trades
 
@@ -4611,3 +4616,9 @@
 | 2026-03-23 05:04:58 | SPY | NO_REF | No strategy signal generated. |
 | 2026-03-23 05:05:13 | QQQ | NO_REF | No strategy signal generated. |
 | 2026-03-23 05:05:27 | TQQQ | NO_REF | No strategy signal generated. |
+| 2026-03-23 18:19:51 | PEPEUSD | NO_REF | No strategy signal generated. |
+| 2026-03-23 18:20:06 | REKTUSD | NO_REF | No strategy signal generated. |
+| 2026-03-23 18:20:21 | MOGUSD | NO_REF | No strategy signal generated. |
+| 2026-03-23 18:20:35 | SPY | NO_REF | No strategy signal generated. |
+| 2026-03-23 18:20:49 | QQQ | NO_REF | No strategy signal generated. |
+| 2026-03-23 18:21:03 | TQQQ | NO_REF | No strategy signal generated. |
