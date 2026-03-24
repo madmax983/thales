@@ -45,6 +45,18 @@ def count_recent_signals(symbol, history_path):
                 count += 1
     return count
 
+def format_price(val):
+    if val in [None, 'None', '-']:
+        return 'None'
+    try:
+        formatted_val = f"{float(val):.4f}".rstrip('0').rstrip('.') if '.' in f"{float(val):.4f}" else f"{float(val):.4f}"
+        return formatted_val if formatted_val else "0"
+    except (ValueError, TypeError):
+        return str(val)
+
+def is_missing(val):
+    return not val or str(val) in ["None", "-", "0", "0.0"]
+
 def format_signal(intent):
     side = str(intent.get('side', '')).lower()
     if side == "buy":
@@ -55,13 +67,6 @@ def format_signal(intent):
         direction = side
 
     strength = intent.get('confidence', 0.0) * 100
-    def format_price(val):
-        if val in [None, 'None', '-']:
-            return 'None'
-        try:
-            return f"{float(val):.4f}".rstrip('0').rstrip('.') if '.' in f"{float(val):.4f}" else f"{float(val):.4f}"
-        except (ValueError, TypeError):
-            return str(val)
 
     size = format_price(intent.get('size_hint', '0'))
     sl = format_price(intent.get('stop_loss', 'None'))
@@ -185,8 +190,7 @@ def main():
                         if is_scale_out:
                             try:
                                 current_sz = float(intent.get("size_hint", "0"))
-                                formatted_sz = f"{(current_sz * 0.5):.4f}".rstrip('0').rstrip('.') if '.' in f"{(current_sz * 0.5):.4f}" else f"{(current_sz * 0.5):.4f}"
-                                intent["size_hint"] = formatted_sz if formatted_sz else "0"
+                                intent["size_hint"] = format_price(current_sz * 0.5)
                             except (ValueError, TypeError):
                                 pass
                         intent.pop("stop_loss", None)
@@ -195,15 +199,14 @@ def main():
                         if is_scale_in:
                             try:
                                 current_sz = float(intent.get("size_hint", "0"))
-                                formatted_sz = f"{(current_sz * 0.5):.4f}".rstrip('0').rstrip('.') if '.' in f"{(current_sz * 0.5):.4f}" else f"{(current_sz * 0.5):.4f}"
-                                intent["size_hint"] = formatted_sz if formatted_sz else "0"
+                                intent["size_hint"] = format_price(current_sz * 0.5)
                             except (ValueError, TypeError):
                                 pass
 
                         sl_val = intent.get("stop_loss")
                         tp_val = intent.get("take_profit")
-                        missing_sl = not sl_val or str(sl_val) in ["None", "-", "0", "0.0"]
-                        missing_tp = not tp_val or str(tp_val) in ["None", "-", "0", "0.0"]
+                        missing_sl = is_missing(sl_val)
+                        missing_tp = is_missing(tp_val)
 
                         if missing_sl or missing_tp:
                             try:
@@ -223,11 +226,11 @@ def main():
 
                                         tp_pct = sl_pct * 2.0
 
-                                        if side == "buy" or side == "long":
+                                        if side in ["buy", "long"]:
                                             if missing_sl:
                                                 intent["stop_loss"] = str(last_close * (1.0 - sl_pct))
                                             if missing_tp:
-                                                if not missing_sl and str(sl_val) not in ["None", "-", "0", "0.0"]:
+                                                if not missing_sl and not is_missing(sl_val):
                                                     try:
                                                         sl_dist = last_close - float(sl_val)
                                                         if sl_dist > 0:
@@ -238,11 +241,11 @@ def main():
                                                         intent["take_profit"] = str(last_close * (1.0 + tp_pct))
                                                 else:
                                                     intent["take_profit"] = str(last_close * (1.0 + tp_pct))
-                                        elif side == "sell" or side == "short":
+                                        elif side in ["sell", "short"]:
                                             if missing_sl:
                                                 intent["stop_loss"] = str(last_close * (1.0 + sl_pct))
                                             if missing_tp:
-                                                if not missing_sl and str(sl_val) not in ["None", "-", "0", "0.0"]:
+                                                if not missing_sl and not is_missing(sl_val):
                                                     try:
                                                         sl_dist = float(sl_val) - last_close
                                                         if sl_dist > 0:
@@ -258,9 +261,7 @@ def main():
 
                     # Filter: Only allow Entry/ScaleIn signals that have a valid stop loss
                     sl_val_check = intent.get("stop_loss")
-                    if (is_entry or is_scale_in) and (
-                        not sl_val_check or str(sl_val_check) in ["None", "-", "0", "0.0"]
-                    ):
+                    if (is_entry or is_scale_in) and is_missing(sl_val_check):
                         print(f"Skipping signal for {symbol}: Missing mandatory stop loss.")
                         continue
 
@@ -302,13 +303,8 @@ def main():
 
                     # Format numerical values safely to 4 decimal places
                     for field in ["size_hint", "stop_loss", "take_profit"]:
-                        val = intent.get(field)
-                        if val not in [None, 'None', '-']:
-                            try:
-                                formatted_val = f"{float(val):.4f}".rstrip('0').rstrip('.') if '.' in f"{float(val):.4f}" else f"{float(val):.4f}"
-                                intent[field] = formatted_val
-                            except (ValueError, TypeError):
-                                intent[field] = str(val)
+                        if field in intent:
+                            intent[field] = format_price(intent[field])
 
                     # Map buy/sell to long/short
                     side = str(intent.get('side', '')).lower()
