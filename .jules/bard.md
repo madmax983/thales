@@ -81,3 +81,7 @@
 ## 2026-03-22 - The Silent Contracts
 **Confusion:** Core contracts in `crates/contracts/src/lib.rs` (like `ExecutionRequest`, `ExecutionResult`, `MarketAnalysis`, `Position`, and `Order`) lacked executable examples, making it unclear how to instantiate or test them.
 **Clarification:** Added `# Examples` sections with executable doctests to all major data structures in `crates/contracts/src/lib.rs` to demonstrate typical initialization and assertions.
+
+## 2026-03-22 - The Unmapped Fractal & SMC Regions
+**Confusion:** Advanced analytical modules like `fractal_dimension.rs` and `order_blocks.rs` in `crates/cli/src/` lacked both module-level and item-level documentation with executable examples. Users could not discover how to instantiate these tools or interpret concepts like Higuchi Fractal Dimension or SMC (Smart Money Concepts) unmitigated order blocks.
+**Clarification:** Added storytelling module-level documentation (`//!`) to explain the core financial and mathematical concepts. Added executable `# Examples` to all configuration structures and main functions, guiding developers on proper initialization and result interpretation.

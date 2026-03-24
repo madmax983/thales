@@ -17,6 +17,18 @@ use contracts::BarSeries;
 use serde::{Deserialize, Serialize};
 
 /// Configuration for the Fractal Dimension analysis.
+///
+/// # Examples
+///
+/// ```rust
+/// use thales_cli::fractal_dimension::FractalConfig;
+///
+/// let config = FractalConfig {
+///     k_max: 10,
+/// };
+///
+/// assert_eq!(config.k_max, 10);
+/// ```
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct FractalConfig {
     /// The maximum lag (k) to use in the Higuchi algorithm.
@@ -25,6 +37,15 @@ pub struct FractalConfig {
 }
 
 /// The market regime derived from the fractal dimension.
+///
+/// # Examples
+///
+/// ```rust
+/// use thales_cli::fractal_dimension::MarketRegime;
+///
+/// let regime = MarketRegime::Trending;
+/// assert_eq!(format!("{}", regime), "Persistent (Trending)");
+/// ```
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub enum MarketRegime {
     Trending,
@@ -43,6 +64,20 @@ impl std::fmt::Display for MarketRegime {
 }
 
 /// The result of a Fractal Dimension analysis.
+///
+/// # Examples
+///
+/// ```rust
+/// use thales_cli::fractal_dimension::{FractalReport, MarketRegime};
+///
+/// let report = FractalReport {
+///     symbol: "AAPL".to_string(),
+///     dimension: 1.42,
+///     regime: MarketRegime::Trending,
+/// };
+///
+/// assert_eq!(report.dimension, 1.42);
+/// ```
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct FractalReport {
     /// The symbol analyzed.
@@ -58,6 +93,40 @@ pub struct FractalReport {
 /// # Errors
 ///
 /// Returns an error if the series has fewer points than `k_max + 1`.
+///
+/// # Examples
+///
+/// ```rust
+/// use contracts::{Bar, BarSeries};
+/// use thales_cli::fractal_dimension::{analyze_fractal_dimension, FractalConfig, MarketRegime};
+///
+/// // Create a simple upward trending series
+/// let bars: Vec<Bar> = (0..20).map(|i| {
+///     Bar {
+///         symbol: "AAPL".to_string(),
+///         market: "equities".to_string(),
+///         timeframe: "1d".to_string(),
+///         timestamp_unix_ms: i as i64 * 86400000,
+///         open: 100.0 + i as f64,
+///         high: 101.0 + i as f64,
+///         low: 99.0 + i as f64,
+///         close: 100.0 + i as f64,
+///         volume: 1000.0,
+///     }
+/// }).collect();
+///
+/// let series = BarSeries {
+///     schema_version: "v0".to_string(),
+///     bars,
+/// };
+///
+/// let config = FractalConfig { k_max: 5 };
+/// let report = analyze_fractal_dimension(&series, config).unwrap();
+///
+/// assert_eq!(report.symbol, "AAPL");
+/// // A straight line is highly persistent (trending)
+/// assert_eq!(report.regime, MarketRegime::Trending);
+/// ```
 pub fn analyze_fractal_dimension(
     series: &BarSeries,
     config: FractalConfig,
