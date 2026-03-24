@@ -4420,6 +4420,24 @@
 | 2026-03-24 09:14:07 | MOGUSD | NO_REF | CONFLICT: Conflicting signals (Buy and Sell) detected for MOGUSD. Trading halted for this asset. |
 | 2026-03-24 09:31:45 | PEPEUSD | NO_REF | CONFLICT: Conflicting signals (Buy and Sell) detected for PEPEUSD. Trading halted for this asset. |
 | 2026-03-24 09:31:48 | MOGUSD | crypto:MOGUSD:buy:1774342800000 | Rejected by Risk Agent: Order value below exchange minimum fiat volume (1.58 < 5.0) |
+| 2026-03-24 11:11:35 | SPY | NO_STRATEGY_SIGNAL | Invalid input: provider error: missing required environment variable: ALPACA_API_KEY |
+| 2026-03-24 11:11:35 | QQQ | NO_STRATEGY_SIGNAL | Invalid input: provider error: missing required environment variable: ALPACA_API_KEY |
+| 2026-03-24 11:11:35 | TQQQ | NO_STRATEGY_SIGNAL | Invalid input: provider error: missing required environment variable: ALPACA_API_KEY |
+| 2026-03-24 11:11:44 | BTCUSD | NO_REF | CONFLICT: Conflicting signals (Buy and Sell) detected for BTCUSD. Trading halted for this asset. |
+| 2026-03-24 11:11:45 | ETHUSD | NO_REF | CONFLICT: Conflicting signals (Buy and Sell) detected for ETHUSD. Trading halted for this asset. |
+| 2026-03-24 11:11:45 | SPY | NO_REF | CONFLICT: Conflicting signals (Buy and Sell) detected for SPY. Trading halted for this asset. |
+| 2026-03-24 11:15:03 | BTCUSD | NO_REF | CONFLICT: Conflicting signals (Buy and Sell) detected for BTCUSD. Trading halted for this asset. |
+| 2026-03-24 11:15:03 | ETHUSD | NO_REF | CONFLICT: Conflicting signals (Buy and Sell) detected for ETHUSD. Trading halted for this asset. |
+| 2026-03-24 11:15:04 | SPY | NO_REF | CONFLICT: Conflicting signals (Buy and Sell) detected for SPY. Trading halted for this asset. |
+| 2026-03-24 11:16:23 | SPY | NO_STRATEGY_SIGNAL | Invalid input: provider error: missing required environment variable: ALPACA_API_KEY |
+| 2026-03-24 11:16:23 | QQQ | NO_STRATEGY_SIGNAL | Invalid input: provider error: missing required environment variable: ALPACA_API_KEY |
+| 2026-03-24 11:16:23 | TQQQ | NO_STRATEGY_SIGNAL | Invalid input: provider error: missing required environment variable: ALPACA_API_KEY |
+| 2026-03-24 11:16:38 | SPY | NO_STRATEGY_SIGNAL | Invalid input: provider error: missing required environment variable: ALPACA_API_KEY |
+| 2026-03-24 11:16:38 | QQQ | NO_STRATEGY_SIGNAL | Invalid input: provider error: missing required environment variable: ALPACA_API_KEY |
+| 2026-03-24 11:16:38 | TQQQ | NO_STRATEGY_SIGNAL | Invalid input: provider error: missing required environment variable: ALPACA_API_KEY |
+| 2026-03-24 11:16:46 | BTCUSD | NO_REF | CONFLICT: Conflicting signals (Buy and Sell) detected for BTCUSD. Trading halted for this asset. |
+| 2026-03-24 11:16:46 | ETHUSD | NO_REF | CONFLICT: Conflicting signals (Buy and Sell) detected for ETHUSD. Trading halted for this asset. |
+| 2026-03-24 11:16:47 | SPY | NO_REF | CONFLICT: Conflicting signals (Buy and Sell) detected for SPY. Trading halted for this asset. |
 
 ## Executed Trades
 
