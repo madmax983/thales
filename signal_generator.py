@@ -144,6 +144,27 @@ def main():
                         print(f"Skipping signal for {symbol}: No proper analysis available.")
                         continue
 
+                    # Handle Signal Types: Entry, Exit, ScaleIn, ScaleOut
+                    signal_type_raw = intent.get("signal_type", "")
+                    is_entry = signal_type_raw in ["Entry", "SignalType::Entry"]
+                    is_exit = signal_type_raw in ["Exit", "SignalType::Exit"]
+                    is_scale_in = signal_type_raw in ["ScaleIn", "SignalType::ScaleIn"]
+                    is_scale_out = signal_type_raw in ["ScaleOut", "SignalType::ScaleOut"]
+
+                    # Filter: Do not chase moves - wait for pullbacks
+                    if is_entry:
+                        side = str(intent.get('side', '')).lower()
+                        sentiment = analysis.get("sentiment", "").lower()
+
+                        # We specifically look for (overbought) / (oversold) in the sentiment
+                        # To avoid false positives on rationale like "not overbought", we check sentiment primarily.
+                        if side in ["buy", "long"] and "overbought" in sentiment:
+                            print(f"Skipping long signal for {symbol}: Chasing move (Sentiment is Overbought)")
+                            continue
+                        elif side in ["sell", "short"] and "oversold" in sentiment:
+                            print(f"Skipping short signal for {symbol}: Chasing move (Sentiment is Oversold)")
+                            continue
+
                     # Size positions based on volatility
                     volatility_label = analysis.get("volatility", "").lower() if analysis else ""
                     size_hint_str = intent.get("size_hint", "0")
@@ -159,24 +180,15 @@ def main():
                         except (ValueError, TypeError):
                             pass
 
-                    # Handle Signal Types: Entry, Exit, ScaleIn, ScaleOut
-                    signal_type_raw = intent.get("signal_type", "")
-                    is_entry = signal_type_raw in ["Entry", "SignalType::Entry"]
-                    is_exit = signal_type_raw in ["Exit", "SignalType::Exit"]
-                    is_scale_in = signal_type_raw in ["ScaleIn", "SignalType::ScaleIn"]
-                    is_scale_out = signal_type_raw in ["ScaleOut", "SignalType::ScaleOut"]
-
-                    if is_exit:
-                        intent["size_hint"] = "max"
-                        intent.pop("stop_loss", None)
-                        intent.pop("take_profit", None)
-                    elif is_scale_out:
-                        try:
-                            current_sz = float(intent.get("size_hint", "0"))
-                            formatted_sz = f"{(current_sz * 0.5):.4f}".rstrip('0').rstrip('.') if '.' in f"{(current_sz * 0.5):.4f}" else f"{(current_sz * 0.5):.4f}"
-                            intent["size_hint"] = formatted_sz if formatted_sz else "0"
-                        except (ValueError, TypeError):
-                            pass
+                    if is_exit or is_scale_out:
+                        intent["size_hint"] = "max" if is_exit else intent.get("size_hint", "max")
+                        if is_scale_out:
+                            try:
+                                current_sz = float(intent.get("size_hint", "0"))
+                                formatted_sz = f"{(current_sz * 0.5):.4f}".rstrip('0').rstrip('.') if '.' in f"{(current_sz * 0.5):.4f}" else f"{(current_sz * 0.5):.4f}"
+                                intent["size_hint"] = formatted_sz if formatted_sz else "0"
+                            except (ValueError, TypeError):
+                                pass
                         intent.pop("stop_loss", None)
                         intent.pop("take_profit", None)
                     elif is_entry or is_scale_in:
