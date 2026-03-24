@@ -1,9 +1,38 @@
+//! Order Blocks Analysis
+//!
+//! This module implements Smart Money Concepts (SMC) order block detection.
+//! Order blocks are specific price levels where institutional market participants
+//! are believed to have placed large orders.
+//!
+//! # Core Concepts
+//!
+//! - **Order Block (OB)**: Typically the last opposite-colored candle before a strong move.
+//!   - *Bullish OB*: The last bearish candle before a strong upward expansion.
+//!   - *Bearish OB*: The last bullish candle before a strong downward expansion.
+//! - **Expansion**: A price move significantly larger than the recent average true range (ATR).
+//! - **Mitigation**: When price later returns to the order block level and touches it, the
+//!   orders are considered filled (mitigated). Unmitigated order blocks act as strong future support/resistance.
+
 use anyhow::Result;
 #[cfg(test)]
 use contracts::Bar;
 use contracts::BarSeries;
 use serde::Serialize;
 
+/// Configuration for Order Blocks analysis.
+///
+/// # Examples
+///
+/// ```rust
+/// use thales_cli::order_blocks::OrderBlocksConfig;
+///
+/// let config = OrderBlocksConfig {
+///     atr_period: 14,
+///     expansion_multiplier: 1.5,
+/// };
+///
+/// assert_eq!(config.atr_period, 14);
+/// ```
 #[derive(Debug, Clone, Copy)]
 pub struct OrderBlocksConfig {
     /// The number of previous bars used to calculate average range.
@@ -12,21 +41,94 @@ pub struct OrderBlocksConfig {
     pub expansion_multiplier: f64,
 }
 
+/// Represents a detected Order Block.
+///
+/// # Examples
+///
+/// ```rust
+/// use thales_cli::order_blocks::OrderBlock;
+///
+/// let block = OrderBlock {
+///     is_bullish: true,
+///     index: 5,
+///     timestamp_ms: 1622505600000,
+///     top: 105.0,
+///     bottom: 100.0,
+///     mitigation_index: None,
+/// };
+///
+/// assert!(block.is_bullish);
+/// ```
 #[derive(Debug, Clone, Serialize)]
 pub struct OrderBlock {
+    /// True if bullish (demand zone), false if bearish (supply zone).
     pub is_bullish: bool,
+    /// The index of the bar in the series where this order block occurred.
     pub index: usize,
     pub timestamp_ms: i64,
     pub top: f64,
     pub bottom: f64,
+    /// The index of the bar that mitigated this block, if any.
     pub mitigation_index: Option<usize>,
 }
 
+/// The result of an Order Blocks analysis run.
+///
+/// # Examples
+///
+/// ```rust
+/// use thales_cli::order_blocks::{OrderBlocksReport, OrderBlock};
+///
+/// let report = OrderBlocksReport {
+///     blocks: vec![],
+/// };
+///
+/// assert!(report.blocks.is_empty());
+/// ```
 #[derive(Debug, Clone, Serialize)]
 pub struct OrderBlocksReport {
+    /// All detected order blocks (both mitigated and unmitigated).
     pub blocks: Vec<OrderBlock>,
 }
 
+/// Analyzes a [`BarSeries`] to detect Smart Money Concepts (SMC) order blocks.
+///
+/// Returns a report containing both mitigated and unmitigated order blocks.
+///
+/// # Examples
+///
+/// ```rust
+/// use contracts::{Bar, BarSeries};
+/// use thales_cli::order_blocks::{analyze_order_blocks, OrderBlocksConfig};
+///
+/// // Create mock series
+/// let bars: Vec<Bar> = (0..10).map(|i| {
+///     Bar {
+///         symbol: "AAPL".to_string(),
+///         market: "equities".to_string(),
+///         timeframe: "1d".to_string(),
+///         timestamp_unix_ms: i as i64 * 86400000,
+///         open: 100.0,
+///         high: 101.0,
+///         low: 99.0,
+///         close: 100.0,
+///         volume: 1000.0,
+///     }
+/// }).collect();
+///
+/// let series = BarSeries {
+///     schema_version: "v0".to_string(),
+///     bars,
+/// };
+///
+/// let config = OrderBlocksConfig {
+///     atr_period: 3,
+///     expansion_multiplier: 2.0,
+/// };
+///
+/// let report = analyze_order_blocks(&series, config).unwrap();
+/// assert!(report.blocks.is_empty()); // No strong expansions in this flat data
+/// ```
 pub fn analyze_order_blocks(
     series: &BarSeries,
     config: OrderBlocksConfig,
