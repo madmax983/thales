@@ -1553,6 +1553,28 @@ def main():
     print("Fetching open positions...")
     portfolio_path = get_all_positions()
 
+    # Add current portfolio positions to candidates
+    if os.path.exists(portfolio_path):
+        try:
+            with open(portfolio_path, "r") as f:
+                positions = json.load(f)
+            for pos in positions:
+                sym = pos.get("symbol")
+                if sym and sym not in existing_symbols:
+                    # Determine provider from symbol or default
+                    # In simulation it's paper, else infer based on market
+                    if os.environ.get("SIMULATION") == "true":
+                         provider = "paper"
+                         market = "crypto" if "USD" in sym and "SPY" not in sym else "equities"
+                    else:
+                         provider = pos.get("provider", "kraken") # If missing, default kraken
+                         market = "crypto" if "USD" in sym and "SPY" not in sym else "equities"
+                    selected_candidates.append({"provider": provider, "symbol": sym, "market": market})
+                    existing_symbols.add(sym)
+                    print(f" - Added portfolio holding to candidates: {sym}")
+        except Exception as e:
+            print(f"Error parsing portfolio for candidates: {e}")
+
     try:
         # 3. Generate Signals for selected candidates
         all_signals = []
