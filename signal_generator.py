@@ -272,26 +272,26 @@ def main():
                         print(f"Note: No similar past trades found for {symbol}.")
                         # We don't skip the signal, we just note it as it might be a valid new setup
 
-                    # All signals must go through Risk Agent before execution
+                    # Format numerical values safely to 4 decimal places
+                    for field in ["size_hint", "stop_loss", "take_profit"]:
+                        if field in intent:
+                            intent[field] = format_price(intent[field])
+
+                    # Route all signals through the Risk Agent first
+                    # We get the last close price for Risk Agent if possible
+                    last_close = None
                     try:
                         with open(data_file, "r") as f:
                             b_data = json.load(f)
                             if "bars" in b_data and len(b_data["bars"]) > 0:
                                 last_close = float(b_data["bars"][-1]["close"])
-                                risk_ok, risk_reason = verify_risk(intent, current_price=last_close)
-                            else:
-                                risk_ok, risk_reason = verify_risk(intent)
                     except (FileNotFoundError, json.JSONDecodeError, KeyError, ValueError, IndexError):
-                        risk_ok, risk_reason = verify_risk(intent)
+                        pass
 
+                    risk_ok, risk_reason = verify_risk(intent, current_price=last_close) if last_close is not None else verify_risk(intent)
                     if not risk_ok:
                         print(f"Skipping signal for {symbol} due to Risk Agent rejection: {risk_reason}")
                         continue
-
-                    # Format numerical values safely to 4 decimal places
-                    for field in ["size_hint", "stop_loss", "take_profit"]:
-                        if field in intent:
-                            intent[field] = format_price(intent[field])
 
                     # Map buy/sell to long/short
                     side = str(intent.get('side', '')).lower()
