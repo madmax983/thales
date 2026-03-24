@@ -1,4 +1,4 @@
-use std::{fs, path::PathBuf, process};
+use std::{path::PathBuf, process};
 
 use alpaca_provider::{AlpacaClient, AlpacaConfig};
 use clap::{Parser, Subcommand};
@@ -428,7 +428,7 @@ fn run(command: Commands, raw: bool) -> Result<String, CliError> {
     match command {
         #[cfg(feature = "nova")]
         Commands::ExportCsv { input, output } => {
-            let file_content = fs::read_to_string(&input)?;
+            let file_content = std::fs::read_to_string(&input).map_err(|e| std::io::Error::new(e.kind(), format!("Could not open input file '{}': {}", input.display(), e)))?;
             let series: BarSeries =
                 match serde_json::from_str::<ResponseEnvelope<BarSeries>>(&file_content) {
                     Ok(envelope) => envelope
@@ -455,7 +455,7 @@ fn run(command: Commands, raw: bool) -> Result<String, CliError> {
         }
         #[cfg(feature = "nova")]
         Commands::ExportObj { input, output } => {
-            let file_content = fs::read_to_string(&input)?;
+            let file_content = std::fs::read_to_string(&input).map_err(|e| std::io::Error::new(e.kind(), format!("Could not open input file '{}': {}", input.display(), e)))?;
             let series: BarSeries =
                 match serde_json::from_str::<ResponseEnvelope<BarSeries>>(&file_content) {
                     Ok(envelope) => envelope
@@ -473,7 +473,7 @@ fn run(command: Commands, raw: bool) -> Result<String, CliError> {
             initial_capital,
             risk,
         } => {
-            let raw_str = fs::read_to_string(&input)?;
+            let raw_str = std::fs::read_to_string(&input).map_err(|e| std::io::Error::new(e.kind(), format!("Could not open input file '{}': {}", input.display(), e)))?;
             let series: BarSeries =
                 match serde_json::from_str::<ResponseEnvelope<BarSeries>>(&raw_str) {
                     Ok(envelope) => envelope
@@ -504,7 +504,7 @@ fn run(command: Commands, raw: bool) -> Result<String, CliError> {
             risk,
             sort_by,
         } => {
-            let raw_str = fs::read_to_string(&input)?;
+            let raw_str = std::fs::read_to_string(&input).map_err(|e| std::io::Error::new(e.kind(), format!("Could not open input file '{}': {}", input.display(), e)))?;
             let series: BarSeries =
                 match serde_json::from_str::<ResponseEnvelope<BarSeries>>(&raw_str) {
                     Ok(envelope) => envelope
@@ -574,7 +574,7 @@ fn run(command: Commands, raw: bool) -> Result<String, CliError> {
             ok_envelope(series, vec![], raw)
         }
         Commands::NormalizeBars { input } => {
-            let raw_str = fs::read_to_string(&input)?;
+            let raw_str = std::fs::read_to_string(&input).map_err(|e| std::io::Error::new(e.kind(), format!("Could not open input file '{}': {}", input.display(), e)))?;
             let mut series: BarSeries =
                 match serde_json::from_str::<ResponseEnvelope<BarSeries>>(&raw_str) {
                     Ok(envelope) => envelope
@@ -634,7 +634,7 @@ fn run(command: Commands, raw: bool) -> Result<String, CliError> {
             let intents: Vec<TradeIntent> = match read_json_file::<Vec<TradeIntent>>(&input) {
                 Ok(list) => list,
                 Err(_) => {
-                    let single: TradeIntent = read_json_file(&input)?;
+                    let single: TradeIntent = read_json_file(&input).map_err(|e| CliError::Validation(format!("Failed to parse TradeIntents from '{}'. Did you pass market data instead of signals? (Original error: {})", input.display(), e)))?;
                     vec![single]
                 }
             };
@@ -662,7 +662,7 @@ fn run(command: Commands, raw: bool) -> Result<String, CliError> {
             news,
             no_report,
         } => {
-            let raw_str = fs::read_to_string(&input)?;
+            let raw_str = std::fs::read_to_string(&input).map_err(|e| std::io::Error::new(e.kind(), format!("Could not open input file '{}': {}", input.display(), e)))?;
             let series: BarSeries =
                 match serde_json::from_str::<ResponseEnvelope<BarSeries>>(&raw_str) {
                     Ok(envelope) => envelope
@@ -727,7 +727,7 @@ fn run(command: Commands, raw: bool) -> Result<String, CliError> {
             portfolio,
             analysis,
         } => {
-            let raw_str = fs::read_to_string(&input)?;
+            let raw_str = std::fs::read_to_string(&input).map_err(|e| std::io::Error::new(e.kind(), format!("Could not open input file '{}': {}", input.display(), e)))?;
             let series: BarSeries =
                 match serde_json::from_str::<ResponseEnvelope<BarSeries>>(&raw_str) {
                     Ok(envelope) => envelope
@@ -737,7 +737,7 @@ fn run(command: Commands, raw: bool) -> Result<String, CliError> {
                 };
 
             let positions: Vec<contracts::Position> = if let Some(path) = portfolio {
-                let raw_pos = fs::read_to_string(&path)?;
+                let raw_pos = std::fs::read_to_string(&path).map_err(|e| std::io::Error::new(e.kind(), format!("Could not open input file '{}': {}", path.display(), e)))?;
                 // Handle envelope or raw list
                 match serde_json::from_str::<ResponseEnvelope<Vec<contracts::Position>>>(&raw_pos) {
                     Ok(env) => env.data.unwrap_or_default(),
@@ -748,7 +748,7 @@ fn run(command: Commands, raw: bool) -> Result<String, CliError> {
             };
 
             let market_analysis: Option<contracts::MarketAnalysis> = if let Some(path) = analysis {
-                let raw_analysis = fs::read_to_string(&path)?;
+                let raw_analysis = std::fs::read_to_string(&path).map_err(|e| std::io::Error::new(e.kind(), format!("Could not open input file '{}': {}", path.display(), e)))?;
                 match serde_json::from_str::<ResponseEnvelope<contracts::MarketAnalysis>>(
                     &raw_analysis,
                 ) {
@@ -1067,7 +1067,7 @@ fn run(command: Commands, raw: bool) -> Result<String, CliError> {
             ))),
         },
         Commands::OptimizeStrategy { input, config } => {
-            let raw_bars = fs::read_to_string(&input)?;
+            let raw_bars = std::fs::read_to_string(&input).map_err(|e| std::io::Error::new(e.kind(), format!("Could not open input file '{}': {}", input.display(), e)))?;
             let series: BarSeries =
                 match serde_json::from_str::<ResponseEnvelope<BarSeries>>(&raw_bars) {
                     Ok(envelope) => envelope
@@ -1076,7 +1076,7 @@ fn run(command: Commands, raw: bool) -> Result<String, CliError> {
                     Err(_) => serde_json::from_str::<BarSeries>(&raw_bars)?,
                 };
 
-            let raw_config = fs::read_to_string(&config)?;
+            let raw_config = std::fs::read_to_string(&config).map_err(|e| std::io::Error::new(e.kind(), format!("Could not open input file '{}': {}", config.display(), e)))?;
             let request: optimizer::OptimizationRequest = serde_json::from_str(&raw_config)?;
 
             let rt = tokio::runtime::Builder::new_current_thread()
@@ -1097,7 +1097,7 @@ fn run(command: Commands, raw: bool) -> Result<String, CliError> {
             horizon,
             initial_capital,
         } => {
-            let raw_str = fs::read_to_string(&input)?;
+            let raw_str = std::fs::read_to_string(&input).map_err(|e| std::io::Error::new(e.kind(), format!("Could not open input file '{}': {}", input.display(), e)))?;
             let backtest: backtest::BacktestResult = match serde_json::from_str::<
                 ResponseEnvelope<backtest::BacktestResult>,
             >(&raw_str)
@@ -1125,7 +1125,7 @@ fn run(command: Commands, raw: bool) -> Result<String, CliError> {
             brick_size,
             visualize,
         } => {
-            let file_content = fs::read_to_string(&input)?;
+            let file_content = std::fs::read_to_string(&input).map_err(|e| std::io::Error::new(e.kind(), format!("Could not open input file '{}': {}", input.display(), e)))?;
             let series: BarSeries =
                 match serde_json::from_str::<ResponseEnvelope<BarSeries>>(&file_content) {
                     Ok(envelope) => envelope
@@ -1152,7 +1152,7 @@ fn run(command: Commands, raw: bool) -> Result<String, CliError> {
             value_area_pct,
             visualize,
         } => {
-            let raw_str = fs::read_to_string(&input)?;
+            let raw_str = std::fs::read_to_string(&input).map_err(|e| std::io::Error::new(e.kind(), format!("Could not open input file '{}': {}", input.display(), e)))?;
             let series: BarSeries =
                 match serde_json::from_str::<ResponseEnvelope<BarSeries>>(&raw_str) {
                     Ok(envelope) => envelope
@@ -1182,7 +1182,7 @@ fn run(command: Commands, raw: bool) -> Result<String, CliError> {
             long_window,
             visualize,
         } => {
-            let file_content = fs::read_to_string(&input)?;
+            let file_content = std::fs::read_to_string(&input).map_err(|e| std::io::Error::new(e.kind(), format!("Could not open input file '{}': {}", input.display(), e)))?;
             let series: BarSeries =
                 match serde_json::from_str::<ResponseEnvelope<BarSeries>>(&file_content) {
                     Ok(envelope) => envelope
@@ -1210,7 +1210,7 @@ fn run(command: Commands, raw: bool) -> Result<String, CliError> {
             k_max,
             visualize,
         } => {
-            let file_content = fs::read_to_string(&input)?;
+            let file_content = std::fs::read_to_string(&input).map_err(|e| std::io::Error::new(e.kind(), format!("Could not open input file '{}': {}", input.display(), e)))?;
             let series: BarSeries =
                 match serde_json::from_str::<ResponseEnvelope<BarSeries>>(&file_content) {
                     Ok(envelope) => envelope
@@ -1236,7 +1236,7 @@ fn run(command: Commands, raw: bool) -> Result<String, CliError> {
             state_threshold_pct,
             visualize,
         } => {
-            let file_content = fs::read_to_string(&input)?;
+            let file_content = std::fs::read_to_string(&input).map_err(|e| std::io::Error::new(e.kind(), format!("Could not open input file '{}': {}", input.display(), e)))?;
             let series: BarSeries =
                 match serde_json::from_str::<ResponseEnvelope<BarSeries>>(&file_content) {
                     Ok(envelope) => envelope
@@ -1264,7 +1264,7 @@ fn run(command: Commands, raw: bool) -> Result<String, CliError> {
             num_bins,
             visualize,
         } => {
-            let file_content = fs::read_to_string(&input)?;
+            let file_content = std::fs::read_to_string(&input).map_err(|e| std::io::Error::new(e.kind(), format!("Could not open input file '{}': {}", input.display(), e)))?;
             let series: BarSeries =
                 match serde_json::from_str::<ResponseEnvelope<BarSeries>>(&file_content) {
                     Ok(envelope) => envelope
@@ -1290,7 +1290,7 @@ fn run(command: Commands, raw: bool) -> Result<String, CliError> {
             period,
             visualize,
         } => {
-            let file_content = fs::read_to_string(&input)?;
+            let file_content = std::fs::read_to_string(&input).map_err(|e| std::io::Error::new(e.kind(), format!("Could not open input file '{}': {}", input.display(), e)))?;
             let series: BarSeries =
                 match serde_json::from_str::<ResponseEnvelope<BarSeries>>(&file_content) {
                     Ok(envelope) => envelope
@@ -1318,7 +1318,7 @@ fn run(command: Commands, raw: bool) -> Result<String, CliError> {
             forward_horizon,
             visualize,
         } => {
-            let file_content = fs::read_to_string(&input)?;
+            let file_content = std::fs::read_to_string(&input).map_err(|e| std::io::Error::new(e.kind(), format!("Could not open input file '{}': {}", input.display(), e)))?;
             let series: BarSeries =
                 match serde_json::from_str::<ResponseEnvelope<BarSeries>>(&file_content) {
                     Ok(envelope) => envelope
@@ -1348,7 +1348,7 @@ fn run(command: Commands, raw: bool) -> Result<String, CliError> {
             period,
             visualize,
         } => {
-            let file_content = fs::read_to_string(&input)?;
+            let file_content = std::fs::read_to_string(&input).map_err(|e| std::io::Error::new(e.kind(), format!("Could not open input file '{}': {}", input.display(), e)))?;
             let series: BarSeries =
                 match serde_json::from_str::<ResponseEnvelope<BarSeries>>(&file_content) {
                     Ok(envelope) => envelope
@@ -1413,7 +1413,7 @@ fn run(command: Commands, raw: bool) -> Result<String, CliError> {
             multiplier,
             seed,
         } => {
-            let file_content = fs::read_to_string(&input)?;
+            let file_content = std::fs::read_to_string(&input).map_err(|e| std::io::Error::new(e.kind(), format!("Could not open input file '{}': {}", input.display(), e)))?;
             let series: BarSeries =
                 match serde_json::from_str::<ResponseEnvelope<BarSeries>>(&file_content) {
                     Ok(envelope) => envelope
@@ -1472,7 +1472,7 @@ fn run(command: Commands, raw: bool) -> Result<String, CliError> {
             brick_size,
             visualize,
         } => {
-            let file_content = fs::read_to_string(&input)?;
+            let file_content = std::fs::read_to_string(&input).map_err(|e| std::io::Error::new(e.kind(), format!("Could not open input file '{}': {}", input.display(), e)))?;
             let series: BarSeries =
                 match serde_json::from_str::<ResponseEnvelope<BarSeries>>(&file_content) {
                     Ok(envelope) => envelope
@@ -1503,7 +1503,7 @@ fn run(command: Commands, raw: bool) -> Result<String, CliError> {
             expansion_multiplier,
             visualize,
         } => {
-            let file_content = fs::read_to_string(&input)?;
+            let file_content = std::fs::read_to_string(&input).map_err(|e| std::io::Error::new(e.kind(), format!("Could not open input file '{}': {}", input.display(), e)))?;
             let series: BarSeries =
                 match serde_json::from_str::<ResponseEnvelope<BarSeries>>(&file_content) {
                     Ok(envelope) => envelope
@@ -1533,7 +1533,7 @@ fn run(command: Commands, raw: bool) -> Result<String, CliError> {
             top_k,
             visualize,
         } => {
-            let file_content = fs::read_to_string(&input)?;
+            let file_content = std::fs::read_to_string(&input).map_err(|e| std::io::Error::new(e.kind(), format!("Could not open input file '{}': {}", input.display(), e)))?;
             let series: BarSeries =
                 match serde_json::from_str::<ResponseEnvelope<BarSeries>>(&file_content) {
                     Ok(envelope) => envelope
@@ -1559,7 +1559,7 @@ fn run(command: Commands, raw: bool) -> Result<String, CliError> {
             max_cycles,
             visualize,
         } => {
-            let file_content = fs::read_to_string(&input)?;
+            let file_content = std::fs::read_to_string(&input).map_err(|e| std::io::Error::new(e.kind(), format!("Could not open input file '{}': {}", input.display(), e)))?;
             let series: BarSeries =
                 match serde_json::from_str::<ResponseEnvelope<BarSeries>>(&file_content) {
                     Ok(envelope) => envelope
@@ -1587,7 +1587,7 @@ fn run(command: Commands, raw: bool) -> Result<String, CliError> {
             risk,
             visualize,
         } => {
-            let file_content = fs::read_to_string(&input)?;
+            let file_content = std::fs::read_to_string(&input).map_err(|e| std::io::Error::new(e.kind(), format!("Could not open input file '{}': {}", input.display(), e)))?;
             let series: BarSeries =
                 match serde_json::from_str::<ResponseEnvelope<BarSeries>>(&file_content) {
                     Ok(envelope) => envelope
@@ -1772,7 +1772,7 @@ fn read_json_file<T>(path: &PathBuf) -> Result<T, CliError>
 where
     T: serde::de::DeserializeOwned,
 {
-    let raw_str = fs::read_to_string(path)?;
+    let raw_str = std::fs::read_to_string(path).map_err(|e| std::io::Error::new(e.kind(), format!("Could not open file '{}': {}", path.display(), e)))?;
     if let Ok(envelope) = serde_json::from_str::<ResponseEnvelope<T>>(&raw_str)
         && let Some(data) = envelope.data
     {
