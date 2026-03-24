@@ -156,19 +156,6 @@ def main():
                     is_scale_in = signal_type_raw in ["ScaleIn", "SignalType::ScaleIn"]
                     is_scale_out = signal_type_raw in ["ScaleOut", "SignalType::ScaleOut"]
 
-                    # Filter: Do not chase moves - wait for pullbacks
-                    if is_entry:
-                        side = str(intent.get('side', '')).lower()
-                        sentiment = analysis.get("sentiment", "").lower()
-
-                        # We specifically look for (overbought) / (oversold) in the sentiment
-                        # To avoid false positives on rationale like "not overbought", we check sentiment primarily.
-                        if side in ["buy", "long"] and "overbought" in sentiment:
-                            print(f"Skipping long signal for {symbol}: Chasing move (Sentiment is Overbought)")
-                            continue
-                        elif side in ["sell", "short"] and "oversold" in sentiment:
-                            print(f"Skipping short signal for {symbol}: Chasing move (Sentiment is Oversold)")
-                            continue
 
                     # Size positions based on volatility
                     volatility_label = analysis.get("volatility", "").lower() if analysis else ""
@@ -265,12 +252,6 @@ def main():
                         print(f"Skipping signal for {symbol}: Missing mandatory stop loss.")
                         continue
 
-                    # Filter: Check historical trades before generating new signals
-                    rationale = intent.get("rationale") or ""
-                    if "No similar past trades found" in rationale:
-                        print(f"Note: No similar past trades found for {symbol}.")
-                        # We don't skip the signal, we just note it as it might be a valid new setup
-
                     # Filter: Do not chase moves - wait for pullbacks
                     if is_entry:
                         side = str(intent.get('side', '')).lower()
@@ -284,6 +265,12 @@ def main():
                         elif side in ["sell", "short"] and "oversold" in sentiment:
                             print(f"Skipping short signal for {symbol}: Chasing move (Sentiment is Oversold)")
                             continue
+
+                    # Filter: Check historical trades before generating new signals
+                    rationale = intent.get("rationale") or ""
+                    if "No similar past trades found" in rationale:
+                        print(f"Note: No similar past trades found for {symbol}.")
+                        # We don't skip the signal, we just note it as it might be a valid new setup
 
                     # All signals must go through Risk Agent before execution
                     try:
@@ -321,9 +308,18 @@ def main():
         # Resolve conflicting directions (only keep the direction of the highest confidence signal)
         if symbol_intents:
             primary_direction = symbol_intents[0].get('side', 'long')
-            # Limit strictly to 3 signals per symbol per day
+            filtered_intents = [intent for intent in symbol_intents if intent.get('side', 'long') == primary_direction]
+
+            # Limit strictly to 1-3 signals per symbol per day
+            # We already skipped processing if history had >= 3.
+            # Now we just need to ensure the NEW signals we add don't exceed the daily limit of 3
+            # OR a minimum of 1 if history has 0 but we have valid signals.
             allowance = max(0, 3 - recent_signals_count)
-            filtered_intents = [intent for intent in symbol_intents if intent.get('side', 'long') == primary_direction][:allowance]
+
+            # If we don't have enough to fill the allowance, take what we have
+            # But the requirement is "Limit to 1-3 signals per symbol per day".
+            # The slicing `[:allowance]` already caps it.
+            filtered_intents = filtered_intents[:allowance]
             all_intents.extend(filtered_intents)
 
         # Cleanup
