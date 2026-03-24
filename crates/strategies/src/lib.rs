@@ -44,6 +44,7 @@ pub mod disparity_index_reversion;
 pub mod donchian_breakout;
 pub mod double_ema_crossover;
 pub mod dpo_breakout;
+pub mod ease_of_movement;
 pub mod elder_ray;
 pub mod ema_crossover;
 pub mod ema_rsi_trend;

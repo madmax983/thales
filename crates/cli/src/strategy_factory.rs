@@ -52,6 +52,7 @@ use strategies::disparity_index_reversion::{
 use strategies::donchian_breakout::{DonchianBreakout, DonchianBreakoutConfig};
 use strategies::double_ema_crossover::{DoubleEmaCrossover, DoubleEmaCrossoverConfig};
 use strategies::dpo_breakout::{DpoBreakout, DpoBreakoutConfig};
+use strategies::ease_of_movement::{EaseOfMovement, EaseOfMovementConfig};
 use strategies::elder_ray::{ElderRay, ElderRayConfig};
 use strategies::ema_crossover::{EmaCrossover, EmaCrossoverConfig};
 use strategies::ema_rsi_trend::{EmaRsiTrendFollowing, EmaRsiTrendFollowingConfig};
@@ -326,6 +327,16 @@ pub fn create_strategy(name: &str, symbol: &str) -> Result<Box<dyn Strategy>> {
                 symbol: symbol.to_string(),
             };
             Ok(Box::new(DonchianBreakout::new(config)))
+        }
+        "EaseOfMovement" => {
+            let config = EaseOfMovementConfig {
+                eom_period: 14,
+                sma_period: 9,
+                stop_loss_atr_mult: 2.0,
+                atr_period: 14,
+                symbol: symbol.to_string(),
+            };
+            Ok(Box::new(EaseOfMovement::new(config)?))
         }
         "ParabolicSar" => {
             let config = ParabolicSarConfig {
@@ -849,6 +860,7 @@ pub fn list_strategies() -> Vec<&'static str> {
         "SupertrendEmaCrossover",
         "SupertrendRsi",
         "DonchianBreakout",
+        "EaseOfMovement",
         "ParabolicSar",
         "KeltnerChannelBreakout",
         "StochasticOscillator",

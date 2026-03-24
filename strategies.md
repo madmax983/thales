@@ -3852,3 +3852,41 @@ Trend Following
 - **Expected Win Rate:** 45-55%
 - **Expected Sharpe Ratio:** > 1.2
 - **Max Drawdown:** < 15%
+
+
+# Trading Strategy: Ease of Movement
+
+## Strategy Specification
+
+**Name:** EaseOfMovement
+
+**Description:** A momentum and volume-based strategy that generates signals when the Ease of Movement (EOM) indicator crosses its Simple Moving Average (SMA).
+
+**Rationale:** EOM helps identify how easily a price can move up or down based on volume. A crossover of the EOM above its SMA suggests increasing buying pressure, while a crossover below suggests increasing selling pressure.
+
+## Requirements
+
+### Implementation Details
+- Uses Polars for data analysis.
+- Implements the `Strategy` trait in Rust.
+- Uses `eom`, `sma`, and `atr` indicators.
+
+### Strategy Type
+Momentum
+
+### Entry Conditions
+- **Long Entry (Buy):** EOM crosses ABOVE its SMA.
+- **Short Entry (Sell):** EOM crosses BELOW its SMA.
+
+### Exit Conditions
+- **Long Exit (Sell):** EOM crosses BELOW its SMA OR Stop Loss is hit.
+- **Short Exit (Buy):** EOM crosses ABOVE its SMA OR Stop Loss is hit.
+- **Stop Loss:** Entry Price +/- (ATR * `stop_loss_atr_mult`).
+
+### Position Sizing
+- **Size Hint:** "100" (fixed units) or "max" (for exits).
+
+### Expected Backtesting Metrics
+- **Expected Win Rate:** 45-55%
+- **Expected Sharpe Ratio:** > 1.2
+- **Max Drawdown:** < 15%
