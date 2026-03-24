@@ -4410,6 +4410,7 @@
 | 2026-03-24 04:53:30 | COQUSD | crypto:COQUSD:buy:1774324800000 | Rejected by Risk Agent: Order value below exchange minimum fiat volume (0.61 < 5.0) |
 | 2026-03-24 04:55:58 | BTTUSD | NO_REF | CONFLICT: Conflicting signals (Buy and Sell) detected for BTTUSD. Trading halted for this asset. |
 | 2026-03-24 04:55:58 | COQUSD | crypto:COQUSD:buy:1774324800000 | Rejected by Risk Agent: Order value below exchange minimum fiat volume (0.61 < 5.0) |
+| 2026-03-24 06:53:45 | WINUSD | NO_REF | CONFLICT: Conflicting signals (Buy and Sell) detected for WINUSD. Trading halted for this asset. |
 
 ## Executed Trades
 
@@ -4556,6 +4557,7 @@
 | 2026-03-23 03:03:28 | crypto | MOGUSD | buy (Entry) | 4289141204.81927681 | 1.494e-07 | 1.46462266075131e-07 | 1.5527546784973805e-07 | 12.60 | crypto:MOGUSD:buy:1774234800000 | Strategy: AlmaCrossover (56%, MA: 0.70). Reason: Fast ALMA (0.00) crossed above Slow ALMA (0.00). Market Context: Trending Down (Low Volatility). No similar past trades found. (Risk: $100, SL Dist: 0.00) [Size adjusted from 34039842462.744110 to 4289141204.81927681 based on USD buying power (647.27)] |
 | 2026-03-23 04:59:17 | crypto | PEPEUSD | sell (Entry) | 23404340.75 | 3.33e-06 | 3.3926763261878427e-06 | 3.204647347624315e-06 | 1.47 | crypto:PEPEUSD:sell:1774238400000 | Strategy: StochRsiMeanReversion (56%, MA: 0.70). Reason: StochRSI %K (97.89) crossed below %D (98.59) above overbought threshold. Market Context: Trending Down (Low Volatility). No similar past trades found. (Risk: $100, SL Dist: 0.00) [Sell size adjusted from 1595498748.607201 to max based on available PEPE balance (23404340.75000000)] |
 | 2026-03-23 05:59:17 | crypto | MOGUSD | buy (Entry) | 535005385.12179065 | 1.519e-07 | 1.4631952725220335e-07 | 1.5809816214740533e-07 | 2.99 | crypto:MOGUSD:buy:1774242000000 | Strategy: Supertrend (56%, MA: 0.70). Reason: Supertrend Flip Up (Price 0.00 > Upper Band). Market Context: Trending Down (Medium Volatility). No similar past trades found. (Risk: $100, SL Dist: 0.00) [Size adjusted from 17919628769.710094 to 535005385.12179065 based on USD buying power (82.09)] |
+| 2026-03-24 06:53:46 | crypto | BTTUSD | sell (Entry) | 59877404.9 | 3.33e-07 | 3.3718112868827623e-07 | 3.2463774262344747e-07 | 0.25 | crypto:BTTUSD:sell:1774332000000 | Strategy: TsiTrend (56%, MA: 0.70). Reason: TSI crossed below Signal Line. Market Context: Trending Down (Low Volatility). No similar past trades found. (Risk: $100, SL Dist: 0.00) [Sell size adjusted from 23916986884.521568 to max based on available BTT balance (59877404.90000000)] |
 
 | 2026-03-05 19:40:37 | crypto | BTCUSD | sell | 0.001 | Market | - | - | - | crypto:BTCUSD:sell:1772737200000 | Manual sell test |
 | 2026-03-06 08:12:41 | crypto | ETHUSD | buy (Entry) | 0.25750227 | 2080.20 | 2038.16 | 2242.40 | 10.83 | crypto:ETHUSD:buy:1772761365379 | Strategy: ChaikinMoneyFlow (64%, MA: 0.80). Reason: CMF crossed above Buy Threshold: 0.015 > 0.000. Market Context: Trending Up (Short Term) (Medium Volatility). No similar past trades found. Research: Similar market conditions in Q4 2023 showed a strong bullish trend following consolidation periods. The market is currently exhibiting similar behavior. (Source: Thales Knowledge Base). News: Major indices are hitting new highs, with Bitcoin showing resilience against recent regulatory concerns. (Source: SEC filings, analyst reports, and news). (Buying strength in Overbought conditions) (Risk: $100, SL Dist: 42.04) [Size adjusted from 2.378707 to 0.25750227 based on USD buying power (541.07)] |
@@ -4630,3 +4632,9 @@
 | 2026-03-23 05:04:58 | SPY | NO_REF | No strategy signal generated. |
 | 2026-03-23 05:05:13 | QQQ | NO_REF | No strategy signal generated. |
 | 2026-03-23 05:05:27 | TQQQ | NO_REF | No strategy signal generated. |
+| 2026-03-24 06:52:17 | PEPEUSD | NO_REF | No strategy signal generated. |
+| 2026-03-24 06:52:31 | REKTUSD | NO_REF | No strategy signal generated. |
+| 2026-03-24 06:52:46 | MOGUSD | NO_REF | No strategy signal generated. |
+| 2026-03-24 06:52:59 | SPY | NO_REF | No strategy signal generated. |
+| 2026-03-24 06:53:15 | QQQ | NO_REF | No strategy signal generated. |
+| 2026-03-24 06:53:30 | TQQQ | NO_REF | No strategy signal generated. |
