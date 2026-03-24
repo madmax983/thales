@@ -4401,6 +4401,10 @@
 | 2026-03-23 22:57:44 | MOGUSD | NO_REF | CONFLICT: Conflicting signals (Buy and Sell) detected for MOGUSD. Trading halted for this asset. |
 | 2026-03-23 22:57:46 | PEPEUSD | crypto:PEPEUSD:sell:1774303200000 | No sellable balance available (PEPE 0.00000000) |
 | 2026-03-23 22:57:46 | SHIBUSD | crypto:SHIBUSD:buy:1774303200000 | Rejected by Risk Agent: Order value below exchange minimum fiat volume (0.61 < 5.0) |
+| 2026-03-24 01:31:33 | REKTUSD | crypto:REKTUSD:sell:1774314000000 | provider error: kraken api error: EOrder:Insufficient funds |
+| 2026-03-24 01:31:33 | COQUSD | crypto:COQUSD:buy:1774314000000 | Rejected by Risk Agent: Order value below exchange minimum fiat volume (0.61 < 5.0) |
+| 2026-03-24 01:33:26 | REKTUSD | crypto:REKTUSD:sell:1774314000000 | provider error: kraken api error: EOrder:Insufficient funds |
+| 2026-03-24 01:33:27 | COQUSD | crypto:COQUSD:buy:1774314000000 | Rejected by Risk Agent: Order value below exchange minimum fiat volume (0.61 < 5.0) |
 
 ## Executed Trades
 
