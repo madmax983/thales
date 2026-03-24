@@ -4432,6 +4432,9 @@
 | 2026-03-24 18:03:02 | CHEEMSUSD | crypto:CHEEMSUSD:buy:1774375200000 | Rejected by Risk Agent: Order value below exchange minimum fiat volume (1.58 < 5.0) |
 | 2026-03-24 20:05:56 | REKTUSD | crypto:REKTUSD:sell:1774382400000 | provider error: kraken api error: EOrder:Insufficient funds |
 | 2026-03-24 20:05:56 | CHEEMSUSD | crypto:CHEEMSUSD:buy:1774382400000 | Rejected by Risk Agent: Order value below exchange minimum fiat volume (1.58 < 5.0) |
+| 2026-03-24 20:43:23 | REKTUSD | NO_REF | CONFLICT: Conflicting signals (Buy and Sell) detected for REKTUSD. Trading halted for this asset. |
+| 2026-03-24 20:43:24 | MOGUSD | crypto:MOGUSD:buy:1774382400000 | Rejected by Risk Agent: Order value below exchange minimum fiat volume (1.58 < 5.0) |
+| 2026-03-24 20:43:24 | PEPEUSD | crypto:PEPEUSD:buy:1774382400000 | Rejected by Risk Agent: Order value below exchange minimum fiat volume (1.58 < 5.0) |
 
 ## Executed Trades
 
