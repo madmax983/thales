@@ -4428,6 +4428,10 @@
 | 2026-03-24 17:36:19 | BTTUSD | NO_REF | CONFLICT: Conflicting signals (Buy and Sell) detected for BTTUSD. Trading halted for this asset. |
 | 2026-03-24 17:36:20 | REKTUSD | crypto:REKTUSD:buy:1774371600000 | Rejected by Risk Agent: Order value below exchange minimum fiat volume (1.58 < 5.0) |
 | 2026-03-24 17:36:20 | SPICEUSD | crypto:SPICEUSD:buy:1774371600000 | Rejected by Risk Agent: Order value below exchange minimum fiat volume (1.58 < 5.0) |
+| 2026-03-24 18:13:54 | SPICEUSD | NO_REF | CONFLICT: Conflicting signals (Buy and Sell) detected for SPICEUSD. Trading halted for this asset. |
+| 2026-03-24 18:13:55 | CHEEMSUSD | crypto:CHEEMSUSD:buy:1774375200000 | Rejected by Risk Agent: Order value below exchange minimum fiat volume (1.58 < 5.0) |
+| 2026-03-24 18:16:24 | SPICEUSD | NO_REF | CONFLICT: Conflicting signals (Buy and Sell) detected for SPICEUSD. Trading halted for this asset. |
+| 2026-03-24 18:16:25 | CHEEMSUSD | crypto:CHEEMSUSD:buy:1774375200000 | Rejected by Risk Agent: Order value below exchange minimum fiat volume (1.58 < 5.0) |
 
 ## Executed Trades
 
