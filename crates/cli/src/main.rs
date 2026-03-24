@@ -20,6 +20,8 @@ use thales_cli::entropy;
 #[cfg(feature = "nova")]
 use thales_cli::experimental::cycle_analysis;
 #[cfg(feature = "nova")]
+use thales_cli::experimental::renko_entropy;
+#[cfg(feature = "nova")]
 use thales_cli::experimental::similarity_search;
 #[cfg(feature = "nova")]
 use thales_cli::experimental::strategy_correlation;
@@ -243,6 +245,15 @@ enum Commands {
         num_bins: usize,
         #[arg(long, default_value = "0.70")]
         value_area_pct: f64,
+        #[arg(long)]
+        visualize: bool,
+    },
+    #[cfg(feature = "nova")]
+    AnalyzeRenkoEntropy {
+        #[arg(long)]
+        input: PathBuf,
+        #[arg(long, default_value = "10.0")]
+        brick_size: f64,
         #[arg(long)]
         visualize: bool,
     },
@@ -1105,6 +1116,32 @@ fn run(command: Commands, raw: bool) -> Result<String, CliError> {
 
             let report = monte_carlo::run_simulation(&backtest, config)
                 .map_err(|e| CliError::Validation(e.to_string()))?;
+
+            ok_envelope(report, vec![], raw)
+        }
+        #[cfg(feature = "nova")]
+        Commands::AnalyzeRenkoEntropy {
+            input,
+            brick_size,
+            visualize,
+        } => {
+            let file_content = fs::read_to_string(&input)?;
+            let series: BarSeries =
+                match serde_json::from_str::<ResponseEnvelope<BarSeries>>(&file_content) {
+                    Ok(envelope) => envelope
+                        .data
+                        .ok_or(CliError::Validation("Envelope has no data".to_string()))?,
+                    Err(_) => serde_json::from_str::<BarSeries>(&file_content)?,
+                };
+
+            let config = renko_entropy::RenkoEntropyConfig { brick_size };
+
+            let report = renko_entropy::analyze_renko_entropy(&series, config)
+                .map_err(|e| CliError::Validation(e.to_string()))?;
+
+            if visualize {
+                renko_entropy::print_ascii_renko_entropy(&report);
+            }
 
             ok_envelope(report, vec![], raw)
         }
