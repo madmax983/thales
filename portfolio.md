@@ -4411,6 +4411,15 @@
 | 2026-03-24 04:55:58 | BTTUSD | NO_REF | CONFLICT: Conflicting signals (Buy and Sell) detected for BTTUSD. Trading halted for this asset. |
 | 2026-03-24 04:55:58 | COQUSD | crypto:COQUSD:buy:1774324800000 | Rejected by Risk Agent: Order value below exchange minimum fiat volume (0.61 < 5.0) |
 | 2026-03-24 06:53:45 | WINUSD | NO_REF | CONFLICT: Conflicting signals (Buy and Sell) detected for WINUSD. Trading halted for this asset. |
+| 2026-03-24 09:09:59 | BTTUSD | CANCEL-ONFY5E-ZNUBK-EIYWQF | Stale Order Cancellation |
+| 2026-03-24 09:09:59 | BTTUSD | PARTIAL-OZGWDC-UH6Q7-EU6KBH | Partial Fill Notification |
+| 2026-03-24 09:10:00 | BTTUSD | CANCEL-OZGWDC-UH6Q7-EU6KBH | Stale Partial Order Cancellation |
+| 2026-03-24 09:10:02 | PEPEUSD | NO_REF | CONFLICT: Conflicting signals (Buy and Sell) detected for PEPEUSD. Trading halted for this asset. |
+| 2026-03-24 09:10:03 | MOGUSD | NO_REF | CONFLICT: Conflicting signals (Buy and Sell) detected for MOGUSD. Trading halted for this asset. |
+| 2026-03-24 09:14:06 | PEPEUSD | NO_REF | CONFLICT: Conflicting signals (Buy and Sell) detected for PEPEUSD. Trading halted for this asset. |
+| 2026-03-24 09:14:07 | MOGUSD | NO_REF | CONFLICT: Conflicting signals (Buy and Sell) detected for MOGUSD. Trading halted for this asset. |
+| 2026-03-24 09:31:45 | PEPEUSD | NO_REF | CONFLICT: Conflicting signals (Buy and Sell) detected for PEPEUSD. Trading halted for this asset. |
+| 2026-03-24 09:31:48 | MOGUSD | crypto:MOGUSD:buy:1774342800000 | Rejected by Risk Agent: Order value below exchange minimum fiat volume (1.58 < 5.0) |
 
 ## Executed Trades
 
