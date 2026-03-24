@@ -4405,6 +4405,7 @@
 | 2026-03-24 01:31:33 | COQUSD | crypto:COQUSD:buy:1774314000000 | Rejected by Risk Agent: Order value below exchange minimum fiat volume (0.61 < 5.0) |
 | 2026-03-24 01:33:26 | REKTUSD | crypto:REKTUSD:sell:1774314000000 | provider error: kraken api error: EOrder:Insufficient funds |
 | 2026-03-24 01:33:27 | COQUSD | crypto:COQUSD:buy:1774314000000 | Rejected by Risk Agent: Order value below exchange minimum fiat volume (0.61 < 5.0) |
+| 2026-03-24 02:50:32 | LUNAUSD | crypto:LUNAUSD:buy:1774317600000 | Rejected by Risk Agent: Order value below exchange minimum fiat volume (0.61 < 5.0) |
 
 ## Executed Trades
 
