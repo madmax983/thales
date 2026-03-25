@@ -46,10 +46,11 @@ def count_recent_signals(symbol, history_path):
     return count
 
 def format_price(val):
-    if val in [None, 'None', '-']:
+    if val in [None, 'None', '-', ""]:
         return 'None'
     try:
-        formatted_val = f"{float(val):.4f}".rstrip('0').rstrip('.') if '.' in f"{float(val):.4f}" else f"{float(val):.4f}"
+        val_float = float(val)
+        formatted_val = f"{val_float:.4f}".rstrip('0').rstrip('.') if '.' in f"{val_float:.4f}" else f"{val_float:.4f}"
         return formatted_val if formatted_val else "0"
     except (ValueError, TypeError):
         return str(val)
