@@ -89,3 +89,7 @@
 ## 2026-03-22 - The Unmapped Experimental Regions
 **Confusion:** Experimental modules like `cycle_analysis.rs`, `similarity_search.rs`, and `strategy_correlation.rs` in `crates/cli/src/experimental/` lacked executable examples. Users could not discover how to instantiate configurations, analyze dominant cycles, find historical similarities, or interpret the correlation matrix between different strategies.
 **Clarification:** Added storytelling module-level documentation (`//!`) to explain the core concepts. Added executable `# Examples` to all configuration structures, report definitions, and main functions (`analyze_cycles`, `find_similar_patterns`, `analyze_correlations`), guiding developers on proper initialization and result interpretation.
+
+## 2026-03-24 - The Silent Fisher
+**Confusion:** The Fisher Transform Reversal strategy lacked module-level documentation, leaving users confused about the specific parameters required, the significance of the overbought/oversold thresholds, and how it differs from a standard oscillator.
+**Clarification:** Added module-level documentation and executable examples (`# Examples`) for `FisherTransformReversalConfig` and `FisherTransformReversal`. Detailed the math behind the Gaussian transformation and exactly how crossing the `overbought_threshold` or `oversold_threshold` triggers entry or exit signals.

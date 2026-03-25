@@ -1,3 +1,18 @@
+//! Fisher Transform Reversal Strategy
+//!
+//! The Fisher Transform Reversal strategy converts price data into a Gaussian normal
+//! distribution. Standard price action doesn't have a normal distribution, creating noise.
+//! The Fisher Transform highlights real reversals clearly, enabling the strategy to
+//! identify potential turning points and trends.
+//!
+//! # Strategy Logic
+//! - **Buy Signal**: Triggered when the Fisher Transform crosses *above* the
+//!   oversold threshold (default: -1.5) and its previous value.
+//! - **Sell Signal**: Triggered when the Fisher Transform crosses *below* the
+//!   overbought threshold (default: 1.5) and its previous value.
+//! - **Stop Loss**: Set dynamically using the Average True Range (ATR) multiplied
+//!   by a configurable multiplier.
+
 use crate::indicators::{atr, fisher_transform};
 use crate::strategy::{Signal, SignalType, Strategy, StrategyConfig, StrategyType};
 use anyhow::Result;
@@ -5,7 +20,26 @@ use async_trait::async_trait;
 use polars::prelude::*;
 use serde::{Deserialize, Serialize};
 
-/// Fisher Transform Reversal Strategy Configuration
+/// Configuration for the Fisher Transform Reversal strategy.
+///
+/// # Examples
+/// ```
+/// use strategies::fisher_transform_reversal::FisherTransformReversalConfig;
+///
+/// let json = r#"{
+///     "period": 9,
+///     "overbought_threshold": 1.5,
+///     "oversold_threshold": -1.5,
+///     "atr_period": 14,
+///     "atr_multiplier": 2.0,
+///     "max_position_size": 100.0,
+///     "symbol": "BTCUSD"
+/// }"#;
+///
+/// let config: FisherTransformReversalConfig = serde_json::from_str(json).unwrap();
+/// assert_eq!(config.period, 9);
+/// assert_eq!(config.overbought_threshold, 1.5);
+/// ```
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct FisherTransformReversalConfig {
     /// Period for Fisher Transform (typically 9)
@@ -40,11 +74,31 @@ impl Default for FisherTransformReversalConfig {
 
 impl StrategyConfig for FisherTransformReversalConfig {}
 
+/// Fisher Transform Reversal Strategy implementation.
+///
+/// This strategy utilizes the Fisher Transform indicator to find major price reversals
+/// by identifying overbought and oversold extremes.
+///
+/// # Examples
+/// ```
+/// use strategies::fisher_transform_reversal::{FisherTransformReversal, FisherTransformReversalConfig};
+/// use strategies::strategy::Strategy;
+///
+/// let config = FisherTransformReversalConfig::default();
+/// let strategy = FisherTransformReversal::new(config).unwrap();
+///
+/// assert_eq!(strategy.name(), "FisherTransformReversal");
+/// ```
 pub struct FisherTransformReversal {
     config: FisherTransformReversalConfig,
 }
 
 impl FisherTransformReversal {
+    /// Creates a new `FisherTransformReversal` strategy.
+    ///
+    /// # Errors
+    /// Returns an error if the period is 0, if the overbought threshold is less than
+    /// or equal to the oversold threshold, or if the ATR period is 0.
     pub fn new(config: FisherTransformReversalConfig) -> Result<Self> {
         if config.period == 0 {
             anyhow::bail!("Period must be greater than 0");
