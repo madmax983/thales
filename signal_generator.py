@@ -55,7 +55,14 @@ def format_price(val):
         return str(val)
 
 def is_missing(val):
-    return not val or str(val) in ["None", "-", "0", "0.0"]
+    if not val or str(val) in ["None", "-", "0", "0.0"]:
+        return True
+    try:
+        if float(val) == 0.0:
+            return True
+    except (ValueError, TypeError):
+        pass
+    return False
 
 def format_signal(intent):
     side = str(intent.get('side', '')).lower()
@@ -145,7 +152,7 @@ def main():
             if intents:
                 for intent in intents:
                     # Filter: Never generate signals without proper analysis
-                    if not analysis:
+                    if not analysis or len(analysis) == 0:
                         print(f"Skipping signal for {symbol}: No proper analysis available.")
                         continue
 
@@ -217,31 +224,27 @@ def main():
                                             if missing_sl:
                                                 intent["stop_loss"] = str(last_close * (1.0 - sl_pct))
                                             if missing_tp:
-                                                if not missing_sl and not is_missing(sl_val):
-                                                    try:
-                                                        sl_dist = last_close - float(sl_val)
-                                                        if sl_dist > 0:
-                                                            intent["take_profit"] = str(last_close + (sl_dist * 2.0))
-                                                        else:
-                                                            intent["take_profit"] = str(last_close * (1.0 + tp_pct))
-                                                    except (ValueError, TypeError):
+                                                try:
+                                                    sl_val_check = float(intent["stop_loss"])
+                                                    sl_dist = last_close - sl_val_check
+                                                    if sl_dist > 0:
+                                                        intent["take_profit"] = str(last_close + (sl_dist * 2.0))
+                                                    else:
                                                         intent["take_profit"] = str(last_close * (1.0 + tp_pct))
-                                                else:
+                                                except (ValueError, TypeError, KeyError):
                                                     intent["take_profit"] = str(last_close * (1.0 + tp_pct))
                                         elif side in ["sell", "short"]:
                                             if missing_sl:
                                                 intent["stop_loss"] = str(last_close * (1.0 + sl_pct))
                                             if missing_tp:
-                                                if not missing_sl and not is_missing(sl_val):
-                                                    try:
-                                                        sl_dist = float(sl_val) - last_close
-                                                        if sl_dist > 0:
-                                                            intent["take_profit"] = str(last_close - (sl_dist * 2.0))
-                                                        else:
-                                                            intent["take_profit"] = str(last_close * (1.0 - tp_pct))
-                                                    except (ValueError, TypeError):
+                                                try:
+                                                    sl_val_check = float(intent["stop_loss"])
+                                                    sl_dist = sl_val_check - last_close
+                                                    if sl_dist > 0:
+                                                        intent["take_profit"] = str(last_close - (sl_dist * 2.0))
+                                                    else:
                                                         intent["take_profit"] = str(last_close * (1.0 - tp_pct))
-                                                else:
+                                                except (ValueError, TypeError, KeyError):
                                                     intent["take_profit"] = str(last_close * (1.0 - tp_pct))
                             except (FileNotFoundError, json.JSONDecodeError, KeyError, ValueError, IndexError) as e:
                                 print(f"Warning: Failed to compute fallback SL/TP for {symbol}: {e}")
