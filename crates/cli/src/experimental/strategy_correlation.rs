@@ -4,6 +4,12 @@
 //! compute the Pearson correlation matrix of their equity curve returns.
 //! This is useful for building diversified ensembles of strategies that don't
 //! all fail or succeed at the exact same time.
+//!
+//! # Core Concepts
+//!
+//! - **Correlation Matrix**: A table showing correlation coefficients between strategies.
+//! - **Diversification**: If two strategies have a correlation near 1.0, they are redundant.
+//!   If they are near 0.0 or negative, they provide diversification.
 
 use anyhow::Result;
 use contracts::BarSeries;
@@ -12,17 +18,56 @@ use serde::{Deserialize, Serialize};
 use crate::backtest::{self, BacktestConfig};
 use crate::strategy_factory;
 
+/// Configuration for Strategy Correlation Analysis.
+///
+/// # Examples
+///
+/// ```rust
+/// use thales_cli::experimental::strategy_correlation::CorrelationConfig;
+///
+/// let config = CorrelationConfig {
+///     initial_capital: 10000.0,
+///     risk_per_trade: 100.0,
+///     strategies: vec!["SmaCrossover".to_string(), "EmaCrossover".to_string()],
+/// };
+///
+/// assert_eq!(config.strategies.len(), 2);
+/// ```
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct CorrelationConfig {
+    /// Starting capital for each strategy backtest.
     pub initial_capital: f64,
+    /// Risk allowed per trade during backtest.
     pub risk_per_trade: f64,
+    /// The names of the strategies to backtest and correlate. If empty, all active strategies are used.
     pub strategies: Vec<String>,
 }
 
+/// The result of a Strategy Correlation Analysis run.
+///
+/// # Examples
+///
+/// ```rust
+/// use thales_cli::experimental::strategy_correlation::CorrelationReport;
+///
+/// let report = CorrelationReport {
+///     symbol: "AAPL".to_string(),
+///     strategies: vec!["SmaCrossover".to_string(), "EmaCrossover".to_string()],
+///     correlation_matrix: vec![
+///         vec![1.0, 0.85],
+///         vec![0.85, 1.0],
+///     ],
+/// };
+///
+/// assert_eq!(report.correlation_matrix[0][1], 0.85);
+/// ```
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct CorrelationReport {
+    /// The symbol analyzed.
     pub symbol: String,
+    /// The strategies that successfully produced equity curves.
     pub strategies: Vec<String>,
+    /// An N x N matrix of Pearson correlation coefficients.
     pub correlation_matrix: Vec<Vec<f64>>,
 }
 
@@ -54,6 +99,39 @@ fn pearson_correlation(x: &[f64], y: &[f64]) -> f64 {
 }
 
 /// Backtests a list of strategies and computes the correlation of their returns.
+///
+/// The function runs a backtest for each requested strategy. It then computes the
+/// period-to-period returns of each strategy's equity curve and calculates a
+/// Pearson correlation matrix comparing every strategy against every other strategy.
+///
+/// # Errors
+///
+/// Returns an error if the `BarSeries` is empty.
+///
+/// # Examples
+///
+/// ```rust
+/// use contracts::{BarSeries, Bar};
+/// use thales_cli::experimental::strategy_correlation::{analyze_correlations, CorrelationConfig};
+///
+/// # tokio::runtime::Runtime::new().unwrap().block_on(async {
+/// let mut bars = Vec::new();
+/// for i in 0..50 {
+///     bars.push(Bar { symbol: "TEST".into(), market: "equities".into(), timeframe: "1d".into(), timestamp_unix_ms: i * 1000, open: 100.0, high: 105.0, low: 95.0, close: 100.0 + i as f64, volume: 100.0 });
+/// }
+///
+/// let series = BarSeries { schema_version: "v0".to_string(), bars };
+/// let config = CorrelationConfig {
+///     initial_capital: 10000.0,
+///     risk_per_trade: 100.0,
+///     strategies: vec!["SmaCrossover".to_string(), "EmaCrossover".to_string()],
+/// };
+///
+/// let report = analyze_correlations(&series, config).await.unwrap();
+/// assert_eq!(report.strategies.len(), 2);
+/// assert_eq!(report.correlation_matrix.len(), 2);
+/// # });
+/// ```
 pub async fn analyze_correlations(
     series: &BarSeries,
     config: CorrelationConfig,

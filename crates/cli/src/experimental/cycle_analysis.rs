@@ -2,30 +2,126 @@
 //!
 //! Provides functionality to find dominant cycles in market data using
 //! Discrete Fourier Transform (DFT).
+//!
+//! Cycle analysis helps traders identify recurring patterns in price data.
+//! By transforming price data from the time domain to the frequency domain,
+//! we can detect the strongest underlying periods (e.g., a dominant 20-day cycle)
+//! and potentially forecast future turning points.
 
 use anyhow::Result;
 use contracts::BarSeries;
 use serde::{Deserialize, Serialize};
 
+/// Represents a dominant cycle found in the market data.
+///
+/// # Examples
+///
+/// ```rust
+/// use thales_cli::experimental::cycle_analysis::CycleMatch;
+///
+/// let cycle = CycleMatch {
+///     period: 20.0,
+///     amplitude: 5.5,
+///     phase: 1.2,
+/// };
+///
+/// assert_eq!(cycle.period, 20.0);
+/// ```
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct CycleMatch {
+    /// The length of the cycle in bars.
     pub period: f64,
+    /// The strength or magnitude of the cycle.
     pub amplitude: f64,
+    /// The offset of the cycle (where it starts).
     pub phase: f64,
 }
 
+/// Configuration for the Cycle Analysis.
+///
+/// # Examples
+///
+/// ```rust
+/// use thales_cli::experimental::cycle_analysis::CycleConfig;
+///
+/// let config = CycleConfig {
+///     max_cycles: 3,
+/// };
+///
+/// assert_eq!(config.max_cycles, 3);
+/// ```
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct CycleConfig {
+    /// The maximum number of dominant cycles to return.
     pub max_cycles: usize,
 }
 
+/// The result of a Cycle Analysis run.
+///
+/// # Examples
+///
+/// ```rust
+/// use thales_cli::experimental::cycle_analysis::{CycleReport, CycleMatch};
+///
+/// let report = CycleReport {
+///     symbol: "BTCUSD".to_string(),
+///     cycles: vec![
+///         CycleMatch { period: 10.0, amplitude: 2.0, phase: 0.0 }
+///     ],
+/// };
+///
+/// assert_eq!(report.symbol, "BTCUSD");
+/// assert_eq!(report.cycles.len(), 1);
+/// ```
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct CycleReport {
+    /// The symbol analyzed.
     pub symbol: String,
+    /// A list of the most dominant cycles found.
     pub cycles: Vec<CycleMatch>,
 }
 
 /// Analyzes dominant cycles using Discrete Fourier Transform (DFT).
+///
+/// This function computes the DFT of the detrended price data to extract
+/// the most significant frequencies (cycles). It returns a report containing
+/// up to `max_cycles` cycles sorted by amplitude (strongest first).
+///
+/// # Errors
+///
+/// Returns an error if the `BarSeries` contains fewer than 4 bars.
+///
+/// # Examples
+///
+/// ```rust
+/// use contracts::{BarSeries, Bar};
+/// use thales_cli::experimental::cycle_analysis::{analyze_cycles, CycleConfig};
+///
+/// let mut bars = Vec::new();
+/// for i in 0..10 {
+///     bars.push(Bar {
+///         symbol: "TEST".to_string(),
+///         market: "equities".to_string(),
+///         timeframe: "1d".to_string(),
+///         timestamp_unix_ms: i * 1000,
+///         open: 100.0,
+///         high: 100.0,
+///         low: 100.0,
+///         close: 100.0 + (i as f64).sin(), // Add a slight sine wave
+///         volume: 100.0,
+///     });
+/// }
+///
+/// let series = BarSeries {
+///     schema_version: "v0".to_string(),
+///     bars,
+/// };
+///
+/// let config = CycleConfig { max_cycles: 1 };
+/// let report = analyze_cycles(&series, config).unwrap();
+///
+/// assert_eq!(report.cycles.len(), 1);
+/// ```
 pub fn analyze_cycles(series: &BarSeries, config: CycleConfig) -> Result<CycleReport> {
     let bars = &series.bars;
     let n = bars.len();

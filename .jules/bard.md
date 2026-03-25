@@ -85,3 +85,7 @@
 ## 2026-03-22 - The Unmapped Fractal & SMC Regions
 **Confusion:** Advanced analytical modules like `fractal_dimension.rs` and `order_blocks.rs` in `crates/cli/src/` lacked both module-level and item-level documentation with executable examples. Users could not discover how to instantiate these tools or interpret concepts like Higuchi Fractal Dimension or SMC (Smart Money Concepts) unmitigated order blocks.
 **Clarification:** Added storytelling module-level documentation (`//!`) to explain the core financial and mathematical concepts. Added executable `# Examples` to all configuration structures and main functions, guiding developers on proper initialization and result interpretation.
+
+## 2026-03-22 - The Unmapped Experimental Regions
+**Confusion:** Experimental modules like `cycle_analysis.rs`, `similarity_search.rs`, and `strategy_correlation.rs` in `crates/cli/src/experimental/` lacked executable examples. Users could not discover how to instantiate configurations, analyze dominant cycles, find historical similarities, or interpret the correlation matrix between different strategies.
+**Clarification:** Added storytelling module-level documentation (`//!`) to explain the core concepts. Added executable `# Examples` to all configuration structures, report definitions, and main functions (`analyze_cycles`, `find_similar_patterns`, `analyze_correlations`), guiding developers on proper initialization and result interpretation.

@@ -2,36 +2,141 @@
 //!
 //! Provides functionality to find historical market patterns similar to a given target window
 //! using a normalized Euclidean distance algorithm.
+//!
+//! This module searches backwards through price history to find the closest matching patterns
+//! to the current market condition. This is useful for answering the question: "When the market
+//! looked like this in the past, what happened next?"
 
 use anyhow::Result;
 use contracts::BarSeries;
 use serde::{Deserialize, Serialize};
 
+/// Represents a historical period that matches the target window.
+///
+/// # Examples
+///
+/// ```rust
+/// use thales_cli::experimental::similarity_search::SimilarityMatch;
+///
+/// let match_info = SimilarityMatch {
+///     start_index: 10,
+///     end_index: 20,
+///     start_timestamp_ms: 1600000000,
+///     end_timestamp_ms: 1600086400,
+///     distance: 0.05,
+/// };
+///
+/// assert_eq!(match_info.distance, 0.05);
+/// ```
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct SimilarityMatch {
+    /// The starting bar index of the matched historical period.
     pub start_index: usize,
+    /// The ending bar index of the matched historical period.
     pub end_index: usize,
+    /// The starting timestamp of the matched period.
     pub start_timestamp_ms: i64,
+    /// The ending timestamp of the matched period.
     pub end_timestamp_ms: i64,
+    /// The normalized Euclidean distance between the target window and this historical window. Lower is more similar.
     pub distance: f64,
 }
 
+/// Configuration for the Similarity Search.
+///
+/// # Examples
+///
+/// ```rust
+/// use thales_cli::experimental::similarity_search::SimilarityConfig;
+///
+/// let config = SimilarityConfig {
+///     window_size: 14,
+///     top_k: 5,
+/// };
+///
+/// assert_eq!(config.window_size, 14);
+/// ```
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct SimilarityConfig {
+    /// The number of recent bars to use as the "target pattern" to search for.
     pub window_size: usize,
+    /// The maximum number of historical matches to return.
     pub top_k: usize,
 }
 
+/// The result of a Similarity Search run.
+///
+/// # Examples
+///
+/// ```rust
+/// use thales_cli::experimental::similarity_search::{SimilarityReport, SimilarityMatch};
+///
+/// let report = SimilarityReport {
+///     symbol: "AAPL".to_string(),
+///     target_window_start: 1600000000,
+///     target_window_end: 1600086400,
+///     matches: vec![],
+/// };
+///
+/// assert!(report.matches.is_empty());
+/// ```
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct SimilarityReport {
+    /// The symbol analyzed.
     pub symbol: String,
+    /// Timestamp of the first bar in the target window.
     pub target_window_start: i64,
+    /// Timestamp of the last bar in the target window.
     pub target_window_end: i64,
+    /// The closest historical matches found.
     pub matches: Vec<SimilarityMatch>,
 }
 
 /// Finds the `top_k` most similar historical sequences to the most recent `window_size` bars.
 /// Uses a sliding window approach with z-score normalized Euclidean distance.
+///
+/// The function takes the most recent `window_size` bars, normalizes them, and then slides
+/// a window of the same size backward through the rest of the historical data, calculating the
+/// Euclidean distance between the normalized patterns at each step.
+///
+/// # Errors
+///
+/// Returns an error if:
+/// - `config.window_size` is 0.
+/// - The `BarSeries` contains fewer than `2 * window_size` bars (not enough data to find a distinct historical match).
+///
+/// # Examples
+///
+/// ```rust
+/// use contracts::{BarSeries, Bar};
+/// use thales_cli::experimental::similarity_search::{find_similar_patterns, SimilarityConfig};
+///
+/// let mut bars = Vec::new();
+/// // Historical pattern we want to find again
+/// let pattern = vec![10.0, 12.0, 11.0, 15.0];
+///
+/// // Insert history with pattern
+/// for (i, &p) in pattern.iter().enumerate() {
+///     bars.push(Bar { symbol: "TEST".into(), market: "equities".into(), timeframe: "1d".into(), timestamp_unix_ms: i as i64 * 1000, open: p, high: p, low: p, close: p, volume: 100.0 });
+/// }
+///
+/// // Insert some noise
+/// for i in 4..10 {
+///     bars.push(Bar { symbol: "TEST".into(), market: "equities".into(), timeframe: "1d".into(), timestamp_unix_ms: i as i64 * 1000, open: 5.0, high: 5.0, low: 5.0, close: 5.0, volume: 100.0 });
+/// }
+///
+/// // Insert the pattern again at the very end
+/// for (i, &p) in pattern.iter().enumerate() {
+///     bars.push(Bar { symbol: "TEST".into(), market: "equities".into(), timeframe: "1d".into(), timestamp_unix_ms: (10 + i) as i64 * 1000, open: p, high: p, low: p, close: p, volume: 100.0 });
+/// }
+///
+/// let series = BarSeries { schema_version: "v0".to_string(), bars };
+/// let config = SimilarityConfig { window_size: 4, top_k: 1 };
+///
+/// let report = find_similar_patterns(&series, config).unwrap();
+/// assert_eq!(report.matches.len(), 1);
+/// assert!(report.matches[0].distance < 0.0001); // Near perfect match
+/// ```
 pub fn find_similar_patterns(
     series: &BarSeries,
     config: SimilarityConfig,
