@@ -409,6 +409,17 @@ enum Commands {
         #[arg(long)]
         visualize: bool,
     },
+    #[cfg(feature = "nova")]
+    AnalyzeSonification {
+        #[arg(long)]
+        input: PathBuf,
+        #[arg(long, default_value = "48")]
+        min_pitch: u8,
+        #[arg(long, default_value = "84")]
+        max_pitch: u8,
+        #[arg(long)]
+        visualize: bool,
+    },
 }
 
 fn main() {
@@ -1750,6 +1761,41 @@ fn run(command: Commands, raw: bool) -> Result<String, CliError> {
 
             if visualize {
                 strategy_correlation::print_ascii_correlations(&report);
+            }
+
+            ok_envelope(report, vec![], raw)
+        }
+        #[cfg(feature = "nova")]
+        Commands::AnalyzeSonification {
+            input,
+            min_pitch,
+            max_pitch,
+            visualize,
+        } => {
+            let file_content = std::fs::read_to_string(&input).map_err(|e| {
+                std::io::Error::new(
+                    e.kind(),
+                    format!("Could not open input file '{}': {}", input.display(), e),
+                )
+            })?;
+            let series: BarSeries =
+                match serde_json::from_str::<ResponseEnvelope<BarSeries>>(&file_content) {
+                    Ok(envelope) => envelope
+                        .data
+                        .ok_or(CliError::Validation("Envelope has no data".to_string()))?,
+                    Err(_) => serde_json::from_str::<BarSeries>(&file_content)?,
+                };
+
+            let config = thales_cli::experimental::sonification::SonificationConfig {
+                min_pitch,
+                max_pitch,
+            };
+
+            let report = thales_cli::experimental::sonification::analyze_sonification(&series, config)
+                .map_err(|e| CliError::Validation(e.to_string()))?;
+
+            if visualize {
+                thales_cli::experimental::sonification::print_ascii_sonification(&report);
             }
 
             ok_envelope(report, vec![], raw)
