@@ -157,6 +157,11 @@ def main():
                         print(f"Skipping signal for {symbol}: No proper analysis available.")
                         continue
 
+                    # Format numerical values safely to 4 decimal places before checks
+                    for field in ["size_hint", "stop_loss", "take_profit"]:
+                        if field in intent:
+                            intent[field] = format_price(intent[field])
+
                     # Handle Signal Types: Entry, Exit, ScaleIn, ScaleOut
                     signal_type_raw = intent.get("signal_type", "")
                     is_entry = signal_type_raw in ["Entry", "SignalType::Entry"]
@@ -250,7 +255,7 @@ def main():
                             except (FileNotFoundError, json.JSONDecodeError, KeyError, ValueError, IndexError) as e:
                                 print(f"Warning: Failed to compute fallback SL/TP for {symbol}: {e}")
 
-                    # Format numerical values safely to 4 decimal places before checks
+                    # Re-format numerical values safely to 4 decimal places after fallback calculations
                     for field in ["size_hint", "stop_loss", "take_profit"]:
                         if field in intent:
                             intent[field] = format_price(intent[field])
