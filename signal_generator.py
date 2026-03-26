@@ -250,6 +250,11 @@ def main():
                             except (FileNotFoundError, json.JSONDecodeError, KeyError, ValueError, IndexError) as e:
                                 print(f"Warning: Failed to compute fallback SL/TP for {symbol}: {e}")
 
+                    # Format numerical values safely to 4 decimal places before checks
+                    for field in ["size_hint", "stop_loss", "take_profit"]:
+                        if field in intent:
+                            intent[field] = format_price(intent[field])
+
                     # Filter: Only allow Entry/ScaleIn signals that have a valid stop loss
                     sl_val_check = intent.get("stop_loss")
                     if (is_entry or is_scale_in) and is_missing(sl_val_check):
@@ -275,11 +280,6 @@ def main():
                     if "No similar past trades found" in rationale:
                         print(f"Note: No similar past trades found for {symbol}.")
                         # We don't skip the signal, we just note it as it might be a valid new setup
-
-                    # Format numerical values safely to 4 decimal places
-                    for field in ["size_hint", "stop_loss", "take_profit"]:
-                        if field in intent:
-                            intent[field] = format_price(intent[field])
 
                     # Route all signals through the Risk Agent first
                     # We get the last close price for Risk Agent if possible
