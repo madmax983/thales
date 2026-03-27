@@ -171,6 +171,16 @@ def main():
         with open(data_file, "w") as f:
             json.dump(bars, f)
 
+        # Parse last close price for SL/TP and Risk Agent
+        last_close_price = None
+        try:
+            with open(data_file, "r") as f:
+                b_data = json.load(f)
+                if "bars" in b_data and len(b_data["bars"]) > 0:
+                    last_close_price = float(b_data["bars"][-1]["close"])
+        except (FileNotFoundError, json.JSONDecodeError, KeyError, ValueError, IndexError):
+            pass
+
         # 3. Market Analysis
         analysis_file = f"{symbol}_analysis.json"
         analysis = run_command(["analyze-market", "--input", data_file, "--no-report"])
@@ -256,24 +266,17 @@ def main():
                         missing_tp = is_missing(tp_val)
 
                         if missing_sl or missing_tp:
-                            try:
-                                with open(data_file, "r") as f:
-                                    b_data = json.load(f)
-                                    if "bars" in b_data and len(b_data["bars"]) > 0:
-                                        last_close = float(b_data["bars"][-1]["close"])
-                                        side = str(intent.get('side', '')).lower()
+                            if last_close_price is not None:
+                                side = str(intent.get('side', '')).lower()
+                                vol_label = analysis.get("volatility", "").lower() if analysis else ""
+                                new_sl, new_tp = calculate_fallback_sl_tp(last_close_price, side, vol_label, missing_sl, missing_tp, sl_val)
 
-                                        # Use the refactored function
-                                        vol_label = analysis.get("volatility", "").lower() if analysis else ""
-                                        new_sl, new_tp = calculate_fallback_sl_tp(last_close, side, vol_label, missing_sl, missing_tp, sl_val)
-
-                                        if new_sl is not None:
-                                            intent["stop_loss"] = new_sl
-                                        if new_tp is not None:
-                                            intent["take_profit"] = new_tp
-
-                            except (FileNotFoundError, json.JSONDecodeError, KeyError, ValueError, IndexError) as e:
-                                print(f"Warning: Failed to compute fallback SL/TP for {symbol}: {e}", file=sys.stderr)
+                                if new_sl is not None:
+                                    intent["stop_loss"] = new_sl
+                                if new_tp is not None:
+                                    intent["take_profit"] = new_tp
+                            else:
+                                print(f"Warning: Failed to compute fallback SL/TP for {symbol}: No last close price available.", file=sys.stderr)
 
                     # Re-format numerical values safely to 4 decimal places after fallback calculations
                     for field in ["size_hint", "stop_loss", "take_profit"]:
@@ -307,17 +310,7 @@ def main():
                         # We don't skip the signal, we just note it as it might be a valid new setup
 
                     # Route all signals through the Risk Agent first
-                    # We get the last close price for Risk Agent if possible
-                    last_close = None
-                    try:
-                        with open(data_file, "r") as f:
-                            b_data = json.load(f)
-                            if "bars" in b_data and len(b_data["bars"]) > 0:
-                                last_close = float(b_data["bars"][-1]["close"])
-                    except (FileNotFoundError, json.JSONDecodeError, KeyError, ValueError, IndexError):
-                        pass
-
-                    risk_ok, risk_reason = verify_risk(intent, current_price=last_close) if last_close is not None else verify_risk(intent)
+                    risk_ok, risk_reason = verify_risk(intent, current_price=last_close_price) if last_close_price is not None else verify_risk(intent)
                     if not risk_ok:
                         print(f"Skipping signal for {symbol} due to Risk Agent rejection: {risk_reason}", file=sys.stderr)
                         continue
