@@ -1960,3 +1960,18 @@
 **Volatility**: Medium
 **ATR**: 6.76
 **Assessment**: Trend Following (Long)
+
+### BTCUSD - 2026-03-27 08:31:53 (crypto)
+**Volatility**: Medium
+**ATR**: 764.82
+**Assessment**: Trend Following (Short)
+
+### ETHUSD - 2026-03-27 08:31:53 (crypto)
+**Volatility**: Medium
+**ATR**: 40.55
+**Assessment**: Trend Following (Long)
+
+### SPY - 2026-03-27 08:31:53 (equities)
+**Volatility**: Medium
+**ATR**: 6.76
+**Assessment**: Trend Following (Long)
