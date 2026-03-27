@@ -1791,8 +1791,9 @@ fn run(command: Commands, raw: bool) -> Result<String, CliError> {
                 max_pitch,
             };
 
-            let report = thales_cli::experimental::sonification::analyze_sonification(&series, config)
-                .map_err(|e| CliError::Validation(e.to_string()))?;
+            let report =
+                thales_cli::experimental::sonification::analyze_sonification(&series, config)
+                    .map_err(|e| CliError::Validation(e.to_string()))?;
 
             if visualize {
                 thales_cli::experimental::sonification::print_ascii_sonification(&report);
