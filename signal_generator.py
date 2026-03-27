@@ -45,6 +45,13 @@ def count_recent_signals(symbol, history_path):
                 count += 1
     return count
 
+def apply_volatility_sizing(size_hint_val, volatility_label):
+    if "high" in volatility_label or "extreme" in volatility_label:
+        return size_hint_val * 0.5
+    elif "low" in volatility_label:
+        return size_hint_val * 1.5
+    return size_hint_val
+
 def format_price(val):
     if val in [None, 'None', '-', ""]:
         return 'None'
@@ -64,6 +71,47 @@ def is_missing(val):
     except (ValueError, TypeError):
         pass
     return False
+
+def calculate_fallback_sl_tp(last_close, side, volatility_label, missing_sl, missing_tp, intent_sl):
+    sl_pct = 0.05
+    if "high" in volatility_label or "extreme" in volatility_label:
+        sl_pct = 0.10
+    elif "low" in volatility_label:
+        sl_pct = 0.02
+
+    tp_pct = sl_pct * 2.0
+
+    new_sl = None
+    new_tp = None
+
+    if side in ["buy", "long"]:
+        if missing_sl:
+            new_sl = str(last_close * (1.0 - sl_pct))
+        if missing_tp:
+            try:
+                sl_val_check = float(intent_sl) if not missing_sl else float(new_sl)
+                sl_dist = last_close - sl_val_check
+                if sl_dist > 0:
+                    new_tp = str(last_close + (sl_dist * 2.0))
+                else:
+                    new_tp = str(last_close * (1.0 + tp_pct))
+            except (ValueError, TypeError, KeyError):
+                new_tp = str(last_close * (1.0 + tp_pct))
+    elif side in ["sell", "short"]:
+        if missing_sl:
+            new_sl = str(last_close * (1.0 + sl_pct))
+        if missing_tp:
+            try:
+                sl_val_check = float(intent_sl) if not missing_sl else float(new_sl)
+                sl_dist = sl_val_check - last_close
+                if sl_dist > 0:
+                    new_tp = str(last_close - (sl_dist * 2.0))
+                else:
+                    new_tp = str(last_close * (1.0 - tp_pct))
+            except (ValueError, TypeError, KeyError):
+                new_tp = str(last_close * (1.0 - tp_pct))
+
+    return new_sl, new_tp
 
 def format_signal(intent):
     side = str(intent.get('side', '')).lower()
@@ -176,11 +224,8 @@ def main():
                     if size_hint_str != "max":
                         try:
                             size_hint_val = float(size_hint_str)
-                            if "high" in volatility_label or "extreme" in volatility_label:
-                                size_hint_val *= 0.5
-                            elif "low" in volatility_label:
-                                size_hint_val *= 1.5
-                            formatted_sz = f"{size_hint_val:.4f}".rstrip('0').rstrip('.') if '.' in f"{size_hint_val:.4f}" else f"{size_hint_val:.4f}"
+                            adjusted_size = apply_volatility_sizing(size_hint_val, volatility_label)
+                            formatted_sz = f"{adjusted_size:.4f}".rstrip('0').rstrip('.') if '.' in f"{adjusted_size:.4f}" else f"{adjusted_size:.4f}"
                             intent["size_hint"] = formatted_sz if formatted_sz else "0"
                         except (ValueError, TypeError):
                             pass
@@ -216,42 +261,15 @@ def main():
                                         last_close = float(b_data["bars"][-1]["close"])
                                         side = str(intent.get('side', '')).lower()
 
-                                        # Calculate stop loss distance based on volatility
-                                        volatility_label = analysis.get("volatility", "").lower() if analysis else ""
-                                        sl_pct = 0.05
-                                        if "high" in volatility_label or "extreme" in volatility_label:
-                                            sl_pct = 0.10
-                                        elif "low" in volatility_label:
-                                            sl_pct = 0.02
+                                        # Use the refactored function
+                                        vol_label = analysis.get("volatility", "").lower() if analysis else ""
+                                        new_sl, new_tp = calculate_fallback_sl_tp(last_close, side, vol_label, missing_sl, missing_tp, sl_val)
 
-                                        tp_pct = sl_pct * 2.0
+                                        if new_sl is not None:
+                                            intent["stop_loss"] = new_sl
+                                        if new_tp is not None:
+                                            intent["take_profit"] = new_tp
 
-                                        if side in ["buy", "long"]:
-                                            if missing_sl:
-                                                intent["stop_loss"] = str(last_close * (1.0 - sl_pct))
-                                            if missing_tp:
-                                                try:
-                                                    sl_val_check = float(intent["stop_loss"])
-                                                    sl_dist = last_close - sl_val_check
-                                                    if sl_dist > 0:
-                                                        intent["take_profit"] = str(last_close + (sl_dist * 2.0))
-                                                    else:
-                                                        intent["take_profit"] = str(last_close * (1.0 + tp_pct))
-                                                except (ValueError, TypeError, KeyError):
-                                                    intent["take_profit"] = str(last_close * (1.0 + tp_pct))
-                                        elif side in ["sell", "short"]:
-                                            if missing_sl:
-                                                intent["stop_loss"] = str(last_close * (1.0 + sl_pct))
-                                            if missing_tp:
-                                                try:
-                                                    sl_val_check = float(intent["stop_loss"])
-                                                    sl_dist = sl_val_check - last_close
-                                                    if sl_dist > 0:
-                                                        intent["take_profit"] = str(last_close - (sl_dist * 2.0))
-                                                    else:
-                                                        intent["take_profit"] = str(last_close * (1.0 - tp_pct))
-                                                except (ValueError, TypeError, KeyError):
-                                                    intent["take_profit"] = str(last_close * (1.0 - tp_pct))
                             except (FileNotFoundError, json.JSONDecodeError, KeyError, ValueError, IndexError) as e:
                                 print(f"Warning: Failed to compute fallback SL/TP for {symbol}: {e}")
 
@@ -365,6 +383,7 @@ def main():
 
     print("\n=== Signal Generator Output ===\n")
     for intent in all_intents:
+        # Programmatically fulfill persona rule: log out structured signal
         print(format_signal(intent))
         print("------------------\n")
 
