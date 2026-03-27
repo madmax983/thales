@@ -1,6 +1,7 @@
 import subprocess
 import json
 import os
+import sys
 import datetime
 
 from execute_cycle import verify_risk
@@ -142,17 +143,17 @@ def format_signal(intent):
 
 def main():
     if not os.path.exists(CLI_PATH):
-        print(f"Error: {CLI_PATH} not found. Please run 'cargo build --release' first.")
+        print(f"Error: {CLI_PATH} not found. Please run 'cargo build --release' first.", file=sys.stderr)
         return
 
     # 1. Scan market
-    print("Scanning market for candidates...")
+    print("Scanning market for candidates...", file=sys.stderr)
     symbols = run_command(["scan-market", "--provider", "paper"])
     if not symbols:
-        print("No candidates found.")
+        print("No candidates found.", file=sys.stderr)
         return
 
-    print(f"Found candidates: {', '.join(symbols)}")
+    print(f"Found candidates: {', '.join(symbols)}", file=sys.stderr)
 
     # Use active strategies from strategies.md (defaulting to a few for demo)
     active_strategies = ["BollingerBands", "RsiMeanReversion", "Macd", "Supertrend", "DonchianBreakout", "StochasticOscillator"]
@@ -160,12 +161,12 @@ def main():
     all_intents = []
 
     for symbol in symbols[:3]: # Limit to top candidates
-        print(f"\nEvaluating {symbol}...")
+        print(f"\nEvaluating {symbol}...", file=sys.stderr)
         # 2. Fetch Data
         data_file = f"{symbol}_data.json"
         bars = run_command(["fetch-market-data", "--provider", "paper", "--symbol", symbol, "--timeframe", "1h"])
         if not bars:
-            print(f"Failed to fetch data for {symbol}.")
+            print(f"Failed to fetch data for {symbol}.", file=sys.stderr)
             continue
         with open(data_file, "w") as f:
             json.dump(bars, f)
@@ -174,7 +175,7 @@ def main():
         analysis_file = f"{symbol}_analysis.json"
         analysis = run_command(["analyze-market", "--input", data_file, "--no-report"])
         if not analysis:
-            print(f"Failed to analyze {symbol}.")
+            print(f"Failed to analyze {symbol}.", file=sys.stderr)
             os.remove(data_file)
             continue
         with open(analysis_file, "w") as f:
@@ -182,7 +183,7 @@ def main():
 
         recent_signals_count = count_recent_signals(symbol, HISTORY_PATH)
         if recent_signals_count >= 3:
-            print(f"Skipping {symbol}: Already reached daily limit of 3 signals.")
+            print(f"Skipping {symbol}: Already reached daily limit of 3 signals.", file=sys.stderr)
             # Cleanup
             if os.path.exists(data_file):
                 os.remove(data_file)
@@ -194,7 +195,7 @@ def main():
 
         # Filter: Never generate signals without proper analysis (enforce at very top)
         if not analysis or len(analysis) == 0:
-            print(f"Skipping signal generation for {symbol}: No proper analysis available.")
+            print(f"Skipping signal generation for {symbol}: No proper analysis available.", file=sys.stderr)
             continue
 
         symbol_intents = []
@@ -272,7 +273,7 @@ def main():
                                             intent["take_profit"] = new_tp
 
                             except (FileNotFoundError, json.JSONDecodeError, KeyError, ValueError, IndexError) as e:
-                                print(f"Warning: Failed to compute fallback SL/TP for {symbol}: {e}")
+                                print(f"Warning: Failed to compute fallback SL/TP for {symbol}: {e}", file=sys.stderr)
 
                     # Re-format numerical values safely to 4 decimal places after fallback calculations
                     for field in ["size_hint", "stop_loss", "take_profit"]:
@@ -282,7 +283,7 @@ def main():
                     # Filter: Only allow Entry/ScaleIn signals that have a valid stop loss
                     sl_val_check = intent.get("stop_loss")
                     if (is_entry or is_scale_in) and is_missing(sl_val_check):
-                        print(f"Skipping signal for {symbol}: Missing mandatory stop loss.")
+                        print(f"Skipping signal for {symbol}: Missing mandatory stop loss.", file=sys.stderr)
                         continue
 
                     # Filter: Do not chase moves - wait for pullbacks
@@ -293,16 +294,16 @@ def main():
                         # We specifically look for (overbought) / (oversold) in the sentiment
                         # To avoid false positives on rationale like "not overbought", we check sentiment primarily.
                         if side in ["buy", "long"] and "overbought" in sentiment:
-                            print(f"Skipping long signal for {symbol}: Chasing move (Sentiment is Overbought)")
+                            print(f"Skipping long signal for {symbol}: Chasing move (Sentiment is Overbought)", file=sys.stderr)
                             continue
                         elif side in ["sell", "short"] and "oversold" in sentiment:
-                            print(f"Skipping short signal for {symbol}: Chasing move (Sentiment is Oversold)")
+                            print(f"Skipping short signal for {symbol}: Chasing move (Sentiment is Oversold)", file=sys.stderr)
                             continue
 
                     # Filter: Check historical trades before generating new signals
                     rationale = intent.get("rationale") or ""
                     if "No similar past trades found" in rationale:
-                        print(f"Note: No similar past trades found for {symbol}.")
+                        print(f"Note: No similar past trades found for {symbol}.", file=sys.stderr)
                         # We don't skip the signal, we just note it as it might be a valid new setup
 
                     # Route all signals through the Risk Agent first
@@ -318,7 +319,7 @@ def main():
 
                     risk_ok, risk_reason = verify_risk(intent, current_price=last_close) if last_close is not None else verify_risk(intent)
                     if not risk_ok:
-                        print(f"Skipping signal for {symbol} due to Risk Agent rejection: {risk_reason}")
+                        print(f"Skipping signal for {symbol} due to Risk Agent rejection: {risk_reason}", file=sys.stderr)
                         continue
 
                     # Map buy/sell to long/short
@@ -376,17 +377,17 @@ def main():
             os.remove(analysis_file)
 
     if not all_intents:
-        print("\nNo signals generated.")
+        print("\nNo signals generated.", file=sys.stderr)
         return
 
     # Sort by confidence
     all_intents.sort(key=lambda x: x.get("confidence", 0.0), reverse=True)
 
-    print("\n=== Signal Generator Output ===\n")
+    print("\n=== Signal Generator Output ===\n", file=sys.stderr)
     for intent in all_intents:
         # Programmatically fulfill persona rule: log out structured signal
         print(format_signal(intent))
-        print("------------------\n")
+        print("------------------\n", file=sys.stderr)
 
 if __name__ == "__main__":
     main()
