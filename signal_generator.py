@@ -191,6 +191,12 @@ def main():
             continue
 
         # 4. Generate Signals (includes RAG check, sizing, SL/TP)
+
+        # Filter: Never generate signals without proper analysis (enforce at very top)
+        if not analysis or len(analysis) == 0:
+            print(f"Skipping signal generation for {symbol}: No proper analysis available.")
+            continue
+
         symbol_intents = []
         for strategy in active_strategies:
             args = ["generate-signals", "--input", data_file, "--strategy", strategy, "--analysis", analysis_file]
@@ -200,11 +206,6 @@ def main():
             intents = run_command(args)
             if intents:
                 for intent in intents:
-                    # Filter: Never generate signals without proper analysis
-                    if not analysis or len(analysis) == 0:
-                        print(f"Skipping signal for {symbol}: No proper analysis available.")
-                        continue
-
                     # Format numerical values safely to 4 decimal places before checks
                     for field in ["size_hint", "stop_loss", "take_profit"]:
                         if field in intent:
