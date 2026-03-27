@@ -218,6 +218,8 @@ def get_active_strategies():
         strategies.append("CmoMeanReversion")
     if re.search(r'\bLinearRegressionTrend\b', content):
         strategies.append("LinearRegressionTrend")
+    if re.search(r'\bEaseOfMovement\b', content):
+        strategies.append("EaseOfMovement")
     if re.search(r'\bForceIndexTrend\b', content):
         strategies.append("ForceIndexTrend")
     if re.search(r'\bObvTrendFollowing\b', content):
