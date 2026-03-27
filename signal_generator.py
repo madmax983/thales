@@ -317,7 +317,26 @@ def main():
         # Resolve conflicting directions (only keep the direction of the highest confidence signal)
         if symbol_intents:
             primary_direction = symbol_intents[0].get('side', 'long')
-            filtered_intents = [intent for intent in symbol_intents if intent.get('side', 'long') == primary_direction]
+
+            # Filter out duplicate intents with same parameters (e.g. from different strategies matching)
+            seen_params = set()
+            unique_intents = []
+            for intent in symbol_intents:
+                if intent.get('side', 'long') == primary_direction:
+                    # Create a signature of the intent based on critical fields to filter duplicates
+                    sig = (
+                        intent.get("symbol"),
+                        intent.get("side"),
+                        intent.get("size_hint"),
+                        intent.get("stop_loss"),
+                        intent.get("take_profit"),
+                        intent.get("signal_type")
+                    )
+                    if sig not in seen_params:
+                        seen_params.add(sig)
+                        unique_intents.append(intent)
+
+            filtered_intents = unique_intents
 
             # Limit strictly to 1-3 signals per symbol per day
             # We already skipped processing if history had >= 3.
