@@ -1653,6 +1653,8 @@ def main():
         # Route both equities and crypto to Kraken ONLY for execution
         if os.environ.get("SIMULATION") != "true":
             intent["provider"] = "kraken"
+        else:
+            intent["provider"] = "paper"
 
         # Refine Intent (Algo Selection)
         intent = refine_intent(intent, current_price)
