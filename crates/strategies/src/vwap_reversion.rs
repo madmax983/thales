@@ -1,3 +1,18 @@
+//! VWAP Mean Reversion Strategy.
+//!
+//! A mean-reversion strategy based on the Volume Weighted Moving Average (VWMA).
+//! This strategy assumes that price will revert to its volume-weighted mean over time.
+//! It enters long when the price drops below a calculated lower band (oversold) and short
+//! when the price rises above an upper band (overbought).
+//!
+//! # Entry Conditions
+//! - **Long Entry:** Price drops below the lower band (VWMA * (1 - oversold_threshold_pct)).
+//! - **Short Entry:** Price rises above the upper band (VWMA * (1 + overbought_threshold_pct)).
+//!
+//! # Exit Conditions
+//! - **Long Exit:** Price reverts back up to the VWMA.
+//! - **Short Exit:** Price reverts back down to the VWMA.
+
 use crate::indicators::{atr, vwma};
 use crate::strategy::{Signal, SignalType, Strategy, StrategyConfig, StrategyType};
 use anyhow::Result;
@@ -7,28 +22,74 @@ use rust_decimal::prelude::*;
 use rust_decimal::Decimal;
 use serde::{Deserialize, Serialize};
 
+/// Configuration for the VWAP Reversion Strategy.
+///
+/// Contains the periods for calculating the VWMA and ATR, as well as the threshold
+/// percentages used to determine the overbought and oversold bands around the VWMA.
+///
+/// # Examples
+///
+/// ```rust
+/// use strategies::vwap_reversion::VwapReversionConfig;
+///
+/// let config = VwapReversionConfig {
+///     vwma_period: 20,
+///     oversold_threshold_pct: 0.05,
+///     overbought_threshold_pct: 0.05,
+///     stop_loss_atr_mult: 2.0,
+///     atr_period: 14,
+///     symbol: "BTCUSD".to_string(),
+/// };
+/// ```
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct VwapReversionConfig {
+    /// The period for calculating the Volume Weighted Moving Average (VWMA).
     pub vwma_period: usize,
+    /// The percentage drop below the VWMA to trigger a long entry (e.g., 0.05 for 5%).
     pub oversold_threshold_pct: f64,
+    /// The percentage rise above the VWMA to trigger a short entry (e.g., 0.05 for 5%).
     pub overbought_threshold_pct: f64,
+    /// The multiplier for ATR to calculate the stop-loss distance from the entry price.
     pub stop_loss_atr_mult: f64,
+    /// The period for calculating the Average True Range (ATR).
     pub atr_period: usize,
+    /// The trading pair symbol the strategy is applied to.
     pub symbol: String,
 }
 
 impl StrategyConfig for VwapReversionConfig {}
 
+/// VWAP Reversion Strategy.
+///
+/// This strategy monitors price action relative to the Volume Weighted Moving Average (VWMA).
+/// It looks for extreme deviations from the mean volume-weighted price and anticipates a reversion.
 pub struct VwapReversion {
     config: VwapReversionConfig,
 }
 
 impl VwapReversion {
+    /// Creates a new instance of the VWAP Reversion Strategy.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// use strategies::vwap_reversion::{VwapReversion, VwapReversionConfig};
+    ///
+    /// let config = VwapReversionConfig {
+    ///     vwma_period: 20,
+    ///     oversold_threshold_pct: 0.05,
+    ///     overbought_threshold_pct: 0.05,
+    ///     stop_loss_atr_mult: 2.0,
+    ///     atr_period: 14,
+    ///     symbol: "ETHUSD".to_string(),
+    /// };
+    ///
+    /// let strategy = VwapReversion::new(config);
+    /// ```
     pub fn new(config: VwapReversionConfig) -> Self {
         Self { config }
     }
 }
-
 #[async_trait]
 impl Strategy for VwapReversion {
     fn name(&self) -> &str {

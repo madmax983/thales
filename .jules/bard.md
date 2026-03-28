@@ -93,3 +93,6 @@
 ## 2026-03-24 - The Silent Fisher
 **Confusion:** The Fisher Transform Reversal strategy lacked module-level documentation, leaving users confused about the specific parameters required, the significance of the overbought/oversold thresholds, and how it differs from a standard oscillator.
 **Clarification:** Added module-level documentation and executable examples (`# Examples`) for `FisherTransformReversalConfig` and `FisherTransformReversal`. Detailed the math behind the Gaussian transformation and exactly how crossing the `overbought_threshold` or `oversold_threshold` triggers entry or exit signals.
+## 2026-03-24 - The Silent Reversion
+**Confusion:** The VWAP Reversion strategy lacked module-level documentation and executable examples. Users could not discover how to instantiate the configuration or interpret the overbought/oversold bands relative to the Volume Weighted Moving Average.
+**Clarification:** Added storytelling module-level documentation (`//!`) to explain the core reversion concepts. Added executable `# Examples` to `VwapReversionConfig` and `VwapReversion`, guiding developers on proper initialization.
