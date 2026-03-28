@@ -24,6 +24,8 @@ use thales_cli::experimental::renko_entropy;
 #[cfg(feature = "nova")]
 use thales_cli::experimental::similarity_search;
 #[cfg(feature = "nova")]
+use thales_cli::experimental::market_energy;
+#[cfg(feature = "nova")]
 use thales_cli::experimental::strategy_correlation;
 #[cfg(feature = "nova")]
 use thales_cli::fear_and_greed;
@@ -410,6 +412,16 @@ enum Commands {
         visualize: bool,
     },
     #[cfg(feature = "nova")]
+    #[cfg(feature = "nova")]
+    AnalyzeEnergy {
+        #[arg(long)]
+        input: PathBuf,
+        #[arg(long, default_value = "14")]
+        window: usize,
+        #[arg(long)]
+        visualize: bool,
+    },
+    #[cfg(feature = "nova")]
     AnalyzeSonification {
         #[arg(long)]
         input: PathBuf,
@@ -453,7 +465,7 @@ fn run(command: Commands, raw: bool) -> Result<String, CliError> {
                     Err(_) => serde_json::from_str::<BarSeries>(&file_content)?,
                 };
             thales_cli::experimental::export::export_bar_series_to_csv(&series, &output)
-                .map_err(|e| CliError::Validation(e.to_string()))?;
+                .map_err(|e: anyhow::Error| CliError::Validation(e.to_string()))?;
             ok_envelope(json!({"status": "success", "file": output}), vec![], raw)
         }
         #[cfg(feature = "nova")]
@@ -485,7 +497,7 @@ fn run(command: Commands, raw: bool) -> Result<String, CliError> {
                     Err(_) => serde_json::from_str::<BarSeries>(&file_content)?,
                 };
             thales_cli::experimental::export::export_bar_series_to_obj(&series, &output)
-                .map_err(|e| CliError::Validation(e.to_string()))?;
+                .map_err(|e: anyhow::Error| CliError::Validation(e.to_string()))?;
             ok_envelope(json!({"status": "success", "file": output}), vec![], raw)
         }
         Commands::Backtest {
@@ -520,7 +532,7 @@ fn run(command: Commands, raw: bool) -> Result<String, CliError> {
 
             let result = rt
                 .block_on(async { backtest::run_backtest(&series, &strategy, config).await })
-                .map_err(|e| CliError::Validation(e.to_string()))?;
+                .map_err(|e: anyhow::Error| CliError::Validation(e.to_string()))?;
 
             ok_envelope(result, vec![], raw)
         }
@@ -557,7 +569,7 @@ fn run(command: Commands, raw: bool) -> Result<String, CliError> {
 
             let result = rt
                 .block_on(async { benchmark::run_benchmark(&series, config).await })
-                .map_err(|e| CliError::Validation(e.to_string()))?;
+                .map_err(|e: anyhow::Error| CliError::Validation(e.to_string()))?;
 
             ok_envelope(result, vec![], raw)
         }
@@ -832,7 +844,7 @@ fn run(command: Commands, raw: bool) -> Result<String, CliError> {
                     )
                     .await
                 })
-                .map_err(|e| CliError::Validation(e.to_string()))?;
+                .map_err(|e: anyhow::Error| CliError::Validation(e.to_string()))?;
 
             let mut warnings = Vec::new();
             if intents.is_empty() {
@@ -898,7 +910,7 @@ fn run(command: Commands, raw: bool) -> Result<String, CliError> {
                     )));
                 }
             }
-            .map_err(|e| CliError::Validation(e.to_string()))?;
+            .map_err(|e: anyhow::Error| CliError::Validation(e.to_string()))?;
 
             ok_envelope(json!({ "updated_count": count }), vec![], raw)
         }
@@ -1152,7 +1164,7 @@ fn run(command: Commands, raw: bool) -> Result<String, CliError> {
 
             let result = rt
                 .block_on(async { optimizer::optimize(&request, &series).await })
-                .map_err(|e| CliError::Validation(e.to_string()))?;
+                .map_err(|e: anyhow::Error| CliError::Validation(e.to_string()))?;
 
             ok_envelope(result, vec![], raw)
         }
@@ -1186,7 +1198,7 @@ fn run(command: Commands, raw: bool) -> Result<String, CliError> {
             };
 
             let report = monte_carlo::run_simulation(&backtest, config)
-                .map_err(|e| CliError::Validation(e.to_string()))?;
+                .map_err(|e: anyhow::Error| CliError::Validation(e.to_string()))?;
 
             ok_envelope(report, vec![], raw)
         }
@@ -1213,7 +1225,7 @@ fn run(command: Commands, raw: bool) -> Result<String, CliError> {
             let config = renko_entropy::RenkoEntropyConfig { brick_size };
 
             let report = renko_entropy::analyze_renko_entropy(&series, config)
-                .map_err(|e| CliError::Validation(e.to_string()))?;
+                .map_err(|e: anyhow::Error| CliError::Validation(e.to_string()))?;
 
             if visualize {
                 renko_entropy::print_ascii_renko_entropy(&report);
@@ -1248,7 +1260,7 @@ fn run(command: Commands, raw: bool) -> Result<String, CliError> {
             };
 
             let report = volume_profile::analyze_volume_profile(&series, config)
-                .map_err(|e| CliError::Validation(e.to_string()))?;
+                .map_err(|e: anyhow::Error| CliError::Validation(e.to_string()))?;
 
             if visualize {
                 volume_profile::print_ascii_profile(&report);
@@ -1282,7 +1294,7 @@ fn run(command: Commands, raw: bool) -> Result<String, CliError> {
                 long_window,
             };
             let report = market_phases::analyze_market_phases(&series, config)
-                .map_err(|e| CliError::Validation(e.to_string()))?;
+                .map_err(|e: anyhow::Error| CliError::Validation(e.to_string()))?;
 
             if visualize {
                 market_phases::print_ascii_market_phases(&report);
@@ -1313,7 +1325,7 @@ fn run(command: Commands, raw: bool) -> Result<String, CliError> {
             let config = fractal_dimension::FractalConfig { k_max };
 
             let report = fractal_dimension::analyze_fractal_dimension(&series, config)
-                .map_err(|e| CliError::Validation(e.to_string()))?;
+                .map_err(|e: anyhow::Error| CliError::Validation(e.to_string()))?;
 
             if visualize {
                 fractal_dimension::print_ascii_fractal_dimension(&report);
@@ -1346,7 +1358,7 @@ fn run(command: Commands, raw: bool) -> Result<String, CliError> {
             };
 
             let report = markov_chain::analyze_markov_chain(&series, config)
-                .map_err(|e| CliError::Validation(e.to_string()))?;
+                .map_err(|e: anyhow::Error| CliError::Validation(e.to_string()))?;
 
             if visualize {
                 markov_chain::print_ascii_markov_chain(&report);
@@ -1377,7 +1389,7 @@ fn run(command: Commands, raw: bool) -> Result<String, CliError> {
             let config = entropy::EntropyConfig { num_bins };
 
             let report = entropy::analyze_entropy(&series, config)
-                .map_err(|e| CliError::Validation(e.to_string()))?;
+                .map_err(|e: anyhow::Error| CliError::Validation(e.to_string()))?;
 
             if visualize {
                 entropy::print_ascii_entropy(&report);
@@ -1408,7 +1420,7 @@ fn run(command: Commands, raw: bool) -> Result<String, CliError> {
             let config = fear_and_greed::FearAndGreedConfig { period };
 
             let report = fear_and_greed::analyze_fear_and_greed(&series, config)
-                .map_err(|e| CliError::Validation(e.to_string()))?;
+                .map_err(|e: anyhow::Error| CliError::Validation(e.to_string()))?;
 
             if visualize {
                 fear_and_greed::print_ascii_fear_and_greed(&report);
@@ -1445,7 +1457,7 @@ fn run(command: Commands, raw: bool) -> Result<String, CliError> {
             };
 
             let report = pattern_match::analyze_patterns(&series, config)
-                .map_err(|e| CliError::Validation(e.to_string()))?;
+                .map_err(|e: anyhow::Error| CliError::Validation(e.to_string()))?;
 
             if visualize {
                 pattern_match::print_ascii_patterns(&report);
@@ -1488,7 +1500,7 @@ fn run(command: Commands, raw: bool) -> Result<String, CliError> {
             let config = seasonality::SeasonalityConfig { period: p };
 
             let report = seasonality::analyze_seasonality(&series, config)
-                .map_err(|e| CliError::Validation(e.to_string()))?;
+                .map_err(|e: anyhow::Error| CliError::Validation(e.to_string()))?;
 
             if visualize {
                 seasonality::print_ascii_seasonality(&report);
@@ -1516,7 +1528,7 @@ fn run(command: Commands, raw: bool) -> Result<String, CliError> {
             };
 
             let series = synthetic_data::generate_synthetic_data(config)
-                .map_err(|e| CliError::Validation(e.to_string()))?;
+                .map_err(|e: anyhow::Error| CliError::Validation(e.to_string()))?;
 
             ok_envelope(series, vec![], raw)
         }
@@ -1583,7 +1595,7 @@ fn run(command: Commands, raw: bool) -> Result<String, CliError> {
             };
 
             let modified_series = black_swan::inject_black_swan(&series, config)
-                .map_err(|e| CliError::Validation(e.to_string()))?;
+                .map_err(|e: anyhow::Error| CliError::Validation(e.to_string()))?;
 
             ok_envelope(modified_series, vec![], raw)
         }
@@ -1610,7 +1622,7 @@ fn run(command: Commands, raw: bool) -> Result<String, CliError> {
             let config = renko::RenkoConfig { brick_size };
 
             let report = renko::analyze_renko(&series, config)
-                .map_err(|e| CliError::Validation(e.to_string()))?;
+                .map_err(|e: anyhow::Error| CliError::Validation(e.to_string()))?;
 
             if visualize {
                 renko::print_ascii_renko(&report);
@@ -1649,7 +1661,7 @@ fn run(command: Commands, raw: bool) -> Result<String, CliError> {
             };
 
             let report = order_blocks::analyze_order_blocks(&series, config)
-                .map_err(|e| CliError::Validation(e.to_string()))?;
+                .map_err(|e: anyhow::Error| CliError::Validation(e.to_string()))?;
 
             if visualize {
                 order_blocks::print_ascii_order_blocks(&report);
@@ -1681,7 +1693,7 @@ fn run(command: Commands, raw: bool) -> Result<String, CliError> {
             let config = similarity_search::SimilarityConfig { window_size, top_k };
 
             let report = similarity_search::find_similar_patterns(&series, config)
-                .map_err(|e| CliError::Validation(e.to_string()))?;
+                .map_err(|e: anyhow::Error| CliError::Validation(e.to_string()))?;
 
             if visualize {
                 similarity_search::print_ascii_similarities(&report);
@@ -1712,7 +1724,7 @@ fn run(command: Commands, raw: bool) -> Result<String, CliError> {
             let config = cycle_analysis::CycleConfig { max_cycles };
 
             let report = cycle_analysis::analyze_cycles(&series, config)
-                .map_err(|e| CliError::Validation(e.to_string()))?;
+                .map_err(|e: anyhow::Error| CliError::Validation(e.to_string()))?;
 
             if visualize {
                 cycle_analysis::print_ascii_cycles(&report);
@@ -1757,10 +1769,42 @@ fn run(command: Commands, raw: bool) -> Result<String, CliError> {
                 .block_on(async {
                     strategy_correlation::analyze_correlations(&series, config).await
                 })
-                .map_err(|e| CliError::Validation(e.to_string()))?;
+                .map_err(|e: anyhow::Error| CliError::Validation(e.to_string()))?;
 
             if visualize {
                 strategy_correlation::print_ascii_correlations(&report);
+            }
+
+            ok_envelope(report, vec![], raw)
+        }
+        #[cfg(feature = "nova")]
+        #[cfg(feature = "nova")]
+        Commands::AnalyzeEnergy {
+            input,
+            window,
+            visualize,
+        } => {
+            let file_content = std::fs::read_to_string(&input).map_err(|e| {
+                std::io::Error::new(
+                    e.kind(),
+                    format!("Could not open input file '{}': {}", input.display(), e),
+                )
+            })?;
+            let series: BarSeries =
+                match serde_json::from_str::<ResponseEnvelope<BarSeries>>(&file_content) {
+                    Ok(envelope) => envelope
+                        .data
+                        .ok_or(CliError::Validation("Envelope has no data".to_string()))?,
+                    Err(_) => serde_json::from_str::<BarSeries>(&file_content)?,
+                };
+
+            let config = market_energy::EnergyConfig { window };
+
+            let report = market_energy::analyze_energy(&series, config)
+                .map_err(|e: anyhow::Error| CliError::Validation(e.to_string()))?;
+
+            if visualize {
+                market_energy::print_ascii_energy(&report);
             }
 
             ok_envelope(report, vec![], raw)
@@ -1793,7 +1837,7 @@ fn run(command: Commands, raw: bool) -> Result<String, CliError> {
 
             let report =
                 thales_cli::experimental::sonification::analyze_sonification(&series, config)
-                    .map_err(|e| CliError::Validation(e.to_string()))?;
+                    .map_err(|e: anyhow::Error| CliError::Validation(e.to_string()))?;
 
             if visualize {
                 thales_cli::experimental::sonification::print_ascii_sonification(&report);
