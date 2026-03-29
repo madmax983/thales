@@ -8,6 +8,24 @@
 //!
 //! # Returns
 //! Tuple of (Series %K, Series %D, Series %J).
+//!
+//! # Examples
+//!
+//! ```rust
+//! use polars::prelude::*;
+//! use strategies::indicators::kdj;
+//!
+//! let df = df!(
+//!     "high" =>  &[10.0, 10.0, 10.0, 12.0],
+//!     "low" =>   &[ 0.0,  0.0,  0.0,  2.0],
+//!     "close" => &[ 5.0, 10.0,  0.0,  7.0]
+//! ).unwrap();
+//!
+//! let (k, d, j) = kdj::calculate(&df, 2, 1, 2).unwrap();
+//! assert_eq!(k.name(), "kdj_k");
+//! assert_eq!(d.name(), "kdj_d");
+//! assert_eq!(j.name(), "kdj_j");
+//! ```
 
 use anyhow::Result;
 use polars::prelude::*;
