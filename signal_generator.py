@@ -379,7 +379,7 @@ def main():
     print("\n=== Signal Generator Output ===\n", file=sys.stderr)
     for intent in all_intents:
         # Programmatically fulfill persona rule: log out structured signal
-        print(format_signal(intent))
+        print(format_signal(intent), file=sys.stdout)
         print("------------------\n", file=sys.stderr)
 
 if __name__ == "__main__":
