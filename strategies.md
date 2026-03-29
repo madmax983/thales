@@ -3890,3 +3890,40 @@ Momentum
 - **Expected Win Rate:** 45-55%
 - **Expected Sharpe Ratio:** > 1.2
 - **Max Drawdown:** < 15%
+
+# Trading Strategy: SMA RSI Trend
+
+## Strategy Specification
+
+**Name:** SmaRsiTrend
+
+**Description:** A trend-following strategy that combines the Simple Moving Average (SMA) for trend direction and the Relative Strength Index (RSI) for momentum pullbacks.
+
+**Rationale:** The SMA indicates the long-term trend, while the RSI helps identify oversold or overbought pullbacks within that trend. By taking long trades when the price is above the SMA and the RSI crosses back above the oversold threshold, we buy dips in an uptrend. Short trades are taken when the price is below the SMA and RSI crosses back below the overbought threshold, selling rallies in a downtrend.
+
+## Requirements
+
+### Implementation Details
+- Uses Polars for data analysis.
+- Implements the `Strategy` trait in Rust.
+- Uses `sma`, `rsi`, and `atr` indicators.
+
+### Strategy Type
+Trend Following
+
+### Entry Conditions
+- **Long Entry (Buy):** Close Price > SMA AND RSI crosses above `rsi_oversold` (e.g., 30).
+- **Short Entry (Sell):** Close Price < SMA AND RSI crosses below `rsi_overbought` (e.g., 70).
+
+### Exit Conditions
+- **Long Exit (Sell):** RSI crosses above `rsi_overbought` (e.g., 70).
+- **Short Exit (Buy):** RSI crosses below `rsi_oversold` (e.g., 30).
+- **Stop Loss:** Entry Price +/- (ATR * `stop_loss_atr_mult`).
+
+### Position Sizing
+- **Size Hint:** "100" (fixed units) for entry, "max" for exits.
+
+### Expected Backtesting Metrics
+- **Expected Win Rate:** 45-55%
+- **Expected Sharpe Ratio:** > 1.2
+- **Max Drawdown:** < 15%
