@@ -20,11 +20,11 @@ use thales_cli::entropy;
 #[cfg(feature = "nova")]
 use thales_cli::experimental::cycle_analysis;
 #[cfg(feature = "nova")]
+use thales_cli::experimental::market_energy;
+#[cfg(feature = "nova")]
 use thales_cli::experimental::renko_entropy;
 #[cfg(feature = "nova")]
 use thales_cli::experimental::similarity_search;
-#[cfg(feature = "nova")]
-use thales_cli::experimental::market_energy;
 #[cfg(feature = "nova")]
 use thales_cli::experimental::strategy_correlation;
 #[cfg(feature = "nova")]
@@ -83,6 +83,11 @@ enum Commands {
         input: PathBuf,
         #[arg(long)]
         output: PathBuf,
+    },
+    #[cfg(feature = "nova")]
+    MarketWeather {
+        #[arg(long)]
+        input: PathBuf,
     },
     Backtest {
         #[arg(long)]
@@ -499,6 +504,27 @@ fn run(command: Commands, raw: bool) -> Result<String, CliError> {
             thales_cli::experimental::export::export_bar_series_to_obj(&series, &output)
                 .map_err(|e: anyhow::Error| CliError::Validation(e.to_string()))?;
             ok_envelope(json!({"status": "success", "file": output}), vec![], raw)
+        }
+        #[cfg(feature = "nova")]
+        Commands::MarketWeather { input } => {
+            let file_content = std::fs::read_to_string(&input).map_err(|e| {
+                std::io::Error::new(
+                    e.kind(),
+                    format!("Could not open input file '{}': {}", input.display(), e),
+                )
+            })?;
+            let series: BarSeries =
+                match serde_json::from_str::<ResponseEnvelope<BarSeries>>(&file_content) {
+                    Ok(envelope) => envelope
+                        .data
+                        .ok_or(CliError::Validation("Envelope has no data".to_string()))?,
+                    Err(_) => serde_json::from_str::<BarSeries>(&file_content)?,
+                };
+            let weather = thales_cli::experimental::market_weather::calculate_weather(&series)
+                .ok_or_else(|| {
+                    CliError::Validation("Not enough data to calculate weather".to_string())
+                })?;
+            ok_envelope(json!(weather), vec![], raw)
         }
         Commands::Backtest {
             input,

@@ -3,6 +3,7 @@ pub mod cycle_analysis;
 pub mod export;
 pub mod kinematics;
 pub mod market_energy;
+pub mod market_weather;
 pub mod renko_entropy;
 pub mod similarity_search;
 pub mod sonification;
