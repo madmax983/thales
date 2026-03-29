@@ -198,7 +198,7 @@ def log_trade(intent, result, slippage=None):
     asset_class = intent.get("market", "-")
     symbol = intent["symbol"]
     action = intent["side"]
-    signal_type_raw = intent.get("signal_type", "")
+    signal_type_raw = intent.get("signal_type", "") or ""
 
     if "SignalType::" in signal_type_raw:
         signal_type_clean = signal_type_raw.replace("SignalType::", "")
