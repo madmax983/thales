@@ -30,7 +30,7 @@ pub struct KdjIndicatorStrategyConfig {
     pub oversold_threshold: f64,
     /// The upper threshold above which the market is considered overbought. (e.g., 80)
     pub overbought_threshold: f64,
-    /// Maximum position size
+    /// Maximum position size allocation per trade.
     pub max_position_size: f64,
     /// The multiplier for ATR to calculate the stop-loss distance from the entry price.
     pub stop_loss_atr_mult: f64,
@@ -43,6 +43,8 @@ pub struct KdjIndicatorStrategyConfig {
 impl StrategyConfig for KdjIndicatorStrategyConfig {}
 
 /// KDJ Indicator Strategy
+///
+/// A mean-reversion and momentum strategy based on the KDJ indicator. It relies on the fast %K line, slow %D line, and divergence %J line to identify overbought/oversold conditions and trend reversals.
 pub struct KdjIndicatorStrategy {
     config: KdjIndicatorStrategyConfig,
 }
@@ -54,6 +56,7 @@ impl KdjIndicatorStrategy {
     ///
     /// ```rust
     /// use strategies::kdj_indicator::{KdjIndicatorStrategy, KdjIndicatorStrategyConfig};
+    /// use strategies::strategy::Strategy;
     ///
     /// let config = KdjIndicatorStrategyConfig {
     ///     k_period: 9,
@@ -68,6 +71,7 @@ impl KdjIndicatorStrategy {
     /// };
     ///
     /// let strategy = KdjIndicatorStrategy::new(config);
+    /// assert_eq!(strategy.name(), "KDJ Indicator Trading Strategy");
     /// ```
     pub fn new(config: KdjIndicatorStrategyConfig) -> Self {
         if config.k_period == 0 || config.k_smoothing == 0 || config.d_period == 0 {

@@ -96,3 +96,6 @@
 ## 2026-03-24 - The Silent Reversion
 **Confusion:** The VWAP Reversion strategy lacked module-level documentation and executable examples. Users could not discover how to instantiate the configuration or interpret the overbought/oversold bands relative to the Volume Weighted Moving Average.
 **Clarification:** Added storytelling module-level documentation (`//!`) to explain the core reversion concepts. Added executable `# Examples` to `VwapReversionConfig` and `VwapReversion`, guiding developers on proper initialization.
+## 2026-03-29 - The Silent KDJ
+**Confusion:** The KDJ Indicator Strategy lacked comprehensive documentation, making its configuration parameters confusing and its underlying concepts opaque.
+**Clarification:** Added storytelling module-level documentation (`//!`) explaining the concepts behind KDJ indicator overbought/oversold levels, and included executable `# Examples` for both strategy configurations and their instantiation.
