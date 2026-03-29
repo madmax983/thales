@@ -80,6 +80,7 @@ use strategies::roc_momentum::{RocMomentum, RocMomentumConfig};
 use strategies::rsi_mean_reversion::{RsiMeanReversion, RsiMeanReversionConfig};
 use strategies::schaff_trend_cycle::{SchaffTrendCycle, SchaffTrendCycleConfig};
 use strategies::sma_crossover::{SmaCrossover, SmaCrossoverConfig};
+use strategies::sma_rsi_trend::{SmaRsiTrend, SmaRsiTrendConfig};
 use strategies::stoch_rsi_mean_reversion::{StochRsiMeanReversion, StochRsiMeanReversionConfig};
 use strategies::stochastic_oscillator::{StochasticOscillator, StochasticOscillatorConfig};
 use strategies::strategy::Strategy;
@@ -242,6 +243,18 @@ pub fn create_strategy(name: &str, symbol: &str) -> Result<Box<dyn Strategy>> {
                 symbol: symbol.to_string(),
             };
             Ok(Box::new(EmaRsiTrendFollowing::new(config)))
+        }
+        "SmaRsiTrend" => {
+            let config = SmaRsiTrendConfig {
+                sma_period: 50,
+                rsi_period: 14,
+                rsi_oversold: 30.0,
+                rsi_overbought: 70.0,
+                stop_loss_atr_mult: 2.0,
+                atr_period: 14,
+                symbol: symbol.to_string(),
+            };
+            Ok(Box::new(SmaRsiTrend::new(config)))
         }
         "SmaCrossover" => {
             let config = SmaCrossoverConfig {
@@ -901,6 +914,7 @@ pub fn list_strategies() -> Vec<&'static str> {
         "WmaCrossover",
         "HmaCrossover",
         "SmaCrossover",
+        "SmaRsiTrend",
         "EmaRsiTrendFollowing",
         "PpoRsiTrend",
         "KstTrend",
