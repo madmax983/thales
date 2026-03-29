@@ -98,6 +98,7 @@ use strategies::vhf_trend::{VhfTrendFollowing, VhfTrendFollowingConfig};
 use strategies::volume_oscillator_trend::{VolumeOscillatorTrend, VolumeOscillatorTrendConfig};
 use strategies::vortex_breakout::{VortexBreakout, VortexBreakoutConfig};
 use strategies::vpt_trend::{VptTrend, VptTrendConfig};
+use strategies::vw_macd::{VwMacd, VwMacdConfig};
 use strategies::vwap_reversion::{VwapReversion, VwapReversionConfig};
 use strategies::vwma_crossover::{VwmaCrossover, VwmaCrossoverConfig};
 use strategies::williams_r::{WilliamsR, WilliamsRConfig};
@@ -834,6 +835,18 @@ pub fn create_strategy(name: &str, symbol: &str) -> Result<Box<dyn Strategy>> {
             };
             Ok(Box::new(TtmSqueeze::new(config)?))
         }
+        "VwMacd" => {
+            let config = VwMacdConfig {
+                fast_period: 12,
+                slow_period: 26,
+                signal_period: 9,
+                stop_loss_atr_mult: 2.0,
+                atr_period: 14,
+                max_position_size: 100.0,
+                symbol: symbol.to_string(),
+            };
+            Ok(Box::new(VwMacd::new(config)?))
+        }
         _ => Err(anyhow::anyhow!("Unknown strategy: {}", name)),
     }
 }
@@ -911,5 +924,6 @@ pub fn list_strategies() -> Vec<&'static str> {
         "DoubleEmaCrossover",
         "CoppockCurve",
         "TtmSqueeze",
+        "VwMacd",
     ]
 }

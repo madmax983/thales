@@ -2588,6 +2588,45 @@ TrendFollowing
 - **Expected Sharpe Ratio:** > 1.2
 - **Max Drawdown:** < 15%
 
+---
+
+# Trading Strategy: Volume-Weighted MACD
+
+## Strategy Specification
+
+**Name:** VwMacd
+
+**Description:** A variation of MACD that weights price by volume, aiming to filter out low-volume false signals. It uses VWMA (Volume Weighted Moving Average) instead of EMA for the fast and slow lines.
+
+**Rationale:** Standard MACD relies on EMAs which only account for price. By incorporating volume through VWMA, VW-MACD ensures that momentum signals are backed by significant trading activity, potentially reducing false breakouts in low-volume environments.
+
+## Requirements
+
+### Implementation Details
+- Uses Polars for data analysis and signal generation.
+- Implements the `Strategy` trait in Rust.
+- Uses `vwma`, `ema`, and `atr` indicators.
+
+### Strategy Type
+Momentum
+
+### Entry Conditions
+- **Short Entry (Sell):** VW-MACD crosses BELOW Signal line while VW-MACD > 0.
+- **Long Entry (Buy):** VW-MACD crosses ABOVE Signal line while VW-MACD < 0.
+
+### Exit Conditions
+- **Long Exit (Sell):** VW-MACD crosses BELOW Signal line.
+- **Short Exit (Buy):** VW-MACD crosses ABOVE Signal line.
+- **Stop Loss:** Entry Price +/- (ATR * `stop_loss_atr_mult`).
+
+### Position Sizing
+- **Size Hint:** Bounded by `max_position_size`.
+
+### Expected Backtesting Metrics
+- **Expected Win Rate:** ~45-55%
+- **Expected Sharpe Ratio:** > 1.0
+- **Max Drawdown:** < 20%
+
 ## KdjIndicatorStrategy
 
 ### Strategy Specification

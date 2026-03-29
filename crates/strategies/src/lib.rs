@@ -85,6 +85,7 @@ pub mod vhf_trend;
 pub mod volume_oscillator_trend;
 pub mod vortex_breakout;
 pub mod vpt_trend;
+pub mod vw_macd;
 pub mod vwap_reversion;
 pub mod vwma_crossover;
 pub mod williams_r;

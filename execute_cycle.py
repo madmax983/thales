@@ -254,6 +254,8 @@ def get_active_strategies():
         strategies.append("ZlemaCrossover")
     if re.search(r'\bZScoreMeanReversion\b', content):
         strategies.append("ZScoreMeanReversion")
+    if re.search(r'\bVwMacd\b', content):
+        strategies.append("VwMacd")
     if re.search(r'\bBollingerRsiMeanReversion\b', content):
         strategies.append("BollingerRsiMeanReversion")
     if re.search(r'\bStochRsiMeanReversion\b', content):
