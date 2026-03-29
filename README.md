@@ -10,6 +10,8 @@
 - **Rust**: Latest stable version (`rustup update stable`)
 - **Environment Variables**: See [Configuration](#configuration)
 
+> **Note on Experimental Features**: Some commands (e.g., `simulate-black-swan`) are experimental and require the `--features nova` flag to compile and run (e.g., `cargo run --features nova -p thales-cli -- simulate-black-swan ...`).
+
 ### Build
 ```bash
 cargo build --release -p thales-cli
