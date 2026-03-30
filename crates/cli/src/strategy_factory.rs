@@ -55,6 +55,7 @@ use strategies::dpo_breakout::{DpoBreakout, DpoBreakoutConfig};
 use strategies::elder_ray::{ElderRay, ElderRayConfig};
 use strategies::ema_crossover::{EmaCrossover, EmaCrossoverConfig};
 use strategies::ema_rsi_trend::{EmaRsiTrendFollowing, EmaRsiTrendFollowingConfig};
+use strategies::eom_trend::{EomTrend, EomTrendConfig};
 use strategies::fisher_transform_reversal::{
     FisherTransformReversal, FisherTransformReversalConfig,
 };
@@ -260,6 +261,16 @@ pub fn create_strategy(name: &str, symbol: &str) -> Result<Box<dyn Strategy>> {
                 symbol: symbol.to_string(),
             };
             Ok(Box::new(ElderRay::new(config)))
+        }
+        "EomTrend" => {
+            let config = EomTrendConfig {
+                eom_period: 14,
+                sma_period: 9,
+                stop_loss_atr_mult: 2.0,
+                atr_period: 14,
+                symbol: symbol.to_string(),
+            };
+            Ok(Box::new(EomTrend::new(config)))
         }
         "RsiMeanReversion" => {
             let config = RsiMeanReversionConfig {
@@ -890,6 +901,7 @@ pub fn list_strategies() -> Vec<&'static str> {
         "HmaCrossover",
         "SmaCrossover",
         "EmaRsiTrendFollowing",
+        "EomTrend",
         "PpoRsiTrend",
         "KstTrend",
         "VhfTrendFollowing",

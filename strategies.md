@@ -2623,6 +2623,42 @@ MeanReversion
 
 ---
 
+---
+
+# Trading Strategy: Eom Trend
+
+## Strategy Specification
+
+**Name:** EomTrend
+
+**Description:** A trend-following strategy based on the Ease of Movement (EOM) indicator. The strategy identifies trend direction and momentum by evaluating whether the EOM line is above or below its Simple Moving Average (SMA).
+
+**Rationale:** The EOM indicator relates an asset's price change to its volume. When EOM is above its SMA, it suggests prices are advancing with ease (bullish). Conversely, when EOM is below its SMA, it indicates prices are declining easily (bearish).
+
+## Requirements
+
+### Implementation Details
+- Uses Polars for data analysis.
+- Implements the `Strategy` trait in Rust.
+- Utilizes the `eom`, `sma`, and `atr` indicators.
+
+### Strategy Type
+Trend Following
+
+### Entry Conditions
+- **Long Entry:** EOM line crosses ABOVE its SMA signal line.
+- **Short Entry:** EOM line crosses BELOW its SMA signal line.
+
+### Exit Conditions
+- **Long Exit:** EOM line crosses BELOW its SMA signal line, or ATR-based Stop Loss is hit.
+- **Short Exit:** EOM line crosses ABOVE its SMA signal line, or ATR-based Stop Loss is hit.
+- **Stop Loss:** Entry Price +/- (ATR * `stop_loss_atr_mult`).
+
+### Expected Backtesting Metrics
+- **Expected Win Rate:** 45-55%
+- **Expected Sharpe Ratio:** > 1.2
+- **Max Drawdown:** < 15%
+
 # Trading Strategy: TTM Squeeze
 
 ## Strategy Specification

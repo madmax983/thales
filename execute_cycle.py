@@ -79,6 +79,7 @@ TREND_FOLLOWING_STRATEGIES = {
     "TemaCrossover",
     "SmaCrossover",
     "EmaRsiTrendFollowing",
+    "EomTrend",
     "KstTrend",
     "VhfTrendFollowing",
     "DpoBreakout",
@@ -273,6 +274,8 @@ def get_active_strategies():
         strategies.append("SmaCrossover")
     if re.search(r'\bEmaRsiTrendFollowing\b', content):
         strategies.append("EmaRsiTrendFollowing")
+    if re.search(r'\bEomTrend\b', content):
+        strategies.append("EomTrend")
     if re.search(r'\bPpoRsiTrend\b', content):
         strategies.append("PpoRsiTrend")
     if re.search(r'\bKstTrend\b', content):
