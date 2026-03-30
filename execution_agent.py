@@ -9,6 +9,21 @@ from datetime import datetime
 CLI_PATH = "./target/release/thales-cli"
 PORTFOLIO_PATH = "portfolio.md"
 
+STALE_ORDER_MS = 300000  # 5 minutes in milliseconds
+
+def format_price(val):
+    """Safely formats a price string to up to 4 decimal places, stripping trailing zeroes."""
+    if val is None or str(val) in ["None", "-", ""]:
+        return "-"
+    try:
+        val_float = float(val)
+        if val_float == 0.0:
+            return "0"
+        formatted = f"{val_float:.4f}".rstrip("0").rstrip(".")
+        return formatted if formatted else "0"
+    except (ValueError, TypeError):
+        return str(val)
+
 def run_command(args):
     """Runs a thales-cli command and returns the parsed JSON data."""
     cmd = [CLI_PATH] + args
@@ -37,7 +52,7 @@ def run_command(args):
         print(f"Exception running command {cmd}: {e}")
         return None
 
-def manage_orders(provider):
+def manage_orders(provider: str) -> None:
     """
     FILL MANAGEMENT: Track order status and fills.
     Cancel stale orders (>5 min unfilled limits).
@@ -48,35 +63,35 @@ def manage_orders(provider):
     if not orders:
         return
 
-    now = int(datetime.now().timestamp() * 1000)
+    now_ms = int(datetime.now().timestamp() * 1000)
     for order in orders:
         submitted_at = order.get("submitted_at_unix_ms", 0)
-        age_ms = now - submitted_at
+        age_ms = now_ms - submitted_at
         age_s = age_ms / 1000.0
 
         filled_qty = float(order.get("filled_qty", 0.0))
         qty = float(order.get("qty", 0.0))
 
-        if filled_qty > 0 and filled_qty < qty:
-            print(f"Partial fill detected: {filled_qty}/{qty} for {order['symbol']} ({provider})")
+        # Rule: Cancel stale orders (>5 min unfilled limits)
+        is_stale = age_ms > STALE_ORDER_MS
 
-            # Adjust partial fills (cancel and replace with market order for remainder)
-            if age_ms > 300000:
-                print(f"Cancelling stale partial order {order['id']}")
+        if filled_qty > 0 and filled_qty < qty:
+            print(f"FILL MANAGEMENT - Partial fill detected: {filled_qty}/{qty} for {order['symbol']} ({provider})")
+
+            # Rule: Monitor for partial fills and adjust
+            if is_stale:
+                print(f"Cancelling stale partial order {order['id']} (Age: {age_s:.0f}s)")
                 run_command(["cancel-order", "--provider", provider, "--id", order['id']])
             else:
                 print(f"Adjusting remaining quantity: {qty - filled_qty}")
                 run_command(["cancel-order", "--provider", provider, "--id", order['id']])
 
                 remaining = f"{qty - filled_qty:.8f}".rstrip("0").rstrip(".")
-                side = order.get("side", "buy")
-                symbol = order.get("symbol")
-
                 adjustment_intent = {
                     "provider": provider,
                     "market": "unknown",
-                    "symbol": symbol,
-                    "side": side,
+                    "symbol": order.get("symbol"),
+                    "side": order.get("side", "buy"),
                     "size_hint": remaining,
                     "confidence": 1.0,
                     "rationale": f"Adjusting partial fill for order {order['id']}",
@@ -85,22 +100,21 @@ def manage_orders(provider):
                     "execution_algo": "Market"
                 }
 
-                temp_intent_file = f"temp_intent_adjust_{symbol}.json"
+                temp_intent_file = f"temp_intent_adjust_{order['symbol']}.json"
                 with open(temp_intent_file, "w") as f:
                     json.dump(adjustment_intent, f)
 
-                print(f"Submitting market order for remaining {remaining} {symbol}")
+                print(f"Submitting market order for remaining {remaining} {order['symbol']}")
                 run_command(["execute-intent", "--provider", provider, "--input", temp_intent_file])
 
                 if os.path.exists(temp_intent_file):
                     os.remove(temp_intent_file)
 
-        # Cancel stale orders (>5 min unfilled limits)
-        elif age_ms > 300000:
+        elif is_stale:
             print(f"Cancelling stale order {order['id']} ({order['symbol']}) - Age: {age_s:.0f}s")
             run_command(["cancel-order", "--provider", provider, "--id", order['id']])
 
-def refine_intent(intent, current_price=None):
+def refine_intent(intent: dict, current_price: float = None) -> dict:
     """
     ALGO SELECTION: Choose execution algorithm (market, limit, TWAP, VWAP)
     ORDER ROUTING: Select appropriate broker and order type
@@ -115,10 +129,10 @@ def refine_intent(intent, current_price=None):
     is_very_large = False
     try:
         if size_hint != "max":
-            size = float(size_hint)
-            if size > 10000.0:
+            size_float = float(size_hint)
+            if size_float > 10000.0:
                 is_very_large = True
-            elif size > 1000.0:
+            elif size_float > 1000.0:
                 is_large = True
     except (ValueError, TypeError):
         pass
@@ -126,39 +140,47 @@ def refine_intent(intent, current_price=None):
     if is_very_large:
         algo = "VWAP"
         order_type = "limit"
-        print("Selected VWAP algorithm to minimize market impact for very large order.")
+        print("ALGO SELECTION: VWAP selected to minimize market impact for very large order (>10000 units).")
     elif is_large:
         algo = "TWAP"
         order_type = "limit"
-        print("Selected TWAP algorithm for large order.")
+        print("ALGO SELECTION: TWAP selected for large order (>1000 units).")
     elif confidence >= 0.8 or size_hint == "max":
         algo = "Market"
         order_type = "market"
+        print("ALGO SELECTION: Market selected for high confidence or urgent signal.")
     else:
         algo = "Limit"
         order_type = "limit"
+        print("ALGO SELECTION: Limit selected for better price.")
 
-    if intent.get("stop_price"):
-        if intent.get("limit_price"):
+    # Order types mapping
+    has_stop = intent.get("stop_price")
+    has_limit = intent.get("limit_price")
+
+    if has_stop:
+        if has_limit:
             order_type = "stop-limit"
             algo = "Limit"
+            print("ORDER ROUTING: Stop-Limit order type selected.")
         else:
             order_type = "stop"
             algo = "Market"
+            print("ORDER ROUTING: Stop order type selected.")
 
     intent["execution_algo"] = algo
     intent["order_type"] = order_type
 
-    if (order_type == "limit" or order_type == "stop-limit") and not intent.get("limit_price") and current_price:
+    if order_type in ["limit", "stop-limit"] and not has_limit and current_price:
         intent["limit_price"] = current_price
 
     return intent
 
-def monitor_execution(provider, order_id, expected_price):
+def monitor_execution(provider: str, order_id: str, expected_price: float):
     """
     SLIPPAGE CONTROL: Monitor and minimize execution slippage.
     """
-    print(f"Monitoring execution for order {order_id}...")
+    print(f"SLIPPAGE CONTROL: Monitoring execution for order {order_id}...")
 
     for _ in range(15):
         time.sleep(2)
@@ -189,7 +211,7 @@ def monitor_execution(provider, order_id, expected_price):
     print("Monitoring timed out (Order likely still open).")
     return None, None
 
-def log_trade(intent, result, slippage=None):
+def log_trade(intent: dict, result: dict, slippage: float = None) -> None:
     """
     REPORTING: Report execution results back to other agents.
     Log slippage for analysis.
@@ -209,9 +231,10 @@ def log_trade(intent, result, slippage=None):
         action = f"{action} ({signal_type_clean})"
 
     size = intent["size_hint"]
-    price = str(intent.get("limit_price", "Market"))
-    sl = str(intent.get("stop_loss", "-"))
-    tp = str(intent.get("take_profit", "-"))
+    price = format_price(intent.get("limit_price"))
+    if price == "-": price = "Market"
+    sl = format_price(intent.get("stop_loss"))
+    tp = format_price(intent.get("take_profit"))
 
     max_risk = "-"
     if sl != "-" and price != "Market":
