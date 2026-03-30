@@ -56,7 +56,18 @@ def run_cmd_raw(cmd):
         pass
     return None
 
-def append_to_portfolio(line):
+def append_to_portfolio_executed(line):
+    with open("portfolio.md", "r") as f:
+        content = f.read()
+    if "## Skipped Signals" in content:
+        parts = content.split("## Skipped Signals")
+        new_content = parts[0].rstrip() + "\n" + line + "\n\n## Skipped Signals\n" + parts[1].lstrip()
+    else:
+        new_content = content.rstrip() + "\n" + line + "\n"
+    with open("portfolio.md", "w") as f:
+        f.write(new_content)
+
+def append_to_portfolio_skipped(line):
     with open("portfolio.md", "a") as f:
         f.write(line + "\n")
 
@@ -150,7 +161,7 @@ def main():
             conflicting = True
             print(f"  Conflict detected for {symbol}: {directions}")
             rejection_reason = f"CONFLICT: Conflicting signals (Buy and Sell) detected for {symbol}. Trading halted for this asset."
-            append_to_portfolio(f"| {now_str} | {symbol} | NO_REF | {rejection_reason} |")
+            append_to_portfolio_skipped(f"| {now_str} | {symbol} | NO_REF | {rejection_reason} |")
         elif len(all_intents) > 0 and not conflicting:
             # Pick best intent (highest confidence, or first if none)
             best_intent = all_intents[0][1]
@@ -176,15 +187,15 @@ def main():
                     tp = best_intent.get("take_profit", "-")
                     ref = f"{market}:{symbol}:{action}:{int(datetime.datetime.utcnow().timestamp()*1000)}"
                     rationale = f"Strategy: {best_strategy}"
-                    append_to_portfolio(f"| {now_str} | {market} | {symbol} | {action} | {qty} | {price} | {sl} | {tp} | - | {ref} | {rationale} |")
+                    append_to_portfolio_executed(f"| {now_str} | {market} | {symbol} | {action} | {qty} | {price} | {sl} | {tp} | - | {ref} | {rationale} |")
                 else:
                     err_msg = exec_data.get("errors", ["Execution Failed"])[0]
-                    append_to_portfolio(f"| {now_str} | {symbol} | NO_REF | provider error: {err_msg} |")
+                    append_to_portfolio_skipped(f"| {now_str} | {symbol} | NO_REF | provider error: {err_msg} |")
             except:
-                append_to_portfolio(f"| {now_str} | {symbol} | NO_REF | Execution Failed |")
+                append_to_portfolio_skipped(f"| {now_str} | {symbol} | NO_REF | Execution Failed |")
         else:
             print(f"  No valid signals for {symbol}")
-            append_to_portfolio(f"| {now_str} | {symbol} | NO_REF | No strategy signal generated. |")
+            append_to_portfolio_skipped(f"| {now_str} | {symbol} | NO_REF | No strategy signal generated. |")
 
         # Cleanup
         if os.path.exists(data_file): os.remove(data_file)
