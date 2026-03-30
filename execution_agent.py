@@ -292,7 +292,7 @@ def execute_agent(intent_file):
             elif not explicit_provider or explicit_provider == "paper":
                 intent["provider"] = "kraken"
 
-        provider = intent.get("provider", "paper")
+        provider = intent.get("provider", "kraken" if os.environ.get("SIMULATION") != "true" else "paper")
 
         # 1. Manage Orders (Stale & Partial Fills)
         manage_orders(provider)
