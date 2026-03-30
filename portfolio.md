@@ -4352,6 +4352,8 @@
 | 2026-03-22 08:51:23 | MOGUSD | crypto:MOGUSD:buy:1774166400000 | Rejected by Risk Agent: Order value below exchange minimum fiat volume (4.56 < 5.0) |
 | 2026-03-22 08:51:23 | PEPEUSD | crypto:PEPEUSD:buy:1774166400000 | Rejected by Risk Agent: Order value below exchange minimum fiat volume (4.56 < 5.0) |
 | 2026-03-22 08:51:23 | BONKUSD | crypto:BONKUSD:buy:1774166400000 | Rejected by Risk Agent: Order value below exchange minimum fiat volume (4.56 < 5.0) |
+| 2026-03-22 11:51:12 | BONKUSD | NO_REF | CONFLICT: Conflicting signals (Buy and Sell) detected for BONKUSD. Trading halted for this asset. |
+| 2026-03-22 11:51:14 | BTTUSD | crypto:BTTUSD:buy:1774177200000 | Rejected by Risk Agent: Order value below exchange minimum fiat volume (4.56 < 5.0) |
 
 ## Executed Trades
 
