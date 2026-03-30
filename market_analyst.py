@@ -105,6 +105,8 @@ def search_research(symbol, bars_list, market):
 
     return combined_research, news
 
+import datetime
+
 def analyze_market(symbol, bars_file, research, news):
     """Runs the market analysis."""
     print(f"Analyzing market for {symbol}...")
@@ -114,10 +116,182 @@ def analyze_market(symbol, bars_file, research, news):
     if news:
         args.extend(["--news", news])
 
-    # Note: We do NOT use --no-report because we WANT it to update Signals.md and others.
-    # The command returns the analysis JSON.
+    # Pass --no-report to prevent Rust from writing flawed outputs.
+    # We will generate and write the reports manually below.
+    args.append("--no-report")
+
     analysis = run_command(args)
     return analysis
+
+def read_last_regime(symbol):
+    """Reads the last recorded regime for a symbol from Signals.md."""
+    if not os.path.exists("Signals.md"):
+        return None
+
+    with open("Signals.md", "r") as f:
+        content = f.read()
+
+    blocks = content.split("## Market Analysis Report")
+    for block in reversed(blocks):
+        if not block.strip() or symbol not in block:
+            continue
+        for line in block.split("\n"):
+            line = line.strip()
+            if line.startswith("Regime:"):
+                return line.replace("Regime:", "").strip()
+            if line.startswith("Regime Unchanged ("):
+                return line.replace("Regime Unchanged (", "").rstrip(")").strip()
+            if line.startswith("**ALERT: Regime Change Detected!**"):
+                if "Current: " in line:
+                    return line.split("Current: ")[1].rstrip(")").strip()
+    return None
+
+def write_reports(analysis, bars_list):
+    """Generates the text reports to mirror reporting.rs, but incorporates persona rules and Signal Structure."""
+    symbol = analysis.get("symbol", "Unknown")
+    market = analysis.get("market", "Unknown")
+    regime = analysis.get("regime", "Unknown")
+    sentiment = analysis.get("sentiment", "Neutral")
+    volatility = analysis.get("volatility", "Unknown")
+    atr = analysis.get("atr")
+    confidence = analysis.get("confidence", 0.0)
+    ts_ms = analysis.get("timestamp_unix_ms", 0)
+
+    try:
+        dt_str = datetime.datetime.fromtimestamp(ts_ms / 1000, datetime.UTC).strftime("%Y-%m-%d %H:%M:%S")
+    except Exception:
+        dt_str = datetime.datetime.now(datetime.UTC).strftime("%Y-%m-%d %H:%M:%S")
+
+    # Persona Rule: No direct trading recommendations
+    # We blank it out from the raw dict, but we still use the old raw value to decide Signal Structure direction
+    raw_recommendation = analysis.get("recommendation", "")
+    analysis["recommendation"] = ""
+    recommendation_display = "None"
+
+    # Persona Rule: Conservative Pattern Detection
+    patterns = analysis.get("patterns", [])
+    if confidence < 0.7:
+        patterns = []
+        analysis["patterns"] = []
+    patterns_str = ", ".join(patterns) if patterns else "None detected"
+
+    key_levels = analysis.get("key_levels", [])
+    levels_str = ", ".join(str(l) for l in key_levels) if key_levels else "None identified"
+
+    research = analysis.get("research_summary")
+    news = analysis.get("news_summary")
+    research_section = ""
+    if research and news:
+        research_section = f"**Research**:\n{research}\n\n**News**:\n{news}"
+    elif research:
+        research_section = f"**Research**:\n{research}"
+    elif news:
+        research_section = f"**News**:\n{news}"
+    else:
+        research_section = "No external research available."
+
+    history_section = "No recent similar setups identified." # Simplified fallback for python impl
+
+    volatility_display = "**EXTREME (Unusual Activity)**" if volatility == "Extreme" else volatility
+
+    prev_regime = read_last_regime(symbol)
+    if prev_regime and prev_regime != regime:
+        regime_change = f"**ALERT: Regime Change Detected!** (Previous: {prev_regime}, Current: {regime})"
+    elif prev_regime:
+        regime_change = f"Regime Unchanged ({regime})"
+    else:
+        regime_change = f"Regime: {regime}"
+
+    json_block = json.dumps(analysis, indent=2)
+
+    # Calculate Signal Structure
+    rec = str(raw_recommendation).lower()
+    if "long" in rec or "buy" in rec:
+        side = "buy"
+    elif "short" in rec or "sell" in rec:
+        side = "sell"
+    else:
+        side = "hold"
+
+    atr_val = atr if atr else 0.0
+    current_price = bars_list[-1].get("close", 0.0) if bars_list else 0.0
+
+    stop_loss = "None"
+    take_profit = "None"
+    if current_price > 0:
+        if side == "buy":
+            stop_loss = round(current_price - (atr_val * 2.0) if atr_val > 0 else current_price * 0.95, 4)
+            take_profit = round(current_price + (atr_val * 3.0) if atr_val > 0 else current_price * 1.10, 4)
+        elif side == "sell":
+            stop_loss = round(current_price + (atr_val * 2.0) if atr_val > 0 else current_price * 1.05, 4)
+            take_profit = round(current_price - (atr_val * 3.0) if atr_val > 0 else current_price * 0.90, 4)
+
+    signal_structure = {
+        "target symbol": symbol,
+        "market": market,
+        "recommended side": side,
+        "confidence score": confidence,
+        "suggested stop loss": stop_loss,
+        "suggested take profit": take_profit
+    }
+
+    report = f"""
+## Market Analysis Report - {market} - {symbol}
+
+**Timestamp (ms)**: {ts_ms}
+**Confidence**: {confidence * 100:.2f}%
+
+### 1. Market Regime
+{regime_change}
+*Sentiment*: {sentiment}
+
+### 2. Volatility
+*Assessment*: {volatility_display}
+
+### 3. Strategy Recommendation
+**{recommendation_display}**
+
+### 4. Patterns & Price Action
+*Patterns*: {patterns_str}
+
+### 5. Key Levels
+*Support/Resistance*: {levels_str}
+
+### 6. Research & Context
+{research_section}
+*Historical Context*: {history_section}
+
+```json
+{json_block}
+```
+
+### Signal Structure
+```json
+{json.dumps(signal_structure, indent=2)}
+```
+
+---
+"""
+    with open("Signals.md", "a") as f:
+        f.write(report)
+
+    # Regime Report
+    regime_report = f"\n### {symbol} - {dt_str} ({market})\n**Regime**: {regime}\n**Sentiment**: {sentiment}\n**Confidence**: {confidence * 100:.2f}%\n"
+    with open("Market_Regime.md", "a") as f:
+        f.write(regime_report)
+
+    # Volatility Report
+    atr_display = f"{atr:.2f}" if atr else "N/A"
+    volatility_report = f"\n### {symbol} - {dt_str} ({market})\n**Volatility**: {volatility}\n**ATR**: {atr_display}\n**Assessment**: {recommendation_display}\n"
+    with open("Volatility_Regime.md", "a") as f:
+        f.write(volatility_report)
+
+    # Research Report
+    r_disp = research if research else "None"
+    n_disp = news if news else "None"
+    research_report = f"\n### {symbol} - {dt_str} ({market})\n**Research**: {r_disp}\n**News**: {n_disp}\n"
+    with open("Market_Research.md", "a") as f:
+        f.write(research_report)
 
 def main():
     if not os.path.exists(CLI_PATH):
@@ -147,11 +321,18 @@ def main():
         research, news = search_research(symbol, bars_list, market)
 
         # 3. Analyze Market & Generate Report
-        # Note: The underlying rust CLI appends the results to the markdown files automatically
-        # when `--no-report` is not used.
+        # We pass --no-report and manually write the files to enforce constraints
+        # and include the new signal structure block.
         analysis = analyze_market(symbol, temp_bars_file, research, news)
 
         if analysis:
+            # Write to files (Signals.md, etc.)
+            write_reports(analysis, bars_list)
+
+            # Ensure confidence is 0-100% formatted for print
+            confidence_raw = analysis.get("confidence", 0.0)
+            analysis["confidence_formatted"] = f"{confidence_raw * 100:.2f}%"
+
             print(f"\n--- Analysis for {symbol} ---")
             print(json.dumps(analysis, indent=2))
 
@@ -159,8 +340,8 @@ def main():
             regime = analysis.get("regime", "")
             if "Trending" in regime:
                  print(f"ALERT: Strong Trend Detected: {regime}")
-            if analysis.get("volatility") == "High" or analysis.get("volatility") == "Extreme":
-                 print(f"ALERT: High Volatility Detected!")
+            if analysis.get("volatility") in ["High", "Extreme"]:
+                 print(f"ALERT: High/Extreme Volatility Detected!")
 
         # Cleanup
         if os.path.exists(temp_bars_file):
