@@ -41,7 +41,22 @@ def count_recent_signals(symbol, history_path):
         if intent.get("symbol") == symbol:
             analysis = entry.get("market_analysis", {})
             ts = analysis.get("timestamp_unix_ms", 0)
-            if now_ms - ts <= day_ms:
+
+            # Use intent ID to infer creation time if analysis is missing
+            if not ts:
+                intent_id = intent.get("intent_id", "")
+                parts = intent_id.split(":")
+                if len(parts) >= 4:
+                    try:
+                        ts = int(parts[3])
+                    except ValueError:
+                        pass
+
+            # Use intent timestamp if still not found
+            if not ts:
+                ts = intent.get("timestamp_unix_ms", 0)
+
+            if ts and now_ms - ts <= day_ms:
                 count += 1
     return count
 
@@ -133,6 +148,11 @@ def main():
         # 4. Generate Signals (includes RAG check, sizing, SL/TP)
         symbol_intents = []
         for strategy in active_strategies:
+            # Check limit dynamically
+            if recent_signals_count + len(symbol_intents) >= 3:
+                print(f"Reached daily limit of 3 signals for {symbol} during evaluation.")
+                break
+
             args = ["generate-signals", "--input", data_file, "--strategy", strategy, "--analysis", analysis_file]
             if os.path.exists(HISTORY_PATH):
                 args.extend(["--history", HISTORY_PATH])
@@ -260,7 +280,11 @@ def main():
             primary_direction = symbol_intents[0].get('side', 'buy')
             # Limit strictly to 3 signals per symbol per day
             allowance = max(0, 3 - recent_signals_count)
-            filtered_intents = [intent for intent in symbol_intents if intent.get('side', 'buy') == primary_direction][:allowance]
+            filtered_intents = [intent for intent in symbol_intents if intent.get('side', 'buy') == primary_direction]
+
+            # Additional limit logic: only keep the best ones up to the daily allowance
+            filtered_intents = filtered_intents[:allowance]
+
             all_intents.extend(filtered_intents)
 
         # Cleanup
