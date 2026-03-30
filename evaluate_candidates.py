@@ -144,7 +144,7 @@ def main():
         for s in asset_pending_signals:
             directions.add(s["action"])
 
-        now_str = datetime.datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")
+        now_str = datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%d %H:%M:%S")
 
         if len(directions) > 1:
             conflicting = True
@@ -176,7 +176,7 @@ def main():
                     price = order.get("price", "Market")
                     sl = best_intent.get("stop_loss", "-")
                     tp = best_intent.get("take_profit", "-")
-                    ref = f"{market}:{symbol}:{action}:{int(datetime.datetime.utcnow().timestamp()*1000)}"
+                    ref = f"{market}:{symbol}:{action}:{int(datetime.datetime.now(datetime.timezone.utc).timestamp()*1000)}"
                     rationale = f"Strategy: {best_strategy}"
                     append_to_portfolio(f"| {now_str} | {market} | {symbol} | {action} | {qty} | {price} | {sl} | {tp} | - | {ref} | {rationale} |")
                 else:

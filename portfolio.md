@@ -4357,6 +4357,12 @@
 | 2026-03-22 20:05:08 | MOGUSD | NO_REF | CONFLICT: Conflicting signals (Buy and Sell) detected for MOGUSD. Trading halted for this asset. |
 | 2026-03-22 20:05:10 | TURBOUSD | NO_REF | CONFLICT: Conflicting signals (Buy and Sell) detected for TURBOUSD. Trading halted for this asset. |
 | 2026-03-22 20:05:11 | CHEEMSUSD | crypto:CHEEMSUSD:buy:1774209600000 | Rejected by Risk Agent: Order value below exchange minimum fiat volume (4.56 < 5.0) |
+| 2026-03-30 00:25:21 | PEPEUSD | NO_REF | CONFLICT: Conflicting signals (Buy and Sell) detected for PEPEUSD. Trading halted for this asset. |
+| 2026-03-30 00:25:23 | COQUSD | crypto:COQUSD:buy:1774828800000 | Rejected by Risk Agent: Order value below exchange minimum fiat volume (1.58 < 5.0) |
+| 2026-03-30 00:25:23 | MOGUSD | crypto:MOGUSD:buy:1774828800000 | Rejected by Risk Agent: Order value below exchange minimum fiat volume (1.58 < 5.0) |
+| 2026-03-30 00:26:22 | PEPEUSD | NO_REF | CONFLICT: Conflicting signals (Buy and Sell) detected for PEPEUSD. Trading halted for this asset. |
+| 2026-03-30 00:26:23 | COQUSD | crypto:COQUSD:buy:1774828800000 | Rejected by Risk Agent: Order value below exchange minimum fiat volume (1.58 < 5.0) |
+| 2026-03-30 00:26:24 | MOGUSD | crypto:MOGUSD:buy:1774828800000 | Rejected by Risk Agent: Order value below exchange minimum fiat volume (1.58 < 5.0) |
 
 ## Executed Trades
 
