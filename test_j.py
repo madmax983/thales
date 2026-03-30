@@ -1,4 +1,5 @@
-k = 58.33333333333333333333333333
-d = 29.16666666666666666666666667
-j = 3 * k - 2 * d
-print(f"j = {j}")
+import json
+with open('mock_btc_signal.json', 'r') as f:
+    data = json.load(f)
+
+print(data['data'][0]['stop_loss'])

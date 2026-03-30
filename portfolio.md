@@ -4582,6 +4582,21 @@
 | 2026-03-27 15:42:43 | BTCUSD | crypto:BTCUSD:sell:1774614454700 | CONFLICT: Conflicting signals (Buy and Sell) detected for BTCUSD. Trading halted for this asset. |
 | 2026-03-27 15:42:44 | ETHUSD | crypto:ETHUSD:buy:1774614454717 | No active strategy generated a signal (Strategies: BollingerBands, AdlMomentum, CoppockCurve, KdjIndicatorStrategy, KamaCrossover, AlmaCrossover, AdxMacdTrend, AroonOscillator, ElderRay, EmaCrossover, FisherTransformReversal, RsiMeanReversion, Macd, Supertrend, SupertrendEmaCrossover, SupertrendRsi, DonchianBreakout, ParabolicSar, KeltnerChannelBreakout, StochasticOscillator, AdxMomentum, IchimokuCloud, CciMomentum, ChaikinMoneyFlow, ChaikinOscillatorMomentum, ChandelierExit, ChoppinessIndexTrend, CmoMeanReversion, LinearRegressionTrend, EaseOfMovement, ForceIndexTrend, ObvTrendFollowing, MoneyFlowIndex, ConnorsRsiMeanReversion, AwesomeOscillator, WilliamsR, VwmaCrossover, VwapReversion, VortexBreakout, TripleSmaCrossover, TripleEmaCrossover, UltimateOscillator, RelativeVigorIndexTrend, VolumeOscillatorTrend, VptTrendFollowing, ZlemaCrossover, ZScoreMeanReversion, BollingerRsiMeanReversion, StochRsiMeanReversion, RocMomentum, MacdRsiTrend, TrixCrossover, TsiTrend, DemaCrossover, TemaCrossover, WmaCrossover, HmaCrossover, SmaCrossover, EmaRsiTrendFollowing, PpoRsiTrend, KstTrend, VhfTrendFollowing, SchaffTrendCycle, DisparityIndexReversion, DpoBreakout, DoubleEmaCrossover) |
 | 2026-03-27 15:42:45 | SPY | equities:SPY:buy:1774614454734 | No active strategy generated a signal (Strategies: BollingerBands, AdlMomentum, CoppockCurve, KdjIndicatorStrategy, KamaCrossover, AlmaCrossover, AdxMacdTrend, AroonOscillator, ElderRay, EmaCrossover, FisherTransformReversal, RsiMeanReversion, Macd, Supertrend, SupertrendEmaCrossover, SupertrendRsi, DonchianBreakout, ParabolicSar, KeltnerChannelBreakout, StochasticOscillator, AdxMomentum, IchimokuCloud, CciMomentum, ChaikinMoneyFlow, ChaikinOscillatorMomentum, ChandelierExit, ChoppinessIndexTrend, CmoMeanReversion, LinearRegressionTrend, EaseOfMovement, ForceIndexTrend, ObvTrendFollowing, MoneyFlowIndex, ConnorsRsiMeanReversion, AwesomeOscillator, WilliamsR, VwmaCrossover, VwapReversion, VortexBreakout, TripleSmaCrossover, TripleEmaCrossover, UltimateOscillator, RelativeVigorIndexTrend, VolumeOscillatorTrend, VptTrendFollowing, ZlemaCrossover, ZScoreMeanReversion, BollingerRsiMeanReversion, StochRsiMeanReversion, RocMomentum, MacdRsiTrend, TrixCrossover, TsiTrend, DemaCrossover, TemaCrossover, WmaCrossover, HmaCrossover, SmaCrossover, EmaRsiTrendFollowing, PpoRsiTrend, KstTrend, VhfTrendFollowing, SchaffTrendCycle, DisparityIndexReversion, DpoBreakout, DoubleEmaCrossover) |
+| 2026-03-30 00:21:48 | BTCUSD | crypto:BTCUSD:sell:1774556313209 | Signal too old (76.1 hours > 24 hours) |
+| 2026-03-30 00:21:48 | ETHUSD | crypto:ETHUSD:buy:1774556313225 | Signal too old (76.1 hours > 24 hours) |
+| 2026-03-30 00:21:48 | SPY | equities:SPY:buy:1774556313241 | Signal too old (76.1 hours > 24 hours) |
+| 2026-03-30 00:21:48 | BTCUSD | crypto:BTCUSD:sell:1774574951224 | Signal too old (70.9 hours > 24 hours) |
+| 2026-03-30 00:21:48 | ETHUSD | crypto:ETHUSD:buy:1774574951243 | Signal too old (70.9 hours > 24 hours) |
+| 2026-03-30 00:21:48 | SPY | equities:SPY:buy:1774574951261 | Signal too old (70.9 hours > 24 hours) |
+| 2026-03-30 00:21:48 | BTCUSD | crypto:BTCUSD:sell:1774600313311 | Signal too old (63.8 hours > 24 hours) |
+| 2026-03-30 00:21:48 | ETHUSD | crypto:ETHUSD:buy:1774600313336 | Signal too old (63.8 hours > 24 hours) |
+| 2026-03-30 00:21:48 | SPY | equities:SPY:buy:1774600313362 | Signal too old (63.8 hours > 24 hours) |
+| 2026-03-30 00:21:48 | BTCUSD | crypto:BTCUSD:sell:1774614454700 | Signal too old (59.9 hours > 24 hours) |
+| 2026-03-30 00:21:48 | ETHUSD | crypto:ETHUSD:buy:1774614454717 | Signal too old (59.9 hours > 24 hours) |
+| 2026-03-30 00:21:48 | SPY | equities:SPY:buy:1774614454734 | Signal too old (59.9 hours > 24 hours) |
+| 2026-03-30 00:21:49 | BTCUSD | NO_REF | CONFLICT: Conflicting signals (Buy and Sell) detected for BTCUSD. Trading halted for this asset. |
+| 2026-03-30 00:21:49 | ETHUSD | NO_REF | CONFLICT: Conflicting signals (Buy and Sell) detected for ETHUSD. Trading halted for this asset. |
+| 2026-03-30 00:21:50 | SPY | NO_REF | CONFLICT: Conflicting signals (Buy and Sell) detected for SPY. Trading halted for this asset. |
 
 ## Executed Trades
 
@@ -4821,3 +4836,5 @@
 | 2026-03-25 02:57:10 | SPY | NO_REF | No strategy signal generated. |
 | 2026-03-25 02:57:24 | QQQ | NO_REF | No strategy signal generated. |
 | 2026-03-25 02:57:39 | TQQQ | NO_REF | No strategy signal generated. |
+| 2026-03-27 17:41:59 | crypto | BTCUSD | buy (Entry) | 0.037850 | 59467.0270451467 | 56825.01174732183 | 63048.244537893 | 100.00 | crypto:BTCUSD:buy:1772589079305 | Strategy: BollingerBands (64%, MA: 0.80). Reason: Close 59467.02704514670040225610136 < Lower Band 60406.23. Market Context: Trending Down (Short Term) (Medium Volatility). No similar past trades found. (Opening new position) (Risk: $100, SL Dist: 2642.02) |
+| 2026-03-30 00:17:08 | crypto | BTCUSD | buy (Entry) | 0.037850 | 59467.0270451467 | 56825.01174732183 | 63048.244537893 | 100.00 | crypto:BTCUSD:buy:1772589079305 | Strategy: BollingerBands (64%, MA: 0.80). Reason: Close 59467.02704514670040225610136 < Lower Band 60406.23. Market Context: Trending Down (Short Term) (Medium Volatility). No similar past trades found. (Opening new position) (Risk: $100, SL Dist: 2642.02) |
