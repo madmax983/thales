@@ -59,7 +59,10 @@ def format_signal(intent):
         if val in [None, 'None', '-']:
             return 'None'
         try:
-            return f"{float(val):.4f}".rstrip('0').rstrip('.') if '.' in f"{float(val):.4f}" else f"{float(val):.4f}"
+            f_val = float(val)
+            if f_val == 0.0:
+                return "0"
+            return f"{f_val:.4f}".rstrip('0').rstrip('.') if '.' in f"{f_val:.4f}" else f"{f_val:.4f}"
         except (ValueError, TypeError):
             return str(val)
 
@@ -290,8 +293,12 @@ def main():
                         val = intent.get(field)
                         if val not in [None, 'None', '-']:
                             try:
-                                formatted_val = f"{float(val):.4f}".rstrip('0').rstrip('.') if '.' in f"{float(val):.4f}" else f"{float(val):.4f}"
-                                intent[field] = formatted_val
+                                f_val = float(val)
+                                if f_val == 0.0:
+                                    intent[field] = "0"
+                                else:
+                                    formatted_val = f"{f_val:.4f}".rstrip('0').rstrip('.') if '.' in f"{f_val:.4f}" else f"{f_val:.4f}"
+                                    intent[field] = formatted_val
                             except (ValueError, TypeError):
                                 intent[field] = str(val)
 
