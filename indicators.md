@@ -1140,6 +1140,41 @@ let (kst_line, kst_signal) = kst::calculate(&df, roc_periods, sma_periods, signa
 - Returns `Result<(Series, Series)>` representing the KST Line and Signal Line.
 - Series are named "kst" and "kst_signal".
 
+## KDJ
+
+**Name:** KDJ
+**Description:** Calculates the KDJ indicator, which is a highly sensitive leading momentum oscillator derived from the Stochastic Oscillator. It combines three lines (%K, %D, and %J) to identify overbought/oversold conditions and potential trend reversals.
+**Rationale:** Standard momentum oscillators like RSI or Stochastic can lag, leaving traders to enter positions too late. The KDJ introduces a highly sensitive divergence %J line, which acts as a powerful leading indicator. This enables earlier entries on reversals, maximizing potential profit margins and giving traders a competitive edge in choppy or turning markets. Readings of %J below 0 denote strong oversold conditions, while readings above 100 denote strong overbought conditions.
+
+### Implementation Details
+- Uses `rust_decimal::Decimal` iteratively for the %J line calculation to ensure financial precision, explicitly converting from and to `f64` only for Polars boundaries.
+- Reuses the base Stochastic Oscillator calculations for the %K and %D lines.
+- Returns a tuple of three Polars `Series` of `f64` values: %K, %D, and %J lines.
+
+### Usage
+
+```rust
+use strategies::indicators::kdj;
+use polars::prelude::*;
+
+// Assuming df is a DataFrame with "high", "low", and "close" columns
+let k_period = 9;
+let k_smoothing = 3;
+let d_period = 3;
+let (k_series, d_series, j_series) = kdj::calculate(&df, k_period, k_smoothing, d_period)?;
+```
+
+### Parameters
+- `data`: Reference to a Polars `DataFrame`. Must contain numeric "high", "low", and "close" columns.
+- `k_period`: Lookback period for %K (typically 9).
+- `k_smoothing`: Smoothing period for %K (typically 3).
+- `d_period`: Smoothing period for %D (typically 3).
+
+### Output
+- Returns `Result<(Series, Series, Series)>` representing the %K, %D, and %J lines.
+- Series are named "kdj_k", "kdj_d", and "kdj_j".
+- Initial values will be null until enough data is gathered for the calculations.
+
 ## Detrended Price Oscillator (DPO)
 
 **Name:** DPO
