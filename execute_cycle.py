@@ -907,14 +907,11 @@ def log_trade(intent, result, slippage=None):
     action = action.replace("|", "\\|")
 
     size = intent["size_hint"]
-    price = str(intent.get("limit_price", "Market"))
-    if price == "None": price = "Market"
+    price = format_price(intent.get("limit_price"))
+    if price == "-": price = "Market"
 
-    sl = str(intent.get("stop_loss", "-"))
-    if sl == "None": sl = "-"
-
-    tp = str(intent.get("take_profit", "-"))
-    if tp == "None": tp = "-"
+    sl = format_price(intent.get("stop_loss"))
+    tp = format_price(intent.get("take_profit"))
 
     # Calc max risk if possible
     max_risk = "-"
@@ -962,14 +959,11 @@ def log_submitted(intent, result):
     action = action.replace("|", "\\|")
 
     size = intent.get("size_hint", "0")
-    price = str(intent.get("limit_price", "Market"))
-    if price == "None": price = "Market"
+    price = format_price(intent.get("limit_price"))
+    if price == "-": price = "Market"
 
-    sl = str(intent.get("stop_loss", "-"))
-    if sl == "None": sl = "-"
-
-    tp = str(intent.get("take_profit", "-"))
-    if tp == "None": tp = "-"
+    sl = format_price(intent.get("stop_loss"))
+    tp = format_price(intent.get("take_profit"))
 
     # Calc max risk if possible
     max_risk = "-"
@@ -1046,6 +1040,19 @@ def fetch_sellable_balance(provider, symbol):
         return None, None
 
     return amount, asset
+
+def format_price(val):
+    """Safely formats a price string to up to 4 decimal places, stripping trailing zeroes."""
+    if val is None or str(val) in ["None", "-", ""]:
+        return "-"
+    try:
+        val_float = float(val)
+        if val_float == 0.0:
+            return "0"
+        formatted = f"{val_float:.4f}".rstrip("0").rstrip(".")
+        return formatted if formatted else "0"
+    except (ValueError, TypeError):
+        return str(val)
 
 def format_size_hint(size):
     """Formats a numeric size as a compact decimal string."""
