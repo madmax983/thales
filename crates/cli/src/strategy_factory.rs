@@ -69,6 +69,7 @@ use strategies::kst_trend::{KstTrend, KstTrendConfig};
 use strategies::linear_regression_trend::{LinearRegressionTrend, LinearRegressionTrendConfig};
 use strategies::macd::{Macd, MacdConfig};
 use strategies::macd_rsi::{MacdRsiTrend, MacdRsiTrendConfig};
+use strategies::macd_stochastic_rsi::{MacdStochasticRsi, MacdStochasticRsiConfig};
 use strategies::money_flow_index::{MoneyFlowIndex, MoneyFlowIndexConfig};
 use strategies::obv_trend::{ObvTrendFollowing, ObvTrendFollowingConfig};
 use strategies::parabolic_sar::{ParabolicSar, ParabolicSarConfig};
@@ -741,6 +742,23 @@ pub fn create_strategy(name: &str, symbol: &str) -> Result<Box<dyn Strategy>> {
             };
             Ok(Box::new(MacdRsiTrend::new(config)))
         }
+        "MacdStochasticRsi" => {
+            let config = MacdStochasticRsiConfig {
+                macd_fast_period: 12,
+                macd_slow_period: 26,
+                macd_signal_period: 9,
+                rsi_period: 14,
+                stoch_period: 14,
+                k_period: 3,
+                d_period: 3,
+                oversold_threshold: 20.0,
+                overbought_threshold: 80.0,
+                atr_period: 14,
+                stop_loss_atr_mult: 2.0,
+                symbol: symbol.to_string(),
+            };
+            Ok(Box::new(MacdStochasticRsi::new(config)))
+        }
         "PpoRsiTrend" => {
             let config = PpoRsiTrendConfig {
                 ppo_fast_period: 12,
@@ -894,6 +912,7 @@ pub fn list_strategies() -> Vec<&'static str> {
         "StochRsiMeanReversion",
         "RocMomentum",
         "MacdRsiTrend",
+        "MacdStochasticRsi",
         "TrixCrossover",
         "TsiTrend",
         "DemaCrossover",

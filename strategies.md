@@ -2588,6 +2588,45 @@ TrendFollowing
 - **Expected Sharpe Ratio:** > 1.2
 - **Max Drawdown:** < 15%
 
+---
+
+# Trading Strategy: MACD + Stochastic RSI
+
+## Strategy Specification
+
+**Name:** MacdStochasticRsi
+
+**Description:** A momentum strategy combining the Moving Average Convergence Divergence (MACD) and the Stochastic Relative Strength Index (StochRSI). It enters long when the MACD Line crosses above the Signal Line, provided the StochRSI is oversold. It exits long when the MACD crosses below the Signal Line or the StochRSI becomes overbought.
+
+**Rationale:** Using MACD alone can result in entering trades when the asset is already overbought and prone to reversal. Combining MACD with StochRSI ensures that momentum is shifting positively (MACD crossover) while there is still room for upward movement (StochRSI confirmation).
+
+## Requirements
+
+### Implementation Details
+- Uses Polars for data analysis.
+- Implements the `Strategy` trait in Rust.
+- Uses `macd`, `stoch_rsi`, and `atr` indicators.
+
+### Strategy Type
+Momentum
+
+### Entry Conditions
+- **Long Entry (Buy):** MACD Line crosses ABOVE Signal Line AND StochRSI K < `oversold_threshold`.
+- **Short Entry (Sell):** MACD Line crosses BELOW Signal Line AND StochRSI K > `overbought_threshold`.
+
+### Exit Conditions
+- **Long Exit (Sell):** MACD Line crosses BELOW Signal Line OR StochRSI K > `overbought_threshold`.
+- **Short Exit (Buy):** MACD Line crosses ABOVE Signal Line OR StochRSI K < `oversold_threshold`.
+- **Stop Loss:** Entry Price +/- (ATR * `stop_loss_atr_mult`).
+
+### Position Sizing
+- **Size Hint:** "100" (fixed units) or "max" (for exits).
+
+### Expected Backtesting Metrics
+- **Expected Win Rate:** 45-55%
+- **Expected Sharpe Ratio:** > 1.2
+- **Max Drawdown:** < 15%
+
 ## KdjIndicatorStrategy
 
 ### Strategy Specification
