@@ -3493,3 +3493,37 @@ pub struct RelativeVigorIndexTrendConfig {
 - **Win Rate:** 40% - 45% (Typical for trend following, relying on large wins to offset frequent small losses).
 - **Sharpe Ratio:** 0.8 - 1.2.
 - **Max Drawdown:** 15% - 25% (Depends heavily on the ATR stop-loss multiplier and market regime).
+
+---
+
+# Trading Strategy: Disparity Index Mean Reversion
+
+## Strategy Specification
+
+**Name:** DisparityIndexMeanReversion
+
+**Description:** A mean reversion strategy based on the Disparity Index.
+
+**Rationale:** When the Disparity Index hits extreme values, it suggests that the asset is overbought or oversold relative to its moving average, and is likely to revert.
+
+## Requirements
+
+### Implementation Details
+- Uses Polars for data analysis.
+- Implements the `Strategy` trait in Rust.
+- Uses `disparity_index` and `atr` indicators.
+
+### Strategy Type
+MeanReversion
+
+### Entry Conditions
+- **Long Entry (Buy):** Disparity Index crosses above a negative `oversold_threshold` (e.g., -5.0).
+- **Short Entry (Sell):** Disparity Index crosses below a positive `overbought_threshold` (e.g., +5.0).
+
+### Exit Conditions
+- **Long Exit (Sell):** Disparity Index crosses above 0.
+- **Short Exit (Buy):** Disparity Index crosses below 0.
+- **Stop Loss:** Entry Price +/- (ATR * `stop_loss_atr_mult`).
+
+### Position Sizing
+- **Size Hint:** "100" (fixed units) or "max" (for exits).

@@ -45,6 +45,9 @@ use strategies::connors_rsi_mean_reversion::{
     ConnorsRsiMeanReversion, ConnorsRsiMeanReversionConfig,
 };
 use strategies::dema_crossover::{DemaCrossover, DemaCrossoverConfig};
+use strategies::disparity_index_reversion::{
+    DisparityIndexMeanReversion, DisparityIndexMeanReversionConfig,
+};
 use strategies::donchian_breakout::{DonchianBreakout, DonchianBreakoutConfig};
 use strategies::elder_ray::{ElderRay, ElderRayConfig};
 use strategies::ema_crossover::{EmaCrossover, EmaCrossoverConfig};
@@ -467,6 +470,18 @@ pub fn create_strategy(name: &str, symbol: &str) -> Result<Box<dyn Strategy>> {
             };
             Ok(Box::new(ConnorsRsiMeanReversion::new(config)))
         }
+        "DisparityIndexMeanReversion" => {
+            let config = DisparityIndexMeanReversionConfig {
+                period: 14,
+                oversold_threshold: -5.0,
+                overbought_threshold: 5.0,
+                stop_loss_atr_mult: 2.0,
+                atr_period: 14,
+                symbol: symbol.to_string(),
+                max_position_size: 100.0,
+            };
+            Ok(Box::new(DisparityIndexMeanReversion::new(config)?))
+        }
         "WilliamsR" => {
             let config = WilliamsRConfig {
                 period: 14,
@@ -716,6 +731,7 @@ pub fn list_strategies() -> Vec<&'static str> {
         "ObvTrendFollowing",
         "MoneyFlowIndex",
         "ConnorsRsiMeanReversion",
+        "DisparityIndexMeanReversion",
         "AwesomeOscillator",
         "WilliamsR",
         "VwmaCrossover",
