@@ -4425,6 +4425,9 @@
 | 2026-03-24 15:57:08 | FLOKIUSD | NO_REF | CONFLICT: Conflicting signals (Buy and Sell) detected for FLOKIUSD. Trading halted for this asset. |
 | 2026-03-24 15:57:09 | BTTUSD | crypto:BTTUSD:buy:1774364400000 | Rejected by Risk Agent: Order value below exchange minimum fiat volume (1.58 < 5.0) |
 | 2026-03-24 15:57:09 | REKTUSD | crypto:REKTUSD:buy:1774364400000 | Rejected by Risk Agent: Order value below exchange minimum fiat volume (1.58 < 5.0) |
+| 2026-03-30 00:27:20 | PEPEUSD | NO_REF | CONFLICT: Conflicting signals (Buy and Sell) detected for PEPEUSD. Trading halted for this asset. |
+| 2026-03-30 00:27:22 | COQUSD | crypto:COQUSD:buy:1774828800000 | Rejected by Risk Agent: Order value below exchange minimum fiat volume (1.58 < 5.0) |
+| 2026-03-30 00:27:22 | MOGUSD | crypto:MOGUSD:buy:1774828800000 | Rejected by Risk Agent: Order value below exchange minimum fiat volume (1.58 < 5.0) |
 
 ## Executed Trades
 

@@ -1417,6 +1417,10 @@ def refine_intent(intent, current_price=None):
 
     intent["execution_algo"] = algo
     intent["order_type"] = order_type
+    intent["time_in_force"] = intent.get("time_in_force", "GTC")
+    intent["horizon"] = intent.get("horizon", "1d")
+    intent["invalidation"] = intent.get("invalidation", "None")
+    intent["schema_version"] = intent.get("schema_version", "v0")
 
     # 2. Slippage Control (Set Limit Price)
     if order_type == "limit" or order_type == "stop-limit":
