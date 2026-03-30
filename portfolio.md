@@ -4762,6 +4762,12 @@
 | 2026-03-29 22:49:29 | BTCUSD | crypto:BTCUSD:sell:1774816186807 | CONFLICT: Conflicting signals (Buy and Sell) detected for BTCUSD. Trading halted for this asset. |
 | 2026-03-29 22:49:30 | ETHUSD | crypto:ETHUSD:buy:1774816186823 | CONFLICT: Conflicting signals (Buy and Sell) detected for ETHUSD. Trading halted for this asset. |
 | 2026-03-29 22:49:30 | SPY | equities:SPY:buy:1774816186839 | No active strategy generated a signal (Strategies: BollingerBands, AdlMomentum, CoppockCurve, KdjIndicatorStrategy, KamaCrossover, AlmaCrossover, AdxMacdTrend, AroonOscillator, ElderRay, EmaCrossover, FisherTransformReversal, RsiMeanReversion, Macd, Supertrend, SupertrendEmaCrossover, SupertrendRsi, DonchianBreakout, ParabolicSar, KeltnerChannelBreakout, StochasticOscillator, AdxMomentum, IchimokuCloud, CciMomentum, ChaikinMoneyFlow, ChaikinOscillatorMomentum, ChandelierExit, ChoppinessIndexTrend, CmoMeanReversion, LinearRegressionTrend, EaseOfMovement, ForceIndexTrend, ObvTrendFollowing, MoneyFlowIndex, ConnorsRsiMeanReversion, AwesomeOscillator, WilliamsR, VwmaCrossover, VwapReversion, VortexBreakout, TripleSmaCrossover, TripleEmaCrossover, UltimateOscillator, RelativeVigorIndexTrend, VolumeOscillatorTrend, VptTrendFollowing, ZlemaCrossover, ZScoreMeanReversion, BollingerRsiMeanReversion, StochRsiMeanReversion, RocMomentum, MacdRsiTrend, TrixCrossover, TsiTrend, DemaCrossover, TemaCrossover, WmaCrossover, HmaCrossover, SmaCrossover, EmaRsiTrendFollowing, PpoRsiTrend, KstTrend, VhfTrendFollowing, SchaffTrendCycle, DisparityIndexReversion, DpoBreakout, DoubleEmaCrossover) |
+| 2026-03-30 05:19:38 | BTCUSD | crypto:BTCUSD:sell:1774743714953 | Signal too old (29.0 hours > 24 hours) |
+| 2026-03-30 05:19:38 | ETHUSD | crypto:ETHUSD:buy:1774743714969 | Signal too old (29.0 hours > 24 hours) |
+| 2026-03-30 05:19:38 | SPY | equities:SPY:buy:1774743714984 | Signal too old (29.0 hours > 24 hours) |
+| 2026-03-30 05:19:38 | BTCUSD | crypto:BTCUSD:sell:1774829655875 | CONFLICT: Conflicting signals (Buy and Sell) detected for BTCUSD. Trading halted for this asset. |
+| 2026-03-30 05:19:39 | ETHUSD | crypto:ETHUSD:buy:1774829655893 | CONFLICT: Conflicting signals (Buy and Sell) detected for ETHUSD. Trading halted for this asset. |
+| 2026-03-30 05:19:39 | SPY | equities:SPY:buy:1774829655910 | CONFLICT: Conflicting signals (Buy and Sell) detected for SPY. Trading halted for this asset. |
 
 ## Executed Trades
 

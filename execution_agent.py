@@ -285,7 +285,7 @@ def execute_agent(intent_file):
         else:
             intent["provider"] = "kraken"
 
-        provider = intent.get("provider", "paper")
+        provider = intent.get("provider", "kraken")
 
         # 1. Manage Orders (Stale & Partial Fills)
         manage_orders(provider)
