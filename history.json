@@ -714,13 +714,13 @@
         "Consolidation (Squeeze)"
       ],
       "key_levels": [
-        1.521e-7,
-        1.6615000000000004e-7,
-        1.668e-7,
-        1.735e-7
+        1.521e-07,
+        1.6615000000000004e-07,
+        1.668e-07,
+        1.735e-07
       ],
       "volatility": "Medium",
-      "atr": 2.182728796137914e-9,
+      "atr": 2.182728796137914e-09,
       "research_summary": "High volatility, speculative interest.",
       "news_summary": "Meme coin hype cycle.",
       "recommendation": "Trend Following (Short)",
@@ -762,13 +762,13 @@
         "Consolidation (Squeeze)"
       ],
       "key_levels": [
-        1.521e-7,
-        1.6615000000000004e-7,
-        1.668e-7,
-        1.735e-7
+        1.521e-07,
+        1.6615000000000004e-07,
+        1.668e-07,
+        1.735e-07
       ],
       "volatility": "Medium",
-      "atr": 2.182728796137914e-9,
+      "atr": 2.182728796137914e-09,
       "research_summary": "High volatility, speculative interest.",
       "news_summary": "Meme coin hype cycle.",
       "recommendation": "Trend Following (Short)",
@@ -810,13 +810,13 @@
         "Consolidation (Squeeze)"
       ],
       "key_levels": [
-        1.521e-7,
-        1.6615000000000004e-7,
-        1.668e-7,
-        1.735e-7
+        1.521e-07,
+        1.6615000000000004e-07,
+        1.668e-07,
+        1.735e-07
       ],
       "volatility": "Medium",
-      "atr": 2.182728796137914e-9,
+      "atr": 2.182728796137914e-09,
       "research_summary": "High volatility, speculative interest.",
       "news_summary": "Meme coin hype cycle.",
       "recommendation": "Trend Following (Short)",
@@ -4476,6 +4476,96 @@
       "recommendation": "Trend Following (Long)",
       "confidence": 0.7999999999999999,
       "timestamp_unix_ms": 1773664550034
+    },
+    "outcome": null
+  },
+  {
+    "intent": {
+      "intent_id": "crypto:ETHUSD:buy:1774829655893",
+      "market": "crypto",
+      "symbol": "ETHUSD",
+      "side": "buy",
+      "size_hint": "1.071235",
+      "confidence": 0.7040000000000001,
+      "horizon": "1d",
+      "rationale": "Strategy: KeltnerChannelBreakout (70% (Boosted by high win rate), MA: 0.80). Reason: Keltner Breakout: Close 3351.14 > Upper 3153.98. Market Context: Trending Up (Short Term) (Medium Volatility). Found 39 similar past trades (39 on same symbol). Win Rate: 87.2%. Avg Return: 6.79% Research: Historical Context: [Source: knowledge.txt] Historical technicals show mean reversion likely. Research: [Source: General_Market_Report] Steady accumulation observed. Technical indicators suggest continuation of the trend.. News: [Source: news.txt] Mixed economic data causes market uncertainty.. (Buying strength in Overbought conditions) (Risk: $100, SL Dist: 93.35)",
+      "invalidation": "Price hits Stop Loss",
+      "schema_version": "v0",
+      "signal_type": "Entry",
+      "stop_loss": 3257.789640589059,
+      "take_profit": 3513.348743708972,
+      "order_type": "limit",
+      "limit_price": 3351.139840448321,
+      "stop_price": null,
+      "time_in_force": "GTC",
+      "execution_algo": "Limit",
+      "strategy": "KeltnerChannelBreakout"
+    },
+    "market_analysis": {
+      "symbol": "ETHUSD",
+      "market": "crypto",
+      "regime": "Trending Up (Short Term)",
+      "sentiment": "Bullish (Strong) (Overbought)",
+      "patterns": [
+        "Breakout (Upside)",
+        "Consolidation (Squeeze)"
+      ],
+      "key_levels": [
+        2882.4178745196914,
+        3120.1299973244545
+      ],
+      "volatility": "Medium",
+      "atr": 40.552225815162686,
+      "research_summary": "Historical Context: [Source: knowledge.txt] Historical technicals show mean reversion likely. Research: [Source: General_Market_Report] Steady accumulation observed. Technical indicators suggest continuation of the trend.",
+      "news_summary": "[Source: news.txt] Mixed economic data causes market uncertainty.",
+      "recommendation": "Trend Following (Long)",
+      "confidence": 0.7999999999999999,
+      "timestamp_unix_ms": 1774829655893
+    },
+    "outcome": null
+  },
+  {
+    "intent": {
+      "intent_id": "equities:SPY:buy:1774829655910",
+      "market": "equities",
+      "symbol": "SPY",
+      "side": "buy",
+      "size_hint": "7.397868",
+      "confidence": 0.7040000000000001,
+      "horizon": "1d",
+      "rationale": "Strategy: DonchianBreakout (70% (Boosted by high win rate), MA: 0.80). Reason: Breakout: Close 558.52 > Upper Channel 548.67. Market Context: Trending Up (Short Term) (Medium Volatility). Found 41 similar past trades (42 on same symbol). Win Rate: 75.6%. Avg Return: 5.65% Research: Historical Context: [Source: knowledge.txt] Similar market conditions in Q4 2023 showed a strong bullish trend following consolidation periods for equities. The market is currently exhibiting similar behavior. Research: [Source: WSJ_Equities_Report] S&P 500 companies are reporting robust quarterly earnings, exceeding analyst expectations in tech and energy sectors. The market is pricing in favorable interest rate policies.. News: [Source: news.txt] US stock market hits record highs as inflation concerns ease and corporate profits soar.. (Buying strength in Overbought conditions) (Risk: $100, SL Dist: 13.52)",
+      "invalidation": "Price hits Stop Loss",
+      "schema_version": "v0",
+      "signal_type": "Entry",
+      "stop_loss": 545.0058981363323,
+      "take_profit": 585.5581239514951,
+      "order_type": "limit",
+      "limit_price": 558.5233067413866,
+      "stop_price": null,
+      "time_in_force": "day",
+      "execution_algo": "Limit",
+      "strategy": "DonchianBreakout"
+    },
+    "market_analysis": {
+      "symbol": "SPY",
+      "market": "equities",
+      "regime": "Trending Up (Short Term)",
+      "sentiment": "Bullish (Strong) (Overbought)",
+      "patterns": [
+        "Breakout (Upside)",
+        "Consolidation (Squeeze)"
+      ],
+      "key_levels": [
+        480.40297908661506,
+        520.0216662207422
+      ],
+      "volatility": "Medium",
+      "atr": 6.758704302527127,
+      "research_summary": "Historical Context: [Source: knowledge.txt] Similar market conditions in Q4 2023 showed a strong bullish trend following consolidation periods for equities. The market is currently exhibiting similar behavior. Research: [Source: WSJ_Equities_Report] S&P 500 companies are reporting robust quarterly earnings, exceeding analyst expectations in tech and energy sectors. The market is pricing in favorable interest rate policies.",
+      "news_summary": "[Source: news.txt] US stock market hits record highs as inflation concerns ease and corporate profits soar.",
+      "recommendation": "Trend Following (Long)",
+      "confidence": 0.7999999999999999,
+      "timestamp_unix_ms": 1774829655910
     },
     "outcome": null
   }
