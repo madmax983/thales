@@ -1239,3 +1239,34 @@ use polars::prelude::*;
 let period = 9;
 let fisher_series = fisher_transform::calculate(&df, period)?;
 ```
+
+## Ulcer Index
+
+**Name:** Ulcer Index
+**Description:** Calculates the Ulcer Index, a technical indicator that measures downside risk in terms of both the depth and duration of price declines. The index increases in value as the price moves farther away from a recent high and falls as the price rises to new highs.
+**Rationale:** The Ulcer Index provides a measure of downside risk by computing the quadratic mean of percentage drawdowns. It is highly effective for identifying periods of extended price drawdowns and stress.
+
+### Implementation Details
+- Uses `rust_decimal::Decimal` iteratively for all math calculations to ensure financial precision, explicitly converting to `f64` only for the final square root calculation and Polars boundaries.
+- Formula: Square root of the average of squared percentage drawdowns from the N-period high.
+- Returns a Polars `Series` of `f64` values.
+
+### Usage
+
+```rust
+use strategies::indicators::ulcer_index;
+use polars::prelude::*;
+
+// Assuming df is a DataFrame with a "close" column
+let period = 14;
+let ui_series = ulcer_index::calculate(&df, period)?;
+```
+
+### Parameters
+- `data`: Reference to a Polars `DataFrame`. Must contain a numeric "close" column.
+- `period`: The lookback period (must be > 0, typically 14).
+
+### Output
+- Returns `Result<Series>`.
+- The output Series is named "ulcer_index".
+- The first `period - 1` values will be null.
