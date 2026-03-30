@@ -1,3 +1,17 @@
+//! Trend-following strategy based on the Coppock Curve indicator.
+//!
+//! The Coppock Curve is an oscillating indicator designed originally for identifying long-term
+//! buying opportunities in the stock market. It is calculated as a 10-period Weighted Moving Average (WMA)
+//! of the sum of a 14-period Rate of Change (ROC) and an 11-period ROC.
+//!
+//! # The Strategy
+//! The strategy generates signals based on zero-line crossovers:
+//! - **Entry Long:** Triggers when the Coppock Curve crosses above the zero line (Trend Reversal Up).
+//! - **Entry Short:** Triggers when the Coppock Curve crosses below the zero line (Trend Reversal Down).
+//! - **Exit:** Triggers a corresponding exit for existing positions when a new opposite entry signal is generated.
+//!
+//! Risk is managed using an Average True Range (ATR) based trailing stop loss on entry.
+
 use crate::indicators::{atr, roc, wma};
 use crate::strategy::{Signal, SignalType, Strategy, StrategyConfig, StrategyType};
 use anyhow::Result;
@@ -6,7 +20,26 @@ use polars::prelude::*;
 use rust_decimal::prelude::*;
 use rust_decimal::Decimal;
 
-/// Configuration parameters for the `CoppockCurve` strategy.
+/// Configuration parameters for the [`CoppockCurve`] strategy.
+///
+/// Defines the periods for the Rate of Change (ROC) and Weighted Moving Average (WMA) calculations,
+/// as well as the risk management settings for the stop loss based on the Average True Range (ATR).
+///
+/// # Examples
+///
+/// ```rust
+/// use strategies::coppock_curve::CoppockCurveConfig;
+///
+/// let config = CoppockCurveConfig {
+///     roc_long_period: 14,
+///     roc_short_period: 11,
+///     wma_period: 10,
+///     stop_loss_atr_mult: 2.0,
+///     atr_period: 14,
+///     max_position_size: 100.0,
+///     symbol: "BTCUSD".to_string(),
+/// };
+/// ```
 #[derive(Debug, Clone, serde::Deserialize)]
 pub struct CoppockCurveConfig {
     /// The period for the longer Rate of Change (ROC).
@@ -51,6 +84,7 @@ impl StrategyConfig for CoppockCurveConfig {}
 ///
 /// ```rust
 /// use strategies::coppock_curve::{CoppockCurve, CoppockCurveConfig};
+/// use strategies::strategy::Strategy;
 ///
 /// let config = CoppockCurveConfig {
 ///     roc_long_period: 14,
@@ -63,6 +97,7 @@ impl StrategyConfig for CoppockCurveConfig {}
 /// };
 ///
 /// let strategy = CoppockCurve::new(config).unwrap();
+/// assert_eq!(strategy.name(), "CoppockCurve");
 /// ```
 pub struct CoppockCurve {
     config: CoppockCurveConfig,

@@ -99,3 +99,11 @@
 ## 2026-03-29 - The Silent KDJ
 **Confusion:** The KDJ Indicator Strategy lacked comprehensive documentation, making its configuration parameters confusing and its underlying concepts opaque.
 **Clarification:** Added storytelling module-level documentation (`//!`) explaining the concepts behind KDJ indicator overbought/oversold levels, and included executable `# Examples` for both strategy configurations and their instantiation.
+
+## 2026-03-30 - The Silent Coppock Curve
+**Confusion:** The Coppock Curve Strategy lacked comprehensive documentation, leaving its configuration parameters confusing and its underlying momentum mechanism unclear.
+**Clarification:** Added module-level documentation (`//!`) and executable examples to both the `CoppockCurveConfig` and `CoppockCurve` structs.
+
+## 2026-03-30 - The Misleading Getting Started
+**Confusion:** Users found the "Quick Start" guide in the README confusing due to heavy financial jargon (e.g., OHLCV, RAG, TWAP) and because the initial example (`generate-signals`) often resulted in empty output without an explanation.
+**Clarification:** Rewrote the Quick Start sections to remove unnecessary jargon, added clarification that backtesting always produces output, and highlighted the `dummy_data.json` file which guarantees a signal generation for demonstration purposes.

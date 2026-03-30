@@ -18,7 +18,10 @@ use async_trait::async_trait;
 use polars::prelude::*;
 use serde::{Deserialize, Serialize};
 
-/// Configuration parameters for the `ChaikinOscillatorMomentum` strategy.
+/// Configuration parameters for the [`ChaikinOscillatorMomentum`] strategy.
+///
+/// Defines the fast and slow Moving Average periods for the Chaikin Oscillator, as well as
+/// the risk management parameters (ATR multiplier and period) for setting dynamic stop losses.
 ///
 /// # Examples
 ///
@@ -81,8 +84,11 @@ impl StrategyConfig for ChaikinOscillatorMomentumConfig {}
 
 /// The Chaikin Oscillator Momentum strategy implementation.
 ///
+/// The Chaikin Oscillator is calculated by subtracting a 10-period Exponential Moving Average (EMA)
+/// of the Accumulation/Distribution Line (ADL) from a 3-period EMA of the ADL.
+///
 /// This strategy utilizes zero-line crossovers of the Chaikin Oscillator to identify
-/// buying and selling opportunities.
+/// shifts in buying and selling pressure.
 ///
 /// # Examples
 ///

@@ -17,7 +17,28 @@ use async_trait::async_trait;
 use polars::prelude::*;
 use serde::{Deserialize, Serialize};
 
-/// Configuration for the KDJ Indicator Strategy.
+/// Configuration for the [`KdjIndicatorStrategy`].
+///
+/// Defines the periods for calculating the fast `%K` and smoothed `%D` lines, as well as the
+/// `oversold` and `overbought` thresholds.
+///
+/// # Examples
+///
+/// ```rust
+/// use strategies::kdj_indicator::KdjIndicatorStrategyConfig;
+///
+/// let config = KdjIndicatorStrategyConfig {
+///     k_period: 9,
+///     k_smoothing: 3,
+///     d_period: 3,
+///     oversold_threshold: 20.0,
+///     overbought_threshold: 80.0,
+///     max_position_size: 1000.0,
+///     stop_loss_atr_mult: 2.0,
+///     atr_period: 14,
+///     symbol: "BTCUSD".to_string(),
+/// };
+/// ```
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct KdjIndicatorStrategyConfig {
     /// The number of periods to look back for the highest high and lowest low to calculate the fast %K. (e.g., 9)
@@ -44,7 +65,33 @@ impl StrategyConfig for KdjIndicatorStrategyConfig {}
 
 /// KDJ Indicator Strategy
 ///
-/// A mean-reversion and momentum strategy based on the KDJ indicator. It relies on the fast %K line, slow %D line, and divergence %J line to identify overbought/oversold conditions and trend reversals.
+/// A mean-reversion and momentum strategy based on the KDJ indicator. It relies on the fast `%K` line,
+/// slow `%D` line, and divergence `%J` line to identify overbought/oversold conditions and trend reversals.
+///
+/// The indicator is mathematically derived from the Stochastic Oscillator, but adds the `%J` line
+/// which acts as a divergence indicator to highlight overreactions in the market.
+///
+/// # Examples
+///
+/// ```rust
+/// use strategies::kdj_indicator::{KdjIndicatorStrategy, KdjIndicatorStrategyConfig};
+/// use strategies::strategy::Strategy;
+///
+/// let config = KdjIndicatorStrategyConfig {
+///     k_period: 9,
+///     k_smoothing: 3,
+///     d_period: 3,
+///     oversold_threshold: 20.0,
+///     overbought_threshold: 80.0,
+///     max_position_size: 1000.0,
+///     stop_loss_atr_mult: 2.0,
+///     atr_period: 14,
+///     symbol: "BTCUSD".to_string(),
+/// };
+///
+/// let strategy = KdjIndicatorStrategy::new(config);
+/// assert_eq!(strategy.name(), "KDJ Indicator Trading Strategy");
+/// ```
 pub struct KdjIndicatorStrategy {
     config: KdjIndicatorStrategyConfig,
 }

@@ -49,7 +49,7 @@ cargo run -p thales-cli -- fetch-market-data \
 ```
 
 ### 2. Backtest Strategy
-Run a backtest on the fetched data to see how the strategy performs over time.
+Run a backtest on the fetched data to see how the strategy performs over time. This command always outputs a list of past trades, which is useful for checking if a strategy is active on an asset.
 
 ```bash
 cargo run -p thales-cli -- backtest \
@@ -73,7 +73,7 @@ cargo run -p thales-cli -- benchmark \
 ### 4. Generate Signals
 Run a strategy to generate trade intents for the **current** timestamp.
 
-> **Note**: This command outputs signals **only if** the strategy triggers at the latest available data point (the last candle in your input file). If the output is empty (`[]`), it means no trading condition was met at that specific time. We provide a `dummy_data.json` that guarantees a signal for the `BollingerBands` strategy to demonstrate the output structure.
+> **Note**: This command outputs signals **only if** the strategy triggers at the latest available data point (the last candle in your price data). If the output is empty (`[]`), it means no trading condition was met at that specific time. We provide a `dummy_data.json` that guarantees a signal for the `BollingerBands` strategy to demonstrate the output structure.
 
 ```bash
 cargo run -p thales-cli -- generate-signals \
