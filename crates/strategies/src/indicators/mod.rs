@@ -18,6 +18,7 @@ pub mod donchian_channels;
 pub mod dpo;
 pub mod elder_ray;
 pub mod ema;
+pub mod historical_volatility;
 pub mod fisher_transform;
 pub mod force_index;
 pub mod hma;

@@ -1239,3 +1239,36 @@ use polars::prelude::*;
 let period = 9;
 let fisher_series = fisher_transform::calculate(&df, period)?;
 ```
+
+## Historical Volatility (HV)
+
+**Name:** Historical Volatility
+**Description:** Calculates the annualized Historical Volatility based on the standard deviation of logarithmic returns over a specified lookback period.
+**Rationale:** Historical Volatility is a statistical measure of the dispersion of returns for a given security or market index. In most cases, the higher the volatility, the riskier the security.
+
+### Implementation Details
+- Uses `rust_decimal::Decimal` iteratively for all math calculations to ensure financial precision, explicitly converting from and to `f64` only for Polars boundaries.
+- Formula: Standard deviation of `ln(Current Close / Previous Close)` over the `period`, multiplied by the square root of the `annualization_factor`.
+- Returns a Polars `Series` of `f64` values (computed internally via Decimal).
+
+### Usage
+
+```rust
+use strategies::indicators::historical_volatility;
+use polars::prelude::*;
+
+// Assuming df is a DataFrame with a "close" column
+let period = 20;
+let annualization_factor = 365.0; // 365 for crypto, 252 for traditional equities
+let hv_series = historical_volatility::calculate(&df, period, annualization_factor)?;
+```
+
+### Parameters
+- `data`: Reference to a Polars `DataFrame`. Must contain a numeric "close" column.
+- `period`: The lookback period (typically 20 or 30).
+- `annualization_factor`: Factor to annualize the volatility (e.g., 365 for crypto, 252 for equities).
+
+### Output
+- Returns `Result<Series>`.
+- The output Series is named "historical_volatility".
+- Initial values up to `period` will be null until enough data is gathered.
