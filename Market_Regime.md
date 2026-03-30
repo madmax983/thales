@@ -2114,3 +2114,11 @@
 **Regime**: Trending Up (Short Term)
 **Sentiment**: Bullish (Strong) (Overbought)
 **Confidence**: 80.00%
+## BTCUSD - crypto
+Regime: Trending Down (Short Term)
+
+## ETHUSD - crypto
+Regime: Trending Up (Short Term)
+
+## SPY - equities
+Regime: Trending Up (Short Term)

@@ -114,8 +114,8 @@ def analyze_market(symbol, bars_file, research, news):
     if news:
         args.extend(["--news", news])
 
-    # Note: We do NOT use --no-report because we WANT it to update Signals.md and others.
-    # The command returns the analysis JSON.
+    # Pass --no-report to intercept output and format it according to persona rules
+    args.extend(["--no-report"])
     analysis = run_command(args)
     return analysis
 
@@ -152,6 +152,15 @@ def main():
         analysis = analyze_market(symbol, temp_bars_file, research, news)
 
         if analysis:
+            # Enforce Persona Rules
+            if "recommendation" in analysis:
+                analysis["recommendation"] = ""
+
+            raw_confidence = analysis.get("confidence", 0.0)
+            if raw_confidence < 0.70:
+                analysis["patterns"] = []
+            analysis["confidence"] = f"{raw_confidence * 100:.2f}%"
+
             print(f"\n--- Analysis for {symbol} ---")
             print(json.dumps(analysis, indent=2))
 
@@ -161,6 +170,46 @@ def main():
                  print(f"ALERT: Strong Trend Detected: {regime}")
             if analysis.get("volatility") == "High" or analysis.get("volatility") == "Extreme":
                  print(f"ALERT: High Volatility Detected!")
+
+            # Programmatically append to log files
+            market_type = analysis.get("market", market)
+            research_summary = analysis.get("research_summary", research)
+            news_summary = analysis.get("news_summary", news)
+
+            markdown_block = f"## Market Analysis Report - {market_type} - {symbol}\n\n"
+            markdown_block += f"Analysis for {symbol}...\n\n"
+            markdown_block += "```json\n"
+            markdown_block += json.dumps(analysis, indent=2) + "\n"
+            markdown_block += "```\n\n"
+            if research_summary:
+                markdown_block += f"**Research**: {research_summary}\n\n"
+            if news_summary:
+                markdown_block += f"**News**: {news_summary}\n\n"
+
+            with open("Signals.md", "a") as f:
+                f.write(markdown_block)
+
+            regime_block = f"## {symbol} - {market_type}\n"
+            regime_block += f"Regime: {analysis.get('regime', 'Unknown')}\n\n"
+            with open("Market_Regime.md", "a") as f:
+                f.write(regime_block)
+
+            volatility_block = f"## {symbol} - {market_type}\n"
+            volatility_block += f"Volatility: {analysis.get('volatility', 'Unknown')}\n"
+            if analysis.get("atr"):
+                volatility_block += f"ATR: {analysis['atr']:.2f}\n"
+            volatility_block += "\n"
+            with open("Volatility_Regime.md", "a") as f:
+                f.write(volatility_block)
+
+            research_block = f"## {symbol} - {market_type}\n"
+            if research_summary:
+                research_block += f"Research: {research_summary}\n"
+            if news_summary:
+                research_block += f"News: {news_summary}\n"
+            research_block += "\n"
+            with open("Market_Research.md", "a") as f:
+                f.write(research_block)
 
         # Cleanup
         if os.path.exists(temp_bars_file):
