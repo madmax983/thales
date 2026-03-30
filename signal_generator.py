@@ -45,6 +45,103 @@ def count_recent_signals(symbol, history_path):
                 count += 1
     return count
 
+def enforce_persona_rules(intent, analysis, last_close):
+    # Size positions based on volatility
+    volatility_label = analysis.get("volatility", "").lower() if analysis else ""
+    size_hint_str = intent.get("size_hint", "0")
+    if size_hint_str != "max":
+        try:
+            size_hint_val = float(size_hint_str)
+            if "high" in volatility_label or "extreme" in volatility_label:
+                size_hint_val *= 0.5
+            elif "low" in volatility_label:
+                size_hint_val *= 1.5
+            intent["size_hint"] = f"{size_hint_val:.6f}"
+        except (ValueError, TypeError):
+            pass
+
+    # Handle Signal Types: Entry, Exit, ScaleIn, ScaleOut
+    signal_type_raw = intent.get("signal_type", "")
+    is_entry = signal_type_raw in ["Entry", "SignalType::Entry"]
+    is_exit = signal_type_raw in ["Exit", "SignalType::Exit"]
+    is_scale_in = signal_type_raw in ["ScaleIn", "SignalType::ScaleIn"]
+    is_scale_out = signal_type_raw in ["ScaleOut", "SignalType::ScaleOut"]
+
+    if is_exit:
+        intent["size_hint"] = "max"
+        intent.pop("stop_loss", None)
+        intent.pop("take_profit", None)
+    elif is_scale_out:
+        try:
+            current_sz = float(intent.get("size_hint", "0"))
+            intent["size_hint"] = f"{(current_sz * 0.5):.6f}"
+        except (ValueError, TypeError):
+            pass
+        intent.pop("stop_loss", None)
+        intent.pop("take_profit", None)
+    elif is_entry or is_scale_in:
+        if is_scale_in:
+            try:
+                current_sz = float(intent.get("size_hint", "0"))
+                intent["size_hint"] = f"{(current_sz * 0.5):.6f}"
+            except (ValueError, TypeError):
+                pass
+
+        sl_val = intent.get("stop_loss")
+        tp_val = intent.get("take_profit")
+        missing_sl = not sl_val or str(sl_val) in ["None", "-", "0", "0.0"]
+        missing_tp = not tp_val or str(tp_val) in ["None", "-", "0", "0.0"]
+
+        if (missing_sl or missing_tp) and last_close is not None:
+            side = str(intent.get('side', '')).lower()
+            sl_pct = 0.05
+            if "high" in volatility_label or "extreme" in volatility_label:
+                sl_pct = 0.10
+            elif "low" in volatility_label:
+                sl_pct = 0.02
+            tp_pct = sl_pct * 2.0
+
+            if side == "buy" or side == "long":
+                if missing_sl:
+                    intent["stop_loss"] = str(last_close * (1.0 - sl_pct))
+                if missing_tp:
+                    if not missing_sl and str(sl_val) not in ["None", "-", "0", "0.0"]:
+                        try:
+                            sl_dist = last_close - float(sl_val)
+                            if sl_dist > 0:
+                                intent["take_profit"] = str(last_close + (sl_dist * 2.0))
+                            else:
+                                intent["take_profit"] = str(last_close * (1.0 + tp_pct))
+                        except (ValueError, TypeError):
+                            intent["take_profit"] = str(last_close * (1.0 + tp_pct))
+                    else:
+                        intent["take_profit"] = str(last_close * (1.0 + tp_pct))
+            elif side == "sell" or side == "short":
+                if missing_sl:
+                    intent["stop_loss"] = str(last_close * (1.0 + sl_pct))
+                if missing_tp:
+                    if not missing_sl and str(sl_val) not in ["None", "-", "0", "0.0"]:
+                        try:
+                            sl_dist = float(sl_val) - last_close
+                            if sl_dist > 0:
+                                intent["take_profit"] = str(last_close - (sl_dist * 2.0))
+                            else:
+                                intent["take_profit"] = str(last_close * (1.0 - tp_pct))
+                        except (ValueError, TypeError):
+                            intent["take_profit"] = str(last_close * (1.0 - tp_pct))
+                    else:
+                        intent["take_profit"] = str(last_close * (1.0 - tp_pct))
+
+    # Format numerical values safely to 4 decimal places
+    for field in ["size_hint", "stop_loss", "take_profit"]:
+        val = intent.get(field)
+        if val not in [None, 'None', '-']:
+            try:
+                formatted_val = f"{float(val):.4f}".rstrip('0').rstrip('.') if '.' in f"{float(val):.4f}" else f"{float(val):.4f}"
+                intent[field] = formatted_val
+            except (ValueError, TypeError):
+                intent[field] = str(val)
+
 def format_signal(intent):
     side = str(intent.get('side', '')).lower()
     if side == "buy":
@@ -139,104 +236,24 @@ def main():
             intents = run_command(args)
             if intents:
                 for intent in intents:
-                    # Size positions based on volatility
-                    volatility_label = analysis.get("volatility", "").lower() if analysis else ""
-                    size_hint_str = intent.get("size_hint", "0")
-                    if size_hint_str != "max":
-                        try:
-                            size_hint_val = float(size_hint_str)
-                            if "high" in volatility_label or "extreme" in volatility_label:
-                                size_hint_val *= 0.5
-                            elif "low" in volatility_label:
-                                size_hint_val *= 1.5
-                            intent["size_hint"] = f"{size_hint_val:.6f}"
-                        except (ValueError, TypeError):
-                            pass
+                    # Read last close once, safely handling file I/O
+                    last_close = None
+                    try:
+                        with open(data_file, "r") as f:
+                            b_data = json.load(f)
+                            if "bars" in b_data and len(b_data["bars"]) > 0:
+                                last_close = float(b_data["bars"][-1]["close"])
+                    except (FileNotFoundError, json.JSONDecodeError, KeyError, ValueError, IndexError):
+                        pass
 
-                    # Handle Signal Types: Entry, Exit, ScaleIn, ScaleOut
+                    # 1. Enforce Persona Rules (Position Sizing, Stop Losses, Take Profits, Formatting)
+                    enforce_persona_rules(intent, analysis, last_close)
+
                     signal_type_raw = intent.get("signal_type", "")
                     is_entry = signal_type_raw in ["Entry", "SignalType::Entry"]
-                    is_exit = signal_type_raw in ["Exit", "SignalType::Exit"]
                     is_scale_in = signal_type_raw in ["ScaleIn", "SignalType::ScaleIn"]
-                    is_scale_out = signal_type_raw in ["ScaleOut", "SignalType::ScaleOut"]
 
-                    if is_exit:
-                        intent["size_hint"] = "max"
-                        intent.pop("stop_loss", None)
-                        intent.pop("take_profit", None)
-                    elif is_scale_out:
-                        try:
-                            current_sz = float(intent.get("size_hint", "0"))
-                            intent["size_hint"] = f"{(current_sz * 0.5):.6f}"
-                        except (ValueError, TypeError):
-                            pass
-                        intent.pop("stop_loss", None)
-                        intent.pop("take_profit", None)
-                    elif is_entry or is_scale_in:
-                        if is_scale_in:
-                            try:
-                                current_sz = float(intent.get("size_hint", "0"))
-                                intent["size_hint"] = f"{(current_sz * 0.5):.6f}"
-                            except (ValueError, TypeError):
-                                pass
-
-                        sl_val = intent.get("stop_loss")
-                        tp_val = intent.get("take_profit")
-                        missing_sl = not sl_val or str(sl_val) in ["None", "-", "0", "0.0"]
-                        missing_tp = not tp_val or str(tp_val) in ["None", "-", "0", "0.0"]
-
-                        if missing_sl or missing_tp:
-                            try:
-                                with open(data_file, "r") as f:
-                                    b_data = json.load(f)
-                                    if "bars" in b_data and len(b_data["bars"]) > 0:
-                                        last_close = float(b_data["bars"][-1]["close"])
-                                        side = str(intent.get('side', '')).lower()
-
-                                        # Calculate stop loss distance based on volatility
-                                        volatility_label = analysis.get("volatility", "").lower() if analysis else ""
-                                        sl_pct = 0.05
-                                        if "high" in volatility_label or "extreme" in volatility_label:
-                                            sl_pct = 0.10
-                                        elif "low" in volatility_label:
-                                            sl_pct = 0.02
-
-                                        tp_pct = sl_pct * 2.0
-
-                                        if side == "buy" or side == "long":
-                                            if missing_sl:
-                                                intent["stop_loss"] = str(last_close * (1.0 - sl_pct))
-                                            if missing_tp:
-                                                if not missing_sl and str(sl_val) not in ["None", "-", "0", "0.0"]:
-                                                    try:
-                                                        sl_dist = last_close - float(sl_val)
-                                                        if sl_dist > 0:
-                                                            intent["take_profit"] = str(last_close + (sl_dist * 2.0))
-                                                        else:
-                                                            intent["take_profit"] = str(last_close * (1.0 + tp_pct))
-                                                    except (ValueError, TypeError):
-                                                        intent["take_profit"] = str(last_close * (1.0 + tp_pct))
-                                                else:
-                                                    intent["take_profit"] = str(last_close * (1.0 + tp_pct))
-                                        elif side == "sell" or side == "short":
-                                            if missing_sl:
-                                                intent["stop_loss"] = str(last_close * (1.0 + sl_pct))
-                                            if missing_tp:
-                                                if not missing_sl and str(sl_val) not in ["None", "-", "0", "0.0"]:
-                                                    try:
-                                                        sl_dist = float(sl_val) - last_close
-                                                        if sl_dist > 0:
-                                                            intent["take_profit"] = str(last_close - (sl_dist * 2.0))
-                                                        else:
-                                                            intent["take_profit"] = str(last_close * (1.0 - tp_pct))
-                                                    except (ValueError, TypeError):
-                                                        intent["take_profit"] = str(last_close * (1.0 - tp_pct))
-                                                else:
-                                                    intent["take_profit"] = str(last_close * (1.0 - tp_pct))
-                            except (FileNotFoundError, json.JSONDecodeError, KeyError, ValueError, IndexError) as e:
-                                print(f"Warning: Failed to compute fallback SL/TP for {symbol}: {e}")
-
-                    # Filter: Never generate signals without proper analysis
+                    # 2. Filter: Never generate signals without proper analysis
                     if not analysis:
                         print(f"Skipping signal for {symbol}: No proper analysis available.")
                         continue
@@ -284,16 +301,6 @@ def main():
                     if not risk_ok:
                         print(f"Skipping signal for {symbol} due to Risk Agent rejection: {risk_reason}")
                         continue
-
-                    # Format numerical values safely to 4 decimal places
-                    for field in ["size_hint", "stop_loss", "take_profit"]:
-                        val = intent.get(field)
-                        if val not in [None, 'None', '-']:
-                            try:
-                                formatted_val = f"{float(val):.4f}".rstrip('0').rstrip('.') if '.' in f"{float(val):.4f}" else f"{float(val):.4f}"
-                                intent[field] = formatted_val
-                            except (ValueError, TypeError):
-                                intent[field] = str(val)
 
                     # Map buy/sell to long/short
                     side = str(intent.get('side', '')).lower()
