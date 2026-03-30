@@ -30,6 +30,7 @@ use strategies::adl_momentum::{AdlMomentum, AdlMomentumConfig};
 use strategies::adx_macd_trend::{AdxMacdTrend, AdxMacdTrendConfig};
 use strategies::adx_momentum::{AdxMomentum, AdxMomentumConfig};
 use strategies::alma_crossover::{AlmaCrossover, AlmaCrossoverConfig};
+use strategies::atr_breakout::{AtrBreakout, AtrBreakoutConfig};
 use strategies::aroon_oscillator::{AroonOscillator, AroonOscillatorConfig};
 use strategies::awesome_oscillator::{AwesomeOscillator, AwesomeOscillatorConfig};
 use strategies::bollinger_bands::{BollingerBandsConfig, BollingerBandsMeanReversion};
@@ -369,6 +370,17 @@ pub fn create_strategy(name: &str, symbol: &str) -> Result<Box<dyn Strategy>> {
                 symbol: symbol.to_string(),
             };
             Ok(Box::new(StochasticOscillator::new(config)))
+        }
+        "AtrBreakout" => {
+            let config = AtrBreakoutConfig {
+                atr_period: 14,
+                sma_period: 20,
+                breakout_multiplier: 1.5,
+                max_position_size: 100.0,
+                stop_loss_atr_mult: 2.0,
+                symbol: symbol.to_string(),
+            };
+            Ok(Box::new(AtrBreakout::new(config)))
         }
         "AlmaCrossover" => {
             let config = AlmaCrossoverConfig {
@@ -845,6 +857,7 @@ pub fn create_strategy(name: &str, symbol: &str) -> Result<Box<dyn Strategy>> {
 pub fn list_strategies() -> Vec<&'static str> {
     vec![
         "AdlMomentum",
+        "AtrBreakout",
         "KdjIndicatorStrategy",
         "KamaCrossover",
         "AlmaCrossover",

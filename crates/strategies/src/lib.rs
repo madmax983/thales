@@ -27,6 +27,7 @@
 pub mod adl_momentum;
 pub mod adx_macd_trend;
 pub mod adx_momentum;
+pub mod atr_breakout;
 pub mod alma_crossover;
 pub mod aroon_oscillator;
 pub mod awesome_oscillator;

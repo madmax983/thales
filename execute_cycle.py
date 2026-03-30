@@ -164,6 +164,8 @@ def get_active_strategies():
         strategies.append("BollingerBands")
     if re.search(r'\bAdlMomentum\b', content):
         strategies.append("AdlMomentum")
+    if re.search(r'\bAtrBreakout\b', content):
+        strategies.append("AtrBreakout")
     if re.search(r'\bCoppockCurve\b', content):
         strategies.append("CoppockCurve")
     if re.search(r'\bKdjIndicatorStrategy\b', content):

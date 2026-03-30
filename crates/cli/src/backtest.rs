@@ -236,105 +236,107 @@ pub async fn run_backtest_with_strategy(
 
         // A. Execute Pending Orders (Market Orders from Previous Tick)
         // We execute at Open of current bar
-        if let Some(order) = pending_orders.pop() {
-            // Only execute if we don't have a position (or handle scaling later)
-            // For MVP, simplistic: 1 position at a time per symbol
-            if position.is_none() {
-                // Calculate Size
-                // If SL provided, use risk based sizing. Else use size_hint or fallback.
-                let sl = order.signal.stop_loss;
-                let tp = order.signal.take_profit;
+        if !bar.open.is_nan() {
+            if let Some(order) = pending_orders.pop() {
+                // Only execute if we don't have a position (or handle scaling later)
+                // For MVP, simplistic: 1 position at a time per symbol
+                if position.is_none() {
+                    // Calculate Size
+                    // If SL provided, use risk based sizing. Else use size_hint or fallback.
+                    let sl = order.signal.stop_loss;
+                    let tp = order.signal.take_profit;
 
-                let entry_price = bar.open; // Fill at Open
+                    let entry_price = bar.open; // Fill at Open
 
-                // Basic Sizing Logic
-                let qty = if let Some(stop) = sl {
-                    let risk_dist = (entry_price - stop).abs();
-                    if risk_dist > 0.0 {
-                        config.risk_per_trade / risk_dist
+                    // Basic Sizing Logic
+                    let qty = if let Some(stop) = sl {
+                        let risk_dist = (entry_price - stop).abs();
+                        if risk_dist > 0.0 && !risk_dist.is_nan() {
+                            config.risk_per_trade / risk_dist
+                        } else {
+                            0.0
+                        }
                     } else {
-                        0.0
+                        // Fallback: Use fixed size hint if numeric, else small default
+                        if let Ok(s) = order.signal.size_hint.parse::<f64>() {
+                            if s > 0.0 { s } else { 0.0 }
+                        } else {
+                            // "max" or invalid -> risk 1% of capital?
+                            // Let's just default to risk_per_trade / (price * 0.01) (assuming 1% risk)
+                            // Or just buy 1 unit if logic fails
+                            1.0
+                        }
+                    };
+
+                    if qty > 0.0 && !qty.is_nan() {
+                        let side = if order.signal.side == "buy" {
+                            "long".to_string()
+                        } else {
+                            "short".to_string()
+                        };
+                        position = Some(OpenPosition {
+                            symbol: order.signal.symbol.clone(),
+                            side,
+                            qty,
+                            entry_price,
+                            entry_time: current_time,
+                            stop_loss: sl,
+                            take_profit: tp,
+                        });
                     }
                 } else {
-                    // Fallback: Use fixed size hint if numeric, else small default
-                    if let Ok(s) = order.signal.size_hint.parse::<f64>() {
-                        if s > 0.0 { s } else { 0.0 }
-                    } else {
-                        // "max" or invalid -> risk 1% of capital?
-                        // Let's just default to risk_per_trade / (price * 0.01) (assuming 1% risk)
-                        // Or just buy 1 unit if logic fails
-                        1.0
-                    }
-                };
+                    // Check if this is an Exit signal for the existing position
+                    if let Some(pos) = &position {
+                        // If Signal is Exit and matches direction (e.g. Long Pos + Sell Signal)
+                        let is_exit = order.signal.signal_type == SignalType::Exit;
+                        let correct_side = (pos.side == "long" && order.signal.side == "sell")
+                            || (pos.side == "short" && order.signal.side == "buy");
 
-                if qty > 0.0 {
-                    let side = if order.signal.side == "buy" {
-                        "long".to_string()
-                    } else {
-                        "short".to_string()
-                    };
-                    position = Some(OpenPosition {
-                        symbol: order.signal.symbol.clone(),
-                        side,
-                        qty,
-                        entry_price,
-                        entry_time: current_time,
-                        stop_loss: sl,
-                        take_profit: tp,
-                    });
-                }
-            } else {
-                // Check if this is an Exit signal for the existing position
-                if let Some(pos) = &position {
-                    // If Signal is Exit and matches direction (e.g. Long Pos + Sell Signal)
-                    let is_exit = order.signal.signal_type == SignalType::Exit;
-                    let correct_side = (pos.side == "long" && order.signal.side == "sell")
-                        || (pos.side == "short" && order.signal.side == "buy");
+                        if is_exit && correct_side {
+                            // Close Position at Open
+                            let exit_price = bar.open;
+                            let pnl = if pos.side == "long" {
+                                (exit_price - pos.entry_price) * pos.qty
+                            } else {
+                                (pos.entry_price - exit_price) * pos.qty
+                            };
 
-                    if is_exit && correct_side {
-                        // Close Position at Open
-                        let exit_price = bar.open;
-                        let pnl = if pos.side == "long" {
-                            (exit_price - pos.entry_price) * pos.qty
-                        } else {
-                            (pos.entry_price - exit_price) * pos.qty
-                        };
+                            // Note: We don't subtract cost basis because we track Cash + Position Value = Equity
+                            // Wait, simpler: Cash is "Available Cash".
+                            // When buying, we deduce cost?
+                            // No, let's track Equity.
+                            // Equity = Cash + Unrealized PnL.
+                            // Actually, simpler model:
+                            // Start Cash = 10000.
+                            // Buy 1 BTC @ 10000. Cash = 0. Position = 1 BTC.
+                            // Sell 1 BTC @ 11000. Cash = 11000. Position = 0.
+                            // PnL = 1000.
 
-                        // Note: We don't subtract cost basis because we track Cash + Position Value = Equity
-                        // Wait, simpler: Cash is "Available Cash".
-                        // When buying, we deduce cost?
-                        // No, let's track Equity.
-                        // Equity = Cash + Unrealized PnL.
-                        // Actually, simpler model:
-                        // Start Cash = 10000.
-                        // Buy 1 BTC @ 10000. Cash = 0. Position = 1 BTC.
-                        // Sell 1 BTC @ 11000. Cash = 11000. Position = 0.
-                        // PnL = 1000.
+                            // Re-do accounting:
+                            // 1. Buy: Cash -= Price * Qty.
+                            // 2. Sell: Cash += Price * Qty.
+                            // But for Shorting?
+                            // Short 1 BTC @ 10000. Cash = 20000 (10k collateral + 10k proceeds). Liability = 1 BTC.
+                            // Cover 1 BTC @ 9000. Cash -= 9000. Cash = 11000. PnL = 1000.
 
-                        // Re-do accounting:
-                        // 1. Buy: Cash -= Price * Qty.
-                        // 2. Sell: Cash += Price * Qty.
-                        // But for Shorting?
-                        // Short 1 BTC @ 10000. Cash = 20000 (10k collateral + 10k proceeds). Liability = 1 BTC.
-                        // Cover 1 BTC @ 9000. Cash -= 9000. Cash = 11000. PnL = 1000.
+                            // Let's stick to PnL accumulation for simplicity.
+                            // Equity = Initial + Sum(Realized PnL) + Unrealized PnL.
 
-                        // Let's stick to PnL accumulation for simplicity.
-                        // Equity = Initial + Sum(Realized PnL) + Unrealized PnL.
+                            trades.push(BacktestTrade {
+                                id: order.signal.timestamp_ms.to_string(),
+                                entry_time: pos.entry_time,
+                                exit_time: current_time,
+                                side: pos.side.clone(),
+                                qty: pos.qty,
+                                entry_price: pos.entry_price,
+                                exit_price,
+                                pnl,
+                                pnl_pct: pnl / (pos.entry_price * pos.qty), // ROI on trade not account
+                                exit_reason: order.signal.reason.clone(),
+                            });
 
-                        trades.push(BacktestTrade {
-                            id: order.signal.timestamp_ms.to_string(),
-                            entry_time: pos.entry_time,
-                            exit_time: current_time,
-                            side: pos.side.clone(),
-                            qty: pos.qty,
-                            entry_price: pos.entry_price,
-                            exit_price,
-                            pnl,
-                            pnl_pct: pnl / (pos.entry_price * pos.qty), // ROI on trade not account
-                            exit_reason: order.signal.reason.clone(),
-                        });
-
-                        position = None;
+                            position = None;
+                        }
                     }
                 }
             }
@@ -342,70 +344,72 @@ pub async fn run_backtest_with_strategy(
 
         // B. Check Exits (SL/TP) for Open Position
         // Check High/Low of current bar
-        if let Some(pos) = &position {
-            let mut exit_price: Option<f64> = None;
-            let mut reason = String::new();
+        if !bar.high.is_nan() && !bar.low.is_nan() && !bar.open.is_nan() {
+            if let Some(pos) = &position {
+                let mut exit_price: Option<f64> = None;
+                let mut reason = String::new();
 
-            if pos.side == "long" {
-                // Check SL (Low <= SL)
-                if let Some(sl) = pos.stop_loss
-                    && bar.low <= sl
-                {
-                    // Slippage: If Open < SL, we gap down, fill at Open. Else fill at SL.
-                    exit_price = Some(if bar.open < sl { bar.open } else { sl });
-                    reason = "Stop Loss".to_string();
-                }
-                // Check TP (High >= TP)
-                if exit_price.is_none() {
-                    // SL takes precedence usually
-                    if let Some(tp) = pos.take_profit
-                        && bar.high >= tp
+                if pos.side == "long" {
+                    // Check SL (Low <= SL)
+                    if let Some(sl) = pos.stop_loss
+                        && bar.low <= sl
                     {
-                        // Slippage: If Open > TP, we gap up, fill at Open. Else fill at TP.
-                        exit_price = Some(if bar.open > tp { bar.open } else { tp });
+                        // Slippage: If Open < SL, we gap down, fill at Open. Else fill at SL.
+                        exit_price = Some(if bar.open < sl { bar.open } else { sl });
+                        reason = "Stop Loss".to_string();
+                    }
+                    // Check TP (High >= TP)
+                    if exit_price.is_none() {
+                        // SL takes precedence usually
+                        if let Some(tp) = pos.take_profit
+                            && bar.high >= tp
+                        {
+                            // Slippage: If Open > TP, we gap up, fill at Open. Else fill at TP.
+                            exit_price = Some(if bar.open > tp { bar.open } else { tp });
+                            reason = "Take Profit".to_string();
+                        }
+                    }
+                } else {
+                    // Short
+                    // Check SL (High >= SL)
+                    if let Some(sl) = pos.stop_loss
+                        && bar.high >= sl
+                    {
+                        exit_price = Some(if bar.open > sl { bar.open } else { sl });
+                        reason = "Stop Loss".to_string();
+                    }
+                    // Check TP (Low <= TP)
+                    if exit_price.is_none()
+                        && let Some(tp) = pos.take_profit
+                        && bar.low <= tp
+                    {
+                        exit_price = Some(if bar.open < tp { bar.open } else { tp });
                         reason = "Take Profit".to_string();
                     }
                 }
-            } else {
-                // Short
-                // Check SL (High >= SL)
-                if let Some(sl) = pos.stop_loss
-                    && bar.high >= sl
-                {
-                    exit_price = Some(if bar.open > sl { bar.open } else { sl });
-                    reason = "Stop Loss".to_string();
+
+                if let Some(price) = exit_price {
+                    let pnl = if pos.side == "long" {
+                        (price - pos.entry_price) * pos.qty
+                    } else {
+                        (pos.entry_price - price) * pos.qty
+                    };
+
+                    trades.push(BacktestTrade {
+                        id: format!("{}-auto", current_time),
+                        entry_time: pos.entry_time,
+                        exit_time: current_time,
+                        side: pos.side.clone(),
+                        qty: pos.qty,
+                        entry_price: pos.entry_price,
+                        exit_price: price,
+                        pnl,
+                        pnl_pct: pnl / (pos.entry_price * pos.qty),
+                        exit_reason: reason,
+                    });
+
+                    position = None;
                 }
-                // Check TP (Low <= TP)
-                if exit_price.is_none()
-                    && let Some(tp) = pos.take_profit
-                    && bar.low <= tp
-                {
-                    exit_price = Some(if bar.open < tp { bar.open } else { tp });
-                    reason = "Take Profit".to_string();
-                }
-            }
-
-            if let Some(price) = exit_price {
-                let pnl = if pos.side == "long" {
-                    (price - pos.entry_price) * pos.qty
-                } else {
-                    (pos.entry_price - price) * pos.qty
-                };
-
-                trades.push(BacktestTrade {
-                    id: format!("{}-auto", current_time),
-                    entry_time: pos.entry_time,
-                    exit_time: current_time,
-                    side: pos.side.clone(),
-                    qty: pos.qty,
-                    entry_price: pos.entry_price,
-                    exit_price: price,
-                    pnl,
-                    pnl_pct: pnl / (pos.entry_price * pos.qty),
-                    exit_reason: reason,
-                });
-
-                position = None;
             }
         }
 
@@ -444,10 +448,14 @@ pub async fn run_backtest_with_strategy(
 
         // D. Update Equity Curve
         let unrealized_pnl = if let Some(pos) = &position {
-            if pos.side == "long" {
-                (bar.close - pos.entry_price) * pos.qty
+            if !bar.close.is_nan() {
+                if pos.side == "long" {
+                    (bar.close - pos.entry_price) * pos.qty
+                } else {
+                    (pos.entry_price - bar.close) * pos.qty
+                }
             } else {
-                (pos.entry_price - bar.close) * pos.qty
+                0.0
             }
         } else {
             0.0
@@ -457,17 +465,19 @@ pub async fn run_backtest_with_strategy(
         let realized_pnl: f64 = trades.iter().map(|t| t.pnl).sum();
         let current_equity = config.initial_capital + realized_pnl + unrealized_pnl;
 
-        equity_curve.push(EquityPoint {
-            timestamp: current_time,
-            equity: current_equity,
-        });
+        if !current_equity.is_nan() {
+            equity_curve.push(EquityPoint {
+                timestamp: current_time,
+                equity: current_equity,
+            });
 
-        if current_equity > max_equity {
-            max_equity = current_equity;
-        }
-        let drawdown = (max_equity - current_equity) / max_equity;
-        if drawdown > max_drawdown {
-            max_drawdown = drawdown;
+            if current_equity > max_equity {
+                max_equity = current_equity;
+            }
+            let drawdown = (max_equity - current_equity) / max_equity;
+            if drawdown > max_drawdown && !drawdown.is_nan() {
+                max_drawdown = drawdown;
+            }
         }
     }
 
@@ -519,11 +529,11 @@ pub async fn run_backtest_with_strategy(
 }
 
 fn bars_to_dataframe(series: &BarSeries) -> Result<DataFrame> {
-    let opens: Vec<f64> = series.bars.iter().map(|b| b.open).collect();
-    let highs: Vec<f64> = series.bars.iter().map(|b| b.high).collect();
-    let lows: Vec<f64> = series.bars.iter().map(|b| b.low).collect();
-    let closes: Vec<f64> = series.bars.iter().map(|b| b.close).collect();
-    let volumes: Vec<f64> = series.bars.iter().map(|b| b.volume).collect();
+    let opens: Vec<Option<f64>> = series.bars.iter().map(|b| if b.open.is_nan() { None } else { Some(b.open) }).collect();
+    let highs: Vec<Option<f64>> = series.bars.iter().map(|b| if b.high.is_nan() { None } else { Some(b.high) }).collect();
+    let lows: Vec<Option<f64>> = series.bars.iter().map(|b| if b.low.is_nan() { None } else { Some(b.low) }).collect();
+    let closes: Vec<Option<f64>> = series.bars.iter().map(|b| if b.close.is_nan() { None } else { Some(b.close) }).collect();
+    let volumes: Vec<Option<f64>> = series.bars.iter().map(|b| if b.volume.is_nan() { None } else { Some(b.volume) }).collect();
     let times: Vec<i64> = series.bars.iter().map(|b| b.timestamp_unix_ms).collect();
 
     let df = df!(
@@ -664,6 +674,74 @@ mod tests {
         // Should have hit Stop Loss
         assert!(trade.pnl < 0.0);
         assert_eq!(trade.exit_reason, "Stop Loss");
+
+        Ok(())
+    }
+
+    #[tokio::test]
+    async fn test_backtest_with_nan_data() -> Result<()> {
+        let mut bars = Vec::new();
+        let now = 100000;
+
+        // Valid data causing entry
+        for i in 0..20 {
+            let close = 100.0 - (i as f64);
+            bars.push(Bar {
+                symbol: "TEST".to_string(),
+                market: "equities".to_string(),
+                timeframe: "1m".to_string(),
+                timestamp_unix_ms: now + i * 60000,
+                open: close,
+                high: close + 1.0,
+                low: close - 1.0,
+                close,
+                volume: 1000.0,
+            });
+        }
+
+        // NaN data
+        for i in 20..30 {
+            bars.push(Bar {
+                symbol: "TEST".to_string(),
+                market: "equities".to_string(),
+                timeframe: "1m".to_string(),
+                timestamp_unix_ms: now + i * 60000,
+                open: f64::NAN,
+                high: f64::NAN,
+                low: f64::NAN,
+                close: f64::NAN,
+                volume: f64::NAN,
+            });
+        }
+
+        // Valid data causing exit
+        for i in 30..40 {
+            let close = 80.0 + ((i - 30) as f64) * 2.0;
+            bars.push(Bar {
+                symbol: "TEST".to_string(),
+                market: "equities".to_string(),
+                timeframe: "1m".to_string(),
+                timestamp_unix_ms: now + i * 60000,
+                open: close,
+                high: close + 1.0,
+                low: close - 1.0,
+                close,
+                volume: 1000.0,
+            });
+        }
+
+        let series = BarSeries {
+            schema_version: "v0".to_string(),
+            bars,
+        };
+        let config = BacktestConfig {
+            initial_capital: 10000.0,
+            risk_per_trade: 100.0,
+        };
+
+        // This should not panic
+        let result = run_backtest(&series, "RsiMeanReversion", config).await?;
+        assert!(!result.trades.is_empty(), "Should still execute trades around NaNs");
 
         Ok(())
     }

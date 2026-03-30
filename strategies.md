@@ -1,3 +1,41 @@
+# Trading Strategy: ATR Breakout
+
+## Strategy Specification
+
+**Name:** AtrBreakout
+
+**Description:** A volatility-based breakout strategy that uses the Average True Range (ATR) and a Simple Moving Average (SMA) to identify high momentum breakouts.
+
+**Rationale:** The strategy capitalizes on sudden expansions in volatility. By setting dynamic breakout thresholds based on the ATR scaled by a multiplier from a baseline SMA, it captures significant directional moves while filtering out normal market noise.
+
+## Requirements
+
+### Implementation Details
+- Uses Polars for data analysis and signal generation.
+- Implements the `Strategy` trait in Rust.
+- Utilizes the `atr` and `sma` indicators.
+
+### Strategy Type
+Trend Following / Breakout
+
+### Entry Conditions
+- **Long Entry (Buy):** Price closes above the SMA + (ATR * multiplier).
+- **Short Entry (Sell):** Price closes below the SMA - (ATR * multiplier).
+
+### Exit Conditions
+- **Long Exit:** Price crosses below the SMA.
+- **Short Exit:** Price crosses above the SMA.
+
+### Position Sizing
+Fixed max position size allocation.
+
+### Expected Backtesting Metrics
+- **Win Rate:** ~40-50%
+- **Sharpe Ratio:** > 1.2
+- **Max Drawdown:** < 20%
+
+---
+
 # Trading Strategy: ZLEMA Crossover
 
 ## Strategy Specification
