@@ -263,7 +263,10 @@ mod tests {
         let signals = strategy.generate_signals(&df).await?;
 
         // Validate signal structure
-        assert!(!signals.is_empty(), "Should generate at least one signal with valid crossings");
+        assert!(
+            !signals.is_empty(),
+            "Should generate at least one signal with valid crossings"
+        );
 
         let entry = signals.iter().find(|s| s.signal_type == SignalType::Entry);
         assert!(entry.is_some(), "Should find an entry signal");

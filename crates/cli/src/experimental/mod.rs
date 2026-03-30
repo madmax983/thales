@@ -1,4 +1,5 @@
 #![cfg(feature = "nova")]
+pub mod candlestick_patterns;
 pub mod cycle_analysis;
 pub mod export;
 pub mod kinematics;

@@ -118,12 +118,18 @@ impl Strategy for VwMacd {
             let macd_curr_opt = macd_line_arr.get(i).and_then(Decimal::from_f64_retain);
             let macd_prev_opt = macd_line_arr.get(i - 1).and_then(Decimal::from_f64_retain);
             let sig_curr_opt = signal_line_arr.get(i).and_then(Decimal::from_f64_retain);
-            let sig_prev_opt = signal_line_arr.get(i - 1).and_then(Decimal::from_f64_retain);
+            let sig_prev_opt = signal_line_arr
+                .get(i - 1)
+                .and_then(Decimal::from_f64_retain);
             let atr_opt = atr_arr.get(i).and_then(Decimal::from_f64_retain);
 
-            if let (Some(macd_curr), Some(macd_prev), Some(sig_curr), Some(sig_prev), Some(price)) =
-                (macd_curr_opt, macd_prev_opt, sig_curr_opt, sig_prev_opt, price_opt)
-            {
+            if let (Some(macd_curr), Some(macd_prev), Some(sig_curr), Some(sig_prev), Some(price)) = (
+                macd_curr_opt,
+                macd_prev_opt,
+                sig_curr_opt,
+                sig_prev_opt,
+                price_opt,
+            ) {
                 // Bullish Crossover (VW-MACD crosses above Signal)
                 if macd_prev <= sig_prev && macd_curr > sig_curr {
                     // Exit any existing Short
