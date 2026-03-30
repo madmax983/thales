@@ -4394,6 +4394,9 @@
 | 2026-03-23 18:06:22 | PEPEUSD | crypto:PEPEUSD:buy:1774288800000 | Rejected by Risk Agent: Order value below exchange minimum fiat volume (0.61 < 5.0) |
 | 2026-03-23 18:06:23 | MOGUSD | crypto:MOGUSD:buy:1774288800000 | Rejected by Risk Agent: Order value below exchange minimum fiat volume (0.61 < 5.0) |
 | 2026-03-23 18:08:43 | MOGUSD | crypto:MOGUSD:buy:1774288800000 | Rejected by Risk Agent: Order value below exchange minimum fiat volume (0.61 < 5.0) |
+| 2026-03-30 00:35:39 | SPY | NO_STRATEGY_SIGNAL | Invalid input: provider error: missing required environment variable: ALPACA_API_KEY |
+| 2026-03-30 00:35:39 | QQQ | NO_STRATEGY_SIGNAL | Invalid input: provider error: missing required environment variable: ALPACA_API_KEY |
+| 2026-03-30 00:35:39 | TQQQ | NO_STRATEGY_SIGNAL | Invalid input: provider error: missing required environment variable: ALPACA_API_KEY |
 
 ## Executed Trades
 
