@@ -98,6 +98,7 @@ def main():
 
     all_intents = []
 
+
     for symbol in symbols[:3]: # Limit to top candidates
         print(f"\nEvaluating {symbol}...")
         # 2. Fetch Data
