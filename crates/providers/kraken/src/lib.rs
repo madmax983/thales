@@ -748,6 +748,23 @@ fn normalize_pair(symbol: &str) -> String {
 }
 
 fn quote_currency_from_pair(pair: &str) -> Option<&'static str> {
+    // Exact match for legacy pairs to prevent false suffix matches (e.g. XTZUSD matching ZUSD)
+    if pair == "XXBTZUSD" { return Some("ZUSD"); }
+    if pair == "XXBTZEUR" { return Some("ZEUR"); }
+    if pair == "XXBTZGBP" { return Some("ZGBP"); }
+    if pair == "XXBTZJPY" { return Some("ZJPY"); }
+    if pair == "XXBTZAUD" { return Some("ZAUD"); }
+    if pair == "XXBTZCAD" { return Some("ZCAD"); }
+    if pair == "XXBTZCHF" { return Some("ZCHF"); }
+
+    if pair == "XETHZUSD" { return Some("ZUSD"); }
+    if pair == "XETHZEUR" { return Some("ZEUR"); }
+    if pair == "XETHZGBP" { return Some("ZGBP"); }
+    if pair == "XETHZJPY" { return Some("ZJPY"); }
+    if pair == "XETHZAUD" { return Some("ZAUD"); }
+    if pair == "XETHZCAD" { return Some("ZCAD"); }
+    if pair == "XETHZCHF" { return Some("ZCHF"); }
+
     // Longest suffixes first.
     const KNOWN_QUOTES: [&str; 11] = [
         "USDT", "USDC", "USD", "EUR", "GBP", "JPY", "AUD", "CAD", "CHF", "BTC", "ETH",
