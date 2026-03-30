@@ -3852,3 +3852,31 @@ Trend Following
 - **Expected Win Rate:** 45-55%
 - **Expected Sharpe Ratio:** > 1.2
 - **Max Drawdown:** < 15%
+
+- **Name:** MacdStochasticTrend
+- **Description:** A dual-indicator strategy combining the MACD for trend direction and the Stochastic Oscillator for momentum and entry timing.
+- **Rationale:** MACD provides strong trend indications but can be lagging, while the Stochastic Oscillator is a leading indicator for momentum. Combining them allows for entering trends on short-term pullbacks, improving entry precision and reducing false signals.
+
+### Requirements
+- Polars implementation for vectorization.
+- Combines MACD crossover and Stochastic Oversold/Overbought levels.
+- Strictly bounds position size by `max_position_size`.
+
+### Strategy Type
+TrendFollowing
+
+### Entry Conditions
+- **Long Entry:** MACD line > Signal line AND Stochastic %K crosses above %D in the oversold region (< 20).
+- **Short Entry:** MACD line < Signal line AND Stochastic %K crosses below %D in the overbought region (> 80).
+
+### Exit Conditions
+- **Long Exit:** MACD line crosses below Signal line OR Stochastic %K crosses below %D in overbought region.
+- **Short Exit:** MACD line crosses above Signal line OR Stochastic %K crosses above %D in oversold region.
+
+### Position Sizing
+- Fixed allocation of `max_position_size` per trade.
+
+### Expected Backtesting Metrics
+- **Expected Win Rate:** 55%
+- **Expected Sharpe Ratio:** > 1.2
+- **Max Drawdown:** < 15%

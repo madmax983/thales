@@ -241,10 +241,94 @@ mod tests {
     use polars::df;
 
     #[tokio::test]
-    async fn test_kdj_strategy_signals() -> Result<()> {
+    async fn test_long_entry_and_exit() -> Result<()> {
         let config = KdjIndicatorStrategyConfig {
             k_period: 3,
-            k_smoothing: 1,
+            k_smoothing: 2,
+            d_period: 2,
+            oversold_threshold: 40.0,
+            overbought_threshold: 60.0,
+            max_position_size: 50.0,
+            stop_loss_atr_mult: 1.5,
+            atr_period: 3,
+            symbol: "TEST".to_string(),
+        };
+        let strategy = KdjIndicatorStrategy::new(config);
+
+        // We create data to trigger a long entry and then a long exit.
+        // Long entry: %J crosses above 0 OR (%K crosses above %D and both < oversold).
+        // Long exit: %J crosses above 100 OR %K crosses below %D.
+        let df = df!(
+            "timestamp_unix_ms" => &[1000i64, 2000, 3000, 4000, 5000, 6000, 7000, 8000],
+            "high" =>  &[50.0, 60.0, 70.0, 80.0, 90.0, 80.0, 70.0, 60.0],
+            "low" =>   &[40.0, 50.0, 60.0, 70.0, 80.0, 70.0, 60.0, 50.0],
+            "close" => &[45.0, 55.0, 65.0, 75.0, 85.0, 75.0, 65.0, 55.0]
+        )?;
+
+        let signals = strategy.generate_signals(&df).await?;
+
+        let long_entries = signals.iter().filter(|s| s.signal_type == SignalType::Entry && s.side == "buy").count();
+        let long_exits = signals.iter().filter(|s| s.signal_type == SignalType::Exit && s.side == "sell").count();
+
+        assert!(long_entries > 0, "Should generate a long entry signal");
+        assert!(long_exits > 0, "Should generate a long exit signal");
+
+        // Verify position size is set correctly
+        if let Some(entry) = signals.iter().find(|s| s.signal_type == SignalType::Entry && s.side == "buy") {
+            assert_eq!(entry.size_hint, "50.0000");
+            assert!(entry.stop_loss.is_some());
+            assert!(entry.take_profit.is_some());
+        }
+
+        Ok(())
+    }
+
+    #[tokio::test]
+    async fn test_short_entry_and_exit() -> Result<()> {
+        let config = KdjIndicatorStrategyConfig {
+            k_period: 3,
+            k_smoothing: 2,
+            d_period: 2,
+            oversold_threshold: 40.0,
+            overbought_threshold: 60.0,
+            max_position_size: 50.0,
+            stop_loss_atr_mult: 1.5,
+            atr_period: 3,
+            symbol: "TEST".to_string(),
+        };
+        let strategy = KdjIndicatorStrategy::new(config);
+
+        // Short entry: %J crosses below 100 OR (%K crosses below %D and both > overbought).
+        // Short exit: %J crosses below 0 OR %K crosses above %D.
+        let df = df!(
+            "timestamp_unix_ms" => &[1000i64, 2000, 3000, 4000, 5000, 6000, 7000, 8000],
+            "high" =>  &[50.0, 40.0, 30.0, 20.0, 10.0, 20.0, 30.0, 40.0],
+            "low" =>   &[40.0, 30.0, 20.0, 10.0, 0.0,  10.0, 20.0, 30.0],
+            "close" => &[45.0, 35.0, 25.0, 15.0, 5.0,  15.0, 25.0, 35.0]
+        )?;
+
+        let signals = strategy.generate_signals(&df).await?;
+
+        let short_entries = signals.iter().filter(|s| s.signal_type == SignalType::Entry && s.side == "sell").count();
+        let short_exits = signals.iter().filter(|s| s.signal_type == SignalType::Exit && s.side == "buy").count();
+
+        assert!(short_entries > 0, "Should generate a short entry signal");
+        assert!(short_exits > 0, "Should generate a short exit signal");
+
+        if let Some(entry) = signals.iter().find(|s| s.signal_type == SignalType::Entry && s.side == "sell") {
+            assert_eq!(entry.size_hint, "50.0000");
+            assert!(entry.stop_loss.is_some());
+            assert!(entry.take_profit.is_some());
+        }
+
+        Ok(())
+    }
+
+    #[tokio::test]
+    async fn test_no_signals_on_flat_market() -> Result<()> {
+        let config = KdjIndicatorStrategyConfig {
+            k_period: 3,
+            k_smoothing: 2,
             d_period: 2,
             oversold_threshold: 20.0,
             overbought_threshold: 80.0,
@@ -255,23 +339,15 @@ mod tests {
         };
         let strategy = KdjIndicatorStrategy::new(config);
 
-        // We construct DataFrame to test crossings.
-        // Needs high, low, close, timestamp_unix_ms.
-
         let df = df!(
             "timestamp_unix_ms" => &[1000i64, 2000, 3000, 4000, 5000],
             "high" =>  &[100.0, 100.0, 100.0, 100.0, 100.0],
-            "low" =>   &[ 90.0,  90.0,  90.0,  90.0,  90.0],
-            "close" => &[ 95.0,  95.0,  91.0,  90.5,  91.5]
+            "low" =>   &[100.0, 100.0, 100.0, 100.0, 100.0],
+            "close" => &[100.0, 100.0, 100.0, 100.0, 100.0]
         )?;
 
         let signals = strategy.generate_signals(&df).await?;
-
-        // This is mainly a test that logic runs and generates exits/entries based on the data provided
-        assert!(
-            !signals.is_empty(),
-            "Should generate some signals given typical data behavior"
-        );
+        assert!(signals.is_empty(), "Should not generate signals on completely flat data without crossovers");
 
         Ok(())
     }
@@ -292,14 +368,52 @@ mod tests {
         let strategy = KdjIndicatorStrategy::new(config);
 
         let df = df!(
-            "timestamp_unix_ms" => &[1000i64],
-            "high" =>  &[100.0],
-            "low" =>   &[ 90.0],
-            "close" => &[ 95.0]
+            "timestamp_unix_ms" => &[1000i64, 2000, 3000],
+            "high" =>  &[100.0, 100.0, 100.0],
+            "low" =>   &[ 90.0,  90.0,  90.0],
+            "close" => &[ 95.0,  95.0,  95.0]
         )?;
 
         let result = strategy.generate_signals(&df).await;
         assert!(result.is_err(), "Should fail with invalid periods");
+        assert_eq!(result.unwrap_err().to_string(), "Periods must be greater than 0");
+
+        Ok(())
+    }
+
+    #[tokio::test]
+    async fn test_update_params() -> Result<()> {
+        let config = KdjIndicatorStrategyConfig {
+            k_period: 9,
+            k_smoothing: 3,
+            d_period: 3,
+            oversold_threshold: 20.0,
+            overbought_threshold: 80.0,
+            max_position_size: 100.0,
+            stop_loss_atr_mult: 1.0,
+            atr_period: 14,
+            symbol: "TEST".to_string(),
+        };
+        let mut strategy = KdjIndicatorStrategy::new(config);
+
+        let new_params = serde_json::json!({
+            "k_period": 14,
+            "k_smoothing": 3,
+            "d_period": 3,
+            "oversold_threshold": 30.0,
+            "overbought_threshold": 70.0,
+            "max_position_size": 200.0,
+            "stop_loss_atr_mult": 2.0,
+            "atr_period": 14,
+            "symbol": "BTCUSD"
+        });
+
+        strategy.update_params(new_params).await?;
+
+        assert_eq!(strategy.config.k_period, 14);
+        assert_eq!(strategy.config.oversold_threshold, 30.0);
+        assert_eq!(strategy.config.max_position_size, 200.0);
+        assert_eq!(strategy.config.symbol, "BTCUSD");
 
         Ok(())
     }

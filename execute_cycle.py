@@ -257,6 +257,8 @@ def get_active_strategies():
         strategies.append("RocMomentum")
     if re.search(r'\bMacdRsiTrend\b', content):
         strategies.append("MacdRsiTrend")
+    if re.search(r'\bMacdStochasticTrend\b', content):
+        strategies.append("MacdStochasticTrend")
     if re.search(r'\bTrixCrossover\b', content):
         strategies.append("TrixCrossover")
     if re.search(r'\bTsiTrend\b', content):

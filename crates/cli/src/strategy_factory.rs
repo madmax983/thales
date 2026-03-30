@@ -730,6 +730,14 @@ pub fn create_strategy(name: &str, symbol: &str) -> Result<Box<dyn Strategy>> {
             };
             Ok(Box::new(MacdRsiTrend::new(config)))
         }
+        "MacdStochasticTrend" => {
+            use strategies::macd_stochastic_trend::{MacdStochasticTrend, MacdStochasticTrendConfig};
+            let config = MacdStochasticTrendConfig {
+                symbol: symbol.to_string(),
+                ..MacdStochasticTrendConfig::default()
+            };
+            Ok(Box::new(MacdStochasticTrend::new(config)))
+        }
         "PpoRsiTrend" => {
             let config = PpoRsiTrendConfig {
                 ppo_fast_period: 12,
@@ -882,6 +890,7 @@ pub fn list_strategies() -> Vec<&'static str> {
         "StochRsiMeanReversion",
         "RocMomentum",
         "MacdRsiTrend",
+        "MacdStochasticTrend",
         "TrixCrossover",
         "TsiTrend",
         "DemaCrossover",
