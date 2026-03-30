@@ -4,6 +4,8 @@ import os
 import datetime
 from pathlib import Path
 
+from execute_cycle import verify_risk
+
 # Config
 CANDIDATES_KRAKEN = ["PEPEUSD", "REKTUSD", "MOGUSD"]
 CANDIDATES_ALPACA = ["SPY", "QQQ", "TQQQ"]
@@ -42,7 +44,7 @@ def run_cmd(cmd):
         data = json.loads(result.stdout)
         if data.get("status") == "ok":
             return data.get("data")
-    except:
+    except json.JSONDecodeError:
         pass
     return None
 
@@ -52,7 +54,7 @@ def run_cmd_raw(cmd):
         return None
     try:
         return json.loads(result.stdout)
-    except:
+    except json.JSONDecodeError:
         pass
     return None
 
@@ -83,7 +85,7 @@ def parse_signals_md():
                             "confidence": float(parts[5].replace("%", "")) if "%" in parts[5] else 0.0,
                             "ref": f"{parts[2]}:{parts[3]}:{parts[4].lower()}:{parts[1]}"
                         })
-                    except:
+                    except Exception:
                         pass
     return signals
 
@@ -101,7 +103,7 @@ def main():
         analysis_file = f"analysis_{symbol}.json"
 
         # 1. Fetch Market Data
-        res = run_cmd(f"cargo run -p thales-cli -- fetch-market-data --symbol {symbol} --provider {provider} --timeframe 1d")
+        res = run_cmd(f"./target/release/thales-cli fetch-market-data --symbol {symbol} --provider {provider} --timeframe 1d")
         if not res:
             print(f"  Failed to fetch data for {symbol}")
             continue
@@ -110,7 +112,7 @@ def main():
             json.dump(res, f)
 
         # 2. Analyze Market
-        res = run_cmd(f"cargo run -p thales-cli -- analyze-market --input {data_file} --no-report")
+        res = run_cmd(f"./target/release/thales-cli analyze-market --input {data_file} --no-report")
         if not res:
             print(f"  Failed to analyze market for {symbol}")
             if os.path.exists(data_file): os.remove(data_file)
@@ -127,7 +129,7 @@ def main():
         for strategy in STRATEGIES:
             intent_file = f"intent_{symbol}_{strategy}.json"
             # Use raw to get the actual array of intents or envelope
-            cmd = f"cargo run -p thales-cli -- generate-signals --input {data_file} --strategy {strategy} --analysis {analysis_file}"
+            cmd = f"./target/release/thales-cli generate-signals --input {data_file} --strategy {strategy} --analysis {analysis_file}"
             res = run_cmd(cmd)
 
             if res and isinstance(res, list) and len(res) > 0:
@@ -156,32 +158,53 @@ def main():
             best_intent = all_intents[0][1]
             best_strategy = all_intents[0][0]
 
-            intent_file = f"intent_{symbol}_{best_strategy}.json"
-
-            print(f"  Executing {best_intent.get('signal_type')} for {symbol} using {best_strategy}")
-
-            # 4. Execute Intent
-            # To execute, we need to pass the file path
-            exec_cmd = f"cargo run -p thales-cli -- execute-intent --provider {provider} --input {intent_file}"
-            exec_res = subprocess.run(exec_cmd, shell=True, capture_output=True, text=True)
-
+            # Use data to check risk
+            last_close = None
             try:
-                exec_data = json.loads(exec_res.stdout)
-                if exec_data.get("status") == "ok":
-                    order = exec_data.get("data")
-                    action = "buy" if best_intent.get("signal_type") == "Entry" else "sell"
-                    qty = order.get("qty", best_intent.get("size_hint", "0"))
-                    price = order.get("price", "Market")
-                    sl = best_intent.get("stop_loss", "-")
-                    tp = best_intent.get("take_profit", "-")
-                    ref = f"{market}:{symbol}:{action}:{int(datetime.datetime.utcnow().timestamp()*1000)}"
-                    rationale = f"Strategy: {best_strategy}"
-                    append_to_portfolio(f"| {now_str} | {market} | {symbol} | {action} | {qty} | {price} | {sl} | {tp} | - | {ref} | {rationale} |")
+                with open(data_file, "r") as f:
+                    b_data = json.load(f)
+                    if "bars" in b_data and len(b_data["bars"]) > 0:
+                        last_close = float(b_data["bars"][-1]["close"])
+            except (FileNotFoundError, json.JSONDecodeError, KeyError, ValueError, IndexError):
+                pass
+
+            risk_ok, risk_reason = verify_risk(best_intent, current_price=last_close)
+
+            if not risk_ok:
+                print(f"  Rejected by Risk Agent for {symbol}: {risk_reason}")
+                append_to_portfolio(f"| {now_str} | {symbol} | NO_REF | Rejected by Risk Agent: {risk_reason} |")
+            else:
+                intent_file = f"intent_{symbol}_{best_strategy}.json"
+
+                print(f"  Executing {best_intent.get('signal_type')} for {symbol} using {best_strategy}")
+
+                # 4. Execute Intent
+                exec_provider = provider
+                if os.environ.get("SIMULATION") == "true":
+                    exec_provider = "paper"
                 else:
-                    err_msg = exec_data.get("errors", ["Execution Failed"])[0]
-                    append_to_portfolio(f"| {now_str} | {symbol} | NO_REF | provider error: {err_msg} |")
-            except:
-                append_to_portfolio(f"| {now_str} | {symbol} | NO_REF | Execution Failed |")
+                    exec_provider = "kraken"
+
+                exec_cmd = f"./target/release/thales-cli execute-intent --provider {exec_provider} --input {intent_file}"
+                exec_res = subprocess.run(exec_cmd, shell=True, capture_output=True, text=True)
+
+                try:
+                    exec_data = json.loads(exec_res.stdout)
+                    if exec_data.get("status") == "ok":
+                        order = exec_data.get("data")
+                        action = "buy" if best_intent.get("signal_type") == "Entry" else "sell"
+                        qty = order.get("qty", best_intent.get("size_hint", "0"))
+                        price = order.get("price", "Market")
+                        sl = best_intent.get("stop_loss", "-")
+                        tp = best_intent.get("take_profit", "-")
+                        ref = f"{market}:{symbol}:{action}:{int(datetime.datetime.utcnow().timestamp()*1000)}"
+                        rationale = f"Strategy: {best_strategy}"
+                        append_to_portfolio(f"| {now_str} | {market} | {symbol} | {action} | {qty} | {price} | {sl} | {tp} | - | {ref} | {rationale} |")
+                    else:
+                        err_msg = exec_data.get("errors", ["Execution Failed"])[0]
+                        append_to_portfolio(f"| {now_str} | {symbol} | NO_REF | provider error: {err_msg} |")
+                except Exception:
+                    append_to_portfolio(f"| {now_str} | {symbol} | NO_REF | Execution Failed |")
         else:
             print(f"  No valid signals for {symbol}")
             append_to_portfolio(f"| {now_str} | {symbol} | NO_REF | No strategy signal generated. |")

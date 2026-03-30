@@ -5,6 +5,8 @@ import sys
 import time
 from datetime import datetime
 
+from execute_cycle import verify_risk
+
 # Configuration
 CLI_PATH = "./target/release/thales-cli"
 PORTFOLIO_PATH = "portfolio.md"
@@ -324,6 +326,17 @@ def execute_agent(intent_file):
             else:
                 print("Cannot determine safe stop loss without current price. Aborting.")
                 continue
+
+        # Risk check
+        risk_ok, risk_reason = verify_risk(intent, current_price=current_price)
+        if not risk_ok:
+            print(f"Skipping signal for {intent['symbol']} due to Risk Agent rejection: {risk_reason}")
+
+            # Log skipped
+            date_str = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            with open(PORTFOLIO_PATH, "a") as f:
+                f.write(f"| {date_str} | {intent['symbol']} | {intent.get('intent_id', 'MANUAL')} | Rejected by Risk Agent: {risk_reason} |\n")
+            continue
 
         # 5. Execute Intent
         print(f"Executing {intent['side']} {intent['symbol']} via {provider}...")
