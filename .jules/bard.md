@@ -85,3 +85,6 @@
 ## 2026-03-22 - The Unmapped Fractal & SMC Regions
 **Confusion:** Advanced analytical modules like `fractal_dimension.rs` and `order_blocks.rs` in `crates/cli/src/` lacked both module-level and item-level documentation with executable examples. Users could not discover how to instantiate these tools or interpret concepts like Higuchi Fractal Dimension or SMC (Smart Money Concepts) unmitigated order blocks.
 **Clarification:** Added storytelling module-level documentation (`//!`) to explain the core financial and mathematical concepts. Added executable `# Examples` to all configuration structures and main functions, guiding developers on proper initialization and result interpretation.
+## 2026-03-30 - The Missing KDJ Specs
+**Confusion:** The documentation inside `indicators.md` did not include the KDJ indicator, leaving users confused about how the Stochastic Extension works and how to properly initialize the KDJ periods and smoothings for strategies.
+**Clarification:** Added `# KDJ` entry to `indicators.md` fully documenting its calculation (`%K`, `%D`, and `%J`), its underlying rationale (leading indicator based on divergence), the exact method signature, parameters, and an executable usage example demonstrating its Polars vectorized `Result<(Series, Series, Series)>` output.

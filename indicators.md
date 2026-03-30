@@ -1270,3 +1270,39 @@ let eom_series = eom::calculate(&df, period)?;
 - Returns `Result<Series>`.
 - The output Series is named "eom".
 - Initial values will be null until the SMA has enough data points to compute.
+
+## KDJ Indicator
+
+**Name:** KDJ
+**Description:** The KDJ Indicator is an extension of the Stochastic Oscillator. It consists of three lines: %K (Fast Stochastic), %D (Slow Stochastic, an SMA of %K), and %J (Divergence of %K and %D).
+**Rationale:** The J line is highly sensitive to price momentum, often crossing above/below 0 or 100 before actual price reversals occur, making it a strong leading indicator. This provides traders with early signals for trend reversals, maximizing potential profit margins.
+
+### Implementation Details
+- Uses `stochastic` indicator for %K and %D calculations.
+- %J is computed as `3 * %K - 2 * %D`.
+- Returns a tuple of three Polars `Series` of `f64` values: (%K, %D, %J).
+- Values are returned as `kdj_k`, `kdj_d`, and `kdj_j`.
+
+### Usage
+
+```rust
+use strategies::indicators::kdj;
+use polars::prelude::*;
+
+// Assuming df is a DataFrame with "high", "low", "close" columns
+let k_period = 9;
+let k_smoothing = 3;
+let d_period = 3;
+let (k, d, j) = kdj::calculate(&df, k_period, k_smoothing, d_period)?;
+```
+
+### Parameters
+- `data`: Reference to a Polars `DataFrame`. Must contain numeric "high", "low", and "close" columns.
+- `k_period`: The lookback period for %K (e.g., 9).
+- `k_smoothing`: The smoothing period for %K (e.g., 3).
+- `d_period`: The smoothing period for %D (e.g., 3).
+
+### Output
+- Returns `Result<(Series, Series, Series)>` representing `(kdj_k, kdj_d, kdj_j)`.
+- The output Series are named "kdj_k", "kdj_d", and "kdj_j".
+- The first few values will be null depending on the periods.
