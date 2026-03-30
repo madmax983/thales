@@ -4840,6 +4840,16 @@
 | 2026-03-30 21:51:52 | ETHUSD | crypto:ETHUSD:unknown:1774900785187 | CONFLICT: Conflicting signals (Buy and Sell) detected for ETHUSD. Trading halted for this asset. |
 | 2026-03-30 21:51:52 | SPY | equities:SPY:unknown:1774900785207 | Invalid input: provider error: kraken api error: EQuery:Unknown asset pair |
 | 2026-03-30 21:51:53 | BTCUSD | crypto:BTCUSD:unknown:1774900785144 | Rejected by Risk Agent: Position size below exchange minimum for BTCUSD (6.313e-05 < 0.0001) |
+| 2026-03-30 23:08:04 | ETHUSD | crypto:ETHUSD:buy:1774829655893 | Signal already executed/submitted (Ref: crypto:ETHUSD:buy:1774829655893) |
+| 2026-03-30 23:08:04 | SPY | equities:SPY:buy:1774829655910 | Signal already executed/submitted (Ref: equities:SPY:buy:1774829655910) |
+| 2026-03-30 23:08:07 | SPY | equities:SPY:unknown:1774900785207 | Invalid input: provider error: kraken api error: EQuery:Unknown asset pair |
+| 2026-03-30 23:08:07 | BTCUSD | crypto:BTCUSD:unknown:1774900785144 | Rejected by Risk Agent: Position size below exchange minimum for BTCUSD (6.353e-05 < 0.0001) |
+| 2026-03-30 23:08:07 | ETHUSD | crypto:ETHUSD:unknown:1774900785187 | No sellable balance available (ETH 0.00000000) |
+| 2026-03-30 23:26:10 | ETHUSD | crypto:ETHUSD:buy:1774829655893 | Signal already executed/submitted (Ref: crypto:ETHUSD:buy:1774829655893) |
+| 2026-03-30 23:26:11 | SPY | equities:SPY:buy:1774829655910 | Signal already executed/submitted (Ref: equities:SPY:buy:1774829655910) |
+| 2026-03-30 23:26:11 | BTCUSD | crypto:BTCUSD:unknown:1774900785144 | CONFLICT: Conflicting signals (Buy and Sell) detected for BTCUSD. Trading halted for this asset. |
+| 2026-03-30 23:26:12 | ETHUSD | crypto:ETHUSD:unknown:1774900785187 | CONFLICT: Conflicting signals (Buy and Sell) detected for ETHUSD. Trading halted for this asset. |
+| 2026-03-30 23:26:13 | SPY | equities:SPY:unknown:1774900785207 | CONFLICT: Conflicting signals (Buy and Sell) detected for SPY. Trading halted for this asset. |
 
 ## Executed Trades
 
@@ -5102,3 +5112,9 @@
 | 2026-03-30 15:51:34 | SPY | NO_REF | No strategy signal generated. |
 | 2026-03-30 15:51:49 | QQQ | NO_REF | No strategy signal generated. |
 | 2026-03-30 15:52:04 | TQQQ | NO_REF | No strategy signal generated. |
+| 2026-03-30 22:59:00 | PEPEUSD | NO_REF | No strategy signal generated. |
+| 2026-03-30 22:59:19 | REKTUSD | NO_REF | provider error: provider error: kraken api error: EOrder:Insufficient funds |
+| 2026-03-30 22:59:40 | MOGUSD | NO_REF | No strategy signal generated. |
+| 2026-03-30 22:59:59 | SPY | NO_REF | No strategy signal generated. |
+| 2026-03-30 23:00:15 | QQQ | NO_REF | No strategy signal generated. |
+| 2026-03-30 23:00:32 | TQQQ | NO_REF | No strategy signal generated. |
