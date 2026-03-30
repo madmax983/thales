@@ -2588,6 +2588,44 @@ TrendFollowing
 - **Expected Sharpe Ratio:** > 1.2
 - **Max Drawdown:** < 15%
 
+---
+
+# Trading Strategy: KDJ Indicator
+
+## Strategy Specification
+
+**Name:** KdjIndicatorStrategy
+
+**Description:** A mean-reversion and momentum strategy based on the KDJ indicator. It relies on the fast %K line, slow %D line, and divergence %J line to identify overbought/oversold conditions and trend reversals.
+
+**Rationale:** KDJ extends the Stochastic Oscillator by adding the J line, which represents the divergence of %K from %D. The J line is highly sensitive to price momentum, often crossing above/below 0 or 100 before actual price reversals occur, making it a strong leading indicator.
+
+## Requirements
+
+### Implementation Details
+- Uses Polars for data analysis and generating signals.
+- Implements the `Strategy` trait in Rust.
+- Utilizes the `kdj` and `atr` indicators.
+
+### Strategy Type
+Mean Reversion
+
+### Entry Conditions
+- Long Entry: %J line crosses above 0 (oversold reversal) OR %K crosses above %D while both are below 20.
+- Short Entry: %J line crosses below 100 (overbought reversal) OR %K crosses below %D while both are above 80.
+
+### Exit Conditions
+- Long Exit: %J line crosses above 100 OR %K crosses below %D.
+- Short Exit: %J line crosses below 0 OR %K crosses above %D.
+
+### Position Sizing
+- Fixed allocation of `max_position_size` per trade.
+
+### Expected Backtesting Metrics
+- **Expected Win Rate:** 50-60%
+- **Expected Sharpe Ratio:** > 1.5
+- **Max Drawdown:** < 12%
+
 ## KdjIndicatorStrategy
 
 ### Strategy Specification
