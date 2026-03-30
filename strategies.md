@@ -2588,6 +2588,45 @@ TrendFollowing
 - **Expected Sharpe Ratio:** > 1.2
 - **Max Drawdown:** < 15%
 
+---
+
+# Trading Strategy: KDJ Indicator Strategy
+
+## Strategy Specification
+
+**Name:** KdjIndicatorStrategy
+
+**Description:** A mean-reversion and momentum strategy based on the KDJ indicator. It relies on the fast %K line, slow %D line, and divergence %J line to automatically identify overbought/oversold conditions and capture trend reversals before they fully materialize.
+
+**Rationale:** Traditional momentum oscillators like the RSI or Stochastic Oscillator can lag significantly, leaving traders to enter positions too late. By implementing the KDJ indicator—which introduces a highly sensitive divergence %J line to the Stochastic %K and %D lines—this strategy provides traders with a powerful leading indicator. This enables earlier entries on reversals, maximizing potential profit margins and giving users a competitive edge in choppy or turning markets.
+
+## Requirements
+
+### Implementation Details
+- Uses Polars for fast vector operations and data analysis.
+- Implements the `Strategy` trait in Rust.
+- Uses native `kdj` and `atr` indicators.
+
+### Strategy Type
+Mean Reversion / Momentum
+
+### Entry Conditions
+- **Long Entry (Buy):** %J line crosses above 0 OR %K crosses above %D while both are below 20 (oversold threshold).
+- **Short Entry (Sell):** %J line crosses below 100 OR %K crosses below %D while both are above 80 (overbought threshold).
+
+### Exit Conditions
+- **Long Exit (Sell):** %J line crosses above 100 OR %K crosses below %D.
+- **Short Exit (Buy):** %J line crosses below 0 OR %K crosses above %D.
+- **Stop Loss:** Initial stop loss set using Average True Range (ATR) multiplied by a configured factor (e.g., 2.0x ATR) from the entry price.
+
+### Position Sizing
+- **Size Hint:** Strictly bounded by a fixed allocation of `max_position_size` per trade for risk management. Exits use "max".
+
+### Expected Backtesting Metrics
+- **Expected Win Rate:** Positive expected win rates (~55-60%).
+- **Sharpe Ratio:** > 1.2
+- **Max Drawdown:** < 15%
+
 ## KdjIndicatorStrategy
 
 ### Strategy Specification

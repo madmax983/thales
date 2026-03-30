@@ -96,11 +96,8 @@ impl Strategy for KdjIndicatorStrategy {
         }
 
         let close_series = data.column("close")?.clone();
-        let close_arr = close_series.f64()?;
 
         let time_series = data.column("timestamp_unix_ms")?;
-        let time_arr = time_series.cast(&DataType::Int64)?;
-        let time_arr = time_arr.i64()?;
 
         // Calculate KDJ
         let (k_series, d_series, j_series) = kdj::calculate(
@@ -109,119 +106,172 @@ impl Strategy for KdjIndicatorStrategy {
             self.config.k_smoothing,
             self.config.d_period,
         )?;
-        let k_arr = k_series.f64()?;
-        let d_arr = d_series.f64()?;
-        let j_arr = j_series.f64()?;
 
         // Calculate ATR for Stop Loss
         let atr_series = atr::calculate(data, self.config.atr_period)?;
-        let atr_arr = atr_series.f64()?;
+
+        // Create DataFrame to compute conditions efficiently
+        let mut df = DataFrame::new(vec![
+            time_series.clone(),
+            close_series.clone(),
+            k_series.clone(),
+            d_series.clone(),
+            j_series.clone(),
+            atr_series.clone(),
+        ])?;
+
+        // Rename columns for easier reference if needed
+        df.rename("timestamp_unix_ms", "time")?;
+        df.rename("close", "price")?;
+        df.rename("atr", "atr")?;
+
+        let lazy_df = df.lazy();
+
+        // Define conditions
+        let j_cross_above_0 = col("kdj_j")
+            .shift(lit(1))
+            .lt_eq(lit(0.0))
+            .and(col("kdj_j").gt(lit(0.0)));
+        let k_cross_above_d = col("kdj_k")
+            .shift(lit(1))
+            .lt_eq(col("kdj_d").shift(lit(1)))
+            .and(col("kdj_k").gt(col("kdj_d")));
+        let k_d_below_oversold = col("kdj_k")
+            .lt(lit(self.config.oversold_threshold))
+            .and(col("kdj_d").lt(lit(self.config.oversold_threshold)));
+
+        let j_cross_below_100 = col("kdj_j")
+            .shift(lit(1))
+            .gt_eq(lit(100.0))
+            .and(col("kdj_j").lt(lit(100.0)));
+        let k_cross_below_d = col("kdj_k")
+            .shift(lit(1))
+            .gt_eq(col("kdj_d").shift(lit(1)))
+            .and(col("kdj_k").lt(col("kdj_d")));
+        let k_d_above_overbought = col("kdj_k")
+            .gt(lit(self.config.overbought_threshold))
+            .and(col("kdj_d").gt(lit(self.config.overbought_threshold)));
+
+        let j_cross_above_100 = col("kdj_j")
+            .shift(lit(1))
+            .lt_eq(lit(100.0))
+            .and(col("kdj_j").gt(lit(100.0)));
+        let j_cross_below_0 = col("kdj_j")
+            .shift(lit(1))
+            .gt_eq(lit(0.0))
+            .and(col("kdj_j").lt(lit(0.0)));
+
+        let long_entry_cond = j_cross_above_0
+            .clone()
+            .or(k_cross_above_d.clone().and(k_d_below_oversold));
+        let short_entry_cond = j_cross_below_100
+            .clone()
+            .or(k_cross_below_d.clone().and(k_d_above_overbought));
+        let long_exit_cond = j_cross_above_100.clone().or(k_cross_below_d.clone());
+        let short_exit_cond = j_cross_below_0.clone().or(k_cross_above_d.clone());
+
+        let res_df = lazy_df
+            .with_columns(vec![
+                long_entry_cond.alias("long_entry"),
+                short_entry_cond.alias("short_entry"),
+                long_exit_cond.alias("long_exit"),
+                short_exit_cond.alias("short_exit"),
+            ])
+            .collect()?;
 
         let mut signals = Vec::new();
 
-        for i in 1..close_arr.len() {
-            let timestamp = time_arr.get(i).unwrap_or(0);
+        let times = res_df.column("time")?.i64()?;
+        let prices = res_df.column("price")?.f64()?;
+        let atrs = res_df.column("atr")?.f64()?;
+        let ks = res_df.column("kdj_k")?.f64()?;
+        let ds = res_df.column("kdj_d")?.f64()?;
+        let js = res_df.column("kdj_j")?.f64()?;
 
-            let k_curr_opt = k_arr.get(i);
-            let d_curr_opt = d_arr.get(i);
-            let j_curr_opt = j_arr.get(i);
-            let k_prev_opt = k_arr.get(i - 1);
-            let d_prev_opt = d_arr.get(i - 1);
-            let j_prev_opt = j_arr.get(i - 1);
+        let long_entries = res_df.column("long_entry")?.bool()?;
+        let short_entries = res_df.column("short_entry")?.bool()?;
+        let long_exits = res_df.column("long_exit")?.bool()?;
+        let short_exits = res_df.column("short_exit")?.bool()?;
 
-            let price_opt = close_arr.get(i);
-            let atr_opt = atr_arr.get(i);
+        for i in 0..times.len() {
+            // Check signals for each row
+            let is_long_entry = long_entries.get(i).unwrap_or(false);
+            let is_short_entry = short_entries.get(i).unwrap_or(false);
+            let is_long_exit = long_exits.get(i).unwrap_or(false);
+            let is_short_exit = short_exits.get(i).unwrap_or(false);
 
-            if let (Some(k), Some(d), Some(j), Some(pk), Some(pd), Some(pj), Some(price)) = (
-                k_curr_opt, d_curr_opt, j_curr_opt, k_prev_opt, d_prev_opt, j_prev_opt, price_opt,
-            ) {
-                let j_cross_above_0 = pj <= 0.0 && j > 0.0;
-                let k_cross_above_d = pk <= pd && k > d;
-                let k_d_below_oversold =
-                    k < self.config.oversold_threshold && d < self.config.oversold_threshold;
+            if !is_long_entry && !is_short_entry && !is_long_exit && !is_short_exit {
+                continue;
+            }
 
-                let j_cross_below_100 = pj >= 100.0 && j < 100.0;
-                let k_cross_below_d = pk >= pd && k < d;
-                let k_d_above_overbought =
-                    k > self.config.overbought_threshold && d > self.config.overbought_threshold;
+            let timestamp = times.get(i).unwrap_or(0);
+            let price = if let Some(p) = prices.get(i) {
+                p
+            } else {
+                continue;
+            };
+            let atr = atrs.get(i).unwrap_or(price * 0.05);
+            let k = ks.get(i).unwrap_or(0.0);
+            let d = ds.get(i).unwrap_or(0.0);
+            let j = js.get(i).unwrap_or(0.0);
 
-                let j_cross_above_100 = pj <= 100.0 && j > 100.0;
-                let j_cross_below_0 = pj >= 0.0 && j < 0.0;
+            let sl_dist = atr * self.config.stop_loss_atr_mult;
+            let size_hint = format!("{:.4}", self.config.max_position_size);
 
-                // Stop loss calculation
-                let sl_dist = if let Some(atr_val) = atr_opt {
-                    atr_val * self.config.stop_loss_atr_mult
-                } else {
-                    price * 0.05 // Fallback 5%
-                };
+            if is_long_entry {
+                signals.push(Signal {
+                    signal_type: SignalType::Entry,
+                    symbol: self.config.symbol.clone(),
+                    side: "buy".to_string(),
+                    size_hint: size_hint.clone(),
+                    confidence: 0.8,
+                    stop_loss: Some(price - sl_dist),
+                    take_profit: Some(price + (sl_dist * 2.0)), // Optional Simple 1:2 RR, fallback logic won't fail
+                    reason: format!("KDJ Long Entry (J:{:.2}, K:{:.2}, D:{:.2})", j, k, d),
+                    timestamp_ms: timestamp,
+                });
+            }
 
-                let size_hint = format!("{:.4}", self.config.max_position_size);
+            if is_short_entry {
+                signals.push(Signal {
+                    signal_type: SignalType::Entry,
+                    symbol: self.config.symbol.clone(),
+                    side: "sell".to_string(),
+                    size_hint: size_hint.clone(),
+                    confidence: 0.8,
+                    stop_loss: Some(price + sl_dist),
+                    take_profit: Some(price - (sl_dist * 2.0)),
+                    reason: format!("KDJ Short Entry (J:{:.2}, K:{:.2}, D:{:.2})", j, k, d),
+                    timestamp_ms: timestamp,
+                });
+            }
 
-                // Long Entry
-                if j_cross_above_0 || (k_cross_above_d && k_d_below_oversold) {
-                    let stop_loss = price - sl_dist;
-                    let take_profit = price + (sl_dist * 2.0); // Simple 1:2 RR
+            if is_long_exit {
+                signals.push(Signal {
+                    signal_type: SignalType::Exit,
+                    symbol: self.config.symbol.clone(),
+                    side: "sell".to_string(),
+                    size_hint: "max".to_string(),
+                    confidence: 0.8,
+                    stop_loss: None,
+                    take_profit: None,
+                    reason: format!("KDJ Long Exit (J:{:.2}, K:{:.2}, D:{:.2})", j, k, d),
+                    timestamp_ms: timestamp,
+                });
+            }
 
-                    signals.push(Signal {
-                        signal_type: SignalType::Entry,
-                        symbol: self.config.symbol.clone(),
-                        side: "buy".to_string(),
-                        size_hint: size_hint.clone(),
-                        confidence: 0.8,
-                        stop_loss: Some(stop_loss),
-                        take_profit: Some(take_profit),
-                        reason: format!("KDJ Long Entry (J:{:.2}, K:{:.2}, D:{:.2})", j, k, d),
-                        timestamp_ms: timestamp,
-                    });
-                }
-
-                // Short Entry
-                if j_cross_below_100 || (k_cross_below_d && k_d_above_overbought) {
-                    let stop_loss = price + sl_dist;
-                    let take_profit = price - (sl_dist * 2.0);
-
-                    signals.push(Signal {
-                        signal_type: SignalType::Entry,
-                        symbol: self.config.symbol.clone(),
-                        side: "sell".to_string(),
-                        size_hint: size_hint.clone(),
-                        confidence: 0.8,
-                        stop_loss: Some(stop_loss),
-                        take_profit: Some(take_profit),
-                        reason: format!("KDJ Short Entry (J:{:.2}, K:{:.2}, D:{:.2})", j, k, d),
-                        timestamp_ms: timestamp,
-                    });
-                }
-
-                // Long Exit
-                if j_cross_above_100 || k_cross_below_d {
-                    signals.push(Signal {
-                        signal_type: SignalType::Exit,
-                        symbol: self.config.symbol.clone(),
-                        side: "sell".to_string(), // Exit Long
-                        size_hint: "max".to_string(),
-                        confidence: 0.8,
-                        stop_loss: None,
-                        take_profit: None,
-                        reason: format!("KDJ Long Exit (J:{:.2}, K:{:.2}, D:{:.2})", j, k, d),
-                        timestamp_ms: timestamp,
-                    });
-                }
-
-                // Short Exit
-                if j_cross_below_0 || k_cross_above_d {
-                    signals.push(Signal {
-                        signal_type: SignalType::Exit,
-                        symbol: self.config.symbol.clone(),
-                        side: "buy".to_string(), // Exit Short
-                        size_hint: "max".to_string(),
-                        confidence: 0.8,
-                        stop_loss: None,
-                        take_profit: None,
-                        reason: format!("KDJ Short Exit (J:{:.2}, K:{:.2}, D:{:.2})", j, k, d),
-                        timestamp_ms: timestamp,
-                    });
-                }
+            if is_short_exit {
+                signals.push(Signal {
+                    signal_type: SignalType::Exit,
+                    symbol: self.config.symbol.clone(),
+                    side: "buy".to_string(),
+                    size_hint: "max".to_string(),
+                    confidence: 0.8,
+                    stop_loss: None,
+                    take_profit: None,
+                    reason: format!("KDJ Short Exit (J:{:.2}, K:{:.2}, D:{:.2})", j, k, d),
+                    timestamp_ms: timestamp,
+                });
             }
         }
 
@@ -240,9 +290,8 @@ mod tests {
     use super::*;
     use polars::df;
 
-    #[tokio::test]
-    async fn test_kdj_strategy_signals() -> Result<()> {
-        let config = KdjIndicatorStrategyConfig {
+    fn get_default_config() -> KdjIndicatorStrategyConfig {
+        KdjIndicatorStrategyConfig {
             k_period: 3,
             k_smoothing: 1,
             d_period: 2,
@@ -252,17 +301,20 @@ mod tests {
             stop_loss_atr_mult: 1.0,
             atr_period: 2,
             symbol: "TEST".to_string(),
-        };
-        let strategy = KdjIndicatorStrategy::new(config);
+        }
+    }
+
+    #[tokio::test]
+    async fn test_kdj_strategy_signals() -> Result<()> {
+        let strategy = KdjIndicatorStrategy::new(get_default_config());
 
         // We construct DataFrame to test crossings.
         // Needs high, low, close, timestamp_unix_ms.
-
         let df = df!(
-            "timestamp_unix_ms" => &[1000i64, 2000, 3000, 4000, 5000],
-            "high" =>  &[100.0, 100.0, 100.0, 100.0, 100.0],
-            "low" =>   &[ 90.0,  90.0,  90.0,  90.0,  90.0],
-            "close" => &[ 95.0,  95.0,  91.0,  90.5,  91.5]
+            "timestamp_unix_ms" => &[1000i64, 2000, 3000, 4000, 5000, 6000, 7000],
+            "high" =>  &[100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0],
+            "low" =>   &[ 90.0,  90.0,  90.0,  90.0,  90.0,  90.0,  90.0],
+            "close" => &[ 95.0,  95.0,  91.0,  90.5,  91.5,  95.0,  96.0]
         )?;
 
         let signals = strategy.generate_signals(&df).await?;
@@ -277,18 +329,18 @@ mod tests {
     }
 
     #[tokio::test]
+    async fn test_empty_data() {
+        let strategy = KdjIndicatorStrategy::new(get_default_config());
+        let df = DataFrame::default();
+        let result = strategy.generate_signals(&df).await;
+        assert!(result.is_err());
+    }
+
+    #[tokio::test]
     async fn test_parameter_validation() -> Result<()> {
-        let config = KdjIndicatorStrategyConfig {
-            k_period: 0, // Invalid
-            k_smoothing: 1,
-            d_period: 2,
-            oversold_threshold: 20.0,
-            overbought_threshold: 80.0,
-            max_position_size: 100.0,
-            stop_loss_atr_mult: 1.0,
-            atr_period: 2,
-            symbol: "TEST".to_string(),
-        };
+        let mut config = get_default_config();
+        config.k_period = 0; // Invalid
+
         let strategy = KdjIndicatorStrategy::new(config);
 
         let df = df!(
@@ -300,6 +352,49 @@ mod tests {
 
         let result = strategy.generate_signals(&df).await;
         assert!(result.is_err(), "Should fail with invalid periods");
+
+        Ok(())
+    }
+
+    #[tokio::test]
+    async fn test_extreme_volatility() -> Result<()> {
+        let strategy = KdjIndicatorStrategy::new(get_default_config());
+
+        let df = df!(
+            "timestamp_unix_ms" => &[1000i64, 2000, 3000, 4000],
+            "high" =>  &[100.0, 1000.0, 10.0, 10000.0],
+            "low" =>   &[ 90.0,   10.0,  1.0,     5.0],
+            "close" => &[ 95.0,  500.0,  5.0,  5000.0]
+        )?;
+
+        let signals = strategy.generate_signals(&df).await?;
+        // Just making sure it doesn't panic and logic completes
+        let _len = signals.len();
+
+        Ok(())
+    }
+
+    #[tokio::test]
+    async fn test_update_params() -> Result<()> {
+        let mut strategy = KdjIndicatorStrategy::new(get_default_config());
+        let new_config = KdjIndicatorStrategyConfig {
+            k_period: 14,
+            k_smoothing: 3,
+            d_period: 3,
+            oversold_threshold: 30.0,
+            overbought_threshold: 70.0,
+            max_position_size: 200.0,
+            stop_loss_atr_mult: 2.5,
+            atr_period: 14,
+            symbol: "NEW".to_string(),
+        };
+
+        let json_val = serde_json::to_value(new_config)?;
+        strategy.update_params(json_val).await?;
+
+        assert_eq!(strategy.config.k_period, 14);
+        assert_eq!(strategy.config.oversold_threshold, 30.0);
+        assert_eq!(strategy.config.symbol, "NEW");
 
         Ok(())
     }
