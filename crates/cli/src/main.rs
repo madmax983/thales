@@ -18,6 +18,8 @@ use thales_cli::black_swan;
 #[cfg(feature = "nova")]
 use thales_cli::entropy;
 #[cfg(feature = "nova")]
+use thales_cli::experimental::candlestick_patterns;
+#[cfg(feature = "nova")]
 use thales_cli::experimental::cycle_analysis;
 #[cfg(feature = "nova")]
 use thales_cli::experimental::market_energy;
@@ -413,6 +415,17 @@ enum Commands {
         initial_capital: f64,
         #[arg(long, default_value = "100.0")]
         risk: f64,
+        #[arg(long)]
+        visualize: bool,
+    },
+    #[cfg(feature = "nova")]
+    AnalyzeCandlestickPatterns {
+        #[arg(long)]
+        input: PathBuf,
+        #[arg(long, default_value = "10")]
+        window_size: usize,
+        #[arg(long, default_value = "0.1")]
+        doji_threshold_pct: f64,
         #[arg(long)]
         visualize: bool,
     },
@@ -1799,6 +1812,41 @@ fn run(command: Commands, raw: bool) -> Result<String, CliError> {
 
             if visualize {
                 strategy_correlation::print_ascii_correlations(&report);
+            }
+
+            ok_envelope(report, vec![], raw)
+        }
+        #[cfg(feature = "nova")]
+        Commands::AnalyzeCandlestickPatterns {
+            input,
+            window_size,
+            doji_threshold_pct,
+            visualize,
+        } => {
+            let file_content = std::fs::read_to_string(&input).map_err(|e| {
+                std::io::Error::new(
+                    e.kind(),
+                    format!("Could not open input file '{}': {}", input.display(), e),
+                )
+            })?;
+            let series: BarSeries =
+                match serde_json::from_str::<ResponseEnvelope<BarSeries>>(&file_content) {
+                    Ok(envelope) => envelope
+                        .data
+                        .ok_or(CliError::Validation("Envelope has no data".to_string()))?,
+                    Err(_) => serde_json::from_str::<BarSeries>(&file_content)?,
+                };
+
+            let config = candlestick_patterns::CandlestickPatternsConfig {
+                window_size,
+                doji_threshold_pct,
+            };
+
+            let report = candlestick_patterns::analyze_candlestick_patterns(&series, config)
+                .map_err(|e: anyhow::Error| CliError::Validation(e.to_string()))?;
+
+            if visualize {
+                candlestick_patterns::print_ascii_patterns(&report);
             }
 
             ok_envelope(report, vec![], raw)
