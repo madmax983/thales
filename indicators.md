@@ -1239,3 +1239,26 @@ use polars::prelude::*;
 let period = 9;
 let fisher_series = fisher_transform::calculate(&df, period)?;
 ```
+
+---
+
+## Ulcer Index
+
+**Name:** Ulcer Index
+**Description:** Calculates the Ulcer Index, a technical indicator that measures downside risk in terms of both the depth and duration of price declines.
+**Rationale:** Standard risk indicators like standard deviation treat upside volatility the same as downside volatility. The Ulcer Index isolates downside risk, which is what investors actually care about, by analyzing the length and severity of drawdowns from recent highs.
+**Implementation Details:**
+- Uses `rust_decimal::Decimal` for precision.
+- Implements the formula: `Sqrt(Sum of Squared Drawdowns / Period)` where `Drawdown = ((Close - Max Close) / Max Close) * 100`.
+- Requires only a "close" column.
+
+### Usage
+
+```rust
+use strategies::indicators::ulcer_index;
+use polars::prelude::*;
+
+// Requires a DataFrame `df` with a "close" column
+let period = 14;
+let ulcer_series = ulcer_index::calculate(&df, period)?;
+```
