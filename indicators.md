@@ -2,6 +2,32 @@
 
 This document lists the technical indicators implemented in the `crates/strategies/src/indicators` module.
 
+## Momentum
+
+**Name:** Momentum
+**Description:** Calculates the amount that a security's price has changed over a given time span.
+**Rationale:** Momentum is a leading indicator that measures the speed and change of price movements. A positive momentum indicates that the current price is higher than the past price, suggesting an upward trend, while a negative momentum suggests a downward trend.
+
+### Implementation Details
+- Uses `rust_decimal::Decimal` for precision to compute the price difference.
+- Returns a Polars `Series` of `f64` values.
+- Missing or insufficient data is handled by returning nulls for the warm-up period.
+
+### Usage
+
+```rust
+use strategies::indicators::momentum;
+use polars::prelude::*;
+
+// Assuming df is a DataFrame with a "close" column
+let period = 14;
+let momentum_series = momentum::calculate(&df, period)?;
+```
+
+### Parameters
+- `data`: Reference to a Polars `DataFrame`. Must contain a numeric column named "close".
+- `period`: The size of the lookback period to compare the current price against (must be > 0).
+
 ## Simple Moving Average (SMA)
 
 **Name:** SMA
