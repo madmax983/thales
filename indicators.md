@@ -1218,6 +1218,40 @@ let dpo_series = dpo::calculate(&data, 20)?;
 
 ---
 
+## Aroon
+
+**Name:** Aroon
+**Description:** Calculates the Aroon indicator (Aroon Up and Aroon Down), which measures the time since the highest high and lowest low within a given period.
+**Rationale:** Aroon is used to identify the start of a new trend, the strength of a trend, and whether a stock is trending or trading sideways.
+
+### Implementation Details
+- Uses `rust_decimal::Decimal` for precision.
+- Implements Aroon Up as `((Period - Days Since Highest High) / Period) * 100`.
+- Implements Aroon Down as `((Period - Days Since Lowest Low) / Period) * 100`.
+- Returns a tuple of two Polars `Series` of `f64` values: `(aroon_up, aroon_down)`.
+
+### Usage
+
+```rust
+use strategies::indicators::aroon;
+use polars::prelude::*;
+
+// Assuming df is a DataFrame with "high" and "low" columns
+let period = 25;
+let (aroon_up, aroon_down) = aroon::calculate(&df, period)?;
+```
+
+### Parameters
+- `data`: Reference to a Polars `DataFrame`. Must contain numeric "high" and "low" columns.
+- `period`: The lookback period (typically 25).
+
+### Output
+- Returns `Result<(Series, Series)>` representing `(aroon_up, aroon_down)`.
+- The output Series are named "aroon_up" and "aroon_down".
+- The first `period` values will be null.
+
+---
+
 ## Fisher Transform
 
 **Name:** Fisher Transform

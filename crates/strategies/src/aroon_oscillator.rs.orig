@@ -89,7 +89,7 @@ impl Strategy for AroonOscillator {
 
         // Use proper vectorized operations for the oscillator
         let aroon_osc_series = &aroon_up_series - &aroon_down_series;
-        let aroon_osc_series_result = aroon_osc_series?;
+        let aroon_osc_series_result = aroon_osc_series;
         let aroon_osc_f64 = aroon_osc_series_result.f64()?;
 
         let mut signals = Vec::new();
