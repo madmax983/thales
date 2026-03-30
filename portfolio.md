@@ -4783,6 +4783,14 @@
 | 2026-03-30 09:13:01 | BTCUSD | crypto:BTCUSD:sell:1774829655875 | CONFLICT: Conflicting signals (Buy and Sell) detected for BTCUSD. Trading halted for this asset. |
 | 2026-03-30 09:13:01 | ETHUSD | crypto:ETHUSD:buy:1774816186823 | CONFLICT: Conflicting signals (Buy and Sell) detected for ETHUSD. Trading halted for this asset. |
 | 2026-03-30 09:13:02 | SPY | equities:SPY:buy:1774816186839 | CONFLICT: Conflicting signals (Buy and Sell) detected for SPY. Trading halted for this asset. |
+| 2026-03-30 13:15:41 | BTCUSD | crypto:BTCUSD:sell:1774787215507 | Signal too old (24.8 hours > 24 hours) |
+| 2026-03-30 13:15:41 | ETHUSD | crypto:ETHUSD:buy:1774787215528 | Signal too old (24.8 hours > 24 hours) |
+| 2026-03-30 13:15:41 | SPY | equities:SPY:buy:1774787215544 | Signal too old (24.8 hours > 24 hours) |
+| 2026-03-30 13:15:41 | ETHUSD | crypto:ETHUSD:buy:1774829655893 | Signal already executed/submitted (Ref: crypto:ETHUSD:buy:1774829655893) |
+| 2026-03-30 13:15:41 | SPY | equities:SPY:buy:1774829655910 | Signal already executed/submitted (Ref: equities:SPY:buy:1774829655910) |
+| 2026-03-30 13:15:42 | BTCUSD | crypto:BTCUSD:sell:1774829655875 | Cross-validation failed: Strategies generated {'buy'} but signal recommended sell. |
+| 2026-03-30 13:15:43 | ETHUSD | crypto:ETHUSD:buy:1774816186823 | Cross-validation failed: Strategies generated {'sell'} but signal recommended buy. |
+| 2026-03-30 13:15:43 | SPY | equities:SPY:buy:1774816186839 | Invalid input: provider error: kraken api error: EQuery:Unknown asset pair |
 
 ## Executed Trades
 

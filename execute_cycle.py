@@ -487,7 +487,7 @@ def get_candidates_from_signals():
             provider = "paper"
         else:
             # Route based on market
-            provider = "alpaca" if market == "equities" else "kraken"
+            provider = "kraken"
 
         # Extract JSON
         json_match = re.search(r"```json\s*(\{.*?\})\s*```", chunk, re.DOTALL)
@@ -1241,11 +1241,11 @@ def verify_risk(intent, current_price=None):
             is_entry = True
 
     if is_entry:
-        if not stop_loss or str(stop_loss) in ["None", "-", "0", "0.0"]:
+        if str(stop_loss) in ["None", "-", "0", "0.0"] or not stop_loss:
              return False, "Missing Stop Loss for Entry"
 
         tp_val = intent.get("take_profit")
-        if not tp_val or str(tp_val) in ["None", "-", "0", "0.0"]:
+        if str(tp_val) in ["None", "-", "0", "0.0"] or not tp_val:
              return False, "Missing Take Profit for Entry"
 
     # 3. Check Confidence
