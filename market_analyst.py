@@ -159,7 +159,6 @@ def main():
             raw_confidence = analysis.get("confidence", 0.0)
             if raw_confidence < 0.70:
                 analysis["patterns"] = []
-            analysis["confidence"] = f"{raw_confidence * 100:.2f}%"
 
             print(f"\n--- Analysis for {symbol} ---")
             print(json.dumps(analysis, indent=2))
@@ -177,14 +176,27 @@ def main():
             news_summary = analysis.get("news_summary", news)
 
             markdown_block = f"## Market Analysis Report - {market_type} - {symbol}\n\n"
-            markdown_block += f"Analysis for {symbol}...\n\n"
+            markdown_block += f"**Timestamp (ms)**: {analysis.get('timestamp_unix_ms', '')}\n"
+            markdown_block += f"**Confidence**: {raw_confidence * 100:.2f}%\n\n"
+            markdown_block += f"### 1. Market Regime\n"
+            markdown_block += f"Regime Unchanged ({analysis.get('regime', 'Unknown')})\n"
+            markdown_block += f"*Sentiment*: {analysis.get('sentiment', 'Neutral')}\n\n"
+            markdown_block += f"### 2. Volatility\n"
+            markdown_block += f"*Assessment*: {analysis.get('volatility', 'Unknown')}\n\n"
+            markdown_block += f"### 3. Strategy Recommendation\n"
+            markdown_block += f"**{analysis.get('recommendation', '')}**\n\n"
+            markdown_block += f"### 4. Patterns & Price Action\n"
+            markdown_block += f"*Patterns*: {', '.join(analysis.get('patterns', []))}\n\n"
+            markdown_block += f"### 5. Key Levels\n"
+            markdown_block += f"*Support/Resistance*: {', '.join(map(str, analysis.get('key_levels', [])))}\n\n"
+            markdown_block += f"### 6. Research & Context\n"
+            if research_summary:
+                markdown_block += f"**Research**:\n{research_summary}\n\n"
+            if news_summary:
+                markdown_block += f"**News**:\n{news_summary}\n\n"
             markdown_block += "```json\n"
             markdown_block += json.dumps(analysis, indent=2) + "\n"
             markdown_block += "```\n\n"
-            if research_summary:
-                markdown_block += f"**Research**: {research_summary}\n\n"
-            if news_summary:
-                markdown_block += f"**News**: {news_summary}\n\n"
 
             with open("Signals.md", "a") as f:
                 f.write(markdown_block)

@@ -2151,3 +2151,14 @@ ATR: 40.55
 ## SPY - equities
 Volatility: Medium
 ATR: 6.76
+## BTCUSD - crypto
+Volatility: Medium
+ATR: 764.82
+
+## ETHUSD - crypto
+Volatility: Medium
+ATR: 40.55
+
+## SPY - equities
+Volatility: Medium
+ATR: 6.76
