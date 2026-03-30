@@ -1541,7 +1541,10 @@ def main():
         raw = c.get("raw_analysis_json")
         if not raw:
             return 0.0
-        return float(raw.get("confidence", 0.0) or 0.0)
+        confidence_val = raw.get("confidence", 0.0) or 0.0
+        if isinstance(confidence_val, str):
+            confidence_val = confidence_val.replace("%", "")
+        return float(confidence_val)
 
     signal_candidates.sort(key=get_confidence, reverse=True)
     selected_candidates = signal_candidates[:]
