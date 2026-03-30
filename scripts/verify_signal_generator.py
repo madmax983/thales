@@ -146,6 +146,7 @@ def test_daily_limit():
                 "side": "buy",
                 "size_hint": "1",
                 "rationale": "test",
+                "strategy": "BollingerBands",
                 "schema_version": "v0",
                 "horizon": "1d",
                 "invalidation": "none",
@@ -180,7 +181,7 @@ def test_rag_context():
     analysis_template = {
         "symbol": "BTCUSD", "market": "crypto", "volatility": "Low",
         "sentiment": "Neutral", "patterns": [], "key_levels": [], "confidence": 0.5,
-        "timestamp_unix_ms": now - 86400000 # Yesterday
+        "timestamp_unix_ms": now - 86400000, # Yesterday
     }
 
     # Generate diverse history to maximize match chance
