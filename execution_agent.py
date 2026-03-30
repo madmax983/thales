@@ -189,6 +189,19 @@ def monitor_execution(provider, order_id, expected_price):
     print("Monitoring timed out (Order likely still open).")
     return None, None
 
+def format_price(val):
+    """Safely formats a price string to up to 4 decimal places, stripping trailing zeroes."""
+    if val is None or str(val) in ["None", "-", ""]:
+        return "-"
+    try:
+        val_float = float(val)
+        if val_float == 0.0:
+            return "0"
+        formatted = f"{val_float:.4f}".rstrip("0").rstrip(".")
+        return formatted if formatted else "0"
+    except (ValueError, TypeError):
+        return str(val)
+
 def log_trade(intent, result, slippage=None):
     """
     REPORTING: Report execution results back to other agents.
@@ -208,10 +221,12 @@ def log_trade(intent, result, slippage=None):
     if signal_type_clean:
         action = f"{action} ({signal_type_clean})"
 
-    size = intent["size_hint"]
-    price = str(intent.get("limit_price", "Market"))
-    sl = str(intent.get("stop_loss", "-"))
-    tp = str(intent.get("take_profit", "-"))
+    size = intent.get("size_hint", "0")
+    price = format_price(intent.get("limit_price"))
+    if price == "-": price = "Market"
+
+    sl = format_price(intent.get("stop_loss"))
+    tp = format_price(intent.get("take_profit"))
 
     max_risk = "-"
     if sl != "-" and price != "Market":
