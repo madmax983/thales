@@ -215,34 +215,34 @@ def main():
 
                                         if side in ["buy", "long"]:
                                             if missing_sl:
-                                                intent["stop_loss"] = str(last_close * (1.0 - sl_pct))
+                                                intent["stop_loss"] = format_price(last_close * (1.0 - sl_pct))
                                             if missing_tp:
                                                 if not missing_sl and not is_missing(sl_val):
                                                     try:
                                                         sl_dist = last_close - float(sl_val)
                                                         if sl_dist > 0:
-                                                            intent["take_profit"] = str(last_close + (sl_dist * 2.0))
+                                                            intent["take_profit"] = format_price(last_close + (sl_dist * 2.0))
                                                         else:
-                                                            intent["take_profit"] = str(last_close * (1.0 + tp_pct))
+                                                            intent["take_profit"] = format_price(last_close * (1.0 + tp_pct))
                                                     except (ValueError, TypeError):
-                                                        intent["take_profit"] = str(last_close * (1.0 + tp_pct))
+                                                        intent["take_profit"] = format_price(last_close * (1.0 + tp_pct))
                                                 else:
-                                                    intent["take_profit"] = str(last_close * (1.0 + tp_pct))
+                                                    intent["take_profit"] = format_price(last_close * (1.0 + tp_pct))
                                         elif side in ["sell", "short"]:
                                             if missing_sl:
-                                                intent["stop_loss"] = str(last_close * (1.0 + sl_pct))
+                                                intent["stop_loss"] = format_price(last_close * (1.0 + sl_pct))
                                             if missing_tp:
                                                 if not missing_sl and not is_missing(sl_val):
                                                     try:
                                                         sl_dist = float(sl_val) - last_close
                                                         if sl_dist > 0:
-                                                            intent["take_profit"] = str(last_close - (sl_dist * 2.0))
+                                                            intent["take_profit"] = format_price(last_close - (sl_dist * 2.0))
                                                         else:
-                                                            intent["take_profit"] = str(last_close * (1.0 - tp_pct))
+                                                            intent["take_profit"] = format_price(last_close * (1.0 - tp_pct))
                                                     except (ValueError, TypeError):
-                                                        intent["take_profit"] = str(last_close * (1.0 - tp_pct))
+                                                        intent["take_profit"] = format_price(last_close * (1.0 - tp_pct))
                                                 else:
-                                                    intent["take_profit"] = str(last_close * (1.0 - tp_pct))
+                                                    intent["take_profit"] = format_price(last_close * (1.0 - tp_pct))
                             except (FileNotFoundError, json.JSONDecodeError, KeyError, ValueError, IndexError) as e:
                                 print(f"Warning: Failed to compute fallback SL/TP for {symbol}: {e}")
 
@@ -272,7 +272,7 @@ def main():
                         print(f"Note: No similar past trades found for {symbol}.")
                         # We don't skip the signal, we just note it as it might be a valid new setup
 
-                    # Format numerical values safely to 4 decimal places
+                    # Format numerical values safely to 4 decimal places before routing
                     for field in ["size_hint", "stop_loss", "take_profit"]:
                         if field in intent:
                             intent[field] = format_price(intent[field])
