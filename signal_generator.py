@@ -58,7 +58,9 @@ def format_price(val):
         return 'None'
     try:
         val_float = float(val)
-        formatted_val = f"{val_float:.4f}".rstrip('0').rstrip('.') if '.' in f"{val_float:.4f}" else f"{val_float:.4f}"
+        if val_float == 0.0:
+            return "0"
+        formatted_val = f"{val_float:.4f}".rstrip('0').rstrip('.')
         return formatted_val if formatted_val else "0"
     except (ValueError, TypeError):
         return str(val)
@@ -134,12 +136,46 @@ def format_signal(intent):
     # Clean up Rust enum string if present (e.g. SignalType::Entry -> Entry)
     signal_type = signal_type.replace("SignalType::", "")
 
+    # Truncate large floating point numbers
+    reason = re.sub(r'\d+\.\d{5,}', truncate_float, reason)
+
     output = f"- Symbol and direction (long/short): {intent['symbol']} ({direction})\n"
     output += f"- Signal type and strength (0-100%): {signal_type}, Strength: {strength:.1f}%\n"
     output += f"- Suggested size (quantity): {size}\n"
     output += f"- Stop loss and take profit levels: Stop Loss: {sl}, Take Profit: {tp}\n"
     output += f"- Clear reasoning (including historical context): {reason}\n"
     return output
+
+import re
+
+def truncate_float(match):
+    return f"{float(match.group(0)):.4f}"
+
+def check_similar_trades(symbol, history_path):
+    if not os.path.exists(history_path):
+        return 0, 0, 0.0, 0.0
+    try:
+        with open(history_path, "r") as f:
+            history = json.load(f)
+    except (json.JSONDecodeError, OSError):
+        return 0, 0, 0.0, 0.0
+
+    total_trades = 0
+    winning_trades = 0
+    total_return = 0.0
+    for entry in history:
+        intent = entry.get("intent", {})
+        if intent.get("symbol") == symbol:
+            total_trades += 1
+            outcome = entry.get("outcome")
+            if outcome is not None and isinstance(outcome, (int, float)):
+                if outcome > 0:
+                    winning_trades += 1
+                total_return += outcome
+
+    win_rate = (winning_trades / total_trades) * 100 if total_trades > 0 else 0.0
+    avg_return = (total_return / total_trades) * 100 if total_trades > 0 else 0.0
+    return total_trades, winning_trades, win_rate, avg_return
 
 def main():
     if not os.path.exists(CLI_PATH):
@@ -210,6 +246,9 @@ def main():
 
         symbol_intents = []
         for strategy in active_strategies:
+            if recent_signals_count + len(symbol_intents) >= 3:
+                break
+
             args = ["generate-signals", "--input", data_file, "--strategy", strategy, "--analysis", analysis_file]
             if os.path.exists(HISTORY_PATH):
                 args.extend(["--history", HISTORY_PATH])
@@ -217,6 +256,8 @@ def main():
             intents = run_command(args)
             if intents:
                 for intent in intents:
+                    if recent_signals_count + len(symbol_intents) >= 3:
+                        break
                     # Format numerical values safely to 4 decimal places before checks
                     for field in ["size_hint", "stop_loss", "take_profit"]:
                         if field in intent:
@@ -305,9 +346,18 @@ def main():
 
                     # Filter: Check historical trades before generating new signals
                     rationale = intent.get("rationale") or ""
-                    if "No similar past trades found" in rationale:
-                        print(f"Note: No similar past trades found for {symbol}.", file=sys.stderr)
-                        # We don't skip the signal, we just note it as it might be a valid new setup
+
+                    # Ensure historical context is added if RAG tools didn't inject it or if we want to augment
+                    total, wins, wr, avg_ret = check_similar_trades(symbol, HISTORY_PATH)
+                    if total > 0:
+                        hist_str = f" Found {total} similar past trades. Win Rate: {wr:.1f}%. Avg Return: {avg_ret:.2f}%"
+                        if "similar past trades" not in rationale:
+                            intent["rationale"] = rationale + hist_str
+                            rationale = intent["rationale"]
+                    else:
+                        if "No similar past trades found" in rationale:
+                            print(f"Note: No similar past trades found for {symbol}.", file=sys.stderr)
+                            # We don't skip the signal, we just note it as it might be a valid new setup
 
                     # Route all signals through the Risk Agent first
                     risk_ok, risk_reason = verify_risk(intent, current_price=last_close_price) if last_close_price is not None else verify_risk(intent)
