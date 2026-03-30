@@ -748,6 +748,22 @@ fn normalize_pair(symbol: &str) -> String {
 }
 
 fn quote_currency_from_pair(pair: &str) -> Option<&'static str> {
+    if pair == "XXBTZUSD" || pair == "XETHZUSD" || pair == "XXRPZUSD" || pair == "XLTCZUSD" || pair == "XZECZUSD" || pair == "XXMRZUSD" || pair == "XREPZUSD" || pair == "XETCZUSD" {
+        return Some("ZUSD");
+    }
+    if pair == "XXBTZEUR" || pair == "XETHZEUR" || pair == "XXRPZEUR" || pair == "XLTCZEUR" || pair == "XZECZEUR" || pair == "XXMRZEUR" || pair == "XREPZEUR" || pair == "XETCZEUR" {
+        return Some("ZEUR");
+    }
+    if pair == "XXBTZCAD" || pair == "XETHZCAD" || pair == "XXRPZCAD" || pair == "XLTCZCAD" || pair == "XETCZCAD" {
+        return Some("ZCAD");
+    }
+    if pair == "XXBTZJPY" || pair == "XETHZJPY" || pair == "XXRPZJPY" || pair == "XLTCZJPY" || pair == "XZECZJPY" || pair == "XETCZJPY" || pair == "XXMRZJPY" || pair == "XREPZJPY" {
+        return Some("ZJPY");
+    }
+    if pair == "XXBTZGBP" || pair == "XETHZGBP" {
+        return Some("ZGBP");
+    }
+
     // Longest suffixes first.
     const KNOWN_QUOTES: [&str; 11] = [
         "USDT", "USDC", "USD", "EUR", "GBP", "JPY", "AUD", "CAD", "CHF", "BTC", "ETH",
