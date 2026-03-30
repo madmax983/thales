@@ -49,7 +49,7 @@ def format_price(val):
     if val in [None, 'None', '-']:
         return 'None'
     try:
-        formatted_val = f"{float(val):.4f}".rstrip('0').rstrip('.') if '.' in f"{float(val):.4f}" else f"{float(val):.4f}"
+        formatted_val = f"{float(val):.4f}".rstrip('0').rstrip('.')
         return formatted_val if formatted_val else "0"
     except (ValueError, TypeError):
         return str(val)
@@ -68,10 +68,17 @@ def format_signal(intent):
 
     strength = intent.get('confidence', 0.0) * 100
 
+    import re
     size = format_price(intent.get('size_hint', '0'))
     sl = format_price(intent.get('stop_loss', 'None'))
     tp = format_price(intent.get('take_profit', 'None'))
     reason = intent.get('rationale', 'No reason provided.')
+
+    # Format all long decimals in rationale
+    def truncate_float(match):
+        return format_price(match.group(0))
+    reason = re.sub(r'\d+\.\d{5,}', truncate_float, reason)
+
     signal_type = intent.get('signal_type', 'Entry')
 
     # Clean up Rust enum string if present (e.g. SignalType::Entry -> Entry)
