@@ -1139,3 +1139,36 @@ let (kst_line, kst_signal) = kst::calculate(&df, roc_periods, sma_periods, signa
 ### Output
 - Returns `Result<(Series, Series)>` representing the KST Line and Signal Line.
 - Series are named "kst" and "kst_signal".
+
+## Mass Index
+
+**Name:** Mass Index
+**Description:** Calculates the Mass Index, an indicator designed by Donald Dorsey to identify trend reversals by measuring the narrowing and widening of the range between high and low prices.
+**Rationale:** The Mass Index examines the range between high and low prices to detect trend reversals based on the premise that a reversal will likely occur when the price range widens beyond a certain point and then contracts.
+
+### Implementation Details
+- Uses `rust_decimal::Decimal` iteratively for all internal math calculations to ensure financial precision, converting from and to `f64` only for Polars boundaries.
+- Leverages the `ema` indicator to calculate the Single and Double EMAs of the True Range.
+- Manually calculates the rolling sum of the EMA ratio using an O(N) Deque algorithm.
+- Returns a Polars `Series` of `f64` values.
+
+### Usage
+
+```rust
+use strategies::indicators::mass_index;
+use polars::prelude::*;
+
+// Assuming df is a DataFrame with "high" and "low" columns
+let ema_period = 9;
+let sum_period = 25;
+let mass_idx_series = mass_index::calculate(&df, ema_period, sum_period)?;
+```
+
+### Parameters
+- `data`: Reference to a Polars `DataFrame`. Must contain numeric "high" and "low" columns.
+- `ema_period`: The lookback period for the EMAs (typically 9).
+- `sum_period`: The lookback period for the rolling sum (typically 25).
+
+### Output
+- Returns `Result<Series>`.
+- The output Series is named "mass_index".

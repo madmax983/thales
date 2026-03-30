@@ -50,3 +50,4 @@ pub mod zlema;
 pub mod zscore;
 pub mod vhf;
 pub mod kst;
+pub mod mass_index;
