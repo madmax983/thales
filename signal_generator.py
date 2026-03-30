@@ -90,30 +90,30 @@ def calculate_fallback_sl_tp(last_close, side, volatility_label, missing_sl, mis
 
     if side in ["buy", "long"]:
         if missing_sl:
-            new_sl = str(last_close * (1.0 - sl_pct))
+            new_sl = format_price(last_close * (1.0 - sl_pct))
         if missing_tp:
             try:
                 sl_val_check = float(intent_sl) if not missing_sl else float(new_sl)
                 sl_dist = last_close - sl_val_check
                 if sl_dist > 0:
-                    new_tp = str(last_close + (sl_dist * 2.0))
+                    new_tp = format_price(last_close + (sl_dist * 2.0))
                 else:
-                    new_tp = str(last_close * (1.0 + tp_pct))
+                    new_tp = format_price(last_close * (1.0 + tp_pct))
             except (ValueError, TypeError, KeyError):
-                new_tp = str(last_close * (1.0 + tp_pct))
+                new_tp = format_price(last_close * (1.0 + tp_pct))
     elif side in ["sell", "short"]:
         if missing_sl:
-            new_sl = str(last_close * (1.0 + sl_pct))
+            new_sl = format_price(last_close * (1.0 + sl_pct))
         if missing_tp:
             try:
                 sl_val_check = float(intent_sl) if not missing_sl else float(new_sl)
                 sl_dist = sl_val_check - last_close
                 if sl_dist > 0:
-                    new_tp = str(last_close - (sl_dist * 2.0))
+                    new_tp = format_price(last_close - (sl_dist * 2.0))
                 else:
-                    new_tp = str(last_close * (1.0 - tp_pct))
+                    new_tp = format_price(last_close * (1.0 - tp_pct))
             except (ValueError, TypeError, KeyError):
-                new_tp = str(last_close * (1.0 - tp_pct))
+                new_tp = format_price(last_close * (1.0 - tp_pct))
 
     return new_sl, new_tp
 
@@ -219,8 +219,32 @@ def main():
             print(f"Skipping signal generation for {symbol}: No proper analysis available.", file=sys.stderr)
             continue
 
+        # Pre-calculate RAG (history) checking natively in Python to inject into rationale
+        similar_trades_str = "No similar past trades found."
+        if os.path.exists(HISTORY_PATH):
+            try:
+                with open(HISTORY_PATH, "r") as f:
+                    history = json.load(f)
+                    past_trades = []
+                    for entry in history:
+                        intent = entry.get("intent", {})
+                        if intent.get("symbol") == symbol:
+                            # Basic summary of past trade
+                            res = entry.get("execution_result", {})
+                            status = res.get("status", "unknown")
+                            side = intent.get("side", "unknown")
+                            past_trades.append(f"{side} ({status})")
+                    if past_trades:
+                        similar_trades_str = f"Found {len(past_trades)} past trades for {symbol}: {', '.join(past_trades[-3:])}."
+            except (json.JSONDecodeError, OSError):
+                pass
+
         symbol_intents = []
+        limit_reached = False
         for strategy in active_strategies:
+            if limit_reached:
+                break
+
             args = ["generate-signals", "--input", data_file, "--strategy", strategy, "--analysis", analysis_file]
             if os.path.exists(HISTORY_PATH):
                 args.extend(["--history", HISTORY_PATH])
@@ -315,6 +339,13 @@ def main():
 
                     # Filter: Check historical trades before generating new signals
                     rationale = intent.get("rationale") or ""
+
+                    # Ensure the natively-calculated similar trades string is injected correctly
+                    if "No similar past trades found" not in rationale and "past trades for" not in rationale:
+                        rationale = f"{rationale} {similar_trades_str}"
+
+                    intent["rationale"] = rationale
+
                     if "No similar past trades found" in rationale:
                         print(f"Note: No similar past trades found for {symbol}.", file=sys.stderr)
                         # We don't skip the signal, we just note it as it might be a valid new setup
@@ -333,6 +364,10 @@ def main():
                         intent['side'] = "short"
 
                     symbol_intents.append(intent)
+
+                    if recent_signals_count + len(symbol_intents) >= 3:
+                        limit_reached = True
+                        break
 
         # Limit to 1-3 signals per symbol per day and resolve conflicts
         symbol_intents.sort(key=lambda x: x.get("confidence", 0.0), reverse=True)
