@@ -144,172 +144,172 @@ def main():
 
         # 4. Generate Signals (includes RAG check, sizing, SL/TP)
         symbol_intents = []
-        for strategy in active_strategies:
-            args = ["generate-signals", "--input", data_file, "--strategy", strategy, "--analysis", analysis_file]
-            if os.path.exists(HISTORY_PATH):
-                args.extend(["--history", HISTORY_PATH])
 
-            intents = run_command(args)
-            if intents:
-                for intent in intents:
-                    # Filter: Never generate signals without proper analysis
-                    if not analysis or len(analysis) == 0:
-                        print(f"Skipping signal for {symbol}: No proper analysis available.")
-                        continue
+        # Filter: Never generate signals without proper analysis
+        if not analysis or len(analysis) == 0:
+            print(f"Skipping signal generation for {symbol}: No proper analysis available.")
+        else:
+            for strategy in active_strategies:
+                args = ["generate-signals", "--input", data_file, "--strategy", strategy, "--analysis", analysis_file]
+                if os.path.exists(HISTORY_PATH):
+                    args.extend(["--history", HISTORY_PATH])
 
-                    # Format numerical values safely to 4 decimal places before checks
-                    for field in ["size_hint", "stop_loss", "take_profit"]:
-                        if field in intent:
-                            intent[field] = format_price(intent[field])
+                intents = run_command(args)
+                if intents:
+                    for intent in intents:
+                        # Format numerical values safely to 4 decimal places before checks
+                        for field in ["size_hint", "stop_loss", "take_profit"]:
+                            if field in intent:
+                                intent[field] = format_price(intent[field])
 
-                    # Handle Signal Types: Entry, Exit, ScaleIn, ScaleOut
-                    signal_type_raw = intent.get("signal_type", "")
-                    is_entry = signal_type_raw in ["Entry", "SignalType::Entry"]
-                    is_exit = signal_type_raw in ["Exit", "SignalType::Exit"]
-                    is_scale_in = signal_type_raw in ["ScaleIn", "SignalType::ScaleIn"]
-                    is_scale_out = signal_type_raw in ["ScaleOut", "SignalType::ScaleOut"]
+                        # Handle Signal Types: Entry, Exit, ScaleIn, ScaleOut
+                        signal_type_raw = intent.get("signal_type", "")
+                        is_entry = signal_type_raw in ["Entry", "SignalType::Entry"]
+                        is_exit = signal_type_raw in ["Exit", "SignalType::Exit"]
+                        is_scale_in = signal_type_raw in ["ScaleIn", "SignalType::ScaleIn"]
+                        is_scale_out = signal_type_raw in ["ScaleOut", "SignalType::ScaleOut"]
 
 
-                    # Size positions based on volatility
-                    volatility_label = analysis.get("volatility", "").lower() if analysis else ""
-                    size_hint_str = intent.get("size_hint", "0")
-                    if size_hint_str != "max":
+                        # Size positions based on volatility
+                        volatility_label = analysis.get("volatility", "").lower() if analysis else ""
+                        size_hint_str = intent.get("size_hint", "0")
+                        if size_hint_str != "max":
+                            try:
+                                size_hint_val = float(size_hint_str)
+                                if "high" in volatility_label or "extreme" in volatility_label:
+                                    size_hint_val *= 0.5
+                                elif "low" in volatility_label:
+                                    size_hint_val *= 1.5
+                                formatted_sz = f"{size_hint_val:.4f}".rstrip('0').rstrip('.') if '.' in f"{size_hint_val:.4f}" else f"{size_hint_val:.4f}"
+                                intent["size_hint"] = formatted_sz if formatted_sz else "0"
+                            except (ValueError, TypeError):
+                                pass
+
+                        if is_exit or is_scale_out:
+                            intent["size_hint"] = "max" if is_exit else intent.get("size_hint", "max")
+                            if is_scale_out:
+                                try:
+                                    current_sz = float(intent.get("size_hint", "0"))
+                                    intent["size_hint"] = format_price(current_sz * 0.5)
+                                except (ValueError, TypeError):
+                                    pass
+                            intent.pop("stop_loss", None)
+                            intent.pop("take_profit", None)
+                        elif is_entry or is_scale_in:
+                            if is_scale_in:
+                                try:
+                                    current_sz = float(intent.get("size_hint", "0"))
+                                    intent["size_hint"] = format_price(current_sz * 0.5)
+                                except (ValueError, TypeError):
+                                    pass
+
+                            sl_val = intent.get("stop_loss")
+                            tp_val = intent.get("take_profit")
+                            missing_sl = is_missing(sl_val)
+                            missing_tp = is_missing(tp_val)
+
+                            if missing_sl or missing_tp:
+                                try:
+                                    with open(data_file, "r") as f:
+                                        b_data = json.load(f)
+                                        if "bars" in b_data and len(b_data["bars"]) > 0:
+                                            last_close = float(b_data["bars"][-1]["close"])
+                                            side = str(intent.get('side', '')).lower()
+
+                                            # Calculate stop loss distance based on volatility
+                                            volatility_label = analysis.get("volatility", "").lower() if analysis else ""
+                                            sl_pct = 0.05
+                                            if "high" in volatility_label or "extreme" in volatility_label:
+                                                sl_pct = 0.10
+                                            elif "low" in volatility_label:
+                                                sl_pct = 0.02
+
+                                            tp_pct = sl_pct * 2.0
+
+                                            if side in ["buy", "long"]:
+                                                if missing_sl:
+                                                    intent["stop_loss"] = str(last_close * (1.0 - sl_pct))
+                                                if missing_tp:
+                                                    try:
+                                                        sl_val_check = float(intent["stop_loss"])
+                                                        sl_dist = last_close - sl_val_check
+                                                        if sl_dist > 0:
+                                                            intent["take_profit"] = str(last_close + (sl_dist * 2.0))
+                                                        else:
+                                                            intent["take_profit"] = str(last_close * (1.0 + tp_pct))
+                                                    except (ValueError, TypeError, KeyError):
+                                                        intent["take_profit"] = str(last_close * (1.0 + tp_pct))
+                                            elif side in ["sell", "short"]:
+                                                if missing_sl:
+                                                    intent["stop_loss"] = str(last_close * (1.0 + sl_pct))
+                                                if missing_tp:
+                                                    try:
+                                                        sl_val_check = float(intent["stop_loss"])
+                                                        sl_dist = sl_val_check - last_close
+                                                        if sl_dist > 0:
+                                                            intent["take_profit"] = str(last_close - (sl_dist * 2.0))
+                                                        else:
+                                                            intent["take_profit"] = str(last_close * (1.0 - tp_pct))
+                                                    except (ValueError, TypeError, KeyError):
+                                                        intent["take_profit"] = str(last_close * (1.0 - tp_pct))
+                                except (FileNotFoundError, json.JSONDecodeError, KeyError, ValueError, IndexError) as e:
+                                    print(f"Warning: Failed to compute fallback SL/TP for {symbol}: {e}")
+
+                        # Re-format numerical values safely to 4 decimal places after fallback calculations
+                        for field in ["size_hint", "stop_loss", "take_profit"]:
+                            if field in intent:
+                                intent[field] = format_price(intent[field])
+
+                        # Filter: Only allow Entry/ScaleIn signals that have a valid stop loss
+                        sl_val_check = intent.get("stop_loss")
+                        if (is_entry or is_scale_in) and is_missing(sl_val_check):
+                            print(f"Skipping signal for {symbol}: Missing mandatory stop loss.")
+                            continue
+
+                        # Filter: Do not chase moves - wait for pullbacks
+                        if is_entry:
+                            side = str(intent.get('side', '')).lower()
+                            sentiment = analysis.get("sentiment", "").lower()
+
+                            # We specifically look for (overbought) / (oversold) in the sentiment
+                            # To avoid false positives on rationale like "not overbought", we check sentiment primarily.
+                            if side in ["buy", "long"] and "overbought" in sentiment:
+                                print(f"Skipping long signal for {symbol}: Chasing move (Sentiment is Overbought)")
+                                continue
+                            elif side in ["sell", "short"] and "oversold" in sentiment:
+                                print(f"Skipping short signal for {symbol}: Chasing move (Sentiment is Oversold)")
+                                continue
+
+                        # Filter: Check historical trades before generating new signals
+                        rationale = intent.get("rationale") or ""
+                        if "No similar past trades found" in rationale:
+                            print(f"Note: No similar past trades found for {symbol}.")
+                            # We don't skip the signal, we just note it as it might be a valid new setup
+
+                        # Route all signals through the Risk Agent first
+                        # We get the last close price for Risk Agent if possible
+                        last_close = None
                         try:
-                            size_hint_val = float(size_hint_str)
-                            if "high" in volatility_label or "extreme" in volatility_label:
-                                size_hint_val *= 0.5
-                            elif "low" in volatility_label:
-                                size_hint_val *= 1.5
-                            formatted_sz = f"{size_hint_val:.4f}".rstrip('0').rstrip('.') if '.' in f"{size_hint_val:.4f}" else f"{size_hint_val:.4f}"
-                            intent["size_hint"] = formatted_sz if formatted_sz else "0"
-                        except (ValueError, TypeError):
+                            with open(data_file, "r") as f:
+                                b_data = json.load(f)
+                                if "bars" in b_data and len(b_data["bars"]) > 0:
+                                    last_close = float(b_data["bars"][-1]["close"])
+                        except (FileNotFoundError, json.JSONDecodeError, KeyError, ValueError, IndexError):
                             pass
 
-                    if is_exit or is_scale_out:
-                        intent["size_hint"] = "max" if is_exit else intent.get("size_hint", "max")
-                        if is_scale_out:
-                            try:
-                                current_sz = float(intent.get("size_hint", "0"))
-                                intent["size_hint"] = format_price(current_sz * 0.5)
-                            except (ValueError, TypeError):
-                                pass
-                        intent.pop("stop_loss", None)
-                        intent.pop("take_profit", None)
-                    elif is_entry or is_scale_in:
-                        if is_scale_in:
-                            try:
-                                current_sz = float(intent.get("size_hint", "0"))
-                                intent["size_hint"] = format_price(current_sz * 0.5)
-                            except (ValueError, TypeError):
-                                pass
+                        risk_ok, risk_reason = verify_risk(intent, current_price=last_close) if last_close is not None else verify_risk(intent)
+                        if not risk_ok:
+                            print(f"Skipping signal for {symbol} due to Risk Agent rejection: {risk_reason}")
+                            continue
 
-                        sl_val = intent.get("stop_loss")
-                        tp_val = intent.get("take_profit")
-                        missing_sl = is_missing(sl_val)
-                        missing_tp = is_missing(tp_val)
-
-                        if missing_sl or missing_tp:
-                            try:
-                                with open(data_file, "r") as f:
-                                    b_data = json.load(f)
-                                    if "bars" in b_data and len(b_data["bars"]) > 0:
-                                        last_close = float(b_data["bars"][-1]["close"])
-                                        side = str(intent.get('side', '')).lower()
-
-                                        # Calculate stop loss distance based on volatility
-                                        volatility_label = analysis.get("volatility", "").lower() if analysis else ""
-                                        sl_pct = 0.05
-                                        if "high" in volatility_label or "extreme" in volatility_label:
-                                            sl_pct = 0.10
-                                        elif "low" in volatility_label:
-                                            sl_pct = 0.02
-
-                                        tp_pct = sl_pct * 2.0
-
-                                        if side in ["buy", "long"]:
-                                            if missing_sl:
-                                                intent["stop_loss"] = str(last_close * (1.0 - sl_pct))
-                                            if missing_tp:
-                                                try:
-                                                    sl_val_check = float(intent["stop_loss"])
-                                                    sl_dist = last_close - sl_val_check
-                                                    if sl_dist > 0:
-                                                        intent["take_profit"] = str(last_close + (sl_dist * 2.0))
-                                                    else:
-                                                        intent["take_profit"] = str(last_close * (1.0 + tp_pct))
-                                                except (ValueError, TypeError, KeyError):
-                                                    intent["take_profit"] = str(last_close * (1.0 + tp_pct))
-                                        elif side in ["sell", "short"]:
-                                            if missing_sl:
-                                                intent["stop_loss"] = str(last_close * (1.0 + sl_pct))
-                                            if missing_tp:
-                                                try:
-                                                    sl_val_check = float(intent["stop_loss"])
-                                                    sl_dist = sl_val_check - last_close
-                                                    if sl_dist > 0:
-                                                        intent["take_profit"] = str(last_close - (sl_dist * 2.0))
-                                                    else:
-                                                        intent["take_profit"] = str(last_close * (1.0 - tp_pct))
-                                                except (ValueError, TypeError, KeyError):
-                                                    intent["take_profit"] = str(last_close * (1.0 - tp_pct))
-                            except (FileNotFoundError, json.JSONDecodeError, KeyError, ValueError, IndexError) as e:
-                                print(f"Warning: Failed to compute fallback SL/TP for {symbol}: {e}")
-
-                    # Re-format numerical values safely to 4 decimal places after fallback calculations
-                    for field in ["size_hint", "stop_loss", "take_profit"]:
-                        if field in intent:
-                            intent[field] = format_price(intent[field])
-
-                    # Filter: Only allow Entry/ScaleIn signals that have a valid stop loss
-                    sl_val_check = intent.get("stop_loss")
-                    if (is_entry or is_scale_in) and is_missing(sl_val_check):
-                        print(f"Skipping signal for {symbol}: Missing mandatory stop loss.")
-                        continue
-
-                    # Filter: Do not chase moves - wait for pullbacks
-                    if is_entry:
+                        # Map buy/sell to long/short
                         side = str(intent.get('side', '')).lower()
-                        sentiment = analysis.get("sentiment", "").lower()
+                        if side == "buy":
+                            intent['side'] = "long"
+                        elif side == "sell":
+                            intent['side'] = "short"
 
-                        # We specifically look for (overbought) / (oversold) in the sentiment
-                        # To avoid false positives on rationale like "not overbought", we check sentiment primarily.
-                        if side in ["buy", "long"] and "overbought" in sentiment:
-                            print(f"Skipping long signal for {symbol}: Chasing move (Sentiment is Overbought)")
-                            continue
-                        elif side in ["sell", "short"] and "oversold" in sentiment:
-                            print(f"Skipping short signal for {symbol}: Chasing move (Sentiment is Oversold)")
-                            continue
-
-                    # Filter: Check historical trades before generating new signals
-                    rationale = intent.get("rationale") or ""
-                    if "No similar past trades found" in rationale:
-                        print(f"Note: No similar past trades found for {symbol}.")
-                        # We don't skip the signal, we just note it as it might be a valid new setup
-
-                    # Route all signals through the Risk Agent first
-                    # We get the last close price for Risk Agent if possible
-                    last_close = None
-                    try:
-                        with open(data_file, "r") as f:
-                            b_data = json.load(f)
-                            if "bars" in b_data and len(b_data["bars"]) > 0:
-                                last_close = float(b_data["bars"][-1]["close"])
-                    except (FileNotFoundError, json.JSONDecodeError, KeyError, ValueError, IndexError):
-                        pass
-
-                    risk_ok, risk_reason = verify_risk(intent, current_price=last_close) if last_close is not None else verify_risk(intent)
-                    if not risk_ok:
-                        print(f"Skipping signal for {symbol} due to Risk Agent rejection: {risk_reason}")
-                        continue
-
-                    # Map buy/sell to long/short
-                    side = str(intent.get('side', '')).lower()
-                    if side == "buy":
-                        intent['side'] = "long"
-                    elif side == "sell":
-                        intent['side'] = "short"
-
-                    symbol_intents.append(intent)
+                        symbol_intents.append(intent)
 
         # Limit to 1-3 signals per symbol per day and resolve conflicts
         symbol_intents.sort(key=lambda x: x.get("confidence", 0.0), reverse=True)
