@@ -5030,3 +5030,6 @@
 | 2026-03-28 18:26:08 | SPY | NO_REF | No strategy signal generated. |
 | 2026-03-28 18:26:23 | QQQ | NO_REF | No strategy signal generated. |
 | 2026-03-28 18:26:38 | TQQQ | NO_REF | No strategy signal generated. |
+| 2026-03-30 11:27:14 | SPY | NO_REF | No strategy signal generated. |
+| 2026-03-30 11:27:27 | COQUSD | NO_REF | No strategy signal generated. |
+| 2026-03-30 11:27:41 | REKTUSD | NO_REF | provider error: provider error: kraken api error: EOrder:Insufficient funds |
