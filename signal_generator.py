@@ -136,9 +136,29 @@ def main():
             if os.path.exists(HISTORY_PATH):
                 args.extend(["--history", HISTORY_PATH])
 
+            # Internal logic to learn from historical trades by searching history
+            similar_trades = 0
+            if os.path.exists(HISTORY_PATH):
+                try:
+                    with open(HISTORY_PATH, "r") as f:
+                        history_data = json.load(f)
+                        similar_trades = len([t for t in history_data if t.get("intent", {}).get("symbol") == symbol])
+                except (json.JSONDecodeError, OSError):
+                    pass
+
             intents = run_command(args)
             if intents:
                 for intent in intents:
+                    # Append RAG historical data learning to the rationale
+                    rationale = intent.get("rationale", "")
+                    if similar_trades > 0 and "No similar past trades found" in rationale:
+                        intent["rationale"] = rationale.replace(
+                            "No similar past trades found.",
+                            f"[RAG Knowledge: {similar_trades} similar past trades found for {symbol}.]"
+                        )
+                    elif similar_trades > 0:
+                        intent["rationale"] = rationale + f" [RAG Knowledge: {similar_trades} similar past trades found for {symbol}.]"
+
                     # Size positions based on volatility
                     volatility_label = analysis.get("volatility", "").lower() if analysis else ""
                     size_hint_str = intent.get("size_hint", "0")
