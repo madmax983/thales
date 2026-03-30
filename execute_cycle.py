@@ -60,6 +60,7 @@ TREND_FOLLOWING_STRATEGIES = {
     "ObvTrendFollowing",
     "TsiTrend",
     "ForceIndexTrend",
+    "GatorOscillator",
     "VolumeOscillatorTrend",
     "VptTrendFollowing",
     "WmaCrossover",
@@ -220,6 +221,8 @@ def get_active_strategies():
         strategies.append("LinearRegressionTrend")
     if re.search(r'\bForceIndexTrend\b', content):
         strategies.append("ForceIndexTrend")
+    if re.search(r'\bGatorOscillator\b', content):
+        strategies.append("GatorOscillator")
     if re.search(r'\bObvTrendFollowing\b', content):
         strategies.append("ObvTrendFollowing")
     if re.search(r'\bMoneyFlowIndex\b', content):

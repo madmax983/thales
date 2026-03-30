@@ -3890,3 +3890,42 @@ Momentum
 - **Expected Win Rate:** 45-55%
 - **Expected Sharpe Ratio:** > 1.2
 - **Max Drawdown:** < 15%
+
+---
+
+# Trading Strategy: Gator Oscillator
+
+## Strategy Specification
+
+**Name:** GatorOscillator
+
+**Description:** A momentum strategy based on Bill Williams' Gator Oscillator (which builds upon the Awesome Oscillator logic). It enters long when the fast moving average crosses above the slow moving average (momentum is positive) and enters short when the fast moving average crosses below the slow moving average (momentum is negative).
+
+**Rationale:** The Gator Oscillator measures the convergence and divergence of fast and slow smoothed moving averages (typically based on the median price). Crossovers represent shifts in momentum direction, which can act as early warning signals of trend changes.
+
+## Requirements
+
+### Implementation Details
+- Uses Polars for data analysis and generating signals.
+- Implements the `Strategy` trait in Rust.
+- Calculates an ATR-based dynamic stop loss.
+
+### Strategy Type
+Momentum
+
+### Entry Conditions
+- **Long Entry (Buy):** Fast SMA crosses ABOVE Slow SMA.
+- **Short Entry (Sell):** Fast SMA crosses BELOW Slow SMA.
+
+### Exit Conditions
+- **Long Exit (Sell):** Fast SMA crosses BELOW Slow SMA OR Stop Loss is hit.
+- **Short Exit (Buy):** Fast SMA crosses ABOVE Slow SMA OR Stop Loss is hit.
+- **Stop Loss:** Entry Price +/- (ATR * `stop_loss_atr_mult`).
+
+### Position Sizing
+- **Size Hint:** Bounded by `max_position_size`.
+
+### Expected Backtesting Metrics
+- **Expected Win Rate:** 45% - 55%
+- **Expected Sharpe Ratio:** > 1.2
+- **Max Drawdown:** < 15%

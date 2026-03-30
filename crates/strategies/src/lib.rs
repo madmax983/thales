@@ -50,6 +50,7 @@ pub mod ema_crossover;
 pub mod ema_rsi_trend;
 pub mod fisher_transform_reversal;
 pub mod force_index_trend;
+pub mod gator_oscillator;
 pub mod hma_crossover;
 pub mod ichimoku_cloud;
 pub mod indicators;

@@ -60,6 +60,7 @@ use strategies::fisher_transform_reversal::{
     FisherTransformReversal, FisherTransformReversalConfig,
 };
 use strategies::force_index_trend::{ForceIndexTrend, ForceIndexTrendConfig};
+use strategies::gator_oscillator::{GatorOscillator, GatorOscillatorConfig};
 use strategies::hma_crossover::{HmaCrossover, HmaCrossoverConfig};
 use strategies::ichimoku_cloud::{IchimokuCloud, IchimokuCloudConfig};
 use strategies::kama_crossover::{KamaCrossover, KamaCrossoverConfig};
@@ -490,6 +491,17 @@ pub fn create_strategy(name: &str, symbol: &str) -> Result<Box<dyn Strategy>> {
             };
             Ok(Box::new(ForceIndexTrend::new(config)))
         }
+        "GatorOscillator" => {
+            let config = GatorOscillatorConfig {
+                fast_period: 5,
+                slow_period: 34,
+                max_position_size: 100.0,
+                stop_loss_atr_mult: 2.0,
+                atr_period: 14,
+                symbol: symbol.to_string(),
+            };
+            Ok(Box::new(GatorOscillator::new(config)?))
+        }
         "ObvTrendFollowing" => {
             let config = ObvTrendFollowingConfig {
                 obv_sma_period: 20,
@@ -874,6 +886,7 @@ pub fn list_strategies() -> Vec<&'static str> {
         "CmoMeanReversion",
         "LinearRegressionTrend",
         "ForceIndexTrend",
+        "GatorOscillator",
         "ObvTrendFollowing",
         "MoneyFlowIndex",
         "ConnorsRsiMeanReversion",

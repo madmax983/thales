@@ -519,12 +519,35 @@ pub async fn run_backtest_with_strategy(
 }
 
 fn bars_to_dataframe(series: &BarSeries) -> Result<DataFrame> {
-    let opens: Vec<f64> = series.bars.iter().map(|b| b.open).collect();
-    let highs: Vec<f64> = series.bars.iter().map(|b| b.high).collect();
-    let lows: Vec<f64> = series.bars.iter().map(|b| b.low).collect();
-    let closes: Vec<f64> = series.bars.iter().map(|b| b.close).collect();
-    let volumes: Vec<f64> = series.bars.iter().map(|b| b.volume).collect();
-    let times: Vec<i64> = series.bars.iter().map(|b| b.timestamp_unix_ms).collect();
+    let mut opens: Vec<Option<f64>> = Vec::with_capacity(series.bars.len());
+    let mut highs: Vec<Option<f64>> = Vec::with_capacity(series.bars.len());
+    let mut lows: Vec<Option<f64>> = Vec::with_capacity(series.bars.len());
+    let mut closes: Vec<Option<f64>> = Vec::with_capacity(series.bars.len());
+    let mut volumes: Vec<Option<f64>> = Vec::with_capacity(series.bars.len());
+    let mut times: Vec<i64> = Vec::with_capacity(series.bars.len());
+
+    for b in &series.bars {
+        let is_valid = !b.open.is_nan()
+            && !b.high.is_nan()
+            && !b.low.is_nan()
+            && !b.close.is_nan()
+            && !b.volume.is_nan();
+
+        if is_valid {
+            opens.push(Some(b.open));
+            highs.push(Some(b.high));
+            lows.push(Some(b.low));
+            closes.push(Some(b.close));
+            volumes.push(Some(b.volume));
+        } else {
+            opens.push(None);
+            highs.push(None);
+            lows.push(None);
+            closes.push(None);
+            volumes.push(None);
+        }
+        times.push(b.timestamp_unix_ms);
+    }
 
     let df = df!(
         "open" => opens,
