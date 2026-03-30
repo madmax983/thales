@@ -3,6 +3,7 @@ import json
 import os
 import sys
 import datetime
+import re
 
 from execute_cycle import verify_risk
 
@@ -58,7 +59,9 @@ def format_price(val):
         return 'None'
     try:
         val_float = float(val)
-        formatted_val = f"{val_float:.4f}".rstrip('0').rstrip('.') if '.' in f"{val_float:.4f}" else f"{val_float:.4f}"
+        if val_float == 0.0:
+            return "0"
+        formatted_val = f"{val_float:.4f}".rstrip('0').rstrip('.')
         return formatted_val if formatted_val else "0"
     except (ValueError, TypeError):
         return str(val)
@@ -114,6 +117,13 @@ def calculate_fallback_sl_tp(last_close, side, volatility_label, missing_sl, mis
 
     return new_sl, new_tp
 
+def truncate_float(match):
+    val_float = float(match.group(0))
+    if val_float == 0.0:
+        return "0"
+    formatted_val = f"{val_float:.4f}".rstrip('0').rstrip('.')
+    return formatted_val if formatted_val else "0"
+
 def format_signal(intent):
     side = str(intent.get('side', '')).lower()
     if side == "buy":
@@ -129,6 +139,7 @@ def format_signal(intent):
     sl = format_price(intent.get('stop_loss', 'None'))
     tp = format_price(intent.get('take_profit', 'None'))
     reason = intent.get('rationale', 'No reason provided.')
+    reason = re.sub(r'\d+\.\d{5,}', truncate_float, reason)
     signal_type = intent.get('signal_type', 'Entry')
 
     # Clean up Rust enum string if present (e.g. SignalType::Entry -> Entry)
@@ -237,8 +248,7 @@ def main():
                         try:
                             size_hint_val = float(size_hint_str)
                             adjusted_size = apply_volatility_sizing(size_hint_val, volatility_label)
-                            formatted_sz = f"{adjusted_size:.4f}".rstrip('0').rstrip('.') if '.' in f"{adjusted_size:.4f}" else f"{adjusted_size:.4f}"
-                            intent["size_hint"] = formatted_sz if formatted_sz else "0"
+                            intent["size_hint"] = format_price(adjusted_size)
                         except (ValueError, TypeError):
                             pass
 
