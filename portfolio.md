@@ -4325,6 +4325,12 @@
 | 2026-03-21 17:48:20 | COQUSD | NO_REF | CONFLICT: Conflicting signals (Buy and Sell) detected for COQUSD. Trading halted for this asset. |
 | 2026-03-21 17:48:21 | BONKUSD | NO_REF | CONFLICT: Conflicting signals (Buy and Sell) detected for BONKUSD. Trading halted for this asset. |
 | 2026-03-21 17:48:22 | SHIBUSD | crypto:SHIBUSD:sell:1774112400000 | provider error: kraken api error: EOrder:Insufficient funds |
+| 2026-03-30 00:33:17 | SPY | NO_STRATEGY_SIGNAL | Invalid input: provider error: missing required environment variable: ALPACA_API_KEY |
+| 2026-03-30 00:33:17 | QQQ | NO_STRATEGY_SIGNAL | Invalid input: provider error: missing required environment variable: ALPACA_API_KEY |
+| 2026-03-30 00:33:17 | TQQQ | NO_STRATEGY_SIGNAL | Invalid input: provider error: missing required environment variable: ALPACA_API_KEY |
+| 2026-03-30 00:33:22 | BTCUSD | NO_REF | CONFLICT: Conflicting signals (Buy and Sell) detected for BTCUSD. Trading halted for this asset. |
+| 2026-03-30 00:33:22 | ETHUSD | NO_REF | CONFLICT: Conflicting signals (Buy and Sell) detected for ETHUSD. Trading halted for this asset. |
+| 2026-03-30 00:33:23 | SPY | NO_REF | CONFLICT: Conflicting signals (Buy and Sell) detected for SPY. Trading halted for this asset. |
 
 ## Executed Trades
 
