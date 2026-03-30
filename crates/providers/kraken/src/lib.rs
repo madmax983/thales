@@ -99,12 +99,13 @@ where
 /// ```
 #[derive(Debug, Clone)]
 pub struct KrakenClient {
+    /// The current Kraken configuration.
     pub config: KrakenConfig,
     http: Client,
 }
 
 impl KrakenClient {
-    /// Creates a new Kraken client.
+    /// Creates a new `KrakenClient` from the provided configuration.
     pub fn new(config: KrakenConfig) -> Self {
         Self {
             config,
@@ -112,13 +113,21 @@ impl KrakenClient {
         }
     }
 
-    /// Executes a trade intent on Kraken.
+    /// Orchestrates the execution of a strategy's trade intent by translating it into a Kraken `AddOrder` request.
     ///
-    /// Translates the generic `TradeIntent` into a Kraken-specific order.
-    /// Supports:
-    /// - Market, Limit, Stop-Loss, Stop-Loss-Limit orders.
-    /// - Conditional Close orders (Stop Loss / Take Profit).
-    /// - "max" size hint (closes full position).
+    /// Why this exists: Just like the Alpaca client, this function acts as the critical bridge between
+    /// our generic logic and the brokerage. Kraken supports complex linked orders (like conditional stops
+    /// or take-profits attached to a primary entry order). This function builds that exact payload, signs it,
+    /// and transmits it to the `/0/private/AddOrder` endpoint.
+    ///
+    /// If `"max"` size is requested, it dynamically fetches the current account balance for the specific
+    /// asset being traded to ensure a complete exit.
+    ///
+    /// # Errors
+    ///
+    /// * `KrakenProviderError::InvalidSide` if the direction isn't "buy" or "sell".
+    /// * `KrakenProviderError::MissingBalanceForCurrency` if `"max"` was requested but no balance exists.
+    /// * `KrakenProviderError::Api` if Kraken's strict validation rejects the order (e.g. invalid lot size).
     pub fn execute_intent(
         &self,
         intent: &TradeIntent,
@@ -280,7 +289,19 @@ impl KrakenClient {
         })
     }
 
-    /// Fetches open orders.
+    /// Interrogates the `/0/private/OpenOrders` endpoint to list all active, unfilled orders.
+    ///
+    /// Why this exists: Used by the Execution Agent during the portfolio polling loop to determine
+    /// if an order is stuck and needs to be cancelled or if it has partially filled.
+    ///
+    /// # Examples
+    ///
+    /// ```rust,no_run
+    /// use kraken_provider::{KrakenClient, KrakenConfig};
+    ///
+    /// let client = KrakenClient::new(KrakenConfig { api_key: "".into(), api_secret: "".into(), base_url: "".into() });
+    /// // let open_orders = client.fetch_open_orders().unwrap();
+    /// ```
     pub fn fetch_open_orders(&self) -> Result<Vec<contracts::Order>, KrakenProviderError> {
         let nonce = now_unix_ms()?.to_string();
         let body = format!("nonce={}", nonce);
@@ -341,6 +362,19 @@ impl KrakenClient {
         Ok(orders)
     }
 
+    /// Queries the `/0/private/QueryOrders` endpoint for the exact status and fill details of a specific order.
+    ///
+    /// Why this exists: After an intent is executed, we must track the exact average fill price and any fees
+    /// to accurately calculate historical strategy performance and realized PnL.
+    ///
+    /// # Examples
+    ///
+    /// ```rust,no_run
+    /// use kraken_provider::{KrakenClient, KrakenConfig};
+    ///
+    /// let client = KrakenClient::new(KrakenConfig { api_key: "".into(), api_secret: "".into(), base_url: "".into() });
+    /// // let order = client.fetch_order("TXID-UUID").unwrap();
+    /// ```
     pub fn fetch_order(&self, order_id: &str) -> Result<contracts::Order, KrakenProviderError> {
         let nonce = now_unix_ms()?.to_string();
         let body = format!("nonce={}&txid={}", nonce, order_id);
@@ -399,7 +433,19 @@ impl KrakenClient {
         })
     }
 
-    /// Cancels an order.
+    /// Transmits a cancellation request to the `/0/private/CancelOrder` endpoint.
+    ///
+    /// Why this exists: Needed to revoke "stale" limit orders that haven't executed within
+    /// a reasonable timeframe, freeing up tied capital for other opportunities.
+    ///
+    /// # Examples
+    ///
+    /// ```rust,no_run
+    /// use kraken_provider::{KrakenClient, KrakenConfig};
+    ///
+    /// let client = KrakenClient::new(KrakenConfig { api_key: "".into(), api_secret: "".into(), base_url: "".into() });
+    /// // client.cancel_order("TXID-UUID").unwrap();
+    /// ```
     pub fn cancel_order(&self, order_id: &str) -> Result<(), KrakenProviderError> {
         let nonce = now_unix_ms()?.to_string();
         let body = format!("nonce={}&txid={}", nonce, order_id);
@@ -434,7 +480,21 @@ impl KrakenClient {
         Ok(())
     }
 
-    /// Fetches asset pair information (decimals, etc).
+    /// Queries `/0/public/AssetPairs` to retrieve precise tick size and lot decimal constraints.
+    ///
+    /// Why this exists: Kraken strictly enforces decimal constraints on order sizes and prices.
+    /// We must fetch this metadata to correctly round and format the numbers in the JSON payload,
+    /// otherwise the API will reject the order with `EOrder:Invalid price` or similar errors.
+    ///
+    /// # Examples
+    ///
+    /// ```rust,no_run
+    /// use kraken_provider::{KrakenClient, KrakenConfig};
+    ///
+    /// let client = KrakenClient::new(KrakenConfig { api_key: "".into(), api_secret: "".into(), base_url: "".into() });
+    /// // let info = client.get_pair_info("BTC/USD").unwrap();
+    /// // println!("Pair decimals: {}", info.pair_decimals);
+    /// ```
     pub fn get_pair_info(&self, pair: &str) -> Result<KrakenAssetPairInfo, KrakenProviderError> {
         let url = format!(
             "{}/0/public/AssetPairs?pair={}",
@@ -464,7 +524,15 @@ impl KrakenClient {
             })
     }
 
-    /// Fetches historical price data.
+    /// Retrieves a historical sequence of OHLCV bars from Kraken's `/0/public/OHLC` endpoint.
+    ///
+    /// Why this exists: Unlike Alpaca which uses explicit strings, Kraken requires timeframes
+    /// defined as raw integer minutes (e.g., `1` for 1m, `1440` for 1d). This function handles that translation
+    /// and normalizes the response into standard `Bar` structs.
+    ///
+    /// # Errors
+    ///
+    /// * `KrakenProviderError::InvalidTimeframe` if an unsupported timeframe string is provided.
     pub fn fetch_bars(
         &self,
         symbol: &str,
@@ -543,7 +611,18 @@ impl KrakenClient {
         Ok(bars)
     }
 
-    /// Fetches ticker information for all pairs.
+    /// Polls the `/0/public/Ticker` endpoint for the most recent top-of-book pricing.
+    ///
+    /// Why this exists: Useful for quick price checks and slippage estimation before an order is placed.
+    ///
+    /// # Examples
+    ///
+    /// ```rust,no_run
+    /// use kraken_provider::{KrakenClient, KrakenConfig};
+    ///
+    /// let client = KrakenClient::new(KrakenConfig { api_key: "".into(), api_secret: "".into(), base_url: "".into() });
+    /// // let tickers = client.fetch_tickers().unwrap();
+    /// ```
     pub fn fetch_tickers(&self) -> Result<HashMap<String, KrakenTickerInfo>, KrakenProviderError> {
         let url = format!(
             "{}/0/public/Ticker",
@@ -567,9 +646,20 @@ impl KrakenClient {
         Ok(api_response.result.unwrap_or_default())
     }
 
-    /// Fetches all open positions for the account.
+    /// Queries the `/0/private/OpenPositions` endpoint.
     ///
-    /// This requires the `OpenPositions` permission on the API key.
+    /// Why this exists: Note that in Kraken's model, "positions" technically only exist for margin trades.
+    /// However, this function queries the API and parses the specific `KrakenOpenPosition` payload.
+    /// *Requires the `OpenPositions` permission on the API key.*
+    ///
+    /// # Examples
+    ///
+    /// ```rust,no_run
+    /// use kraken_provider::{KrakenClient, KrakenConfig};
+    ///
+    /// let client = KrakenClient::new(KrakenConfig { api_key: "".into(), api_secret: "".into(), base_url: "".into() });
+    /// // let positions = client.fetch_open_positions().unwrap();
+    /// ```
     pub fn fetch_open_positions(
         &self,
     ) -> Result<HashMap<String, KrakenOpenPosition>, KrakenProviderError> {
@@ -604,7 +694,20 @@ impl KrakenClient {
         Ok(api_response.result.unwrap_or_default())
     }
 
-    /// Fetches account balances.
+    /// Interrogates the `/0/private/Balance` endpoint to get raw asset balances.
+    ///
+    /// Why this exists: Used to determine exactly how much base/quote asset is available,
+    /// crucial for "max" sizing calculations.
+    ///
+    /// # Examples
+    ///
+    /// ```rust,no_run
+    /// use kraken_provider::{KrakenClient, KrakenConfig};
+    ///
+    /// let client = KrakenClient::new(KrakenConfig { api_key: "".into(), api_secret: "".into(), base_url: "".into() });
+    /// // let balance = client.fetch_balance().unwrap();
+    /// // println!("Balance: {:?}", balance.get("ZUSD"));
+    /// ```
     pub fn fetch_balance(&self) -> Result<HashMap<String, String>, KrakenProviderError> {
         let nonce = now_unix_ms()?.to_string();
         let body = format!("nonce={}", nonce);
@@ -637,7 +740,20 @@ impl KrakenClient {
         Ok(api_response.result.unwrap_or_default())
     }
 
-    /// Returns available quote-currency balance for a trading symbol.
+    /// Dynamically determines how much quote currency (e.g., USD or USDT) is available to buy the given symbol.
+    ///
+    /// Why this exists: The CLI architecture queries this right before generating a signal to guarantee
+    /// there is enough purchasing power for the intent.
+    ///
+    /// # Examples
+    ///
+    /// ```rust,no_run
+    /// use kraken_provider::{KrakenClient, KrakenConfig};
+    ///
+    /// let client = KrakenClient::new(KrakenConfig { api_key: "".into(), api_secret: "".into(), base_url: "".into() });
+    /// // let (currency, power) = client.get_buying_power_for_symbol("BTC/USD").unwrap();
+    /// // assert_eq!(currency, "USD");
+    /// ```
     pub fn get_buying_power_for_symbol(
         &self,
         symbol: &str,
@@ -651,7 +767,20 @@ impl KrakenClient {
         Ok((quote.to_string(), amount))
     }
 
-    /// Returns available base-asset balance that can be sold for a trading symbol.
+    /// Dynamically determines how much base currency (e.g., BTC or ETH) is currently held and can be sold.
+    ///
+    /// Why this exists: Used during "max" sell executions to dynamically calculate the exact order size based
+    /// on the wallet balance.
+    ///
+    /// # Examples
+    ///
+    /// ```rust,no_run
+    /// use kraken_provider::{KrakenClient, KrakenConfig};
+    ///
+    /// let client = KrakenClient::new(KrakenConfig { api_key: "".into(), api_secret: "".into(), base_url: "".into() });
+    /// // let (currency, balance) = client.get_sellable_balance_for_symbol("BTC/USD").unwrap();
+    /// // assert_eq!(currency, "BTC");
+    /// ```
     pub fn get_sellable_balance_for_symbol(
         &self,
         symbol: &str,
@@ -665,6 +794,20 @@ impl KrakenClient {
         Ok((base.to_string(), amount))
     }
 
+    /// Aggregates and normalizes raw Kraken positions into the generic `contracts::Position` format.
+    ///
+    /// Why this exists: Because Kraken treats margin positions granularly (each entry is a distinct trade),
+    /// this function aggregates all open partial fills for a given pair/side into a single position with
+    /// a properly weighted average cost basis.
+    ///
+    /// # Examples
+    ///
+    /// ```rust,no_run
+    /// use kraken_provider::{KrakenClient, KrakenConfig};
+    ///
+    /// let client = KrakenClient::new(KrakenConfig { api_key: "".into(), api_secret: "".into(), base_url: "".into() });
+    /// // let positions = client.get_open_positions().unwrap();
+    /// ```
     pub fn get_open_positions(&self) -> Result<Vec<contracts::Position>, KrakenProviderError> {
         let open_positions = self.fetch_open_positions()?;
 

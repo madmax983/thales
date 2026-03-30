@@ -1,3 +1,9 @@
+//! Alpaca API provider implementation.
+//!
+//! This module provides an adapter for the Alpaca trading platform.
+//! It translates the core [`TradeIntent`] into Alpaca's specific JSON representations
+//! and manages account polling, position fetching, and basic risk checks.
+
 use std::collections::HashMap;
 use std::time::{SystemTime, UNIX_EPOCH};
 
@@ -7,18 +13,51 @@ use reqwest::blocking::Client;
 use serde::{Deserialize, Serialize};
 use thiserror::Error;
 
+/// Configuration for the Alpaca API client.
+///
+/// Use [`AlpacaConfig::from_env`] to load from environment variables.
+///
+/// # Examples
+///
+/// ```rust
+/// use alpaca_provider::AlpacaConfig;
+///
+/// // Mock environment lookup for demonstration purposes
+/// let mock_env = |key: &str| -> Option<String> {
+///     match key {
+///         "ALPACA_API_KEY" => Some("key".to_string()),
+///         "ALPACA_API_SECRET" => Some("secret".to_string()),
+///         "ALPACA_BASE_URL" => Some("https://paper-api.alpaca.markets".to_string()),
+///         _ => None,
+///     }
+/// };
+///
+/// let config = AlpacaConfig::from_env_with(mock_env).unwrap();
+/// assert_eq!(config.api_key, "key");
+/// ```
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct AlpacaConfig {
+    /// The API Key provided by Alpaca.
     pub api_key: String,
+    /// The API Secret provided by Alpaca.
     pub api_secret: String,
+    /// The base URL for the Alpaca API.
     pub base_url: String,
 }
 
 impl AlpacaConfig {
+    /// Loads configuration from environment variables.
+    ///
+    /// # Required Variables
+    ///
+    /// - `ALPACA_API_KEY`
+    /// - `ALPACA_API_SECRET`
+    /// - `ALPACA_BASE_URL`
     pub fn from_env() -> Result<Self, AlpacaProviderError> {
         Self::from_env_with(|key| std::env::var(key).ok())
     }
 
+    /// Helper to load configuration from a custom source.
     pub fn from_env_with<F>(get: F) -> Result<Self, AlpacaProviderError>
     where
         F: Fn(&str) -> Option<String>,
@@ -38,13 +77,32 @@ where
     get(name).ok_or(AlpacaProviderError::MissingEnvVar(name))
 }
 
+/// A synchronous client for the Alpaca API.
+///
+/// Handles authentication and request formatting for interacting with Alpaca.
+///
+/// # Examples
+///
+/// ```rust
+/// use alpaca_provider::{AlpacaClient, AlpacaConfig};
+///
+/// let config = AlpacaConfig {
+///     api_key: "key".to_string(),
+///     api_secret: "secret".to_string(),
+///     base_url: "https://paper-api.alpaca.markets".to_string(),
+/// };
+///
+/// let client = AlpacaClient::new(config);
+/// ```
 #[derive(Debug, Clone)]
 pub struct AlpacaClient {
+    /// The current Alpaca configuration.
     pub config: AlpacaConfig,
     http: Client,
 }
 
 impl AlpacaClient {
+    /// Creates a new `AlpacaClient` from the provided configuration.
     pub fn new(config: AlpacaConfig) -> Self {
         Self {
             config,
@@ -52,6 +110,15 @@ impl AlpacaClient {
         }
     }
 
+    /// Executes a trade intent on the Alpaca API.
+    ///
+    /// This function transforms a generic [`TradeIntent`] into Alpaca's format.
+    /// It automatically handles "max" sizing by querying current positions and selling
+    /// the full accumulated quantity.
+    ///
+    /// # Errors
+    /// Returns [`AlpacaProviderError`] if API request fails, validation fails, or if
+    /// a position for a "max" size hint cannot be found.
     pub fn execute_intent(
         &self,
         intent: &TradeIntent,
@@ -137,6 +204,19 @@ impl AlpacaClient {
         })
     }
 
+    /// Scans the brokerage for active orders pending a fill.
+    ///
+    /// Why this exists: We need to see if a stop loss or take profit limit order
+    /// from a previous strategy generation cycle is still floating in the order book.
+    ///
+    /// # Examples
+    ///
+    /// ```rust,no_run
+    /// use alpaca_provider::{AlpacaClient, AlpacaConfig};
+    ///
+    /// let client = AlpacaClient::new(AlpacaConfig { api_key: "".into(), api_secret: "".into(), base_url: "".into() });
+    /// // let open_orders = client.fetch_open_orders().unwrap();
+    /// ```
     pub fn fetch_open_orders(&self) -> Result<Vec<contracts::Order>, AlpacaProviderError> {
         let url = format!(
             "{}/orders?status=open",
@@ -189,6 +269,21 @@ impl AlpacaClient {
         Ok(contract_orders)
     }
 
+    /// Interrogates the brokerage for the exact status and fill price of a specific order.
+    ///
+    /// Why this exists: After submitting a `TradeIntent`, the execution agent needs to verify
+    /// whether it was fully filled, partially filled, or rejected. We need the exact average fill price
+    /// to accurately calculate historical performance.
+    ///
+    /// # Examples
+    ///
+    /// ```rust,no_run
+    /// use alpaca_provider::{AlpacaClient, AlpacaConfig};
+    ///
+    /// let client = AlpacaClient::new(AlpacaConfig { api_key: "".into(), api_secret: "".into(), base_url: "".into() });
+    /// // let order = client.fetch_order("some-uuid").unwrap();
+    /// // println!("Order filled at: {:?}", order.average_fill_price);
+    /// ```
     pub fn fetch_order(&self, order_id: &str) -> Result<contracts::Order, AlpacaProviderError> {
         let url = format!(
             "{}/orders/{}",
@@ -236,6 +331,23 @@ impl AlpacaClient {
         })
     }
 
+    /// Transmits a cancellation request to the brokerage for an active, unfilled order.
+    ///
+    /// Why this exists: The execution agent requires the ability to revoke "stale" limit orders
+    /// that have languished in the order book without a fill, freeing up tied capital.
+    ///
+    /// # Examples
+    ///
+    /// ```rust,no_run
+    /// use alpaca_provider::{AlpacaClient, AlpacaConfig};
+    ///
+    /// let client = AlpacaClient::new(AlpacaConfig { api_key: "".into(), api_secret: "".into(), base_url: "".into() });
+    /// // client.cancel_order("some-uuid").unwrap();
+    /// ```
+    ///
+    /// # Panics
+    ///
+    /// This function will not panic, but it yields an error if the specified `order_id` is missing or already filled.
     pub fn cancel_order(&self, order_id: &str) -> Result<(), AlpacaProviderError> {
         let url = format!(
             "{}/orders/{}",
@@ -263,6 +375,10 @@ impl AlpacaClient {
         Ok(())
     }
 
+    /// Fetches historical bars for a given symbol and timeframe.
+    ///
+    /// If `ALPACA_DATA_URL` is set in the environment, it uses that endpoint;
+    /// otherwise it defaults to `https://data.alpaca.markets/v2/stocks/bars`.
     pub fn fetch_bars(
         &self,
         symbol: &str,
@@ -329,6 +445,20 @@ impl AlpacaClient {
         Ok(bars)
     }
 
+    /// Queries the brokerage for the raw details of all active holdings.
+    ///
+    /// Why this exists: While `get_open_positions` normalizes the response, this function acts as the internal
+    /// pipeline, querying the `/positions` endpoint and deserializing Alpaca's specific `AlpacaPosition` objects.
+    ///
+    /// # Examples
+    ///
+    /// ```rust,no_run
+    /// use alpaca_provider::{AlpacaClient, AlpacaConfig};
+    ///
+    /// let client = AlpacaClient::new(AlpacaConfig { api_key: "".into(), api_secret: "".into(), base_url: "".into() });
+    /// // let positions = client.fetch_positions().unwrap();
+    /// // println!("Raw PnL: {:?}", positions[0].unrealized_pl);
+    /// ```
     pub fn fetch_positions(&self) -> Result<Vec<AlpacaPosition>, AlpacaProviderError> {
         let url = format!("{}/positions", self.config.base_url.trim_end_matches('/'));
 
@@ -351,6 +481,20 @@ impl AlpacaClient {
         Ok(positions)
     }
 
+    /// Interrogates the Alpaca `/v2/account` endpoint to retrieve purchasing limits and liquidity.
+    ///
+    /// Why this exists: Required to gauge risk. Knowing the total available cash and buying power prevents
+    /// strategies from blindly firing orders that will be inevitably rejected due to insufficient margin.
+    ///
+    /// # Examples
+    ///
+    /// ```rust,no_run
+    /// use alpaca_provider::{AlpacaClient, AlpacaConfig};
+    ///
+    /// let client = AlpacaClient::new(AlpacaConfig { api_key: "".into(), api_secret: "".into(), base_url: "".into() });
+    /// // let account = client.fetch_account().unwrap();
+    /// // println!("Cash on hand: {}", account.cash);
+    /// ```
     pub fn fetch_account(&self) -> Result<AlpacaAccount, AlpacaProviderError> {
         let url = format!("{}/v2/account", self.config.base_url.trim_end_matches('/'));
 
@@ -373,6 +517,21 @@ impl AlpacaClient {
         Ok(account)
     }
 
+    /// Extracts the highest available liquidity (Buying Power) from the account details.
+    ///
+    /// Why this exists: It provides a single, clean `f64` value to the Execution Agent representing
+    /// exactly how much capital is available to deploy. It gracefully falls back to the cash balance
+    /// if `buying_power` fails to parse.
+    ///
+    /// # Examples
+    ///
+    /// ```rust,no_run
+    /// use alpaca_provider::{AlpacaClient, AlpacaConfig};
+    ///
+    /// let client = AlpacaClient::new(AlpacaConfig { api_key: "".into(), api_secret: "".into(), base_url: "".into() });
+    /// // let power = client.get_buying_power().unwrap();
+    /// // assert!(power > 0.0);
+    /// ```
     pub fn get_buying_power(&self) -> Result<f64, AlpacaProviderError> {
         let account = self.fetch_account()?;
         account
@@ -382,6 +541,21 @@ impl AlpacaClient {
             .map_err(|_| AlpacaProviderError::InvalidBuyingPower(account.buying_power))
     }
 
+    /// Maps the raw Alpaca positions into the generalized `contracts::Position` format.
+    ///
+    /// Why this exists: The CLI architecture demands that all providers return a standardized representation
+    /// of an open position so the evaluation loop can universally audit risk without caring if the backend
+    /// is Alpaca, Kraken, or Paper. This actively calculates the average entry price from the cost basis.
+    ///
+    /// # Examples
+    ///
+    /// ```rust,no_run
+    /// use alpaca_provider::{AlpacaClient, AlpacaConfig};
+    ///
+    /// let client = AlpacaClient::new(AlpacaConfig { api_key: "".into(), api_secret: "".into(), base_url: "".into() });
+    /// // let positions = client.get_open_positions().unwrap();
+    /// // assert_eq!(positions[0].side, "long");
+    /// ```
     pub fn get_open_positions(&self) -> Result<Vec<contracts::Position>, AlpacaProviderError> {
         let positions = self.fetch_positions()?;
         Ok(positions

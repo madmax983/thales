@@ -81,3 +81,7 @@
 ## 2026-03-22 - The Silent Contracts
 **Confusion:** Core contracts in `crates/contracts/src/lib.rs` (like `ExecutionRequest`, `ExecutionResult`, `MarketAnalysis`, `Position`, and `Order`) lacked executable examples, making it unclear how to instantiate or test them.
 **Clarification:** Added `# Examples` sections with executable doctests to all major data structures in `crates/contracts/src/lib.rs` to demonstrate typical initialization and assertions.
+
+## 2026-03-23 - The Silent Providers
+**Confusion:** The provider adapters (`alpaca`, `kraken`, `paper` in `crates/providers/`) lacked documentation and executable examples. Users couldn't understand how to initialize clients or what exact data structures were being fetched.
+**Clarification:** Added module-level documentation and executable examples (`# Examples`) for all provider configs and clients. Documented all public API interactions (e.g. `execute_intent`, `fetch_bars`).

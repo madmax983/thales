@@ -16,12 +16,16 @@ use thiserror::Error;
 const DEFAULT_PORTFOLIO_FILE: &str = "paper_portfolio.json";
 
 /// Configuration for the Paper provider.
+///
+/// Indicates where the JSON file for paper positions is stored.
 #[derive(Debug, Clone)]
 pub struct PaperConfig {
+    /// The path to the JSON file where paper trading positions are saved.
     pub portfolio_path: PathBuf,
 }
 
 impl PaperConfig {
+    /// Loads configuration from environment variables, defaulting to `paper_portfolio.json`.
     pub fn from_env() -> Self {
         let path = std::env::var("PAPER_PORTFOLIO_PATH")
             .unwrap_or_else(|_| DEFAULT_PORTFOLIO_FILE.to_string());
@@ -32,13 +36,28 @@ impl PaperConfig {
 }
 
 /// A local paper trading client.
+///
+/// Simulates executions without connecting to a real broker.
+/// It uses a local JSON file to track positions and generates synthetic mock bars.
+///
+/// # Examples
+///
+/// ```rust
+/// use paper_provider::{PaperClient, PaperConfig};
+/// use std::path::PathBuf;
+///
+/// let config = PaperConfig { portfolio_path: PathBuf::from("my_paper.json") };
+/// let client = PaperClient::new(config);
+/// ```
 #[derive(Debug, Clone)]
 pub struct PaperClient {
+    /// The current configuration for the paper client.
     pub config: PaperConfig,
     http: Client,
 }
 
 impl PaperClient {
+    /// Creates a new `PaperClient` with the given configuration.
     pub fn new(config: PaperConfig) -> Self {
         Self {
             config,
@@ -47,6 +66,18 @@ impl PaperClient {
     }
 
     /// Fetches mock market data for testing strategies.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// use paper_provider::{PaperClient, PaperConfig};
+    /// use std::path::PathBuf;
+    ///
+    /// let config = PaperConfig { portfolio_path: PathBuf::from("my_paper.json") };
+    /// let client = PaperClient::new(config);
+    /// let bars = client.fetch_bars("AAPL", "1d").unwrap();
+    /// assert!(!bars.is_empty());
+    /// ```
     pub fn fetch_bars(
         &self,
         symbol: &str,
@@ -129,6 +160,41 @@ impl PaperClient {
     }
 
     /// Executes a trade intent against the local paper portfolio.
+    ///
+    /// The simulation assumes immediate fills at current market estimates.
+    ///
+    /// # Examples
+    ///
+    /// ```rust,no_run
+    /// use paper_provider::{PaperClient, PaperConfig};
+    /// use std::path::PathBuf;
+    /// use contracts::TradeIntent;
+    ///
+    /// let config = PaperConfig { portfolio_path: PathBuf::from("my_paper.json") };
+    /// let client = PaperClient::new(config);
+    /// let intent = TradeIntent {
+    ///     intent_id: "test".into(),
+    ///     market: "equities".into(),
+    ///     symbol: "AAPL".into(),
+    ///     side: "buy".into(),
+    ///     size_hint: "100".into(),
+    ///     order_type: "market".into(),
+    ///     time_in_force: "day".into(),
+    ///     limit_price: None,
+    ///     stop_price: None,
+    ///     take_profit: None,
+    ///     stop_loss: None,
+    ///     confidence: 0.8,
+    ///     horizon: "1d".into(),
+    ///     rationale: "test".into(),
+    ///     invalidation: "test".into(),
+    ///     schema_version: "v0".into(),
+    ///     signal_type: Some("entry".into()),
+    ///     execution_algo: None,
+    ///     strategy: "test".into(),
+    /// };
+    /// // let res = client.execute_intent(&intent).unwrap();
+    /// ```
     pub fn execute_intent(
         &self,
         intent: &TradeIntent,
@@ -237,11 +303,39 @@ impl PaperClient {
         })
     }
 
+    /// Queries the simulator for active limit orders.
+    ///
+    /// Why this exists: To satisfy the standard Provider interface. However, because the simulator
+    /// executes immediately, this will always return an empty vector.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// use paper_provider::{PaperClient, PaperConfig};
+    /// use std::path::PathBuf;
+    ///
+    /// let config = PaperConfig { portfolio_path: PathBuf::from("my_paper.json") };
+    /// let client = PaperClient::new(config);
+    /// let open_orders = client.fetch_open_orders().unwrap();
+    /// assert!(open_orders.is_empty());
+    /// ```
     pub fn fetch_open_orders(&self) -> Result<Vec<contracts::Order>, PaperProviderError> {
         // Paper trading executes immediately, so there are no open orders.
         Ok(Vec::new())
     }
 
+    /// Recovers a mock order history payload based on the requested ID.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// use paper_provider::{PaperClient, PaperConfig};
+    /// use std::path::PathBuf;
+    ///
+    /// let config = PaperConfig { portfolio_path: PathBuf::from("my_paper.json") };
+    /// let client = PaperClient::new(config);
+    /// // let order = client.fetch_order("paper-SPY-123456789").unwrap();
+    /// ```
     pub fn fetch_order(&self, order_id: &str) -> Result<contracts::Order, PaperProviderError> {
         // Paper trading executes immediately, so we can mock a filled order response.
         // We'll try to parse the timestamp from the ID if it matches our format: paper-{symbol}-{timestamp}
@@ -266,11 +360,38 @@ impl PaperClient {
         })
     }
 
+    /// Simulates revoking an order from an exchange.
+    ///
+    /// Why this exists: To satisfy the interface. Since the paper provider executes instantly,
+    /// there are never any open orders to actually cancel, making this a safe no-op.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// use paper_provider::{PaperClient, PaperConfig};
+    /// use std::path::PathBuf;
+    ///
+    /// let config = PaperConfig { portfolio_path: PathBuf::from("my_paper.json") };
+    /// let client = PaperClient::new(config);
+    /// client.cancel_order("fake-id").unwrap();
+    /// ```
     pub fn cancel_order(&self, _order_id: &str) -> Result<(), PaperProviderError> {
         // No open orders to cancel.
         Ok(())
     }
 
+    /// Alias for `fetch_positions` to conform to the shared provider trait expectations.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// use paper_provider::{PaperClient, PaperConfig};
+    /// use std::path::PathBuf;
+    ///
+    /// let config = PaperConfig { portfolio_path: PathBuf::from("my_paper.json") };
+    /// let client = PaperClient::new(config);
+    /// // let positions = client.get_open_positions().unwrap();
+    /// ```
     pub fn get_open_positions(&self) -> Result<Vec<contracts::Position>, PaperProviderError> {
         let portfolio = self.load_portfolio()?;
         Ok(portfolio
@@ -288,6 +409,11 @@ impl PaperClient {
             .collect())
     }
 
+    /// Hardcodes an infinite purchasing limit for the paper trading environment unless overridden.
+    ///
+    /// Why this exists: We don't track a local cash balance in the basic paper JSON, so we
+    /// inject `1000000.0` to allow the strategies to calculate their sizing formulas without failing.
+    /// You can constrain this test environment by exporting `PAPER_BUYING_POWER`.
     pub fn get_buying_power(&self) -> Result<f64, PaperProviderError> {
         let raw = std::env::var("PAPER_BUYING_POWER").unwrap_or_else(|_| "1000000.0".to_string());
         raw.parse::<f64>()
