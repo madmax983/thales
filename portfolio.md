@@ -4297,6 +4297,15 @@
 | 2026-03-17 11:39:12 | BTCUSD | crypto:BTCUSD:sell:1773735559157 | Cross-validation failed: Strategies generated {'buy'} but signal recommended sell. |
 | 2026-03-17 11:39:12 | ETHUSD | crypto:ETHUSD:buy:1773735559173 | No active strategy generated a signal (Strategies: BollingerBands, EmaCrossover, RsiMeanReversion, Macd, Supertrend, DonchianBreakout, ParabolicSar, KeltnerChannelBreakout, StochasticOscillator, AdxMomentum, IchimokuCloud, CciMomentum, ChaikinMoneyFlow, ChandelierExit, LinearRegressionTrend, VptTrendFollowing, PpoRsiTrend, ObvTrendFollowing, MoneyFlowIndex, ConnorsRsiMeanReversion, AlmaCrossover, AwesomeOscillator, WilliamsR, VwmaCrossover, VwapReversion, VortexBreakout, RocMomentum, TrixMomentum, AdxMacdTrend, ZScoreMeanReversion, ElderRay, AroonOscillator, StochRsiMeanReversion, MacdRsiTrend, TsiTrend, HmaCrossover, VolumeOscillatorTrend) |
 | 2026-03-17 11:39:13 | SPY | equities:SPY:buy:1773735559189 | No active strategy generated a signal (Strategies: BollingerBands, EmaCrossover, RsiMeanReversion, Macd, Supertrend, DonchianBreakout, ParabolicSar, KeltnerChannelBreakout, StochasticOscillator, AdxMomentum, IchimokuCloud, CciMomentum, ChaikinMoneyFlow, ChandelierExit, LinearRegressionTrend, VptTrendFollowing, PpoRsiTrend, ObvTrendFollowing, MoneyFlowIndex, ConnorsRsiMeanReversion, AlmaCrossover, AwesomeOscillator, WilliamsR, VwmaCrossover, VwapReversion, VortexBreakout, RocMomentum, TrixMomentum, AdxMacdTrend, ZScoreMeanReversion, ElderRay, AroonOscillator, StochRsiMeanReversion, MacdRsiTrend, TsiTrend, HmaCrossover, VolumeOscillatorTrend) |
+| 2026-03-30 00:39:21 | BTCUSD | crypto:BTCUSD:sell:1773664550005 | Signal too old (324.1 hours > 24 hours) |
+| 2026-03-30 00:39:21 | ETHUSD | crypto:ETHUSD:buy:1773664550020 | Signal already executed/submitted (Ref: crypto:ETHUSD:buy:1773664550020) |
+| 2026-03-30 00:39:21 | SPY | equities:SPY:buy:1773664550034 | Signal already executed/submitted (Ref: equities:SPY:buy:1773664550034) |
+| 2026-03-30 00:39:21 | BTCUSD | crypto:BTCUSD:sell:1773735559157 | Signal too old (304.3 hours > 24 hours) |
+| 2026-03-30 00:39:21 | ETHUSD | crypto:ETHUSD:buy:1773735559173 | Signal too old (304.3 hours > 24 hours) |
+| 2026-03-30 00:39:21 | SPY | equities:SPY:buy:1773735559189 | Signal too old (304.3 hours > 24 hours) |
+| 2026-03-30 00:39:24 | PEPEUSD | crypto:PEPEUSD:buy:1774828800000 | Rejected by Risk Agent: Order value below exchange minimum fiat volume (1.58 < 5.0) |
+| 2026-03-30 00:39:24 | COQUSD | crypto:COQUSD:buy:1774828800000 | Rejected by Risk Agent: Order value below exchange minimum fiat volume (1.58 < 5.0) |
+| 2026-03-30 00:39:25 | MOGUSD | crypto:MOGUSD:buy:1774828800000 | Rejected by Risk Agent: Order value below exchange minimum fiat volume (1.58 < 5.0) |
 
 ## Executed Trades
 
