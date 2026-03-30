@@ -487,7 +487,7 @@ def get_candidates_from_signals():
             provider = "paper"
         else:
             # Route based on market
-            provider = "alpaca" if market == "equities" else "kraken"
+            provider = "kraken"
 
         # Extract JSON
         json_match = re.search(r"```json\s*(\{.*?\})\s*```", chunk, re.DOTALL)
@@ -621,12 +621,12 @@ def scan_markets():
             for symbol in crypto:
                 candidates.append({"provider": "kraken", "symbol": symbol, "market": "crypto"})
 
-        # Equities (Alpaca)
-        print("Scanning Alpaca (Equities)...")
-        equities = run_command(["scan-market", "--provider", "alpaca"])
+        # Equities (Kraken)
+        print("Scanning Kraken (Equities)...")
+        equities = run_command(["scan-market", "--provider", "kraken"])
         if equities:
             for symbol in equities:
-                candidates.append({"provider": "alpaca", "symbol": symbol, "market": "equities"})
+                candidates.append({"provider": "kraken", "symbol": symbol, "market": "equities"})
 
     return candidates
 
