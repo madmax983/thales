@@ -232,6 +232,11 @@ pub async fn run_backtest_with_strategy(
 
     for i in 0..bars.bars.len() {
         let bar = &bars.bars[i];
+
+        if bar.open.is_nan() || bar.high.is_nan() || bar.low.is_nan() || bar.close.is_nan() {
+            continue;
+        }
+
         let current_time = bar.timestamp_unix_ms;
 
         // A. Execute Pending Orders (Market Orders from Previous Tick)
@@ -519,12 +524,18 @@ pub async fn run_backtest_with_strategy(
 }
 
 fn bars_to_dataframe(series: &BarSeries) -> Result<DataFrame> {
-    let opens: Vec<f64> = series.bars.iter().map(|b| b.open).collect();
-    let highs: Vec<f64> = series.bars.iter().map(|b| b.high).collect();
-    let lows: Vec<f64> = series.bars.iter().map(|b| b.low).collect();
-    let closes: Vec<f64> = series.bars.iter().map(|b| b.close).collect();
-    let volumes: Vec<f64> = series.bars.iter().map(|b| b.volume).collect();
-    let times: Vec<i64> = series.bars.iter().map(|b| b.timestamp_unix_ms).collect();
+    let valid_bars: Vec<&contracts::Bar> = series
+        .bars
+        .iter()
+        .filter(|b| !b.open.is_nan() && !b.high.is_nan() && !b.low.is_nan() && !b.close.is_nan())
+        .collect();
+
+    let opens: Vec<f64> = valid_bars.iter().map(|b| b.open).collect();
+    let highs: Vec<f64> = valid_bars.iter().map(|b| b.high).collect();
+    let lows: Vec<f64> = valid_bars.iter().map(|b| b.low).collect();
+    let closes: Vec<f64> = valid_bars.iter().map(|b| b.close).collect();
+    let volumes: Vec<f64> = valid_bars.iter().map(|b| b.volume).collect();
+    let times: Vec<i64> = valid_bars.iter().map(|b| b.timestamp_unix_ms).collect();
 
     let df = df!(
         "open" => opens,
@@ -605,6 +616,42 @@ mod tests {
         // We bought low (around 80) and sold high (around 120)
         assert!(result.trades.iter().any(|t| t.pnl > 0.0));
         assert!(result.metrics.total_return_pct > 0.0);
+
+        Ok(())
+    }
+
+    #[tokio::test]
+    async fn test_backtest_with_nan_values() -> Result<()> {
+        let mut bars = Vec::new();
+        let now = 100000;
+
+        for i in 0..10 {
+            let close = 100.0 - (i as f64);
+            bars.push(Bar {
+                symbol: "TEST".to_string(),
+                market: "equities".to_string(),
+                timeframe: "1m".to_string(),
+                timestamp_unix_ms: now + i * 60000,
+                open: if i == 5 { f64::NAN } else { close },
+                high: close,
+                low: close,
+                close,
+                volume: 1000.0,
+            });
+        }
+
+        let series = BarSeries {
+            schema_version: "v0".to_string(),
+            bars,
+        };
+        let config = BacktestConfig {
+            initial_capital: 10000.0,
+            risk_per_trade: 100.0,
+        };
+
+        // Should not panic, but gracefully ignore the NaN bar
+        let result = run_backtest(&series, "RsiMeanReversion", config).await;
+        assert!(result.is_ok());
 
         Ok(())
     }
