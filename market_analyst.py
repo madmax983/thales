@@ -159,10 +159,15 @@ def main():
             raw_confidence = analysis.get("confidence", 0.0)
             if raw_confidence < 0.70:
                 analysis["patterns"] = []
-            analysis["confidence"] = f"{raw_confidence * 100:.2f}%"
+
+            # We DO NOT format the confidence in the JSON payload!
+            # It must remain a float for Rust to parse it correctly later.
 
             print(f"\n--- Analysis for {symbol} ---")
-            print(json.dumps(analysis, indent=2))
+            # Create a printable copy with formatted confidence for the terminal output
+            print_analysis = analysis.copy()
+            print_analysis["confidence"] = f"{raw_confidence * 100:.2f}%"
+            print(json.dumps(print_analysis, indent=2))
 
             # Check for alerts
             regime = analysis.get("regime", "")
@@ -179,6 +184,10 @@ def main():
             markdown_block = f"## Market Analysis Report - {market_type} - {symbol}\n\n"
             markdown_block += f"Analysis for {symbol}...\n\n"
             markdown_block += "```json\n"
+
+            # Format the confidence scores as percentages in markdown outputs only.
+            # The JSON payload itself MUST NOT have the string formatting, to ensure
+            # confidence remains a float for Rust to parse it correctly later.
             markdown_block += json.dumps(analysis, indent=2) + "\n"
             markdown_block += "```\n\n"
             if research_summary:
@@ -190,7 +199,8 @@ def main():
                 f.write(markdown_block)
 
             regime_block = f"## {symbol} - {market_type}\n"
-            regime_block += f"Regime: {analysis.get('regime', 'Unknown')}\n\n"
+            regime_block += f"Regime: {analysis.get('regime', 'Unknown')}\n"
+            regime_block += f"**Confidence**: {raw_confidence * 100:.2f}%\n\n"
             with open("Market_Regime.md", "a") as f:
                 f.write(regime_block)
 
@@ -198,7 +208,7 @@ def main():
             volatility_block += f"Volatility: {analysis.get('volatility', 'Unknown')}\n"
             if analysis.get("atr"):
                 volatility_block += f"ATR: {analysis['atr']:.2f}\n"
-            volatility_block += "\n"
+            volatility_block += f"**Confidence**: {raw_confidence * 100:.2f}%\n\n"
             with open("Volatility_Regime.md", "a") as f:
                 f.write(volatility_block)
 
