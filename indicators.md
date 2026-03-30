@@ -1270,3 +1270,39 @@ let eom_series = eom::calculate(&df, period)?;
 - Returns `Result<Series>`.
 - The output Series is named "eom".
 - Initial values will be null until the SMA has enough data points to compute.
+
+---
+
+## Ulcer Index (UI)
+
+**Name:** Ulcer Index
+**Description:** Calculates the Ulcer Index, a technical indicator that measures downside risk in terms of both the depth and duration of price declines.
+**Rationale:** The index increases in value as the price moves farther away from a recent high and falls as the price returns to new highs. Unlike indicators that treat both upside and downside volatility equally, the Ulcer Index focuses purely on downside risk.
+
+### Implementation Details
+- Uses `rust_decimal::Decimal` iteratively for all math calculations to ensure financial precision, explicitly converting from and to `f64` only for Polars boundaries.
+- Formula:
+  1. Percentage Drawdown = `[(Close - N-period High Close) / N-period High Close] * 100`
+  2. Squared Average = `(N-period Sum of Percentage Drawdown Squared) / N`
+  3. Ulcer Index = `Square Root of Squared Average`
+- Returns a Polars `Series` of `f64` values (computed internally via Decimal).
+
+### Usage
+
+```rust
+use strategies::indicators::ulcer_index;
+use polars::prelude::*;
+
+// Assuming df is a DataFrame with a "close" column
+let period = 14;
+let ui_series = ulcer_index::calculate(&df, period)?;
+```
+
+### Parameters
+- `data`: Reference to a Polars `DataFrame`. Must contain a numeric "close" column.
+- `period`: The lookback period (typically 14).
+
+### Output
+- Returns `Result<Series>`.
+- The output Series is named "ulcer_index".
+- The first `period * 2 - 2` values will be null.

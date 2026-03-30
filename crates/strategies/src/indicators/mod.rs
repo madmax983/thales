@@ -45,6 +45,7 @@ pub mod tema;
 pub mod trix;
 pub mod tsi;
 pub mod ttm_squeeze;
+pub mod ulcer_index;
 pub mod ultimate_oscillator;
 pub mod vhf;
 pub mod volume_oscillator;
