@@ -63,7 +63,7 @@ use strategies::force_index_trend::{ForceIndexTrend, ForceIndexTrendConfig};
 use strategies::hma_crossover::{HmaCrossover, HmaCrossoverConfig};
 use strategies::ichimoku_cloud::{IchimokuCloud, IchimokuCloudConfig};
 use strategies::kama_crossover::{KamaCrossover, KamaCrossoverConfig};
-use strategies::kdj_indicator::{KdjIndicatorStrategy, KdjIndicatorStrategyConfig};
+use strategies::kdj_indicator::{KdjIndicator, KdjIndicatorConfig};
 use strategies::keltner_channel_breakout::{KeltnerChannelBreakout, KeltnerChannelBreakoutConfig};
 use strategies::kst_trend::{KstTrend, KstTrendConfig};
 use strategies::linear_regression_trend::{LinearRegressionTrend, LinearRegressionTrendConfig};
@@ -122,8 +122,8 @@ use strategies::zscore_mean_reversion::{ZScoreMeanReversion, ZScoreMeanReversion
 /// Returns an error if the specified `name` does not match any registered strategy.
 pub fn create_strategy(name: &str, symbol: &str) -> Result<Box<dyn Strategy>> {
     match name {
-        "KdjIndicatorStrategy" => {
-            let config = KdjIndicatorStrategyConfig {
+        "KdjIndicator" => {
+            let config = KdjIndicatorConfig {
                 k_period: 9,
                 k_smoothing: 3,
                 d_period: 3,
@@ -134,7 +134,7 @@ pub fn create_strategy(name: &str, symbol: &str) -> Result<Box<dyn Strategy>> {
                 atr_period: 14,
                 symbol: symbol.to_string(),
             };
-            Ok(Box::new(KdjIndicatorStrategy::new(config)))
+            Ok(Box::new(KdjIndicator::new(config).unwrap()))
         }
         "KamaCrossover" => {
             let config = KamaCrossoverConfig {
@@ -845,7 +845,7 @@ pub fn create_strategy(name: &str, symbol: &str) -> Result<Box<dyn Strategy>> {
 pub fn list_strategies() -> Vec<&'static str> {
     vec![
         "AdlMomentum",
-        "KdjIndicatorStrategy",
+        "KdjIndicator",
         "KamaCrossover",
         "AlmaCrossover",
         "AdxMacdTrend",

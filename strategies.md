@@ -3890,3 +3890,40 @@ Momentum
 - **Expected Win Rate:** 45-55%
 - **Expected Sharpe Ratio:** > 1.2
 - **Max Drawdown:** < 15%
+
+---
+
+# Trading Strategy: KDJ Indicator Strategy
+
+## Strategy Specification
+
+**Name:** KdjIndicator
+
+**Description:** A mean-reversion and momentum strategy based on the KDJ indicator. It identifies overbought and oversold conditions using the highly sensitive divergence %J line alongside Stochastic %K and %D lines to capture trend reversals early.
+
+**Rationale:** The KDJ indicator introduces a highly sensitive divergence %J line to the traditional Stochastic %K and %D lines. This enables earlier entries on reversals compared to lagging oscillators, maximizing potential profit margins in choppy or turning markets.
+
+## Requirements
+
+### Implementation Details
+- Uses Polars for fast vector data analysis and generating signals.
+- Implements the `Strategy` trait in Rust.
+- Utilizes the `kdj` and `atr` indicators.
+- Explicit position sizing via `max_position_size`.
+- Implements risk management via trailing stop-loss (ATR-based).
+
+### Strategy Type
+Mean Reversion
+
+### Entry Conditions
+- **Long Entry (Buy):** %J line crosses above 0 OR %K crosses above %D while both %K and %D are below 20.
+- **Short Entry (Sell):** %J line crosses below 100 OR %K crosses below %D while both %K and %D are above 80.
+
+### Exit Conditions
+- **Long Exit (Sell):** %J line crosses above 100 OR %K crosses below %D.
+- **Short Exit (Buy):** %J line crosses below 0 OR %K crosses above %D.
+
+### Expected Backtesting Metrics
+- Designed for choppy markets or early trend reversals.
+- Requires robust stop-loss sizing due to the high sensitivity of the %J line.
+- Backtesting should monitor for false positives in strong, persistent trends.
