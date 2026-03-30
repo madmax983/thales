@@ -2588,6 +2588,46 @@ TrendFollowing
 - **Expected Sharpe Ratio:** > 1.2
 - **Max Drawdown:** < 15%
 
+---
+
+# Trading Strategy: Klinger Volume Oscillator (KVO) Trend
+
+## Strategy Specification
+
+**Name:** KvoTrendFollowing
+
+**Description:** A trend-following strategy using the Klinger Volume Oscillator to identify long-term trends of money flow while remaining sensitive to short-term fluctuations.
+
+**Rationale:** The strategy combines price and volume to measure the buying and selling pressure. A crossover of the KVO above its signal line indicates bullish money flow, while a crossover below indicates bearish money flow.
+
+## Requirements
+
+### Implementation Details
+- Uses Polars for data analysis and generating signals.
+- Implements the `Strategy` trait in Rust.
+- Utilizes the `kvo` and `atr` indicators.
+
+### Strategy Type
+Trend Following
+
+### Entry Conditions
+- **Long Entry:** The KVO crosses above its Signal line.
+- **Short Entry:** The KVO crosses below its Signal line.
+
+### Exit Conditions
+- **Long Exit:** The KVO crosses below its Signal line.
+- **Short Exit:** The KVO crosses above its Signal line.
+
+### Risk Management
+- **Stop Loss:** Initial stop loss set using Average True Range (ATR) multiplied by a configured factor (e.g., 2.0x ATR) from the entry price.
+- **Take Profit:** Risk/Reward ratio of 1:2.
+- **Position Sizing:** Fixed size of 100 units.
+
+### Expected Backtesting Metrics
+- **Win Rate:** 40% - 50%
+- **Sharpe Ratio:** > 1.1
+- **Max Drawdown:** < 20%
+
 ## KdjIndicatorStrategy
 
 ### Strategy Specification

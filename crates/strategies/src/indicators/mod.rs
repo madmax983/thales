@@ -26,6 +26,7 @@ pub mod kama;
 pub mod kdj;
 pub mod keltner_channels;
 pub mod kst;
+pub mod kvo;
 pub mod linear_regression;
 pub mod macd;
 pub mod mfi;

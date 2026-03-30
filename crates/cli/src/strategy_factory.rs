@@ -65,6 +65,7 @@ use strategies::kama_crossover::{KamaCrossover, KamaCrossoverConfig};
 use strategies::kdj_indicator::{KdjIndicatorStrategy, KdjIndicatorStrategyConfig};
 use strategies::keltner_channel_breakout::{KeltnerChannelBreakout, KeltnerChannelBreakoutConfig};
 use strategies::kst_trend::{KstTrend, KstTrendConfig};
+use strategies::kvo_trend::{KvoTrendFollowing, KvoTrendFollowingConfig};
 use strategies::linear_regression_trend::{LinearRegressionTrend, LinearRegressionTrendConfig};
 use strategies::macd::{Macd, MacdConfig};
 use strategies::macd_rsi::{MacdRsiTrend, MacdRsiTrendConfig};
@@ -751,6 +752,13 @@ pub fn create_strategy(name: &str, symbol: &str) -> Result<Box<dyn Strategy>> {
             };
             Ok(Box::new(KstTrend::new(config)))
         }
+        "KvoTrendFollowing" => {
+            let config = KvoTrendFollowingConfig {
+                symbol: symbol.to_string(),
+                ..Default::default()
+            };
+            Ok(Box::new(KvoTrendFollowing::new(config)))
+        }
         "TsiTrend" => {
             let config = TsiTrendConfig {
                 long_period: 25,
@@ -892,6 +900,7 @@ pub fn list_strategies() -> Vec<&'static str> {
         "EmaRsiTrendFollowing",
         "PpoRsiTrend",
         "KstTrend",
+        "KvoTrendFollowing",
         "VhfTrendFollowing",
         "SchaffTrendCycle",
         "DisparityIndexReversion",

@@ -163,6 +163,8 @@ def get_active_strategies():
         strategies.append("BollingerBands")
     if re.search(r'\bAdlMomentum\b', content):
         strategies.append("AdlMomentum")
+    if re.search(r'\bKvoTrendFollowing\b', content):
+        strategies.append("KvoTrendFollowing")
     if re.search(r'\bKdjIndicatorStrategy\b', content):
         strategies.append("KdjIndicatorStrategy")
     if re.search(r'\bKamaCrossover\b', content):
