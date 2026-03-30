@@ -1270,3 +1270,34 @@ let eom_series = eom::calculate(&df, period)?;
 - Returns `Result<Series>`.
 - The output Series is named "eom".
 - Initial values will be null until the SMA has enough data points to compute.
+
+## Smoothed Moving Average (SMMA)
+
+**Name:** SMMA
+**Description:** Calculates the Smoothed Moving Average, which is equivalent to an Exponential Moving Average (EMA) with a different smoothing factor.
+**Rationale:** Reduces market noise and provides a smoother trend line compared to SMA or EMA.
+
+### Implementation Details
+- Uses `rust_decimal::Decimal` for all internal calculations to ensure precision.
+- Returns a Polars `Series` of `f64` values (computed internally via Decimal).
+- Handles missing data (nulls) by resetting the calculation window.
+
+### Usage
+
+```rust
+use strategies::indicators::smma;
+use polars::prelude::*;
+
+// Assuming df is a DataFrame with a "close" column
+let period = 14;
+let smma_series = smma::calculate(&df, period)?;
+```
+
+### Parameters
+- `data`: Reference to a Polars `DataFrame`. Must contain a numeric column named "close".
+- `period`: The size of the moving window (must be > 0).
+
+### Output
+- Returns `Result<Series>`.
+- The output Series is named "smma".
+- The first `period - 1` values will be null.
