@@ -105,6 +105,16 @@ cargo run -p thales-cli -- get-buying-power \
   --symbol XBT/USD
 ```
 
+## 🧪 Experimental Features (Nova)
+
+The `thales-cli` includes several experimental features (like `story-demo`, `simulate-black-swan`, etc.) built by the R&D team. These commands are gated behind the `nova` feature flag.
+
+To use any experimental feature, you **MUST** run the command with `--features nova`:
+
+```bash
+cargo run --features nova -p thales-cli -- <EXPERIMENTAL_COMMAND>
+```
+
 ## ⚙️ Configuration
 
 Set the following environment variables based on your provider:
