@@ -623,10 +623,10 @@ def scan_markets():
 
         # Equities (Alpaca)
         print("Scanning Alpaca (Equities)...")
-        equities = run_command(["scan-market", "--provider", "alpaca"])
+        equities = run_command(["scan-market", "--provider", "kraken"])
         if equities:
             for symbol in equities:
-                candidates.append({"provider": "alpaca", "symbol": symbol, "market": "equities"})
+                candidates.append({"provider": "kraken", "symbol": symbol, "market": "equities"})
 
     return candidates
 
@@ -1049,6 +1049,8 @@ def fetch_sellable_balance(provider, symbol):
 
 def format_size_hint(size):
     """Formats a numeric size as a compact decimal string."""
+    if float(size) == 0.0:
+        return "0"
     formatted = f"{size:.8f}".rstrip("0").rstrip(".")
     return formatted if formatted else "0"
 
