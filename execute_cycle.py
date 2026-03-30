@@ -172,6 +172,8 @@ def get_active_strategies():
         strategies.append("KamaCrossover")
     if re.search(r'\bAlmaCrossover\b', content):
         strategies.append("AlmaCrossover")
+    if re.search(r'\bWilliamsAlligator\b', content):
+        strategies.append("WilliamsAlligator")
     if re.search(r'\bAdxMacdTrend\b', content):
         strategies.append("AdxMacdTrend")
     if re.search(r'\bAroonOscillator\b', content):

@@ -20,11 +20,11 @@ use thales_cli::entropy;
 #[cfg(feature = "nova")]
 use thales_cli::experimental::cycle_analysis;
 #[cfg(feature = "nova")]
+use thales_cli::experimental::market_energy;
+#[cfg(feature = "nova")]
 use thales_cli::experimental::renko_entropy;
 #[cfg(feature = "nova")]
 use thales_cli::experimental::similarity_search;
-#[cfg(feature = "nova")]
-use thales_cli::experimental::market_energy;
 #[cfg(feature = "nova")]
 use thales_cli::experimental::strategy_correlation;
 #[cfg(feature = "nova")]

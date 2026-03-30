@@ -3890,3 +3890,39 @@ Momentum
 - **Expected Win Rate:** 45-55%
 - **Expected Sharpe Ratio:** > 1.2
 - **Max Drawdown:** < 15%
+
+# Trading Strategy: Williams Alligator
+
+## Strategy Specification
+
+**Name:** WilliamsAlligator
+
+**Description:** A trend-following strategy using three smoothed moving averages (Jaw, Teeth, Lips) to identify the presence and direction of a trend.
+
+**Rationale:** Helps traders stay in trends longer and avoid choppy markets by trading only when the "alligator" is open and feeding.
+
+## Requirements
+
+### Implementation Details
+- Uses Polars for data analysis and signal generation.
+- Implements the `Strategy` trait in Rust.
+- Utilizes the `sma` indicator with periods and shifts for Jaw, Teeth, and Lips.
+
+### Strategy Type
+Trend Following
+
+### Entry Conditions
+- **Long Entry:** Lips cross above Teeth and Jaw (Alligator wakes up bullish).
+- **Short Entry:** Lips cross below Teeth and Jaw (Alligator wakes up bearish).
+
+### Exit Conditions
+- **Long Exit:** Lips cross below Teeth.
+- **Short Exit:** Lips cross above Teeth.
+
+### Position Sizing
+- Fixed percentage of capital based on a maximum position size configuration.
+
+### Expected Backtesting Metrics
+- **Win Rate:** ~45-55%
+- **Sharpe Ratio:** > 1.2
+- **Max Drawdown:** < 15%

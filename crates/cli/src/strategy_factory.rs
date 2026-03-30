@@ -100,6 +100,7 @@ use strategies::vortex_breakout::{VortexBreakout, VortexBreakoutConfig};
 use strategies::vpt_trend::{VptTrend, VptTrendConfig};
 use strategies::vwap_reversion::{VwapReversion, VwapReversionConfig};
 use strategies::vwma_crossover::{VwmaCrossover, VwmaCrossoverConfig};
+use strategies::williams_alligator::{WilliamsAlligator, WilliamsAlligatorConfig};
 use strategies::williams_r::{WilliamsR, WilliamsRConfig};
 use strategies::wma_crossover::{WmaCrossover, WmaCrossoverConfig};
 use strategies::zlema_crossover::{ZlemaCrossover, ZlemaCrossoverConfig};
@@ -657,6 +658,20 @@ pub fn create_strategy(name: &str, symbol: &str) -> Result<Box<dyn Strategy>> {
             };
             Ok(Box::new(ZlemaCrossover::new(config)))
         }
+        "WilliamsAlligator" => {
+            let config = WilliamsAlligatorConfig {
+                jaw_period: 13,
+                jaw_shift: 8,
+                teeth_period: 8,
+                teeth_shift: 5,
+                lips_period: 5,
+                lips_shift: 3,
+                stop_loss_pct: 0.05,
+                max_position_size: 100.0,
+                symbol: symbol.to_string(),
+            };
+            Ok(Box::new(WilliamsAlligator::new(config)))
+        }
         "ZScoreMeanReversion" => {
             let config = ZScoreMeanReversionConfig {
                 period: 20,
@@ -890,6 +905,7 @@ pub fn list_strategies() -> Vec<&'static str> {
         "VptTrendFollowing",
         "ZlemaCrossover",
         "ZScoreMeanReversion",
+        "WilliamsAlligator",
         "BollingerRsiMeanReversion",
         "StochRsiMeanReversion",
         "RocMomentum",
