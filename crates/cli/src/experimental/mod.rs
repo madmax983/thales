@@ -6,6 +6,7 @@ pub mod kinematics;
 pub mod market_energy;
 pub mod market_weather;
 pub mod renko_entropy;
+pub mod resonance;
 pub mod similarity_search;
 pub mod sonification;
 pub mod strategy_correlation;

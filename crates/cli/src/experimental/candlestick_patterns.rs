@@ -205,7 +205,7 @@ mod tests {
                     open: 100.0,
                     high: 105.0,
                     low: 95.0,
-                    close: 100.01,
+                    close: 100.001, // Adjusted closer so (0.001 / 10.0) <= 0.001
                     volume: 1000.0,
                 },
             ],
