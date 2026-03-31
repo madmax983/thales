@@ -54,6 +54,18 @@ def apply_volatility_sizing(size_hint_val, volatility_label):
         return size_hint_val * 1.5
     return size_hint_val
 
+def format_size(val):
+    if val in [None, 'None', '-', "", "max"]:
+        return str(val)
+    try:
+        val_float = float(val)
+        if val_float == 0.0:
+            return "0"
+        formatted_val = f"{val_float:.8f}".rstrip('0').rstrip('.')
+        return formatted_val if formatted_val else "0"
+    except (ValueError, TypeError):
+        return str(val)
+
 def format_price(val):
     if val in [None, 'None', '-', ""]:
         return 'None'
@@ -252,10 +264,12 @@ def main():
             intents = run_command(args)
             if intents:
                 for intent in intents:
-                    # Format numerical values safely to 4 decimal places before checks
-                    for field in ["size_hint", "stop_loss", "take_profit"]:
+                    # Format numerical values safely before checks
+                    for field in ["stop_loss", "take_profit"]:
                         if field in intent:
                             intent[field] = format_price(intent[field])
+                    if "size_hint" in intent:
+                        intent["size_hint"] = format_size(intent["size_hint"])
 
                     # Handle Signal Types: Entry, Exit, ScaleIn, ScaleOut
                     signal_type_raw = intent.get("signal_type", "")
@@ -272,7 +286,7 @@ def main():
                         try:
                             size_hint_val = float(size_hint_str)
                             adjusted_size = apply_volatility_sizing(size_hint_val, volatility_label)
-                            intent["size_hint"] = format_price(adjusted_size)
+                            intent["size_hint"] = format_size(adjusted_size)
                         except (ValueError, TypeError):
                             pass
 
@@ -281,7 +295,7 @@ def main():
                         if is_scale_out:
                             try:
                                 current_sz = float(intent.get("size_hint", "0"))
-                                intent["size_hint"] = format_price(current_sz * 0.5)
+                                intent["size_hint"] = format_size(current_sz * 0.5)
                             except (ValueError, TypeError):
                                 pass
                         intent.pop("stop_loss", None)
@@ -290,7 +304,7 @@ def main():
                         if is_scale_in:
                             try:
                                 current_sz = float(intent.get("size_hint", "0"))
-                                intent["size_hint"] = format_price(current_sz * 0.5)
+                                intent["size_hint"] = format_size(current_sz * 0.5)
                             except (ValueError, TypeError):
                                 pass
 
@@ -312,10 +326,12 @@ def main():
                             else:
                                 print(f"Warning: Failed to compute fallback SL/TP for {symbol}: No last close price available.", file=sys.stderr)
 
-                    # Re-format numerical values safely to 4 decimal places after fallback calculations
-                    for field in ["size_hint", "stop_loss", "take_profit"]:
+                    # Re-format numerical values safely after fallback calculations
+                    for field in ["stop_loss", "take_profit"]:
                         if field in intent:
                             intent[field] = format_price(intent[field])
+                    if "size_hint" in intent:
+                        intent["size_hint"] = format_size(intent["size_hint"])
 
                     # Filter: Only allow Entry/ScaleIn signals that have a valid stop loss
                     sl_val_check = intent.get("stop_loss")
