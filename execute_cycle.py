@@ -906,7 +906,7 @@ def log_trade(intent, result, slippage=None):
     symbol = symbol.replace("|", "\\|")
     action = action.replace("|", "\\|")
 
-    size = intent["size_hint"]
+    size = format_size_hint(intent.get("size_hint", "0"))
     price = format_price(intent.get("limit_price"))
     if price == "-": price = "Market"
 
@@ -958,7 +958,7 @@ def log_submitted(intent, result):
     symbol = symbol.replace("|", "\\|")
     action = action.replace("|", "\\|")
 
-    size = intent.get("size_hint", "0")
+    size = format_size_hint(intent.get("size_hint", "0"))
     price = format_price(intent.get("limit_price"))
     if price == "-": price = "Market"
 
@@ -1056,10 +1056,15 @@ def format_price(val):
 
 def format_size_hint(size):
     """Formats a numeric size as a compact decimal string."""
-    if float(size) == 0.0:
-        return "0"
-    formatted = f"{size:.8f}".rstrip("0").rstrip(".")
-    return formatted if formatted else "0"
+    if str(size).lower() == "max":
+        return "max"
+    try:
+        if float(size) == 0.0:
+            return "0"
+        formatted = f"{float(size):.8f}".rstrip("0").rstrip(".")
+        return formatted if formatted else "0"
+    except (ValueError, TypeError):
+        return str(size)
 
 def adjust_buy_size_to_buying_power(intent, current_price, safety_buffer=0.99):
     """
