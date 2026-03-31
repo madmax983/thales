@@ -1,6 +1,8 @@
 //! KDJ Indicator Trading Strategy
 //!
-//! A mean-reversion and momentum strategy based on the KDJ indicator. It relies on the fast %K line, slow %D line, and divergence %J line to identify overbought/oversold conditions and trend reversals.
+//! A mean-reversion and momentum strategy based on the KDJ indicator. The KDJ indicator is a derived form of the Stochastic Oscillator. While the Stochastic Oscillator uses %K and %D lines to indicate overbought or oversold conditions, the KDJ indicator adds an extra line, the %J line. The %J line represents the divergence of the %D value from the %K value, making it highly sensitive to immediate market turning points.
+//!
+//! It relies on the fast %K line, slow %D line, and divergence %J line to identify overbought/oversold conditions and trend reversals. This makes it a powerful leading indicator, enabling earlier entries on reversals compared to lagging momentum indicators.
 //!
 //! # Entry Conditions
 //! - **Long Entry:** %J line crosses above 0 (oversold reversal) OR %K crosses above %D while both are below 20.
@@ -18,6 +20,30 @@ use polars::prelude::*;
 use serde::{Deserialize, Serialize};
 
 /// Configuration for the KDJ Indicator Strategy.
+///
+/// This struct holds all parameters required to run the KDJ strategy, including
+/// periods for %K and %D calculations, overbought/oversold thresholds, and risk management settings.
+///
+/// # Examples
+///
+/// ```rust
+/// use strategies::kdj_indicator::KdjIndicatorStrategyConfig;
+///
+/// let config = KdjIndicatorStrategyConfig {
+///     k_period: 9,
+///     k_smoothing: 3,
+///     d_period: 3,
+///     oversold_threshold: 20.0,
+///     overbought_threshold: 80.0,
+///     max_position_size: 1000.0,
+///     stop_loss_atr_mult: 2.0,
+///     atr_period: 14,
+///     symbol: "BTCUSD".to_string(),
+/// };
+///
+/// assert_eq!(config.k_period, 9);
+/// assert_eq!(config.symbol, "BTCUSD");
+/// ```
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct KdjIndicatorStrategyConfig {
     /// The number of periods to look back for the highest high and lowest low to calculate the fast %K. (e.g., 9)
@@ -40,11 +66,39 @@ pub struct KdjIndicatorStrategyConfig {
     pub symbol: String,
 }
 
+
 impl StrategyConfig for KdjIndicatorStrategyConfig {}
 
 /// KDJ Indicator Strategy
 ///
 /// A mean-reversion and momentum strategy based on the KDJ indicator. It relies on the fast %K line, slow %D line, and divergence %J line to identify overbought/oversold conditions and trend reversals.
+///
+/// The KDJ indicator is a derived form of the Stochastic Oscillator. While the Stochastic Oscillator uses
+/// %K and %D lines to indicate overbought or oversold conditions, the KDJ indicator adds an extra line, the %J line.
+/// The %J line represents the divergence of the %D value from the %K value, making it highly sensitive to immediate
+/// market turning points.
+///
+/// # Examples
+///
+/// ```rust
+/// use strategies::kdj_indicator::{KdjIndicatorStrategy, KdjIndicatorStrategyConfig};
+/// use strategies::strategy::Strategy;
+///
+/// let config = KdjIndicatorStrategyConfig {
+///     k_period: 9,
+///     k_smoothing: 3,
+///     d_period: 3,
+///     oversold_threshold: 20.0,
+///     overbought_threshold: 80.0,
+///     max_position_size: 1000.0,
+///     stop_loss_atr_mult: 2.0,
+///     atr_period: 14,
+///     symbol: "BTCUSD".to_string(),
+/// };
+///
+/// let strategy = KdjIndicatorStrategy::new(config);
+/// assert_eq!(strategy.name(), "KDJ Indicator Trading Strategy");
+/// ```
 pub struct KdjIndicatorStrategy {
     config: KdjIndicatorStrategyConfig,
 }
