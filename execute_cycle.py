@@ -412,17 +412,9 @@ def archive_signals(days=2):
 
         # Rewrite active signals
         with open(SIGNALS_PATH, "w") as f:
-            # Join chunks. First chunk doesn't have newline prefix if it was original start
-            # But keep_chunks[0] might be the original start OR a later chunk.
-            # If keep_chunks[0] starts with "\n## ", and we write it, it might add extra newline at start of file?
-            # Actually full_chunk_text includes "\n## " for i > 0.
-            # If i=0 was kept, it has no prefix.
-            # If i=0 was archived, keep_chunks[0] will have prefix "\n## ".
-            # We should probably trim the first one if it starts with newline?
-
             output = "".join(keep_chunks)
-            if output.startswith("\n"):
-                output = output.lstrip("\n")
+            if output.startswith("\n##"):
+                output = output[1:]  # Only remove the leading newline, keep the header
             f.write(output)
 
 def get_executed_signal_refs():
