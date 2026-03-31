@@ -66,7 +66,6 @@ pub struct KdjIndicatorStrategyConfig {
     pub symbol: String,
 }
 
-
 impl StrategyConfig for KdjIndicatorStrategyConfig {}
 
 /// KDJ Indicator Strategy
