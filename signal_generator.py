@@ -147,7 +147,7 @@ def format_signal(intent):
 
     strength = intent.get('confidence', 0.0) * 100
 
-    size = format_price(intent.get('size_hint', '0'))
+    size = format_size(intent.get('size_hint', '0'))
     sl = format_price(intent.get('stop_loss', 'None'))
     tp = format_price(intent.get('take_profit', 'None'))
     reason = intent.get('rationale', 'No reason provided.')
@@ -320,9 +320,9 @@ def main():
                                 new_sl, new_tp = calculate_fallback_sl_tp(last_close_price, side, vol_label, missing_sl, missing_tp, sl_val)
 
                                 if new_sl is not None:
-                                    intent["stop_loss"] = new_sl
+                                    intent["stop_loss"] = format_price(new_sl)
                                 if new_tp is not None:
-                                    intent["take_profit"] = new_tp
+                                    intent["take_profit"] = format_price(new_tp)
                             else:
                                 print(f"Warning: Failed to compute fallback SL/TP for {symbol}: No last close price available.", file=sys.stderr)
 
