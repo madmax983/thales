@@ -412,9 +412,7 @@ def archive_signals(days=2):
 
         # Rewrite active signals
         with open(SIGNALS_PATH, "w") as f:
-            output = "".join(keep_chunks)
-            if output.startswith("\n##"):
-                output = output[1:]  # Only remove the leading newline, keep the header
+            output = "".join(keep_chunks).lstrip("\n")
             f.write(output)
 
 def get_executed_signal_refs():

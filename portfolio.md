@@ -4883,6 +4883,16 @@
 | 2026-03-31 13:11:36 | ETHUSD | crypto:ETHUSD:unknown:1774900785187 | CONFLICT: Conflicting signals (Buy and Sell) detected for ETHUSD. Trading halted for this asset. |
 | 2026-03-31 13:11:36 | SPY | equities:SPY:unknown:1774900785207 | CONFLICT: Conflicting signals (Buy and Sell) detected for SPY. Trading halted for this asset. |
 | 2026-03-31 13:11:37 | BTCUSD | NO_REF | CONFLICT: Conflicting signals (Buy and Sell) detected for BTCUSD. Trading halted for this asset. |
+| 2026-03-31 16:06:55 | BTCUSD | crypto:BTCUSD:unknown:1774889370137 | Signal already executed/submitted (Ref: crypto:BTCUSD:unknown:1774889370137) |
+| 2026-03-31 16:06:55 | BTCUSD | crypto:BTCUSD:unknown:1774900785144 | Signal already executed/submitted (Ref: crypto:BTCUSD:unknown:1774900785144) |
+| 2026-03-31 16:06:56 | ETHUSD | crypto:ETHUSD:unknown:1774963583099 | CONFLICT: Conflicting signals (Buy and Sell) detected for ETHUSD. Trading halted for this asset. |
+| 2026-03-31 16:06:57 | SPY | equities:SPY:unknown:1774963583152 | Invalid input: provider error: kraken api error: EQuery:Unknown asset pair |
+| 2026-03-31 16:06:58 | BTCUSD | crypto:BTCUSD:unknown:1774963582996 | Rejected by Risk Agent: Position size below exchange minimum for BTCUSD (6.213e-05 < 0.0001) |
+| 2026-03-31 16:22:24 | BTCUSD | crypto:BTCUSD:unknown:1774889370137 | Signal already executed/submitted (Ref: crypto:BTCUSD:unknown:1774889370137) |
+| 2026-03-31 16:22:24 | BTCUSD | crypto:BTCUSD:unknown:1774900785144 | Signal already executed/submitted (Ref: crypto:BTCUSD:unknown:1774900785144) |
+| 2026-03-31 16:22:25 | ETHUSD | crypto:ETHUSD:unknown:1774963583099 | CONFLICT: Conflicting signals (Buy and Sell) detected for ETHUSD. Trading halted for this asset. |
+| 2026-03-31 16:22:25 | SPY | equities:SPY:unknown:1774963583152 | Invalid input: provider error: kraken api error: EQuery:Unknown asset pair |
+| 2026-03-31 16:22:27 | BTCUSD | crypto:BTCUSD:unknown:1774963582996 | Rejected by Risk Agent: Position size below exchange minimum for BTCUSD (6.201e-05 < 0.0001) |
 
 ## Executed Trades
 
