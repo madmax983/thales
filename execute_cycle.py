@@ -924,8 +924,8 @@ def log_trade(intent, result, slippage=None):
         except (ValueError, TypeError):
              pass
 
-    signal_ref = intent["intent_id"].replace("|", "\\|")
-    rationale = intent["rationale"].replace("\n", " ").replace("\r", " ").replace("|", "\\|")
+    signal_ref = intent.get("intent_id", "NO_REF").replace("|", "\\|")
+    rationale = intent.get("rationale", "No rationale").replace("\n", " ").replace("\r", " ").replace("|", "\\|")
 
     if slippage is not None:
         rationale += f" [Slippage: {slippage:.4f}%]"
@@ -989,8 +989,8 @@ def log_submitted(intent, result):
 def log_skipped(intent, reason):
     """Logs skipped trade."""
     date_str = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    symbol = intent["symbol"].replace("|", "\\|")
-    signal_ref = intent["intent_id"].replace("|", "\\|")
+    symbol = intent.get("symbol", "UNKNOWN").replace("|", "\\|")
+    signal_ref = intent.get("intent_id", "NO_REF").replace("|", "\\|")
     reason = str(reason).replace("|", "\\|")
 
     header = "| Date/Time | Symbol | Signal Ref | Rejection Reason |"
