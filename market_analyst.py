@@ -190,6 +190,30 @@ def main():
             # confidence remains a float for Rust to parse it correctly later.
             markdown_block += json.dumps(analysis, indent=2) + "\n"
             markdown_block += "```\n\n"
+
+            # Construct a TradeIntent dictionary
+            # Persona rules dictate: Never make trading recommendations directly - only provide analysis.
+            # Vantage Spec dictates: If the analysis concludes that no trade should be taken, the block must explicitly state a "hold" or "neutral" recommendation rather than omitting the structure entirely.
+
+            intent = {
+                "schema_version": "v0",
+                "market": market_type,
+                "symbol": symbol,
+                "side": "hold",
+                "confidence": raw_confidence,
+                "size_hint": "0",
+                "stop_loss": None,
+                "take_profit": None,
+                "order_type": "market",
+                "rationale": "Market Analyst report generated. No direct trading recommendation per persona rules.",
+                "invalidation": "Market regime change"
+            }
+
+            markdown_block += "**Signal Structure**:\n"
+            markdown_block += "```json\n"
+            markdown_block += json.dumps(intent, indent=2) + "\n"
+            markdown_block += "```\n\n"
+
             if research_summary:
                 markdown_block += f"**Research**: {research_summary}\n\n"
             if news_summary:
