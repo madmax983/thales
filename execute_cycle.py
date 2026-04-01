@@ -412,9 +412,7 @@ def archive_signals(days=2):
 
         # Rewrite active signals
         with open(SIGNALS_PATH, "w") as f:
-            output = "".join(keep_chunks)
-            if output.startswith("\n##"):
-                output = output[1:]  # Only remove the leading newline, keep the header
+            output = "".join(keep_chunks).lstrip("\n")
             f.write(output)
 
 def get_executed_signal_refs():
@@ -911,7 +909,7 @@ def log_trade(intent, result, slippage=None):
         try:
              entry = float(price)
              stop = float(sl)
-             qty = float(size)
+             qty = float(size) if str(size).lower() != "max" else 0.0
              max_risk = f"{abs(entry - stop) * qty:.2f}"
         except (ValueError, TypeError):
              pass
@@ -963,7 +961,7 @@ def log_submitted(intent, result):
         try:
              entry = float(price)
              stop = float(sl)
-             qty = float(size)
+             qty = float(size) if str(size).lower() != "max" else 0.0
              max_risk = f"{abs(entry - stop) * qty:.2f}"
         except (ValueError, TypeError):
              pass
