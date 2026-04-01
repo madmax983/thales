@@ -157,6 +157,9 @@ def main():
                 analysis["recommendation"] = ""
 
             raw_confidence = analysis.get("confidence", 0.0)
+            raw_confidence = round(raw_confidence, 4)
+            analysis["confidence"] = raw_confidence
+
             if raw_confidence < 0.70:
                 analysis["patterns"] = []
 
@@ -172,16 +175,16 @@ def main():
             # Check for alerts
             regime = analysis.get("regime", "")
             if "Trending" in regime:
-                 print(f"ALERT: Strong Trend Detected: {regime}")
+                 print(f"ALERT: Strong Trend Detected for {symbol}: {regime}")
             if analysis.get("volatility") == "High" or analysis.get("volatility") == "Extreme":
-                 print(f"ALERT: High Volatility Detected!")
+                 print(f"ALERT: High Volatility Detected for {symbol}!")
 
             # Programmatically append to log files
             market_type = analysis.get("market", market)
             research_summary = analysis.get("research_summary", research)
             news_summary = analysis.get("news_summary", news)
 
-            markdown_block = f"## Market Analysis Report - {market_type} - {symbol}\n\n"
+            markdown_block = f"## Market Analysis Report - {market_type} - {symbol} - {raw_confidence * 100:.2f}%\n\n"
             markdown_block += f"Analysis for {symbol}...\n\n"
             markdown_block += "```json\n"
 
