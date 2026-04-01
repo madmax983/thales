@@ -3890,3 +3890,35 @@ Momentum
 - **Expected Win Rate:** 45-55%
 - **Expected Sharpe Ratio:** > 1.2
 - **Max Drawdown:** < 15%
+
+# Trading Strategy: EMA Volume Trend
+
+## Strategy Specification
+
+**Name:** EmaVolumeTrend
+
+**Description:** A trend-following strategy that confirms EMA crossovers with volume expansion.
+
+**Rationale:** Filtering EMA crossovers with volume helps avoid false breakouts in low-liquidity environments.
+
+## Requirements
+
+### Implementation Details
+- Uses Polars for data analysis and generating signals.
+- Implements the `Strategy` trait in Rust.
+
+### Strategy Type
+TrendFollowing
+
+### Entry Conditions
+- **Long Entry:** Short EMA crosses above Long EMA AND current volume > Volume SMA.
+- **Short Entry:** Short EMA crosses below Long EMA AND current volume > Volume SMA.
+
+### Exit Conditions
+- **Long Exit:** Short EMA crosses below Long EMA.
+- **Short Exit:** Short EMA crosses above Long EMA.
+
+### Expected Backtesting Metrics
+- **Win Rate:** > 45%
+- **Sharpe Ratio:** > 1.0
+- **Max Drawdown:** < 20%

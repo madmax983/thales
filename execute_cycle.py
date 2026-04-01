@@ -180,6 +180,8 @@ def get_active_strategies():
         strategies.append("ElderRay")
     if re.search(r'\bEmaCrossover\b', content):
         strategies.append("EmaCrossover")
+    if re.search(r'\bEmaVolumeTrend\b', content):
+        strategies.append("EmaVolumeTrend")
     if re.search(r'\bFisherTransformReversal\b', content):
         strategies.append("FisherTransformReversal")
     if re.search(r'\bRsiMeanReversion\b', content):

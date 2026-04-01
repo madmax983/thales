@@ -56,6 +56,7 @@ use strategies::ease_of_movement::{EaseOfMovement, EaseOfMovementConfig};
 use strategies::elder_ray::{ElderRay, ElderRayConfig};
 use strategies::ema_crossover::{EmaCrossover, EmaCrossoverConfig};
 use strategies::ema_rsi_trend::{EmaRsiTrendFollowing, EmaRsiTrendFollowingConfig};
+use strategies::ema_volume_trend::{EmaVolumeTrend, EmaVolumeTrendConfig};
 use strategies::fisher_transform_reversal::{
     FisherTransformReversal, FisherTransformReversalConfig,
 };
@@ -229,6 +230,18 @@ pub fn create_strategy(name: &str, symbol: &str) -> Result<Box<dyn Strategy>> {
                 symbol: symbol.to_string(),
             };
             Ok(Box::new(EmaCrossover::new(config)))
+        }
+        "EmaVolumeTrend" => {
+            let config = EmaVolumeTrendConfig {
+                short_ema_period: 9,
+                long_ema_period: 21,
+                volume_sma_period: 20,
+                max_position_size: 100.0,
+                stop_loss_atr_mult: 2.0,
+                atr_period: 14,
+                symbol: symbol.to_string(),
+            };
+            Ok(Box::new(EmaVolumeTrend::new(config)))
         }
         "EmaRsiTrendFollowing" => {
             let config = EmaRsiTrendFollowingConfig {
@@ -853,6 +866,7 @@ pub fn list_strategies() -> Vec<&'static str> {
         "BollingerBands",
         "ElderRay",
         "EmaCrossover",
+        "EmaVolumeTrend",
         "FisherTransformReversal",
         "RsiMeanReversion",
         "Macd",
