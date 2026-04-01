@@ -1270,3 +1270,37 @@ let eom_series = eom::calculate(&df, period)?;
 - Returns `Result<Series>`.
 - The output Series is named "eom".
 - Initial values will be null until the SMA has enough data points to compute.
+
+## Chande Kroll Stop
+
+**Name:** Chande Kroll Stop
+**Description:** A volatility-based indicator to identify trend stops. It uses the Average True Range (ATR) to calculate initial stops based on the highest high and lowest low, and then trails these stops using maximum/minimums over a secondary period.
+**Rationale:** By accounting for market volatility via ATR, it provides dynamic stop loss levels that adjust to changing market conditions, reducing premature exits in volatile markets.
+
+### Implementation Details
+- Uses `rust_decimal::Decimal` iteratively for all math calculations to ensure financial precision.
+- Utilizes an O(N) Monotonic Queue for rolling minimum and maximum calculations.
+- Returns a tuple of two Polars `Series` of `f64` values (computed internally via Decimal) for Long Stop and Short Stop.
+
+### Usage
+
+```rust
+use strategies::indicators::chande_kroll;
+use polars::prelude::*;
+
+// Assuming df is a DataFrame with "high", "low", "close" columns
+let atr_period = 10;
+let atr_multiplier = 3.0;
+let stop_period = 20;
+let (long_stop, short_stop) = chande_kroll::calculate(&df, atr_period, atr_multiplier, stop_period)?;
+```
+
+### Parameters
+- `data`: Reference to a Polars `DataFrame`. Must contain numeric "high", "low", and "close" columns.
+- `atr_period`: The lookback period for ATR calculation (e.g., 10).
+- `atr_multiplier`: The multiplier applied to ATR to determine the initial stop distance (e.g., 3.0).
+- `stop_period`: The lookback period for trailing the maximum/minimum stops (e.g., 20).
+
+### Output
+- Returns `Result<(Series, Series)>`.
+- The output Series are named "chande_kroll_long" and "chande_kroll_short".
