@@ -102,29 +102,37 @@ def calculate_fallback_sl_tp(last_close, side, volatility_label, missing_sl, mis
 
     if side in ["buy", "long"]:
         if missing_sl:
-            new_sl = format_price(last_close * (1.0 - sl_pct))
-        if missing_tp:
+            new_sl_val = last_close * (1.0 - sl_pct)
+            new_sl = format_price(new_sl_val)
+        else:
             try:
-                sl_val_check = float(intent_sl) if not missing_sl else float(new_sl)
-                sl_dist = last_close - sl_val_check
-                if sl_dist > 0:
-                    new_tp = format_price(last_close + (sl_dist * 2.0))
-                else:
-                    new_tp = format_price(last_close * (1.0 + tp_pct))
-            except (ValueError, TypeError, KeyError):
+                new_sl_val = float(intent_sl)
+            except (ValueError, TypeError):
+                new_sl_val = last_close * (1.0 - sl_pct)
+                new_sl = format_price(new_sl_val)
+
+        if missing_tp:
+            sl_dist = last_close - new_sl_val
+            if sl_dist > 0:
+                new_tp = format_price(last_close + (sl_dist * 2.0))
+            else:
                 new_tp = format_price(last_close * (1.0 + tp_pct))
     elif side in ["sell", "short"]:
         if missing_sl:
-            new_sl = format_price(last_close * (1.0 + sl_pct))
-        if missing_tp:
+            new_sl_val = last_close * (1.0 + sl_pct)
+            new_sl = format_price(new_sl_val)
+        else:
             try:
-                sl_val_check = float(intent_sl) if not missing_sl else float(new_sl)
-                sl_dist = sl_val_check - last_close
-                if sl_dist > 0:
-                    new_tp = format_price(last_close - (sl_dist * 2.0))
-                else:
-                    new_tp = format_price(last_close * (1.0 - tp_pct))
-            except (ValueError, TypeError, KeyError):
+                new_sl_val = float(intent_sl)
+            except (ValueError, TypeError):
+                new_sl_val = last_close * (1.0 + sl_pct)
+                new_sl = format_price(new_sl_val)
+
+        if missing_tp:
+            sl_dist = new_sl_val - last_close
+            if sl_dist > 0:
+                new_tp = format_price(last_close - (sl_dist * 2.0))
+            else:
                 new_tp = format_price(last_close * (1.0 - tp_pct))
 
     return new_sl, new_tp
