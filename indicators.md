@@ -1270,3 +1270,23 @@ let eom_series = eom::calculate(&df, period)?;
 - Returns `Result<Series>`.
 - The output Series is named "eom".
 - Initial values will be null until the SMA has enough data points to compute.
+
+## True Strength Index (TSI)
+
+**Name:** TSI
+**Description:** Calculates the True Strength Index (TSI), a momentum oscillator based on a double smoothed EMA of price momentum.
+**Rationale:** TSI smooths price changes to capture trends while minimizing lag.
+
+### Implementation Details
+- Uses `rust_decimal::Decimal` iteratively for all math calculations.
+- Returns a Polars `Series`.
+
+### Usage
+
+```rust
+use strategies::indicators::true_strength_index;
+use polars::prelude::*;
+
+// Assuming df is a DataFrame with "close" column
+let tsi_series = true_strength_index::calculate(&df, 25, 13)?;
+```
