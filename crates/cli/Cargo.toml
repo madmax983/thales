@@ -23,6 +23,7 @@ kraken-provider = { path = "../providers/kraken" }
 paper-provider = { path = "../providers/paper" }
 chrono = "0.4"
 rand_distr = "0.4"
+csv = "1.4.0"
 
 [dev-dependencies]
 assert_cmd = "2"

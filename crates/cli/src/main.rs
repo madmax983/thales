@@ -91,6 +91,8 @@ enum Commands {
         initial_capital: f64,
         #[arg(long, default_value = "100.0")]
         risk: f64,
+        #[arg(long)]
+        csv_report: Option<PathBuf>,
     },
     Benchmark {
         #[arg(long)]
@@ -493,6 +495,7 @@ fn run(command: Commands, raw: bool) -> Result<String, CliError> {
             strategy,
             initial_capital,
             risk,
+            csv_report,
         } => {
             let raw_str = std::fs::read_to_string(&input).map_err(|e| {
                 std::io::Error::new(
@@ -521,6 +524,27 @@ fn run(command: Commands, raw: bool) -> Result<String, CliError> {
             let result = rt
                 .block_on(async { backtest::run_backtest(&series, &strategy, config).await })
                 .map_err(|e| CliError::Validation(e.to_string()))?;
+
+            if let Some(csv_path) = csv_report {
+                let mut wtr = csv::Writer::from_path(&csv_path).map_err(|e| {
+                    CliError::Io(std::io::Error::other(
+                        format!(
+                            "Failed to create CSV writer for '{}': {}",
+                            csv_path.display(),
+                            e
+                        ),
+                    ))
+                })?;
+
+                for trade in &result.trades {
+                    wtr.serialize(trade).map_err(|e| {
+                        CliError::Io(std::io::Error::other(
+                            format!("Failed to write trade to CSV: {}", e),
+                        ))
+                    })?;
+                }
+                wtr.flush().map_err(CliError::Io)?;
+            }
 
             ok_envelope(result, vec![], raw)
         }
@@ -1957,7 +1981,7 @@ where
     let raw_str = std::fs::read_to_string(path).map_err(|e| {
         std::io::Error::new(
             e.kind(),
-            format!("Could not open file '{}': {}", path.display(), e),
+            format!("Could not open input file '{}': {}", path.display(), e),
         )
     })?;
     if let Ok(envelope) = serde_json::from_str::<ResponseEnvelope<T>>(&raw_str)

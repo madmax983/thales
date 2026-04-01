@@ -232,6 +232,12 @@ pub async fn run_backtest_with_strategy(
 
     for i in 0..bars.bars.len() {
         let bar = &bars.bars[i];
+
+        // Skip NaN bars
+        if bar.open.is_nan() || bar.high.is_nan() || bar.low.is_nan() || bar.close.is_nan() {
+            continue;
+        }
+
         let current_time = bar.timestamp_unix_ms;
 
         // A. Execute Pending Orders (Market Orders from Previous Tick)
