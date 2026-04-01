@@ -4398,6 +4398,9 @@
 | 2026-03-23 20:06:18 | SHIBUSD | crypto:SHIBUSD:sell:1774296000000 | provider error: kraken api error: EOrder:Insufficient funds |
 | 2026-03-23 20:57:56 | MOGUSD | crypto:MOGUSD:buy:1774296000000 | Rejected by Risk Agent: Order value below exchange minimum fiat volume (0.61 < 5.0) |
 | 2026-03-23 20:57:57 | SHIBUSD | crypto:SHIBUSD:sell:1774296000000 | provider error: kraken api error: EOrder:Insufficient funds |
+| 2026-03-23 21:52:49 | MOGUSD | NO_REF | CONFLICT: Conflicting signals (Buy and Sell) detected for MOGUSD. Trading halted for this asset. |
+| 2026-03-23 21:52:51 | PEPEUSD | crypto:PEPEUSD:sell:1774299600000 | No sellable balance available (PEPE 0.00000000) |
+| 2026-03-23 21:52:51 | SHIBUSD | crypto:SHIBUSD:buy:1774299600000 | Rejected by Risk Agent: Order value below exchange minimum fiat volume (0.61 < 5.0) |
 
 ## Executed Trades
 
@@ -4618,3 +4621,9 @@
 | 2026-03-23 05:04:58 | SPY | NO_REF | No strategy signal generated. |
 | 2026-03-23 05:05:13 | QQQ | NO_REF | No strategy signal generated. |
 | 2026-03-23 05:05:27 | TQQQ | NO_REF | No strategy signal generated. |
+| 2026-03-23 21:48:39 | PEPEUSD | NO_REF | No strategy signal generated. |
+| 2026-03-23 21:49:00 | REKTUSD | NO_REF | No strategy signal generated. |
+| 2026-03-23 21:49:23 | MOGUSD | NO_REF | No strategy signal generated. |
+| 2026-03-23 21:49:43 | SPY | NO_REF | No strategy signal generated. |
+| 2026-03-23 21:50:03 | QQQ | NO_REF | No strategy signal generated. |
+| 2026-03-23 21:50:24 | TQQQ | NO_REF | No strategy signal generated. |
