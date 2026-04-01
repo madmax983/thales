@@ -1270,3 +1270,37 @@ let eom_series = eom::calculate(&df, period)?;
 - Returns `Result<Series>`.
 - The output Series is named "eom".
 - Initial values will be null until the SMA has enough data points to compute.
+
+## Mass Index
+
+**Name:** Mass Index
+**Description:** Calculates the Mass Index, an indicator that uses the high-low range to identify trend reversals based on range expansions.
+**Rationale:** The Mass Index is used to predict trend reversals by measuring the narrowing and widening of the range between the high and low prices. As the range widens, the Mass Index increases; as it narrows, the index decreases.
+
+### Implementation Details
+- Uses `rust_decimal::Decimal` for all internal calculations to ensure precision, primarily calculating the high-low range before processing it with Exponential Moving Averages (EMA).
+- Computes a Single EMA of the range, and a Double EMA (an EMA of the Single EMA).
+- Calculates the EMA Ratio as `Single EMA / Double EMA`.
+- Returns a Polars `Series` containing the rolling sum of the EMA Ratio over a given period.
+
+### Usage
+
+```rust
+use strategies::indicators::mass_index;
+use polars::prelude::*;
+
+// Assuming df is a DataFrame with "high" and "low" columns
+let ema_period = 9;
+let sum_period = 25;
+let mi_series = mass_index::calculate(&df, ema_period, sum_period)?;
+```
+
+### Parameters
+- `data`: Reference to a Polars `DataFrame`. Must contain numeric "high" and "low" columns.
+- `ema_period`: The lookback period for the Single and Double EMAs (typically 9).
+- `sum_period`: The lookback period for the rolling sum of the EMA Ratios (typically 25).
+
+### Output
+- Returns `Result<Series>`.
+- The output Series is named "mass_index".
+- Initial values will be null until both EMAs and the sum window have enough data points to compute.

@@ -29,6 +29,7 @@ pub mod keltner_channels;
 pub mod kst;
 pub mod linear_regression;
 pub mod macd;
+pub mod mass_index;
 pub mod mfi;
 pub mod obv;
 pub mod parabolic_sar;
