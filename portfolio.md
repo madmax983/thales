@@ -4912,6 +4912,18 @@
 | 2026-03-31 22:46:44 | BTCUSD | crypto:BTCUSD:unknown:1774963582996 | CONFLICT: Conflicting signals (Buy and Sell) detected for BTCUSD. Trading halted for this asset. |
 | 2026-03-31 22:46:45 | ETHUSD | crypto:ETHUSD:unknown:1774963583099 | CONFLICT: Conflicting signals (Buy and Sell) detected for ETHUSD. Trading halted for this asset. |
 | 2026-03-31 22:46:45 | SPY | equities:SPY:unknown:1774963583152 | CONFLICT: Conflicting signals (Buy and Sell) detected for SPY. Trading halted for this asset. |
+| 2026-04-01 04:46:28 | ETHUSD | crypto:ETHUSD:unknown:1774963583099 | No active strategy generated a signal (Strategies: BollingerBands, AdlMomentum, CoppockCurve, KdjIndicatorStrategy, KamaCrossover, AlmaCrossover, AdxMacdTrend, AroonOscillator, ElderRay, EmaCrossover, FisherTransformReversal, RsiMeanReversion, Macd, Supertrend, SupertrendEmaCrossover, SupertrendRsi, DonchianBreakout, ParabolicSar, KeltnerChannelBreakout, StochasticOscillator, AdxMomentum, IchimokuCloud, CciMomentum, ChaikinMoneyFlow, ChaikinOscillatorMomentum, ChandelierExit, ChoppinessIndexTrend, CmoMeanReversion, LinearRegressionTrend, EaseOfMovement, ForceIndexTrend, ObvTrendFollowing, MoneyFlowIndex, ConnorsRsiMeanReversion, AwesomeOscillator, WilliamsR, VwmaCrossover, VwapReversion, VortexBreakout, TripleSmaCrossover, TripleEmaCrossover, UltimateOscillator, RelativeVigorIndexTrend, VolumeOscillatorTrend, VptTrendFollowing, ZlemaCrossover, ZScoreMeanReversion, VwMacd, BollingerRsiMeanReversion, StochRsiMeanReversion, RocMomentum, MacdRsiTrend, TrixCrossover, TsiTrend, DemaCrossover, TemaCrossover, WmaCrossover, HmaCrossover, SmaCrossover, EmaRsiTrendFollowing, PpoRsiTrend, KstTrend, VhfTrendFollowing, SchaffTrendCycle, DisparityIndexReversion, DpoBreakout, DoubleEmaCrossover) |
+| 2026-04-01 04:46:28 | SPY | equities:SPY:unknown:1774963583152 | Invalid input: provider error: kraken api error: EQuery:Unknown asset pair |
+| 2026-04-01 04:46:29 | BTCUSD | crypto:BTCUSD:unknown:1774963582996 | Rejected by Risk Agent: Position size below exchange minimum for BTCUSD (6.092e-05 < 0.0001) |
+| 2026-04-01 04:50:27 | SPY | equities:SPY:unknown:1774963583152 | Invalid input: provider error: kraken api error: EQuery:Unknown asset pair |
+| 2026-04-01 04:50:27 | BTCUSD | crypto:BTCUSD:unknown:1774963582996 | Rejected by Risk Agent: Position size below exchange minimum for BTCUSD (6.086e-05 < 0.0001) |
+| 2026-04-01 04:50:27 | ETHUSD | crypto:ETHUSD:unknown:1774963583099 | Rejected by Risk Agent: Order value below exchange minimum fiat volume (4.15 < 5.0) |
+| 2026-04-01 04:50:38 | BTCUSD | crypto:BTCUSD:unknown:1774963582996 | CONFLICT: Conflicting signals (Buy and Sell) detected for BTCUSD. Trading halted for this asset. |
+| 2026-04-01 04:50:38 | ETHUSD | crypto:ETHUSD:unknown:1774963583099 | CONFLICT: Conflicting signals (Buy and Sell) detected for ETHUSD. Trading halted for this asset. |
+| 2026-04-01 04:50:39 | SPY | equities:SPY:unknown:1774963583152 | CONFLICT: Conflicting signals (Buy and Sell) detected for SPY. Trading halted for this asset. |
+| 2026-04-01 05:04:52 | BTCUSD | crypto:BTCUSD:unknown:1774963582996 | CONFLICT: Conflicting signals (Buy and Sell) detected for BTCUSD. Trading halted for this asset. |
+| 2026-04-01 05:04:52 | ETHUSD | crypto:ETHUSD:unknown:1774963583099 | CONFLICT: Conflicting signals (Buy and Sell) detected for ETHUSD. Trading halted for this asset. |
+| 2026-04-01 05:04:53 | SPY | equities:SPY:unknown:1774963583152 | CONFLICT: Conflicting signals (Buy and Sell) detected for SPY. Trading halted for this asset. |
 
 ## Executed Trades
 
