@@ -1107,6 +1107,40 @@ let vhf_series = vhf::calculate(&df, period)?;
 - The output Series is named "vhf".
 - The first `period` values will be null.
 
+## KDJ Indicator
+
+**Name:** KDJ Indicator
+**Description:** The KDJ Indicator is a momentum oscillator that extends the Stochastic Oscillator by adding a highly sensitive divergence line (%J) to the traditional %K and %D lines.
+**Rationale:** It helps identify overbought and oversold conditions with higher sensitivity, enabling traders to capture trend reversals earlier before they fully materialize in lagging indicators.
+
+### Implementation Details
+- Uses `rust_decimal::Decimal` (via the Stochastic calculation) for all logic to ensure financial precision, explicitly converting from and to `f64` only for Polars boundaries.
+- Returns a tuple of three Polars `Series` of `f64` values (computed internally via Decimal): %K, %D, and %J.
+- Implemented natively using Polars for fast vector operations where possible.
+
+### Usage
+
+```rust
+use strategies::indicators::kdj;
+use polars::prelude::*;
+
+// Assuming df is a DataFrame with "high", "low", and "close" columns
+let k_period = 9;
+let k_smoothing = 3;
+let d_period = 3;
+let (kdj_k, kdj_d, kdj_j) = kdj::calculate(&df, k_period, k_smoothing, d_period)?;
+```
+
+### Parameters
+- `data`: Reference to a Polars `DataFrame`. Must contain "high", "low", and "close" columns.
+- `k_period`: Lookback period for %K (typically 9).
+- `k_smoothing`: Smoothing period for %K (typically 3).
+- `d_period`: Smoothing period for %D (typically 3).
+
+### Output
+- Returns `Result<(Series, Series, Series)>` representing the %K, %D, and %J lines.
+- Series are named "kdj_k", "kdj_d", and "kdj_j".
+
 ## Know Sure Thing (KST)
 
 **Name:** KST
