@@ -4992,6 +4992,9 @@
 | 2026-04-01 19:49:05 | SPY | equities:SPY:unknown:1775046780081 | Invalid input: provider error: kraken api error: EQuery:Unknown asset pair |
 | 2026-04-01 19:49:07 | ETHUSD | crypto:ETHUSD:unknown:1775046780062 | Rejected by Risk Agent: Order value below exchange minimum fiat volume (4.29 < 5.0) |
 | 2026-04-01 19:49:07 | PEPEUSD | crypto:PEPEUSD:sell:1775070000000 | No sellable balance available (PEPE 0.00000000) |
+| 2026-04-01 21:01:14 | BTCUSD | crypto:BTCUSD:unknown:1775046780036 | Signal already executed/submitted (Ref: crypto:BTCUSD:unknown:1775046780036) |
+| 2026-04-01 21:01:16 | SPY | equities:SPY:unknown:1775046780081 | Invalid input: provider error: kraken api error: EQuery:Unknown asset pair |
+| 2026-04-01 21:01:17 | ETHUSD | crypto:ETHUSD:unknown:1775046780062 | Rejected by Risk Agent: Order value below exchange minimum fiat volume (4.29 < 5.0) |
 
 ## Executed Trades
 
