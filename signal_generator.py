@@ -217,7 +217,9 @@ def main():
                                                     except (ValueError, TypeError):
                                                         intent["take_profit"] = str(last_close * (1.0 + tp_pct))
                                                 else:
-                                                    intent["take_profit"] = str(last_close * (1.0 + tp_pct))
+                                                    # Fallback calculated SL to use for TP
+                                                    calc_sl_dist = last_close - (last_close * (1.0 - sl_pct))
+                                                    intent["take_profit"] = str(last_close + (calc_sl_dist * 2.0))
                                         elif side == "sell":
                                             if missing_sl:
                                                 intent["stop_loss"] = str(last_close * (1.0 + sl_pct))
@@ -232,7 +234,9 @@ def main():
                                                     except (ValueError, TypeError):
                                                         intent["take_profit"] = str(last_close * (1.0 - tp_pct))
                                                 else:
-                                                    intent["take_profit"] = str(last_close * (1.0 - tp_pct))
+                                                    # Fallback calculated SL to use for TP
+                                                    calc_sl_dist = (last_close * (1.0 + sl_pct)) - last_close
+                                                    intent["take_profit"] = str(last_close - (calc_sl_dist * 2.0))
                             except (FileNotFoundError, json.JSONDecodeError, KeyError, ValueError, IndexError) as e:
                                 print(f"Warning: Failed to compute fallback SL/TP for {symbol}: {e}")
 
