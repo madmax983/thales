@@ -623,10 +623,10 @@ def scan_markets():
 
         # Equities (Alpaca)
         print("Scanning Alpaca (Equities)...")
-        equities = run_command(["scan-market", "--provider", "kraken"])
+        equities = run_command(["scan-market", "--provider", "alpaca"])
         if equities:
             for symbol in equities:
-                candidates.append({"provider": "kraken", "symbol": symbol, "market": "equities"})
+                candidates.append({"provider": "alpaca", "symbol": symbol, "market": "equities"})
 
     return candidates
 
@@ -634,8 +634,12 @@ def evaluate_candidate(candidate, strategies, portfolio_path=None):
     """Fetches data and generates signals for a candidate using all active strategies."""
     provider = candidate["provider"]
     symbol = candidate["symbol"]
+    market = candidate.get("market", "")
 
     # Fetch Data
+    if market == "equities" and provider == "kraken":
+        provider = "alpaca"
+
     bars = run_command(["fetch-market-data", "--provider", provider, "--symbol", symbol, "--timeframe", "1h"])
     if not bars or not isinstance(bars, dict) or not bars.get("bars"):
         last_error = getattr(run_command, 'last_error', '')
@@ -1662,7 +1666,7 @@ def main():
         print("------------------\n")
 
         # Fetch latest price for execution logic using original provider
-        current_price = get_latest_price(intent.get("provider", "kraken"), intent["symbol"])
+        current_price = get_latest_price(intent.get("provider", "alpaca" if intent.get("market") == "equities" else "kraken"), intent["symbol"])
 
         # Route both equities and crypto to Kraken ONLY for execution
         if os.environ.get("SIMULATION") != "true":
