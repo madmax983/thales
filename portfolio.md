@@ -4995,6 +4995,18 @@
 | 2026-04-01 21:01:14 | BTCUSD | crypto:BTCUSD:unknown:1775046780036 | Signal already executed/submitted (Ref: crypto:BTCUSD:unknown:1775046780036) |
 | 2026-04-01 21:01:16 | SPY | equities:SPY:unknown:1775046780081 | Invalid input: provider error: kraken api error: EQuery:Unknown asset pair |
 | 2026-04-01 21:01:17 | ETHUSD | crypto:ETHUSD:unknown:1775046780062 | Rejected by Risk Agent: Order value below exchange minimum fiat volume (4.29 < 5.0) |
+| 2026-04-01 22:51:29 | BTCUSD | crypto:BTCUSD:unknown:1775046780036 | Signal already executed/submitted (Ref: crypto:BTCUSD:unknown:1775046780036) |
+| 2026-04-01 22:51:30 | SPY | equities:SPY:unknown:1775046780081 | Invalid input: provider error: kraken api error: EQuery:Unknown asset pair |
+| 2026-04-01 22:51:31 | ETHUSD | crypto:ETHUSD:unknown:1775046780062 | No sellable balance available (ETH 0.00000000) |
+| 2026-04-01 22:51:32 | PEPEUSD | crypto:PEPEUSD:sell:1775080800000 | No sellable balance available (PEPE 0.00000000) |
+| 2026-04-01 22:52:43 | BTCUSD | crypto:BTCUSD:unknown:1775046780036 | Signal already executed/submitted (Ref: crypto:BTCUSD:unknown:1775046780036) |
+| 2026-04-01 22:52:44 | SPY | equities:SPY:unknown:1775046780081 | Invalid input: provider error: kraken api error: EQuery:Unknown asset pair |
+| 2026-04-01 22:52:46 | ETHUSD | crypto:ETHUSD:unknown:1775046780062 | No sellable balance available (ETH 0.00000000) |
+| 2026-04-01 22:52:46 | PEPEUSD | crypto:PEPEUSD:sell:1775080800000 | No sellable balance available (PEPE 0.00000000) |
+| 2026-04-01 22:55:38 | BTCUSD | crypto:BTCUSD:unknown:1775046780036 | Signal already executed/submitted (Ref: crypto:BTCUSD:unknown:1775046780036) |
+| 2026-04-01 22:55:40 | SPY | equities:SPY:unknown:1775046780081 | Invalid input: provider error: kraken api error: EQuery:Unknown asset pair |
+| 2026-04-01 22:55:41 | ETHUSD | crypto:ETHUSD:unknown:1775046780062 | No sellable balance available (ETH 0.00000000) |
+| 2026-04-01 22:55:41 | PEPEUSD | crypto:PEPEUSD:sell:1775080800000 | No sellable balance available (PEPE 0.00000000) |
 
 ## Executed Trades
 
