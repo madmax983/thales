@@ -1270,3 +1270,34 @@ let eom_series = eom::calculate(&df, period)?;
 - Returns `Result<Series>`.
 - The output Series is named "eom".
 - Initial values will be null until the SMA has enough data points to compute.
+
+## Standard Deviation (StdDev)
+
+**Name:** StdDev
+**Description:** Calculates the Standard Deviation of price data over a specified lookback period.
+**Rationale:** Standard Deviation is a statistical measure of market volatility. It measures how widely prices are dispersed from the average price. High standard deviation indicates high volatility, and low standard deviation indicates low volatility.
+
+### Implementation Details
+- Uses `rust_decimal::Decimal` iteratively for all math calculations to ensure financial precision, explicitly converting from and to `f64` only for Polars boundaries.
+- Returns a Polars `Series` of `f64` values (computed internally via Decimal).
+
+### Usage
+
+```rust
+use strategies::indicators::stddev;
+use polars::prelude::*;
+
+// Assuming df is a DataFrame with a "close" column
+let period = 20;
+let std_series = stddev::calculate(&df, "close", period)?;
+```
+
+### Parameters
+- `data`: Reference to a Polars `DataFrame`.
+- `column_name`: Name of the numeric column to calculate Standard Deviation for (e.g., "close").
+- `period`: The lookback period (must be > 0).
+
+### Output
+- Returns `Result<Series>`.
+- The output Series is named "stddev".
+- Initial values up to `period - 1` will be null until enough data is gathered.
