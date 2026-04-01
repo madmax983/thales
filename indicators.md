@@ -1270,3 +1270,71 @@ let eom_series = eom::calculate(&df, period)?;
 - Returns `Result<Series>`.
 - The output Series is named "eom".
 - Initial values will be null until the SMA has enough data points to compute.
+
+## Mass Index
+
+**Name:** Mass Index
+**Description:** Calculates the Mass Index, an indicator designed to identify trend reversals by measuring the narrowing and widening of the range between high and low prices.
+**Rationale:** As this range widens, the Mass Index increases; as the range narrows, the Mass Index decreases. It is used to predict trend reversals before they happen.
+
+### Implementation Details
+- Uses `rust_decimal::Decimal` iteratively for all math calculations to ensure financial precision, explicitly converting from and to `f64` only for Polars boundaries.
+- Uses `ema` calculation internally for smoothing the high-low range.
+- Returns a Polars `Series` of `f64` values (computed internally via Decimal).
+
+### Usage
+
+```rust
+use strategies::indicators::mass_index;
+use polars::prelude::*;
+
+// Assuming df is a DataFrame with "high" and "low" columns
+let ema_period = 9;
+let sum_period = 25;
+let mass_index_series = mass_index::calculate(&df, ema_period, sum_period)?;
+```
+
+### Parameters
+- `data`: Reference to a Polars `DataFrame`. Must contain numeric "high" and "low" columns.
+- `ema_period`: The lookback period for the EMA (typically 9).
+- `sum_period`: The lookback period for the sum (typically 25).
+
+### Output
+- Returns `Result<Series>`.
+- The output Series is named "mass_index".
+- The first `ema_period * 2 + sum_period` values will be null depending on the periods.
+
+## KDJ Indicator
+
+**Name:** KDJ Indicator
+**Description:** An extension of the Stochastic Oscillator that adds a highly sensitive divergence %J line to the Stochastic %K and %D lines.
+**Rationale:** It introduces a highly sensitive divergence %J line to the Stochastic %K and %D lines. This provides traders with a powerful leading indicator, enabling earlier entries on reversals, maximizing potential profit margins and giving users a competitive edge in choppy or turning markets.
+
+### Implementation Details
+- Uses `rust_decimal::Decimal` iteratively for all math calculations to ensure financial precision, explicitly converting from and to `f64` only for Polars boundaries.
+- Uses `stochastic` calculation internally.
+- Returns a tuple of three Polars `Series` of `f64` values: (%K, %D, %J).
+
+### Usage
+
+```rust
+use strategies::indicators::kdj;
+use polars::prelude::*;
+
+// Assuming df is a DataFrame with "high", "low", "close" columns
+let k_period = 9;
+let k_smoothing = 3;
+let d_period = 3;
+let (k, d, j) = kdj::calculate(&df, k_period, k_smoothing, d_period)?;
+```
+
+### Parameters
+- `data`: Reference to a Polars `DataFrame`. Must contain numeric columns "high", "low", and "close".
+- `k_period`: The lookback period for %K (typically 9).
+- `k_smoothing`: The smoothing period for %K (typically 3).
+- `d_period`: The smoothing period for %D (typically 3).
+
+### Output
+- Returns `Result<(Series, Series, Series)>` representing `(percent_k, percent_d, percent_j)`.
+- The output Series are named "kdj_k", "kdj_d", and "kdj_j".
+- The first few values will be null depending on the periods.

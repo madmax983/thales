@@ -11,6 +11,7 @@
 
 use anyhow::Result;
 use polars::prelude::*;
+use rust_decimal::prelude::*;
 
 use crate::indicators::stochastic;
 
@@ -43,12 +44,19 @@ pub fn calculate(
     let d_arr = d_series.f64()?;
 
     let mut j_f64: Vec<Option<f64>> = vec![None; data.height()];
+    let three = Decimal::new(3, 0);
+    let two = Decimal::new(2, 0);
 
     for (i, j_val) in j_f64.iter_mut().enumerate().take(data.height()) {
         if let (Some(k), Some(d)) = (k_arr.get(i), d_arr.get(i)) {
-            // %J = 3 * %K - 2 * %D
-            let j = 3.0 * k - 2.0 * d;
-            *j_val = Some(j);
+            if let (Some(k_dec), Some(d_dec)) = (
+                Decimal::from_f64_retain(k),
+                Decimal::from_f64_retain(d),
+            ) {
+                // %J = 3 * %K - 2 * %D
+                let j = three * k_dec - two * d_dec;
+                *j_val = j.to_f64();
+            }
         }
     }
 
