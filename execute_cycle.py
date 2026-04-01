@@ -613,10 +613,10 @@ def scan_markets():
 
         # Equities (Alpaca)
         print("Scanning Alpaca (Equities)...")
-        equities = run_command(["scan-market", "--provider", "kraken"])
+        equities = run_command(["scan-market", "--provider", "alpaca"])
         if equities:
             for symbol in equities:
-                candidates.append({"provider": "kraken", "symbol": symbol, "market": "equities"})
+                candidates.append({"provider": "alpaca", "symbol": symbol, "market": "equities"})
 
     return candidates
 
