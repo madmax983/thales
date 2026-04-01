@@ -18,6 +18,24 @@ use polars::prelude::*;
 use serde::{Deserialize, Serialize};
 
 /// Configuration for the KDJ Indicator Strategy.
+///
+/// ## Examples
+///
+/// ```rust
+/// use strategies::kdj_indicator::KdjIndicatorStrategyConfig;
+///
+/// let config = KdjIndicatorStrategyConfig {
+///     k_period: 9,
+///     k_smoothing: 3,
+///     d_period: 3,
+///     oversold_threshold: 20.0,
+///     overbought_threshold: 80.0,
+///     max_position_size: 1000.0,
+///     stop_loss_atr_mult: 2.0,
+///     atr_period: 14,
+///     symbol: "BTCUSD".to_string(),
+/// };
+/// ```
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct KdjIndicatorStrategyConfig {
     /// The number of periods to look back for the highest high and lowest low to calculate the fast %K. (e.g., 9)
@@ -43,6 +61,26 @@ pub struct KdjIndicatorStrategyConfig {
 impl StrategyConfig for KdjIndicatorStrategyConfig {}
 
 /// KDJ Indicator Strategy
+///
+/// ## Examples
+///
+/// ```rust
+/// use strategies::kdj_indicator::{KdjIndicatorStrategy, KdjIndicatorStrategyConfig};
+///
+/// let config = KdjIndicatorStrategyConfig {
+///     k_period: 9,
+///     k_smoothing: 3,
+///     d_period: 3,
+///     oversold_threshold: 20.0,
+///     overbought_threshold: 80.0,
+///     max_position_size: 1000.0,
+///     stop_loss_atr_mult: 2.0,
+///     atr_period: 14,
+///     symbol: "BTCUSD".to_string(),
+/// };
+///
+/// let strategy = KdjIndicatorStrategy::new(config);
+/// ```
 pub struct KdjIndicatorStrategy {
     config: KdjIndicatorStrategyConfig,
 }

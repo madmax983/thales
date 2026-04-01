@@ -25,6 +25,20 @@ use crate::indicators::stochastic;
 /// # Returns
 /// Tuple of (Series %K, Series %D, Series %J). First few values will be null.
 /// Series names: "kdj_k", "kdj_d", "kdj_j"
+///
+/// ## Examples
+/// ```rust
+/// use polars::prelude::*;
+/// use strategies::indicators::kdj;
+///
+/// let df = df!(
+///     "high" => &[10.0, 10.0, 10.0, 12.0],
+///     "low" => &[0.0, 0.0, 0.0, 2.0],
+///     "close" => &[5.0, 10.0, 0.0, 7.0]
+/// ).unwrap();
+///
+/// let (k, d, j) = kdj::calculate(&df, 2, 1, 2).unwrap();
+/// ```
 pub fn calculate(
     data: &DataFrame,
     k_period: usize,
