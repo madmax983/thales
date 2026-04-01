@@ -1270,3 +1270,27 @@ let eom_series = eom::calculate(&df, period)?;
 - Returns `Result<Series>`.
 - The output Series is named "eom".
 - Initial values will be null until the SMA has enough data points to compute.
+
+## Typical Price Indicator
+
+**Name:** Typical Price
+**Description:** Calculates the Typical Price (TP), which is the arithmetic average of the High, Low, and Close prices for a given period.
+**Rationale:** It provides a simple single-line representation of a day's true trading level and is often used as a building block for other indicators like the Commodity Channel Index (CCI).
+
+### Implementation Details
+- Uses `rust_decimal::Decimal` iteratively for all math calculations to ensure financial precision, explicitly mapping from `f64` using `from_f64_retain` on inputs to strictly enforce NO `f64` usage in calculation routines.
+- Uses `chrono::DateTime<Utc>` for correct timestamp validation.
+- Output is a Polars `Series`.
+
+### Usage
+
+```rust
+use strategies::indicators::typical_price;
+use polars::prelude::*;
+
+// Assuming df is a DataFrame with "high", "low", "close", and "timestamp_unix_ms" columns
+let tp_series = typical_price::calculate(&df)?;
+```
+
+### Output
+- Returns `Result<Series>` representing the Typical Price for each data point.
