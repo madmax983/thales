@@ -99,3 +99,7 @@
 ## 2026-03-29 - The Silent KDJ
 **Confusion:** The KDJ Indicator Strategy lacked comprehensive documentation, making its configuration parameters confusing and its underlying concepts opaque.
 **Clarification:** Added storytelling module-level documentation (`//!`) explaining the concepts behind KDJ indicator overbought/oversold levels, and included executable `# Examples` for both strategy configurations and their instantiation.
+
+## 2024-06-09 - The Silent Spreading
+**Confusion:** The jargon TWAP and VWAP were confusing users. Also, the `generate-signals` command example was returning empty outputs.
+**Clarification:** Replaced jargon with plain-English explanations and updated the example to use `dummy_data.json` that guarantees a signal.
