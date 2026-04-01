@@ -60,9 +60,9 @@ def format_size(val):
     try:
         val_float = float(val)
         if val_float == 0.0:
-            return "0.0"
+            return "0"
         formatted_val = f"{val_float:.8f}".rstrip('0').rstrip('.')
-        return formatted_val if formatted_val else "0.0"
+        return formatted_val if formatted_val else "0"
     except (ValueError, TypeError):
         return str(val)
 
@@ -72,9 +72,9 @@ def format_price(val):
     try:
         val_float = float(val)
         if val_float == 0.0:
-            return "0.0"
+            return "0"
         formatted_val = f"{val_float:.4f}".rstrip('0').rstrip('.')
-        return formatted_val if formatted_val else "0.0"
+        return formatted_val if formatted_val else "0"
     except (ValueError, TypeError):
         return str(val)
 
@@ -132,9 +132,9 @@ def calculate_fallback_sl_tp(last_close, side, volatility_label, missing_sl, mis
 def truncate_float(match):
     val_float = float(match.group(0))
     if val_float == 0.0:
-        return "0.0"
+        return "0"
     formatted_val = f"{val_float:.4f}".rstrip('0').rstrip('.')
-    return formatted_val if formatted_val else "0.0"
+    return formatted_val if formatted_val else "0"
 
 def format_signal(intent):
     side_raw = intent.get('side', '')
