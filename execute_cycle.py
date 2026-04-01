@@ -31,6 +31,8 @@ MEAN_REVERSION_STRATEGIES = {
     "SupertrendRsi",
     "DisparityIndexReversion",
     "BollingerRsiMeanReversion",
+    "KdjIndicatorStrategy",
+    "MovingAverageEnvelope",
 }
 TREND_FOLLOWING_STRATEGIES = {
     "AlmaCrossover",
@@ -67,7 +69,6 @@ TREND_FOLLOWING_STRATEGIES = {
     "PpoRsiTrend",
     "DoubleEmaCrossover",
     "AdlMomentum",
-    "KdjIndicatorStrategy",
     "KamaCrossover",
     "ChaikinOscillatorMomentum",
     "ChoppinessIndexTrend",
@@ -290,6 +291,8 @@ def get_active_strategies():
         strategies.append("DpoBreakout")
     if re.search(r'\bDoubleEmaCrossover\b', content):
         strategies.append("DoubleEmaCrossover")
+    if re.search(r'\bMovingAverageEnvelope\b', content):
+        strategies.append("MovingAverageEnvelope")
 
     return strategies
 

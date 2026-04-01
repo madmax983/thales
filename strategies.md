@@ -3738,6 +3738,36 @@ Momentum
 
 ---
 
+## MovingAverageEnvelope
+
+### Strategy Specification
+- **Name:** Moving Average Envelopes Trading Strategy
+- **Description:** A mean-reversion and momentum strategy based on Moving Average Envelopes (MAE).
+- **Rationale:** MAE consists of a moving average and two envelopes set at a percentage distance. It helps identify overbought and oversold conditions.
+
+### Requirements
+- Polars implementation.
+- Backtestable logic.
+- Returns explicit signals (buy/sell).
+- Integrates ATR-based Stop Loss.
+
+### Strategy Type
+MeanReversion
+
+### Entry Conditions
+- **Long Entry:** Price crosses below the lower band (oversold).
+- **Short Entry:** Price crosses above the upper band (overbought).
+
+### Exit Conditions
+- **Long Exit:** Price crosses above the SMA.
+- **Short Exit:** Price crosses below the SMA.
+
+### Backtesting Requirements
+- Accepts `DataFrame` with historical data containing "close".
+- **Expected Win Rate:** 45-55%
+- **Expected Sharpe Ratio:** > 1.2
+- **Max Drawdown:** < 15%
+
 # Trading Strategy: Double EMA Crossover
 
 ## Strategy Specification

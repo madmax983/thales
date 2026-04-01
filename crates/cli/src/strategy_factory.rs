@@ -70,6 +70,7 @@ use strategies::linear_regression_trend::{LinearRegressionTrend, LinearRegressio
 use strategies::macd::{Macd, MacdConfig};
 use strategies::macd_rsi::{MacdRsiTrend, MacdRsiTrendConfig};
 use strategies::money_flow_index::{MoneyFlowIndex, MoneyFlowIndexConfig};
+use strategies::moving_average_envelope::{MovingAverageEnvelope, MovingAverageEnvelopeConfig};
 use strategies::obv_trend::{ObvTrendFollowing, ObvTrendFollowingConfig};
 use strategies::parabolic_sar::{ParabolicSar, ParabolicSarConfig};
 use strategies::ppo_rsi_trend::{PpoRsiTrend, PpoRsiTrendConfig};
@@ -135,6 +136,17 @@ pub fn create_strategy(name: &str, symbol: &str) -> Result<Box<dyn Strategy>> {
                 symbol: symbol.to_string(),
             };
             Ok(Box::new(KdjIndicatorStrategy::new(config)))
+        }
+        "MovingAverageEnvelope" => {
+            let config = MovingAverageEnvelopeConfig {
+                period: 20,
+                percentage: 2.5,
+                max_position_size: 100.0,
+                stop_loss_atr_mult: 2.0,
+                atr_period: 14,
+                symbol: symbol.to_string(),
+            };
+            Ok(Box::new(MovingAverageEnvelope::new(config)))
         }
         "KamaCrossover" => {
             let config = KamaCrossoverConfig {
@@ -911,5 +923,6 @@ pub fn list_strategies() -> Vec<&'static str> {
         "DoubleEmaCrossover",
         "CoppockCurve",
         "TtmSqueeze",
+        "MovingAverageEnvelope",
     ]
 }
