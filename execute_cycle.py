@@ -1702,9 +1702,9 @@ def main():
             # if strategies bypassed it or generated direct signals)
             if current_price:
                 if intent["side"] == "buy":
-                    intent["stop_loss"] = current_price * 0.95
+                    intent["stop_loss"] = format_price(current_price * 0.95)
                 elif intent["side"] == "sell":
-                    intent["stop_loss"] = current_price * 1.05
+                    intent["stop_loss"] = format_price(current_price * 1.05)
             else:
                 print("Skipping execution: Cannot determine safe stop loss without current price.")
                 log_skipped(intent, "Missing stop loss and current price unavailable")
