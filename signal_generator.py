@@ -105,7 +105,7 @@ def calculate_fallback_sl_tp(last_close, side, volatility_label, missing_sl, mis
             new_sl = format_price(last_close * (1.0 - sl_pct))
         if missing_tp:
             try:
-                sl_val_check = float(intent_sl) if not missing_sl else float(new_sl)
+                sl_val_check = float(format_price(intent_sl)) if not missing_sl else float(new_sl)
                 sl_dist = last_close - sl_val_check
                 if sl_dist > 0:
                     new_tp = format_price(last_close + (sl_dist * 2.0))
@@ -118,7 +118,7 @@ def calculate_fallback_sl_tp(last_close, side, volatility_label, missing_sl, mis
             new_sl = format_price(last_close * (1.0 + sl_pct))
         if missing_tp:
             try:
-                sl_val_check = float(intent_sl) if not missing_sl else float(new_sl)
+                sl_val_check = float(format_price(intent_sl)) if not missing_sl else float(new_sl)
                 sl_dist = sl_val_check - last_close
                 if sl_dist > 0:
                     new_tp = format_price(last_close - (sl_dist * 2.0))
@@ -137,7 +137,8 @@ def truncate_float(match):
     return formatted_val if formatted_val else "0.0"
 
 def format_signal(intent):
-    side = str(intent.get('side', '')).lower()
+    side_raw = intent.get('side', '')
+    side = str(side_raw).lower() if side_raw else ''
     if side == "buy":
         direction = "long"
     elif side == "sell":
@@ -315,7 +316,8 @@ def main():
 
                         if missing_sl or missing_tp:
                             if last_close_price is not None:
-                                side = str(intent.get('side', '')).lower()
+                                side_raw = intent.get('side', '')
+                                side = str(side_raw).lower() if side_raw else ''
                                 vol_label = analysis.get("volatility", "").lower() if analysis else ""
                                 new_sl, new_tp = calculate_fallback_sl_tp(last_close_price, side, vol_label, missing_sl, missing_tp, sl_val)
 
@@ -341,7 +343,8 @@ def main():
 
                     # Filter: Do not chase moves - wait for pullbacks
                     if is_entry:
-                        side = str(intent.get('side', '')).lower()
+                        side_raw = intent.get('side', '')
+                        side = str(side_raw).lower() if side_raw else ''
                         sentiment = analysis.get("sentiment", "").lower()
 
                         # We specifically look for (overbought) / (oversold) in the sentiment
@@ -373,7 +376,8 @@ def main():
                         continue
 
                     # Map buy/sell to long/short
-                    side = str(intent.get('side', '')).lower()
+                    side_raw = intent.get('side', '')
+                    side = str(side_raw).lower() if side_raw else ''
                     if side == "buy":
                         intent['side'] = "long"
                     elif side == "sell":
