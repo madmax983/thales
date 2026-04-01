@@ -149,8 +149,13 @@ def format_signal(intent):
     strength = intent.get('confidence', 0.0) * 100
 
     size = format_size(intent.get('size_hint', '0'))
-    sl = format_price(intent.get('stop_loss', 'None'))
-    tp = format_price(intent.get('take_profit', 'None'))
+
+    sl_val = intent.get('stop_loss')
+    tp_val = intent.get('take_profit')
+
+    sl = format_price(sl_val) if not is_missing(sl_val) else 'None'
+    tp = format_price(tp_val) if not is_missing(tp_val) else 'None'
+
     reason = intent.get('rationale', 'No reason provided.')
     reason = re.sub(r'\d+\.\d{5,}', truncate_float, reason)
     signal_type = intent.get('signal_type', 'Entry')
