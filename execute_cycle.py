@@ -166,6 +166,8 @@ def get_active_strategies():
         strategies.append("AdlMomentum")
     if re.search(r'\bCoppockCurve\b', content):
         strategies.append("CoppockCurve")
+    if re.search(r'\bMovingAverageEnvelopes\b', content):
+        strategies.append("MovingAverageEnvelopes")
     if re.search(r'\bKdjIndicatorStrategy\b', content):
         strategies.append("KdjIndicatorStrategy")
     if re.search(r'\bKamaCrossover\b', content):

@@ -2588,6 +2588,45 @@ TrendFollowing
 - **Expected Sharpe Ratio:** > 1.2
 - **Max Drawdown:** < 15%
 
+---
+
+# Trading Strategy: Moving Average Envelopes
+
+## Strategy Specification
+
+**Name:** MovingAverageEnvelopes
+
+**Description:** Uses an SMA and percentage-based bands above and below to identify overbought and oversold conditions for mean reversion trading.
+
+**Rationale:** Price tends to revert to the mean. Moving average envelopes define a trading band based on a moving average shifted up and down by a percentage. By trading when the price crosses the envelope, this strategy targets sharp reversals back to the mean.
+
+## Requirements
+
+### Implementation Details
+- Uses Polars for data analysis.
+- Implements the `Strategy` trait in Rust.
+- Uses `sma` and `atr` indicators.
+
+### Strategy Type
+Mean Reversion
+
+### Entry Conditions
+- **Long Entry (Buy):** Price drops below the lower envelope (Oversold bounce).
+- **Short Entry (Sell):** Price spikes above the upper envelope (Overbought rejection).
+
+### Exit Conditions
+- **Long Exit (Sell):** Price reverts to the SMA from below.
+- **Short Exit (Buy):** Price reverts to the SMA from above.
+- **Stop Loss:** Entry Price +/- (ATR * `stop_loss_atr_mult`).
+
+### Position Sizing
+- **Size Hint:** Bounded by `max_position_size`.
+
+### Expected Backtesting Metrics
+- **Expected Win Rate:** 55-65%
+- **Expected Sharpe Ratio:** > 1.2
+- **Max Drawdown:** < 15%
+
 ## KdjIndicatorStrategy
 
 ### Strategy Specification
