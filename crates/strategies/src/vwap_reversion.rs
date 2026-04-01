@@ -1,4 +1,4 @@
-//! VWAP Mean Reversion Strategy.
+//! time/volume spreading Mean Reversion Strategy.
 //!
 //! A mean-reversion strategy based on the Volume Weighted Moving Average (VWMA).
 //! This strategy assumes that price will revert to its volume-weighted mean over time.
@@ -22,7 +22,7 @@ use rust_decimal::prelude::*;
 use rust_decimal::Decimal;
 use serde::{Deserialize, Serialize};
 
-/// Configuration for the VWAP Reversion Strategy.
+/// Configuration for the time/volume spreading Reversion Strategy.
 ///
 /// Contains the periods for calculating the VWMA and ATR, as well as the threshold
 /// percentages used to determine the overbought and oversold bands around the VWMA.
@@ -59,7 +59,7 @@ pub struct VwapReversionConfig {
 
 impl StrategyConfig for VwapReversionConfig {}
 
-/// VWAP Reversion Strategy.
+/// time/volume spreading Reversion Strategy.
 ///
 /// This strategy monitors price action relative to the Volume Weighted Moving Average (VWMA).
 /// It looks for extreme deviations from the mean volume-weighted price and anticipates a reversion.
@@ -68,7 +68,7 @@ pub struct VwapReversion {
 }
 
 impl VwapReversion {
-    /// Creates a new instance of the VWAP Reversion Strategy.
+    /// Creates a new instance of the time/volume spreading Reversion Strategy.
     ///
     /// # Examples
     ///
@@ -172,7 +172,7 @@ impl Strategy for VwapReversion {
                         stop_loss: Some(sl.to_f64().unwrap_or(0.0)),
                         take_profit: Some(tp.to_f64().unwrap_or(0.0)),
                         reason: format!(
-                            "VWAP Reversion: Price {:.2} < Lower Band {:.2}",
+                            "time/volume spreading Reversion: Price {:.2} < Lower Band {:.2}",
                             price, lower_band
                         ),
                         timestamp_ms: timestamp,
@@ -194,7 +194,7 @@ impl Strategy for VwapReversion {
                         stop_loss: Some(sl.to_f64().unwrap_or(0.0)),
                         take_profit: Some(tp.to_f64().unwrap_or(0.0)),
                         reason: format!(
-                            "VWAP Reversion: Price {:.2} > Upper Band {:.2}",
+                            "time/volume spreading Reversion: Price {:.2} > Upper Band {:.2}",
                             price, upper_band
                         ),
                         timestamp_ms: timestamp,
@@ -214,7 +214,7 @@ impl Strategy for VwapReversion {
                         stop_loss: None,
                         take_profit: None,
                         reason: format!(
-                            "VWAP Reverted to Mean: Price {:.2} >= VWMA {:.2}",
+                            "time/volume spreading Reverted to Mean: Price {:.2} >= VWMA {:.2}",
                             price, vwma_val
                         ),
                         timestamp_ms: timestamp,
@@ -232,7 +232,7 @@ impl Strategy for VwapReversion {
                         stop_loss: None,
                         take_profit: None,
                         reason: format!(
-                            "VWAP Reverted to Mean: Price {:.2} <= VWMA {:.2}",
+                            "time/volume spreading Reverted to Mean: Price {:.2} <= VWMA {:.2}",
                             price, vwma_val
                         ),
                         timestamp_ms: timestamp,
