@@ -4942,6 +4942,30 @@
 | 2026-04-01 10:57:00 | BTCUSD | crypto:BTCUSD:unknown:1774963582996 | CONFLICT: Conflicting signals (Buy and Sell) detected for BTCUSD. Trading halted for this asset. |
 | 2026-04-01 10:57:00 | ETHUSD | crypto:ETHUSD:unknown:1774963583099 | CONFLICT: Conflicting signals (Buy and Sell) detected for ETHUSD. Trading halted for this asset. |
 | 2026-04-01 10:57:01 | SPY | equities:SPY:unknown:1774963583152 | CONFLICT: Conflicting signals (Buy and Sell) detected for SPY. Trading halted for this asset. |
+| 2026-04-01 15:35:51 | BTCUSD | crypto:BTCUSD:unknown:1774963582996 | Signal too old (26.2 hours > 24 hours) |
+| 2026-04-01 15:35:51 | ETHUSD | crypto:ETHUSD:unknown:1774963583099 | Signal too old (26.2 hours > 24 hours) |
+| 2026-04-01 15:35:51 | SPY | equities:SPY:unknown:1774963583152 | Signal too old (26.2 hours > 24 hours) |
+| 2026-04-01 15:35:51 | BTCUSD | crypto:BTCUSD:unknown:1775046780036 | Invalid input: provider error: missing required environment variable: KRAKEN_API_KEY |
+| 2026-04-01 15:35:51 | ETHUSD | crypto:ETHUSD:unknown:1775046780062 | Invalid input: provider error: missing required environment variable: KRAKEN_API_KEY |
+| 2026-04-01 15:35:51 | SPY | equities:SPY:unknown:1775046780081 | Invalid input: provider error: missing required environment variable: KRAKEN_API_KEY |
+| 2026-04-01 15:35:56 | BTCUSD | crypto:BTCUSD:unknown:1775046780036 | Invalid input: provider error: missing required environment variable: KRAKEN_API_KEY |
+| 2026-04-01 15:35:56 | ETHUSD | crypto:ETHUSD:unknown:1775046780062 | Invalid input: provider error: missing required environment variable: KRAKEN_API_KEY |
+| 2026-04-01 15:35:56 | SPY | equities:SPY:unknown:1775046780081 | Invalid input: provider error: missing required environment variable: KRAKEN_API_KEY |
+| 2026-04-01 15:37:09 | SPY | equities:SPY:unknown:1775046780081 | Invalid input: provider error: kraken api error: EQuery:Unknown asset pair |
+| 2026-04-01 15:37:09 | BTCUSD | crypto:BTCUSD:unknown:1775046780036 | Unable to determine buying power for kraken:BTCUSD |
+| 2026-04-01 15:37:09 | ETHUSD | crypto:ETHUSD:unknown:1775046780062 | Unable to determine buying power for kraken:ETHUSD |
+| 2026-04-01 15:47:03 | SPY | equities:SPY:unknown:1775046780081 | Invalid input: provider error: kraken api error: EQuery:Unknown asset pair |
+| 2026-04-01 15:47:03 | BTCUSD | crypto:BTCUSD:unknown:1775046780036 | Unable to determine buying power for kraken:BTCUSD |
+| 2026-04-01 15:47:03 | ETHUSD | crypto:ETHUSD:unknown:1775046780062 | Unable to determine buying power for kraken:ETHUSD |
+| 2026-04-01 15:47:37 | ETHUSD | crypto:ETHUSD:unknown:1775046780062 | CONFLICT: Conflicting signals (Buy and Sell) detected for ETHUSD. Trading halted for this asset. |
+| 2026-04-01 15:47:37 | SPY | equities:SPY:unknown:1775046780081 | Invalid input: provider error: kraken api error: EQuery:Unknown asset pair |
+| 2026-04-01 15:47:37 | BTCUSD | crypto:BTCUSD:unknown:1775046780036 | Unable to determine buying power for kraken:BTCUSD |
+| 2026-04-01 15:48:40 | SPY | equities:SPY:unknown:1775046780081 | Invalid input: provider error: kraken api error: EQuery:Unknown asset pair |
+| 2026-04-01 15:48:41 | BTCUSD | crypto:BTCUSD:unknown:1775046780036 | Unable to determine buying power for kraken:BTCUSD |
+| 2026-04-01 15:48:41 | ETHUSD | crypto:ETHUSD:unknown:1775046780062 | Unable to determine buying power for kraken:ETHUSD |
+| 2026-04-01 15:51:17 | ETHUSD | crypto:ETHUSD:unknown:1775046780062 | CONFLICT: Conflicting signals (Buy and Sell) detected for ETHUSD. Trading halted for this asset. |
+| 2026-04-01 15:51:17 | SPY | equities:SPY:unknown:1775046780081 | Invalid input: provider error: kraken api error: EQuery:Unknown asset pair |
+| 2026-04-01 15:51:18 | BTCUSD | crypto:BTCUSD:unknown:1775046780036 | Unable to determine buying power for kraken:BTCUSD |
 
 ## Executed Trades
 
