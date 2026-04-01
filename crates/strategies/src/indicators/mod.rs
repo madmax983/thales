@@ -43,6 +43,7 @@ pub mod stochastic;
 pub mod supertrend;
 pub mod tema;
 pub mod trix;
+pub mod template_indicator;
 pub mod tsi;
 pub mod ttm_squeeze;
 pub mod ultimate_oscillator;

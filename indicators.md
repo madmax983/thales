@@ -33,6 +33,38 @@ let sma_series = sma::calculate(&df, period)?;
 - The output Series is named "sma".
 - The first `period - 1` values will be null.
 
+## Template Indicator
+
+**Name:** Template Indicator
+**Description:** Calculates the arithmetic mean of price data over a specified lookback period using rigorous financial calculation rules.
+**Rationale:** A placeholder indicator used to fulfill the requirements of the Template Indicator spec.
+
+### Implementation Details
+- Uses `rust_decimal::Decimal` for all internal calculations to ensure precision and avoid `f64` imprecision.
+- Does not use `unwrap()` or `expect()`.
+- Returns a Polars `Series` of `f64` values (computed internally via Decimal).
+- Handles missing data (nulls) by resetting the calculation window or invalidating points correctly.
+
+### Usage
+
+```rust
+use strategies::indicators::template_indicator;
+use polars::prelude::*;
+
+// Assuming df is a DataFrame with a "close" column and "timestamp_unix_ms"
+let period = 14;
+let result_series = template_indicator::calculate(&df, period)?;
+```
+
+### Parameters
+- `data`: Reference to a Polars `DataFrame`. Must contain a numeric column named "close" and "timestamp_unix_ms".
+- `period`: The size of the moving window (must be > 0).
+
+### Output
+- Returns `Result<Series>`.
+- The output Series is named "template_indicator".
+- The first `period - 1` values will be null.
+
 ## Exponential Moving Average (EMA)
 
 **Name:** EMA
