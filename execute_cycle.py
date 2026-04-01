@@ -1580,7 +1580,7 @@ def main():
                          provider = "paper"
                          market = "crypto" if "USD" in sym and "SPY" not in sym else "equities"
                     else:
-                         provider = pos.get("provider", "kraken") # If missing, default kraken
+                         provider = "kraken"
                          market = "crypto" if "USD" in sym and "SPY" not in sym else "equities"
                     selected_candidates.append({"provider": provider, "symbol": sym, "market": market})
                     existing_symbols.add(sym)
