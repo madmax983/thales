@@ -137,11 +137,12 @@ def truncate_float(match):
     return formatted_val if formatted_val else "0"
 
 def format_signal(intent):
+    # Ensure logic explicitly supports both 'buy'/'sell' and 'long'/'short' string variants
     side_raw = intent.get('side', '')
     side = str(side_raw).lower() if side_raw else ''
-    if side == "buy" or side == "long":
+    if side in ["buy", "long"]:
         direction = "long"
-    elif side == "sell" or side == "short":
+    elif side in ["sell", "short"]:
         direction = "short"
     else:
         direction = side
@@ -153,6 +154,7 @@ def format_signal(intent):
     sl_val = intent.get('stop_loss')
     tp_val = intent.get('take_profit')
 
+    # Explicit missing variable checks
     sl = format_price(sl_val) if not is_missing(sl_val) else 'None'
     tp = format_price(tp_val) if not is_missing(tp_val) else 'None'
 
@@ -163,10 +165,11 @@ def format_signal(intent):
     # Clean up Rust enum string if present (e.g. SignalType::Entry -> Entry)
     signal_type = signal_type.replace("SignalType::", "")
 
-    output = f"- Symbol and direction (long/short): {intent['symbol']} ({direction})\n"
-    output += f"- Signal type and strength (0-100%): {signal_type}, Strength: {strength:.1f}%\n"
+    # Format output perfectly to match the user's requested output template
+    output = f"- Symbol and direction (long/short): {intent.get('symbol')} ({direction})\n"
+    output += f"- Signal type and strength (0-100%): {signal_type} ({strength:.1f}%)\n"
     output += f"- Suggested size (quantity): {size}\n"
-    output += f"- Stop loss and take profit levels: Stop Loss: {sl}, Take Profit: {tp}\n"
+    output += f"- Stop loss and take profit levels: SL: {sl}, TP: {tp}\n"
     output += f"- Clear reasoning (including historical context): {reason}"
     return output
 
@@ -447,10 +450,13 @@ def main():
     all_intents.sort(key=lambda x: x.get("confidence", 0.0), reverse=True)
 
     print("\n=== Signal Generator Output ===\n", file=sys.stderr)
-    for intent in all_intents:
+    for i, intent in enumerate(all_intents):
         # Programmatically fulfill persona rule: log out structured signal
         print(format_signal(intent), file=sys.stdout)
-        print("------------------\n")
+        if i < len(all_intents) - 1:
+            print("------------------\n")
+        else:
+            print("------------------")
 
 if __name__ == "__main__":
     main()
