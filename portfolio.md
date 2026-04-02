@@ -5007,6 +5007,12 @@
 | 2026-04-01 22:55:40 | SPY | equities:SPY:unknown:1775046780081 | Invalid input: provider error: kraken api error: EQuery:Unknown asset pair |
 | 2026-04-01 22:55:41 | ETHUSD | crypto:ETHUSD:unknown:1775046780062 | No sellable balance available (ETH 0.00000000) |
 | 2026-04-01 22:55:41 | PEPEUSD | crypto:PEPEUSD:sell:1775080800000 | No sellable balance available (PEPE 0.00000000) |
+| 2026-04-02 01:04:30 | BTCUSD | crypto:BTCUSD:unknown:1775046780036 | Signal already executed/submitted (Ref: crypto:BTCUSD:unknown:1775046780036) |
+| 2026-04-02 01:04:31 | SPY | equities:SPY:unknown:1775046780081 | Invalid input: provider error: kraken api error: EQuery:Unknown asset pair |
+| 2026-04-02 01:04:33 | ETHUSD | crypto:ETHUSD:unknown:1775046780062 | No sellable balance available (ETH 0.00000000) |
+| 2026-04-02 01:07:53 | BTCUSD | crypto:BTCUSD:unknown:1775046780036 | Signal already executed/submitted (Ref: crypto:BTCUSD:unknown:1775046780036) |
+| 2026-04-02 01:07:54 | SPY | equities:SPY:unknown:1775046780081 | Invalid input: provider error: kraken api error: EQuery:Unknown asset pair |
+| 2026-04-02 01:07:56 | ETHUSD | crypto:ETHUSD:unknown:1775046780062 | No sellable balance available (ETH 0.00000000) |
 
 ## Executed Trades
 
