@@ -139,9 +139,9 @@ def truncate_float(match):
 def format_signal(intent):
     side_raw = intent.get('side', '')
     side = str(side_raw).lower() if side_raw else ''
-    if side == "buy":
+    if side == "buy" or side == "long":
         direction = "long"
-    elif side == "sell":
+    elif side == "sell" or side == "short":
         direction = "short"
     else:
         direction = side
