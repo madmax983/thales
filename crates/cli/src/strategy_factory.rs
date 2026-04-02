@@ -33,6 +33,7 @@ use strategies::alma_crossover::{AlmaCrossover, AlmaCrossoverConfig};
 use strategies::aroon_oscillator::{AroonOscillator, AroonOscillatorConfig};
 use strategies::awesome_oscillator::{AwesomeOscillator, AwesomeOscillatorConfig};
 use strategies::bollinger_bands::{BollingerBandsConfig, BollingerBandsMeanReversion};
+use strategies::bop_momentum::{BopMomentum, BopMomentumConfig};
 use strategies::cci_momentum::{CciMomentum, CciMomentumConfig};
 use strategies::chaikin_money_flow::{ChaikinMoneyFlow, ChaikinMoneyFlowConfig};
 use strategies::chaikin_oscillator_momentum::{
@@ -275,6 +276,15 @@ pub fn create_strategy(name: &str, symbol: &str) -> Result<Box<dyn Strategy>> {
                 symbol: symbol.to_string(),
             };
             Ok(Box::new(ElderRay::new(config)))
+        }
+        "BopMomentum" => {
+            let config = BopMomentumConfig {
+                bop_sma_period: 14,
+                stop_loss_atr_mult: 2.0,
+                atr_period: 14,
+                symbol: symbol.to_string(),
+            };
+            Ok(Box::new(BopMomentum::new(config)))
         }
         "RsiMeanReversion" => {
             let config = RsiMeanReversionConfig {
@@ -871,6 +881,7 @@ pub fn create_strategy(name: &str, symbol: &str) -> Result<Box<dyn Strategy>> {
 pub fn list_strategies() -> Vec<&'static str> {
     vec![
         "AdlMomentum",
+        "BopMomentum",
         "KdjIndicatorStrategy",
         "KamaCrossover",
         "AlmaCrossover",
