@@ -5,6 +5,7 @@ pub mod aroon;
 pub mod atr;
 pub mod awesome_oscillator;
 pub mod bollinger_bands;
+pub mod bop;
 pub mod cci;
 pub mod chaikin_oscillator;
 pub mod chandelier_exit;
