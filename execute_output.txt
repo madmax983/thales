@@ -1,0 +1,49 @@
+Active Strategies: ['BollingerBands', 'AdlMomentum', 'BopMomentum', 'CoppockCurve', 'KdjIndicatorStrategy', 'KamaCrossover', 'AlmaCrossover', 'AdxMacdTrend', 'AroonOscillator', 'ElderRay', 'EmaCrossover', 'FisherTransformReversal', 'RsiMeanReversion', 'Macd', 'Supertrend', 'SupertrendEmaCrossover', 'SupertrendRsi', 'DonchianBreakout', 'ParabolicSar', 'KeltnerChannelBreakout', 'StochasticOscillator', 'AdxMomentum', 'IchimokuCloud', 'CciMomentum', 'ChaikinMoneyFlow', 'ChaikinOscillatorMomentum', 'ChandelierExit', 'ChoppinessIndexTrend', 'CmoMeanReversion', 'LinearRegressionTrend', 'EaseOfMovement', 'ForceIndexTrend', 'ObvTrendFollowing', 'MoneyFlowIndex', 'ConnorsRsiMeanReversion', 'AwesomeOscillator', 'WilliamsR', 'VwmaCrossover', 'VwapReversion', 'VortexBreakout', 'TripleSmaCrossover', 'TripleEmaCrossover', 'UltimateOscillator', 'RelativeVigorIndexTrend', 'VolumeOscillatorTrend', 'VptTrendFollowing', 'ZlemaCrossover', 'ZScoreMeanReversion', 'VwMacd', 'BollingerRsiMeanReversion', 'StochRsiMeanReversion', 'RocMomentum', 'MacdRsiTrend', 'TrixCrossover', 'TsiTrend', 'DemaCrossover', 'TemaCrossover', 'WmaCrossover', 'HmaCrossover', 'SmaCrossover', 'EmaRsiTrendFollowing', 'PpoRsiTrend', 'KstTrend', 'VhfTrendFollowing', 'SchaffTrendCycle', 'DisparityIndexReversion', 'DpoBreakout', 'DoubleEmaCrossover']
+Scanning Kraken (Crypto)...
+Scanning Alpaca (Equities)...
+Selected 3 candidates for deep analysis (from 21 scanned + 0 signals).
+ - SPICEUSD (crypto)
+ - UNITEUSD (crypto)
+ - KINUSD (crypto)
+Fetching open positions...
+Evaluating candidates...
+  SPICEUSD: regime=trending_up, using strategies=['BollingerBands', 'AdlMomentum', 'BopMomentum', 'CoppockCurve', 'KdjIndicatorStrategy', 'KamaCrossover', 'AlmaCrossover', 'AdxMacdTrend', 'AroonOscillator', 'ElderRay', 'EmaCrossover', 'FisherTransformReversal', 'RsiMeanReversion', 'Macd', 'Supertrend', 'SupertrendEmaCrossover', 'SupertrendRsi', 'DonchianBreakout', 'ParabolicSar', 'KeltnerChannelBreakout', 'StochasticOscillator', 'AdxMomentum', 'IchimokuCloud', 'CciMomentum', 'ChaikinMoneyFlow', 'ChaikinOscillatorMomentum', 'ChandelierExit', 'ChoppinessIndexTrend', 'CmoMeanReversion', 'LinearRegressionTrend', 'EaseOfMovement', 'ForceIndexTrend', 'ObvTrendFollowing', 'MoneyFlowIndex', 'ConnorsRsiMeanReversion', 'AwesomeOscillator', 'WilliamsR', 'VwmaCrossover', 'VwapReversion', 'VortexBreakout', 'TripleSmaCrossover', 'TripleEmaCrossover', 'UltimateOscillator', 'RelativeVigorIndexTrend', 'VolumeOscillatorTrend', 'VptTrendFollowing', 'ZlemaCrossover', 'ZScoreMeanReversion', 'VwMacd', 'BollingerRsiMeanReversion', 'StochRsiMeanReversion', 'RocMomentum', 'MacdRsiTrend', 'TrixCrossover', 'TsiTrend', 'DemaCrossover', 'TemaCrossover', 'WmaCrossover', 'HmaCrossover', 'SmaCrossover', 'EmaRsiTrendFollowing', 'PpoRsiTrend', 'KstTrend', 'VhfTrendFollowing', 'SchaffTrendCycle', 'DisparityIndexReversion', 'DpoBreakout', 'DoubleEmaCrossover']
+  SPICEUSD: Selected 1 valid signals.
+  UNITEUSD: regime=trending_down, using strategies=['BollingerBands', 'AdlMomentum', 'BopMomentum', 'CoppockCurve', 'KdjIndicatorStrategy', 'KamaCrossover', 'AlmaCrossover', 'AdxMacdTrend', 'AroonOscillator', 'ElderRay', 'EmaCrossover', 'FisherTransformReversal', 'RsiMeanReversion', 'Macd', 'Supertrend', 'SupertrendEmaCrossover', 'SupertrendRsi', 'DonchianBreakout', 'ParabolicSar', 'KeltnerChannelBreakout', 'StochasticOscillator', 'AdxMomentum', 'IchimokuCloud', 'CciMomentum', 'ChaikinMoneyFlow', 'ChaikinOscillatorMomentum', 'ChandelierExit', 'ChoppinessIndexTrend', 'CmoMeanReversion', 'LinearRegressionTrend', 'EaseOfMovement', 'ForceIndexTrend', 'ObvTrendFollowing', 'MoneyFlowIndex', 'ConnorsRsiMeanReversion', 'AwesomeOscillator', 'WilliamsR', 'VwmaCrossover', 'VwapReversion', 'VortexBreakout', 'TripleSmaCrossover', 'TripleEmaCrossover', 'UltimateOscillator', 'RelativeVigorIndexTrend', 'VolumeOscillatorTrend', 'VptTrendFollowing', 'ZlemaCrossover', 'ZScoreMeanReversion', 'VwMacd', 'BollingerRsiMeanReversion', 'StochRsiMeanReversion', 'RocMomentum', 'MacdRsiTrend', 'TrixCrossover', 'TsiTrend', 'DemaCrossover', 'TemaCrossover', 'WmaCrossover', 'HmaCrossover', 'SmaCrossover', 'EmaRsiTrendFollowing', 'PpoRsiTrend', 'KstTrend', 'VhfTrendFollowing', 'SchaffTrendCycle', 'DisparityIndexReversion', 'DpoBreakout', 'DoubleEmaCrossover']
+  KINUSD: regime=trending_up, using strategies=['BollingerBands', 'AdlMomentum', 'BopMomentum', 'CoppockCurve', 'KdjIndicatorStrategy', 'KamaCrossover', 'AlmaCrossover', 'AdxMacdTrend', 'AroonOscillator', 'ElderRay', 'EmaCrossover', 'FisherTransformReversal', 'RsiMeanReversion', 'Macd', 'Supertrend', 'SupertrendEmaCrossover', 'SupertrendRsi', 'DonchianBreakout', 'ParabolicSar', 'KeltnerChannelBreakout', 'StochasticOscillator', 'AdxMomentum', 'IchimokuCloud', 'CciMomentum', 'ChaikinMoneyFlow', 'ChaikinOscillatorMomentum', 'ChandelierExit', 'ChoppinessIndexTrend', 'CmoMeanReversion', 'LinearRegressionTrend', 'EaseOfMovement', 'ForceIndexTrend', 'ObvTrendFollowing', 'MoneyFlowIndex', 'ConnorsRsiMeanReversion', 'AwesomeOscillator', 'WilliamsR', 'VwmaCrossover', 'VwapReversion', 'VortexBreakout', 'TripleSmaCrossover', 'TripleEmaCrossover', 'UltimateOscillator', 'RelativeVigorIndexTrend', 'VolumeOscillatorTrend', 'VptTrendFollowing', 'ZlemaCrossover', 'ZScoreMeanReversion', 'VwMacd', 'BollingerRsiMeanReversion', 'StochRsiMeanReversion', 'RocMomentum', 'MacdRsiTrend', 'TrixCrossover', 'TsiTrend', 'DemaCrossover', 'TemaCrossover', 'WmaCrossover', 'HmaCrossover', 'SmaCrossover', 'EmaRsiTrendFollowing', 'PpoRsiTrend', 'KstTrend', 'VhfTrendFollowing', 'SchaffTrendCycle', 'DisparityIndexReversion', 'DpoBreakout', 'DoubleEmaCrossover']
+  KINUSD: Selected 1 valid signals.
+Selected top 2 signals for execution.
+
+--- NEW SIGNAL ---
+Symbol: KINUSD (crypto)
+Direction: BUY
+Signal Type: Entry
+Confidence: 64.0%
+Size Hint: 4166666666.666666
+Stop Loss: 7.79e-07
+Take Profit: 8.51e-07
+Reasoning: Strategy: IchimokuCloud (64%, MA: 0.80). Reason: Tenkan-Kijun Bullish Cross above Cloud. Market Context: Trending Up (Medium Volatility). No similar past trades found. (Risk: $100, SL Dist: 0.00)
+------------------
+
+Fetching latest price for KINUSD on kraken...
+Latest price for KINUSD: 8.03e-07
+Selected VWAP algorithm to minimize market impact for very large order.
+Adjusted buy size for KINUSD: 4166666666.666666 -> 5348219.17808219 (buying power: USD 4.34)
+Skipping KINUSD: Order value below exchange minimum fiat volume (4.29 < 5.0)
+
+--- NEW SIGNAL ---
+Symbol: SPICEUSD (crypto)
+Direction: BUY
+Signal Type: Entry
+Confidence: 56.0%
+Size Hint: 603705479.328223
+Stop Loss: 1.5013563154151331e-06
+Take Profit: 1.9982873691697346e-06
+Reasoning: Strategy: DonchianBreakout (56%, MA: 0.70). Reason: Breakout: Close 0.00 > Upper Channel 0.00. Market Context: Trending Up (High Volatility). No similar past trades found. (Risk: $100, SL Dist: 0.00)
+------------------
+
+Fetching latest price for SPICEUSD on kraken...
+Latest price for SPICEUSD: 1.667e-06
+Selected VWAP algorithm to minimize market impact for very large order.
+Adjusted buy size for SPICEUSD: 603705479.328223 -> 2576256.74865027 (buying power: USD 4.34)
+Skipping SPICEUSD: Order value below exchange minimum fiat volume (4.29 < 5.0)
