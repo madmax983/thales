@@ -5030,6 +5030,10 @@
 | 2026-04-02 11:36:42 | BTCUSD | crypto:BTCUSD:unknown:1775046780036 | Signal already executed/submitted (Ref: crypto:BTCUSD:unknown:1775046780036) |
 | 2026-04-02 11:36:43 | SPY | equities:SPY:unknown:1775046780081 | Invalid input: provider error: kraken api error: EQuery:Unknown asset pair |
 | 2026-04-02 11:36:45 | ETHUSD | crypto:ETHUSD:unknown:1775046780062 | No sellable balance available (ETH 0.00000000) |
+| 2026-04-02 12:24:54 | BTCUSD | crypto:BTCUSD:unknown:1775046780036 | Signal already executed/submitted (Ref: crypto:BTCUSD:unknown:1775046780036) |
+| 2026-04-02 12:24:56 | SPY | equities:SPY:unknown:1775046780081 | Invalid input: provider error: kraken api error: EQuery:Unknown asset pair |
+| 2026-04-02 12:24:57 | SPICEUSD | NO_REF | CONFLICT: Conflicting signals (Buy and Sell) detected for SPICEUSD. Trading halted for this asset. |
+| 2026-04-02 12:24:57 | ETHUSD | crypto:ETHUSD:unknown:1775046780062 | No sellable balance available (ETH 0.00000000) |
 
 ## Executed Trades
 
