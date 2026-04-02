@@ -157,7 +157,7 @@ def format_signal(intent):
     tp = format_price(tp_val) if not is_missing(tp_val) else 'None'
 
     reason = intent.get('rationale', 'No reason provided.')
-    reason = re.sub(r'\d+\.\d{5,}', truncate_float, reason)
+    reason = re.sub(r'\d+\.\d{5,}', truncate_float, reason).strip()
     signal_type = intent.get('signal_type', 'Entry')
 
     # Clean up Rust enum string if present (e.g. SignalType::Entry -> Entry)
