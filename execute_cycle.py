@@ -1659,10 +1659,7 @@ def main():
         # Fetch latest price for execution logic using original provider
         current_price = get_latest_price(intent.get("provider", "kraken"), intent["symbol"])
 
-        # Route both equities and crypto to Kraken ONLY for execution
-        if os.environ.get("SIMULATION") != "true":
-            intent["provider"] = "kraken"
-        else:
+        if os.environ.get("SIMULATION") == "true":
             intent["provider"] = "paper"
 
         # Refine Intent (Algo Selection)
