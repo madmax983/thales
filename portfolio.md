@@ -5034,6 +5034,11 @@
 | 2026-04-02 12:24:56 | SPY | equities:SPY:unknown:1775046780081 | Invalid input: provider error: kraken api error: EQuery:Unknown asset pair |
 | 2026-04-02 12:24:57 | SPICEUSD | NO_REF | CONFLICT: Conflicting signals (Buy and Sell) detected for SPICEUSD. Trading halted for this asset. |
 | 2026-04-02 12:24:57 | ETHUSD | crypto:ETHUSD:unknown:1775046780062 | No sellable balance available (ETH 0.00000000) |
+| 2026-04-02 15:14:38 | BTCUSD | crypto:BTCUSD:unknown:1775046780036 | Signal already executed/submitted (Ref: crypto:BTCUSD:unknown:1775046780036) |
+| 2026-04-02 15:14:38 | ETHUSD | crypto:ETHUSD:unknown:1775046780062 | Signal too old (26.7 hours > 24 hours) |
+| 2026-04-02 15:14:38 | SPY | equities:SPY:unknown:1775046780081 | Signal too old (26.7 hours > 24 hours) |
+| 2026-04-02 15:14:40 | APENFTUSD | NO_REF | CONFLICT: Conflicting signals (Buy and Sell) detected for APENFTUSD. Trading halted for this asset. |
+| 2026-04-02 15:14:42 | KINUSD | NO_REF | CONFLICT: Conflicting signals (Buy and Sell) detected for KINUSD. Trading halted for this asset. |
 
 ## Executed Trades
 
