@@ -1,15 +1,66 @@
+//! Trading Card Generator
+//!
+//! This module gamifies market data by converting standard price action
+//! (volatility, momentum, and volume) into RPG-style stats (Power, Agility, Stamina).
+//! It can then export these stats as a visual Trading Card in SVG format.
+//!
+//! By translating abstract financial metrics into game mechanics, we provide an
+//! alternative, intuitive way to quickly assess a financial instrument's "character".
+
 use anyhow::Result;
 use contracts::BarSeries;
 use std::fs::File;
 use std::io::Write;
 use std::path::Path;
 
+/// RPG-style stats derived from market price action.
+///
+/// # Examples
+///
+/// ```rust
+/// use thales_cli::experimental::trading_card::CardStats;
+///
+/// let stats = CardStats {
+///     power: 85,
+///     agility: 92,
+///     stamina: 60,
+/// };
+///
+/// assert_eq!(stats.power, 85);
+/// ```
 pub struct CardStats {
-    pub power: i32,   // Based on Volatility
-    pub agility: i32, // Based on Momentum
-    pub stamina: i32, // Based on Volume
+    /// Power represents Market Volatility (high low range).
+    pub power: i32,
+    /// Agility represents Market Momentum (close vs open distance).
+    pub agility: i32,
+    /// Stamina represents Trading Volume.
+    pub stamina: i32,
 }
 
+/// Calculates `CardStats` by evaluating the average volatility, momentum, and maximum volume over a series of bars.
+///
+/// # Examples
+///
+/// ```rust
+/// use thales_cli::experimental::trading_card::calculate_stats;
+/// use contracts::{BarSeries, Bar};
+///
+/// let bars = vec![
+///     Bar {
+///         symbol: "AAPL".to_string(),
+///         market: "equities".to_string(),
+///         timeframe: "1d".to_string(),
+///         timestamp_unix_ms: 0,
+///         open: 100.0, high: 110.0, low: 90.0, close: 105.0, volume: 1000.0,
+///     },
+/// ];
+/// let series = BarSeries { schema_version: "v1".to_string(), bars };
+///
+/// let stats = calculate_stats(&series);
+/// assert!(stats.power > 0);
+/// assert!(stats.agility > 0);
+/// assert!(stats.stamina > 0);
+/// ```
 pub fn calculate_stats(series: &BarSeries) -> CardStats {
     if series.bars.is_empty() {
         return CardStats {
@@ -61,6 +112,34 @@ pub fn calculate_stats(series: &BarSeries) -> CardStats {
     }
 }
 
+/// Generates an SVG representation of a Trading Card based on the calculated `CardStats`.
+///
+/// The card includes the provided title, symbol, and visual stat bars for Power, Agility, and Stamina.
+///
+/// # Examples
+///
+/// ```rust
+/// use thales_cli::experimental::trading_card::export_trading_card_svg;
+/// use contracts::{BarSeries, Bar};
+/// use tempfile::tempdir;
+///
+/// let bars = vec![
+///     Bar {
+///         symbol: "AAPL".to_string(),
+///         market: "equities".to_string(),
+///         timeframe: "1d".to_string(),
+///         timestamp_unix_ms: 0,
+///         open: 100.0, high: 110.0, low: 90.0, close: 105.0, volume: 1000.0,
+///     },
+/// ];
+/// let series = BarSeries { schema_version: "v1".to_string(), bars };
+///
+/// let dir = tempdir().unwrap();
+/// let file_path = dir.path().join("card.svg");
+///
+/// let result = export_trading_card_svg(&series, "Tech Titan", &file_path);
+/// assert!(result.is_ok());
+/// ```
 pub fn export_trading_card_svg(
     series: &BarSeries,
     title: &str,

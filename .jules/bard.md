@@ -103,3 +103,7 @@
 ## 2024-06-09 - The Silent Spreading
 **Confusion:** The jargon TWAP and VWAP were confusing users. Also, the `generate-signals` command example was returning empty outputs.
 **Clarification:** Replaced jargon with plain-English explanations and updated the example to use `dummy_data.json` that guarantees a signal.
+
+## 2024-05-31 - The Unmapped Gamification & Physics Regions
+**Confusion:** The experimental modules `market_energy.rs` and `trading_card.rs` in `crates/cli/src/experimental/` were undocumented. Users had no idea how to interpret market data as potential/kinetic energy or how to generate RPG-style stats and SVGs.
+**Clarification:** Added storytelling module-level documentation (`//!`) to explain the core concepts. Added executable `# Examples` to configurations and main functions (`analyze_energy`, `export_trading_card_svg`) to guide users on usage.

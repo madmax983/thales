@@ -47,7 +47,8 @@ pub fn calculate(data: &DataFrame, column_name: &str, period: usize) -> Result<S
     let mut sum_x = Decimal::ZERO;
     let mut sum_x2 = Decimal::ZERO;
 
-    let period_dec = Decimal::from_usize(period).context("Invalid period for Decimal conversion")?;
+    let period_dec =
+        Decimal::from_usize(period).context("Invalid period for Decimal conversion")?;
 
     for i in 0..values.len() {
         let val_opt = values.get(i);
@@ -155,7 +156,7 @@ mod tests {
         assert!(res.f64()?.get(1).is_none());
 
         Ok(())
-        }
+    }
 
     #[test]
     fn test_stddev_realistic_data() -> Result<()> {
