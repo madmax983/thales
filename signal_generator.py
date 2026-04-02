@@ -167,7 +167,7 @@ def format_signal(intent):
     output += f"- Signal type and strength (0-100%): {signal_type}, Strength: {strength:.1f}%\n"
     output += f"- Suggested size (quantity): {size}\n"
     output += f"- Stop loss and take profit levels: Stop Loss: {sl}, Take Profit: {tp}\n"
-    output += f"- Clear reasoning (including historical context): {reason}\n"
+    output += f"- Clear reasoning (including historical context): {reason}"
     return output
 
 def main():
