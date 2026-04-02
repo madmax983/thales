@@ -5039,6 +5039,8 @@
 | 2026-04-02 15:14:38 | SPY | equities:SPY:unknown:1775046780081 | Signal too old (26.7 hours > 24 hours) |
 | 2026-04-02 15:14:40 | APENFTUSD | NO_REF | CONFLICT: Conflicting signals (Buy and Sell) detected for APENFTUSD. Trading halted for this asset. |
 | 2026-04-02 15:14:42 | KINUSD | NO_REF | CONFLICT: Conflicting signals (Buy and Sell) detected for KINUSD. Trading halted for this asset. |
+| 2026-04-02 19:52:41 | KINUSD | crypto:KINUSD:buy:1775156400000 | Rejected by Risk Agent: Order value below exchange minimum fiat volume (4.29 < 5.0) |
+| 2026-04-02 19:52:41 | SPICEUSD | crypto:SPICEUSD:buy:1775156400000 | Rejected by Risk Agent: Order value below exchange minimum fiat volume (4.29 < 5.0) |
 
 ## Executed Trades
 
