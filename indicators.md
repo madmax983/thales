@@ -1335,3 +1335,32 @@ let std_series = stddev::calculate(&df, "close", period)?;
 - Returns `Result<Series>`.
 - The output Series is named "stddev".
 - Initial values up to `period - 1` will be null until enough data is gathered.
+
+## Balance of Power (BOP)
+
+**Name:** Balance of Power (BOP)
+**Description:** Calculates the Balance of Power, an indicator that evaluates the strength of buyers versus sellers by assessing the ability of each to push price to an extreme level.
+**Rationale:** BOP oscillates between -1 and +1, revealing whether buyers or sellers are in control. It helps identify underlying momentum, divergence, and potential trend changes by showing who is winning the battle between the bulls and bears.
+
+### Implementation Details
+- Uses `rust_decimal::Decimal` iteratively for all math calculations to ensure financial precision, explicitly converting from and to `f64` only for Polars boundaries.
+- Formula: `(Close - Open) / (High - Low)`.
+- Returns a Polars `Series` of `f64` values (computed internally via Decimal).
+- Handled edge cases such as division by zero when the High and Low prices are exactly the same.
+
+### Usage
+
+```rust
+use strategies::indicators::bop;
+use polars::prelude::*;
+
+// Assuming df is a DataFrame with "open", "high", "low", and "close" columns
+let bop_series = bop::calculate(&df)?;
+```
+
+### Parameters
+- `data`: Reference to a Polars `DataFrame`. Must contain numeric "open", "high", "low", and "close" columns.
+
+### Output
+- Returns `Result<Series>`.
+- The output Series is named "bop".
