@@ -5017,6 +5017,9 @@
 | 2026-04-02 03:03:44 | SPY | equities:SPY:unknown:1775046780081 | Invalid input: provider error: kraken api error: EQuery:Unknown asset pair |
 | 2026-04-02 03:03:45 | LUNAUSD | NO_REF | CONFLICT: Conflicting signals (Buy and Sell) detected for LUNAUSD. Trading halted for this asset. |
 | 2026-04-02 03:03:46 | ETHUSD | crypto:ETHUSD:unknown:1775046780062 | No sellable balance available (ETH 0.00000000) |
+| 2026-04-02 05:04:43 | BTCUSD | crypto:BTCUSD:unknown:1775046780036 | Signal already executed/submitted (Ref: crypto:BTCUSD:unknown:1775046780036) |
+| 2026-04-02 05:04:44 | SPY | equities:SPY:unknown:1775046780081 | Invalid input: provider error: kraken api error: EQuery:Unknown asset pair |
+| 2026-04-02 05:04:46 | ETHUSD | crypto:ETHUSD:unknown:1775046780062 | No sellable balance available (ETH 0.00000000) |
 
 ## Executed Trades
 
