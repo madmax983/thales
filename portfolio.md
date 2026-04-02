@@ -5043,6 +5043,8 @@
 | 2026-04-02 19:35:46 | SPICEUSD | crypto:SPICEUSD:buy:1775156400000 | Rejected by Risk Agent: Order value below exchange minimum fiat volume (4.29 < 5.0) |
 | 2026-04-02 21:21:47 | ZBCNUSD | crypto:ZBCNUSD:sell:1775163600000 | provider error: kraken api error: EOrder:Insufficient funds |
 | 2026-04-02 22:29:36 | COQUSD | NO_REF | CONFLICT: Conflicting signals (Buy and Sell) detected for COQUSD. Trading halted for this asset. |
+| 2026-04-02 22:54:46 | COQUSD | NO_REF | CONFLICT: Conflicting signals (Buy and Sell) detected for COQUSD. Trading halted for this asset. |
+| 2026-04-02 22:56:30 | COQUSD | NO_REF | CONFLICT: Conflicting signals (Buy and Sell) detected for COQUSD. Trading halted for this asset. |
 
 ## Executed Trades
 
