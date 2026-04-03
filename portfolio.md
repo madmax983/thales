@@ -5072,6 +5072,12 @@
 | 2026-04-03 19:24:32 | BONKUSD | crypto:BONKUSD:sell:1775242800000 | provider error: kraken api error: EOrder:Insufficient funds |
 | 2026-04-03 19:53:54 | PEPEUSD | crypto:PEPEUSD:sell:1775242800000 | No sellable balance available (PEPE 0.00000000) |
 | 2026-04-03 19:53:54 | BONKUSD | crypto:BONKUSD:sell:1775242800000 | provider error: kraken api error: EOrder:Insufficient funds |
+| 2026-04-03 20:51:24 | BTCUSD | crypto:BTCUSD:unknown:1775245628181 | CONFLICT: Conflicting signals (Buy and Sell) detected for BTCUSD. Trading halted for this asset. |
+| 2026-04-03 20:51:25 | SPY | equities:SPY:unknown:1775245628216 | Invalid input: provider error: kraken api error: EQuery:Unknown asset pair |
+| 2026-04-03 20:51:25 | ETHUSD | crypto:ETHUSD:unknown:1775245628200 | Rejected by Risk Agent: Order value below exchange minimum fiat volume (4.29 < 5.0) |
+| 2026-04-03 20:52:11 | BTCUSD | crypto:BTCUSD:unknown:1775245628181 | CONFLICT: Conflicting signals (Buy and Sell) detected for BTCUSD. Trading halted for this asset. |
+| 2026-04-03 20:52:12 | SPY | equities:SPY:unknown:1775245628216 | Invalid input: provider error: kraken api error: EQuery:Unknown asset pair |
+| 2026-04-03 20:52:13 | ETHUSD | crypto:ETHUSD:unknown:1775245628200 | Rejected by Risk Agent: Order value below exchange minimum fiat volume (4.29 < 5.0) |
 
 ## Executed Trades
 
