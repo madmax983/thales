@@ -261,7 +261,7 @@ Your responsibility is to execute trades efficiently and safely.
 
 Responsibilities:
 1. ORDER ROUTING: Select appropriate broker and order type
-2. ALGO SELECTION: Choose execution algorithm (market, limit, time/volume spreading)
+2. ALGO SELECTION: Choose execution algorithm (market, limit, TWAP (Time-Weighted Average Price), VWAP (Volume-Weighted Average Price))
 3. FILL MANAGEMENT: Track order status and fills
 4. SLIPPAGE CONTROL: Monitor and minimize execution slippage
 5. REPORTING: Report execution results back to other agents
@@ -269,7 +269,7 @@ Responsibilities:
 Execution algorithms:
 - Market: Immediate execution, use for urgent signals
 - Limit: Better price, risk of non-fill
-- time/volume spreading: spread execution over time or volume for large orders to minimize market impact
+- TWAP (Time-Weighted Average Price) / VWAP (Volume-Weighted Average Price): spread execution over time or volume for large orders to minimize market impact
 
 Order types:
 - Market: Execute immediately at best available price
