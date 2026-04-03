@@ -5052,6 +5052,9 @@
 | 2026-04-03 03:37:19 | BONKUSD | crypto:BONKUSD:buy:1775185200000 | Rejected by Risk Agent: Order value below exchange minimum fiat volume (4.29 < 5.0) |
 | 2026-04-03 03:37:20 | SHIBUSD | crypto:SHIBUSD:buy:1775185200000 | Rejected by Risk Agent: Order value below exchange minimum fiat volume (4.29 < 5.0) |
 | 2026-04-03 04:34:09 | PEPEUSD | NO_REF | CONFLICT: Conflicting signals (Buy and Sell) detected for PEPEUSD. Trading halted for this asset. |
+| 2026-04-03 05:10:16 | PEPEUSD | NO_REF | CONFLICT: Conflicting signals (Buy and Sell) detected for PEPEUSD. Trading halted for this asset. |
+| 2026-04-03 05:10:17 | BONKUSD | NO_REF | CONFLICT: Conflicting signals (Buy and Sell) detected for BONKUSD. Trading halted for this asset. |
+| 2026-04-03 05:10:19 | SHIBUSD | crypto:SHIBUSD:sell:1775192400000 | provider error: kraken api error: EOrder:Insufficient funds |
 
 ## Executed Trades
 
