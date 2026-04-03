@@ -5070,6 +5070,8 @@
 | 2026-04-03 19:24:18 | BONKUSD | crypto:BONKUSD:sell:1775242800000 | provider error: kraken api error: EOrder:Insufficient funds |
 | 2026-04-03 19:24:32 | PEPEUSD | crypto:PEPEUSD:sell:1775242800000 | No sellable balance available (PEPE 0.00000000) |
 | 2026-04-03 19:24:32 | BONKUSD | crypto:BONKUSD:sell:1775242800000 | provider error: kraken api error: EOrder:Insufficient funds |
+| 2026-04-03 19:53:54 | PEPEUSD | crypto:PEPEUSD:sell:1775242800000 | No sellable balance available (PEPE 0.00000000) |
+| 2026-04-03 19:53:54 | BONKUSD | crypto:BONKUSD:sell:1775242800000 | provider error: kraken api error: EOrder:Insufficient funds |
 
 ## Executed Trades
 
