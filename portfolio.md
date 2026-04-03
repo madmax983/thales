@@ -5048,6 +5048,9 @@
 | 2026-04-02 23:35:18 | COQUSD | crypto:COQUSD:buy:1775170800000 | Rejected by Risk Agent: Order value below exchange minimum fiat volume (4.29 < 5.0) |
 | 2026-04-02 23:35:18 | SPICEUSD | crypto:SPICEUSD:buy:1775170800000 | Rejected by Risk Agent: Order value below exchange minimum fiat volume (4.29 < 5.0) |
 | 2026-04-03 01:04:22 | REKTUSD | NO_REF | CONFLICT: Conflicting signals (Buy and Sell) detected for REKTUSD. Trading halted for this asset. |
+| 2026-04-03 03:37:19 | PEPEUSD | crypto:PEPEUSD:buy:1775185200000 | Rejected by Risk Agent: Order value below exchange minimum fiat volume (4.29 < 5.0) |
+| 2026-04-03 03:37:19 | BONKUSD | crypto:BONKUSD:buy:1775185200000 | Rejected by Risk Agent: Order value below exchange minimum fiat volume (4.29 < 5.0) |
+| 2026-04-03 03:37:20 | SHIBUSD | crypto:SHIBUSD:buy:1775185200000 | Rejected by Risk Agent: Order value below exchange minimum fiat volume (4.29 < 5.0) |
 
 ## Executed Trades
 
