@@ -158,6 +158,9 @@ def format_signal(intent):
     missing_sl = is_missing(sl_val)
     missing_tp = is_missing(tp_val)
 
+    if missing_tp and not missing_sl:
+        missing_tp = is_missing(tp_val)
+
     sl = format_price(sl_val) if not missing_sl else 'None'
     tp = format_price(tp_val) if not missing_tp else 'None'
 
