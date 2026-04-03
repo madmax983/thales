@@ -31,6 +31,7 @@ pub mod kst;
 pub mod linear_regression;
 pub mod macd;
 pub mod mfi;
+pub mod momentum;
 pub mod obv;
 pub mod parabolic_sar;
 pub mod ppo;
