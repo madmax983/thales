@@ -1336,6 +1336,37 @@ let std_series = stddev::calculate(&df, "close", period)?;
 - The output Series is named "stddev".
 - Initial values up to `period - 1` will be null until enough data is gathered.
 
+## Momentum
+
+**Name:** Momentum
+**Description:** Calculates the Momentum indicator, which measures the rate of change of a security's price by comparing the current closing price to the closing price from `n` periods ago.
+**Rationale:** Momentum is a leading indicator measuring a security's rate-of-change. It identifies trend strength and potential reversals.
+
+### Implementation Details
+- Uses `rust_decimal::Decimal` iteratively for all math calculations to ensure financial precision, converting from and to `f64` only for Polars boundaries.
+- Formula: `Close - Close_n`.
+- Returns a Polars `Series` of `f64` values (computed internally via Decimal).
+
+### Usage
+
+```rust
+use strategies::indicators::momentum;
+use polars::prelude::*;
+
+// Assuming df is a DataFrame with "close" column
+let period = 10;
+let momentum_series = momentum::calculate(&df, period)?;
+```
+
+### Parameters
+- `data`: Reference to a Polars `DataFrame`. Must contain a numeric "close" column.
+- `period`: The lookback period (must be > 0).
+
+### Output
+- Returns `Result<Series>`.
+- The output Series is named "momentum".
+- Initial values up to `period - 1` will be null.
+
 ## Balance of Power (BOP)
 
 **Name:** Balance of Power (BOP)
