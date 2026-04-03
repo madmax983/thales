@@ -4,6 +4,7 @@ pub mod cycle_analysis;
 pub mod export;
 pub mod kinematics;
 pub mod market_energy;
+pub mod market_gravity;
 pub mod market_seismology;
 pub mod market_weather;
 pub mod price_density;
