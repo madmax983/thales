@@ -62,6 +62,7 @@ use strategies::fisher_transform_reversal::{
 };
 use strategies::force_index_trend::{ForceIndexTrend, ForceIndexTrendConfig};
 use strategies::hma_crossover::{HmaCrossover, HmaCrossoverConfig};
+use strategies::hma_macd_trend::{HmaMacdTrend, HmaMacdTrendConfig};
 use strategies::ichimoku_cloud::{IchimokuCloud, IchimokuCloudConfig};
 use strategies::kama_crossover::{KamaCrossover, KamaCrossoverConfig};
 use strategies::kdj_indicator::{KdjIndicatorStrategy, KdjIndicatorStrategyConfig};
@@ -588,6 +589,13 @@ pub fn create_strategy(name: &str, symbol: &str) -> Result<Box<dyn Strategy>> {
             };
             Ok(Box::new(HmaCrossover::new(config)))
         }
+        "HmaMacdTrend" => {
+            let config = HmaMacdTrendConfig {
+                symbol: symbol.to_string(),
+                ..Default::default()
+            };
+            Ok(Box::new(HmaMacdTrend::new(config)))
+        }
         "VwapReversion" => {
             let config = VwapReversionConfig {
                 vwma_period: 20,
@@ -937,6 +945,7 @@ pub fn list_strategies() -> Vec<&'static str> {
         "TemaCrossover",
         "WmaCrossover",
         "HmaCrossover",
+        "HmaMacdTrend",
         "SmaCrossover",
         "SmaRsiTrend",
         "EmaRsiTrendFollowing",

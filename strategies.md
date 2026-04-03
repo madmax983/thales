@@ -3995,3 +3995,42 @@ Momentum
 - **Expected Win Rate:** ~48.5%
 - **Sharpe Ratio:** ~1.2
 - **Max Drawdown:** ~15%
+
+---
+
+# Trading Strategy: HMA MACD Trend
+
+## Strategy Specification
+
+**Name:** HmaMacdTrend
+
+**Description:** A trend-following strategy that combines the Hull Moving Average (HMA) for smoothing price data and the Moving Average Convergence Divergence (MACD) histogram for momentum confirmation.
+
+**Rationale:** The Hull Moving Average reduces lag and improves smoothness, making it excellent for identifying the direction of the trend. The MACD histogram crossing the zero line helps confirm momentum shifts. Entering a trade when the price crosses the HMA and the MACD histogram aligns provides a higher probability setup, while exiting when the price reverses against the HMA or MACD histogram turns negative protects capital.
+
+## Requirements
+
+### Implementation Details
+- Uses Polars for data analysis.
+- Implements the `Strategy` trait in Rust.
+- Uses `hma`, `macd`, and `atr` indicators.
+
+### Strategy Type
+Trend Following
+
+### Entry Conditions
+- **Long Entry (Buy):** Close > HMA AND MACD Histogram > 0 AND Previous MACD Histogram <= 0.
+- **Short Entry (Sell):** Close < HMA AND MACD Histogram < 0 AND Previous MACD Histogram >= 0.
+
+### Exit Conditions
+- **Long Exit (Sell):** Close < HMA OR MACD Histogram < 0.
+- **Short Exit (Buy):** Close > HMA OR MACD Histogram > 0.
+- **Stop Loss:** Entry Price +/- (ATR * `stop_loss_atr_mult`).
+
+### Position Sizing
+- **Size Hint:** "100" (fixed units) for entry, "max" for exits.
+
+### Expected Backtesting Metrics
+- **Expected Win Rate:** 45-55%
+- **Sharpe Ratio:** > 1.2
+- **Max Drawdown:** < 15%

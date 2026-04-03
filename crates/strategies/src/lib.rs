@@ -52,6 +52,7 @@ pub mod ema_rsi_trend;
 pub mod fisher_transform_reversal;
 pub mod force_index_trend;
 pub mod hma_crossover;
+pub mod hma_macd_trend;
 pub mod ichimoku_cloud;
 pub mod indicators;
 pub mod kama_crossover;
