@@ -12,6 +12,8 @@
 
 > **Note on Experimental Features**: Some commands (e.g., `simulate-black-swan`) are experimental and require the `--features nova` flag to compile and run (e.g., `cargo run --features nova -p thales-cli -- simulate-black-swan ...`).
 
+> **REQUIRES FEATURE NOVA**: Running the `story_demo` example requires enabling the `nova` feature flag (e.g., `cargo run --features nova --example story_demo ...`).
+
 ### Build
 ```bash
 cargo build --release -p thales-cli

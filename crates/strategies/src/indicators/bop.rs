@@ -44,12 +44,9 @@ pub fn calculate(data: &DataFrame) -> Result<Series> {
     let mut bop_values: Vec<Option<f64>> = Vec::with_capacity(open.len());
 
     for i in 0..open.len() {
-        if let (Some(o_val), Some(h_val), Some(l_val), Some(c_val)) = (
-            open.get(i),
-            high.get(i),
-            low.get(i),
-            close.get(i),
-        ) {
+        if let (Some(o_val), Some(h_val), Some(l_val), Some(c_val)) =
+            (open.get(i), high.get(i), low.get(i), close.get(i))
+        {
             if let (Some(o), Some(h), Some(l), Some(c)) = (
                 Decimal::from_f64_retain(o_val),
                 Decimal::from_f64_retain(h_val),
@@ -98,7 +95,7 @@ mod tests {
 
         // idx 1: open=11, high=12, low=9, close=10.5
         // BOP = (10.5 - 11) / (12 - 9) = -0.5 / 3 = -0.166666...
-        let val = if let Some(v) = out.get(1) { v } else { 0.0 };
+        let val = out.get(1).unwrap_or(0.0);
         assert!((val - -0.16666666666666666).abs() < 1e-6);
 
         // idx 2: open=10, high=15, low=10, close=12
