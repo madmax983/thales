@@ -152,14 +152,17 @@ def main():
         analysis = analyze_market(symbol, temp_bars_file, research, news)
 
         if analysis:
-            # Enforce Persona Rules
+            # Enforce Persona Rules explicitly
+            # Never make direct trading recommendations
             if "recommendation" in analysis:
                 analysis["recommendation"] = ""
 
-            raw_confidence = analysis.get("confidence", 0.0)
+            # Ensure numerical fields defined as f64 in Rust structs remain floats
+            raw_confidence = float(analysis.get("confidence", 0.0))
             raw_confidence = round(raw_confidence, 4)
             analysis["confidence"] = raw_confidence
 
+            # Be conservative in pattern detection - clear if confidence < 0.70
             if raw_confidence < 0.70:
                 analysis["patterns"] = []
 
@@ -172,12 +175,15 @@ def main():
             print_analysis["confidence"] = f"{raw_confidence * 100:.2f}%"
             print(json.dumps(print_analysis, indent=2))
 
-            # Check for alerts
+            # Alert immediately on significant regime changes
             regime = analysis.get("regime", "")
             if "Trending" in regime:
                  print(f"ALERT: Strong Trend Detected for {symbol}: {regime}")
-            if analysis.get("volatility") == "High" or analysis.get("volatility") == "Extreme":
-                 print(f"ALERT: High Volatility Detected for {symbol}!")
+
+            # Report unusual volatility patterns
+            volatility = analysis.get("volatility", "")
+            if volatility in ["High", "Extreme"]:
+                 print(f"ALERT: High/Extreme Volatility Detected for {symbol}!")
 
             # Programmatically append to log files
             market_type = analysis.get("market", market)
