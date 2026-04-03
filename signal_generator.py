@@ -155,8 +155,11 @@ def format_signal(intent):
     tp_val = intent.get('take_profit')
 
     # Explicit missing variable checks
-    sl = format_price(sl_val) if not is_missing(sl_val) else 'None'
-    tp = format_price(tp_val) if not is_missing(tp_val) else 'None'
+    missing_sl = is_missing(sl_val)
+    missing_tp = is_missing(tp_val)
+
+    sl = format_price(sl_val) if not missing_sl else 'None'
+    tp = format_price(tp_val) if not missing_tp else 'None'
 
     reason = intent.get('rationale', 'No reason provided.')
     reason = re.sub(r'\d+\.\d{5,}', truncate_float, reason).strip()
