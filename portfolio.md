@@ -5120,6 +5120,11 @@
 | 2026-04-04 06:58:35 | BTCUSD | crypto:BTCUSD:unknown:1775245628181 | Signal already executed/submitted (Ref: crypto:BTCUSD:unknown:1775245628181) |
 | 2026-04-04 06:58:36 | ETHUSD | crypto:ETHUSD:unknown:1775245628200 | CONFLICT: Conflicting signals (Buy and Sell) detected for ETHUSD. Trading halted for this asset. |
 | 2026-04-04 06:58:36 | SPY | equities:SPY:unknown:1775245628216 | Invalid input: provider error: kraken api error: EQuery:Unknown asset pair |
+| 2026-04-04 09:03:45 | MOGUSD | CANCEL-OPVI3I-UWM5U-GFF5WF | Stale Order Cancellation |
+| 2026-04-04 09:03:46 | BTCUSD | crypto:BTCUSD:unknown:1775245628181 | Signal already executed/submitted (Ref: crypto:BTCUSD:unknown:1775245628181) |
+| 2026-04-04 09:03:47 | ETHUSD | crypto:ETHUSD:unknown:1775245628200 | CONFLICT: Conflicting signals (Buy and Sell) detected for ETHUSD. Trading halted for this asset. |
+| 2026-04-04 09:03:47 | SPY | equities:SPY:unknown:1775245628216 | Invalid input: provider error: kraken api error: EQuery:Unknown asset pair |
+| 2026-04-04 09:03:49 | MOGUSD | NO_REF | CONFLICT: Conflicting signals (Buy and Sell) detected for MOGUSD. Trading halted for this asset. |
 
 ## Executed Trades
 
