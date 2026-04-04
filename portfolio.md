@@ -5171,6 +5171,12 @@
 | 2026-04-04 22:01:55 | ETHUSD | crypto:ETHUSD:unknown:1775317739524 | Signal already executed/submitted (Ref: crypto:ETHUSD:unknown:1775317739524) |
 | 2026-04-04 22:01:57 | SPY | equities:SPY:unknown:1775336141016 | Invalid input: provider error: kraken api error: EQuery:Unknown asset pair |
 | 2026-04-04 22:01:58 | ETHUSD | crypto:ETHUSD:unknown:1775336141001 | No sellable balance available (ETH 0.00000000) |
+| 2026-04-04 23:07:01 | ETHUSD | crypto:ETHUSD:unknown:1775308358867 | Signal already executed/submitted (Ref: crypto:ETHUSD:unknown:1775308358867) |
+| 2026-04-04 23:07:01 | ETHUSD | crypto:ETHUSD:unknown:1775317739524 | Signal already executed/submitted (Ref: crypto:ETHUSD:unknown:1775317739524) |
+| 2026-04-04 23:07:01 | BTCUSD | crypto:BTCUSD:unknown:1775336140986 | Signal already executed/submitted (Ref: crypto:BTCUSD:unknown:1775336140986) |
+| 2026-04-04 23:07:02 | BTCUSD | crypto:BTCUSD:unknown:1775340328129 | CONFLICT: Conflicting signals (Buy and Sell) detected for BTCUSD. Trading halted for this asset. |
+| 2026-04-04 23:07:03 | ETHUSD | crypto:ETHUSD:unknown:1775340328152 | No active strategy generated a signal (Strategies: BollingerBands, AdlMomentum, BopMomentum, CoppockCurve, KdjIndicatorStrategy, KamaCrossover, AlmaCrossover, AdxMacdTrend, AroonOscillator, ElderRay, EmaCrossover, FisherTransformReversal, RsiMeanReversion, Macd, Supertrend, SupertrendEmaCrossover, SupertrendRsi, DonchianBreakout, ParabolicSar, KeltnerChannelBreakout, StochasticOscillator, AdxMomentum, IchimokuCloud, CciMomentum, ChaikinMoneyFlow, ChaikinOscillatorMomentum, ChandelierExit, ChoppinessIndexTrend, CmoMeanReversion, LinearRegressionTrend, EaseOfMovement, ForceIndexTrend, ObvTrendFollowing, MoneyFlowIndex, ConnorsRsiMeanReversion, AwesomeOscillator, WilliamsR, VwmaCrossover, VwapReversion, VortexBreakout, TripleSmaCrossover, TripleEmaCrossover, UltimateOscillator, RelativeVigorIndexTrend, VolumeOscillatorTrend, VptTrendFollowing, ZlemaCrossover, ZScoreMeanReversion, VwMacd, BollingerRsiMeanReversion, StochRsiMeanReversion, RocMomentum, MacdRsiTrend, TrixCrossover, TsiTrend, DemaCrossover, TemaCrossover, WmaCrossover, HmaCrossover, SmaCrossover, EmaRsiTrendFollowing, PpoRsiTrend, KstTrend, VhfTrendFollowing, SchaffTrendCycle, DisparityIndexReversion, DpoBreakout, DoubleEmaCrossover) |
+| 2026-04-04 23:07:03 | SPY | equities:SPY:unknown:1775340328171 | Invalid input: provider error: kraken api error: EQuery:Unknown asset pair |
 
 ## Executed Trades
 
