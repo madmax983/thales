@@ -1367,6 +1367,37 @@ let momentum_series = momentum::calculate(&df, period)?;
 - The output Series is named "momentum".
 - Initial values up to `period - 1` will be null.
 
+## Smoothed Moving Average (SMMA)
+
+**Name:** SMMA
+**Description:** Calculates the Smoothed Moving Average (SMMA), which is a moving average that gives recent prices less weight compared to an Exponential Moving Average (EMA). It is equivalent to an EMA with a period of `2 * period - 1`.
+**Rationale:** The SMMA is used to smooth out price data to identify the longer-term trend. It responds more slowly to recent price changes, filtering out market noise.
+
+### Implementation Details
+- Uses `rust_decimal::Decimal` iteratively for all math calculations to ensure financial precision.
+- Seed value is an SMA over the initial `period`.
+- Formula: `SMMA_i = (SMMA_{i-1} * (period - 1) + Close_i) / period`
+- Returns a Polars `Series` of `f64` values.
+
+### Usage
+
+```rust
+use strategies::indicators::smma;
+use polars::prelude::*;
+
+// Assuming df is a DataFrame with "close" column
+let period = 14;
+let smma_series = smma::calculate(&df, period)?;
+```
+
+### Parameters
+- `data`: Reference to a Polars `DataFrame`. Must contain a numeric "close" column.
+- `period`: The lookback period (must be > 0).
+
+### Output
+- Returns `Result<Series>`.
+- The output Series is named "smma".
+
 ## Balance of Power (BOP)
 
 **Name:** Balance of Power (BOP)
