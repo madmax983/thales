@@ -39,6 +39,7 @@ pub mod roc;
 pub mod rsi;
 pub mod rvi;
 pub mod sma;
+pub mod smma;
 pub mod stc;
 pub mod stddev;
 pub mod stoch_rsi;
