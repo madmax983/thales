@@ -4034,3 +4034,19 @@ Trend Following
 - **Expected Win Rate:** 45-55%
 - **Sharpe Ratio:** > 1.2
 - **Max Drawdown:** < 15%
+
+## Volume Surge Reversal
+
+**Strategy Type**: Mean Reversion
+
+**Description**: Trades mean reversion when there's an extreme volume surge accompanied by an overbought/oversold RSI condition.
+
+**Logic**:
+- **Long Entry**: RSI < 30 and Volume Oscillator > 20
+- **Short Entry**: RSI > 70 and Volume Oscillator > 20
+- **Exit**: ATR-based Stop Loss and Take Profit.
+
+### Expected Backtesting Metrics
+- **Expected Win Rate:** 50-60%
+- **Sharpe Ratio:** > 1.0
+- **Max Drawdown:** < 20%

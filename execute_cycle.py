@@ -190,6 +190,8 @@ def get_active_strategies():
         strategies.append("Macd")
     if re.search(r'\bSupertrend\b', content):
         strategies.append("Supertrend")
+    if re.search(r'\bVolumeSurgeReversal\b', content):
+        strategies.append("VolumeSurgeReversal")
     if re.search(r'\bSupertrendEmaCrossover\b', content):
         strategies.append("SupertrendEmaCrossover")
     if re.search(r'\bSupertrendRsi\b', content):
