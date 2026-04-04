@@ -60,10 +60,25 @@ def manage_orders(provider):
         if filled_qty > 0 and filled_qty < qty:
             print(f"Partial fill detected: {filled_qty}/{qty} for {order['symbol']} ({provider})")
 
+            dummy_intent = {
+                "symbol": order['symbol'],
+                "intent_id": f"PARTIAL-{order['id']}",
+                "rationale": f"Partial fill: {filled_qty}/{qty} for {order['symbol']} ({provider})"
+            }
+            log_skipped(dummy_intent, "Partial Fill Notification")
+
             # Adjust partial fills (cancel and replace with market order for remainder)
             if age_ms > 300000:
                 print(f"Cancelling stale partial order {order['id']}")
                 run_command(["cancel-order", "--provider", provider, "--id", order['id']])
+
+                # Log cancellation
+                dummy_intent = {
+                    "symbol": order['symbol'],
+                    "intent_id": f"CANCEL-{order['id']}",
+                    "rationale": f"Stale partial order ({age_s:.0f}s > 300s) canceled, unfilled: {qty - filled_qty}"
+                }
+                log_skipped(dummy_intent, "Stale Partial Order Cancellation")
             else:
                 print(f"Adjusting remaining quantity: {qty - filled_qty}")
                 run_command(["cancel-order", "--provider", provider, "--id", order['id']])
@@ -100,6 +115,14 @@ def manage_orders(provider):
             print(f"Cancelling stale order {order['id']} ({order['symbol']}) - Age: {age_s:.0f}s")
             run_command(["cancel-order", "--provider", provider, "--id", order['id']])
 
+            # Log cancellation
+            dummy_intent = {
+                "symbol": order['symbol'],
+                "intent_id": f"CANCEL-{order['id']}",
+                "rationale": f"Stale order ({age_s:.0f}s > 300s) canceled"
+            }
+            log_skipped(dummy_intent, "Stale Order Cancellation")
+
 def refine_intent(intent, current_price=None):
     """
     ALGO SELECTION: Choose execution algorithm (market, limit, TWAP, VWAP)
@@ -114,7 +137,7 @@ def refine_intent(intent, current_price=None):
     is_large = False
     is_very_large = False
     try:
-        if size_hint != "max":
+        if str(size_hint).lower() != "max":
             size = float(size_hint)
             if size > 10000.0:
                 is_very_large = True
@@ -245,7 +268,7 @@ def log_trade(intent, result, slippage=None):
         try:
              entry = float(price)
              stop = float(sl)
-             qty = float(size) if size != "max" else 0.0
+             qty = float(size) if str(size).lower() != "max" else 0.0
              if qty > 0:
                  max_risk = f"{abs(entry - stop) * qty:.2f}"
         except (ValueError, TypeError):
@@ -272,6 +295,58 @@ def log_trade(intent, result, slippage=None):
 
     with open(PORTFOLIO_PATH, "a") as f:
         f.write(row + "\n")
+
+def log_skipped(intent, reason):
+    """Logs skipped trade to portfolio.md"""
+    date_str = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    symbol = intent.get("symbol", "UNKNOWN").replace("|", "\\|")
+    signal_ref = intent.get("intent_id", "NO_REF").replace("|", "\\|")
+    reason = str(reason).replace("|", "\\|")
+
+    header = "| Date/Time | Symbol | Signal Ref | Rejection Reason |"
+    row = f"| {date_str} | {symbol} | {signal_ref} | {reason} |"
+
+    if not os.path.exists(PORTFOLIO_PATH):
+        with open(PORTFOLIO_PATH, "w") as f:
+            f.write("## Skipped Signals\n\n" + header + "\n|---|---|---|---|\n")
+            f.write(row + "\n")
+        return
+
+    with open(PORTFOLIO_PATH, "r") as f:
+        lines = f.readlines()
+
+    section_idx = -1
+    for i, line in enumerate(lines):
+        if line.strip() == "## Skipped Signals":
+            section_idx = i
+            break
+
+    if section_idx != -1:
+        table_start_idx = -1
+        for i in range(section_idx + 1, len(lines)):
+            if lines[i].strip().startswith("#"):
+                break
+            stripped = lines[i].strip()
+            if "|" in stripped and set(stripped).issubset(set("|- \n")):
+                 table_start_idx = i - 1
+                 break
+
+        if table_start_idx != -1:
+            table_end_idx = table_start_idx + 2
+            while table_end_idx < len(lines):
+                line = lines[table_end_idx].strip()
+                if not line.startswith("|"):
+                    break
+                table_end_idx += 1
+            lines.insert(table_end_idx, row + "\n")
+        else:
+            lines.insert(section_idx + 1, f"\n{header}\n|---|---|---|---|\n{row}\n")
+    else:
+        prefix = "\n" if lines and lines[-1].strip() != "" else ""
+        lines.append(f"{prefix}## Skipped Signals\n\n{header}\n|---|---|---|---|\n{row}\n")
+
+    with open(PORTFOLIO_PATH, "w") as f:
+        f.writelines(lines)
 
 def execute_agent(intent_file):
     if not os.path.exists(CLI_PATH):
