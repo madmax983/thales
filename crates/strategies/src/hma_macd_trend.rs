@@ -83,8 +83,8 @@ impl Strategy for HmaMacdTrend {
         let atr_arr = atr_series.f64()?;
 
         let mut signals = Vec::new();
-        let atr_mult_dec = Decimal::from_f64_retain(self.config.stop_loss_atr_mult)
-            .unwrap_or(Decimal::new(2, 0));
+        let atr_mult_dec =
+            Decimal::from_f64_retain(self.config.stop_loss_atr_mult).unwrap_or(Decimal::new(2, 0));
 
         for i in 1..close_arr.len() {
             let timestamp = time_arr.get(i).unwrap_or(0);
@@ -135,9 +135,7 @@ impl Strategy for HmaMacdTrend {
                         confidence: 0.8,
                         stop_loss: None,
                         take_profit: None,
-                        reason: format!(
-                            "Long Exit: Close < HMA or MACD Hist < 0"
-                        ),
+                        reason: "Long Exit: Close < HMA or MACD Hist < 0".to_string(),
                         timestamp_ms: timestamp,
                     });
                 }
@@ -177,9 +175,7 @@ impl Strategy for HmaMacdTrend {
                         confidence: 0.8,
                         stop_loss: None,
                         take_profit: None,
-                        reason: format!(
-                            "Short Exit: Close > HMA or MACD Hist > 0"
-                        ),
+                        reason: "Short Exit: Close > HMA or MACD Hist > 0".to_string(),
                         timestamp_ms: timestamp,
                     });
                 }
