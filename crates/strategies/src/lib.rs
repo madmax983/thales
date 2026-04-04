@@ -86,6 +86,7 @@ pub mod tsi_trend;
 pub mod ttm_squeeze;
 pub mod vhf_trend;
 pub mod volume_oscillator_trend;
+pub mod volume_surge_reversal;
 pub mod vortex_breakout;
 pub mod vpt_trend;
 pub mod vw_macd;

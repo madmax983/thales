@@ -99,6 +99,7 @@ use strategies::ttm_squeeze::{TtmSqueeze, TtmSqueezeConfig};
 use strategies::ultimate_oscillator::{UltimateOscillator, UltimateOscillatorConfig};
 use strategies::vhf_trend::{VhfTrendFollowing, VhfTrendFollowingConfig};
 use strategies::volume_oscillator_trend::{VolumeOscillatorTrend, VolumeOscillatorTrendConfig};
+use strategies::volume_surge_reversal::{VolumeSurgeReversal, VolumeSurgeReversalConfig};
 use strategies::vortex_breakout::{VortexBreakout, VortexBreakoutConfig};
 use strategies::vpt_trend::{VptTrend, VptTrendConfig};
 use strategies::vw_macd::{VwMacd, VwMacdConfig};
@@ -672,6 +673,20 @@ pub fn create_strategy(name: &str, symbol: &str) -> Result<Box<dyn Strategy>> {
             };
             Ok(Box::new(VolumeOscillatorTrend::new(config)))
         }
+        "VolumeSurgeReversal" => {
+            let config = VolumeSurgeReversalConfig {
+                rsi_period: 14,
+                vol_short_period: 14,
+                vol_long_period: 28,
+                rsi_oversold: 30.0,
+                rsi_overbought: 70.0,
+                vol_threshold: 20.0,
+                stop_loss_atr_mult: 2.0,
+                atr_period: 14,
+                symbol: symbol.to_string(),
+            };
+            Ok(Box::new(VolumeSurgeReversal::new(config)))
+        }
         "VptTrendFollowing" => {
             let config = VptTrendConfig {
                 vpt_sma_period: 20,
@@ -932,6 +947,7 @@ pub fn list_strategies() -> Vec<&'static str> {
         "UltimateOscillator",
         "RelativeVigorIndexTrend",
         "VolumeOscillatorTrend",
+        "VolumeSurgeReversal",
         "VptTrendFollowing",
         "ZlemaCrossover",
         "ZScoreMeanReversion",
