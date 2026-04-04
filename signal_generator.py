@@ -140,9 +140,9 @@ def format_signal(intent):
     # Ensure logic explicitly supports both 'buy'/'sell' and 'long'/'short' string variants
     side_raw = intent.get('side', '')
     side = str(side_raw).lower() if side_raw else ''
-    if side in ["buy", "long"]:
+    if side in ['buy', 'long']:
         direction = "long"
-    elif side in ["sell", "short"]:
+    elif side in ['sell', 'short']:
         direction = "short"
     else:
         direction = side
@@ -172,12 +172,14 @@ def format_signal(intent):
     signal_type = signal_type.replace("SignalType::", "")
 
     # Format output perfectly to match the user's requested output template
-    output = f"- Symbol and direction (long/short): {intent.get('symbol')} ({direction})\n"
-    output += f"- Signal type and strength (0-100%): {signal_type} ({strength:.1f}%)\n"
-    output += f"- Suggested size (quantity): {size}\n"
-    output += f"- Stop loss and take profit levels: SL: {sl}, TP: {tp}\n"
-    output += f"- Clear reasoning (including historical context): {reason}"
-    return output
+    lines = [
+        f"- Symbol and direction (long/short): {intent.get('symbol')} ({direction})",
+        f"- Signal type and strength (0-100%): {signal_type} ({strength:.1f}%)",
+        f"- Suggested size (quantity): {size}",
+        f"- Stop loss and take profit levels: SL: {sl}, TP: {tp}",
+        f"- Clear reasoning (including historical context): {reason}"
+    ]
+    return "\n".join(lines)
 
 def main():
     if not os.path.exists(CLI_PATH):
@@ -246,6 +248,7 @@ def main():
             print(f"Skipping signal generation for {symbol}: No proper analysis available.", file=sys.stderr)
             continue
 
+        # Check historical trades before generating new signals
         # Pre-calculate RAG (history) checking natively in Python to inject into rationale
         similar_trades_str = "No similar past trades found."
         if os.path.exists(HISTORY_PATH):
@@ -294,7 +297,7 @@ def main():
                     is_scale_out = signal_type_raw in ["ScaleOut", "SignalType::ScaleOut"]
 
 
-                    # Size positions based on volatility
+                    # Calculate appropriate position sizes based on volatility
                     volatility_label = analysis.get("volatility", "").lower() if analysis else ""
                     size_hint_str = intent.get("size_hint", "0")
                     if size_hint_str != "max":
@@ -349,13 +352,13 @@ def main():
                     if "size_hint" in intent:
                         intent["size_hint"] = format_size(intent["size_hint"])
 
-                    # Filter: Only allow Entry/ScaleIn signals that have a valid stop loss
+                    # Always include stop loss for every entry
                     sl_val_check = intent.get("stop_loss")
                     if (is_entry or is_scale_in) and is_missing(sl_val_check):
                         print(f"Skipping signal for {symbol}: Missing mandatory stop loss.", file=sys.stderr)
                         continue
 
-                    # Filter: Do not chase moves - wait for pullbacks
+                    # Do not chase moves - wait for pullbacks
                     if is_entry:
                         side_raw = intent.get('side', '')
                         side = str(side_raw).lower() if side_raw else ''
@@ -398,6 +401,7 @@ def main():
                         break
 
         # Filter: Verify Risk Agent check at the bottom after fallbacks and formatting
+        # All signals must go through Risk Agent before execution
         validated_symbol_intents = []
         for intent in symbol_intents:
             risk_ok, risk_reason = verify_risk(intent, current_price=last_close_price) if last_close_price is not None else verify_risk(intent)
