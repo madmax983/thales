@@ -153,16 +153,18 @@ def main():
 
         if analysis:
             # Enforce Persona Rules explicitly
-            # Never make direct trading recommendations
+            # Never make direct trading recommendations - only provide analysis
             if "recommendation" in analysis:
                 analysis["recommendation"] = ""
 
             # Ensure numerical fields defined as f64 in Rust structs remain floats
+            # This prevents invalid type: string expected f64 panics
             raw_confidence = float(analysis.get("confidence", 0.0))
             raw_confidence = round(raw_confidence, 4)
             analysis["confidence"] = raw_confidence
 
             # Be conservative in pattern detection - clear if confidence < 0.70
+            # Only report high-confidence patterns
             if raw_confidence < 0.70:
                 analysis["patterns"] = []
 
@@ -208,7 +210,7 @@ def main():
                 "schema_version": "v0",
                 "market": market_type,
                 "symbol": symbol,
-                "side": "hold",
+                "side": "hold", # Setting 'side' to 'hold' to never make direct trading recommendations
                 "confidence": raw_confidence,
                 "size_hint": "0",
                 "stop_loss": None,
