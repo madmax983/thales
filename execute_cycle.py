@@ -1070,7 +1070,7 @@ def adjust_buy_size_to_buying_power(intent, current_price, safety_buffer=0.99):
         return True, "Not a buy signal"
 
     size_hint = intent.get("size_hint", "0")
-    if size_hint == "max":
+    if str(size_hint).lower() == "max":
         return True, "Max sizing handled by provider"
 
     try:
@@ -1141,7 +1141,7 @@ def adjust_sell_size_to_sellable_balance(intent):
         return True, "Not a sell signal"
 
     size_hint = intent.get("size_hint", "0")
-    if size_hint == "max":
+    if str(size_hint).lower() == "max":
         return True, "Max sizing handled by provider"
 
     try:
@@ -1200,7 +1200,7 @@ def verify_risk(intent, current_price=None):
     confidence = intent.get("confidence", 0.0)
 
     # 1. Check Size
-    if size_hint == "max":
+    if str(size_hint).lower() == "max":
         # Valid for Exit/ScaleOut
         pass
     else:
@@ -1386,7 +1386,7 @@ def refine_intent(intent, current_price=None):
     is_large = False
     is_very_large = False
     try:
-        if size_hint != "max":
+        if str(size_hint).lower() != "max":
             size = float(size_hint)
             # Simple heuristic: > 1000 units is "large".
             # In production this would depend on asset price and volume.
@@ -1405,7 +1405,7 @@ def refine_intent(intent, current_price=None):
         algo = "TWAP"
         order_type = "limit" # Simulate TWAP with Limit for now, provider logs Algo
         print("Selected TWAP algorithm for large order.")
-    elif confidence >= 0.8 or size_hint == "max":
+    elif confidence >= 0.8 or str(size_hint).lower() == "max":
         # High confidence or Exits -> Market (Urgent)
         algo = "Market"
         order_type = "market"
