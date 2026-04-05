@@ -95,6 +95,7 @@ def calculate_fallback_sl_tp(last_close, side, volatility_label, missing_sl, mis
     elif "low" in volatility_label:
         sl_pct = 0.02
 
+    # explicit check: missing_tp logic, fallback TP calculation with 1:2 Risk:Reward ratio
     tp_pct = sl_pct * 2.0
 
     new_sl = None
@@ -108,7 +109,7 @@ def calculate_fallback_sl_tp(last_close, side, volatility_label, missing_sl, mis
                 sl_val_check = float(format_price(intent_sl)) if not missing_sl else float(new_sl)
                 sl_dist = last_close - sl_val_check
                 if sl_dist > 0:
-                    new_tp = format_price(last_close + (sl_dist * 2.0))
+                    new_tp = format_price(last_close + (sl_dist * 2.0)) # 1:2 Risk:Reward ratio
                 else:
                     new_tp = format_price(last_close * (1.0 + tp_pct))
             except (ValueError, TypeError, KeyError):
@@ -121,7 +122,7 @@ def calculate_fallback_sl_tp(last_close, side, volatility_label, missing_sl, mis
                 sl_val_check = float(format_price(intent_sl)) if not missing_sl else float(new_sl)
                 sl_dist = sl_val_check - last_close
                 if sl_dist > 0:
-                    new_tp = format_price(last_close - (sl_dist * 2.0))
+                    new_tp = format_price(last_close - (sl_dist * 2.0)) # 1:2 Risk:Reward ratio
                 else:
                     new_tp = format_price(last_close * (1.0 - tp_pct))
             except (ValueError, TypeError, KeyError):
