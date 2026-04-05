@@ -154,8 +154,20 @@ def main():
         if analysis:
             # Enforce Persona Rules explicitly
             # Never make direct trading recommendations - only provide analysis
+            # But DO recommend strategy adjustments based on conditions
             if "recommendation" in analysis:
-                analysis["recommendation"] = ""
+                regime_lower = analysis.get("regime", "").lower()
+                volatility_lower = analysis.get("volatility", "").lower()
+
+                strategy_rec = "Hold and monitor conditions."
+                if "trending" in regime_lower:
+                    strategy_rec = "Consider trend-following strategies (e.g., Moving Average Crossover)."
+                elif "ranging" in regime_lower or "calm" in regime_lower:
+                    strategy_rec = "Consider mean-reversion strategies (e.g., RSI, Bollinger Bands)."
+                elif "volatile" in regime_lower or "extreme" in volatility_lower or "high" in volatility_lower:
+                    strategy_rec = "Consider volatility breakout strategies or reducing position sizing."
+
+                analysis["recommendation"] = strategy_rec
 
             # Ensure numerical fields defined as f64 in Rust structs remain floats
             # This prevents invalid type: string expected f64 panics
@@ -163,7 +175,7 @@ def main():
             raw_confidence = round(raw_confidence, 4)
             analysis["confidence"] = raw_confidence
 
-            # Be conservative in pattern detection - clear if confidence < 0.70
+            # Be conservative in pattern detection
             # Only report high-confidence patterns
             if raw_confidence < 0.70:
                 analysis["patterns"] = []
@@ -210,7 +222,7 @@ def main():
                 "schema_version": "v0",
                 "market": market_type,
                 "symbol": symbol,
-                "side": "hold", # Setting 'side' to 'hold' to never make direct trading recommendations
+                "side": "hold", # Never make direct trading recommendations
                 "confidence": raw_confidence,
                 "size_hint": "0",
                 "stop_loss": None,
