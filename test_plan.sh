@@ -1,3 +1,4 @@
-echo "Checking existing files"
-ls -la crates/strategies/src/kdj_indicator.rs || true
-ls -la crates/strategies/src/indicators/kdj.rs || true
+export SIMULATION=true
+python3 execute_cycle.py
+git diff
+git status
