@@ -1426,3 +1426,32 @@ let bop_series = bop::calculate(&df)?;
 ### Output
 - Returns `Result<Series>`.
 - The output Series is named "bop".
+
+## Ulcer Index (UI)
+
+**Name:** Ulcer Index
+**Description:** Measures downside risk by calculating the depth and duration of price drawdowns over a specific period.
+**Rationale:** UI distinguishes between downside volatility (bad) and upside volatility (good), measuring the "stress" or "ulcer" caused by holding an asset during drawdowns.
+
+### Implementation Details
+- Uses `rust_decimal::Decimal` iteratively for all math calculations to ensure financial precision, converting from and to `f64` only for Polars boundaries.
+- Returns a Polars `Series` of `f64` values.
+
+### Usage
+
+```rust
+use strategies::indicators::ulcer_index;
+use polars::prelude::*;
+
+// Assuming df is a DataFrame with "close" column
+let period = 14;
+let ui_series = ulcer_index::calculate(&df, period)?;
+```
+
+### Parameters
+- `data`: Reference to a Polars `DataFrame`. Must contain a numeric "close" column.
+- `period`: The lookback period (must be > 0).
+
+### Output
+- Returns `Result<Series>`.
+- The output Series is named "ulcer_index".

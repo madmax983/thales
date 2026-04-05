@@ -56,6 +56,7 @@ pub mod vortex;
 pub mod vpt;
 pub mod vwap;
 pub mod vwma;
+pub mod ulcer_index;
 pub mod williams_r;
 pub mod wma;
 pub mod zlema;
