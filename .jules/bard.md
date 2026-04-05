@@ -107,3 +107,6 @@
 ## 2024-05-31 - The Unmapped Gamification & Physics Regions
 **Confusion:** The experimental modules `market_energy.rs` and `trading_card.rs` in `crates/cli/src/experimental/` were undocumented. Users had no idea how to interpret market data as potential/kinetic energy or how to generate RPG-style stats and SVGs.
 **Clarification:** Added storytelling module-level documentation (`//!`) to explain the core concepts. Added executable `# Examples` to configurations and main functions (`analyze_energy`, `export_trading_card_svg`) to guide users on usage.
+## 2024-06-10 - The Silent Volume Surge
+**Confusion:** The Volume Surge Reversal strategy lacked module-level documentation and executable examples. Users could not discover how to instantiate the configuration or interpret the oversold/overbought thresholds relative to the Volume Oscillator surge.
+**Clarification:** Added storytelling module-level documentation (`//!`) to explain the core reversion concepts based on volume surges. Added executable `# Examples` to `VolumeSurgeReversalConfig` and `VolumeSurgeReversal`, guiding developers on proper initialization.

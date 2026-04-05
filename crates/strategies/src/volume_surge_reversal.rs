@@ -1,9 +1,61 @@
+//! # Volume Surge Reversal Strategy 🌊
+//!
+//! "In the chaotic seas of the market, a sudden surge in volume at the extremes
+//! is the clarion call of a dying trend."
+//!
+//! This module implements a mean reversion strategy that hunts for exhaustion.
+//! It watches for extreme price extensions (measured by the RSI) that coincide
+//! with sudden spikes in trading activity (measured by the Volume Oscillator).
+//! When the crowd capitulates with massive volume at a local top or bottom,
+//! this strategy steps in, anticipating a sharp reversal.
+//!
+//! ## The Logic
+//!
+//! - **The Setup (RSI):** The market must be in a state of panic or euphoria.
+//!   We wait for the Relative Strength Index (RSI) to push deep into oversold
+//!   (e.g., `< 30`) or overbought (e.g., `> 70`) territory.
+//! - **The Trigger (Volume Oscillator):** A price extreme alone is not enough;
+//!   it must be validated by a surge in participation. The Volume Oscillator
+//!   must cross above a specified threshold, indicating a climax.
+//! - **The Action:** If RSI is oversold and volume surges, we go **Long**.
+//!   If RSI is overbought and volume surges, we go **Short**.
+//!
+//! ## Risk Management
+//!
+//! This strategy uses the Average True Range (ATR) to dynamically size
+//! stop-losses. Take-profits are automatically calculated using a fixed
+//! 1:2 Risk-Reward ratio based on the ATR stop.
+
 use crate::strategy::{Signal, SignalType, Strategy, StrategyConfig, StrategyType};
 use anyhow::Result;
 use async_trait::async_trait;
 use polars::prelude::*;
 use serde::{Deserialize, Serialize};
 
+/// Configuration for the [`VolumeSurgeReversal`] strategy.
+///
+/// This struct defines the parameters for tuning the RSI boundaries,
+/// the sensitivity of the Volume Oscillator, and the ATR-based risk multiplier.
+///
+/// # Examples
+///
+/// ```rust
+/// use strategies::volume_surge_reversal::VolumeSurgeReversalConfig;
+///
+/// let config = VolumeSurgeReversalConfig {
+///     rsi_period: 14,
+///     vol_short_period: 14,
+///     vol_long_period: 28,
+///     rsi_oversold: 30.0,
+///     rsi_overbought: 70.0,
+///     vol_threshold: 15.0,
+///     stop_loss_atr_mult: 2.0,
+///     atr_period: 14,
+///     symbol: "BTCUSD".to_string(),
+/// };
+///
+/// assert_eq!(config.rsi_period, 14);
+/// ```
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct VolumeSurgeReversalConfig {
     pub rsi_period: usize,
@@ -23,11 +75,38 @@ use crate::indicators::{atr, rsi, volume_oscillator};
 use rust_decimal::prelude::*;
 use rust_decimal::Decimal;
 
+/// The Volume Surge Reversal Strategy.
+///
+/// Implements the [`Strategy`] trait to generate trade signals based on
+/// RSI extremes accompanied by Volume Oscillator spikes.
+///
+/// # Examples
+///
+/// ```rust
+/// use strategies::volume_surge_reversal::{VolumeSurgeReversal, VolumeSurgeReversalConfig};
+/// use strategies::strategy::Strategy;
+///
+/// let config = VolumeSurgeReversalConfig {
+///     rsi_period: 14,
+///     vol_short_period: 14,
+///     vol_long_period: 28,
+///     rsi_oversold: 30.0,
+///     rsi_overbought: 70.0,
+///     vol_threshold: 20.0,
+///     stop_loss_atr_mult: 1.5,
+///     atr_period: 14,
+///     symbol: "ETHUSD".to_string(),
+/// };
+///
+/// let strategy = VolumeSurgeReversal::new(config);
+/// assert_eq!(strategy.name(), "VolumeSurgeReversal");
+/// ```
 pub struct VolumeSurgeReversal {
     config: VolumeSurgeReversalConfig,
 }
 
 impl VolumeSurgeReversal {
+    /// Creates a new `VolumeSurgeReversal` strategy with the given configuration.
     pub fn new(config: VolumeSurgeReversalConfig) -> Self {
         Self { config }
     }
@@ -58,7 +137,11 @@ impl Strategy for VolumeSurgeReversal {
         let rsi_series = rsi::calculate(data, self.config.rsi_period)?;
         let rsi_arr = rsi_series.f64()?;
 
-        let vol_osc_series = volume_oscillator::calculate(data, self.config.vol_short_period, self.config.vol_long_period)?;
+        let vol_osc_series = volume_oscillator::calculate(
+            data,
+            self.config.vol_short_period,
+            self.config.vol_long_period,
+        )?;
         let vol_osc_arr = vol_osc_series.f64()?;
 
         let atr_series = atr::calculate(data, self.config.atr_period)?;
@@ -66,32 +149,41 @@ impl Strategy for VolumeSurgeReversal {
 
         let mut signals = Vec::new();
         let sl_mult_opt = Decimal::from_f64_retain(self.config.stop_loss_atr_mult);
-        let sl_mult = if let Some(m) = sl_mult_opt { m } else { Decimal::ZERO };
+        let sl_mult = if let Some(m) = sl_mult_opt {
+            m
+        } else {
+            Decimal::ZERO
+        };
         let two_dec = Decimal::from(2);
 
         for i in 1..close_arr.len() {
-            let timestamp = if let Some(t) = time_arr.get(i) { t } else { 0 };
+            let timestamp = time_arr.get(i).unwrap_or_default();
             let price_opt = close_arr.get(i);
             let rsi_curr_opt = rsi_arr.get(i);
             let vol_curr_opt = vol_osc_arr.get(i);
             let atr_opt = atr_arr.get(i);
 
-            if let (Some(price), Some(rsi_val), Some(vol_val), Some(atr_val)) = (
-                price_opt,
-                rsi_curr_opt,
-                vol_curr_opt,
-                atr_opt,
-            ) {
-                let price_dec = if let Some(p) = Decimal::from_f64_retain(price) { p } else { Decimal::ZERO };
-                let atr_dec = if let Some(a) = Decimal::from_f64_retain(atr_val) { a } else { Decimal::ZERO };
+            if let (Some(price), Some(rsi_val), Some(vol_val), Some(atr_val)) =
+                (price_opt, rsi_curr_opt, vol_curr_opt, atr_opt)
+            {
+                let price_dec = if let Some(p) = Decimal::from_f64_retain(price) {
+                    p
+                } else {
+                    Decimal::ZERO
+                };
+                let atr_dec = if let Some(a) = Decimal::from_f64_retain(atr_val) {
+                    a
+                } else {
+                    Decimal::ZERO
+                };
 
                 // Long Entry: RSI oversold AND Volume Surge
                 if rsi_val < self.config.rsi_oversold && vol_val > self.config.vol_threshold {
                     let sl = price_dec - (atr_dec * sl_mult);
                     let risk = price_dec - sl;
                     let tp = price_dec + (risk * two_dec);
-                    let sl_f64 = if let Some(s) = sl.to_f64() { s } else { 0.0 };
-                    let tp_f64 = if let Some(t) = tp.to_f64() { t } else { 0.0 };
+                    let sl_f64 = sl.to_f64().unwrap_or(0.0);
+                    let tp_f64 = tp.to_f64().unwrap_or(0.0);
 
                     signals.push(Signal {
                         signal_type: SignalType::Entry,
@@ -109,12 +201,14 @@ impl Strategy for VolumeSurgeReversal {
                     });
                 }
                 // Short Entry: RSI overbought AND Volume Surge
-                else if rsi_val > self.config.rsi_overbought && vol_val > self.config.vol_threshold {
+                else if rsi_val > self.config.rsi_overbought
+                    && vol_val > self.config.vol_threshold
+                {
                     let sl = price_dec + (atr_dec * sl_mult);
                     let risk = sl - price_dec;
                     let tp = price_dec - (risk * two_dec);
-                    let sl_f64 = if let Some(s) = sl.to_f64() { s } else { 0.0 };
-                    let tp_f64 = if let Some(t) = tp.to_f64() { t } else { 0.0 };
+                    let sl_f64 = sl.to_f64().unwrap_or(0.0);
+                    let tp_f64 = tp.to_f64().unwrap_or(0.0);
 
                     signals.push(Signal {
                         signal_type: SignalType::Entry,
