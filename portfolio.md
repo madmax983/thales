@@ -5207,6 +5207,13 @@
 | 2026-04-05 07:05:50 | SPY | equities:SPY:unknown:1775366585422 | Invalid input: provider error: kraken api error: EQuery:Unknown asset pair |
 | 2026-04-05 07:05:51 | BTCUSD | crypto:BTCUSD:unknown:1775364993872 | provider error: kraken api error: EOrder:Insufficient funds |
 | 2026-04-05 07:05:52 | ETHUSD | crypto:ETHUSD:unknown:1775366585407 | provider error: kraken api error: EOrder:Insufficient funds |
+| 2026-04-05 09:02:19 | ETHUSD | crypto:ETHUSD:unknown:1775308358867 | Signal already executed/submitted (Ref: crypto:ETHUSD:unknown:1775308358867) |
+| 2026-04-05 09:02:19 | ETHUSD | crypto:ETHUSD:unknown:1775317739524 | Signal already executed/submitted (Ref: crypto:ETHUSD:unknown:1775317739524) |
+| 2026-04-05 09:02:19 | BTCUSD | crypto:BTCUSD:unknown:1775336140986 | Signal already executed/submitted (Ref: crypto:BTCUSD:unknown:1775336140986) |
+| 2026-04-05 09:02:19 | BTCUSD | crypto:BTCUSD:unknown:1775366585389 | Signal already executed/submitted (Ref: crypto:BTCUSD:unknown:1775366585389) |
+| 2026-04-05 09:02:21 | ETHUSD | crypto:ETHUSD:unknown:1775373144760 | CONFLICT: Conflicting signals (Buy and Sell) detected for ETHUSD. Trading halted for this asset. |
+| 2026-04-05 09:02:21 | SPY | equities:SPY:unknown:1775373144775 | Invalid input: provider error: kraken api error: EQuery:Unknown asset pair |
+| 2026-04-05 09:02:21 | BTCUSD | crypto:BTCUSD:unknown:1775373144743 | Rejected by Risk Agent: Position size below exchange minimum for BTCUSD (8.11e-05 < 0.0001) |
 
 ## Executed Trades
 
