@@ -4050,3 +4050,38 @@ Trend Following
 - **Expected Win Rate:** 50-60%
 - **Sharpe Ratio:** > 1.0
 - **Max Drawdown:** < 20%
+
+# Trading Strategy: Ulcer Index Mean Reversion
+
+## Strategy Specification
+
+**Name:** UlcerIndexMeanReversion
+
+**Description:** A mean reversion strategy based on the Ulcer Index (UI) which measures the depth and duration of price drawdowns. The strategy buys when the UI is extremely high, signaling capitulation and max pain, and sells when the UI recovers to a low level.
+
+**Rationale:** When the Ulcer Index reaches extremely high values, it indicates significant downside risk has already materialized. For mean-reverting assets, this often coincides with capitulation bottoms. By entering trades at these moments and exiting when risk normalizes (UI drops), we can capture the reversion to the mean.
+
+## Requirements
+
+### Implementation Details
+- Uses Polars for data analysis and generating signals.
+- Implements the `Strategy` trait in Rust.
+- Utilizes the `ulcer_index` indicator.
+
+### Strategy Type
+Mean Reversion
+
+### Entry Conditions
+- **Long Entry:** The Ulcer Index crosses above the `entry_threshold` (e.g. 10.0), indicating extreme drawdown and panic.
+
+### Exit Conditions
+- **Long Exit:** The Ulcer Index crosses below the `exit_threshold` (e.g. 2.0), indicating risk has normalized.
+
+### Risk Management
+- **Stop Loss:** A fixed percentage stop loss (`stop_loss_pct`) calculated from the entry price.
+- **Position Sizing:** Utilizes a fixed size hint of 100 on entry and max on exit.
+
+## Expected Backtesting Metrics
+- **Win Rate:** 55% - 65% (Mean reversion tends to have higher win rates)
+- **Sharpe Ratio:** > 1.0
+- **Max Drawdown:** < 20%
