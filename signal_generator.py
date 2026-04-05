@@ -172,6 +172,7 @@ def format_signal(intent):
     signal_type = signal_type.replace("SignalType::", "")
 
     # Format output perfectly to match the user's requested output template
+    # Explicitly avoid extraneous trailing newline
     lines = [
         f"- Symbol and direction (long/short): {intent.get('symbol')} ({direction})",
         f"- Signal type and strength (0-100%): {signal_type} ({strength:.1f}%)",
@@ -389,28 +390,27 @@ def main():
                     # Map buy/sell to long/short
                     side_raw = intent.get('side', '')
                     side = str(side_raw).lower() if side_raw else ''
-                    if side == "buy":
+                    if side in ['buy', 'long']:
                         intent['side'] = "long"
-                    elif side == "sell":
+                    elif side in ['sell', 'short']:
                         intent['side'] = "short"
+
+                    # Verify Risk Agent check at the bottom of the signal validation loop, after calculations
+                    # All signals must go through Risk Agent before execution
+                    if last_close_price is not None:
+                        risk_ok, risk_reason = verify_risk(intent, current_price=last_close_price)
+                    else:
+                        risk_ok, risk_reason = verify_risk(intent)
+
+                    if not risk_ok:
+                        print(f"Skipping signal for {symbol} due to Risk Agent rejection: {risk_reason}", file=sys.stderr)
+                        continue
 
                     symbol_intents.append(intent)
 
                     if recent_signals_count + len(symbol_intents) >= 3:
                         limit_reached = True
                         break
-
-        # Filter: Verify Risk Agent check at the bottom after fallbacks and formatting
-        # All signals must go through Risk Agent before execution
-        validated_symbol_intents = []
-        for intent in symbol_intents:
-            risk_ok, risk_reason = verify_risk(intent, current_price=last_close_price) if last_close_price is not None else verify_risk(intent)
-            if not risk_ok:
-                print(f"Skipping signal for {symbol} due to Risk Agent rejection: {risk_reason}", file=sys.stderr)
-                continue
-            validated_symbol_intents.append(intent)
-
-        symbol_intents = validated_symbol_intents
 
         # Limit to 1-3 signals per symbol per day and resolve conflicts
         symbol_intents.sort(key=lambda x: x.get("confidence", 0.0), reverse=True)
