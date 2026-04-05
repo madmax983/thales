@@ -96,6 +96,7 @@ pub mod williams_r;
 pub mod wma_crossover;
 pub mod zlema_crossover;
 pub mod zscore_mean_reversion;
+pub mod ulcer_index_mean_reversion;
 
 pub mod chaikin_oscillator_momentum;
 pub mod kst_trend;

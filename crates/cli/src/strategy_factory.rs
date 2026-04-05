@@ -893,6 +893,17 @@ pub fn create_strategy(name: &str, symbol: &str) -> Result<Box<dyn Strategy>> {
             };
             Ok(Box::new(VwMacd::new(config)?))
         }
+        "UlcerIndexMeanReversion" => {
+            use strategies::ulcer_index_mean_reversion::{UlcerIndexMeanReversion, UlcerIndexMeanReversionConfig};
+            let config = UlcerIndexMeanReversionConfig {
+                period: 14,
+                entry_threshold: 10.0,
+                exit_threshold: 2.0,
+                stop_loss_pct: 0.05,
+                symbol: symbol.to_string(),
+            };
+            Ok(Box::new(UlcerIndexMeanReversion::new(config)))
+        }
         _ => Err(anyhow::anyhow!("Unknown strategy: {}", name)),
     }
 }
@@ -975,5 +986,6 @@ pub fn list_strategies() -> Vec<&'static str> {
         "CoppockCurve",
         "TtmSqueeze",
         "VwMacd",
+        "UlcerIndexMeanReversion",
     ]
 }

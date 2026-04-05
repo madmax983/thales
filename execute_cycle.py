@@ -180,6 +180,8 @@ def get_active_strategies():
         strategies.append("AroonOscillator")
     if re.search(r'\bElderRay\b', content):
         strategies.append("ElderRay")
+    if re.search(r'\bUlcerIndexMeanReversion\b', content):
+        strategies.append("UlcerIndexMeanReversion")
     if re.search(r'\bEmaCrossover\b', content):
         strategies.append("EmaCrossover")
     if re.search(r'\bFisherTransformReversal\b', content):
