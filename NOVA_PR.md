@@ -1,9 +1,13 @@
-🌟 Nova: [Price Density]
+# 🌟 Nova: CLI Help Hints for Experimental Features
 
-💡 The Spark: "I noticed we have volume profile which is useful, but we lack a way to analyze purely time-based price density. We have all the price data, but we're not using it to see where price 'spends' the most time."
+## 💡 The Spark
+Users attempting to use commands documented in our help text receive "unrecognized subcommand" errors because they lack a feature flag, assuming the CLI is broken.
 
-🚀 The Feature: "Implemented `calculate_price_density` in `src/experimental/price_density.rs`."
+## 🚀 The Feature
+Implemented an `after_help` attribute in the `Cli` struct using clap to provide a clear hint that "Nova" experimental features require the `--features nova` flag.
 
-🔮 The Potential: "Could be used as a primitive alternative to volume profile, purely based on price action, which is particularly useful for markets where volume data is unreliable or unavailable. This can be further integrated into our market analysis pipelines."
+## 🔭 The Potential
+Increases discoverability of our experimental features, correctly guiding users to enable the feature flag rather than throwing confusing "unrecognized subcommand" errors, thus increasing engagement.
 
-⚠️ Risk: "Low. Isolated in `src/experimental/price_density.rs` and behind the `nova` feature flag."
+## ⚠️ Risk
+Low. Isolated to a simple clap attribute in the CLI entry point.

@@ -59,7 +59,12 @@ use thales_cli::synthetic_data;
 use thales_cli::volume_profile;
 
 #[derive(Debug, Parser)]
-#[command(name = "thales-cli", version, about = "Agent trading toolkit CLI")]
+#[command(
+    name = "thales-cli",
+    version,
+    about = "Agent trading toolkit CLI",
+    after_help = "Note: Experimental 'Nova' commands (e.g., simulate-black-swan) require the `--features nova` flag to be compiled and visible."
+)]
 struct Cli {
     #[arg(long, global = true)]
     raw: bool,
