@@ -5230,6 +5230,15 @@
 | 2026-04-05 15:58:35 | SPY | equities:SPY:unknown:1775391896209 | Invalid input: provider error: kraken api error: EQuery:Unknown asset pair |
 | 2026-04-05 15:58:36 | BTCUSD | crypto:BTCUSD:unknown:1775391896181 | Rejected by Risk Agent: Position size below exchange minimum for BTCUSD (5.3e-07 < 0.0001) |
 | 2026-04-05 15:58:36 | ETHUSD | crypto:ETHUSD:unknown:1775391722724 | Rejected by Risk Agent: Position size below exchange minimum for ETHUSD (1.726e-05 < 0.001) |
+| 2026-04-05 16:57:37 | ETHUSD | crypto:ETHUSD:unknown:1775391896195 | Signal already executed/submitted (Ref: crypto:ETHUSD:unknown:1775391896195) |
+| 2026-04-05 16:57:38 | BTCUSD | crypto:BTCUSD:unknown:1775405209155 | CONFLICT: Conflicting signals (Buy and Sell) detected for BTCUSD. Trading halted for this asset. |
+| 2026-04-05 16:57:38 | ETHUSD | crypto:ETHUSD:unknown:1775405209175 | CONFLICT: Conflicting signals (Buy and Sell) detected for ETHUSD. Trading halted for this asset. |
+| 2026-04-05 16:57:39 | SPY | equities:SPY:unknown:1775405209196 | CONFLICT: Conflicting signals (Buy and Sell) detected for SPY. Trading halted for this asset. |
+| 2026-04-05 16:58:29 | ETHUSD | CANCEL-OADYQY-VSIUG-4JKLAD | Stale Order Cancellation |
+| 2026-04-05 16:58:30 | ETHUSD | crypto:ETHUSD:unknown:1775391896195 | Signal already executed/submitted (Ref: crypto:ETHUSD:unknown:1775391896195) |
+| 2026-04-05 16:58:31 | BTCUSD | crypto:BTCUSD:unknown:1775405209155 | CONFLICT: Conflicting signals (Buy and Sell) detected for BTCUSD. Trading halted for this asset. |
+| 2026-04-05 16:58:32 | ETHUSD | crypto:ETHUSD:unknown:1775405209175 | CONFLICT: Conflicting signals (Buy and Sell) detected for ETHUSD. Trading halted for this asset. |
+| 2026-04-05 16:58:32 | SPY | equities:SPY:unknown:1775405209196 | Invalid input: provider error: kraken api error: EQuery:Unknown asset pair |
 
 ## Executed Trades
 
