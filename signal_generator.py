@@ -154,7 +154,7 @@ def format_signal(intent):
     sl_val = intent.get('stop_loss')
     tp_val = intent.get('take_profit')
 
-    # Explicit missing variable checks
+    # Explicit missing variable checks (ensuring we don't proceed with missing SL/TP)
     missing_sl = is_missing(sl_val)
     missing_tp = is_missing(tp_val)
 
@@ -387,7 +387,7 @@ def main():
                         print(f"Note: No similar past trades found for {symbol}.", file=sys.stderr)
                         # We don't skip the signal, we just note it as it might be a valid new setup
 
-                    # Map buy/sell to long/short
+                    # Map buy/sell to long/short (ensure strings are correctly formed)
                     side_raw = intent.get('side', '')
                     side = str(side_raw).lower() if side_raw else ''
                     if side in ['buy', 'long']:
