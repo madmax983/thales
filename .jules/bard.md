@@ -110,3 +110,7 @@
 ## 2024-06-10 - The Silent Volume Surge
 **Confusion:** The Volume Surge Reversal strategy lacked module-level documentation and executable examples. Users could not discover how to instantiate the configuration or interpret the oversold/overbought thresholds relative to the Volume Oscillator surge.
 **Clarification:** Added storytelling module-level documentation (`//!`) to explain the core reversion concepts based on volume surges. Added executable `# Examples` to `VolumeSurgeReversalConfig` and `VolumeSurgeReversal`, guiding developers on proper initialization.
+
+## 2026-04-06 - The Silent Coppock
+**Confusion:** The Coppock Curve strategy lacked module-level documentation and an executable example for its configuration. Users were left guessing about what the ROC and WMA periods represented, and how the curve generated trend reversal signals.
+**Clarification:** Added storytelling module-level documentation (`//!`) to explain the long-term momentum concept behind the Coppock Curve. Added an executable `# Examples` block to `CoppockCurveConfig` to guide users on proper initialization.
