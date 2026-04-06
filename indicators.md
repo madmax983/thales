@@ -1455,3 +1455,21 @@ let ui_series = ulcer_index::calculate(&df, period)?;
 ### Output
 - Returns `Result<Series>`.
 - The output Series is named "ulcer_index".
+
+## Negative Volume Index (NVI)
+
+**Name:** NVI
+**Description:** A cumulative indicator that uses the change in volume to decide when the smart money is active.
+**Rationale:** Helps identify bull markets, operating on the premise that smart money is active on days when volume decreases.
+
+### Implementation Details
+- Uses `rust_decimal::Decimal` for all internal calculations.
+- Starts at a base value of 1000.
+- Checks if current volume is less than previous volume to update NVI.
+
+### Usage
+
+```rust
+use strategies::indicators::nvi;
+use polars::prelude::*;
+```
