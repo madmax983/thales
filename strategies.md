@@ -4085,3 +4085,40 @@ Mean Reversion
 - **Win Rate:** 55% - 65% (Mean reversion tends to have higher win rates)
 - **Sharpe Ratio:** > 1.0
 - **Max Drawdown:** < 20%
+
+# Trading Strategy: KAMA RSI Trend
+
+## Strategy Specification
+
+**Name:** KamaRsiTrend
+
+**Description:** A trend-following strategy that uses KAMA (Kaufman's Adaptive Moving Average) for dynamic trend identification and RSI for momentum confirmation.
+
+**Rationale:** KAMA adapts to market volatility, reducing whipsaws in sideways markets while catching trends early. By combining KAMA's trend direction with RSI's momentum confirmation, we only enter trades when both the adaptive trend and momentum align, offering high-probability entries.
+
+## Requirements
+
+### Implementation Details
+- Uses Polars for data analysis.
+- Implements the `Strategy` trait in Rust.
+- Uses `kama`, `rsi`, and `atr` indicators.
+
+### Strategy Type
+Trend Following
+
+### Entry Conditions
+- **Long Entry (Buy):** Close Price > KAMA AND RSI crosses above `rsi_oversold` (e.g., 30).
+- **Short Entry (Sell):** Close Price < KAMA AND RSI crosses below `rsi_overbought` (e.g., 70).
+
+### Exit Conditions
+- **Long Exit (Sell):** RSI crosses above `rsi_overbought` (e.g., 70).
+- **Short Exit (Buy):** RSI crosses below `rsi_oversold` (e.g., 30).
+- **Stop Loss:** Entry Price +/- (ATR * `stop_loss_atr_mult`).
+
+### Position Sizing
+- **Size Hint:** "100" (fixed units) for entry, "max" for exits.
+
+### Expected Backtesting Metrics
+- **Expected Win Rate:** 45-55%
+- **Expected Sharpe Ratio:** > 1.2
+- **Max Drawdown:** < 15%

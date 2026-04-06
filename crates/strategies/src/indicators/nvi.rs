@@ -42,13 +42,17 @@ pub fn calculate(data: &DataFrame) -> Result<Series> {
 
     let mut nvi_values: Vec<Option<f64>> = Vec::with_capacity(close.len());
 
-    if close.len() == 0 {
+    if close.is_empty() {
         return Ok(Series::new("nvi", nvi_values));
     }
 
     let mut current_nvi = Decimal::new(1000, 0); // Base value 1000
 
-    nvi_values.push(Some(current_nvi.to_f64().context("Failed to convert Decimal to f64")?));
+    nvi_values.push(Some(
+        current_nvi
+            .to_f64()
+            .context("Failed to convert Decimal to f64")?,
+    ));
 
     for i in 1..close.len() {
         let prev_close_opt = close.get(i - 1);
@@ -66,13 +70,15 @@ pub fn calculate(data: &DataFrame) -> Result<Series> {
                 if let (Some(pc), Some(cc), Some(pv), Some(cv)) =
                     (prev_close_dec, curr_close_dec, prev_vol_dec, curr_vol_dec)
                 {
-                    if cv < pv {
-                        if !pc.is_zero() {
-                            let rate_of_change = (cc - pc) / pc;
-                            current_nvi += current_nvi * rate_of_change;
-                        }
+                    if cv < pv && !pc.is_zero() {
+                        let rate_of_change = (cc - pc) / pc;
+                        current_nvi += current_nvi * rate_of_change;
                     }
-                    nvi_values.push(Some(current_nvi.to_f64().context("Failed to convert Decimal to f64")?));
+                    nvi_values.push(Some(
+                        current_nvi
+                            .to_f64()
+                            .context("Failed to convert Decimal to f64")?,
+                    ));
                 } else {
                     nvi_values.push(None);
                 }
@@ -96,9 +102,12 @@ mod tests {
         let mut df = df!(
             "close" => &[100, 105, 102, 104, 101],
             "volume" => &[1000, 1200, 900, 1100, 800]
-        ).context("Failed to create DataFrame")?;
-        df.try_apply("close", |s| s.cast(&DataType::Float64)).context("Failed to cast close")?;
-        df.try_apply("volume", |s| s.cast(&DataType::Float64)).context("Failed to cast volume")?;
+        )
+        .context("Failed to create DataFrame")?;
+        df.try_apply("close", |s| s.cast(&DataType::Float64))
+            .context("Failed to cast close")?;
+        df.try_apply("volume", |s| s.cast(&DataType::Float64))
+            .context("Failed to cast volume")?;
 
         let res = calculate(&df)?;
         let out: &Float64Chunked = res.f64().context("Failed to convert Series to f64")?;
@@ -148,9 +157,14 @@ mod tests {
         let mut df_single = df!(
             "close" => &[100],
             "volume" => &[1000]
-        ).context("Failed to create DataFrame")?;
-        df_single.try_apply("close", |s| s.cast(&DataType::Float64)).context("Failed to cast")?;
-        df_single.try_apply("volume", |s| s.cast(&DataType::Float64)).context("Failed to cast")?;
+        )
+        .context("Failed to create DataFrame")?;
+        df_single
+            .try_apply("close", |s| s.cast(&DataType::Float64))
+            .context("Failed to cast")?;
+        df_single
+            .try_apply("volume", |s| s.cast(&DataType::Float64))
+            .context("Failed to cast")?;
 
         let res_single = calculate(&df_single)?;
         let out_single: &Float64Chunked = res_single.f64().context("Failed to convert")?;
@@ -169,9 +183,12 @@ mod tests {
         let mut df = df!(
             "close" => &[10, 11, 12, 11, 10, 12],
             "volume" => &[100, 150, 120, 130, 90, 110]
-        ).context("Failed to create DataFrame")?;
-        df.try_apply("close", |s| s.cast(&DataType::Float64)).context("Failed to cast")?;
-        df.try_apply("volume", |s| s.cast(&DataType::Float64)).context("Failed to cast")?;
+        )
+        .context("Failed to create DataFrame")?;
+        df.try_apply("close", |s| s.cast(&DataType::Float64))
+            .context("Failed to cast")?;
+        df.try_apply("volume", |s| s.cast(&DataType::Float64))
+            .context("Failed to cast")?;
 
         let res = calculate(&df);
         assert!(res.is_ok());

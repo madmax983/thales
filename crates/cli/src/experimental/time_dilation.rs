@@ -50,9 +50,39 @@ mod tests {
         let series = BarSeries {
             schema_version: "v0".to_string(),
             bars: vec![
-                Bar { symbol: "TEST".into(), market: "test".into(), timeframe: "1d".into(), timestamp_unix_ms: 1000, open: 10.0, high: 20.0, low: 5.0, close: 15.0, volume: 100.0 },
-                Bar { symbol: "TEST".into(), market: "test".into(), timeframe: "1d".into(), timestamp_unix_ms: 2000, open: 15.0, high: 25.0, low: 10.0, close: 20.0, volume: 100.0 },
-                Bar { symbol: "TEST".into(), market: "test".into(), timeframe: "1d".into(), timestamp_unix_ms: 3000, open: 20.0, high: 30.0, low: 15.0, close: 25.0, volume: 400.0 },
+                Bar {
+                    symbol: "TEST".into(),
+                    market: "test".into(),
+                    timeframe: "1d".into(),
+                    timestamp_unix_ms: 1000,
+                    open: 10.0,
+                    high: 20.0,
+                    low: 5.0,
+                    close: 15.0,
+                    volume: 100.0,
+                },
+                Bar {
+                    symbol: "TEST".into(),
+                    market: "test".into(),
+                    timeframe: "1d".into(),
+                    timestamp_unix_ms: 2000,
+                    open: 15.0,
+                    high: 25.0,
+                    low: 10.0,
+                    close: 20.0,
+                    volume: 100.0,
+                },
+                Bar {
+                    symbol: "TEST".into(),
+                    market: "test".into(),
+                    timeframe: "1d".into(),
+                    timestamp_unix_ms: 3000,
+                    open: 20.0,
+                    high: 30.0,
+                    low: 15.0,
+                    close: 25.0,
+                    volume: 400.0,
+                },
             ],
         };
 

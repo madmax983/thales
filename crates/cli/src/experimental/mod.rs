@@ -14,5 +14,5 @@ pub mod resonance;
 pub mod similarity_search;
 pub mod sonification;
 pub mod strategy_correlation;
-pub mod trading_card;
 pub mod time_dilation;
+pub mod trading_card;
