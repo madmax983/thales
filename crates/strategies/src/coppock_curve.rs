@@ -1,3 +1,11 @@
+//! The Coppock Curve Strategy
+//!
+//! The Coppock Curve is a momentum indicator originally designed to identify long-term buying opportunities in the stock market.
+//! It is calculated as a 10-period Weighted Moving Average (WMA) of the sum of a 14-period Rate of Change (ROC) and an 11-period ROC.
+//!
+//! This strategy generates a buy signal when the Coppock Curve crosses above zero (indicating a shift to positive momentum)
+//! and a sell signal when it crosses below zero.
+
 use crate::indicators::{atr, roc, wma};
 use crate::strategy::{Signal, SignalType, Strategy, StrategyConfig, StrategyType};
 use anyhow::Result;
@@ -7,6 +15,24 @@ use rust_decimal::prelude::*;
 use rust_decimal::Decimal;
 
 /// Configuration parameters for the `CoppockCurve` strategy.
+///
+/// # Examples
+///
+/// ```
+/// use strategies::coppock_curve::CoppockCurveConfig;
+///
+/// let config = CoppockCurveConfig {
+///     roc_long_period: 14,
+///     roc_short_period: 11,
+///     wma_period: 10,
+///     stop_loss_atr_mult: 2.0,
+///     atr_period: 14,
+///     max_position_size: 100.0,
+///     symbol: "BTCUSD".to_string(),
+/// };
+///
+/// assert_eq!(config.roc_long_period, 14);
+/// ```
 #[derive(Debug, Clone, serde::Deserialize)]
 pub struct CoppockCurveConfig {
     /// The period for the longer Rate of Change (ROC).
