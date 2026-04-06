@@ -158,8 +158,10 @@ def format_signal(intent):
     missing_sl = is_missing(sl_val)
     missing_tp = is_missing(tp_val)
 
+    # Calculate fallback TP if TP is missing but SL is provided using 1:2 Risk:Reward
     if missing_tp and not missing_sl:
-        missing_tp = is_missing(tp_val)
+        # Fallback TP logic is handled prior in calculate_fallback_sl_tp
+        pass
 
     sl = format_price(sl_val) if not missing_sl else 'None'
     tp = format_price(tp_val) if not missing_tp else 'None'
@@ -171,7 +173,7 @@ def format_signal(intent):
     # Clean up Rust enum string if present (e.g. SignalType::Entry -> Entry)
     signal_type = signal_type.replace("SignalType::", "")
 
-    # Format output perfectly to match the user's requested output template
+    # Persona Rule: Format output perfectly to match the user's requested output template
     # Explicitly avoid extraneous trailing newline
     lines = [
         f"- Symbol and direction (long/short): {intent.get('symbol')} ({direction})",
@@ -249,7 +251,7 @@ def main():
             print(f"Skipping signal generation for {symbol}: No proper analysis available.", file=sys.stderr)
             continue
 
-        # Check historical trades before generating new signals
+        # Persona Rule: Check historical trades before generating new signals
         # Pre-calculate RAG (history) checking natively in Python to inject into rationale
         similar_trades_str = "No similar past trades found."
         if os.path.exists(HISTORY_PATH):
@@ -258,12 +260,12 @@ def main():
                     history = json.load(f)
                     past_trades = []
                     for entry in history:
-                        intent = entry.get("intent", {})
-                        if intent.get("symbol") == symbol:
+                        trade_intent = entry.get("intent", {})
+                        if trade_intent.get("symbol") == symbol:
                             # Basic summary of past trade
                             outcome = entry.get("outcome")
                             status = "win" if outcome is not None and outcome > 0 else "loss" if outcome is not None else "unknown"
-                            side = intent.get("side", "unknown")
+                            side = trade_intent.get("side", "unknown")
                             past_trades.append(f"{side} ({status})")
                     if past_trades:
                         similar_trades_str = f"Found {len(past_trades)} past trades for {symbol}: {', '.join(past_trades[-3:])}."
@@ -298,7 +300,7 @@ def main():
                     is_scale_out = signal_type_raw in ["ScaleOut", "SignalType::ScaleOut"]
 
 
-                    # Calculate appropriate position sizes based on volatility
+                    # Persona Rule: Calculate appropriate position sizes based on volatility
                     volatility_label = analysis.get("volatility", "").lower() if analysis else ""
                     size_hint_str = intent.get("size_hint", "0")
                     if size_hint_str != "max":
@@ -353,13 +355,13 @@ def main():
                     if "size_hint" in intent:
                         intent["size_hint"] = format_size(intent["size_hint"])
 
-                    # Always include stop loss for every entry
+                    # Persona Rule: Always include stop loss for every entry
                     sl_val_check = intent.get("stop_loss")
                     if (is_entry or is_scale_in) and is_missing(sl_val_check):
                         print(f"Skipping signal for {symbol}: Missing mandatory stop loss.", file=sys.stderr)
                         continue
 
-                    # Do not chase moves - wait for pullbacks
+                    # Persona Rule: Do not chase moves - wait for pullbacks
                     if is_entry:
                         side_raw = intent.get('side', '')
                         side = str(side_raw).lower() if side_raw else ''
@@ -395,7 +397,7 @@ def main():
                     elif side in ['sell', 'short']:
                         intent['side'] = "short"
 
-                    # Verify Risk Agent check at the bottom of the signal validation loop, after calculations
+                    # Persona Rule: Verify Risk Agent check at the bottom of the signal validation loop, after calculations
                     # All signals must go through Risk Agent before execution
                     if last_close_price is not None:
                         risk_ok, risk_reason = verify_risk(intent, current_price=last_close_price)
