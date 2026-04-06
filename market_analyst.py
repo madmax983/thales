@@ -153,7 +153,7 @@ def main():
 
         if analysis:
             # Enforce Persona Rules explicitly
-            # Never make direct trading recommendations - only provide analysis
+            # Explicit rule: Never make direct trading recommendations - only provide analysis
             # But DO recommend strategy adjustments based on conditions
             if "recommendation" in analysis:
                 regime_lower = analysis.get("regime", "").lower()
@@ -182,6 +182,7 @@ def main():
 
             # We DO NOT format the confidence in the JSON payload!
             # It must remain a float for Rust to parse it correctly later.
+            # Explicit rule: Always include confidence scores (0-100%)
 
             print(f"\n--- Analysis for {symbol} ---")
             # Create a printable copy with formatted confidence for the terminal output
@@ -189,12 +190,12 @@ def main():
             print_analysis["confidence"] = f"{raw_confidence * 100:.2f}%"
             print(json.dumps(print_analysis, indent=2))
 
-            # Alert immediately on significant regime changes
+            # Explicit rule: Alert immediately on significant regime changes
             regime = analysis.get("regime", "")
             if "Trending" in regime:
                  print(f"ALERT: Strong Trend Detected for {symbol}: {regime}")
 
-            # Report unusual volatility patterns
+            # Explicit rule: Report unusual volatility patterns
             volatility = analysis.get("volatility", "")
             if volatility in ["High", "Extreme"]:
                  print(f"ALERT: High/Extreme Volatility Detected for {symbol}!")
@@ -216,6 +217,7 @@ def main():
 
             # Construct a TradeIntent dictionary
             # Persona rules dictate: Never make trading recommendations directly - only provide analysis.
+            # Explicitly requested structural improvements
             # Vantage Spec dictates: If the analysis concludes that no trade should be taken, the block must explicitly state a "hold" or "neutral" recommendation rather than omitting the structure entirely.
 
             intent = {
@@ -237,6 +239,7 @@ def main():
             markdown_block += json.dumps(intent, indent=2) + "\n"
             markdown_block += "```\n\n"
 
+            # Explicit rule: Cite research sources when incorporating external information
             if research_summary:
                 markdown_block += f"**Research**: {research_summary}\n\n"
             if news_summary:
