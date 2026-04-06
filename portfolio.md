@@ -5323,6 +5323,17 @@
 | 2026-04-06 08:55:36 | BTCUSD | crypto:BTCUSD:unknown:1775450872693 | Signal already executed/submitted (Ref: crypto:BTCUSD:unknown:1775450872693) |
 | 2026-04-06 08:55:38 | ETHUSD | crypto:ETHUSD:unknown:1775458511567 | CONFLICT: Conflicting signals (Buy and Sell) detected for ETHUSD. Trading halted for this asset. |
 | 2026-04-06 08:55:38 | SPY | equities:SPY:unknown:1775458511582 | Invalid input: provider error: kraken api error: EQuery:Unknown asset pair |
+| 2026-04-06 10:52:40 | XBTUSD | CANCEL-OGGBJI-A7MBL-QHARFB | Stale Order Cancellation |
+| 2026-04-06 10:52:41 | ETHUSD | crypto:ETHUSD:unknown:1775391896195 | Signal already executed/submitted (Ref: crypto:ETHUSD:unknown:1775391896195) |
+| 2026-04-06 10:52:41 | BTCUSD | crypto:BTCUSD:unknown:1775415830150 | Signal already executed/submitted (Ref: crypto:BTCUSD:unknown:1775415830150) |
+| 2026-04-06 10:52:41 | BTCUSD | crypto:BTCUSD:unknown:1775421987273 | Signal already executed/submitted (Ref: crypto:BTCUSD:unknown:1775421987273) |
+| 2026-04-06 10:52:41 | ETHUSD | crypto:ETHUSD:unknown:1775421987290 | Signal already executed/submitted (Ref: crypto:ETHUSD:unknown:1775421987290) |
+| 2026-04-06 10:52:41 | BTCUSD | crypto:BTCUSD:unknown:1775425605936 | Signal already executed/submitted (Ref: crypto:BTCUSD:unknown:1775425605936) |
+| 2026-04-06 10:52:41 | BTCUSD | crypto:BTCUSD:unknown:1775450872693 | Signal already executed/submitted (Ref: crypto:BTCUSD:unknown:1775450872693) |
+| 2026-04-06 10:52:41 | BTCUSD | crypto:BTCUSD:unknown:1775458511550 | Signal already executed/submitted (Ref: crypto:BTCUSD:unknown:1775458511550) |
+| 2026-04-06 10:52:43 | ETHUSD | crypto:ETHUSD:unknown:1775466182116 | CONFLICT: Conflicting signals (Buy and Sell) detected for ETHUSD. Trading halted for this asset. |
+| 2026-04-06 10:52:43 | SPY | equities:SPY:unknown:1775466182131 | Invalid input: provider error: kraken api error: EQuery:Unknown asset pair |
+| 2026-04-06 10:52:43 | BTCUSD | crypto:BTCUSD:unknown:1775466182098 | Rejected by Risk Agent: Position size below exchange minimum for BTCUSD (7.851e-05 < 0.0001) |
 
 ## Executed Trades
 
