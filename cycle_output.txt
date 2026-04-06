@@ -1,33 +1,57 @@
-Active Strategies: ['BollingerBands', 'AdlMomentum', 'BopMomentum', 'CoppockCurve', 'KdjIndicatorStrategy', 'KamaCrossover', 'AlmaCrossover', 'AdxMacdTrend', 'AroonOscillator', 'ElderRay', 'EmaCrossover', 'FisherTransformReversal', 'RsiMeanReversion', 'Macd', 'Supertrend', 'SupertrendEmaCrossover', 'SupertrendRsi', 'DonchianBreakout', 'ParabolicSar', 'KeltnerChannelBreakout', 'StochasticOscillator', 'AdxMomentum', 'IchimokuCloud', 'CciMomentum', 'ChaikinMoneyFlow', 'ChaikinOscillatorMomentum', 'ChandelierExit', 'ChoppinessIndexTrend', 'CmoMeanReversion', 'LinearRegressionTrend', 'EaseOfMovement', 'ForceIndexTrend', 'ObvTrendFollowing', 'MoneyFlowIndex', 'ConnorsRsiMeanReversion', 'AwesomeOscillator', 'WilliamsR', 'VwmaCrossover', 'VwapReversion', 'VortexBreakout', 'TripleSmaCrossover', 'TripleEmaCrossover', 'UltimateOscillator', 'RelativeVigorIndexTrend', 'VolumeOscillatorTrend', 'VptTrendFollowing', 'ZlemaCrossover', 'ZScoreMeanReversion', 'VwMacd', 'BollingerRsiMeanReversion', 'StochRsiMeanReversion', 'RocMomentum', 'MacdRsiTrend', 'TrixCrossover', 'TsiTrend', 'DemaCrossover', 'TemaCrossover', 'WmaCrossover', 'HmaCrossover', 'SmaCrossover', 'EmaRsiTrendFollowing', 'PpoRsiTrend', 'KstTrend', 'VhfTrendFollowing', 'SchaffTrendCycle', 'DisparityIndexReversion', 'DpoBreakout', 'DoubleEmaCrossover']
+Active Strategies: ['BollingerBands', 'AdlMomentum', 'BopMomentum', 'CoppockCurve', 'KdjIndicatorStrategy', 'KamaCrossover', 'AlmaCrossover', 'AdxMacdTrend', 'AroonOscillator', 'ElderRay', 'UlcerIndexMeanReversion', 'EmaCrossover', 'FisherTransformReversal', 'RsiMeanReversion', 'Macd', 'Supertrend', 'SupertrendEmaCrossover', 'SupertrendRsi', 'DonchianBreakout', 'ParabolicSar', 'KeltnerChannelBreakout', 'StochasticOscillator', 'AdxMomentum', 'IchimokuCloud', 'CciMomentum', 'ChaikinMoneyFlow', 'ChaikinOscillatorMomentum', 'ChandelierExit', 'ChoppinessIndexTrend', 'CmoMeanReversion', 'LinearRegressionTrend', 'EaseOfMovement', 'ForceIndexTrend', 'ObvTrendFollowing', 'MoneyFlowIndex', 'ConnorsRsiMeanReversion', 'AwesomeOscillator', 'WilliamsR', 'VwmaCrossover', 'VwapReversion', 'VortexBreakout', 'TripleSmaCrossover', 'TripleEmaCrossover', 'UltimateOscillator', 'RelativeVigorIndexTrend', 'VolumeOscillatorTrend', 'VptTrendFollowing', 'ZlemaCrossover', 'ZScoreMeanReversion', 'VwMacd', 'BollingerRsiMeanReversion', 'StochRsiMeanReversion', 'RocMomentum', 'MacdRsiTrend', 'TrixCrossover', 'TsiTrend', 'DemaCrossover', 'TemaCrossover', 'WmaCrossover', 'HmaCrossover', 'SmaCrossover', 'EmaRsiTrendFollowing', 'PpoRsiTrend', 'KstTrend', 'VhfTrendFollowing', 'SchaffTrendCycle', 'DisparityIndexReversion', 'DpoBreakout', 'DoubleEmaCrossover']
 Scanning Kraken (Crypto)...
 Scanning Alpaca (Equities)...
+Skipping already processed signal for ETHUSD: Signal already executed/submitted (Ref: crypto:ETHUSD:unknown:1775391896195)
+Skipping already processed signal for BTCUSD: Signal already executed/submitted (Ref: crypto:BTCUSD:unknown:1775415830150)
+Skipping already processed signal for BTCUSD: Signal already executed/submitted (Ref: crypto:BTCUSD:unknown:1775421987273)
+Skipping already processed signal for ETHUSD: Signal already executed/submitted (Ref: crypto:ETHUSD:unknown:1775421987290)
+Skipping already processed signal for BTCUSD: Signal already executed/submitted (Ref: crypto:BTCUSD:unknown:1775425605936)
+Skipping already processed signal for BTCUSD: Signal already executed/submitted (Ref: crypto:BTCUSD:unknown:1775450872693)
 Selected 3 candidates for deep analysis (from 21 scanned + 3 signals).
  - BTCUSD (crypto)
  - ETHUSD (crypto)
  - SPY (equities)
 Fetching open positions...
 Evaluating candidates...
-  BTCUSD: regime=trending_down, using strategies=['BollingerBands', 'AdlMomentum', 'BopMomentum', 'CoppockCurve', 'KdjIndicatorStrategy', 'KamaCrossover', 'AlmaCrossover', 'AdxMacdTrend', 'AroonOscillator', 'ElderRay', 'EmaCrossover', 'FisherTransformReversal', 'RsiMeanReversion', 'Macd', 'Supertrend', 'SupertrendEmaCrossover', 'SupertrendRsi', 'DonchianBreakout', 'ParabolicSar', 'KeltnerChannelBreakout', 'StochasticOscillator', 'AdxMomentum', 'IchimokuCloud', 'CciMomentum', 'ChaikinMoneyFlow', 'ChaikinOscillatorMomentum', 'ChandelierExit', 'ChoppinessIndexTrend', 'CmoMeanReversion', 'LinearRegressionTrend', 'EaseOfMovement', 'ForceIndexTrend', 'ObvTrendFollowing', 'MoneyFlowIndex', 'ConnorsRsiMeanReversion', 'AwesomeOscillator', 'WilliamsR', 'VwmaCrossover', 'VwapReversion', 'VortexBreakout', 'TripleSmaCrossover', 'TripleEmaCrossover', 'UltimateOscillator', 'RelativeVigorIndexTrend', 'VolumeOscillatorTrend', 'VptTrendFollowing', 'ZlemaCrossover', 'ZScoreMeanReversion', 'VwMacd', 'BollingerRsiMeanReversion', 'StochRsiMeanReversion', 'RocMomentum', 'MacdRsiTrend', 'TrixCrossover', 'TsiTrend', 'DemaCrossover', 'TemaCrossover', 'WmaCrossover', 'HmaCrossover', 'SmaCrossover', 'EmaRsiTrendFollowing', 'PpoRsiTrend', 'KstTrend', 'VhfTrendFollowing', 'SchaffTrendCycle', 'DisparityIndexReversion', 'DpoBreakout', 'DoubleEmaCrossover']
-  BTCUSD: CONFLICT: Conflicting signals (Buy and Sell) detected for BTCUSD. Trading halted for this asset.
-  BTCUSD: All 2 signals rejected due to conflicts.
-  ETHUSD: regime=trending_up, using strategies=['BollingerBands', 'AdlMomentum', 'BopMomentum', 'CoppockCurve', 'KdjIndicatorStrategy', 'KamaCrossover', 'AlmaCrossover', 'AdxMacdTrend', 'AroonOscillator', 'ElderRay', 'EmaCrossover', 'FisherTransformReversal', 'RsiMeanReversion', 'Macd', 'Supertrend', 'SupertrendEmaCrossover', 'SupertrendRsi', 'DonchianBreakout', 'ParabolicSar', 'KeltnerChannelBreakout', 'StochasticOscillator', 'AdxMomentum', 'IchimokuCloud', 'CciMomentum', 'ChaikinMoneyFlow', 'ChaikinOscillatorMomentum', 'ChandelierExit', 'ChoppinessIndexTrend', 'CmoMeanReversion', 'LinearRegressionTrend', 'EaseOfMovement', 'ForceIndexTrend', 'ObvTrendFollowing', 'MoneyFlowIndex', 'ConnorsRsiMeanReversion', 'AwesomeOscillator', 'WilliamsR', 'VwmaCrossover', 'VwapReversion', 'VortexBreakout', 'TripleSmaCrossover', 'TripleEmaCrossover', 'UltimateOscillator', 'RelativeVigorIndexTrend', 'VolumeOscillatorTrend', 'VptTrendFollowing', 'ZlemaCrossover', 'ZScoreMeanReversion', 'VwMacd', 'BollingerRsiMeanReversion', 'StochRsiMeanReversion', 'RocMomentum', 'MacdRsiTrend', 'TrixCrossover', 'TsiTrend', 'DemaCrossover', 'TemaCrossover', 'WmaCrossover', 'HmaCrossover', 'SmaCrossover', 'EmaRsiTrendFollowing', 'PpoRsiTrend', 'KstTrend', 'VhfTrendFollowing', 'SchaffTrendCycle', 'DisparityIndexReversion', 'DpoBreakout', 'DoubleEmaCrossover']
+  BTCUSD: regime=trending_down, using strategies=['BollingerBands', 'AdlMomentum', 'BopMomentum', 'CoppockCurve', 'KdjIndicatorStrategy', 'KamaCrossover', 'AlmaCrossover', 'AdxMacdTrend', 'AroonOscillator', 'ElderRay', 'UlcerIndexMeanReversion', 'EmaCrossover', 'FisherTransformReversal', 'RsiMeanReversion', 'Macd', 'Supertrend', 'SupertrendEmaCrossover', 'SupertrendRsi', 'DonchianBreakout', 'ParabolicSar', 'KeltnerChannelBreakout', 'StochasticOscillator', 'AdxMomentum', 'IchimokuCloud', 'CciMomentum', 'ChaikinMoneyFlow', 'ChaikinOscillatorMomentum', 'ChandelierExit', 'ChoppinessIndexTrend', 'CmoMeanReversion', 'LinearRegressionTrend', 'EaseOfMovement', 'ForceIndexTrend', 'ObvTrendFollowing', 'MoneyFlowIndex', 'ConnorsRsiMeanReversion', 'AwesomeOscillator', 'WilliamsR', 'VwmaCrossover', 'VwapReversion', 'VortexBreakout', 'TripleSmaCrossover', 'TripleEmaCrossover', 'UltimateOscillator', 'RelativeVigorIndexTrend', 'VolumeOscillatorTrend', 'VptTrendFollowing', 'ZlemaCrossover', 'ZScoreMeanReversion', 'VwMacd', 'BollingerRsiMeanReversion', 'StochRsiMeanReversion', 'RocMomentum', 'MacdRsiTrend', 'TrixCrossover', 'TsiTrend', 'DemaCrossover', 'TemaCrossover', 'WmaCrossover', 'HmaCrossover', 'SmaCrossover', 'EmaRsiTrendFollowing', 'PpoRsiTrend', 'KstTrend', 'VhfTrendFollowing', 'SchaffTrendCycle', 'DisparityIndexReversion', 'DpoBreakout', 'DoubleEmaCrossover']
+  BTCUSD: Selected 1 valid signals.
+  ETHUSD: regime=trending_up, using strategies=['BollingerBands', 'AdlMomentum', 'BopMomentum', 'CoppockCurve', 'KdjIndicatorStrategy', 'KamaCrossover', 'AlmaCrossover', 'AdxMacdTrend', 'AroonOscillator', 'ElderRay', 'UlcerIndexMeanReversion', 'EmaCrossover', 'FisherTransformReversal', 'RsiMeanReversion', 'Macd', 'Supertrend', 'SupertrendEmaCrossover', 'SupertrendRsi', 'DonchianBreakout', 'ParabolicSar', 'KeltnerChannelBreakout', 'StochasticOscillator', 'AdxMomentum', 'IchimokuCloud', 'CciMomentum', 'ChaikinMoneyFlow', 'ChaikinOscillatorMomentum', 'ChandelierExit', 'ChoppinessIndexTrend', 'CmoMeanReversion', 'LinearRegressionTrend', 'EaseOfMovement', 'ForceIndexTrend', 'ObvTrendFollowing', 'MoneyFlowIndex', 'ConnorsRsiMeanReversion', 'AwesomeOscillator', 'WilliamsR', 'VwmaCrossover', 'VwapReversion', 'VortexBreakout', 'TripleSmaCrossover', 'TripleEmaCrossover', 'UltimateOscillator', 'RelativeVigorIndexTrend', 'VolumeOscillatorTrend', 'VptTrendFollowing', 'ZlemaCrossover', 'ZScoreMeanReversion', 'VwMacd', 'BollingerRsiMeanReversion', 'StochRsiMeanReversion', 'RocMomentum', 'MacdRsiTrend', 'TrixCrossover', 'TsiTrend', 'DemaCrossover', 'TemaCrossover', 'WmaCrossover', 'HmaCrossover', 'SmaCrossover', 'EmaRsiTrendFollowing', 'PpoRsiTrend', 'KstTrend', 'VhfTrendFollowing', 'SchaffTrendCycle', 'DisparityIndexReversion', 'DpoBreakout', 'DoubleEmaCrossover']
   ETHUSD: Selected 1 valid signals.
 Error executing ['fetch-market-data', '--provider', 'kraken', '--symbol', 'SPY', '--timeframe', '1h']: provider error: kraken api error: EQuery:Unknown asset pair
   SPY: Invalid input: provider error: kraken api error: EQuery:Unknown asset pair
-Selected top 1 signals for execution.
+Selected top 2 signals for execution.
+
+--- NEW SIGNAL ---
+Symbol: BTCUSD (crypto)
+Direction: SELL
+Signal Type: Entry
+Confidence: 64.0%
+Size Hint: 0.148493
+Stop Loss: 69629.53143849102
+Take Profit: 67609.23712301799
+Reasoning: Strategy: BopMomentum (64%, MA: 0.80). Reason: BOP Crossover Down: BOP -0.42 < SMA 0.16. Market Context: Trending Down (Short Term) (Medium Volatility). No similar past trades found. Research: Historical Context: [Source: knowledge.txt] Similar market conditions in Q4 2023 showed a strong bullish trend following consolidation periods. The market is currently exhibiting similar behavior. Research: [Source: research.txt] Bitcoin ETFs are seeing strong institutional inflows following SEC approvals. Analysts remain bullish due to positive macroeconomic indicators and recent halving events.. News: [Source: news.txt] Major indices are hitting new highs, with Bitcoin showing resilience against recent regulatory concerns.. (Selling weakness in Oversold conditions) (Risk: $100, SL Dist: 673.43)
+------------------
+
+Fetching latest price for BTCUSD on kraken...
+Latest price for BTCUSD: 68956.1
+Adjusted sell size for BTCUSD: 0.148493 -> max (sellable: BTC 0.00995222)
+Order Type: LIMIT
+Algorithm: Limit
+Executing sell BTCUSD via kraken...
+Error executing ['execute-intent', '--provider', 'kraken', '--input', 'temp_intent_BTCUSD.json']: provider error: kraken api error: EOrder:Insufficient funds
+Execution failed: provider error: kraken api error: EOrder:Insufficient funds
 
 --- NEW SIGNAL ---
 Symbol: ETHUSD (crypto)
-Direction: BUY
+Direction: SELL
 Signal Type: Entry
 Confidence: 64.0%
-Size Hint: 4.273941
-Stop Loss: 2030.582393321302
-Take Profit: 2216.188903260651
-Reasoning: Strategy: TsiTrend (64%, MA: 0.80). Reason: TSI crossed above Signal Line. Market Context: Trending Up (Short Term) (Medium Volatility). No similar past trades found. Research: Historical Context: [Source: knowledge.txt] Historical technicals show mean reversion likely. Research: [Source: General_Market_Report] Steady accumulation observed. Technical indicators suggest continuation of the trend.. News: [Source: news.txt] Mixed economic data causes market uncertainty.. (Buying strength in Overbought conditions) (Risk: $100, SL Dist: 23.40)
+Size Hint: 3.330210
+Stop Loss: 2154.018139896307
+Take Profit: 2063.9337202073857
+Reasoning: Strategy: KDJ Indicator Trading Strategy (64%, MA: 0.80). Reason: KDJ Short Entry (J:78.88, K:81.63, D:83.00). Market Context: Trending Up (Short Term) (Medium Volatility). No similar past trades found. Research: Historical Context: [Source: knowledge.txt] Historical technicals show mean reversion likely. Research: [Source: General_Market_Report] Steady accumulation observed. Technical indicators suggest continuation of the trend.. News: [Source: news.txt] Mixed economic data causes market uncertainty.. (Risk: $100, SL Dist: 30.03)
 ------------------
 
 Fetching latest price for ETHUSD on kraken...
-Latest price for ETHUSD: 2053.98
-Adjusted buy size for ETHUSD: 4.273941 -> 0.00209088 (buying power: USD 4.34)
-Skipping ETHUSD: Order value below exchange minimum fiat volume (4.29 < 5.0)
+Latest price for ETHUSD: 2123.99
+Skipping ETHUSD: No sellable balance available (ETH 0.00000000)
