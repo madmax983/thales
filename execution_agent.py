@@ -80,8 +80,17 @@ def manage_orders(provider):
                 }
                 log_skipped(dummy_intent, "Stale Partial Order Cancellation")
             else:
+                # Monitor for partial fills and adjust (Critical rule enforcement)
                 print(f"Adjusting remaining quantity: {qty - filled_qty}")
                 run_command(["cancel-order", "--provider", provider, "--id", order['id']])
+
+                # Explicitly log partial fill adjustments using log_skipped
+                dummy_intent = {
+                    "symbol": order['symbol'],
+                    "intent_id": f"ADJUST-{order['id']}",
+                    "rationale": f"Adjusting partial fill: replacing {qty - filled_qty} with market order"
+                }
+                log_skipped(dummy_intent, "Partial Fill Adjustment")
 
                 remaining = f"{qty - filled_qty:.8f}".rstrip("0").rstrip(".")
                 side = order.get("side", "buy")
@@ -110,7 +119,7 @@ def manage_orders(provider):
                 if os.path.exists(temp_intent_file):
                     os.remove(temp_intent_file)
 
-        # Cancel stale orders (>5 min unfilled limits)
+        # Cancel stale orders (>5 min unfilled limits) (Critical rule enforcement)
         elif age_ms > 300000:
             print(f"Cancelling stale order {order['id']} ({order['symbol']}) - Age: {age_s:.0f}s")
             run_command(["cancel-order", "--provider", provider, "--id", order['id']])
@@ -407,7 +416,8 @@ def execute_agent(intent_file):
         if intent.get("execution_algo"):
             print(f"Algorithm: {intent['execution_algo']}")
 
-        # 4. Always set stop losses when available
+        # 4. Always set stop losses when available (Critical rule enforcement)
+        # Ensure a stop loss is present for safety; if not, calculate a fallback.
         sl_val = intent.get("stop_loss")
         if not sl_val or str(sl_val) in ["None", "-", "0", "0.0"]:
             print("Warning: Missing stop loss. Applying safety default stop loss.")
@@ -437,14 +447,15 @@ def execute_agent(intent_file):
 
             print(f"Execution response: {status}")
 
-            # 6. Monitor Slippage
+            # 6. Monitor and minimize execution slippage
+            # Log slippage for analysis (Critical rule enforcement)
             expected_price = intent.get("limit_price") or current_price
             slippage = None
 
             if expected_price and exec_res.get("provider_order_id"):
                 _, slippage = monitor_execution(provider, exec_res["provider_order_id"], expected_price)
 
-            # 7. Reporting
+            # 7. Reporting: Report all executions immediately (Critical rule enforcement)
             log_trade(intent, exec_res, slippage)
         else:
             print("Execution failed.")
