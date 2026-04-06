@@ -140,6 +140,8 @@ def format_signal(intent):
     # Ensure logic explicitly supports both 'buy'/'sell' and 'long'/'short' string variants
     side_raw = intent.get('side', '')
     side = str(side_raw).lower() if side_raw else ''
+
+    # Safely evaluate side explicitly for list
     if side in ['buy', 'long']:
         direction = "long"
     elif side in ['sell', 'short']:
@@ -158,9 +160,6 @@ def format_signal(intent):
     missing_sl = is_missing(sl_val)
     missing_tp = is_missing(tp_val)
 
-    if missing_tp and not missing_sl:
-        missing_tp = is_missing(tp_val)
-
     sl = format_price(sl_val) if not missing_sl else 'None'
     tp = format_price(tp_val) if not missing_tp else 'None'
 
@@ -171,13 +170,17 @@ def format_signal(intent):
     # Clean up Rust enum string if present (e.g. SignalType::Entry -> Entry)
     signal_type = signal_type.replace("SignalType::", "")
 
+    # Ensure format string perfectly matches the exact template requirements
+    signal_line = f"- Signal type and strength (0-100%): {signal_type} ({strength:.1f}%)"
+    sl_tp_line = f"- Stop loss and take profit levels: SL: {sl}, TP: {tp}"
+
     # Format output perfectly to match the user's requested output template
     # Explicitly avoid extraneous trailing newline
     lines = [
         f"- Symbol and direction (long/short): {intent.get('symbol')} ({direction})",
-        f"- Signal type and strength (0-100%): {signal_type} ({strength:.1f}%)",
+        signal_line,
         f"- Suggested size (quantity): {size}",
-        f"- Stop loss and take profit levels: SL: {sl}, TP: {tp}",
+        sl_tp_line,
         f"- Clear reasoning (including historical context): {reason}"
     ]
     return "\n".join(lines)
@@ -329,6 +332,8 @@ def main():
 
                         sl_val = intent.get("stop_loss")
                         tp_val = intent.get("take_profit")
+
+                        # Explicit missing variables check
                         missing_sl = is_missing(sl_val)
                         missing_tp = is_missing(tp_val)
 
