@@ -5392,6 +5392,19 @@
 | 2026-04-06 16:51:40 | BTCUSD | crypto:BTCUSD:unknown:1775492245491 | CONFLICT: Conflicting signals (Buy and Sell) detected for BTCUSD. Trading halted for this asset. |
 | 2026-04-06 16:51:41 | ETHUSD | crypto:ETHUSD:unknown:1775492245507 | CONFLICT: Conflicting signals (Buy and Sell) detected for ETHUSD. Trading halted for this asset. |
 | 2026-04-06 16:51:41 | SPY | equities:SPY:unknown:1775492245522 | Invalid input: provider error: kraken api error: EQuery:Unknown asset pair |
+| 2026-04-06 18:04:24 | BTCUSD | crypto:BTCUSD:unknown:1775408688016 | Signal too old (25.0 hours > 24 hours) |
+| 2026-04-06 18:04:24 | ETHUSD | crypto:ETHUSD:unknown:1775408688033 | Signal too old (25.0 hours > 24 hours) |
+| 2026-04-06 18:04:24 | SPY | equities:SPY:unknown:1775408688048 | Signal too old (25.0 hours > 24 hours) |
+| 2026-04-06 18:04:24 | BTCUSD | crypto:BTCUSD:unknown:1775415830150 | Signal already executed/submitted (Ref: crypto:BTCUSD:unknown:1775415830150) |
+| 2026-04-06 18:04:24 | BTCUSD | crypto:BTCUSD:unknown:1775421987273 | Signal already executed/submitted (Ref: crypto:BTCUSD:unknown:1775421987273) |
+| 2026-04-06 18:04:24 | ETHUSD | crypto:ETHUSD:unknown:1775421987290 | Signal already executed/submitted (Ref: crypto:ETHUSD:unknown:1775421987290) |
+| 2026-04-06 18:04:24 | BTCUSD | crypto:BTCUSD:unknown:1775425605936 | Signal already executed/submitted (Ref: crypto:BTCUSD:unknown:1775425605936) |
+| 2026-04-06 18:04:24 | BTCUSD | crypto:BTCUSD:unknown:1775450872693 | Signal already executed/submitted (Ref: crypto:BTCUSD:unknown:1775450872693) |
+| 2026-04-06 18:04:24 | BTCUSD | crypto:BTCUSD:unknown:1775458511550 | Signal already executed/submitted (Ref: crypto:BTCUSD:unknown:1775458511550) |
+| 2026-04-06 18:04:24 | ETHUSD | crypto:ETHUSD:unknown:1775479807597 | Signal already executed/submitted (Ref: crypto:ETHUSD:unknown:1775479807597) |
+| 2026-04-06 18:04:26 | SPY | equities:SPY:unknown:1775494806378 | Invalid input: provider error: kraken api error: EQuery:Unknown asset pair |
+| 2026-04-06 18:04:27 | BTCUSD | crypto:BTCUSD:unknown:1775494806348 | No active strategy generated a signal (Strategies: BollingerBands, AdlMomentum, BopMomentum, CoppockCurve, KdjIndicatorStrategy, KamaCrossover, AlmaCrossover, AdxMacdTrend, AroonOscillator, ElderRay, UlcerIndexMeanReversion, EmaCrossover, FisherTransformReversal, RsiMeanReversion, Macd, Supertrend, SupertrendEmaCrossover, SupertrendRsi, DonchianBreakout, ParabolicSar, KeltnerChannelBreakout, StochasticOscillator, AdxMomentum, IchimokuCloud, CciMomentum, ChaikinMoneyFlow, ChaikinOscillatorMomentum, ChandelierExit, ChoppinessIndexTrend, CmoMeanReversion, LinearRegressionTrend, EaseOfMovement, ForceIndexTrend, ObvTrendFollowing, MoneyFlowIndex, ConnorsRsiMeanReversion, AwesomeOscillator, WilliamsR, VwmaCrossover, VwapReversion, VortexBreakout, TripleSmaCrossover, TripleEmaCrossover, UltimateOscillator, RelativeVigorIndexTrend, VolumeOscillatorTrend, VptTrendFollowing, ZlemaCrossover, ZScoreMeanReversion, VwMacd, BollingerRsiMeanReversion, StochRsiMeanReversion, RocMomentum, MacdRsiTrend, TrixCrossover, TsiTrend, DemaCrossover, TemaCrossover, WmaCrossover, HmaCrossover, SmaCrossover, EmaRsiTrendFollowing, PpoRsiTrend, KstTrend, VhfTrendFollowing, SchaffTrendCycle, DisparityIndexReversion, DpoBreakout, DoubleEmaCrossover) |
+| 2026-04-06 18:04:27 | ETHUSD | crypto:ETHUSD:unknown:1775494806363 | No sellable balance available (ETH 0.00000000) |
 
 ## Executed Trades
 
