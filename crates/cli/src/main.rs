@@ -2071,10 +2071,7 @@ fn run(command: Commands, raw: bool) -> Result<String, CliError> {
             ok_envelope(report, vec![], raw)
         }
         #[cfg(feature = "nova")]
-        Commands::AnalyzeTimeDilation {
-            input,
-            visualize,
-        } => {
+        Commands::AnalyzeTimeDilation { input, visualize } => {
             let file_content = std::fs::read_to_string(&input).map_err(|e| {
                 std::io::Error::new(
                     e.kind(),
@@ -2090,10 +2087,15 @@ fn run(command: Commands, raw: bool) -> Result<String, CliError> {
                 };
 
             let report = thales_cli::experimental::time_dilation::analyze_time_dilation(&series)
-                .ok_or_else(|| CliError::Validation("Failed to calculate time dilation".to_string()))?;
+                .ok_or_else(|| {
+                    CliError::Validation("Failed to calculate time dilation".to_string())
+                })?;
 
             if visualize {
-                println!("Time Dilation Report:\nBase Rate: {:.2}\nDilation Factor: {:.2}", report.base_volume_rate, report.dilation_factor);
+                println!(
+                    "Time Dilation Report:\nBase Rate: {:.2}\nDilation Factor: {:.2}",
+                    report.base_volume_rate, report.dilation_factor
+                );
             }
 
             ok_envelope(report, vec![], raw)

@@ -142,7 +142,11 @@ mod tests {
         // UI = sqrt(331.275) = 18.2009
 
         if let Some(val_3) = ui_arr.get(3) {
-            assert!((val_3 - 18.2009).abs() < 0.001, "Expected ~18.2009 but got {}", val_3);
+            assert!(
+                (val_3 - 18.2009).abs() < 0.001,
+                "Expected ~18.2009 but got {}",
+                val_3
+            );
         } else {
             anyhow::bail!("Expected value at index 3");
         }

@@ -235,6 +235,14 @@ pub fn create_strategy(name: &str, symbol: &str) -> Result<Box<dyn Strategy>> {
             };
             Ok(Box::new(EmaCrossover::new(config)))
         }
+        "KamaRsiTrend" => {
+            use strategies::kama_rsi_trend::{KamaRsiTrend, KamaRsiTrendConfig};
+            let config = KamaRsiTrendConfig {
+                symbol: symbol.to_string(),
+                ..Default::default()
+            };
+            Ok(Box::new(KamaRsiTrend::new(config)))
+        }
         "EmaRsiTrendFollowing" => {
             let config = EmaRsiTrendFollowingConfig {
                 short_ema_period: 9,
@@ -894,7 +902,9 @@ pub fn create_strategy(name: &str, symbol: &str) -> Result<Box<dyn Strategy>> {
             Ok(Box::new(VwMacd::new(config)?))
         }
         "UlcerIndexMeanReversion" => {
-            use strategies::ulcer_index_mean_reversion::{UlcerIndexMeanReversion, UlcerIndexMeanReversionConfig};
+            use strategies::ulcer_index_mean_reversion::{
+                UlcerIndexMeanReversion, UlcerIndexMeanReversionConfig,
+            };
             let config = UlcerIndexMeanReversionConfig {
                 period: 14,
                 entry_threshold: 10.0,
@@ -918,6 +928,7 @@ pub fn list_strategies() -> Vec<&'static str> {
         "BopMomentum",
         "KdjIndicatorStrategy",
         "KamaCrossover",
+        "KamaRsiTrend",
         "AlmaCrossover",
         "AdxMacdTrend",
         "AroonOscillator",
