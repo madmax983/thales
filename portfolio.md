@@ -5573,6 +5573,7 @@
 | 2026-04-07 16:59:16 | SPY | equities:SPY:unknown:1775577933842 | Invalid input: provider error: kraken api error: EQuery:Unknown asset pair |
 | 2026-04-07 16:59:18 | BTCUSD | crypto:BTCUSD:unknown:1775577933808 | Rejected by Risk Agent: Position size below exchange minimum for BTCUSD (5.2e-07 < 0.0001) |
 | 2026-04-07 16:59:19 | ETHUSD | crypto:ETHUSD:unknown:1775577933827 | Rejected by Risk Agent: Position size below exchange minimum for ETHUSD (1.706e-05 < 0.001) |
+| 2026-04-07 17:30:04 | ETHUSD | CANCEL-OL6MZT-B66CU-LY4V5E | Stale Order Cancellation |
 
 ## Executed Trades
 
