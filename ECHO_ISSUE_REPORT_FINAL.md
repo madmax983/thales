@@ -1,10 +1,10 @@
 # 🗣️ Echo: Getting Started example is broken
 
 **🤦 The Confusion:**
-Tried to run the `story_demo` example mentioned in the README with `cargo run --features nova --example story_demo` but it failed with `error: no example target named 'story_demo' in default-run packages`. I thought I did something wrong or needed to install something else!
+Tried to run the `story_demo` using the command in the README (`cargo run --features nova --example story_demo ...`). The compiler said `error: no example target named 'story_demo' in default-run packages`.
 
 **🕵️ The Reality:**
-Turns out the `story_demo` example doesn't actually exist in the `examples` folder of the repository. The README mentions it, but the code isn't there.
+The `story_demo` example does not exist anywhere in the codebase.
 
 **💡 The Fix:**
-Either add the `story_demo` example to the `examples/` directory so the command works, or remove the reference to it from the README to prevent confusing new users.
+Either create the missing `story_demo` example or remove the broken command from the README.md.
