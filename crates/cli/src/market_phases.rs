@@ -1,8 +1,35 @@
+//! # Market Phases Analysis
+//!
+//! This module attempts to classify the current market phase into one of the four classic
+//! Wyckoff-style market phases based on price action relative to short and long-term moving averages.
+//!
+//! The four theoretical phases are:
+//! 1. **Accumulation:** A sideways period where smart money accumulates positions. (Characterized by price hovering near moving averages with low volatility).
+//! 2. **Markup:** A clear uptrend. (Characterized by Price > Short MA > Long MA).
+//! 3. **Distribution:** A sideways period at the top of a trend where smart money unloads positions. (Characterized by price hovering near moving averages, often with higher volatility after a Markup phase).
+//! 4. **Markdown:** A clear downtrend. (Characterized by Price < Short MA < Long MA).
+//!
+//! While true phase detection requires complex volume and volatility analysis, this module
+//! provides a simplified heuristic based purely on moving average crossovers and price position.
+
 use anyhow::Result;
 use contracts::BarSeries;
 use serde::{Deserialize, Serialize};
 
 /// Configuration for the Market Phases analysis.
+///
+/// Defines the fast and slow moving average periods used to determine the phase.
+///
+/// # Examples
+///
+/// ```
+/// use thales_cli::market_phases::MarketPhasesConfig;
+///
+/// let config = MarketPhasesConfig {
+///     short_window: 50,
+///     long_window: 200,
+/// };
+/// ```
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct MarketPhasesConfig {
     /// The short-term moving average window.
@@ -23,9 +50,42 @@ pub struct MarketPhasesReport {
 
 /// Analyzes a [`BarSeries`] to classify the current market phase.
 ///
+/// Uses the provided `short_window` and `long_window` moving averages to determine
+/// whether the market is in Accumulation, Markup, Distribution, or Markdown.
+///
+/// # Errors
+///
 /// Returns an error if:
 /// - `BarSeries` is empty.
+/// - Either window size is `0`.
+/// - `short_window` is greater than or equal to `long_window`.
 /// - The dataset has fewer points than `config.long_window`.
+///
+/// # Examples
+///
+/// ```
+/// use contracts::{Bar, BarSeries};
+/// use thales_cli::market_phases::{analyze_market_phases, MarketPhasesConfig};
+///
+/// let mut bars = vec![];
+/// // Create a strong uptrend
+/// for i in 0..250 {
+///     let price = 100.0 + (i as f64);
+///     bars.push(Bar {
+///         symbol: "BTC".to_string(),
+///         market: "crypto".to_string(),
+///         timestamp_unix_ms: i * 86400000,
+///         open: price, high: price, low: price, close: price, volume: 1.0,
+///         timeframe: "1d".to_string(),
+///     });
+/// }
+///
+/// let series = BarSeries { schema_version: "1.0".to_string(), bars };
+/// let config = MarketPhasesConfig { short_window: 50, long_window: 200 };
+///
+/// let report = analyze_market_phases(&series, config).unwrap();
+/// assert_eq!(report.current_phase, "Markup");
+/// ```
 pub fn analyze_market_phases(
     series: &BarSeries,
     config: MarketPhasesConfig,

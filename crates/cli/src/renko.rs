@@ -1,8 +1,37 @@
+//! # Renko Chart Analysis
+//!
+//! This module provides functionality for generating Renko charts from standard time-based price data.
+//!
+//! Renko charts (derived from the Japanese word "renga", meaning brick) are a type of financial chart
+//! that measures price movement while ignoring time and volume. Unlike traditional candlesticks,
+//! a new Renko "brick" is only drawn when the price moves a specific amount (the `brick_size`).
+//!
+//! ## Core Concepts
+//! - **Noise Reduction:** By discarding minor price fluctuations and time, Renko charts make underlying trends much clearer.
+//! - **Brick Size:** The foundational parameter. A larger brick size filters out more noise but reduces responsiveness.
+//! - **Reversals:** It takes twice the `brick_size` to print a brick in the opposite direction of the previous trend. This helps prevent whipsaws.
+//!
+//! ## Usage
+//! This module takes a standard `BarSeries` and outputs a `RenkoReport` containing the sequence
+//! of generated bricks, which can then be analyzed for patterns or trend reversals.
+
 use anyhow::Result;
 use contracts::BarSeries;
 use serde::{Deserialize, Serialize};
 
 /// Configuration for the Renko Chart analysis.
+///
+/// Defines the size of each brick in the Renko chart.
+///
+/// # Examples
+///
+/// ```
+/// use thales_cli::renko::RenkoConfig;
+///
+/// let config = RenkoConfig {
+///     brick_size: 1.0,
+/// };
+/// ```
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct RenkoConfig {
     /// The fixed size of each Renko brick.
@@ -10,6 +39,23 @@ pub struct RenkoConfig {
 }
 
 /// Represents a single Renko brick.
+///
+/// A brick is formed only when the price moves by at least the `brick_size`
+/// defined in the `RenkoConfig`.
+///
+/// # Examples
+///
+/// ```
+/// use thales_cli::renko::RenkoBrick;
+///
+/// let brick = RenkoBrick {
+///     bar_index: 0,
+///     timestamp_unix_ms: 1600000000,
+///     open: 10.0,
+///     close: 11.0,
+///     is_up: true,
+/// };
+/// ```
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct RenkoBrick {
     /// The index of the historical bar where this brick was completed.
@@ -25,6 +71,23 @@ pub struct RenkoBrick {
 }
 
 /// The result of a Renko analysis run.
+///
+/// Contains the full sequence of generated bricks, along with summary statistics.
+///
+/// # Examples
+///
+/// ```
+/// use thales_cli::renko::{RenkoReport, RenkoBrick};
+///
+/// let report = RenkoReport {
+///     symbol: "BTC".to_string(),
+///     bricks: vec![
+///         RenkoBrick { bar_index: 0, timestamp_unix_ms: 1600000000, open: 10.0, close: 11.0, is_up: true },
+///     ],
+///     total_up_bricks: 1,
+///     total_down_bricks: 0,
+/// };
+/// ```
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct RenkoReport {
     /// The symbol analyzed.

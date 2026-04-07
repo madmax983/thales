@@ -114,3 +114,7 @@
 ## 2026-04-06 - The Silent Coppock
 **Confusion:** The Coppock Curve strategy lacked module-level documentation and an executable example for its configuration. Users were left guessing about what the ROC and WMA periods represented, and how the curve generated trend reversal signals.
 **Clarification:** Added storytelling module-level documentation (`//!`) to explain the long-term momentum concept behind the Coppock Curve. Added an executable `# Examples` block to `CoppockCurveConfig` to guide users on proper initialization.
+
+## 2026-04-07 - The Unmapped Chart Types & Sentiments
+**Confusion:** The core market analysis tools (`market_phases.rs`, `renko.rs`, `fear_and_greed.rs` in `crates/cli/src/`) lacked module-level documentation. Users didn't know how the Fear and Greed index was mathematically proxied without external sentiment APIs, what Renko charts actually represented (filtering out time), or what Wyckoff phases the system looked for.
+**Clarification:** Added storytelling module-level documentation (`//!`) to all three files explaining the core financial concepts and mathematical approaches. Added item-level documentation with executable `# Examples` to `market_phases.rs` for initialization.
