@@ -5514,6 +5514,30 @@
 | 2026-04-07 10:41:35 | BTCUSD | crypto:BTCUSD:unknown:1775516460312 | Signal already executed/submitted (Ref: crypto:BTCUSD:unknown:1775516460312) |
 | 2026-04-07 10:41:35 | ETHUSD | crypto:ETHUSD:unknown:1775531251092 | Signal already executed/submitted (Ref: crypto:ETHUSD:unknown:1775531251092) |
 | 2026-04-07 10:41:37 | SPY | equities:SPY:unknown:1775552974452 | Invalid input: provider error: kraken api error: EQuery:Unknown asset pair |
+| 2026-04-07 12:53:51 | XBTUSD | CANCEL-ODKVOA-TXGUM-PDCJ6A | Stale Order Cancellation |
+| 2026-04-07 12:53:51 | ETHUSD | CANCEL-OE4FJF-JU5DM-LHIAPL | Stale Order Cancellation |
+| 2026-04-07 12:53:52 | BTCUSD | crypto:BTCUSD:unknown:1775473142134 | Signal too old (25.9 hours > 24 hours) |
+| 2026-04-07 12:53:52 | ETHUSD | crypto:ETHUSD:unknown:1775473142148 | Signal too old (25.9 hours > 24 hours) |
+| 2026-04-07 12:53:52 | SPY | equities:SPY:unknown:1775473142160 | Signal too old (25.9 hours > 24 hours) |
+| 2026-04-07 12:53:52 | BTCUSD | crypto:BTCUSD:unknown:1775478592280 | Signal too old (24.4 hours > 24 hours) |
+| 2026-04-07 12:53:52 | ETHUSD | crypto:ETHUSD:unknown:1775478592296 | Signal too old (24.4 hours > 24 hours) |
+| 2026-04-07 12:53:52 | SPY | equities:SPY:unknown:1775478592312 | Signal too old (24.4 hours > 24 hours) |
+| 2026-04-07 12:53:52 | BTCUSD | crypto:BTCUSD:unknown:1775478995112 | Signal too old (24.3 hours > 24 hours) |
+| 2026-04-07 12:53:52 | ETHUSD | crypto:ETHUSD:unknown:1775478995128 | Signal too old (24.3 hours > 24 hours) |
+| 2026-04-07 12:53:52 | SPY | equities:SPY:unknown:1775478995143 | Signal too old (24.3 hours > 24 hours) |
+| 2026-04-07 12:53:52 | BTCUSD | crypto:BTCUSD:unknown:1775479807581 | Signal too old (24.1 hours > 24 hours) |
+| 2026-04-07 12:53:52 | ETHUSD | crypto:ETHUSD:unknown:1775479807597 | Signal already executed/submitted (Ref: crypto:ETHUSD:unknown:1775479807597) |
+| 2026-04-07 12:53:52 | SPY | equities:SPY:unknown:1775479807612 | Signal too old (24.1 hours > 24 hours) |
+| 2026-04-07 12:53:52 | BTCUSD | crypto:BTCUSD:unknown:1775494806348 | Signal already executed/submitted (Ref: crypto:BTCUSD:unknown:1775494806348) |
+| 2026-04-07 12:53:52 | ETHUSD | crypto:ETHUSD:unknown:1775494806363 | Signal already executed/submitted (Ref: crypto:ETHUSD:unknown:1775494806363) |
+| 2026-04-07 12:53:52 | ETHUSD | crypto:ETHUSD:unknown:1775513307226 | Signal already executed/submitted (Ref: crypto:ETHUSD:unknown:1775513307226) |
+| 2026-04-07 12:53:52 | BTCUSD | crypto:BTCUSD:unknown:1775516460312 | Signal already executed/submitted (Ref: crypto:BTCUSD:unknown:1775516460312) |
+| 2026-04-07 12:53:52 | ETHUSD | crypto:ETHUSD:unknown:1775531251092 | Signal already executed/submitted (Ref: crypto:ETHUSD:unknown:1775531251092) |
+| 2026-04-07 12:53:52 | BTCUSD | crypto:BTCUSD:unknown:1775552974420 | Signal already executed/submitted (Ref: crypto:BTCUSD:unknown:1775552974420) |
+| 2026-04-07 12:53:52 | ETHUSD | crypto:ETHUSD:unknown:1775552974436 | Signal already executed/submitted (Ref: crypto:ETHUSD:unknown:1775552974436) |
+| 2026-04-07 12:53:53 | BTCUSD | crypto:BTCUSD:unknown:1775558984183 | CONFLICT: Conflicting signals (Buy and Sell) detected for BTCUSD. Trading halted for this asset. |
+| 2026-04-07 12:53:54 | ETHUSD | crypto:ETHUSD:unknown:1775558984197 | CONFLICT: Conflicting signals (Buy and Sell) detected for ETHUSD. Trading halted for this asset. |
+| 2026-04-07 12:53:54 | SPY | equities:SPY:unknown:1775558984211 | Invalid input: provider error: kraken api error: EQuery:Unknown asset pair |
 
 ## Executed Trades
 
