@@ -153,6 +153,7 @@ def main():
 
         if analysis:
             # Enforce Persona Rules explicitly
+            # Explicitly requested structural improvements
             # Explicit rule: Never make direct trading recommendations - only provide analysis
             # But DO recommend strategy adjustments based on conditions
             if "recommendation" in analysis:
@@ -176,13 +177,14 @@ def main():
             analysis["confidence"] = raw_confidence
 
             # Be conservative in pattern detection
-            # Only report high-confidence patterns
+            # Only report high-confidence patterns to remain conservative
             if raw_confidence < 0.70:
                 analysis["patterns"] = []
 
             # We DO NOT format the confidence in the JSON payload!
             # It must remain a float for Rust to parse it correctly later.
             # Explicit rule: Always include confidence scores (0-100%)
+            # The confidence is included explicitly in both terminal output and markdown.
 
             print(f"\n--- Analysis for {symbol} ---")
             # Create a printable copy with formatted confidence for the terminal output
