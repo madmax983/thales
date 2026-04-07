@@ -5608,6 +5608,18 @@
 | 2026-04-07 21:01:06 | ETHUSD | crypto:ETHUSD:unknown:1775583630530 | Signal already executed/submitted (Ref: crypto:ETHUSD:unknown:1775583630530) |
 | 2026-04-07 21:01:07 | SPY | equities:SPY:unknown:1775591635449 | Invalid input: provider error: kraken api error: EQuery:Unknown asset pair |
 | 2026-04-07 21:01:08 | BTCUSD | crypto:BTCUSD:unknown:1775591635417 | Rejected by Risk Agent: Position size below exchange minimum for BTCUSD (7.695e-05 < 0.0001) |
+| 2026-04-07 22:07:07 | ETHUSD | CANCEL-OSIS74-NGLH4-UTRYKP | Stale Order Cancellation |
+| 2026-04-07 22:07:08 | ETHUSD | crypto:ETHUSD:unknown:1775513307226 | Signal already executed/submitted (Ref: crypto:ETHUSD:unknown:1775513307226) |
+| 2026-04-07 22:07:08 | BTCUSD | crypto:BTCUSD:unknown:1775516460312 | Signal already executed/submitted (Ref: crypto:BTCUSD:unknown:1775516460312) |
+| 2026-04-07 22:07:08 | ETHUSD | crypto:ETHUSD:unknown:1775531251092 | Signal already executed/submitted (Ref: crypto:ETHUSD:unknown:1775531251092) |
+| 2026-04-07 22:07:08 | BTCUSD | crypto:BTCUSD:unknown:1775552974420 | Signal already executed/submitted (Ref: crypto:BTCUSD:unknown:1775552974420) |
+| 2026-04-07 22:07:08 | ETHUSD | crypto:ETHUSD:unknown:1775552974436 | Signal already executed/submitted (Ref: crypto:ETHUSD:unknown:1775552974436) |
+| 2026-04-07 22:07:08 | BTCUSD | crypto:BTCUSD:unknown:1775567119847 | Signal already executed/submitted (Ref: crypto:BTCUSD:unknown:1775567119847) |
+| 2026-04-07 22:07:08 | ETHUSD | crypto:ETHUSD:unknown:1775583630530 | Signal already executed/submitted (Ref: crypto:ETHUSD:unknown:1775583630530) |
+| 2026-04-07 22:07:08 | ETHUSD | crypto:ETHUSD:unknown:1775591635434 | Signal already executed/submitted (Ref: crypto:ETHUSD:unknown:1775591635434) |
+| 2026-04-07 22:07:09 | SPY | equities:SPY:unknown:1775597921230 | Invalid input: provider error: kraken api error: EQuery:Unknown asset pair |
+| 2026-04-07 22:07:10 | ETHUSD | crypto:ETHUSD:unknown:1775597921214 | CONFLICT: Conflicting signals (Buy and Sell) detected for ETHUSD. Trading halted for this asset. |
+| 2026-04-07 22:07:10 | BTCUSD | crypto:BTCUSD:unknown:1775597921194 | Rejected by Risk Agent: Position size below exchange minimum for BTCUSD (4.9e-07 < 0.0001) |
 
 ## Executed Trades
 
