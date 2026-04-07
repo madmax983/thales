@@ -1,8 +1,35 @@
+//! # Fear and Greed Index Analysis
+//!
+//! This module synthesizes a proprietary "Fear and Greed Index" strictly from standard price action data.
+//!
+//! Traditional Fear and Greed indices (like CNN's or Alternative.me's crypto index) rely heavily on
+//! external, qualitative data sources such as social media sentiment, Google search trends, or broad market surveys.
+//! Since the Thales CLI operates purely on quantitative OHLCV data, this module attempts to proxy market sentiment
+//! mathematically using three core components:
+//!
+//! 1. **Momentum (Price Action):** Compares the current price against a moving average. Consistent upward momentum is interpreted as greed, while downward momentum suggests fear.
+//! 2. **Volatility (True Range):** Compares current volatility (ATR) against historical volatility. Unusually high volatility is typically associated with panic selling and fear.
+//! 3. **Volume:** Compares buying pressure (volume on up days) versus selling pressure (volume on down days).
+//!
+//! The final score ranges from 0 (Extreme Fear) to 100 (Extreme Greed).
+
 use anyhow::{Result, anyhow};
 use contracts::BarSeries;
 use serde::{Deserialize, Serialize};
 
 /// Configuration for the Fear and Greed Index analysis.
+///
+/// Defines the lookback period used for calculating moving averages, volatility, and volume.
+///
+/// # Examples
+///
+/// ```
+/// use thales_cli::fear_and_greed::FearAndGreedConfig;
+///
+/// let config = FearAndGreedConfig {
+///     period: 20,
+/// };
+/// ```
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct FearAndGreedConfig {
     /// The period length for calculating moving averages, momentum, and volatility (e.g., 20).
@@ -16,6 +43,22 @@ impl Default for FearAndGreedConfig {
 }
 
 /// The result of the Fear and Greed analysis.
+///
+/// Contains the aggregated score along with its individual momentum, volatility, and volume components.
+///
+/// # Examples
+///
+/// ```
+/// use thales_cli::fear_and_greed::FearAndGreedReport;
+///
+/// let report = FearAndGreedReport {
+///     score: 75.0,
+///     label: "Greed".to_string(),
+///     momentum_score: 80.0,
+///     volatility_score: 60.0,
+///     volume_score: 85.0,
+/// };
+/// ```
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct FearAndGreedReport {
     /// The overall Fear and Greed Index score (0.0 to 100.0).
