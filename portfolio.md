@@ -5494,6 +5494,16 @@
 | 2026-04-07 07:01:06 | BTCUSD | crypto:BTCUSD:unknown:1775516460312 | Signal already executed/submitted (Ref: crypto:BTCUSD:unknown:1775516460312) |
 | 2026-04-07 07:01:08 | SPY | equities:SPY:unknown:1775531251108 | Invalid input: provider error: kraken api error: EQuery:Unknown asset pair |
 | 2026-04-07 07:01:09 | BTCUSD | crypto:BTCUSD:unknown:1775531251073 | Rejected by Risk Agent: Position size below exchange minimum for BTCUSD (7.808e-05 < 0.0001) |
+| 2026-04-07 09:02:23 | ETHUSD | CANCEL-OQF6ZA-Y43ZY-TW3QJ6 | Stale Order Cancellation |
+| 2026-04-07 09:02:24 | ETHUSD | crypto:ETHUSD:unknown:1775479807597 | Signal already executed/submitted (Ref: crypto:ETHUSD:unknown:1775479807597) |
+| 2026-04-07 09:02:24 | BTCUSD | crypto:BTCUSD:unknown:1775494806348 | Signal already executed/submitted (Ref: crypto:BTCUSD:unknown:1775494806348) |
+| 2026-04-07 09:02:24 | ETHUSD | crypto:ETHUSD:unknown:1775494806363 | Signal already executed/submitted (Ref: crypto:ETHUSD:unknown:1775494806363) |
+| 2026-04-07 09:02:24 | ETHUSD | crypto:ETHUSD:unknown:1775513307226 | Signal already executed/submitted (Ref: crypto:ETHUSD:unknown:1775513307226) |
+| 2026-04-07 09:02:24 | BTCUSD | crypto:BTCUSD:unknown:1775516460312 | Signal already executed/submitted (Ref: crypto:BTCUSD:unknown:1775516460312) |
+| 2026-04-07 09:02:24 | ETHUSD | crypto:ETHUSD:unknown:1775531251092 | Signal already executed/submitted (Ref: crypto:ETHUSD:unknown:1775531251092) |
+| 2026-04-07 09:02:26 | BTCUSD | crypto:BTCUSD:unknown:1775545735235 | CONFLICT: Conflicting signals (Buy and Sell) detected for BTCUSD. Trading halted for this asset. |
+| 2026-04-07 09:02:27 | ETHUSD | crypto:ETHUSD:unknown:1775545735252 | No active strategy generated a signal (Strategies: BollingerBands, AdlMomentum, BopMomentum, CoppockCurve, KdjIndicatorStrategy, KamaCrossover, AlmaCrossover, AdxMacdTrend, AroonOscillator, ElderRay, UlcerIndexMeanReversion, EmaCrossover, FisherTransformReversal, RsiMeanReversion, Macd, Supertrend, SupertrendEmaCrossover, SupertrendRsi, DonchianBreakout, ParabolicSar, KeltnerChannelBreakout, StochasticOscillator, AdxMomentum, IchimokuCloud, CciMomentum, ChaikinMoneyFlow, ChaikinOscillatorMomentum, ChandelierExit, ChoppinessIndexTrend, CmoMeanReversion, LinearRegressionTrend, EaseOfMovement, ForceIndexTrend, ObvTrendFollowing, MoneyFlowIndex, ConnorsRsiMeanReversion, AwesomeOscillator, WilliamsR, VwmaCrossover, VwapReversion, VortexBreakout, TripleSmaCrossover, TripleEmaCrossover, UltimateOscillator, RelativeVigorIndexTrend, VolumeOscillatorTrend, VptTrendFollowing, ZlemaCrossover, ZScoreMeanReversion, VwMacd, BollingerRsiMeanReversion, StochRsiMeanReversion, RocMomentum, MacdRsiTrend, TrixCrossover, TsiTrend, DemaCrossover, TemaCrossover, WmaCrossover, HmaCrossover, SmaCrossover, EmaRsiTrendFollowing, PpoRsiTrend, KstTrend, VhfTrendFollowing, SchaffTrendCycle, DisparityIndexReversion, DpoBreakout, DoubleEmaCrossover) |
+| 2026-04-07 09:02:27 | SPY | equities:SPY:unknown:1775545735267 | Invalid input: provider error: kraken api error: EQuery:Unknown asset pair |
 
 ## Executed Trades
 
