@@ -36,6 +36,8 @@ use thales_cli::experimental::similarity_search;
 #[cfg(feature = "nova")]
 use thales_cli::experimental::strategy_correlation;
 #[cfg(feature = "nova")]
+use thales_cli::experimental::market_thermodynamics;
+#[cfg(feature = "nova")]
 use thales_cli::fear_and_greed;
 #[cfg(feature = "nova")]
 use thales_cli::fractal_dimension;
@@ -497,6 +499,15 @@ enum Commands {
     AnalyzeTimeDilation {
         #[arg(long)]
         input: PathBuf,
+        #[arg(long)]
+        visualize: bool,
+    },
+    #[cfg(feature = "nova")]
+    AnalyzeThermodynamics {
+        #[arg(long)]
+        input: PathBuf,
+        #[arg(long, default_value = "10")]
+        window_size: usize,
         #[arg(long)]
         visualize: bool,
     },
@@ -2096,6 +2107,37 @@ fn run(command: Commands, raw: bool) -> Result<String, CliError> {
                     "Time Dilation Report:\nBase Rate: {:.2}\nDilation Factor: {:.2}",
                     report.base_volume_rate, report.dilation_factor
                 );
+            }
+
+            ok_envelope(report, vec![], raw)
+        }
+        #[cfg(feature = "nova")]
+        Commands::AnalyzeThermodynamics {
+            input,
+            window_size,
+            visualize,
+        } => {
+            let file_content = std::fs::read_to_string(&input).map_err(|e| {
+                std::io::Error::new(
+                    e.kind(),
+                    format!("Could not open input file '{}': {}", input.display(), e),
+                )
+            })?;
+            let series: BarSeries =
+                match serde_json::from_str::<ResponseEnvelope<BarSeries>>(&file_content) {
+                    Ok(envelope) => envelope
+                        .data
+                        .ok_or(CliError::Validation("Envelope has no data".to_string()))?,
+                    Err(_) => serde_json::from_str::<BarSeries>(&file_content)?,
+                };
+
+            let config = market_thermodynamics::ThermodynamicsConfig { window_size };
+
+            let report = market_thermodynamics::analyze_thermodynamics(&series, config)
+                .map_err(|e: anyhow::Error| CliError::Validation(e.to_string()))?;
+
+            if visualize {
+                market_thermodynamics::print_ascii_thermodynamics(&report);
             }
 
             ok_envelope(report, vec![], raw)

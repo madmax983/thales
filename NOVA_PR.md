@@ -1,13 +1,13 @@
-# 🌟 Nova: CLI Help Hints for Experimental Features
+# 🌟 Nova: Analyze Market Thermodynamics
 
 ## 💡 The Spark
-Users attempting to use commands documented in our help text receive "unrecognized subcommand" errors because they lack a feature flag, assuming the CLI is broken.
+Financial markets behave remarkably similarly to physical systems. By modeling market data using thermodynamic principles—treating volatility as "Temperature," trading volume and order flow density as "Pressure," and momentum as "Energy"—we can gain unique macro-level insights into market states and phase transitions.
 
 ## 🚀 The Feature
-Implemented an `after_help` attribute in the `Cli` struct using clap to provide a clear hint that "Nova" experimental features require the `--features nova` flag.
+Implemented the `AnalyzeThermodynamics` subcommand (behind the `nova` feature flag). This tool calculates system-level metrics based on a defined window size, exporting `ThermodynamicsReport` which includes `temperature`, `pressure`, and `energy`.
 
-## 🔭 The Potential
-Increases discoverability of our experimental features, correctly guiding users to enable the feature flag rather than throwing confusing "unrecognized subcommand" errors, thus increasing engagement.
+## 🔮 The Potential
+This foundation allows for future modeling of market "phase transitions" (e.g., predicting crashes or breakouts by observing when market pressure exceeds temperature thresholds) or utilizing entropy metrics for regime detection.
 
 ## ⚠️ Risk
-Low. Isolated to a simple clap attribute in the CLI entry point.
+Low. Isolated in `crates/cli/src/experimental/market_thermodynamics.rs` and safely guarded behind the `#[cfg(feature = "nova")]` flag.
