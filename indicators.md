@@ -1473,3 +1473,9 @@ let ui_series = ulcer_index::calculate(&df, period)?;
 use strategies::indicators::nvi;
 use polars::prelude::*;
 ```
+
+## VWMO (Volume Weighted Momentum Oscillator)
+**Description:** The Volume Weighted Momentum Oscillator (VWMO) multiplies price momentum by volume.
+**Purpose:** Confirms trend strength.
+**Parameters:**
+- `period`: Lookback period.
