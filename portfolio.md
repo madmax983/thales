@@ -5573,6 +5573,18 @@
 | 2026-04-07 16:59:16 | SPY | equities:SPY:unknown:1775577933842 | Invalid input: provider error: kraken api error: EQuery:Unknown asset pair |
 | 2026-04-07 16:59:18 | BTCUSD | crypto:BTCUSD:unknown:1775577933808 | Rejected by Risk Agent: Position size below exchange minimum for BTCUSD (5.2e-07 < 0.0001) |
 | 2026-04-07 16:59:19 | ETHUSD | crypto:ETHUSD:unknown:1775577933827 | Rejected by Risk Agent: Position size below exchange minimum for ETHUSD (1.706e-05 < 0.001) |
+| 2026-04-07 17:42:18 | BTCUSD | crypto:BTCUSD:unknown:1775494806348 | Signal already executed/submitted (Ref: crypto:BTCUSD:unknown:1775494806348) |
+| 2026-04-07 17:42:18 | ETHUSD | crypto:ETHUSD:unknown:1775494806363 | Signal already executed/submitted (Ref: crypto:ETHUSD:unknown:1775494806363) |
+| 2026-04-07 17:42:18 | SPY | equities:SPY:unknown:1775494806378 | Signal too old (24.7 hours > 24 hours) |
+| 2026-04-07 17:42:18 | ETHUSD | crypto:ETHUSD:unknown:1775513307226 | Signal already executed/submitted (Ref: crypto:ETHUSD:unknown:1775513307226) |
+| 2026-04-07 17:42:18 | BTCUSD | crypto:BTCUSD:unknown:1775516460312 | Signal already executed/submitted (Ref: crypto:BTCUSD:unknown:1775516460312) |
+| 2026-04-07 17:42:18 | ETHUSD | crypto:ETHUSD:unknown:1775531251092 | Signal already executed/submitted (Ref: crypto:ETHUSD:unknown:1775531251092) |
+| 2026-04-07 17:42:18 | BTCUSD | crypto:BTCUSD:unknown:1775552974420 | Signal already executed/submitted (Ref: crypto:BTCUSD:unknown:1775552974420) |
+| 2026-04-07 17:42:18 | ETHUSD | crypto:ETHUSD:unknown:1775552974436 | Signal already executed/submitted (Ref: crypto:ETHUSD:unknown:1775552974436) |
+| 2026-04-07 17:42:18 | BTCUSD | crypto:BTCUSD:unknown:1775567119847 | Signal already executed/submitted (Ref: crypto:BTCUSD:unknown:1775567119847) |
+| 2026-04-07 17:42:21 | SPY | equities:SPY:unknown:1775577933842 | Invalid input: provider error: kraken api error: EQuery:Unknown asset pair |
+| 2026-04-07 17:42:21 | BTCUSD | crypto:BTCUSD:unknown:1775577933808 | Rejected by Risk Agent: Position size below exchange minimum for BTCUSD (5.2e-07 < 0.0001) |
+| 2026-04-07 17:42:21 | ETHUSD | crypto:ETHUSD:unknown:1775577933827 | Rejected by Risk Agent: Position size below exchange minimum for ETHUSD (1.692e-05 < 0.001) |
 
 ## Executed Trades
 
