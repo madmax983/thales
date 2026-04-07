@@ -170,6 +170,8 @@ def get_active_strategies():
         strategies.append("CoppockCurve")
     if re.search(r'\bKdjIndicatorStrategy\b', content):
         strategies.append("KdjIndicatorStrategy")
+    if re.search(r'\bKdjStrategy\b', content):
+        strategies.append("KdjStrategy")
     if re.search(r'\bKamaCrossover\b', content):
         strategies.append("KamaCrossover")
     if re.search(r'\bAlmaCrossover\b', content):
