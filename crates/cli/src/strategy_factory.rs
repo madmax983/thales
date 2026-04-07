@@ -66,6 +66,7 @@ use strategies::hma_macd_trend::{HmaMacdTrend, HmaMacdTrendConfig};
 use strategies::ichimoku_cloud::{IchimokuCloud, IchimokuCloudConfig};
 use strategies::kama_crossover::{KamaCrossover, KamaCrossoverConfig};
 use strategies::kdj_indicator::{KdjIndicatorStrategy, KdjIndicatorStrategyConfig};
+use strategies::kdj_strategy::{KdjStrategy, KdjStrategyConfig};
 use strategies::keltner_channel_breakout::{KeltnerChannelBreakout, KeltnerChannelBreakoutConfig};
 use strategies::kst_trend::{KstTrend, KstTrendConfig};
 use strategies::linear_regression_trend::{LinearRegressionTrend, LinearRegressionTrendConfig};
@@ -810,6 +811,13 @@ pub fn create_strategy(name: &str, symbol: &str) -> Result<Box<dyn Strategy>> {
             };
             Ok(Box::new(PpoRsiTrend::new(config)))
         }
+        "KdjStrategy" => {
+            let config = KdjStrategyConfig {
+                symbol: symbol.to_string(),
+                ..Default::default()
+            };
+            Ok(Box::new(KdjStrategy::new(config)))
+        }
         "KstTrend" => {
             let config = KstTrendConfig {
                 symbol: symbol.to_string(),
@@ -988,6 +996,7 @@ pub fn list_strategies() -> Vec<&'static str> {
         "SmaRsiTrend",
         "EmaRsiTrendFollowing",
         "PpoRsiTrend",
+        "KdjStrategy",
         "KstTrend",
         "VhfTrendFollowing",
         "SchaffTrendCycle",

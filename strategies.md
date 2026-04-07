@@ -4122,3 +4122,9 @@ Trend Following
 - **Expected Win Rate:** 45-55%
 - **Expected Sharpe Ratio:** > 1.2
 - **Max Drawdown:** < 15%
+
+## KDJ Strategy
+
+**Name:** KDJ Indicator Trading Strategy
+**Description:** A mean-reversion and momentum strategy based on the KDJ indicator. It relies on the fast %K line, slow %D line, and divergence %J line to identify overbought/oversold conditions and trend reversals.
+**Rationale:** KDJ extends the Stochastic Oscillator by adding the J line, which represents the divergence of %K from %D. The J line is highly sensitive to price momentum, often crossing above/below 0 or 100 before actual price reversals occur, making it a strong leading indicator.

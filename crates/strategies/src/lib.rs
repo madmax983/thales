@@ -58,6 +58,7 @@ pub mod indicators;
 pub mod kama_crossover;
 pub mod kama_rsi_trend;
 pub mod kdj_indicator;
+pub mod kdj_strategy;
 pub mod keltner_channel_breakout;
 pub mod linear_regression_trend;
 pub mod macd;
