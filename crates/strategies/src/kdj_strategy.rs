@@ -81,10 +81,7 @@ impl Strategy for KdjStrategy {
         let mut signals = Vec::new();
 
         for i in 1..close_arr.len() {
-            let timestamp = match time_arr.get(i) {
-                Some(ts) => ts,
-                None => 0,
-            };
+            let timestamp: i64 = time_arr.get(i).unwrap_or_default();
 
             let k_curr_opt = k_arr.get(i);
             let d_curr_opt = d_arr.get(i);
@@ -252,8 +249,14 @@ mod tests {
         let signals = strategy.generate_signals(&df).await?;
         // If not empty, test constraints
         if !signals.is_empty() {
-            let entries: Vec<&Signal> = signals.iter().filter(|s| s.signal_type == SignalType::Entry).collect();
-            let exits: Vec<&Signal> = signals.iter().filter(|s| s.signal_type == SignalType::Exit).collect();
+            let entries: Vec<&Signal> = signals
+                .iter()
+                .filter(|s| s.signal_type == SignalType::Entry)
+                .collect();
+            let exits: Vec<&Signal> = signals
+                .iter()
+                .filter(|s| s.signal_type == SignalType::Exit)
+                .collect();
 
             // Check if there are buy or sell signals correctly parsed with size hints.
             for entry in entries {
@@ -294,7 +297,10 @@ mod tests {
             };
             let strategy_force = KdjStrategy::new(config_force);
             let signals_force = strategy_force.generate_signals(&df2).await?;
-            assert!(!signals_force.is_empty(), "Expected signals to be generated with extreme mock data");
+            assert!(
+                !signals_force.is_empty(),
+                "Expected signals to be generated with extreme mock data"
+            );
         }
 
         Ok(())
