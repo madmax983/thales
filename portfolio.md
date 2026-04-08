@@ -5680,6 +5680,15 @@
 | 2026-04-08 10:39:36 | BTCUSD | crypto:BTCUSD:unknown:1775642257532 | No active strategy generated a signal (Strategies: BollingerBands, AdlMomentum, BopMomentum, CoppockCurve, KdjIndicatorStrategy, KamaCrossover, AlmaCrossover, AdxMacdTrend, AroonOscillator, ElderRay, UlcerIndexMeanReversion, EmaCrossover, FisherTransformReversal, RsiMeanReversion, Macd, Supertrend, SupertrendEmaCrossover, SupertrendRsi, DonchianBreakout, ParabolicSar, KeltnerChannelBreakout, StochasticOscillator, AdxMomentum, IchimokuCloud, CciMomentum, ChaikinMoneyFlow, ChaikinOscillatorMomentum, ChandelierExit, ChoppinessIndexTrend, CmoMeanReversion, LinearRegressionTrend, EaseOfMovement, ForceIndexTrend, ObvTrendFollowing, MoneyFlowIndex, ConnorsRsiMeanReversion, AwesomeOscillator, WilliamsR, VwmaCrossover, VwapReversion, VortexBreakout, TripleSmaCrossover, TripleEmaCrossover, UltimateOscillator, RelativeVigorIndexTrend, VolumeOscillatorTrend, VptTrendFollowing, ZlemaCrossover, ZScoreMeanReversion, VwMacd, BollingerRsiMeanReversion, StochRsiMeanReversion, RocMomentum, MacdRsiTrend, TrixCrossover, TsiTrend, DemaCrossover, TemaCrossover, WmaCrossover, HmaCrossover, SmaCrossover, EmaRsiTrendFollowing, PpoRsiTrend, KstTrend, VhfTrendFollowing, SchaffTrendCycle, DisparityIndexReversion, DpoBreakout, DoubleEmaCrossover) |
 | 2026-04-08 10:39:37 | SPY | equities:SPY:unknown:1775642257568 | Invalid input: provider error: kraken api error: EQuery:Unknown asset pair |
 | 2026-04-08 10:39:37 | ETHUSD | crypto:ETHUSD:unknown:1775642257552 | Rejected by Risk Agent: Position size below exchange minimum for ETHUSD (1.552e-05 < 0.001) |
+| 2026-04-08 12:43:42 | BTCUSD | crypto:BTCUSD:unknown:1775558984183 | Signal too old (25.9 hours > 24 hours) |
+| 2026-04-08 12:43:42 | ETHUSD | crypto:ETHUSD:unknown:1775558984197 | Signal too old (25.9 hours > 24 hours) |
+| 2026-04-08 12:43:42 | SPY | equities:SPY:unknown:1775558984211 | Signal too old (25.9 hours > 24 hours) |
+| 2026-04-08 12:43:42 | BTCUSD | crypto:BTCUSD:unknown:1775567119847 | Signal already executed/submitted (Ref: crypto:BTCUSD:unknown:1775567119847) |
+| 2026-04-08 12:43:42 | ETHUSD | crypto:ETHUSD:unknown:1775583630530 | Signal already executed/submitted (Ref: crypto:ETHUSD:unknown:1775583630530) |
+| 2026-04-08 12:43:42 | ETHUSD | crypto:ETHUSD:unknown:1775591635434 | Signal already executed/submitted (Ref: crypto:ETHUSD:unknown:1775591635434) |
+| 2026-04-08 12:43:44 | SPY | equities:SPY:unknown:1775645403196 | Invalid input: provider error: kraken api error: EQuery:Unknown asset pair |
+| 2026-04-08 12:43:45 | ETHUSD | crypto:ETHUSD:unknown:1775645403180 | Rejected by Risk Agent: Position size below exchange minimum for ETHUSD (1.546e-05 < 0.001) |
+| 2026-04-08 12:43:45 | BTCUSD | crypto:BTCUSD:unknown:1775645403159 | Rejected by Risk Agent: Position size below exchange minimum for BTCUSD (4.8e-07 < 0.0001) |
 
 ## Executed Trades
 
