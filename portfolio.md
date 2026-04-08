@@ -5629,6 +5629,18 @@
 | 2026-04-08 00:48:12 | BTCUSD | crypto:BTCUSD:unknown:1775600046973 | CONFLICT: Conflicting signals (Buy and Sell) detected for BTCUSD. Trading halted for this asset. |
 | 2026-04-08 00:48:13 | ETHUSD | crypto:ETHUSD:unknown:1775600046991 | CONFLICT: Conflicting signals (Buy and Sell) detected for ETHUSD. Trading halted for this asset. |
 | 2026-04-08 00:48:13 | SPY | equities:SPY:unknown:1775600047007 | Invalid input: provider error: kraken api error: EQuery:Unknown asset pair |
+| 2026-04-08 03:02:54 | BTCUSD | crypto:BTCUSD:unknown:1775524228796 | Signal too old (25.9 hours > 24 hours) |
+| 2026-04-08 03:02:54 | ETHUSD | crypto:ETHUSD:unknown:1775524228813 | Signal too old (25.9 hours > 24 hours) |
+| 2026-04-08 03:02:54 | SPY | equities:SPY:unknown:1775524228828 | Signal too old (25.9 hours > 24 hours) |
+| 2026-04-08 03:02:54 | ETHUSD | crypto:ETHUSD:unknown:1775531251092 | Signal already executed/submitted (Ref: crypto:ETHUSD:unknown:1775531251092) |
+| 2026-04-08 03:02:54 | BTCUSD | crypto:BTCUSD:unknown:1775552974420 | Signal already executed/submitted (Ref: crypto:BTCUSD:unknown:1775552974420) |
+| 2026-04-08 03:02:54 | ETHUSD | crypto:ETHUSD:unknown:1775552974436 | Signal already executed/submitted (Ref: crypto:ETHUSD:unknown:1775552974436) |
+| 2026-04-08 03:02:54 | BTCUSD | crypto:BTCUSD:unknown:1775567119847 | Signal already executed/submitted (Ref: crypto:BTCUSD:unknown:1775567119847) |
+| 2026-04-08 03:02:54 | ETHUSD | crypto:ETHUSD:unknown:1775583630530 | Signal already executed/submitted (Ref: crypto:ETHUSD:unknown:1775583630530) |
+| 2026-04-08 03:02:54 | ETHUSD | crypto:ETHUSD:unknown:1775591635434 | Signal already executed/submitted (Ref: crypto:ETHUSD:unknown:1775591635434) |
+| 2026-04-08 03:02:56 | SPY | equities:SPY:unknown:1775609679738 | Invalid input: provider error: kraken api error: EQuery:Unknown asset pair |
+| 2026-04-08 03:02:57 | ETHUSD | crypto:ETHUSD:unknown:1775609679722 | CONFLICT: Conflicting signals (Buy and Sell) detected for ETHUSD. Trading halted for this asset. |
+| 2026-04-08 03:02:57 | BTCUSD | crypto:BTCUSD:unknown:1775609679705 | Rejected by Risk Agent: Position size below exchange minimum for BTCUSD (4.9e-07 < 0.0001) |
 
 ## Executed Trades
 
