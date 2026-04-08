@@ -269,6 +269,15 @@ enum Commands {
         visualize: bool,
     },
     #[cfg(feature = "nova")]
+    AnalyzeTemperature {
+        #[arg(long)]
+        input: PathBuf,
+        #[arg(long, default_value = "14")]
+        window_size: usize,
+        #[arg(long, global = true)]
+        visualize: bool,
+    },
+    #[cfg(feature = "nova")]
     AnalyzeRenkoEntropy {
         #[arg(long)]
         input: PathBuf,
@@ -1288,6 +1297,39 @@ fn run(command: Commands, raw: bool) -> Result<String, CliError> {
 
             let report = monte_carlo::run_simulation(&backtest, config)
                 .map_err(|e: anyhow::Error| CliError::Validation(e.to_string()))?;
+
+            ok_envelope(report, vec![], raw)
+        }
+        #[cfg(feature = "nova")]
+        Commands::AnalyzeTemperature {
+            input,
+            window_size,
+            visualize,
+        } => {
+            let file_content = std::fs::read_to_string(&input).map_err(|e| {
+                std::io::Error::new(
+                    e.kind(),
+                    format!("Failed to read {}: {}", input.display(), e),
+                )
+            })?;
+            let series: BarSeries =
+                match serde_json::from_str::<ResponseEnvelope<BarSeries>>(&file_content) {
+                    Ok(envelope) => envelope
+                        .data
+                        .ok_or(CliError::Validation("Envelope has no data".to_string()))?,
+                    Err(_) => serde_json::from_str::<BarSeries>(&file_content)?,
+                };
+
+            let config =
+                thales_cli::experimental::market_temperature::TemperatureConfig { window_size };
+
+            let report =
+                thales_cli::experimental::market_temperature::analyze_temperature(&series, config)
+                    .map_err(|e: anyhow::Error| CliError::Validation(e.to_string()))?;
+
+            if visualize {
+                thales_cli::experimental::market_temperature::print_ascii_temperature(&report);
+            }
 
             ok_envelope(report, vec![], raw)
         }

@@ -60,7 +60,7 @@ pub fn calculate(data: &DataFrame, period: usize) -> Result<Series> {
     let calculated_iter = close_chunked
         .into_iter()
         .skip(period)
-        .zip(close_chunked.into_iter())
+        .zip(close_chunked)
         .zip(volume_chunked.into_iter().skip(period))
         .map(|((close_curr_opt, close_prev_opt), vol_curr_opt)| {
             if let (Some(c_curr), Some(c_prev), Some(v_curr)) =
