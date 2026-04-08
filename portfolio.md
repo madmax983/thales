@@ -5696,6 +5696,13 @@
 | 2026-04-08 14:51:04 | ETHUSD | crypto:ETHUSD:unknown:1775591635434 | Signal already executed/submitted (Ref: crypto:ETHUSD:unknown:1775591635434) |
 | 2026-04-08 14:51:05 | BTCUSD | crypto:BTCUSD:unknown:1775652610177 | No active strategy generated a signal (Strategies: BollingerBands, AdlMomentum, BopMomentum, CoppockCurve, KdjIndicatorStrategy, KamaCrossover, AlmaCrossover, AdxMacdTrend, AroonOscillator, ElderRay, UlcerIndexMeanReversion, EmaCrossover, FisherTransformReversal, RsiMeanReversion, Macd, Supertrend, SupertrendEmaCrossover, SupertrendRsi, DonchianBreakout, ParabolicSar, KeltnerChannelBreakout, StochasticOscillator, AdxMomentum, IchimokuCloud, CciMomentum, ChaikinMoneyFlow, ChaikinOscillatorMomentum, ChandelierExit, ChoppinessIndexTrend, CmoMeanReversion, LinearRegressionTrend, EaseOfMovement, ForceIndexTrend, ObvTrendFollowing, MoneyFlowIndex, ConnorsRsiMeanReversion, AwesomeOscillator, WilliamsR, VwmaCrossover, VwapReversion, VortexBreakout, TripleSmaCrossover, TripleEmaCrossover, UltimateOscillator, RelativeVigorIndexTrend, VolumeOscillatorTrend, VptTrendFollowing, ZlemaCrossover, ZScoreMeanReversion, VwMacd, BollingerRsiMeanReversion, StochRsiMeanReversion, RocMomentum, MacdRsiTrend, TrixCrossover, TsiTrend, DemaCrossover, TemaCrossover, WmaCrossover, HmaCrossover, SmaCrossover, EmaRsiTrendFollowing, PpoRsiTrend, KstTrend, VhfTrendFollowing, SchaffTrendCycle, DisparityIndexReversion, DpoBreakout, DoubleEmaCrossover) |
 | 2026-04-08 14:51:06 | SPY | equities:SPY:unknown:1775652610210 | Invalid input: provider error: kraken api error: EQuery:Unknown asset pair |
+| 2026-04-08 15:47:05 | ETHUSD | CANCEL-O64SUB-5WCJ3-PCJWJK | Stale Order Cancellation |
+| 2026-04-08 15:47:06 | ETHUSD | crypto:ETHUSD:unknown:1775583630530 | Signal already executed/submitted (Ref: crypto:ETHUSD:unknown:1775583630530) |
+| 2026-04-08 15:47:06 | ETHUSD | crypto:ETHUSD:unknown:1775591635434 | Signal already executed/submitted (Ref: crypto:ETHUSD:unknown:1775591635434) |
+| 2026-04-08 15:47:06 | ETHUSD | crypto:ETHUSD:unknown:1775652610194 | Signal already executed/submitted (Ref: crypto:ETHUSD:unknown:1775652610194) |
+| 2026-04-08 15:47:08 | BTCUSD | crypto:BTCUSD:unknown:1775660461879 | CONFLICT: Conflicting signals (Buy and Sell) detected for BTCUSD. Trading halted for this asset. |
+| 2026-04-08 15:47:09 | ETHUSD | crypto:ETHUSD:unknown:1775660461898 | CONFLICT: Conflicting signals (Buy and Sell) detected for ETHUSD. Trading halted for this asset. |
+| 2026-04-08 15:47:09 | SPY | equities:SPY:unknown:1775660461916 | Invalid input: provider error: kraken api error: EQuery:Unknown asset pair |
 
 ## Executed Trades
 
