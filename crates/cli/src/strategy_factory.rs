@@ -73,6 +73,7 @@ use strategies::linear_regression_trend::{LinearRegressionTrend, LinearRegressio
 use strategies::macd::{Macd, MacdConfig};
 use strategies::macd_rsi::{MacdRsiTrend, MacdRsiTrendConfig};
 use strategies::money_flow_index::{MoneyFlowIndex, MoneyFlowIndexConfig};
+use strategies::nvi_trend::{NviTrend, NviTrendConfig};
 use strategies::obv_trend::{ObvTrendFollowing, ObvTrendFollowingConfig};
 use strategies::parabolic_sar::{ParabolicSar, ParabolicSarConfig};
 use strategies::ppo_rsi_trend::{PpoRsiTrend, PpoRsiTrendConfig};
@@ -525,6 +526,15 @@ pub fn create_strategy(name: &str, symbol: &str) -> Result<Box<dyn Strategy>> {
             };
             Ok(Box::new(ForceIndexTrend::new(config)))
         }
+        "NviTrend" => {
+            let config = NviTrendConfig {
+                nvi_sma_period: 255,
+                atr_period: 14,
+                stop_loss_atr_mult: 2.0,
+                symbol: symbol.to_string(),
+            };
+            Ok(Box::new(NviTrend::new(config)))
+        }
         "ObvTrendFollowing" => {
             let config = ObvTrendFollowingConfig {
                 obv_sma_period: 20,
@@ -964,6 +974,7 @@ pub fn list_strategies() -> Vec<&'static str> {
         "CmoMeanReversion",
         "LinearRegressionTrend",
         "ForceIndexTrend",
+        "NviTrend",
         "ObvTrendFollowing",
         "MoneyFlowIndex",
         "ConnorsRsiMeanReversion",

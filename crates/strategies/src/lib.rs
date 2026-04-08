@@ -65,6 +65,7 @@ pub mod macd;
 pub mod macd_rsi;
 pub mod macd_trend_follower;
 pub mod money_flow_index;
+pub mod nvi_trend;
 pub mod obv_trend;
 pub mod parabolic_sar;
 pub mod ppo_rsi_trend;
