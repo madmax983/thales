@@ -118,3 +118,7 @@
 ## 2026-04-07 - The Unmapped Chart Types & Sentiments
 **Confusion:** The core market analysis tools (`market_phases.rs`, `renko.rs`, `fear_and_greed.rs` in `crates/cli/src/`) lacked module-level documentation. Users didn't know how the Fear and Greed index was mathematically proxied without external sentiment APIs, what Renko charts actually represented (filtering out time), or what Wyckoff phases the system looked for.
 **Clarification:** Added storytelling module-level documentation (`//!`) to all three files explaining the core financial concepts and mathematical approaches. Added item-level documentation with executable `# Examples` to `market_phases.rs` for initialization.
+
+## 2026-04-09 - The Silent SAR
+**Confusion:** The Parabolic SAR (Stop and Reverse) strategy lacked module-level documentation and executable examples. Users were left guessing about what the `start`, `increment`, and `max` acceleration factor parameters represented, and how the strategy generated trend reversals.
+**Clarification:** Added storytelling module-level documentation (`//!`) to explain the core trend-following concepts behind Parabolic SAR. Added executable `# Examples` blocks to both the indicator function (`parabolic_sar`) and the strategy implementations (`ParabolicSarConfig`, `ParabolicSar`) to guide users on proper initialization.

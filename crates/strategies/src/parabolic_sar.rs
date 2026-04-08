@@ -1,18 +1,64 @@
+//! Parabolic SAR Strategy Implementation.
+//!
+//! This module implements a trend-following strategy using the Parabolic Stop and Reverse (SAR)
+//! indicator. It generates entry and exit signals when the price crosses the SAR level,
+//! indicating a potential reversal in the market trend.
+
 use crate::indicators::parabolic_sar::parabolic_sar;
 use crate::strategy::{Signal, SignalType, Strategy, StrategyType};
 use anyhow::Result;
 use async_trait::async_trait;
 use polars::prelude::*;
 
+/// A strategy that uses the Parabolic SAR indicator to generate trading signals.
+///
+/// The strategy goes long when the price crosses above the SAR level and goes short
+/// when the price crosses below the SAR level. It is effective in trending markets
+/// but may produce false signals in sideways or choppy markets.
+///
+/// # Examples
+///
+/// ```rust
+/// use strategies::parabolic_sar::{ParabolicSarConfig, ParabolicSar};
+/// use strategies::strategy::Strategy;
+///
+/// let config = ParabolicSarConfig {
+///     start: 0.02,
+///     increment: 0.02,
+///     max: 0.2,
+///     symbol: "BTC/USD".to_string(),
+/// };
+///
+/// let strategy = ParabolicSar::new(config);
+/// assert_eq!(strategy.name(), "ParabolicSar");
+/// ```
 pub struct ParabolicSar {
     config: ParabolicSarConfig,
 }
 
+/// Configuration for the Parabolic SAR strategy.
+///
+/// # Examples
+///
+/// ```rust
+/// use strategies::parabolic_sar::ParabolicSarConfig;
+///
+/// let config = ParabolicSarConfig {
+///     start: 0.02,
+///     increment: 0.02,
+///     max: 0.2,
+///     symbol: "ETH/USD".to_string(),
+/// };
+/// ```
 #[derive(Debug, Clone, serde::Deserialize)]
 pub struct ParabolicSarConfig {
+    /// The starting Acceleration Factor.
     pub start: f64,
+    /// The amount the Acceleration Factor increases each time a new Extreme Point is reached.
     pub increment: f64,
+    /// The maximum limit for the Acceleration Factor.
     pub max: f64,
+    /// The trading pair symbol.
     pub symbol: String,
 }
 
