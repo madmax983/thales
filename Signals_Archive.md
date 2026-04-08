@@ -1,4 +1,5 @@
 
+
 ## Symbol: AAPL (equities)
 **Timestamp**: 1771865147064
 
@@ -383,6 +384,7 @@ GDP growth exceeds expectations.
 ```
 
 ---
+
 ## Market Analysis Report - crypto - XXBTZUSD
 
 **Timestamp (ms)**: 1772096400000
@@ -552,6 +554,7 @@ Monitoring economic data for potential volatility.
 ```
 
 ---
+
 ## Market Analysis Report - crypto - XXBTZUSD
 
 **Timestamp (ms)**: 1772110800000
@@ -716,6 +719,7 @@ Corporate earnings season concludes with mixed results.
 ```
 
 ---
+
 ## Market Analysis Report - crypto - BTCUSD
 
 **Timestamp (ms)**: 1772127315856
@@ -1154,6 +1158,7 @@ No external research available. (Placeholder for search_research)
 ```
 
 ---
+
 ## Market Analysis Report - crypto - XXBTZUSD
 
 **Timestamp (ms)**: 1772139600000
@@ -1320,6 +1325,7 @@ Earnings engine projected to grow 15% in 2026. Fed policy remains a key watch it
 ```
 
 ---
+
 ## Market Analysis Report - crypto - XXBTZUSD
 
 **Timestamp (ms)**: 1772168400000
@@ -1549,6 +1555,7 @@ Major protocol upgrades planned for Q2. DeFi TVL stabilizing.
 ```
 
 ---
+
 ## Market Analysis Report - crypto - XXBTZUSD
 
 **Timestamp (ms)**: 1772182800000
@@ -1765,6 +1772,7 @@ US Economy shows signs of soft landing. Federal Reserve likely to maintain curre
 ```
 
 ---
+
 ## Market Analysis Report - equities - SPY
 
 **Timestamp (ms)**: 1772199506210
@@ -2090,6 +2098,7 @@ Major indices are hitting new highs, with Bitcoin showing resilience against rec
 ```
 
 ---
+
 ## Market Analysis Report - crypto - BTCUSD
 
 **Timestamp (ms)**: 1772221812514
@@ -2255,6 +2264,7 @@ Simulated News: Analyst upgrades for key sectors. Optimism regarding future grow
 ```
 
 ---
+
 ## Market Analysis Report - crypto - BTCUSD
 
 **Timestamp (ms)**: 1772285074834
@@ -2586,6 +2596,7 @@ Federal Reserve signals potential rate cuts later this year. Earnings season exc
 ```
 
 ---
+
 ## Market Analysis Report - crypto - APENFTUSD
 
 **Timestamp (ms)**: 1772294400000
@@ -2846,6 +2857,7 @@ No external research available. (Placeholder for search_research)
 ```
 
 ---
+
 ## Market Analysis Report - crypto - BTCUSD
 
 **Timestamp (ms)**: 1772298151044
@@ -2897,6 +2909,7 @@ No external research available. (Placeholder for search_research)
 ```
 
 ---
+
 ## Market Analysis Report - crypto - BTCUSD
 
 **Timestamp (ms)**: 1772299987758
@@ -2952,6 +2965,7 @@ Major indices are hitting new highs, with Bitcoin showing resilience against rec
 ```
 
 ---
+
 ## Market Analysis Report - crypto - BTCUSD
 
 **Timestamp (ms)**: 1772306853251
@@ -3508,6 +3522,7 @@ Major indices are hitting new highs.
 ```
 
 ---
+
 ## Market Analysis Report - crypto - XXBTZUSD
 
 ```json
@@ -3650,6 +3665,7 @@ Major indices are hitting new highs, with Bitcoin showing resilience against rec
 ```
 
 ---
+
 ## Market Analysis Report - crypto - BTCUSD
 
 **Timestamp (ms)**: 1772327996893
@@ -3872,6 +3888,7 @@ Major indices are hitting new highs, with Bitcoin showing resilience against rec
 ```
 
 ---
+
 ## Market Analysis Report - crypto - XXBTZUSD
 
 Analysis for XXBTZUSD...
@@ -3889,6 +3906,7 @@ Analysis for XXBTZUSD...
 **Research**: Bitcoin ETFs are seeing strong institutional inflows following SEC approvals. Analysts remain bullish due to positive macroeconomic indicators and recent halving events.
 
 **News**: Major indices are hitting new highs, with Bitcoin showing resilience against recent regulatory concerns.
+
 ## Market Analysis Report - crypto - BTCUSD
 
 **Timestamp (ms)**: 1772343345207
@@ -4383,6 +4401,7 @@ Major indices are hitting new highs.
 ```
 
 ---
+
 ## Market Analysis Report - crypto - BTCUSD
 
 **Timestamp (ms)**: 1772373780395
@@ -6031,6 +6050,7 @@ Simulated News: Analyst upgrades for key sectors. Optimism regarding future grow
 ```
 
 ---
+
 ## Market Analysis Report - crypto - BTCUSD
 
 **Timestamp (ms)**: 1772588327102
@@ -6196,6 +6216,7 @@ Simulated News: Analyst upgrades for key sectors. Optimism regarding future grow
 ```
 
 ---
+
 ## Market Analysis Report - crypto - BTCUSD
 
 **Timestamp (ms)**: 1772615375435
@@ -6527,6 +6548,7 @@ Simulated News: Analyst upgrades for key sectors. Optimism regarding future grow
 ```
 
 ---
+
 ## Market Analysis Report - crypto - BTCUSD
 
 **Timestamp (ms)**: 1772630733460
@@ -6582,6 +6604,7 @@ Major indices are hitting new highs, with Bitcoin showing resilience against rec
 ```
 
 ---
+
 ## Market Analysis Report - crypto - BTCUSD
 
 **Timestamp (ms)**: 1772659887948
@@ -7079,6 +7102,7 @@ US stock market hits record highs as inflation concerns ease and corporate profi
 ```
 
 ---
+
 ## Market Analysis Report - crypto - BTCUSD
 
 **Timestamp (ms)**: 1772703361315
@@ -7244,6 +7268,7 @@ US stock market hits record highs as inflation concerns ease and corporate profi
 ```
 
 ---
+
 ## Market Analysis Report - crypto - BTCUSD
 
 **Timestamp (ms)**: 1772716591816
@@ -7409,6 +7434,7 @@ US stock market hits record highs as inflation concerns ease and corporate profi
 ```
 
 ---
+
 ## Market Analysis Report - crypto - BTCUSD
 
 **Timestamp (ms)**: 1772746424810
@@ -7740,6 +7766,7 @@ US stock market hits record highs as inflation concerns ease and corporate profi
 ```
 
 ---
+
 ## Market Analysis Report - crypto - BTCUSD
 
 **Timestamp (ms)**: 1772751851346
@@ -8237,6 +8264,7 @@ Major indices are hitting new highs, reflecting strong market momentum. (Source:
 ```
 
 ---
+
 ## Market Analysis Report - crypto - BTCUSD
 
 **Timestamp (ms)**: 1772761135648
@@ -8568,6 +8596,7 @@ Major indices are hitting new highs, with Bitcoin showing resilience against rec
 ```
 
 ---
+
 ## Market Analysis Report - crypto - BTCUSD
 
 **Timestamp (ms)**: 1772789351828
@@ -8733,6 +8762,7 @@ Simulated News: Analyst upgrades for key sectors. Optimism regarding future grow
 ```
 
 ---
+
 ## Market Analysis Report - crypto - BTCUSD
 
 **Timestamp (ms)**: 1772789476891
@@ -8898,6 +8928,7 @@ Major indices are hitting new highs, reflecting strong market momentum. (Source:
 ```
 
 ---
+
 ## Market Analysis Report - crypto - BTCUSD
 
 **Timestamp (ms)**: 1772791148906
@@ -9229,6 +9260,7 @@ Simulated News: Analyst upgrades for key sectors. Optimism regarding future grow
 ```
 
 ---
+
 ## Market Analysis Report - crypto - BTCUSD
 
 **Timestamp (ms)**: 1772803949470
@@ -9394,6 +9426,7 @@ Major indices are hitting new highs, reflecting strong market momentum. (Source:
 ```
 
 ---
+
 ## Market Analysis Report - crypto - BTCUSD
 
 **Timestamp (ms)**: 1772806377157
@@ -9559,6 +9592,7 @@ Simulated News: Analyst upgrades for key sectors. Optimism regarding future grow
 ```
 
 ---
+
 ## Market Analysis Report - crypto - BTCUSD
 
 **Timestamp (ms)**: 1772824740472
@@ -9724,6 +9758,7 @@ Simulated News: Analyst upgrades for key sectors. Optimism regarding future grow
 ```
 
 ---
+
 ## Market Analysis Report - crypto - BTCUSD
 
 **Timestamp (ms)**: 1772831606419
@@ -10055,6 +10090,7 @@ Major indices are hitting new highs, reflecting strong market momentum. (Source:
   "timestamp_unix_ms": 1772831900577
 }
 ```
+
 ## Market Analysis Report - crypto - BTCUSD
 
 **Timestamp (ms)**: 1772847699827
@@ -10296,6 +10332,7 @@ Major indices are hitting new highs, SPY breaks previous all-time highs on tech 
   "timestamp_unix_ms": 1772875733866
 }
 ```
+
 ## Market Analysis Report - crypto - BTCUSD
 
 **Timestamp (ms)**: 1772889485613
@@ -10793,6 +10830,7 @@ Major indices are hitting new highs, SPY breaks previous all-time highs on tech 
 ```
 
 ---
+
 ## Market Analysis Report - crypto - BTCUSD
 
 **Timestamp (ms)**: 1772918567751
@@ -20254,6 +20292,7 @@ Historical Context: [Source: knowledge.txt] Similar market conditions in Q4 2023
 ```
 
 ---
+
 ## Market Analysis Report - crypto - BTCUSD
 
 Analysis for BTCUSD...
@@ -20350,6 +20389,7 @@ Analysis for SPY...
 **Research**: Historical Context: [Source: knowledge.txt] Similar market conditions in Q4 2023 showed a strong bullish trend following consolidation periods for equities. The market is currently exhibiting similar behavior. Research: [Source: WSJ_Equities_Report] S&P 500 companies are reporting robust quarterly earnings, exceeding analyst expectations in tech and energy sectors. The market is pricing in favorable interest rate policies.
 
 **News**: [Source: news.txt] US stock market hits record highs as inflation concerns ease and corporate profits soar.
+
 ## Market Analysis Report - crypto - BTCUSD
 
 Analysis for BTCUSD...
@@ -20446,6 +20486,7 @@ Analysis for SPY...
 **Research**: Historical Context: [Source: knowledge.txt] Similar market conditions in Q4 2023 showed a strong bullish trend following consolidation periods for equities. The market is currently exhibiting similar behavior. Research: [Source: WSJ_Equities_Report] S&P 500 companies are reporting robust quarterly earnings, exceeding analyst expectations in tech and energy sectors. The market is pricing in favorable interest rate policies.
 
 **News**: [Source: news.txt] US stock market hits record highs as inflation concerns ease and corporate profits soar.
+
 ## Market Analysis Report - crypto - BTCUSD
 
 Analysis for BTCUSD...
@@ -20542,6 +20583,7 @@ Analysis for SPY...
 **Research**: Historical Context: [Source: knowledge.txt] Similar market conditions in Q4 2023 showed a strong bullish trend following consolidation periods for equities. The market is currently exhibiting similar behavior. Research: [Source: WSJ_Equities_Report] S&P 500 companies are reporting robust quarterly earnings, exceeding analyst expectations in tech and energy sectors. The market is pricing in favorable interest rate policies.
 
 **News**: [Source: news.txt] US stock market hits record highs as inflation concerns ease and corporate profits soar.
+
 ## Market Analysis Report - crypto - BTCUSD
 
 Analysis for BTCUSD...
@@ -20689,6 +20731,7 @@ Analysis for SPY...
 **Research**: Historical Context: [Source: knowledge.txt] Similar market conditions in Q4 2023 showed a strong bullish trend following consolidation periods for equities. The market is currently exhibiting similar behavior. Research: [Source: WSJ_Equities_Report] S&P 500 companies are reporting robust quarterly earnings, exceeding analyst expectations in tech and energy sectors. The market is pricing in favorable interest rate policies.
 
 **News**: [Source: news.txt] US stock market hits record highs as inflation concerns ease and corporate profits soar.
+
 ## Market Analysis Report - crypto - BTCUSD - 80.00%
 
 Analysis for BTCUSD...
@@ -21280,6 +21323,7 @@ Analysis for SPY...
 **Research**: Historical Context: [Source: knowledge.txt] Similar market conditions in Q4 2023 showed a strong bullish trend following consolidation periods for equities. The market is currently exhibiting similar behavior. Research: [Source: WSJ_Equities_Report] S&P 500 companies are reporting robust quarterly earnings, exceeding analyst expectations in tech and energy sectors. The market is pricing in favorable interest rate policies.
 
 **News**: [Source: news.txt] US stock market hits record highs as inflation concerns ease and corporate profits soar.
+
 ## Market Analysis Report - crypto - BTCUSD - 80.00%
 
 Analysis for BTCUSD...
@@ -22907,6 +22951,7 @@ Analysis for SPY...
 **Research**: Historical Context: [Source: knowledge.txt] Similar market conditions in Q4 2023 showed a strong bullish trend following consolidation periods for equities. The market is currently exhibiting similar behavior. Research: [Source: WSJ_Equities_Report] S&P 500 companies are reporting robust quarterly earnings, exceeding analyst expectations in tech and energy sectors. The market is pricing in favorable interest rate policies.
 
 **News**: [Source: news.txt] US stock market hits record highs as inflation concerns ease and corporate profits soar.
+
 ## Market Analysis Report - crypto - BTCUSD - 80.00%
 
 Analysis for BTCUSD...
@@ -23942,6 +23987,7 @@ Analysis for SPY...
 **Research**: Historical Context: [Source: knowledge.txt] Similar market conditions in Q4 2023 showed a strong bullish trend following consolidation periods for equities. The market is currently exhibiting similar behavior. Research: [Source: WSJ_Equities_Report] S&P 500 companies are reporting robust quarterly earnings, exceeding analyst expectations in tech and energy sectors. The market is pricing in favorable interest rate policies.
 
 **News**: [Source: news.txt] US stock market hits record highs as inflation concerns ease and corporate profits soar.
+
 ## Market Analysis Report - crypto - BTCUSD - 80.00%
 
 Analysis for BTCUSD...
@@ -24510,6 +24556,152 @@ Analysis for SPY...
   "recommendation": "Consider trend-following strategies (e.g., Moving Average Crossover).",
   "confidence": 0.8,
   "timestamp_unix_ms": 1775545735267
+}
+```
+
+**Signal Structure**:
+```json
+{
+  "schema_version": "v0",
+  "market": "equities",
+  "symbol": "SPY",
+  "side": "hold",
+  "confidence": 0.8,
+  "size_hint": "0",
+  "stop_loss": null,
+  "take_profit": null,
+  "order_type": "market",
+  "rationale": "Market Analyst report generated. No direct trading recommendation per persona rules.",
+  "invalidation": "Market regime change"
+}
+```
+
+**Research**: Historical Context: [Source: knowledge.txt] Similar market conditions in Q4 2023 showed a strong bullish trend following consolidation periods for equities. The market is currently exhibiting similar behavior. Research: [Source: WSJ_Equities_Report] S&P 500 companies are reporting robust quarterly earnings, exceeding analyst expectations in tech and energy sectors. The market is pricing in favorable interest rate policies.
+
+**News**: [Source: news.txt] US stock market hits record highs as inflation concerns ease and corporate profits soar.## Market Analysis Report - crypto - BTCUSD - 80.00%
+
+Analysis for BTCUSD...
+
+```json
+{
+  "symbol": "BTCUSD",
+  "market": "crypto",
+  "regime": "Trending Down (Short Term)",
+  "sentiment": "Bearish (Strong) (Oversold)",
+  "patterns": [
+    "Breakout (Downside)",
+    "Consolidation (Squeeze)"
+  ],
+  "key_levels": [
+    59348.09299105641,
+    62321.223889637375,
+    62637.9775018533
+  ],
+  "volatility": "Medium",
+  "atr": 764.8234042370752,
+  "research_summary": "Historical Context: [Source: knowledge.txt] Similar market conditions in Q4 2023 showed a strong bullish trend following consolidation periods. The market is currently exhibiting similar behavior. Research: [Source: research.txt] Bitcoin ETFs are seeing strong institutional inflows following SEC approvals. Analysts remain bullish due to positive macroeconomic indicators and recent halving events.",
+  "news_summary": "[Source: news.txt] Major indices are hitting new highs, with Bitcoin showing resilience against recent regulatory concerns.",
+  "recommendation": "Consider trend-following strategies (e.g., Moving Average Crossover).",
+  "confidence": 0.8,
+  "timestamp_unix_ms": 1775552974420
+}
+```
+
+**Signal Structure**:
+```json
+{
+  "schema_version": "v0",
+  "market": "crypto",
+  "symbol": "BTCUSD",
+  "side": "hold",
+  "confidence": 0.8,
+  "size_hint": "0",
+  "stop_loss": null,
+  "take_profit": null,
+  "order_type": "market",
+  "rationale": "Market Analyst report generated. No direct trading recommendation per persona rules.",
+  "invalidation": "Market regime change"
+}
+```
+
+**Research**: Historical Context: [Source: knowledge.txt] Similar market conditions in Q4 2023 showed a strong bullish trend following consolidation periods. The market is currently exhibiting similar behavior. Research: [Source: research.txt] Bitcoin ETFs are seeing strong institutional inflows following SEC approvals. Analysts remain bullish due to positive macroeconomic indicators and recent halving events.
+
+**News**: [Source: news.txt] Major indices are hitting new highs, with Bitcoin showing resilience against recent regulatory concerns.
+
+## Market Analysis Report - crypto - ETHUSD - 80.00%
+
+Analysis for ETHUSD...
+
+```json
+{
+  "symbol": "ETHUSD",
+  "market": "crypto",
+  "regime": "Trending Up (Short Term)",
+  "sentiment": "Bullish (Strong) (Overbought)",
+  "patterns": [
+    "Breakout (Upside)",
+    "Consolidation (Squeeze)"
+  ],
+  "key_levels": [
+    2882.4178745196914,
+    3120.1299973244545
+  ],
+  "volatility": "Medium",
+  "atr": 40.552225815162686,
+  "research_summary": "Historical Context: [Source: knowledge.txt] Historical technicals show mean reversion likely. Research: [Source: General_Market_Report] Steady accumulation observed. Technical indicators suggest continuation of the trend.",
+  "news_summary": "[Source: news.txt] Mixed economic data causes market uncertainty.",
+  "recommendation": "Consider trend-following strategies (e.g., Moving Average Crossover).",
+  "confidence": 0.8,
+  "timestamp_unix_ms": 1775552974436
+}
+```
+
+**Signal Structure**:
+```json
+{
+  "schema_version": "v0",
+  "market": "crypto",
+  "symbol": "ETHUSD",
+  "side": "hold",
+  "confidence": 0.8,
+  "size_hint": "0",
+  "stop_loss": null,
+  "take_profit": null,
+  "order_type": "market",
+  "rationale": "Market Analyst report generated. No direct trading recommendation per persona rules.",
+  "invalidation": "Market regime change"
+}
+```
+
+**Research**: Historical Context: [Source: knowledge.txt] Historical technicals show mean reversion likely. Research: [Source: General_Market_Report] Steady accumulation observed. Technical indicators suggest continuation of the trend.
+
+**News**: [Source: news.txt] Mixed economic data causes market uncertainty.
+
+## Market Analysis Report - equities - SPY - 80.00%
+
+Analysis for SPY...
+
+```json
+{
+  "symbol": "SPY",
+  "market": "equities",
+  "regime": "Trending Up (Short Term)",
+  "sentiment": "Bullish (Strong) (Overbought)",
+  "patterns": [
+    "Breakout (Upside)",
+    "Consolidation (Squeeze)"
+  ],
+  "key_levels": [
+    480.40297908661506,
+    520.0216662207422
+  ],
+  "volatility": "Medium",
+  "atr": 6.758704302527127,
+  "research_summary": "Historical Context: [Source: knowledge.txt] Similar market conditions in Q4 2023 showed a strong bullish trend following consolidation periods for equities. The market is currently exhibiting similar behavior. Research: [Source: WSJ_Equities_Report] S&P 500 companies are reporting robust quarterly earnings, exceeding analyst expectations in tech and energy sectors. The market is pricing in favorable interest rate policies.",
+  "news_summary": "[Source: news.txt] US stock market hits record highs as inflation concerns ease and corporate profits soar.",
+  "recommendation": "Consider trend-following strategies (e.g., Moving Average Crossover).",
+  "confidence": 0.8,
+  "timestamp_unix_ms": 1775552974452
 }
 ```
 
