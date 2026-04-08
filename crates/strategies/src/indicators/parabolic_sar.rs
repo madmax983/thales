@@ -1,8 +1,52 @@
+//! Parabolic Stop and Reverse (SAR) Indicator.
+//!
+//! The Parabolic SAR is a trend-following indicator developed by J. Welles Wilder.
+//! It highlights the direction of an asset's momentum and the point in time when this momentum
+//! has a higher-than-normal probability of switching directions.
+//!
+//! # Concepts
+//! - **Extreme Point (EP):** The highest high reached in the current uptrend or the lowest low in a downtrend.
+//! - **Acceleration Factor (AF):** A multiplier that dictates the sensitivity of the SAR. It increases as the trend persists,
+//!   bringing the SAR closer to the price and tightening the trailing stop.
+//! - **Stop and Reverse (SAR):** The calculated price level. If the actual price crosses the SAR, the trend flips direction.
+
 use anyhow::{anyhow, Result};
 use polars::prelude::*;
 
 type SarResult = Result<(Vec<Option<f64>>, Vec<Option<bool>>)>;
 
+/// Calculates the Parabolic Stop and Reverse (SAR) given high and low price series.
+///
+/// This indicator is primarily used for identifying the trend direction and setting trailing stop losses.
+/// When the price is in an uptrend, the SAR trails below the price. Conversely, in a downtrend,
+/// the SAR trails above the price. A trend flip occurs when the price crosses the SAR level.
+///
+/// # Arguments
+/// * `high` - A Series containing the high prices.
+/// * `low` - A Series containing the low prices.
+/// * `initial_af` - The starting Acceleration Factor (commonly 0.02).
+/// * `max_af` - The maximum limit for the Acceleration Factor (commonly 0.2).
+/// * `step_af` - The amount the Acceleration Factor increases each time a new Extreme Point is reached (commonly 0.02).
+///
+/// # Returns
+/// A tuple containing:
+/// 1. A `Vec<Option<f64>>` of the calculated SAR values.
+/// 2. A `Vec<Option<bool>>` indicating the trend direction (`true` for Uptrend, `false` for Downtrend).
+///
+/// # Examples
+///
+/// ```rust
+/// use polars::prelude::*;
+/// use strategies::indicators::parabolic_sar::parabolic_sar;
+///
+/// let highs = Series::new("high", &[10.0, 11.0, 12.0, 13.0, 14.0]);
+/// let lows = Series::new("low", &[9.0, 10.0, 11.0, 12.0, 13.0]);
+///
+/// // Calculate Parabolic SAR with standard Wilder parameters
+/// let (sar, trend) = parabolic_sar(&highs, &lows, 0.02, 0.2, 0.02).unwrap();
+///
+/// assert_eq!(trend[1], Some(true)); // Indicates an uptrend
+/// ```
 pub fn parabolic_sar(
     high: &Series,
     low: &Series,
