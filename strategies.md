@@ -4128,3 +4128,31 @@ Trend Following
 **Name:** KDJ Indicator Trading Strategy
 **Description:** A mean-reversion and momentum strategy based on the KDJ indicator. It relies on the fast %K line, slow %D line, and divergence %J line to identify overbought/oversold conditions and trend reversals.
 **Rationale:** KDJ extends the Stochastic Oscillator by adding the J line, which represents the divergence of %K from %D. The J line is highly sensitive to price momentum, often crossing above/below 0 or 100 before actual price reversals occur, making it a strong leading indicator.
+
+## NviTrend Strategy
+
+**Name:** Negative Volume Index Trend Strategy
+**Description:** A trend following strategy that uses the Negative Volume Index (NVI) and its Simple Moving Average (SMA).
+**Rationale:** NVI focuses on days where the volume decreases, assuming that "smart money" is active on low volume days. By tracking an SMA of the NVI, we can filter noise. When the NVI crosses above the SMA, it suggests an uptrend by smart money, and when it crosses below, a downtrend.
+
+### Requirements
+
+#### Strategy Type
+Trend Following
+
+#### Entry Conditions
+- **Long Entry (Buy):** NVI crosses ABOVE its SMA.
+- **Short Entry (Sell):** NVI crosses BELOW its SMA.
+
+#### Exit Conditions
+- **Long Exit (Sell):** NVI crosses BELOW its SMA OR Stop Loss is hit.
+- **Short Exit (Buy):** NVI crosses ABOVE its SMA OR Stop Loss is hit.
+- **Stop Loss:** Entry Price +/- (ATR * `stop_loss_atr_mult`).
+
+#### Position Sizing
+- **Size Hint:** "100" (fixed units) for entry, "max" for exits.
+
+#### Expected Backtesting Metrics
+- **Expected Win Rate:** 45-55%
+- **Expected Sharpe Ratio:** > 1.0
+- **Max Drawdown:** < 20%
