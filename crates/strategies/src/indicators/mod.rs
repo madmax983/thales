@@ -63,3 +63,4 @@ pub mod wma;
 pub mod zlema;
 pub mod zscore;
 pub mod vwmo;
+pub mod pvi;
