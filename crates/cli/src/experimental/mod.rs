@@ -8,6 +8,7 @@ pub mod market_gravity;
 pub mod market_seismology;
 pub mod market_temperature;
 pub mod market_weather;
+pub mod orbital_mechanics;
 pub mod price_density;
 pub mod price_magnetism;
 pub mod renko_entropy;
