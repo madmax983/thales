@@ -5893,6 +5893,9 @@
 | 2026-04-09 20:44:33 | SPY | equities:SPY:unknown:1775764704763 | Invalid input: provider error: kraken api error: EQuery:Unknown asset pair |
 | 2026-04-09 20:44:34 | ETHUSD | crypto:ETHUSD:unknown:1775764704751 | Rejected by Risk Agent: Order value below exchange minimum fiat volume (4.47 < 5.0) |
 | 2026-04-09 20:44:34 | BTCUSD | crypto:BTCUSD:unknown:1775764704736 | Rejected by Risk Agent: Position size below exchange minimum for BTCUSD (6.173e-05 < 0.0001) |
+| 2026-04-09 21:51:46 | PEPEUSD | NO_REF | CONFLICT: Conflicting signals (Buy and Sell) detected for PEPEUSD. Trading halted for this asset. |
+| 2026-04-09 21:51:49 | BONKUSD | crypto:BONKUSD:buy:1775768400000 | Rejected by Risk Agent: Order value below exchange minimum fiat volume (4.47 < 5.0) |
+| 2026-04-09 21:51:49 | COQUSD | crypto:COQUSD:sell:1775768400000 | provider error: kraken api error: EOrder:Insufficient funds |
 
 ## Executed Trades
 
