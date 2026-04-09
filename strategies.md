@@ -4156,3 +4156,33 @@ Trend Following
 - **Expected Win Rate:** 45-55%
 - **Expected Sharpe Ratio:** > 1.0
 - **Max Drawdown:** < 20%
+
+# Trading Strategy: VWAP RSI Trend
+
+## Strategy Specification
+
+**Name:** VwapRsiTrend
+
+**Description:** Combines Volume Weighted Average Price (VWAP) with the Relative Strength Index (RSI). It enters a long position when price crosses above the VWAP and RSI is above 50, indicating bullish momentum. It exits when price crosses below the VWAP.
+
+**Rationale:** VWAP provides a volume-weighted baseline for price action. Crossing above VWAP shows institutional buying interest, and confirming with RSI > 50 ensures there is actual momentum behind the move.
+
+## Requirements
+
+### Implementation Details
+- Uses Polars for data analysis and generating signals.
+- Implements the `Strategy` trait in Rust.
+- Utilizes the `vwap` and `rsi` indicators.
+
+### Strategy Type
+Trend Following
+
+### Entry Conditions
+- Price crosses above the VWAP line.
+- RSI is above a configurable threshold (default 50.0).
+
+### Exit Conditions
+- Price crosses below the VWAP line.
+
+### Position Sizing
+- Configured via max position size; standard risk-management applied.

@@ -95,6 +95,7 @@ pub mod vortex_breakout;
 pub mod vpt_trend;
 pub mod vw_macd;
 pub mod vwap_reversion;
+pub mod vwap_rsi_trend;
 pub mod vwma_crossover;
 pub mod williams_r;
 pub mod wma_crossover;
