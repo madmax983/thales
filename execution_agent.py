@@ -120,7 +120,7 @@ def manage_orders(provider):
                     os.remove(temp_intent_file)
 
         # Cancel stale orders (>5 min unfilled limits) (Critical rule enforcement)
-        elif age_ms > 300000:
+        elif age_ms > 300000 and order.get("order_type", "limit").lower() == "limit":
             print(f"Cancelling stale order {order['id']} ({order['symbol']}) - Age: {age_s:.0f}s")
             run_command(["cancel-order", "--provider", provider, "--id", order['id']])
 
