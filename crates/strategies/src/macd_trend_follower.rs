@@ -1,3 +1,16 @@
+//! 🎻 **The MACD Trend Follower Story**
+//!
+//! The Moving Average Convergence Divergence (MACD) indicator is a trend-following
+//! momentum indicator that shows the relationship between two moving averages of a security’s price.
+//!
+//! This module utilizes the classic MACD signal logic:
+//!
+//! - **Go Long**: When the MACD line crosses *above* the Signal line, indicating upward momentum.
+//! - **Go Short**: When the MACD line crosses *below* the Signal line, indicating downward momentum.
+//!
+//! It implements the `Strategy` trait, allowing it to generate actionable `Signal`s complete with
+//! dynamic stop-losses and take-profits from a Polars `DataFrame`.
+
 use crate::indicators::{atr, macd};
 use crate::strategy::{Signal, SignalType, Strategy, StrategyConfig, StrategyType};
 use anyhow::Result;
@@ -8,6 +21,21 @@ use rust_decimal::Decimal;
 use serde::{Deserialize, Serialize};
 
 /// Configuration parameters for the `MacdTrendFollower` strategy.
+///
+/// # Examples
+///
+/// ```rust
+/// use strategies::macd_trend_follower::MacdTrendFollowerConfig;
+///
+/// let config = MacdTrendFollowerConfig {
+///     fast_period: 12,          // Standard MACD fast EMA
+///     slow_period: 26,          // Standard MACD slow EMA
+///     signal_period: 9,         // Standard MACD signal line EMA
+///     stop_loss_atr_mult: 2.0,  // ATR multiplier for dynamic stop-loss
+///     atr_period: 14,           // Lookback period for ATR
+///     symbol: "AAPL".into(),    // The asset to trade
+/// };
+/// ```
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct MacdTrendFollowerConfig {
     pub fast_period: usize,
@@ -342,7 +370,9 @@ mod tests {
         // Empty data
         let empty_df = DataFrame::default();
         let res_empty = strategy.generate_signals(&empty_df).await;
-        assert!(res_empty.is_err() || res_empty.unwrap().is_empty());
+        if let Ok(signals) = res_empty {
+            assert!(signals.is_empty());
+        }
 
         // 1 point data
         let df_1pt = df!(

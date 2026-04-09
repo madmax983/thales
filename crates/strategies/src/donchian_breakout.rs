@@ -1,3 +1,17 @@
+//! 🎻 **The Donchian Breakout Story**
+//!
+//! Developed by Richard Donchian, Donchian Channels plot the highest high and lowest low
+//! over a set period. They are the quintessential tool for capturing trend breakouts.
+//! When price breaks through the upper channel, it signals a new high and a potential
+//! upward trend. Conversely, breaking the lower channel signals a downward trend.
+//!
+//! # The Strategy: "The Turtle Trader's Core"
+//! - **Go Long**: When the price crosses *above* the upper Donchian Channel.
+//! - **Go Short**: When the price crosses *below* the lower Donchian Channel.
+//!
+//! It implements the `Strategy` trait, allowing it to evaluate a Polars `DataFrame`
+//! and produce actionable trading `Signal`s complete with dynamic stop-losses and take-profits.
+
 use crate::indicators::{atr, donchian_channels};
 use crate::strategy::{Signal, SignalType, Strategy, StrategyConfig, StrategyType};
 use anyhow::Result;
@@ -6,6 +20,23 @@ use polars::prelude::*;
 use rust_decimal::prelude::*;
 use serde::{Deserialize, Serialize};
 
+/// 🎻 **Donchian Breakout Configuration**
+///
+/// The settings that govern how the Donchian Channels are calculated and how
+/// the strategy responds to breakouts.
+///
+/// # Examples
+///
+/// ```rust
+/// use strategies::donchian_breakout::DonchianBreakoutConfig;
+///
+/// let config = DonchianBreakoutConfig {
+///     entry_period: 20,         // Lookback period for entry breakouts
+///     exit_period: 10,          // Lookback period for exits (often shorter)
+///     stop_loss_atr_mult: 2.0,  // ATR multiplier for the trailing stop loss
+///     symbol: "BTCUSD".into(),  // The asset to trade
+/// };
+/// ```
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct DonchianBreakoutConfig {
     pub entry_period: usize,
