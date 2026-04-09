@@ -5777,6 +5777,17 @@
 | 2026-04-09 05:06:34 | SPY | equities:SPY:unknown:1775697000940 | Invalid input: provider error: kraken api error: EQuery:Unknown asset pair |
 | 2026-04-09 05:06:34 | BTCUSD | crypto:BTCUSD:unknown:1775697000905 | Rejected by Risk Agent: Position size below exchange minimum for BTCUSD (6.401e-05 < 0.0001) |
 | 2026-04-09 05:06:35 | ETHUSD | crypto:ETHUSD:unknown:1775697000924 | Rejected by Risk Agent: Order value below exchange minimum fiat volume (4.53 < 5.0) |
+| 2026-04-09 06:57:53 | BTCUSD | crypto:BTCUSD:unknown:1775627425478 | Signal too old (25.1 hours > 24 hours) |
+| 2026-04-09 06:57:53 | ETHUSD | crypto:ETHUSD:unknown:1775627425494 | Signal too old (25.1 hours > 24 hours) |
+| 2026-04-09 06:57:53 | SPY | equities:SPY:unknown:1775627425508 | Signal too old (25.1 hours > 24 hours) |
+| 2026-04-09 06:57:53 | BTCUSD | crypto:BTCUSD:unknown:1775631456973 | Signal too old (24.0 hours > 24 hours) |
+| 2026-04-09 06:57:53 | ETHUSD | crypto:ETHUSD:unknown:1775631456988 | Signal too old (24.0 hours > 24 hours) |
+| 2026-04-09 06:57:53 | SPY | equities:SPY:unknown:1775631457001 | Signal too old (24.0 hours > 24 hours) |
+| 2026-04-09 06:57:53 | ETHUSD | crypto:ETHUSD:unknown:1775652610194 | Signal already executed/submitted (Ref: crypto:ETHUSD:unknown:1775652610194) |
+| 2026-04-09 06:57:53 | BTCUSD | crypto:BTCUSD:unknown:1775682536393 | Signal already executed/submitted (Ref: crypto:BTCUSD:unknown:1775682536393) |
+| 2026-04-09 06:57:56 | ETHUSD | crypto:ETHUSD:unknown:1775711625695 | CONFLICT: Conflicting signals (Buy and Sell) detected for ETHUSD. Trading halted for this asset. |
+| 2026-04-09 06:57:56 | SPY | equities:SPY:unknown:1775711625710 | Invalid input: provider error: kraken api error: EQuery:Unknown asset pair |
+| 2026-04-09 06:57:56 | BTCUSD | crypto:BTCUSD:unknown:1775711625676 | Rejected by Risk Agent: Position size below exchange minimum for BTCUSD (6.385e-05 < 0.0001) |
 
 ## Executed Trades
 
@@ -6080,3 +6091,9 @@
 | 2026-04-05 21:39:28 | SPY | NO_REF | No strategy signal generated. |
 | 2026-04-05 21:39:47 | QQQ | NO_REF | No strategy signal generated. |
 | 2026-04-05 21:40:07 | TQQQ | NO_REF | No strategy signal generated. |
+| 2026-04-09 06:56:21 | PEPEUSD | NO_REF | No strategy signal generated. |
+| 2026-04-09 06:56:39 | REKTUSD | NO_REF | provider error: provider error: kraken api error: EOrder:Insufficient funds |
+| 2026-04-09 06:56:56 | MOGUSD | NO_REF | No strategy signal generated. |
+| 2026-04-09 06:57:12 | SPY | NO_REF | No strategy signal generated. |
+| 2026-04-09 06:57:27 | QQQ | NO_REF | No strategy signal generated. |
+| 2026-04-09 06:57:42 | TQQQ | NO_REF | No strategy signal generated. |
