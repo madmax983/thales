@@ -361,6 +361,12 @@ def main():
                         print(f"Skipping signal for {symbol}: Missing mandatory stop loss.", file=sys.stderr)
                         continue
 
+                    # Persona Rule: Ensure valid take_profit is present for every entry
+                    tp_val_check = intent.get("take_profit")
+                    if (is_entry or is_scale_in) and is_missing(tp_val_check):
+                        print(f"Skipping signal for {symbol}: Missing mandatory take profit.", file=sys.stderr)
+                        continue
+
                     # Persona Rule: Do not chase moves - wait for pullbacks
                     if is_entry:
                         side_raw = intent.get('side', '')
@@ -396,6 +402,9 @@ def main():
                         intent['side'] = "long"
                     elif side in ['sell', 'short']:
                         intent['side'] = "short"
+                    else:
+                        print(f"Skipping signal for {symbol}: Invalid side '{side_raw}'.", file=sys.stderr)
+                        continue
 
                     # Persona Rule: Verify Risk Agent check at the bottom of the signal validation loop, after calculations
                     # All signals must go through Risk Agent before execution
