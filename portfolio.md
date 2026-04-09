@@ -5769,6 +5769,14 @@
 | 2026-04-09 01:02:42 | SPY | equities:SPY:unknown:1775682536421 | Invalid input: provider error: kraken api error: EQuery:Unknown asset pair |
 | 2026-04-09 01:02:42 | BTCUSD | crypto:BTCUSD:unknown:1775673736298 | Rejected by Risk Agent: Position size below exchange minimum for BTCUSD (6.402e-05 < 0.0001) |
 | 2026-04-09 01:02:43 | ETHUSD | crypto:ETHUSD:unknown:1775682536408 | Rejected by Risk Agent: Order value below exchange minimum fiat volume (4.53 < 5.0) |
+| 2026-04-09 05:06:32 | BTCUSD | crypto:BTCUSD:unknown:1775624264023 | Signal too old (24.1 hours > 24 hours) |
+| 2026-04-09 05:06:32 | ETHUSD | crypto:ETHUSD:unknown:1775624264040 | Signal too old (24.1 hours > 24 hours) |
+| 2026-04-09 05:06:32 | SPY | equities:SPY:unknown:1775624264056 | Signal too old (24.1 hours > 24 hours) |
+| 2026-04-09 05:06:32 | ETHUSD | crypto:ETHUSD:unknown:1775652610194 | Signal already executed/submitted (Ref: crypto:ETHUSD:unknown:1775652610194) |
+| 2026-04-09 05:06:32 | BTCUSD | crypto:BTCUSD:unknown:1775682536393 | Signal already executed/submitted (Ref: crypto:BTCUSD:unknown:1775682536393) |
+| 2026-04-09 05:06:34 | SPY | equities:SPY:unknown:1775697000940 | Invalid input: provider error: kraken api error: EQuery:Unknown asset pair |
+| 2026-04-09 05:06:34 | BTCUSD | crypto:BTCUSD:unknown:1775697000905 | Rejected by Risk Agent: Position size below exchange minimum for BTCUSD (6.401e-05 < 0.0001) |
+| 2026-04-09 05:06:35 | ETHUSD | crypto:ETHUSD:unknown:1775697000924 | Rejected by Risk Agent: Order value below exchange minimum fiat volume (4.53 < 5.0) |
 
 ## Executed Trades
 
