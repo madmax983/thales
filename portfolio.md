@@ -5804,6 +5804,20 @@
 | 2026-04-09 09:13:41 | BTCUSD | crypto:BTCUSD:unknown:1775718798785 | Signal already executed/submitted (Ref: crypto:BTCUSD:unknown:1775718798785) |
 | 2026-04-09 09:13:43 | SPY | equities:SPY:unknown:1775718798816 | Invalid input: provider error: kraken api error: EQuery:Unknown asset pair |
 | 2026-04-09 09:13:44 | ETHUSD | crypto:ETHUSD:unknown:1775718798802 | No sellable balance available (ETH 0.00000000) |
+| 2026-04-09 11:06:56 | XBTUSD | CANCEL-OCOGFD-CLEK3-5ZW5AX | Stale Order Cancellation |
+| 2026-04-09 11:06:57 | BTCUSD | crypto:BTCUSD:unknown:1775642257532 | Signal too old (25.2 hours > 24 hours) |
+| 2026-04-09 11:06:57 | ETHUSD | crypto:ETHUSD:unknown:1775642257552 | Signal too old (25.2 hours > 24 hours) |
+| 2026-04-09 11:06:57 | SPY | equities:SPY:unknown:1775642257568 | Signal too old (25.2 hours > 24 hours) |
+| 2026-04-09 11:06:57 | BTCUSD | crypto:BTCUSD:unknown:1775645403159 | Signal too old (24.3 hours > 24 hours) |
+| 2026-04-09 11:06:57 | ETHUSD | crypto:ETHUSD:unknown:1775645403180 | Signal too old (24.3 hours > 24 hours) |
+| 2026-04-09 11:06:57 | SPY | equities:SPY:unknown:1775645403196 | Signal too old (24.3 hours > 24 hours) |
+| 2026-04-09 11:06:57 | ETHUSD | crypto:ETHUSD:unknown:1775652610194 | Signal already executed/submitted (Ref: crypto:ETHUSD:unknown:1775652610194) |
+| 2026-04-09 11:06:57 | BTCUSD | crypto:BTCUSD:unknown:1775682536393 | Signal already executed/submitted (Ref: crypto:BTCUSD:unknown:1775682536393) |
+| 2026-04-09 11:06:57 | BTCUSD | crypto:BTCUSD:unknown:1775711625676 | Signal already executed/submitted (Ref: crypto:BTCUSD:unknown:1775711625676) |
+| 2026-04-09 11:06:57 | BTCUSD | crypto:BTCUSD:unknown:1775718798785 | Signal already executed/submitted (Ref: crypto:BTCUSD:unknown:1775718798785) |
+| 2026-04-09 11:06:58 | BTCUSD | crypto:BTCUSD:unknown:1775730750409 | CONFLICT: Conflicting signals (Buy and Sell) detected for BTCUSD. Trading halted for this asset. |
+| 2026-04-09 11:06:59 | SPY | equities:SPY:unknown:1775730750441 | Invalid input: provider error: kraken api error: EQuery:Unknown asset pair |
+| 2026-04-09 11:07:00 | ETHUSD | crypto:ETHUSD:unknown:1775730750426 | Rejected by Risk Agent: Order value below exchange minimum fiat volume (4.47 < 5.0) |
 
 ## Executed Trades
 
