@@ -106,6 +106,7 @@ use strategies::vortex_breakout::{VortexBreakout, VortexBreakoutConfig};
 use strategies::vpt_trend::{VptTrend, VptTrendConfig};
 use strategies::vw_macd::{VwMacd, VwMacdConfig};
 use strategies::vwap_reversion::{VwapReversion, VwapReversionConfig};
+use strategies::vwap_rsi_trend::{VwapRsiTrend, VwapRsiTrendConfig};
 use strategies::vwma_crossover::{VwmaCrossover, VwmaCrossoverConfig};
 use strategies::williams_r::{WilliamsR, WilliamsRConfig};
 use strategies::wma_crossover::{WmaCrossover, WmaCrossoverConfig};
@@ -626,6 +627,13 @@ pub fn create_strategy(name: &str, symbol: &str) -> Result<Box<dyn Strategy>> {
                 symbol: symbol.to_string(),
             };
             Ok(Box::new(VwapReversion::new(config)))
+        }
+        "VwapRsiTrend" => {
+            let config = VwapRsiTrendConfig {
+                symbol: symbol.to_string(),
+                ..VwapRsiTrendConfig::default()
+            };
+            Ok(Box::new(VwapRsiTrend::new(config)))
         }
         "VortexBreakout" => {
             let config = VortexBreakoutConfig {
