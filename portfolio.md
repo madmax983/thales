@@ -5866,6 +5866,18 @@
 | 2026-04-09 17:39:59 | ETHUSD | crypto:ETHUSD:unknown:1775754248644 | CONFLICT: Conflicting signals (Buy and Sell) detected for ETHUSD. Trading halted for this asset. |
 | 2026-04-09 17:39:59 | SPY | equities:SPY:unknown:1775754248661 | Invalid input: provider error: kraken api error: EQuery:Unknown asset pair |
 | 2026-04-09 17:40:00 | BTCUSD | crypto:BTCUSD:unknown:1775754248625 | Rejected by Risk Agent: Position size below exchange minimum for BTCUSD (6.169e-05 < 0.0001) |
+| 2026-04-09 18:20:01 | BTCUSD | crypto:BTCUSD:unknown:1775671565610 | Signal too old (24.2 hours > 24 hours) |
+| 2026-04-09 18:20:01 | ETHUSD | crypto:ETHUSD:unknown:1775671565659 | Signal too old (24.2 hours > 24 hours) |
+| 2026-04-09 18:20:01 | SPY | equities:SPY:unknown:1775671565675 | Signal too old (24.2 hours > 24 hours) |
+| 2026-04-09 18:20:01 | BTCUSD | crypto:BTCUSD:unknown:1775671953229 | Signal too old (24.1 hours > 24 hours) |
+| 2026-04-09 18:20:01 | ETHUSD | crypto:ETHUSD:unknown:1775671953245 | Signal too old (24.1 hours > 24 hours) |
+| 2026-04-09 18:20:01 | SPY | equities:SPY:unknown:1775671953260 | Signal too old (24.1 hours > 24 hours) |
+| 2026-04-09 18:20:01 | BTCUSD | crypto:BTCUSD:unknown:1775682536393 | Signal already executed/submitted (Ref: crypto:BTCUSD:unknown:1775682536393) |
+| 2026-04-09 18:20:01 | BTCUSD | crypto:BTCUSD:unknown:1775711625676 | Signal already executed/submitted (Ref: crypto:BTCUSD:unknown:1775711625676) |
+| 2026-04-09 18:20:01 | BTCUSD | crypto:BTCUSD:unknown:1775718798785 | Signal already executed/submitted (Ref: crypto:BTCUSD:unknown:1775718798785) |
+| 2026-04-09 18:20:03 | BTCUSD | crypto:BTCUSD:unknown:1775756893170 | CONFLICT: Conflicting signals (Buy and Sell) detected for BTCUSD. Trading halted for this asset. |
+| 2026-04-09 18:20:04 | SPY | equities:SPY:unknown:1775756893201 | Invalid input: provider error: kraken api error: EQuery:Unknown asset pair |
+| 2026-04-09 18:20:04 | ETHUSD | crypto:ETHUSD:unknown:1775756893187 | No sellable balance available (ETH 0.00000000) |
 
 ## Executed Trades
 
