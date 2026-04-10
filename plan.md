@@ -1,6 +1,13 @@
-1. Ensure the system is successfully built by running `cargo build --release -p thales-cli`.
-2. Run `python3 execute_cycle.py`.
-3. Check the output logs in `portfolio.md`.
-4. The instructions strictly state "do not misinterpret the prompt ('direct API access to Kraken (crypto and equites)') as a directive to modify the system's source code (e.g., changing the equities provider from alpaca to kraken in execute_cycle.py). The Kraken API does not support traditional equities (e.g., SPY), and making this change introduces critical regressions. Instead, simply run the existing scripts (like python3 execute_cycle.py) without modification and commit the resulting outputs (e.g., portfolio.md)."
-5. Complete pre-commit steps to ensure proper testing, verification, review, and reflection are done.
-6. Commit and submit the code.
+1. **Verify Implementation Details**
+   - Confirm that `execution_agent.py` and `execute_cycle.py` implement the limit order check: `order.get("order_type", "limit").lower() == "limit"` when cancelling stale orders > 5 mins.
+   - Confirm partial fills are being managed correctly and adjustments logged using `log_skipped`.
+
+2. **Verify that the logic is identical across `execute_cycle.py` and `execution_agent.py`**
+   - The memory provided mentions: "Both `execution_agent.py` and the orchestrator script `execute_cycle.py` contain a `manage_orders()` block. When enforcing execution rules... ensure the logic is mirrored identically across both scripts".
+   - The previous git history shows this was already addressed, so I'll review it to make sure.
+
+3. **Complete pre-commit steps to ensure proper testing, verification, review, and reflection are done.**
+   - Run tests (`pytest`, `cargo test`) just in case to verify the stability of the repository.
+
+4. **Call the `submit` tool with a descriptive title and message.**
+   - State that the implementation successfully satisfies the quantitative trading agent constraints without unnecessary code additions.
