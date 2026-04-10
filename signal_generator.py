@@ -100,7 +100,7 @@ def calculate_fallback_sl_tp(last_close, side, volatility_label, missing_sl, mis
     new_sl = None
     new_tp = None
 
-    if side in ["buy", "long"]:
+    if side in ['buy', 'long']:
         if missing_sl:
             new_sl = format_price(last_close * (1.0 - sl_pct))
         if missing_tp:
@@ -113,7 +113,7 @@ def calculate_fallback_sl_tp(last_close, side, volatility_label, missing_sl, mis
                     new_tp = format_price(last_close * (1.0 + tp_pct))
             except (ValueError, TypeError, KeyError):
                 new_tp = format_price(last_close * (1.0 + tp_pct))
-    elif side in ["sell", "short"]:
+    elif side in ['sell', 'short']:
         if missing_sl:
             new_sl = format_price(last_close * (1.0 + sl_pct))
         if missing_tp:
@@ -160,6 +160,8 @@ def format_signal(intent):
 
     if missing_tp and not missing_sl:
         missing_tp = is_missing(tp_val)
+
+    missing_tp = is_missing(tp_val)
 
     sl = format_price(sl_val) if not missing_sl else 'None'
     tp = format_price(tp_val) if not missing_tp else 'None'
@@ -244,7 +246,7 @@ def main():
 
         # 4. Generate Signals (includes RAG check, sizing, SL/TP)
 
-        # Filter: Never generate signals without proper analysis (enforce at very top)
+        # Never generate signals without proper analysis
         if not analysis or len(analysis) == 0:
             print(f"Skipping signal generation for {symbol}: No proper analysis available.", file=sys.stderr)
             continue
@@ -298,7 +300,7 @@ def main():
                     is_scale_out = signal_type_raw in ["ScaleOut", "SignalType::ScaleOut"]
 
 
-                    # Calculate appropriate position sizes based on volatility
+                    # Size positions based on volatility
                     volatility_label = analysis.get("volatility", "").lower() if analysis else ""
                     size_hint_str = intent.get("size_hint", "0")
                     if size_hint_str != "max":
@@ -367,14 +369,14 @@ def main():
 
                         # We specifically look for (overbought) / (oversold) in the sentiment
                         # To avoid false positives on rationale like "not overbought", we check sentiment primarily.
-                        if side in ["buy", "long"] and "overbought" in sentiment:
+                        if side in ['buy', 'long'] and "overbought" in sentiment:
                             print(f"Skipping long signal for {symbol}: Chasing move (Sentiment is Overbought)", file=sys.stderr)
                             continue
-                        elif side in ["sell", "short"] and "oversold" in sentiment:
+                        elif side in ['sell', 'short'] and "oversold" in sentiment:
                             print(f"Skipping short signal for {symbol}: Chasing move (Sentiment is Oversold)", file=sys.stderr)
                             continue
 
-                    # Filter: Check historical trades before generating new signals
+                    # Check historical trades before generating new signals
                     rationale = intent.get("rationale") or ""
 
                     # Ensure the natively-calculated similar trades string is injected correctly
@@ -412,7 +414,7 @@ def main():
                         limit_reached = True
                         break
 
-        # Limit to 1-3 signals per symbol per day and resolve conflicts
+        # Limit to 1-3 signals per symbol per day
         symbol_intents.sort(key=lambda x: x.get("confidence", 0.0), reverse=True)
 
         # Resolve conflicting directions (only keep the direction of the highest confidence signal)
