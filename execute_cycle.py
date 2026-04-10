@@ -415,12 +415,18 @@ def archive_signals(days=2):
 
         # Append to archive
         with open(ARCHIVE_PATH, "a") as f:
-            for chunk in archive_chunks:
-                f.write(chunk)
+            for i, chunk in enumerate(archive_chunks):
+                # Ensure formatting consistency without injecting bad newlines
+                if i == 0 and not chunk.startswith("\n") and not chunk.startswith("##"):
+                    f.write("\n## " + chunk)
+                else:
+                    f.write(chunk)
 
         # Rewrite active signals
         with open(SIGNALS_PATH, "w") as f:
-            output = "".join(keep_chunks).lstrip("\n")
+            output = "".join(keep_chunks)
+            if output.startswith("\n## "):
+                output = output[1:] # Strip just the first newline
             f.write(output)
 
 def get_executed_signal_refs():
@@ -442,6 +448,18 @@ def get_executed_signal_refs():
                     signal_ref = parts[10]
                     if signal_ref and signal_ref != '-' and signal_ref != 'None':
                         executed_refs.add(signal_ref.replace("\\|", "|"))
+
+    match_skipped = re.search(r"## Skipped Signals\n(.*?)(?:\n## |$)", content, re.DOTALL)
+    if match_skipped:
+        table_lines = match_skipped.group(1).strip().split('\n')
+        for line in table_lines:
+            if line.startswith('|') and not line.startswith('| Date/Time') and not line.startswith('|---'):
+                parts = [p.strip() for p in line.split('|')]
+                if len(parts) > 3:
+                    signal_ref = parts[3]
+                    if signal_ref and signal_ref != '-' and signal_ref != 'None' and signal_ref != 'NO_REF' and signal_ref != 'NO_STRATEGY_SIGNAL' and signal_ref != 'STALE_SIGNAL':
+                        executed_refs.add(signal_ref.replace("\\|", "|"))
+
     return executed_refs
 
 def get_candidates_from_signals():

@@ -5620,6 +5620,55 @@
 | 2026-04-07 22:07:09 | SPY | equities:SPY:unknown:1775597921230 | Invalid input: provider error: kraken api error: EQuery:Unknown asset pair |
 | 2026-04-07 22:07:10 | ETHUSD | crypto:ETHUSD:unknown:1775597921214 | CONFLICT: Conflicting signals (Buy and Sell) detected for ETHUSD. Trading halted for this asset. |
 | 2026-04-07 22:07:10 | BTCUSD | crypto:BTCUSD:unknown:1775597921194 | Rejected by Risk Agent: Position size below exchange minimum for BTCUSD (4.9e-07 < 0.0001) |
+| 2026-04-10 02:43:12 | BTCUSD | crypto:BTCUSD:unknown:1775513307210 | Signal already executed/submitted (Ref: crypto:BTCUSD:unknown:1775513307210) |
+| 2026-04-10 02:43:12 | ETHUSD | crypto:ETHUSD:unknown:1775513307226 | Signal already executed/submitted (Ref: crypto:ETHUSD:unknown:1775513307226) |
+| 2026-04-10 02:43:12 | SPY | equities:SPY:unknown:1775513307242 | Signal already executed/submitted (Ref: equities:SPY:unknown:1775513307242) |
+| 2026-04-10 02:43:12 | BTCUSD | crypto:BTCUSD:unknown:1775516460312 | Signal already executed/submitted (Ref: crypto:BTCUSD:unknown:1775516460312) |
+| 2026-04-10 02:43:12 | ETHUSD | crypto:ETHUSD:unknown:1775516460353 | Signal already executed/submitted (Ref: crypto:ETHUSD:unknown:1775516460353) |
+| 2026-04-10 02:43:12 | SPY | equities:SPY:unknown:1775516460380 | Signal already executed/submitted (Ref: equities:SPY:unknown:1775516460380) |
+| 2026-04-10 02:43:12 | BTCUSD | crypto:BTCUSD:unknown:1775524228796 | Signal already executed/submitted (Ref: crypto:BTCUSD:unknown:1775524228796) |
+| 2026-04-10 02:43:12 | ETHUSD | crypto:ETHUSD:unknown:1775524228813 | Signal already executed/submitted (Ref: crypto:ETHUSD:unknown:1775524228813) |
+| 2026-04-10 02:43:12 | SPY | equities:SPY:unknown:1775524228828 | Signal already executed/submitted (Ref: equities:SPY:unknown:1775524228828) |
+| 2026-04-10 02:43:12 | BTCUSD | crypto:BTCUSD:unknown:1775531251073 | Signal already executed/submitted (Ref: crypto:BTCUSD:unknown:1775531251073) |
+| 2026-04-10 02:43:12 | ETHUSD | crypto:ETHUSD:unknown:1775531251092 | Signal already executed/submitted (Ref: crypto:ETHUSD:unknown:1775531251092) |
+| 2026-04-10 02:43:12 | SPY | equities:SPY:unknown:1775531251108 | Signal already executed/submitted (Ref: equities:SPY:unknown:1775531251108) |
+| 2026-04-10 02:43:12 | BTCUSD | crypto:BTCUSD:unknown:1775545735235 | Signal already executed/submitted (Ref: crypto:BTCUSD:unknown:1775545735235) |
+| 2026-04-10 02:43:12 | ETHUSD | crypto:ETHUSD:unknown:1775545735252 | Signal already executed/submitted (Ref: crypto:ETHUSD:unknown:1775545735252) |
+| 2026-04-10 02:43:12 | SPY | equities:SPY:unknown:1775545735267 | Signal already executed/submitted (Ref: equities:SPY:unknown:1775545735267) |
+| 2026-04-10 02:43:12 | BTCUSD | crypto:BTCUSD:unknown:1775552974420 | Signal already executed/submitted (Ref: crypto:BTCUSD:unknown:1775552974420) |
+| 2026-04-10 02:43:12 | ETHUSD | crypto:ETHUSD:unknown:1775552974436 | Signal already executed/submitted (Ref: crypto:ETHUSD:unknown:1775552974436) |
+| 2026-04-10 02:43:12 | SPY | equities:SPY:unknown:1775552974452 | Signal already executed/submitted (Ref: equities:SPY:unknown:1775552974452) |
+| 2026-04-10 02:43:12 | BTCUSD | crypto:BTCUSD:unknown:1775558984183 | Signal already executed/submitted (Ref: crypto:BTCUSD:unknown:1775558984183) |
+| 2026-04-10 02:43:12 | ETHUSD | crypto:ETHUSD:unknown:1775558984197 | Signal already executed/submitted (Ref: crypto:ETHUSD:unknown:1775558984197) |
+| 2026-04-10 02:43:13 | SPY | equities:SPY:unknown:1775558984211 | Signal already executed/submitted (Ref: equities:SPY:unknown:1775558984211) |
+| 2026-04-10 02:43:13 | BTCUSD | crypto:BTCUSD:unknown:1775567119847 | Signal already executed/submitted (Ref: crypto:BTCUSD:unknown:1775567119847) |
+| 2026-04-10 02:43:13 | ETHUSD | crypto:ETHUSD:unknown:1775567119864 | Signal already executed/submitted (Ref: crypto:ETHUSD:unknown:1775567119864) |
+| 2026-04-10 02:43:13 | SPY | equities:SPY:unknown:1775567119879 | Signal already executed/submitted (Ref: equities:SPY:unknown:1775567119879) |
+| 2026-04-10 02:43:13 | BTCUSD | crypto:BTCUSD:unknown:1775577933808 | Signal already executed/submitted (Ref: crypto:BTCUSD:unknown:1775577933808) |
+| 2026-04-10 02:43:13 | ETHUSD | crypto:ETHUSD:unknown:1775577933827 | Signal already executed/submitted (Ref: crypto:ETHUSD:unknown:1775577933827) |
+| 2026-04-10 02:43:13 | SPY | equities:SPY:unknown:1775577933842 | Signal already executed/submitted (Ref: equities:SPY:unknown:1775577933842) |
+| 2026-04-10 02:43:13 | BTCUSD | crypto:BTCUSD:unknown:1775582992265 | Signal too old (57.2 hours > 24 hours) |
+| 2026-04-10 02:43:13 | ETHUSD | crypto:ETHUSD:unknown:1775582992287 | Signal too old (57.2 hours > 24 hours) |
+| 2026-04-10 02:43:13 | SPY | equities:SPY:unknown:1775582992307 | Signal too old (57.2 hours > 24 hours) |
+| 2026-04-10 02:43:13 | BTCUSD | crypto:BTCUSD:unknown:1775583630513 | Signal already executed/submitted (Ref: crypto:BTCUSD:unknown:1775583630513) |
+| 2026-04-10 02:43:13 | ETHUSD | crypto:ETHUSD:unknown:1775583630530 | Signal already executed/submitted (Ref: crypto:ETHUSD:unknown:1775583630530) |
+| 2026-04-10 02:43:13 | SPY | equities:SPY:unknown:1775583630545 | Signal already executed/submitted (Ref: equities:SPY:unknown:1775583630545) |
+| 2026-04-10 02:43:13 | BTCUSD | crypto:BTCUSD:unknown:1775587167787 | Signal already executed/submitted (Ref: crypto:BTCUSD:unknown:1775587167787) |
+| 2026-04-10 02:43:13 | ETHUSD | crypto:ETHUSD:unknown:1775587167804 | Signal already executed/submitted (Ref: crypto:ETHUSD:unknown:1775587167804) |
+| 2026-04-10 02:43:13 | SPY | equities:SPY:unknown:1775587167819 | Signal already executed/submitted (Ref: equities:SPY:unknown:1775587167819) |
+| 2026-04-10 02:43:13 | BTCUSD | crypto:BTCUSD:unknown:1775591635417 | Signal already executed/submitted (Ref: crypto:BTCUSD:unknown:1775591635417) |
+| 2026-04-10 02:43:13 | ETHUSD | crypto:ETHUSD:unknown:1775591635434 | Signal already executed/submitted (Ref: crypto:ETHUSD:unknown:1775591635434) |
+| 2026-04-10 02:43:13 | SPY | equities:SPY:unknown:1775591635449 | Signal already executed/submitted (Ref: equities:SPY:unknown:1775591635449) |
+| 2026-04-10 02:43:13 | BTCUSD | crypto:BTCUSD:unknown:1775596134177 | Signal too old (53.6 hours > 24 hours) |
+| 2026-04-10 02:43:13 | ETHUSD | crypto:ETHUSD:unknown:1775596134193 | Signal too old (53.6 hours > 24 hours) |
+| 2026-04-10 02:43:13 | SPY | equities:SPY:unknown:1775596134209 | Signal too old (53.6 hours > 24 hours) |
+| 2026-04-10 02:43:13 | BTCUSD | crypto:BTCUSD:unknown:1775597921194 | Signal already executed/submitted (Ref: crypto:BTCUSD:unknown:1775597921194) |
+| 2026-04-10 02:43:13 | ETHUSD | crypto:ETHUSD:unknown:1775597921214 | Signal already executed/submitted (Ref: crypto:ETHUSD:unknown:1775597921214) |
+| 2026-04-10 02:43:13 | SPY | equities:SPY:unknown:1775597921230 | Signal already executed/submitted (Ref: equities:SPY:unknown:1775597921230) |
+| 2026-04-10 02:43:13 | BTCUSD | crypto:BTCUSD:unknown:1775600046973 | Signal too old (52.5 hours > 24 hours) |
+| 2026-04-10 02:43:13 | ETHUSD | crypto:ETHUSD:unknown:1775600046991 | Signal too old (52.5 hours > 24 hours) |
+| 2026-04-10 02:43:13 | SPY | equities:SPY:unknown:1775600047007 | Signal too old (52.5 hours > 24 hours) |
+| 2026-04-10 02:43:16 | BONKUSD | crypto:BONKUSD:buy:1775786400000 | Rejected by Risk Agent: Order value below exchange minimum fiat volume (4.47 < 5.0) |
 
 ## Executed Trades
 
