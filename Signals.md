@@ -54,22 +54,6 @@ Analysis for BTCUSD...
 }
 ```
 
-**Signal Structure**:
-```json
-{
-  "schema_version": "v0",
-  "market": "crypto",
-  "symbol": "BTCUSD",
-  "side": "hold",
-  "confidence": 0.8,
-  "size_hint": "0",
-  "stop_loss": null,
-  "take_profit": null,
-  "order_type": "market",
-  "rationale": "Market Analyst report generated. No direct trading recommendation per persona rules.",
-  "invalidation": "Market regime change"
-}
-```
 
 **Research**: Historical Context: [Source: knowledge.txt] Similar market conditions in Q4 2023 showed a strong bullish trend following consolidation periods. The market is currently exhibiting similar behavior. Research: [Source: research.txt] Bitcoin ETFs are seeing strong institutional inflows following SEC approvals. Analysts remain bullish due to positive macroeconomic indicators and recent halving events.
 
@@ -103,22 +87,6 @@ Analysis for ETHUSD...
 }
 ```
 
-**Signal Structure**:
-```json
-{
-  "schema_version": "v0",
-  "market": "crypto",
-  "symbol": "ETHUSD",
-  "side": "hold",
-  "confidence": 0.8,
-  "size_hint": "0",
-  "stop_loss": null,
-  "take_profit": null,
-  "order_type": "market",
-  "rationale": "Market Analyst report generated. No direct trading recommendation per persona rules.",
-  "invalidation": "Market regime change"
-}
-```
 
 **Research**: Historical Context: [Source: knowledge.txt] Historical technicals show mean reversion likely. Research: [Source: General_Market_Report] Steady accumulation observed. Technical indicators suggest continuation of the trend.
 
@@ -152,22 +120,6 @@ Analysis for SPY...
 }
 ```
 
-**Signal Structure**:
-```json
-{
-  "schema_version": "v0",
-  "market": "equities",
-  "symbol": "SPY",
-  "side": "hold",
-  "confidence": 0.8,
-  "size_hint": "0",
-  "stop_loss": null,
-  "take_profit": null,
-  "order_type": "market",
-  "rationale": "Market Analyst report generated. No direct trading recommendation per persona rules.",
-  "invalidation": "Market regime change"
-}
-```
 
 **Research**: Historical Context: [Source: knowledge.txt] Similar market conditions in Q4 2023 showed a strong bullish trend following consolidation periods for equities. The market is currently exhibiting similar behavior. Research: [Source: WSJ_Equities_Report] S&P 500 companies are reporting robust quarterly earnings, exceeding analyst expectations in tech and energy sectors. The market is pricing in favorable interest rate policies.
 
@@ -202,22 +154,6 @@ Analysis for BTCUSD...
 }
 ```
 
-**Signal Structure**:
-```json
-{
-  "schema_version": "v0",
-  "market": "crypto",
-  "symbol": "BTCUSD",
-  "side": "hold",
-  "confidence": 0.8,
-  "size_hint": "0",
-  "stop_loss": null,
-  "take_profit": null,
-  "order_type": "market",
-  "rationale": "Market Analyst report generated. No direct trading recommendation per persona rules.",
-  "invalidation": "Market regime change"
-}
-```
 
 **Research**: Historical Context: [Source: knowledge.txt] Similar market conditions in Q4 2023 showed a strong bullish trend following consolidation periods. The market is currently exhibiting similar behavior. Research: [Source: research.txt] Bitcoin ETFs are seeing strong institutional inflows following SEC approvals. Analysts remain bullish due to positive macroeconomic indicators and recent halving events.
 
@@ -251,22 +187,6 @@ Analysis for ETHUSD...
 }
 ```
 
-**Signal Structure**:
-```json
-{
-  "schema_version": "v0",
-  "market": "crypto",
-  "symbol": "ETHUSD",
-  "side": "hold",
-  "confidence": 0.8,
-  "size_hint": "0",
-  "stop_loss": null,
-  "take_profit": null,
-  "order_type": "market",
-  "rationale": "Market Analyst report generated. No direct trading recommendation per persona rules.",
-  "invalidation": "Market regime change"
-}
-```
 
 **Research**: Historical Context: [Source: knowledge.txt] Historical technicals show mean reversion likely. Research: [Source: General_Market_Report] Steady accumulation observed. Technical indicators suggest continuation of the trend.
 
@@ -300,22 +220,6 @@ Analysis for SPY...
 }
 ```
 
-**Signal Structure**:
-```json
-{
-  "schema_version": "v0",
-  "market": "equities",
-  "symbol": "SPY",
-  "side": "hold",
-  "confidence": 0.8,
-  "size_hint": "0",
-  "stop_loss": null,
-  "take_profit": null,
-  "order_type": "market",
-  "rationale": "Market Analyst report generated. No direct trading recommendation per persona rules.",
-  "invalidation": "Market regime change"
-}
-```
 
 **Research**: Historical Context: [Source: knowledge.txt] Similar market conditions in Q4 2023 showed a strong bullish trend following consolidation periods for equities. The market is currently exhibiting similar behavior. Research: [Source: WSJ_Equities_Report] S&P 500 companies are reporting robust quarterly earnings, exceeding analyst expectations in tech and energy sectors. The market is pricing in favorable interest rate policies.
 
@@ -349,22 +253,6 @@ Analysis for BTCUSD...
 }
 ```
 
-**Signal Structure**:
-```json
-{
-  "schema_version": "v0",
-  "market": "crypto",
-  "symbol": "BTCUSD",
-  "side": "hold",
-  "confidence": 0.8,
-  "size_hint": "0",
-  "stop_loss": null,
-  "take_profit": null,
-  "order_type": "market",
-  "rationale": "Market Analyst report generated. No direct trading recommendation per persona rules.",
-  "invalidation": "Market regime change"
-}
-```
 
 **Research**: Historical Context: [Source: knowledge.txt] Similar market conditions in Q4 2023 showed a strong bullish trend following consolidation periods. The market is currently exhibiting similar behavior. Research: [Source: research.txt] Bitcoin ETFs are seeing strong institutional inflows following SEC approvals. Analysts remain bullish due to positive macroeconomic indicators and recent halving events.
 
@@ -398,22 +286,6 @@ Analysis for ETHUSD...
 }
 ```
 
-**Signal Structure**:
-```json
-{
-  "schema_version": "v0",
-  "market": "crypto",
-  "symbol": "ETHUSD",
-  "side": "hold",
-  "confidence": 0.8,
-  "size_hint": "0",
-  "stop_loss": null,
-  "take_profit": null,
-  "order_type": "market",
-  "rationale": "Market Analyst report generated. No direct trading recommendation per persona rules.",
-  "invalidation": "Market regime change"
-}
-```
 
 **Research**: Historical Context: [Source: knowledge.txt] Historical technicals show mean reversion likely. Research: [Source: General_Market_Report] Steady accumulation observed. Technical indicators suggest continuation of the trend.
 
@@ -447,22 +319,6 @@ Analysis for SPY...
 }
 ```
 
-**Signal Structure**:
-```json
-{
-  "schema_version": "v0",
-  "market": "equities",
-  "symbol": "SPY",
-  "side": "hold",
-  "confidence": 0.8,
-  "size_hint": "0",
-  "stop_loss": null,
-  "take_profit": null,
-  "order_type": "market",
-  "rationale": "Market Analyst report generated. No direct trading recommendation per persona rules.",
-  "invalidation": "Market regime change"
-}
-```
 
 **Research**: Historical Context: [Source: knowledge.txt] Similar market conditions in Q4 2023 showed a strong bullish trend following consolidation periods for equities. The market is currently exhibiting similar behavior. Research: [Source: WSJ_Equities_Report] S&P 500 companies are reporting robust quarterly earnings, exceeding analyst expectations in tech and energy sectors. The market is pricing in favorable interest rate policies.
 
@@ -496,22 +352,6 @@ Analysis for BTCUSD...
 }
 ```
 
-**Signal Structure**:
-```json
-{
-  "schema_version": "v0",
-  "market": "crypto",
-  "symbol": "BTCUSD",
-  "side": "hold",
-  "confidence": 0.8,
-  "size_hint": "0",
-  "stop_loss": null,
-  "take_profit": null,
-  "order_type": "market",
-  "rationale": "Market Analyst report generated. No direct trading recommendation per persona rules.",
-  "invalidation": "Market regime change"
-}
-```
 
 **Research**: Historical Context: [Source: knowledge.txt] Similar market conditions in Q4 2023 showed a strong bullish trend following consolidation periods. The market is currently exhibiting similar behavior. Research: [Source: research.txt] Bitcoin ETFs are seeing strong institutional inflows following SEC approvals. Analysts remain bullish due to positive macroeconomic indicators and recent halving events.
 
@@ -545,22 +385,6 @@ Analysis for ETHUSD...
 }
 ```
 
-**Signal Structure**:
-```json
-{
-  "schema_version": "v0",
-  "market": "crypto",
-  "symbol": "ETHUSD",
-  "side": "hold",
-  "confidence": 0.8,
-  "size_hint": "0",
-  "stop_loss": null,
-  "take_profit": null,
-  "order_type": "market",
-  "rationale": "Market Analyst report generated. No direct trading recommendation per persona rules.",
-  "invalidation": "Market regime change"
-}
-```
 
 **Research**: Historical Context: [Source: knowledge.txt] Historical technicals show mean reversion likely. Research: [Source: General_Market_Report] Steady accumulation observed. Technical indicators suggest continuation of the trend.
 
@@ -594,22 +418,6 @@ Analysis for SPY...
 }
 ```
 
-**Signal Structure**:
-```json
-{
-  "schema_version": "v0",
-  "market": "equities",
-  "symbol": "SPY",
-  "side": "hold",
-  "confidence": 0.8,
-  "size_hint": "0",
-  "stop_loss": null,
-  "take_profit": null,
-  "order_type": "market",
-  "rationale": "Market Analyst report generated. No direct trading recommendation per persona rules.",
-  "invalidation": "Market regime change"
-}
-```
 
 **Research**: Historical Context: [Source: knowledge.txt] Similar market conditions in Q4 2023 showed a strong bullish trend following consolidation periods for equities. The market is currently exhibiting similar behavior. Research: [Source: WSJ_Equities_Report] S&P 500 companies are reporting robust quarterly earnings, exceeding analyst expectations in tech and energy sectors. The market is pricing in favorable interest rate policies.
 
