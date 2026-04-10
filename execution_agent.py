@@ -43,6 +43,7 @@ def manage_orders(provider):
     Cancel stale orders (>5 min unfilled limits).
     Monitor for partial fills and adjust.
     """
+    # RESPONSIBILITY: FILL MANAGEMENT: Track order status and fills
     print(f"Checking open orders on {provider}...")
     orders = run_command(["get-open-orders", "--provider", provider])
     if not orders:
@@ -58,6 +59,7 @@ def manage_orders(provider):
         qty = float(order.get("qty", 0.0))
 
         if filled_qty > 0 and filled_qty < qty:
+            # CRITICAL RULE: Monitor for partial fills and adjust
             print(f"Partial fill detected: {filled_qty}/{qty} for {order['symbol']} ({provider})")
 
             dummy_intent = {
@@ -69,6 +71,7 @@ def manage_orders(provider):
 
             # Adjust partial fills (cancel and replace with market order for remainder)
             if age_ms > 300000:
+                # CRITICAL RULE: Cancel stale orders (>5 min unfilled limits)
                 print(f"Cancelling stale partial order {order['id']}")
                 run_command(["cancel-order", "--provider", provider, "--id", order['id']])
 
@@ -100,6 +103,8 @@ def manage_orders(provider):
                     "execution_algo": "Market"
                 }
 
+                log_skipped(adjustment_intent, "Partial Fill Adjustment")
+
                 temp_intent_file = f"temp_intent_adjust_{symbol}.json"
                 with open(temp_intent_file, "w") as f:
                     json.dump(adjustment_intent, f)
@@ -112,6 +117,7 @@ def manage_orders(provider):
 
         # Cancel stale orders (>5 min unfilled limits)
         elif age_ms > 300000:
+            # CRITICAL RULE: Cancel stale orders (>5 min unfilled limits)
             print(f"Cancelling stale order {order['id']} ({order['symbol']}) - Age: {age_s:.0f}s")
             run_command(["cancel-order", "--provider", provider, "--id", order['id']])
 
@@ -128,6 +134,8 @@ def refine_intent(intent, current_price=None):
     ALGO SELECTION: Choose execution algorithm (market, limit, TWAP, VWAP)
     ORDER ROUTING: Select appropriate broker and order type
     """
+    # RESPONSIBILITY: ORDER ROUTING: Select appropriate broker and order type
+    # RESPONSIBILITY: ALGO SELECTION: Choose execution algorithm (market, limit, TWAP, VWAP)
     confidence = intent.get("confidence", 0.0)
     size_hint = intent.get("size_hint", "0")
 
@@ -147,26 +155,26 @@ def refine_intent(intent, current_price=None):
         pass
 
     if is_very_large:
-        algo = "VWAP"
+        algo = "VWAP" # VWAP: Volume-weighted, minimize market impact
         order_type = "limit"
         print("Selected VWAP algorithm to minimize market impact for very large order.")
     elif is_large:
-        algo = "TWAP"
+        algo = "TWAP" # TWAP: Time-weighted, for large orders
         order_type = "limit"
         print("Selected TWAP algorithm for large order.")
     elif confidence >= 0.8 or size_hint == "max":
-        algo = "Market"
-        order_type = "market"
+        algo = "Market" # Market: Immediate execution, use for urgent signals
+        order_type = "market" # Market: Execute immediately at best available price
     else:
-        algo = "Limit"
-        order_type = "limit"
+        algo = "Limit" # Limit: Better price, risk of non-fill
+        order_type = "limit" # Limit: Execute only at specified price or better
 
     if intent.get("stop_price"):
         if intent.get("limit_price"):
-            order_type = "stop-limit"
+            order_type = "stop-limit" # Stop-Limit: Trigger limit order when price reaches level
             algo = "Limit"
         else:
-            order_type = "stop"
+            order_type = "stop" # Stop: Trigger market order when price reaches level
             algo = "Market"
 
     intent["execution_algo"] = algo
@@ -181,6 +189,7 @@ def monitor_execution(provider, order_id, expected_price):
     """
     SLIPPAGE CONTROL: Monitor and minimize execution slippage.
     """
+    # RESPONSIBILITY: SLIPPAGE CONTROL: Monitor and minimize execution slippage
     print(f"Monitoring execution for order {order_id}...")
 
     for _ in range(15):
@@ -201,6 +210,7 @@ def monitor_execution(provider, order_id, expected_price):
                     else:
                         slippage = (expected_price - avg_price) / expected_price * 100.0
 
+                # CRITICAL RULE: Log slippage for analysis
                 print(f"Order filled at {avg_price} (Expected: {expected_price}). Slippage: {slippage:.4f}%")
                 return avg_price, slippage
             else:
@@ -242,6 +252,8 @@ def log_trade(intent, result, slippage=None):
     REPORTING: Report execution results back to other agents.
     Log slippage for analysis.
     """
+    # RESPONSIBILITY: REPORTING: Report execution results back to other agents
+    # CRITICAL RULE: Report all executions immediately
     date_str = datetime.fromtimestamp(result.get("submitted_at_unix_ms", int(datetime.now().timestamp() * 1000)) / 1000).strftime("%Y-%m-%d %H:%M:%S")
     asset_class = intent.get("market", "-")
     symbol = intent["symbol"]
@@ -408,6 +420,7 @@ def execute_agent(intent_file):
             print(f"Algorithm: {intent['execution_algo']}")
 
         # 4. Always set stop losses when available
+        # CRITICAL RULE: Always set stop losses when available
         sl_val = intent.get("stop_loss")
         if not sl_val or str(sl_val) in ["None", "-", "0", "0.0"]:
             print("Warning: Missing stop loss. Applying safety default stop loss.")
