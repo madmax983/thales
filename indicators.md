@@ -1479,3 +1479,8 @@ use polars::prelude::*;
 **Purpose:** Confirms trend strength.
 **Parameters:**
 - `period`: Lookback period.
+
+## Aroon Custom
+**Name:** Custom Aroon Indicator
+**Description:** A mean-reversion and momentum indicator.
+**Rationale:** The Custom Aroon indicator helps to identify the start of a new trend and the strength of the trend, implemented using pure Decimal math.
