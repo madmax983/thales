@@ -136,16 +136,10 @@ def truncate_float(match):
     formatted_val = f"{val_float:.4f}".rstrip('0').rstrip('.')
     return formatted_val if formatted_val else "0"
 
-def format_signal(intent):
+def format_trading_signal(intent):
     # Ensure logic explicitly supports both 'buy'/'sell' and 'long'/'short' string variants
     side_raw = intent.get('side', '')
     side = str(side_raw).lower() if side_raw else ''
-    if side in ['buy', 'long']:
-        direction = "long"
-    elif side in ['sell', 'short']:
-        direction = "short"
-    else:
-        direction = side
 
     strength = intent.get('confidence', 0.0) * 100
 
@@ -171,9 +165,16 @@ def format_signal(intent):
     # Clean up Rust enum string if present (e.g. SignalType::Entry -> Entry)
     signal_type = signal_type.replace("SignalType::", "")
 
-    # Format output perfectly to match the user's requested output template
+    if side in ['buy', 'long']:
+         direction_label = "long"
+    elif side in ['sell', 'short']:
+         direction_label = "short"
+    else:
+         direction_label = side
+
+    # Format perfectly matching the user's template
     lines = [
-        f"- Symbol and direction (long/short): {intent.get('symbol')} ({direction})",
+        f"- Symbol and direction (long/short): {intent.get('symbol')} ({direction_label})",
         f"- Signal type and strength (0-100%): {signal_type} ({strength:.1f}%)",
         f"- Suggested size (quantity): {size}",
         f"- Stop loss and take profit levels: SL: {sl}, TP: {tp}",
@@ -467,11 +468,14 @@ def main():
     print("\n=== Signal Generator Output ===\n", file=sys.stderr)
     for i, intent in enumerate(all_intents):
         # Programmatically fulfill persona rule: log out structured signal
-        print(format_signal(intent), file=sys.stdout)
+        print(format_trading_signal(intent), file=sys.stdout)
         if i < len(all_intents) - 1:
             print("------------------\n")
         else:
             print("------------------")
+
+    # Output signal exactly formatted
+    # python signal_generator.py > signals.md
 
 if __name__ == "__main__":
     main()
