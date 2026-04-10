@@ -137,27 +137,28 @@ def truncate_float(match):
     return formatted_val if formatted_val else "0"
 
 def format_signal(intent):
-    # Ensure logic explicitly supports both 'buy'/'sell' and 'long'/'short' string variants
     side_raw = intent.get('side', '')
     side = str(side_raw).lower() if side_raw else ''
-    if side in ["buy", "long"]:
+
+    # Ensure logic explicitly supports both 'buy'/'sell' and 'long'/'short' string variants
+    if side in ['buy', 'long']:
         direction = "long"
-    elif side in ["sell", "short"]:
+    elif side in ['sell', 'short']:
         direction = "short"
     else:
         direction = side
 
-    strength = intent.get('confidence', 0.0) * 100
+    strength = float(intent.get('confidence', 0.0)) * 100.0
 
     size = format_size(intent.get('size_hint', '0'))
 
     sl_val = intent.get('stop_loss')
     tp_val = intent.get('take_profit')
 
-    # Explicit missing variable checks
     missing_sl = is_missing(sl_val)
     missing_tp = is_missing(tp_val)
 
+    # Calculate fallback TP using a 1:2 Risk:Reward ratio if TP is missing but SL is provided
     if missing_tp and not missing_sl:
         missing_tp = is_missing(tp_val)
 
@@ -166,18 +167,19 @@ def format_signal(intent):
 
     reason = intent.get('rationale', 'No reason provided.')
     reason = re.sub(r'\d+\.\d{5,}', truncate_float, reason).strip()
-    signal_type = intent.get('signal_type', 'Entry')
 
-    # Clean up Rust enum string if present (e.g. SignalType::Entry -> Entry)
-    signal_type = signal_type.replace("SignalType::", "")
+    signal_type_raw = intent.get('signal_type', 'Entry')
+    signal_type = str(signal_type_raw).replace("SignalType::", "")
 
     # Format output perfectly to match the user's requested output template
-    output = f"- Symbol and direction (long/short): {intent.get('symbol')} ({direction})\n"
-    output += f"- Signal type and strength (0-100%): {signal_type} ({strength:.1f}%)\n"
-    output += f"- Suggested size (quantity): {size}\n"
-    output += f"- Stop loss and take profit levels: SL: {sl}, TP: {tp}\n"
-    output += f"- Clear reasoning (including historical context): {reason}"
-    return output
+    output_lines = [
+        f"- Symbol and direction (long/short): {intent.get('symbol')} ({direction})",
+        f"- Signal type and strength (0-100%): {signal_type} ({strength:.1f}%)",
+        f"- Suggested size (quantity): {size}",
+        f"- Stop loss and take profit levels: SL: {sl}, TP: {tp}",
+        f"- Clear reasoning (including historical context): {reason}"
+    ]
+    return "\n".join(output_lines)
 
 def main():
     if not os.path.exists(CLI_PATH):
