@@ -464,7 +464,7 @@ impl KrakenClient {
             })
     }
 
-    /// Fetches historical price data.
+    /// Fetches historical OHLCV (Open, High, Low, Close, Volume).
     pub fn fetch_bars(
         &self,
         symbol: &str,

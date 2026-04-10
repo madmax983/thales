@@ -2,7 +2,7 @@
 //!
 //! This module provides functionality to read, update, and persist past trading signals
 //! (stored as JSON in a history file). It automatically determines if a signal's
-//! intended time horizon has expired and, if so, fetches historical price data to
+//! intended time horizon has expired and, if so, fetches historical OHLCV (Open, High, Low, Close, Volume) to
 //! calculate the actual outcome (return percentage) of the trade.
 //!
 //! # Concepts
@@ -63,7 +63,7 @@ fn parse_horizon(h: &str) -> i64 {
 ///
 /// This function iterates through all [`HistoryEntry`] objects in the specified file.
 /// If an entry lacks an outcome and its intended duration (horizon) has passed, the function
-/// invokes `fetch_bars` to get the price data covering the trade period. It calculates the
+/// invokes `fetch_bars` to get the OHLCV (Open, High, Low, Close, Volume) covering the trade period. It calculates the
 /// return percentage based on the Open price near the signal time and the Close price near
 /// the exit time, updates the entry, and writes the modified array back to disk.
 ///

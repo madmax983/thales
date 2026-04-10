@@ -4,6 +4,13 @@
 
 > "Know thyself, and thou shalt know the universe and the gods." - Thales of Miletus
 
+## 📖 Glossary
+
+- **OHLCV**: Open, High, Low, Close, Volume. A standard format for price data.
+- **RAG**: Retrieval-Augmented Generation. Used here to refer to search history for historical trade context.
+- **TWAP (Time Weighted Average Price)**: An execution algorithm that spreads orders evenly over time.
+- **VWAP (Volume Weighted Average Price)**: An execution algorithm that spreads orders based on historical volume profiles.
+
 ## 🚀 Quick Start
 
 ### Prerequisites
@@ -39,7 +46,7 @@ The workspace is organized into modular crates:
 Thales CLI follows a pipeline approach where commands output JSON envelopes that can be piped or saved to files.
 
 ### 1. Fetch Market Data
-Fetch price data from a provider.
+Fetch OHLCV (price data) from a provider.
 
 > **Note**: If no API keys are provided, this command will return synthetic scaffolding data for testing purposes.
 

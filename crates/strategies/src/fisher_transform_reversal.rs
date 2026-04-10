@@ -1,6 +1,6 @@
 //! Fisher Transform Reversal Strategy
 //!
-//! The Fisher Transform Reversal strategy converts price data into a Gaussian normal
+//! The Fisher Transform Reversal strategy converts OHLCV (Open, High, Low, Close, Volume) into a Gaussian normal
 //! distribution. Standard price action doesn't have a normal distribution, creating noise.
 //! The Fisher Transform highlights real reversals clearly, enabling the strategy to
 //! identify potential turning points and trends.

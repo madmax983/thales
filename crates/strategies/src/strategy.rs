@@ -144,7 +144,7 @@ pub trait Strategy: Send + Sync {
     ///
     /// # Arguments
     ///
-    /// * `data` - A Polars `DataFrame` containing price data. Columns should include
+    /// * `data` - A Polars `DataFrame` containing OHLCV (Open, High, Low, Close, Volume). Columns should include
     ///            "open", "high", "low", "close", "volume", and "timestamp".
     async fn generate_signals(&self, data: &DataFrame) -> Result<Vec<Signal>>;
 

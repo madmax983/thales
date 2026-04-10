@@ -1,7 +1,7 @@
 //! Black Swan Simulation
 //!
 //! This module provides tools to simulate "Black Swan" events on historical or synthetic
-//! price data. It helps answer the question: "How would my strategy react if the market
+//! OHLCV (Open, High, Low, Close, Volume). It helps answer the question: "How would my strategy react if the market
 //! suddenly collapsed by 30% in a single day, or if volatility spiked 10x?"
 //!
 //! # Supported Events

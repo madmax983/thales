@@ -1,7 +1,7 @@
 //! Technical Market Analysis
 //!
 //! This module provides the core analytical engine for evaluating market conditions.
-//! It processes raw price data ([`BarSeries`]) to synthesize a comprehensive
+//! It processes raw OHLCV (Open, High, Low, Close, Volume) ([`BarSeries`]) to synthesize a comprehensive
 //! [`MarketAnalysis`] that includes:
 //!
 //! - **Market Regime Detection**: Identifying whether the market is trending up, trending down, or ranging.
@@ -24,7 +24,7 @@ use strategies::indicators::{atr, bollinger_bands, donchian_channels, macd, rsi,
 ///
 /// # Arguments
 ///
-/// * `series` - A reference to the [`BarSeries`] containing the historical price data to analyze.
+/// * `series` - A reference to the [`BarSeries`] containing the historical OHLCV (Open, High, Low, Close, Volume) to analyze.
 ///
 /// # Returns
 ///

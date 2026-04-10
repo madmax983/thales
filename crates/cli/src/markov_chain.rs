@@ -67,7 +67,7 @@ impl MarketState {
 /// Analyzes a [`BarSeries`] to build a Markov Chain transition matrix.
 ///
 /// # Arguments
-/// * `series` - The historical price data to analyze.
+/// * `series` - The historical OHLCV (Open, High, Low, Close, Volume) to analyze.
 /// * `config` - The configuration containing the return threshold for state classification.
 ///
 /// # Errors

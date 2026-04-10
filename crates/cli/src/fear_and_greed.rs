@@ -40,7 +40,7 @@ pub struct FearAndGreedReport {
 ///
 /// # Arguments
 ///
-/// * `series` - The historical price data.
+/// * `series` - The historical OHLCV (Open, High, Low, Close, Volume).
 /// * `config` - Configuration for the analysis periods.
 ///
 /// # Examples

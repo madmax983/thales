@@ -107,3 +107,7 @@
 ## 2024-05-31 - The Unmapped Gamification & Physics Regions
 **Confusion:** The experimental modules `market_energy.rs` and `trading_card.rs` in `crates/cli/src/experimental/` were undocumented. Users had no idea how to interpret market data as potential/kinetic energy or how to generate RPG-style stats and SVGs.
 **Clarification:** Added storytelling module-level documentation (`//!`) to explain the core concepts. Added executable `# Examples` to configurations and main functions (`analyze_energy`, `export_trading_card_svg`) to guide users on usage.
+
+## 2026-04-04 - The Jargon Barrier
+**Confusion:** Jargon such as TWAP, VWAP, OHLCV, and RAG were confusing to new users, but blindly replacing them with plain-English phrases broke standard industry terminology.
+**Clarification:** Reverted blind text replacements. Retained the original acronyms and appended their plain-English definitions (e.g., 'VWAP (Volume Weighted Average Price)') in `README.md` and across module-level rustdocs.

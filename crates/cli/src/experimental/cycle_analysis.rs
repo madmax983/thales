@@ -3,8 +3,8 @@
 //! Provides functionality to find dominant cycles in market data using
 //! Discrete Fourier Transform (DFT).
 //!
-//! Cycle analysis helps traders identify recurring patterns in price data.
-//! By transforming price data from the time domain to the frequency domain,
+//! Cycle analysis helps traders identify recurring patterns in OHLCV (Open, High, Low, Close, Volume).
+//! By transforming OHLCV (Open, High, Low, Close, Volume) from the time domain to the frequency domain,
 //! we can detect the strongest underlying periods (e.g., a dominant 20-day cycle)
 //! and potentially forecast future turning points.
 
@@ -83,7 +83,7 @@ pub struct CycleReport {
 
 /// Analyzes dominant cycles using Discrete Fourier Transform (DFT).
 ///
-/// This function computes the DFT of the detrended price data to extract
+/// This function computes the DFT of the detrended OHLCV (Open, High, Low, Close, Volume) to extract
 /// the most significant frequencies (cycles). It returns a report containing
 /// up to `max_cycles` cycles sorted by amplitude (strongest first).
 ///

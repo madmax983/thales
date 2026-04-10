@@ -88,7 +88,7 @@ fn resolve_signal_type(
 ///
 /// # Arguments
 ///
-/// * `bars` - The price data for the symbol.
+/// * `bars` - The OHLCV (Open, High, Low, Close, Volume) for the symbol.
 /// * `strategy_name` - The name of the strategy to run (e.g., "BollingerBands").
 /// * `history_path` - Path to the historical trade database (JSON).
 /// * `risk_per_trade` - The amount of capital to risk per trade.

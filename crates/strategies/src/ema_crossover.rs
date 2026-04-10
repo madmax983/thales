@@ -4,7 +4,7 @@
 //! a fast (short-term) EMA and a slow (long-term) EMA.
 //!
 //! # The Story
-//! Moving averages smooth out price data to reveal the underlying trend.
+//! Moving averages smooth out OHLCV (Open, High, Low, Close, Volume) to reveal the underlying trend.
 //! By comparing two EMAs of different periods, we can identify momentum shifts:
 //! - **The Golden Cross:** When the fast EMA crosses above the slow EMA, it suggests bullish momentum.
 //! - **The Death Cross:** When the fast EMA crosses below the slow EMA, it suggests bearish momentum.
