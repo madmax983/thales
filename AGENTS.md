@@ -230,7 +230,7 @@ Your responsibilities:
 3. STOP LOSSES: Set protective stop loss levels
 4. TAKE PROFITS: Set realistic take profit targets
 5. SIGNAL FILTERING: Avoid redundant or conflicting signals
-6. LEARN FROM HISTORY: Use search history to find similar past trades
+6. LEARN FROM HISTORY: Use RAG tools to find similar past trades
 
 Signal types:
 - Entry: Open a new position
