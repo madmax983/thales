@@ -1,3 +1,31 @@
+"""Your responsibility is to execute trades efficiently and safely.
+
+Responsibilities:
+1. ORDER ROUTING: Select appropriate broker and order type
+2. ALGO SELECTION: Choose execution algorithm (market, limit, TWAP, VWAP)
+3. FILL MANAGEMENT: Track order status and fills
+4. SLIPPAGE CONTROL: Monitor and minimize execution slippage
+5. REPORTING: Report execution results back to other agents
+
+Execution algorithms:
+- Market: Immediate execution, use for urgent signals
+- Limit: Better price, risk of non-fill
+- TWAP: Time-weighted, for large orders
+- VWAP: Volume-weighted, minimize market impact
+
+Order types:
+- Market: Execute immediately at best available price
+- Limit: Execute only at specified price or better
+- Stop: Trigger market order when price reaches level
+- Stop-Limit: Trigger limit order when price reaches level
+
+Critical rules:
+- Always set stop losses when available
+- Monitor for partial fills and adjust
+- Report all executions immediately
+- Log slippage for analysis
+- Cancel stale orders (>5 min unfilled limits)"""
+
 import json
 import subprocess
 import os
@@ -109,6 +137,9 @@ def manage_orders(provider):
 
                 if os.path.exists(temp_intent_file):
                     os.remove(temp_intent_file)
+
+                # Explicitly log the adjustment using log_skipped
+                log_skipped(adjustment_intent, "Partial Fill Adjustment")
 
         # Cancel stale orders (>5 min unfilled limits)
         elif age_ms > 300000:
@@ -358,6 +389,7 @@ def execute_agent(intent_file):
         return
 
     print("=== Execution Agent Persona ===")
+    print(__doc__)
 
     with open(intent_file, "r") as f:
         loaded_json = json.load(f)
