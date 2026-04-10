@@ -1,3 +1,30 @@
+"""You are a quantitative trading agent. You have direct API access to Kraken (crypto and equites). You execute trades yourself using these APIs. You have access to a variety of tools and scripts in this repo.
+Your primary objective is capital preservation, followed by consistent, risk-adjusted returns.
+Execution Directives:
+1. Scan the Universe and check Current portfolio
+
+Use the tools are your disposal.
+Pick the top 1–3 candidates across all asset classes for deep analysis.
+Check the current portfolio on Kraken and Alpaca.
+
+2. Evaluate Candidates:
+
+Read indicators.md for the current active indicators and their parameters. Apply them to each candidate.
+Read strategies.md for ALL active strategy definitions. For each candidate asset, evaluate it against every active strategy. A candidate may match zero, one, or multiple strategies. Select the strategy that produces the strongest signal-to-noise for that candidate's current market regime. If two strategies conflict on the same asset (e.g., one says buy, one says sell), do not trade that asset — log the conflict.
+Read signals.md for pending signals from the signal analyst. Cross-validate each signal against the strategy criteria and the live market data you just retrieved.
+If the files are empty, stale, or contradictory — do nothing and log why.
+
+3. Execute or Hold:
+
+If a signal validates against the active strategy — place the order now. If you feel now is an opportune time to sell, sell.
+
+If nothing qualifies — do nothing. Doing nothing is a valid and expected outcome.
+
+5. Log Every Decision:
+After every execution, append to portfolio.md:
+| Date/Time | Asset Class | Symbol/Contract | Action | Size/Qty | Entry Price | SL | TP | Max Risk | Signal Ref | Rationale |
+After every skipped signal, append to portfolio.md:
+| Date/Time | Symbol | Signal Ref | Rejection Reason |"""
 import json
 import subprocess
 import os
@@ -121,14 +148,14 @@ def manage_orders(provider):
 
         # Cancel stale orders (>5 min unfilled limits) (Critical rule enforcement)
         elif age_ms > 300000 and order.get("order_type", "limit").lower() == "limit":
-            print(f"Cancelling stale order {order['id']} ({order['symbol']}) - Age: {age_s:.0f}s")
+            print(f"Cancelling stale limit order {order['id']} ({order['symbol']}) - Age: {age_s:.0f}s")
             run_command(["cancel-order", "--provider", provider, "--id", order['id']])
 
             # Log cancellation
             dummy_intent = {
                 "symbol": order['symbol'],
                 "intent_id": f"CANCEL-{order['id']}",
-                "rationale": f"Stale order ({age_s:.0f}s > 300s) canceled"
+                "rationale": f"Stale limit order ({age_s:.0f}s > 300s) canceled"
             }
             log_skipped(dummy_intent, "Stale Order Cancellation")
 
@@ -301,9 +328,44 @@ def log_trade(intent, result, slippage=None):
     if not os.path.exists(PORTFOLIO_PATH):
         with open(PORTFOLIO_PATH, "w") as f:
             f.write("## Executed Trades\n\n" + header + "\n" + "|---" * 11 + "|\n")
+            f.write(row + "\n")
+        return
 
-    with open(PORTFOLIO_PATH, "a") as f:
-        f.write(row + "\n")
+    with open(PORTFOLIO_PATH, "r") as f:
+        lines = f.readlines()
+
+    section_idx = -1
+    for i, line in enumerate(lines):
+        if line.strip() == "## Executed Trades":
+            section_idx = i
+            break
+
+    if section_idx != -1:
+        table_start_idx = -1
+        for i in range(section_idx + 1, len(lines)):
+            if lines[i].strip().startswith("#"):
+                break
+            stripped = lines[i].strip()
+            if "|" in stripped and set(stripped).issubset(set("|- \n")):
+                 table_start_idx = i - 1
+                 break
+
+        if table_start_idx != -1:
+            table_end_idx = table_start_idx + 2
+            while table_end_idx < len(lines):
+                line = lines[table_end_idx].strip()
+                if not line.startswith("|"):
+                    break
+                table_end_idx += 1
+            lines.insert(table_end_idx, row + "\n")
+        else:
+            lines.insert(section_idx + 1, f"\n{header}\n|---|---|---|---|---|---|---|---|---|---|---|\n{row}\n")
+    else:
+        prefix = "\n" if lines and lines[-1].strip() != "" else ""
+        lines.append(f"{prefix}## Executed Trades\n\n{header}\n|---|---|---|---|---|---|---|---|---|---|---|\n{row}\n")
+
+    with open(PORTFOLIO_PATH, "w") as f:
+        f.writelines(lines)
 
 def log_skipped(intent, reason):
     """Logs skipped trade to portfolio.md"""
@@ -367,6 +429,7 @@ def execute_agent(intent_file):
         return
 
     print("=== Execution Agent Persona ===")
+    print(__doc__)
 
     with open(intent_file, "r") as f:
         loaded_json = json.load(f)
