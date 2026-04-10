@@ -199,7 +199,7 @@ def main():
     print(f"Found candidates: {', '.join(symbols)}", file=sys.stderr)
 
     # Use active strategies from strategies.md (defaulting to a few for demo)
-    active_strategies = ["BollingerBands", "RsiMeanReversion", "Macd", "Supertrend", "DonchianBreakout", "StochasticOscillator", "HmaMacdTrend", "VolumeSurgeReversal", "UlcerIndexMeanReversion", "KamaRsiTrend", "KdjStrategy", "NviTrend", "VwapRsiTrend"]
+    active_strategies = ["BollingerBands", "RsiMeanReversion", "Macd", "Supertrend", "DonchianBreakout", "StochasticOscillator", "HmaMacdTrend", "VolumeSurgeReversal", "UlcerIndexMeanReversion", "KamaRsiTrend", "KdjIndicatorStrategy", "NviTrend", "VwapRsiTrend"]
 
     all_intents = []
 
