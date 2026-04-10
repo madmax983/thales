@@ -1295,32 +1295,32 @@ def manage_orders():
                  }
                  log_skipped(dummy_intent, "Partial Fill Notification")
 
-             # Cancel stale orders
-             if age_ms > 300000: # 5 minutes
-                 print(f"Cancelling stale order {order['id']} ({order['symbol']}) - Age: {age_s:.0f}s")
-                 run_command(["cancel-order", "--provider", provider, "--id", order['id']])
-
-                 # Log cancellation
-                 dummy_intent = {
-                     "symbol": order['symbol'],
-                     "intent_id": f"CANCEL-{order['id']}",
-                     "rationale": f"Stale order ({age_s:.0f}s > 300s) canceled"
-                 }
-                 if filled_qty > 0 and filled_qty < qty:
-                     dummy_intent["rationale"] = f"Stale partial order ({age_s:.0f}s > 300s) canceled, unfilled: {qty - filled_qty}"
-                     log_skipped(dummy_intent, "Stale Partial Order Cancellation")
-                 else:
-                     log_skipped(dummy_intent, "Stale Order Cancellation")
-             else:
-                 # Adjust partial fill bounds if not stale
-                 if filled_qty > 0 and filled_qty < qty:
-                     # e.g., We might want to adjust a limit order if it's partially filled to ensure the rest gets filled.
-                     # We can replace the order or adjust price based on market.
-                     # Let's cancel the current order and issue a market order for the remaining amount
-                     print(f"Order {order['id']} is partially filled. Adjusting remaining quantity: {qty - filled_qty}.")
+             # Adjust partial fills (cancel and replace with market order for remainder)
+             if filled_qty > 0 and filled_qty < qty:
+                 if age_ms > 300000:
+                     print(f"Cancelling stale partial order {order['id']}")
                      run_command(["cancel-order", "--provider", provider, "--id", order['id']])
 
-                     # Re-execute as a Market order for remaining amount to guarantee fill
+                     # Log cancellation
+                     dummy_intent = {
+                         "symbol": order['symbol'],
+                         "intent_id": f"CANCEL-{order['id']}",
+                         "rationale": f"Stale partial order ({age_s:.0f}s > 300s) canceled, unfilled: {qty - filled_qty}"
+                     }
+                     log_skipped(dummy_intent, "Stale Partial Order Cancellation")
+                 else:
+                     # Monitor for partial fills and adjust (Critical rule enforcement)
+                     print(f"Adjusting remaining quantity: {qty - filled_qty}")
+                     run_command(["cancel-order", "--provider", provider, "--id", order['id']])
+
+                     # Explicitly log partial fill adjustments using log_skipped
+                     dummy_intent = {
+                         "symbol": order['symbol'],
+                         "intent_id": f"ADJUST-{order['id']}",
+                         "rationale": f"Adjusting partial fill: replacing {qty - filled_qty} with market order"
+                     }
+                     log_skipped(dummy_intent, "Partial Fill Adjustment")
+
                      remaining = format_size_hint(qty - filled_qty)
                      side = order.get("side", "buy")
                      symbol = order.get("symbol")
@@ -1354,6 +1354,19 @@ def manage_orders():
                          log_submitted(adjustment_intent, exec_res)
                      else:
                          print(f"Failed to submit adjustment order for {order['id']}")
+
+             # Cancel stale orders (>5 min unfilled limits) (Critical rule enforcement)
+             elif age_ms > 300000 and order.get("order_type", "limit").lower() == "limit":
+                 print(f"Cancelling stale limit order {order['id']} ({order['symbol']}) - Age: {age_s:.0f}s")
+                 run_command(["cancel-order", "--provider", provider, "--id", order['id']])
+
+                 # Log cancellation
+                 dummy_intent = {
+                     "symbol": order['symbol'],
+                     "intent_id": f"CANCEL-{order['id']}",
+                     "rationale": f"Stale limit order ({age_s:.0f}s > 300s) canceled"
+                 }
+                 log_skipped(dummy_intent, "Stale Order Cancellation")
 
 def get_latest_price(provider, symbol):
     """Fetches the latest close price for a symbol."""
