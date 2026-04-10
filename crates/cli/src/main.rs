@@ -502,6 +502,14 @@ enum Commands {
         visualize: bool,
     },
     #[cfg(feature = "nova")]
+    /// Analyze price dna
+    AnalyzePriceDna {
+        #[arg(long)]
+        input: PathBuf,
+        #[arg(long)]
+        visualize: bool,
+    },
+    #[cfg(feature = "nova")]
     /// Analyze volume time dilation
     AnalyzeTimeDilation {
         #[arg(long)]
@@ -2108,6 +2116,34 @@ fn run(command: Commands, raw: bool) -> Result<String, CliError> {
 
             if visualize {
                 market_gravity::print_ascii_gravity(&report);
+            }
+
+            ok_envelope(report, vec![], raw)
+        }
+        #[cfg(feature = "nova")]
+        Commands::AnalyzePriceDna { input, visualize } => {
+            let file_content = std::fs::read_to_string(&input).map_err(|e| {
+                std::io::Error::new(
+                    e.kind(),
+                    format!("Could not open input file '{}': {}", input.display(), e),
+                )
+            })?;
+            let series: BarSeries =
+                match serde_json::from_str::<ResponseEnvelope<BarSeries>>(&file_content) {
+                    Ok(envelope) => envelope
+                        .data
+                        .ok_or(CliError::Validation("Envelope has no data".to_string()))?,
+                    Err(_) => serde_json::from_str::<BarSeries>(&file_content)?,
+                };
+
+            let config = thales_cli::experimental::price_dna::PriceDnaConfig::default();
+            let report = thales_cli::experimental::price_dna::sequence_dna(&series, config)
+                .ok_or_else(|| {
+                    CliError::Validation("Failed to calculate price dna".to_string())
+                })?;
+
+            if visualize {
+                thales_cli::experimental::price_dna::print_ascii_dna(&report);
             }
 
             ok_envelope(report, vec![], raw)

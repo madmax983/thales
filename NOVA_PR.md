@@ -1,13 +1,9 @@
-# 🌟 Nova: CLI Help Hints for Experimental Features
+🌟 Nova: Price DNA Sequence Mapping
 
-## 💡 The Spark
-Users attempting to use commands documented in our help text receive "unrecognized subcommand" errors because they lack a feature flag, assuming the CLI is broken.
+💡 **The Spark:** "We have basic price and volume data, but no way to analyze sequences of behavior across time in a structured, comparable format."
 
-## 🚀 The Feature
-Implemented an `after_help` attribute in the `Cli` struct using clap to provide a clear hint that "Nova" experimental features require the `--features nova` flag.
+🚀 **The Feature:** "Implemented `sequence_dna` which translates market data bars into a biological sequence of nucleotides (A, C, T, G) based on direction and relative volume."
 
-## 🔭 The Potential
-Increases discoverability of our experimental features, correctly guiding users to enable the feature flag rather than throwing confusing "unrecognized subcommand" errors, thus increasing engagement.
+🔭 **The Potential:** "Could be used with bioinformatics algorithms (like Smith-Waterman or BLAST) to find 'genetic' similarities between different assets or historical periods, enabling complex pattern matching."
 
-## ⚠️ Risk
-Low. Isolated to a simple clap attribute in the CLI entry point.
+⚠️ **Risk:** "Low. Isolated in `src/experimental/price_dna.rs` and gated by the `nova` feature flag."
