@@ -17,3 +17,4 @@ pub mod sonification;
 pub mod strategy_correlation;
 pub mod time_dilation;
 pub mod trading_card;
+pub mod price_dna;
