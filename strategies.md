@@ -4186,3 +4186,40 @@ Trend Following
 
 ### Position Sizing
 - Configured via max position size; standard risk-management applied.
+
+# Trading Strategy: VWAP CCI Trend
+
+## Strategy Specification
+
+**Name:** VwapCciTrend
+
+**Description:** Combines Volume Weighted Average Price (VWAP) with the Commodity Channel Index (CCI). It enters a long position when price is above the VWAP and CCI crosses above 100, indicating a strong bullish momentum breakout. It enters short when price is below VWAP and CCI crosses below -100. It exits when the price crosses the VWAP or the CCI returns to 0.
+
+**Rationale:** VWAP provides a volume-weighted baseline for price action. Trading in the direction of the VWAP ensures we are aligned with institutional bias. The CCI helps identify cyclic turns and strong momentum. When CCI crosses 100 or -100, it confirms the start of a strong directional move.
+
+## Requirements
+
+### Implementation Details
+- Uses Polars for data analysis and generating signals.
+- Implements the `Strategy` trait in Rust.
+- Utilizes the `vwap`, `cci`, and `atr` indicators.
+
+### Strategy Type
+Trend Following
+
+### Entry Conditions
+- **Long Entry:** Price > VWAP AND CCI crosses above 100.
+- **Short Entry:** Price < VWAP AND CCI crosses below -100.
+
+### Exit Conditions
+- **Long Exit:** Price crosses below VWAP OR CCI crosses below 0.
+- **Short Exit:** Price crosses above VWAP OR CCI crosses above 0.
+
+### Position Sizing
+- Configured via `size_hint`: "100" for entry and "max" for exits.
+- Utilizes ATR for Stop Loss and Take Profit levels.
+
+## Expected Backtesting Metrics
+- **Win Rate:** 45% - 55%
+- **Sharpe Ratio:** > 1.2
+- **Max Drawdown:** < 15%

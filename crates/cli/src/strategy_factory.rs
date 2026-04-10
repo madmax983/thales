@@ -940,6 +940,14 @@ pub fn create_strategy(name: &str, symbol: &str) -> Result<Box<dyn Strategy>> {
             };
             Ok(Box::new(UlcerIndexMeanReversion::new(config)))
         }
+                "VwapCciTrend" => {
+            use strategies::vwap_cci_trend::{VwapCciTrend, VwapCciTrendConfig};
+            let config = VwapCciTrendConfig {
+                symbol: symbol.to_string(),
+                ..VwapCciTrendConfig::default()
+            };
+            Ok(Box::new(VwapCciTrend::new(config)))
+        }
         _ => Err(anyhow::anyhow!("Unknown strategy: {}", name)),
     }
 }
