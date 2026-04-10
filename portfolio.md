@@ -5899,6 +5899,9 @@
 | 2026-04-09 22:41:19 | SPY | equities:SPY:unknown:1775772194047 | Invalid input: provider error: kraken api error: EQuery:Unknown asset pair |
 | 2026-04-09 22:41:20 | BTCUSD | crypto:BTCUSD:unknown:1775772194006 | Rejected by Risk Agent: Position size below exchange minimum for BTCUSD (6.173e-05 < 0.0001) |
 | 2026-04-09 22:41:20 | ETHUSD | crypto:ETHUSD:unknown:1775772194029 | Rejected by Risk Agent: Order value below exchange minimum fiat volume (4.47 < 5.0) |
+| 2026-04-10 00:46:45 | BTCUSD | crypto:BTCUSD:unknown:1775774937835 | CONFLICT: Conflicting signals (Buy and Sell) detected for BTCUSD. Trading halted for this asset. |
+| 2026-04-10 00:46:46 | ETHUSD | crypto:ETHUSD:unknown:1775774937854 | CONFLICT: Conflicting signals (Buy and Sell) detected for ETHUSD. Trading halted for this asset. |
+| 2026-04-10 00:46:46 | SPY | equities:SPY:unknown:1775774937871 | Invalid input: provider error: kraken api error: EQuery:Unknown asset pair |
 
 ## Executed Trades
 
