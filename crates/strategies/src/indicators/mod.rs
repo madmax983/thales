@@ -23,6 +23,7 @@ pub mod ema;
 pub mod eom;
 pub mod fisher_transform;
 pub mod force_index;
+pub mod gator;
 pub mod hma;
 pub mod ichimoku;
 pub mod kama;
