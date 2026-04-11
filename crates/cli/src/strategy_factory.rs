@@ -940,7 +940,7 @@ pub fn create_strategy(name: &str, symbol: &str) -> Result<Box<dyn Strategy>> {
             };
             Ok(Box::new(UlcerIndexMeanReversion::new(config)))
         }
-                "VwapCciTrend" => {
+        "VwapCciTrend" => {
             use strategies::vwap_cci_trend::{VwapCciTrend, VwapCciTrendConfig};
             let config = VwapCciTrendConfig {
                 symbol: symbol.to_string(),

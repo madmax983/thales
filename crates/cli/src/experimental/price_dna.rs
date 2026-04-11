@@ -87,7 +87,7 @@ mod tests {
                 open: 100.0,
                 high: 110.0,
                 low: 90.0,
-                close: 105.0, // UP
+                close: 105.0,  // UP
                 volume: 200.0, // HIGH VOLUME
             },
             Bar {
@@ -98,7 +98,7 @@ mod tests {
                 open: 100.0,
                 high: 110.0,
                 low: 90.0,
-                close: 95.0, // DOWN
+                close: 95.0,  // DOWN
                 volume: 50.0, // LOW VOLUME
             },
         ];

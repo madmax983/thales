@@ -1,3 +1,17 @@
+//! Keltner Channel Breakout Strategy
+//!
+//! This module implements a trend-following breakout strategy using Keltner Channels.
+//! Keltner Channels are volatility-based bands placed on either side of a moving
+//! average (typically an EMA), where the distance of the bands is determined by the
+//! Average True Range (ATR).
+//!
+//! The core theory is that a close outside the Keltner Channels indicates a strong
+//! momentum shift and the potential start of a new trend.
+//!
+//! - **Long Entry:** Price closes above the Upper Band.
+//! - **Short Entry:** Price closes below the Lower Band.
+//! - **Exit:** Price crosses back over the central EMA, signaling the trend has exhausted.
+
 use crate::indicators::{atr, ema};
 use crate::strategy::{Signal, SignalType, Strategy, StrategyConfig, StrategyType};
 use anyhow::Result;
@@ -5,6 +19,24 @@ use async_trait::async_trait;
 use polars::prelude::*;
 use serde::{Deserialize, Serialize};
 
+/// Configuration for the Keltner Channel Breakout Strategy.
+///
+/// # Examples
+///
+/// ```rust
+/// use strategies::keltner_channel_breakout::KeltnerChannelBreakoutConfig;
+///
+/// let config = KeltnerChannelBreakoutConfig {
+///     ema_period: 20,
+///     atr_period: 10,
+///     atr_multiplier: 2.0,
+///     stop_loss_atr_mult: 1.0,
+///     symbol: "BTCUSD".to_string(),
+/// };
+///
+/// assert_eq!(config.ema_period, 20);
+/// assert_eq!(config.atr_multiplier, 2.0);
+/// ```
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct KeltnerChannelBreakoutConfig {
     pub ema_period: usize,
@@ -16,6 +48,27 @@ pub struct KeltnerChannelBreakoutConfig {
 
 impl StrategyConfig for KeltnerChannelBreakoutConfig {}
 
+/// The Keltner Channel Breakout Strategy implementation.
+///
+/// Generates entry signals when price breaks outside the ATR-based channel and
+/// generates exit signals when the price crosses the central EMA.
+///
+/// # Examples
+///
+/// ```rust
+/// use strategies::keltner_channel_breakout::{KeltnerChannelBreakout, KeltnerChannelBreakoutConfig};
+/// use strategies::strategy::Strategy;
+///
+/// let config = KeltnerChannelBreakoutConfig {
+///     ema_period: 20,
+///     atr_period: 10,
+///     atr_multiplier: 2.0,
+///     stop_loss_atr_mult: 1.0,
+///     symbol: "ETHUSD".to_string(),
+/// };
+///
+/// let strategy = KeltnerChannelBreakout::new(config);
+/// ```
 pub struct KeltnerChannelBreakout {
     config: KeltnerChannelBreakoutConfig,
 }

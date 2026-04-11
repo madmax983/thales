@@ -122,3 +122,7 @@
 ## 2026-04-09 - The Silent SAR
 **Confusion:** The Parabolic SAR (Stop and Reverse) strategy lacked module-level documentation and executable examples. Users were left guessing about what the `start`, `increment`, and `max` acceleration factor parameters represented, and how the strategy generated trend reversals.
 **Clarification:** Added storytelling module-level documentation (`//!`) to explain the core trend-following concepts behind Parabolic SAR. Added executable `# Examples` blocks to both the indicator function (`parabolic_sar`) and the strategy implementations (`ParabolicSarConfig`, `ParabolicSar`) to guide users on proper initialization.
+
+## 2024-06-11 - The Silent Choppiness and Keltner Breakout
+**Confusion:** The Choppiness Index Trend and Keltner Channel Breakout strategies lacked module-level documentation, leaving users confused about the specific parameters required and how signals were generated using the CHOP threshold and EMA/ATR-based channel boundaries.
+**Clarification:** Added module-level documentation (`//!`) and executable examples (`# Examples`) for `ChoppinessIndexTrendConfig`, `ChoppinessIndexTrend`, `KeltnerChannelBreakoutConfig` and `KeltnerChannelBreakout`, detailing the exact breakout and trend confirmation logic.
