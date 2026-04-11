@@ -521,11 +521,11 @@ let roc_series = roc::calculate(&df, period)?;
 - The output Series is named "roc".
 - The first `period` values will be null.
 
-## Volume Weighted Average Price (VWAP)
+## Volume Weighted Average Price (VWAP, or volume spreading)
 
 **Name:** Volume Weighted Average Price (VWAP)
 **Description:** A trading benchmark that gives the average price a security has traded at throughout the day, based on both volume and price.
-**Rationale:** VWAP provides insight into both the trend and value of a security. It resets at the start of each trading session.
+**Rationale:** VWAP (volume spreading) provides insight into both the trend and value of a security. It resets at the start of each trading session.
 
 ### Implementation Details
 - Uses `rust_decimal::Decimal` for precision.

@@ -1474,9 +1474,9 @@ pub struct VwmaCrossoverConfig {
 
 **Name:** VwapReversion
 
-**Description:** A mean reversion strategy based on the Volume Weighted Average Price (VWAP). It buys when the price is significantly below the VWAP (oversold) and sells when the price is significantly above the VWAP (overbought).
+**Description:** A mean reversion strategy based on the Volume Weighted Average Price (VWAP, or volume spreading). It buys when the price is significantly below the VWAP (oversold) and sells when the price is significantly above the VWAP (overbought).
 
-**Rationale:** Prices tend to revert to their volume-weighted average over time. Extreme deviations from VWAP represent potential mean reversion opportunities as the market corrects overextensions.
+**Rationale:** Prices tend to revert to their volume-weighted average over time. Extreme deviations from VWAP (volume spreading) represent potential mean reversion opportunities as the market corrects overextensions.
 
 ## Requirements
 

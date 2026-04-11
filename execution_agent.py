@@ -102,7 +102,7 @@ def manage_orders(provider):
 
 def refine_intent(intent, current_price=None):
     """
-    ALGO SELECTION: Choose execution algorithm (market, limit, TWAP, VWAP)
+    ALGO SELECTION: Choose execution algorithm (market, limit, TWAP (time spreading), VWAP (volume spreading))
     ORDER ROUTING: Select appropriate broker and order type
     """
     confidence = intent.get("confidence", 0.0)
@@ -126,11 +126,11 @@ def refine_intent(intent, current_price=None):
     if is_very_large:
         algo = "VWAP"
         order_type = "limit"
-        print("Selected VWAP algorithm to minimize market impact for very large order.")
+        print("Selected VWAP (Volume spreading) algorithm to minimize market impact for very large order.")
     elif is_large:
         algo = "TWAP"
         order_type = "limit"
-        print("Selected TWAP algorithm for large order.")
+        print("Selected TWAP (Time spreading) algorithm for large order.")
     elif confidence >= 0.8 or size_hint == "max":
         algo = "Market"
         order_type = "market"
