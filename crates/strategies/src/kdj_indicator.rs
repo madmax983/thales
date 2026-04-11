@@ -199,7 +199,7 @@ impl Strategy for KdjIndicatorStrategy {
                         signal_type: SignalType::Exit,
                         symbol: self.config.symbol.clone(),
                         side: "sell".to_string(), // Exit Long
-                        size_hint: "max".to_string(),
+                        size_hint: size_hint.clone(),
                         confidence: 0.8,
                         stop_loss: None,
                         take_profit: None,
@@ -214,7 +214,7 @@ impl Strategy for KdjIndicatorStrategy {
                         signal_type: SignalType::Exit,
                         symbol: self.config.symbol.clone(),
                         side: "buy".to_string(), // Exit Short
-                        size_hint: "max".to_string(),
+                        size_hint: size_hint.clone(),
                         confidence: 0.8,
                         stop_loss: None,
                         take_profit: None,
@@ -240,55 +240,24 @@ mod tests {
     use super::*;
     use polars::df;
 
-    #[tokio::test]
-    async fn test_kdj_strategy_signals() -> Result<()> {
-        let config = KdjIndicatorStrategyConfig {
-            k_period: 3,
-            k_smoothing: 1,
-            d_period: 2,
+    fn get_base_config() -> KdjIndicatorStrategyConfig {
+        KdjIndicatorStrategyConfig {
+            k_period: 9,
+            k_smoothing: 3,
+            d_period: 3,
             oversold_threshold: 20.0,
             overbought_threshold: 80.0,
             max_position_size: 100.0,
             stop_loss_atr_mult: 1.0,
-            atr_period: 2,
+            atr_period: 14,
             symbol: "TEST".to_string(),
-        };
-        let strategy = KdjIndicatorStrategy::new(config);
-
-        // We construct DataFrame to test crossings.
-        // Needs high, low, close, timestamp_unix_ms.
-
-        let df = df!(
-            "timestamp_unix_ms" => &[1000i64, 2000, 3000, 4000, 5000],
-            "high" =>  &[100.0, 100.0, 100.0, 100.0, 100.0],
-            "low" =>   &[ 90.0,  90.0,  90.0,  90.0,  90.0],
-            "close" => &[ 95.0,  95.0,  91.0,  90.5,  91.5]
-        )?;
-
-        let signals = strategy.generate_signals(&df).await?;
-
-        // This is mainly a test that logic runs and generates exits/entries based on the data provided
-        assert!(
-            !signals.is_empty(),
-            "Should generate some signals given typical data behavior"
-        );
-
-        Ok(())
+        }
     }
 
     #[tokio::test]
     async fn test_parameter_validation() -> Result<()> {
-        let config = KdjIndicatorStrategyConfig {
-            k_period: 0, // Invalid
-            k_smoothing: 1,
-            d_period: 2,
-            oversold_threshold: 20.0,
-            overbought_threshold: 80.0,
-            max_position_size: 100.0,
-            stop_loss_atr_mult: 1.0,
-            atr_period: 2,
-            symbol: "TEST".to_string(),
-        };
+        let mut config = get_base_config();
+        config.k_period = 0; // Invalid
         let strategy = KdjIndicatorStrategy::new(config);
 
         let df = df!(
@@ -299,7 +268,77 @@ mod tests {
         )?;
 
         let result = strategy.generate_signals(&df).await;
-        assert!(result.is_err(), "Should fail with invalid periods");
+        assert!(result.is_err(), "Should fail with invalid k_period");
+        Ok(())
+    }
+
+    #[tokio::test]
+    async fn test_edge_cases() -> Result<()> {
+        let config = get_base_config();
+        let strategy = KdjIndicatorStrategy::new(config);
+
+        // Empty dataframe
+        let df_empty = DataFrame::default();
+        let result = strategy.generate_signals(&df_empty).await;
+        assert!(result.is_err(), "Should fail gracefully on empty data");
+
+        // Not enough data for indicator calculation (needs at least k_period)
+        let df_short = df!(
+            "timestamp_unix_ms" => &[1000i64, 2000i64],
+            "high" =>  &[100.0, 101.0],
+            "low" =>   &[ 90.0, 91.0],
+            "close" => &[ 95.0, 96.0]
+        )?;
+        let signals = strategy.generate_signals(&df_short).await?;
+        assert!(signals.is_empty(), "Should not crash or signal on short data, J series will be None");
+
+        Ok(())
+    }
+
+    #[tokio::test]
+    async fn test_entry_and_exit_signal_generation() -> Result<()> {
+        let config = KdjIndicatorStrategyConfig {
+            k_period: 2,
+            k_smoothing: 1,
+            d_period: 2,
+            oversold_threshold: 20.0,
+            overbought_threshold: 80.0,
+            max_position_size: 100.0,
+            stop_loss_atr_mult: 1.0,
+            atr_period: 2,
+            symbol: "TEST".to_string(),
+        };
+        let strategy = KdjIndicatorStrategy::new(config);
+
+        // Crafting deterministic data:
+        // We need J to cross above 0 for Long Entry.
+        // We need J to cross below 100 for Short Entry.
+        let df = df!(
+            "timestamp_unix_ms" => &[1000i64, 2000, 3000, 4000, 5000, 6000, 7000],
+            "high" =>  &[100.0, 100.0, 100.0,  50.0,  60.0, 120.0, 100.0],
+            "low" =>   &[ 90.0,  90.0,  90.0,  10.0,  15.0,  80.0,  80.0],
+            "close" => &[ 95.0,  95.0,  91.0,  15.0,  55.0, 115.0,  85.0]
+        )?;
+
+        let signals = strategy.generate_signals(&df).await?;
+
+        // We just ensure logic successfully emits intent signals
+        let mut found_entry = false;
+        let mut found_exit = false;
+        for sig in signals.iter() {
+            if sig.signal_type == SignalType::Entry {
+                found_entry = true;
+                assert!(sig.stop_loss.is_some(), "Entries must have stop-loss");
+                assert_eq!(sig.size_hint, "100.0000", "Position sizing constraint missing");
+            }
+            if sig.signal_type == SignalType::Exit {
+                found_exit = true;
+                assert_eq!(sig.size_hint, "100.0000", "Position sizing constraint missing");
+            }
+        }
+
+        assert!(found_entry, "Failed to generate entry signals");
+        assert!(found_exit, "Failed to generate exit signals");
 
         Ok(())
     }
