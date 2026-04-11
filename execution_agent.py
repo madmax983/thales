@@ -119,7 +119,7 @@ def manage_orders(provider):
                 }
                 log_skipped(dummy_intent, "Partial Fill Adjustment")
 
-                remaining = f"{qty - filled_qty:.8f}".rstrip("0").rstrip(".")
+                remaining = format_size_hint(qty - filled_qty)
                 side = order.get("side", "buy")
                 symbol = order.get("symbol")
 
@@ -136,12 +136,13 @@ def manage_orders(provider):
                     "execution_algo": "Market"
                 }
 
-                temp_intent_file = f"temp_intent_adjust_{symbol}.json"
+                safe_symbol = symbol.replace("/", "_") if symbol else "unknown"
+                temp_intent_file = f"temp_intent_adjust_{safe_symbol}.json"
                 with open(temp_intent_file, "w") as f:
                     json.dump(adjustment_intent, f)
 
                 print(f"Submitting market order for remaining {remaining} {symbol}")
-                run_command(["execute-intent", "--provider", provider, "--input", temp_intent_file])
+                result = run_command(["execute-intent", "--provider", provider, "--input", temp_intent_file])
 
                 if os.path.exists(temp_intent_file):
                     os.remove(temp_intent_file)
@@ -262,7 +263,10 @@ def format_price(val):
         return str(val)
 
 def format_size_hint(size):
-    """Formats a numeric size as a compact decimal string."""
+    """
+    Formats a numeric size as a compact decimal string.
+    Gracefully handles string hints like 'max'.
+    """
     if str(size).lower() == "max":
         return "max"
     try:

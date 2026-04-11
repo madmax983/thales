@@ -5974,6 +5974,21 @@
 | 2026-04-11 07:07:04 | SPY | equities:SPY:unknown:1775840135407 | Invalid input: provider error: kraken api error: EQuery:Unknown asset pair |
 | 2026-04-11 07:07:04 | BTCUSD | crypto:BTCUSD:unknown:1775840135373 | provider error: kraken api error: EOrder:Insufficient funds |
 | 2026-04-11 07:07:05 | ETHUSD | crypto:ETHUSD:unknown:1775840135391 | No sellable balance available (ETH 0.00000000) |
+| 2026-04-11 10:21:54 | BTCUSD | crypto:BTCUSD:unknown:1775772194006 | Signal too old (36.3 hours > 24 hours) |
+| 2026-04-11 10:21:54 | ETHUSD | crypto:ETHUSD:unknown:1775772194029 | Signal too old (36.3 hours > 24 hours) |
+| 2026-04-11 10:21:54 | SPY | equities:SPY:unknown:1775772194047 | Signal too old (36.3 hours > 24 hours) |
+| 2026-04-11 10:21:54 | BTCUSD | crypto:BTCUSD:unknown:1775774937835 | Signal too old (35.5 hours > 24 hours) |
+| 2026-04-11 10:21:54 | ETHUSD | crypto:ETHUSD:unknown:1775774937854 | Signal too old (35.5 hours > 24 hours) |
+| 2026-04-11 10:21:54 | SPY | equities:SPY:unknown:1775774937871 | Signal too old (35.5 hours > 24 hours) |
+| 2026-04-11 10:21:54 | BTCUSD | crypto:BTCUSD:unknown:1775783188689 | Signal too old (33.3 hours > 24 hours) |
+| 2026-04-11 10:21:54 | ETHUSD | crypto:ETHUSD:unknown:1775783188776 | Signal too old (33.3 hours > 24 hours) |
+| 2026-04-11 10:21:54 | SPY | equities:SPY:unknown:1775783188789 | Signal too old (33.3 hours > 24 hours) |
+| 2026-04-11 10:21:54 | BTCUSD | crypto:BTCUSD:unknown:1775790237190 | Signal too old (31.3 hours > 24 hours) |
+| 2026-04-11 10:21:54 | ETHUSD | crypto:ETHUSD:unknown:1775790237204 | Signal too old (31.3 hours > 24 hours) |
+| 2026-04-11 10:21:54 | SPY | equities:SPY:unknown:1775790237216 | Signal too old (31.3 hours > 24 hours) |
+| 2026-04-11 10:21:54 | BTCUSD | crypto:BTCUSD:unknown:1775840135373 | Invalid input: provider error: missing required environment variable: KRAKEN_API_KEY |
+| 2026-04-11 10:21:54 | ETHUSD | crypto:ETHUSD:unknown:1775840135391 | Invalid input: provider error: missing required environment variable: KRAKEN_API_KEY |
+| 2026-04-11 10:21:54 | SPY | equities:SPY:unknown:1775840135407 | Invalid input: provider error: missing required environment variable: KRAKEN_API_KEY |
 
 ## Executed Trades
 
