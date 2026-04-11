@@ -271,6 +271,14 @@ enum Commands {
         visualize: bool,
     },
     #[cfg(feature = "nova")]
+    /// Analyze market ecosystem
+    AnalyzeEcosystem {
+        #[arg(long)]
+        input: PathBuf,
+        #[arg(long)]
+        visualize: bool,
+    },
+    #[cfg(feature = "nova")]
     AnalyzeTemperature {
         #[arg(long)]
         input: PathBuf,
@@ -2179,6 +2187,36 @@ fn run(command: Commands, raw: bool) -> Result<String, CliError> {
                 println!(
                     "Time Dilation Report:\nBase Rate: {:.2}\nDilation Factor: {:.2}",
                     report.base_volume_rate, report.dilation_factor
+                );
+            }
+
+            ok_envelope(report, vec![], raw)
+        }
+        #[cfg(feature = "nova")]
+        Commands::AnalyzeEcosystem { input, visualize } => {
+            let file_content = std::fs::read_to_string(&input).map_err(|e| {
+                std::io::Error::new(
+                    e.kind(),
+                    format!("Could not open input file '{}': {}", input.display(), e),
+                )
+            })?;
+            let series: BarSeries =
+                match serde_json::from_str::<ResponseEnvelope<BarSeries>>(&file_content) {
+                    Ok(envelope) => envelope
+                        .data
+                        .ok_or(CliError::Validation("Envelope has no data".to_string()))?,
+                    Err(_) => serde_json::from_str::<BarSeries>(&file_content)?,
+                };
+
+            let report = thales_cli::experimental::market_ecosystem::analyze_ecosystem(&series)
+                .ok_or_else(|| {
+                    CliError::Validation("Failed to calculate market ecosystem".to_string())
+                })?;
+
+            if visualize {
+                println!(
+                    "Ecosystem Report:\nCondition: {}\nVolume Trend: {:.2}\nPrice Trend: {:.2}\nVolatility: {:.2}",
+                    report.ecosystem, report.volume_trend, report.price_trend, report.volatility
                 );
             }
 

@@ -12,8 +12,8 @@
 //! - [`signals`]: Signal generation pipeline, connecting strategies to market data.
 
 pub mod analysis;
-pub mod backtest_csv;
 pub mod backtest;
+pub mod backtest_csv;
 pub mod benchmark;
 #[cfg(feature = "nova")]
 pub mod black_swan;

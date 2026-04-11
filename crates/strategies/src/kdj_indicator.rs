@@ -322,13 +322,22 @@ mod tests {
 
         let signals = strategy.generate_signals(&df).await?;
 
-        let entry_signals: Vec<_> = signals.iter().filter(|s| s.signal_type == SignalType::Entry).collect();
+        let entry_signals: Vec<_> = signals
+            .iter()
+            .filter(|s| s.signal_type == SignalType::Entry)
+            .collect();
         assert!(!entry_signals.is_empty(), "Should generate an entry signal");
 
         // Verify risk management is integrated
         let first_entry = &entry_signals[0];
-        assert!(first_entry.stop_loss.is_some(), "Must include stop-loss logic");
-        assert_eq!(first_entry.size_hint, "100.0000", "Must specify maximum position size properly");
+        assert!(
+            first_entry.stop_loss.is_some(),
+            "Must include stop-loss logic"
+        );
+        assert_eq!(
+            first_entry.size_hint, "100.0000",
+            "Must specify maximum position size properly"
+        );
 
         Ok(())
     }
@@ -358,7 +367,10 @@ mod tests {
 
         let signals = strategy.generate_signals(&df).await?;
 
-        let exit_signals: Vec<_> = signals.iter().filter(|s| s.signal_type == SignalType::Exit).collect();
+        let exit_signals: Vec<_> = signals
+            .iter()
+            .filter(|s| s.signal_type == SignalType::Exit)
+            .collect();
         assert!(!exit_signals.is_empty(), "Should generate an exit signal");
 
         Ok(())
