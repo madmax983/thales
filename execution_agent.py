@@ -68,7 +68,7 @@ def manage_orders(provider):
                 print(f"Adjusting remaining quantity: {qty - filled_qty}")
                 run_command(["cancel-order", "--provider", provider, "--id", order['id']])
 
-                remaining = f"{qty - filled_qty:.8f}".rstrip("0").rstrip(".")
+                remaining = format_size(qty - filled_qty)
                 side = order.get("side", "buy")
                 symbol = order.get("symbol")
 
@@ -202,6 +202,21 @@ def format_price(val):
     except (ValueError, TypeError):
         return str(val)
 
+def format_size(val):
+    """Safely formats a size string to up to 8 decimal places, stripping trailing zeroes."""
+    if str(val).lower() == "max":
+        return "max"
+    if val is None or str(val) in ["None", "-", ""]:
+        return "0"
+    try:
+        val_float = float(val)
+        if val_float == 0.0:
+            return "0"
+        formatted = f"{val_float:.8f}".rstrip("0").rstrip(".")
+        return formatted if formatted else "0"
+    except (ValueError, TypeError):
+        return str(val)
+
 def log_trade(intent, result, slippage=None):
     """
     REPORTING: Report execution results back to other agents.
@@ -221,7 +236,7 @@ def log_trade(intent, result, slippage=None):
     if signal_type_clean:
         action = f"{action} ({signal_type_clean})"
 
-    size = intent.get("size_hint", "0")
+    size = format_size(intent.get("size_hint", "0"))
     price = format_price(intent.get("limit_price"))
     if price == "-": price = "Market"
 

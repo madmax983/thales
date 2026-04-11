@@ -4886,6 +4886,13 @@
 | 2026-03-31 15:56:12 | BTCUSD | NO_REF | CONFLICT: Conflicting signals (Buy and Sell) detected for BTCUSD. Trading halted for this asset. |
 | 2026-03-31 15:56:13 | ETHUSD | NO_REF | CONFLICT: Conflicting signals (Buy and Sell) detected for ETHUSD. Trading halted for this asset. |
 | 2026-03-31 15:56:13 | SPY | NO_REF | CONFLICT: Conflicting signals (Buy and Sell) detected for SPY. Trading halted for this asset. |
+| 2026-03-31 17:43:21 | BTCUSD | crypto:BTCUSD:unknown:1774889370137 | Signal already executed/submitted (Ref: crypto:BTCUSD:unknown:1774889370137) |
+| 2026-03-31 17:43:21 | ETHUSD | crypto:ETHUSD:unknown:1774889370166 | Signal too old (24.9 hours > 24 hours) |
+| 2026-03-31 17:43:21 | SPY | equities:SPY:unknown:1774889370186 | Signal too old (24.9 hours > 24 hours) |
+| 2026-03-31 17:43:21 | BTCUSD | crypto:BTCUSD:unknown:1774900785144 | Signal already executed/submitted (Ref: crypto:BTCUSD:unknown:1774900785144) |
+| 2026-03-31 17:43:21 | ETHUSD | crypto:ETHUSD:unknown:1774963583099 | CONFLICT: Conflicting signals (Buy and Sell) detected for ETHUSD. Trading halted for this asset. |
+| 2026-03-31 17:43:22 | SPY | equities:SPY:unknown:1774963583152 | CONFLICT: Conflicting signals (Buy and Sell) detected for SPY. Trading halted for this asset. |
+| 2026-03-31 17:43:23 | BTCUSD | crypto:BTCUSD:unknown:1774963582996 | CONFLICT: Conflicting signals (Buy and Sell) detected for BTCUSD. Trading halted for this asset. |
 
 ## Executed Trades
 
