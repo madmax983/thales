@@ -1,4 +1,4 @@
-use crate::indicators::{cci, vwap, atr};
+use crate::indicators::{atr, cci, vwap};
 use crate::strategy::{Signal, SignalType, Strategy, StrategyConfig, StrategyType};
 use anyhow::Result;
 use async_trait::async_trait;
@@ -93,7 +93,10 @@ impl Strategy for VwapCciTrend {
                 (curr_vwap, prev_vwap, curr_cci, prev_cci, curr_atr)
             {
                 // Entry Long: Price > VWAP and CCI crosses above buy_threshold
-                if price > vwap && p_cci <= self.config.cci_buy_threshold && cci_val > self.config.cci_buy_threshold {
+                if price > vwap
+                    && p_cci <= self.config.cci_buy_threshold
+                    && cci_val > self.config.cci_buy_threshold
+                {
                     let sl = price - (self.config.stop_loss_atr_mult * atr_val);
                     let tp = price + (2.0 * self.config.stop_loss_atr_mult * atr_val);
 
@@ -111,7 +114,10 @@ impl Strategy for VwapCciTrend {
                 }
 
                 // Entry Short: Price < VWAP and CCI crosses below sell_threshold
-                if price < vwap && p_cci >= self.config.cci_sell_threshold && cci_val < self.config.cci_sell_threshold {
+                if price < vwap
+                    && p_cci >= self.config.cci_sell_threshold
+                    && cci_val < self.config.cci_sell_threshold
+                {
                     let sl = price + (self.config.stop_loss_atr_mult * atr_val);
                     let tp = price - (2.0 * self.config.stop_loss_atr_mult * atr_val);
 
@@ -221,9 +227,9 @@ mod tests {
 
     #[tokio::test]
     async fn test_vwap_cci_trend_signals() -> Result<()> {
-                let config = VwapCciTrendConfig {
+        let config = VwapCciTrendConfig {
             cci_period: 2,
-            cci_buy_threshold: 50.0, // lower threshold for mock tests
+            cci_buy_threshold: 50.0,   // lower threshold for mock tests
             cci_sell_threshold: -50.0, // lower threshold for mock tests
             atr_period: 2,
             stop_loss_atr_mult: 2.0,

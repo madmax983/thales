@@ -2138,9 +2138,7 @@ fn run(command: Commands, raw: bool) -> Result<String, CliError> {
 
             let config = thales_cli::experimental::price_dna::PriceDnaConfig::default();
             let report = thales_cli::experimental::price_dna::sequence_dna(&series, config)
-                .ok_or_else(|| {
-                    CliError::Validation("Failed to calculate price dna".to_string())
-                })?;
+                .ok_or_else(|| CliError::Validation("Failed to calculate price dna".to_string()))?;
 
             if visualize {
                 thales_cli::experimental::price_dna::print_ascii_dna(&report);

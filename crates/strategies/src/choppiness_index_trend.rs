@@ -1,3 +1,20 @@
+//! Choppiness Index Trend Strategy
+//!
+//! This module implements a strategy that utilizes the Choppiness Index (CHOP) to
+//! determine whether the market is trending or consolidating, combined with a Simple
+//! Moving Average (SMA) to determine the direction of the trend.
+//!
+//! The core theory is that markets alternate between periods of consolidation (choppiness)
+//! and periods of directional movement (trending). The Choppiness Index, which operates on
+//! a scale from 0 to 100, quantifies this:
+//! - High CHOP values (e.g., > 61.8) indicate the market is highly consolidated and choppy.
+//! - Low CHOP values (e.g., < 38.2) indicate the market is trending strongly.
+//!
+//! When the CHOP drops below a designated threshold (signaling a transition from choppy
+//! to trending), the strategy enters a position in the direction indicated by the SMA
+//! (Long if Price > SMA, Short if Price < SMA). It exits when the CHOP rises back above
+//! the threshold, indicating the market is returning to a consolidating state.
+
 use crate::indicators::{atr, choppiness_index, sma};
 use crate::strategy::{Signal, SignalType, Strategy, StrategyConfig, StrategyType};
 use anyhow::Result;
@@ -7,6 +24,25 @@ use rust_decimal::prelude::ToPrimitive;
 use rust_decimal::Decimal;
 use serde::{Deserialize, Serialize};
 
+/// Configuration for the Choppiness Index Trend Strategy.
+///
+/// # Examples
+///
+/// ```rust
+/// use strategies::choppiness_index_trend::ChoppinessIndexTrendConfig;
+///
+/// let config = ChoppinessIndexTrendConfig {
+///     chop_period: 14,
+///     chop_threshold: 61.8,
+///     sma_period: 20,
+///     stop_loss_atr_mult: 2.0,
+///     atr_period: 14,
+///     symbol: "BTCUSD".to_string(),
+/// };
+///
+/// assert_eq!(config.chop_period, 14);
+/// assert_eq!(config.chop_threshold, 61.8);
+/// ```
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ChoppinessIndexTrendConfig {
     pub chop_period: usize,
@@ -19,6 +55,28 @@ pub struct ChoppinessIndexTrendConfig {
 
 impl StrategyConfig for ChoppinessIndexTrendConfig {}
 
+/// The Choppiness Index Trend Strategy implementation.
+///
+/// This strategy generates signals based on transitions between choppy and trending
+/// market phases, filtered by an SMA for directional bias.
+///
+/// # Examples
+///
+/// ```rust
+/// use strategies::choppiness_index_trend::{ChoppinessIndexTrend, ChoppinessIndexTrendConfig};
+/// use strategies::strategy::Strategy;
+///
+/// let config = ChoppinessIndexTrendConfig {
+///     chop_period: 14,
+///     chop_threshold: 61.8,
+///     sma_period: 20,
+///     stop_loss_atr_mult: 2.0,
+///     atr_period: 14,
+///     symbol: "ETHUSD".to_string(),
+/// };
+///
+/// let strategy = ChoppinessIndexTrend::new(config);
+/// ```
 pub struct ChoppinessIndexTrend {
     config: ChoppinessIndexTrendConfig,
 }

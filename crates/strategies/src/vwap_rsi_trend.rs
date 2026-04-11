@@ -129,7 +129,6 @@ mod tests {
     use super::*;
     use polars::df;
 
-
     #[tokio::test]
     async fn test_vwap_rsi_trend_empty_data() -> Result<()> {
         let config = VwapRsiTrendConfig::default();

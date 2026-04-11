@@ -99,9 +99,8 @@ impl Strategy for NviTrend {
                 Some(s_prev),
                 Some(price),
                 Some(atr_val),
-            ) = (
-                nvi_curr, nvi_prev, sig_curr, sig_prev, price_opt, atr_opt,
-            ) {
+            ) = (nvi_curr, nvi_prev, sig_curr, sig_prev, price_opt, atr_opt)
+            {
                 let price_dec = Decimal::from_f64_retain(price).unwrap_or(Decimal::ZERO);
                 let atr_dec = Decimal::from_f64_retain(atr_val).unwrap_or(Decimal::ZERO);
 
@@ -243,11 +242,23 @@ mod tests {
 
         let signals = strategy.generate_signals(&df).await?;
 
-        let entry_signals = signals.iter().filter(|s| s.signal_type == SignalType::Entry).collect::<Vec<_>>();
-        let exit_signals = signals.iter().filter(|s| s.signal_type == SignalType::Exit).collect::<Vec<_>>();
+        let entry_signals = signals
+            .iter()
+            .filter(|s| s.signal_type == SignalType::Entry)
+            .collect::<Vec<_>>();
+        let exit_signals = signals
+            .iter()
+            .filter(|s| s.signal_type == SignalType::Exit)
+            .collect::<Vec<_>>();
 
-        assert!(!entry_signals.is_empty(), "Should generate entry signals on crossover");
-        assert!(!exit_signals.is_empty(), "Should generate exit signals on crossover");
+        assert!(
+            !entry_signals.is_empty(),
+            "Should generate entry signals on crossover"
+        );
+        assert!(
+            !exit_signals.is_empty(),
+            "Should generate exit signals on crossover"
+        );
 
         Ok(())
     }
