@@ -1270,3 +1270,35 @@ let eom_series = eom::calculate(&df, period)?;
 - Returns `Result<Series>`.
 - The output Series is named "eom".
 - Initial values will be null until the SMA has enough data points to compute.
+
+## Mass Index
+
+**Name:** Mass Index
+**Description:** Identifies trend reversals by measuring the widening and narrowing of the range between high and low prices.
+**Rationale:** It helps find reversals based on the expansion of trading range.
+
+### Implementation Details
+- Uses `rust_decimal::Decimal` iteratively for calculations.
+- Returns a Polars `Series` of `f64` values (computed internally via Decimal).
+
+### Usage
+
+```rust
+use strategies::indicators::mass_index;
+use polars::prelude::*;
+
+// Assuming df is a DataFrame with "high" and "low" columns
+let ema_period = 9;
+let sum_period = 25;
+let mass_index_series = mass_index::calculate(&df, ema_period, sum_period)?;
+```
+
+### Parameters
+- `data`: Reference to a Polars `DataFrame`. Must contain numeric "high" and "low" columns.
+- `ema_period`: Period for the EMAs (typically 9).
+- `sum_period`: Period for the sum (typically 25).
+
+### Output
+- Returns `Result<Series>`.
+- The output Series is named "mass_index".
+- Initial values will be null.
