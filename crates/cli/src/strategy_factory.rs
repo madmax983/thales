@@ -799,6 +799,17 @@ pub fn create_strategy(name: &str, symbol: &str) -> Result<Box<dyn Strategy>> {
             };
             Ok(Box::new(SchaffTrendCycle::new(config)))
         }
+        "MassIndexReversion" => {
+            let config = strategies::mass_index_reversion::MassIndexReversionConfig {
+                period: 25,
+                reversal_threshold: 27.0,
+                max_position_size: 100.0,
+                stop_loss_atr_mult: 2.0,
+                atr_period: 14,
+                symbol: symbol.to_string(),
+            };
+            Ok(Box::new(strategies::mass_index_reversion::MassIndexReversion::new(config)))
+        }
         "DisparityIndexReversion" => {
             let config = DisparityIndexReversionConfig {
                 symbol: symbol.to_string(),
@@ -906,6 +917,7 @@ pub fn list_strategies() -> Vec<&'static str> {
         "KstTrend",
         "VhfTrendFollowing",
         "SchaffTrendCycle",
+        "MassIndexReversion",
         "DisparityIndexReversion",
         "DpoBreakout",
         "DoubleEmaCrossover",

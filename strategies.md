@@ -3890,3 +3890,18 @@ Momentum
 - **Expected Win Rate:** 45-55%
 - **Expected Sharpe Ratio:** > 1.2
 - **Max Drawdown:** < 15%
+
+### Mass Index Reversion
+- **Name:** Mass Index Reversion
+- **Description:** A mean-reversion strategy based on the Mass Index indicator.
+- **Rationale:** The Mass Index is used to identify trend reversals by measuring the narrowing and widening of the range between the high and low prices.
+
+#### Requirements
+- **Data:** OHLCV data.
+- **Indicators:** Mass Index, ATR.
+
+#### Entry Conditions
+- None yet fully implemented, acts as a skeleton.
+
+#### Exit Conditions
+- None yet fully implemented.

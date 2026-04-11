@@ -58,6 +58,7 @@ pub mod kdj_indicator;
 pub mod keltner_channel_breakout;
 pub mod linear_regression_trend;
 pub mod macd;
+pub mod mass_index_reversion;
 pub mod macd_rsi;
 pub mod macd_trend_follower;
 pub mod money_flow_index;
