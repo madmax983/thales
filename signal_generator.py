@@ -133,7 +133,9 @@ def truncate_float(match):
     val_float = float(match.group(0))
     if val_float == 0.0:
         return "0"
-    formatted_val = f"{val_float:.4f}".rstrip('0').rstrip('.')
+    formatted_val = f"{val_float:.4f}"
+    if '.' in formatted_val:
+        formatted_val = formatted_val.rstrip('0').rstrip('.')
     return formatted_val if formatted_val else "0"
 
 def format_signal(intent):

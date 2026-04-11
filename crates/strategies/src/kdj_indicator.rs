@@ -298,7 +298,7 @@ mod tests {
     use polars::df;
 
     #[tokio::test]
-    async fn test_kdj_strategy_signals() -> Result<()> {
+    async fn test_entry_signal_generation() -> Result<()> {
         let config = KdjIndicatorStrategyConfig {
             k_period: 3,
             k_smoothing: 1,
@@ -312,23 +312,54 @@ mod tests {
         };
         let strategy = KdjIndicatorStrategy::new(config);
 
-        // We construct DataFrame to test crossings.
-        // Needs high, low, close, timestamp_unix_ms.
-
+        // For Long Entry: J crosses above 0 OR K crosses above D while both below 20.
         let df = df!(
-            "timestamp_unix_ms" => &[1000i64, 2000, 3000, 4000, 5000],
-            "high" =>  &[100.0, 100.0, 100.0, 100.0, 100.0],
-            "low" =>   &[ 90.0,  90.0,  90.0,  90.0,  90.0],
-            "close" => &[ 95.0,  95.0,  91.0,  90.5,  91.5]
+            "timestamp_unix_ms" => &[1000i64, 2000, 3000, 4000, 5000, 6000],
+            "high" =>  &[100.0, 95.0, 90.0, 85.0, 80.0, 90.0],
+            "low" =>   &[ 90.0, 85.0, 80.0, 75.0, 70.0, 80.0],
+            "close" => &[ 95.0, 90.0, 85.0, 76.0, 75.0, 88.0]
         )?;
 
         let signals = strategy.generate_signals(&df).await?;
 
-        // This is mainly a test that logic runs and generates exits/entries based on the data provided
-        assert!(
-            !signals.is_empty(),
-            "Should generate some signals given typical data behavior"
-        );
+        let entry_signals: Vec<_> = signals.iter().filter(|s| s.signal_type == SignalType::Entry).collect();
+        assert!(!entry_signals.is_empty(), "Should generate an entry signal");
+
+        // Verify risk management is integrated
+        let first_entry = &entry_signals[0];
+        assert!(first_entry.stop_loss.is_some(), "Must include stop-loss logic");
+        assert_eq!(first_entry.size_hint, "100.0000", "Must specify maximum position size properly");
+
+        Ok(())
+    }
+
+    #[tokio::test]
+    async fn test_exit_signal_generation() -> Result<()> {
+        let config = KdjIndicatorStrategyConfig {
+            k_period: 3,
+            k_smoothing: 1,
+            d_period: 2,
+            oversold_threshold: 20.0,
+            overbought_threshold: 80.0,
+            max_position_size: 100.0,
+            stop_loss_atr_mult: 1.0,
+            atr_period: 2,
+            symbol: "TEST".to_string(),
+        };
+        let strategy = KdjIndicatorStrategy::new(config);
+
+        // For Exit: K crosses below D (Long exit) OR K crosses above D (Short exit)
+        let df = df!(
+            "timestamp_unix_ms" => &[1000i64, 2000, 3000, 4000, 5000, 6000],
+            "high" =>  &[70.0, 80.0, 90.0, 100.0, 105.0, 100.0],
+            "low" =>   &[60.0, 70.0, 80.0,  90.0,  95.0,  90.0],
+            "close" => &[65.0, 78.0, 88.0,  98.0, 102.0,  92.0]
+        )?;
+
+        let signals = strategy.generate_signals(&df).await?;
+
+        let exit_signals: Vec<_> = signals.iter().filter(|s| s.signal_type == SignalType::Exit).collect();
+        assert!(!exit_signals.is_empty(), "Should generate an exit signal");
 
         Ok(())
     }
