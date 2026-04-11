@@ -549,7 +549,7 @@ fn run(command: Commands, raw: bool) -> Result<String, CliError> {
             let file_content = std::fs::read_to_string(&input).map_err(|e| {
                 std::io::Error::new(
                     e.kind(),
-                    format!("Could not open input file '{}': {}", input.display(), e),
+                    format!("Failed to read file '{}': {}", input.display(), e),
                 )
             })?;
             let series: BarSeries =
@@ -581,7 +581,7 @@ fn run(command: Commands, raw: bool) -> Result<String, CliError> {
             let file_content = std::fs::read_to_string(&input).map_err(|e| {
                 std::io::Error::new(
                     e.kind(),
-                    format!("Could not open input file '{}': {}", input.display(), e),
+                    format!("Failed to read file '{}': {}", input.display(), e),
                 )
             })?;
             let series: BarSeries =
@@ -600,7 +600,7 @@ fn run(command: Commands, raw: bool) -> Result<String, CliError> {
             let file_content = std::fs::read_to_string(&input).map_err(|e| {
                 std::io::Error::new(
                     e.kind(),
-                    format!("Could not open input file '{}': {}", input.display(), e),
+                    format!("Failed to read file '{}': {}", input.display(), e),
                 )
             })?;
             let series: BarSeries =
@@ -626,7 +626,7 @@ fn run(command: Commands, raw: bool) -> Result<String, CliError> {
             let raw_str = std::fs::read_to_string(&input).map_err(|e| {
                 std::io::Error::new(
                     e.kind(),
-                    format!("Could not open input file '{}': {}", input.display(), e),
+                    format!("Failed to read file '{}': {}", input.display(), e),
                 )
             })?;
             let series: BarSeries =
@@ -667,7 +667,7 @@ fn run(command: Commands, raw: bool) -> Result<String, CliError> {
             let raw_str = std::fs::read_to_string(&input).map_err(|e| {
                 std::io::Error::new(
                     e.kind(),
-                    format!("Could not open input file '{}': {}", input.display(), e),
+                    format!("Failed to read file '{}': {}", input.display(), e),
                 )
             })?;
             let series: BarSeries =
@@ -742,7 +742,7 @@ fn run(command: Commands, raw: bool) -> Result<String, CliError> {
             let raw_str = std::fs::read_to_string(&input).map_err(|e| {
                 std::io::Error::new(
                     e.kind(),
-                    format!("Could not open input file '{}': {}", input.display(), e),
+                    format!("Failed to read file '{}': {}", input.display(), e),
                 )
             })?;
             let mut series: BarSeries =
@@ -835,7 +835,7 @@ fn run(command: Commands, raw: bool) -> Result<String, CliError> {
             let raw_str = std::fs::read_to_string(&input).map_err(|e| {
                 std::io::Error::new(
                     e.kind(),
-                    format!("Could not open input file '{}': {}", input.display(), e),
+                    format!("Failed to read file '{}': {}", input.display(), e),
                 )
             })?;
             let series: BarSeries =
@@ -905,7 +905,7 @@ fn run(command: Commands, raw: bool) -> Result<String, CliError> {
             let raw_str = std::fs::read_to_string(&input).map_err(|e| {
                 std::io::Error::new(
                     e.kind(),
-                    format!("Could not open input file '{}': {}", input.display(), e),
+                    format!("Failed to read file '{}': {}", input.display(), e),
                 )
             })?;
             let series: BarSeries =
@@ -920,7 +920,7 @@ fn run(command: Commands, raw: bool) -> Result<String, CliError> {
                 let raw_pos = std::fs::read_to_string(&path).map_err(|e| {
                     std::io::Error::new(
                         e.kind(),
-                        format!("Could not open input file '{}': {}", path.display(), e),
+                        format!("Failed to read file '{}': {}", path.display(), e),
                     )
                 })?;
                 // Handle envelope or raw list
@@ -936,7 +936,7 @@ fn run(command: Commands, raw: bool) -> Result<String, CliError> {
                 let raw_analysis = std::fs::read_to_string(&path).map_err(|e| {
                     std::io::Error::new(
                         e.kind(),
-                        format!("Could not open input file '{}': {}", path.display(), e),
+                        format!("Failed to read file '{}': {}", path.display(), e),
                     )
                 })?;
                 match serde_json::from_str::<ResponseEnvelope<contracts::MarketAnalysis>>(
@@ -1260,7 +1260,7 @@ fn run(command: Commands, raw: bool) -> Result<String, CliError> {
             let raw_bars = std::fs::read_to_string(&input).map_err(|e| {
                 std::io::Error::new(
                     e.kind(),
-                    format!("Could not open input file '{}': {}", input.display(), e),
+                    format!("Failed to read file '{}': {}", input.display(), e),
                 )
             })?;
             let series: BarSeries =
@@ -1274,7 +1274,7 @@ fn run(command: Commands, raw: bool) -> Result<String, CliError> {
             let raw_config = std::fs::read_to_string(&config).map_err(|e| {
                 std::io::Error::new(
                     e.kind(),
-                    format!("Could not open input file '{}': {}", config.display(), e),
+                    format!("Failed to read file '{}': {}", config.display(), e),
                 )
             })?;
             let request: optimizer::OptimizationRequest = serde_json::from_str(&raw_config)?;
@@ -1300,7 +1300,7 @@ fn run(command: Commands, raw: bool) -> Result<String, CliError> {
             let raw_str = std::fs::read_to_string(&input).map_err(|e| {
                 std::io::Error::new(
                     e.kind(),
-                    format!("Could not open input file '{}': {}", input.display(), e),
+                    format!("Failed to read file '{}': {}", input.display(), e),
                 )
             })?;
             let backtest: backtest::BacktestResult = match serde_json::from_str::<
@@ -1366,7 +1366,7 @@ fn run(command: Commands, raw: bool) -> Result<String, CliError> {
             let file_content = std::fs::read_to_string(&input).map_err(|e| {
                 std::io::Error::new(
                     e.kind(),
-                    format!("Could not open input file '{}': {}", input.display(), e),
+                    format!("Failed to read file '{}': {}", input.display(), e),
                 )
             })?;
             let series: BarSeries =
@@ -1398,7 +1398,7 @@ fn run(command: Commands, raw: bool) -> Result<String, CliError> {
             let raw_str = std::fs::read_to_string(&input).map_err(|e| {
                 std::io::Error::new(
                     e.kind(),
-                    format!("Could not open input file '{}': {}", input.display(), e),
+                    format!("Failed to read file '{}': {}", input.display(), e),
                 )
             })?;
             let series: BarSeries =
@@ -1433,7 +1433,7 @@ fn run(command: Commands, raw: bool) -> Result<String, CliError> {
             let file_content = std::fs::read_to_string(&input).map_err(|e| {
                 std::io::Error::new(
                     e.kind(),
-                    format!("Could not open input file '{}': {}", input.display(), e),
+                    format!("Failed to read file '{}': {}", input.display(), e),
                 )
             })?;
             let series: BarSeries =
@@ -1466,7 +1466,7 @@ fn run(command: Commands, raw: bool) -> Result<String, CliError> {
             let file_content = std::fs::read_to_string(&input).map_err(|e| {
                 std::io::Error::new(
                     e.kind(),
-                    format!("Could not open input file '{}': {}", input.display(), e),
+                    format!("Failed to read file '{}': {}", input.display(), e),
                 )
             })?;
             let series: BarSeries =
@@ -1497,7 +1497,7 @@ fn run(command: Commands, raw: bool) -> Result<String, CliError> {
             let file_content = std::fs::read_to_string(&input).map_err(|e| {
                 std::io::Error::new(
                     e.kind(),
-                    format!("Could not open input file '{}': {}", input.display(), e),
+                    format!("Failed to read file '{}': {}", input.display(), e),
                 )
             })?;
             let series: BarSeries =
@@ -1530,7 +1530,7 @@ fn run(command: Commands, raw: bool) -> Result<String, CliError> {
             let file_content = std::fs::read_to_string(&input).map_err(|e| {
                 std::io::Error::new(
                     e.kind(),
-                    format!("Could not open input file '{}': {}", input.display(), e),
+                    format!("Failed to read file '{}': {}", input.display(), e),
                 )
             })?;
             let series: BarSeries =
@@ -1561,7 +1561,7 @@ fn run(command: Commands, raw: bool) -> Result<String, CliError> {
             let file_content = std::fs::read_to_string(&input).map_err(|e| {
                 std::io::Error::new(
                     e.kind(),
-                    format!("Could not open input file '{}': {}", input.display(), e),
+                    format!("Failed to read file '{}': {}", input.display(), e),
                 )
             })?;
             let series: BarSeries =
@@ -1594,7 +1594,7 @@ fn run(command: Commands, raw: bool) -> Result<String, CliError> {
             let file_content = std::fs::read_to_string(&input).map_err(|e| {
                 std::io::Error::new(
                     e.kind(),
-                    format!("Could not open input file '{}': {}", input.display(), e),
+                    format!("Failed to read file '{}': {}", input.display(), e),
                 )
             })?;
             let series: BarSeries =
@@ -1629,7 +1629,7 @@ fn run(command: Commands, raw: bool) -> Result<String, CliError> {
             let file_content = std::fs::read_to_string(&input).map_err(|e| {
                 std::io::Error::new(
                     e.kind(),
-                    format!("Could not open input file '{}': {}", input.display(), e),
+                    format!("Failed to read file '{}': {}", input.display(), e),
                 )
             })?;
             let series: BarSeries =
@@ -1699,7 +1699,7 @@ fn run(command: Commands, raw: bool) -> Result<String, CliError> {
             let file_content = std::fs::read_to_string(&input).map_err(|e| {
                 std::io::Error::new(
                     e.kind(),
-                    format!("Could not open input file '{}': {}", input.display(), e),
+                    format!("Failed to read file '{}': {}", input.display(), e),
                 )
             })?;
             let series: BarSeries =
@@ -1763,7 +1763,7 @@ fn run(command: Commands, raw: bool) -> Result<String, CliError> {
             let file_content = std::fs::read_to_string(&input).map_err(|e| {
                 std::io::Error::new(
                     e.kind(),
-                    format!("Could not open input file '{}': {}", input.display(), e),
+                    format!("Failed to read file '{}': {}", input.display(), e),
                 )
             })?;
             let series: BarSeries =
@@ -1799,7 +1799,7 @@ fn run(command: Commands, raw: bool) -> Result<String, CliError> {
             let file_content = std::fs::read_to_string(&input).map_err(|e| {
                 std::io::Error::new(
                     e.kind(),
-                    format!("Could not open input file '{}': {}", input.display(), e),
+                    format!("Failed to read file '{}': {}", input.display(), e),
                 )
             })?;
             let series: BarSeries =
@@ -1834,7 +1834,7 @@ fn run(command: Commands, raw: bool) -> Result<String, CliError> {
             let file_content = std::fs::read_to_string(&input).map_err(|e| {
                 std::io::Error::new(
                     e.kind(),
-                    format!("Could not open input file '{}': {}", input.display(), e),
+                    format!("Failed to read file '{}': {}", input.display(), e),
                 )
             })?;
             let series: BarSeries =
@@ -1865,7 +1865,7 @@ fn run(command: Commands, raw: bool) -> Result<String, CliError> {
             let file_content = std::fs::read_to_string(&input).map_err(|e| {
                 std::io::Error::new(
                     e.kind(),
-                    format!("Could not open input file '{}': {}", input.display(), e),
+                    format!("Failed to read file '{}': {}", input.display(), e),
                 )
             })?;
             let series: BarSeries =
@@ -1898,7 +1898,7 @@ fn run(command: Commands, raw: bool) -> Result<String, CliError> {
             let file_content = std::fs::read_to_string(&input).map_err(|e| {
                 std::io::Error::new(
                     e.kind(),
-                    format!("Could not open input file '{}': {}", input.display(), e),
+                    format!("Failed to read file '{}': {}", input.display(), e),
                 )
             })?;
             let series: BarSeries =
@@ -1942,7 +1942,7 @@ fn run(command: Commands, raw: bool) -> Result<String, CliError> {
             let file_content = std::fs::read_to_string(&input).map_err(|e| {
                 std::io::Error::new(
                     e.kind(),
-                    format!("Could not open input file '{}': {}", input.display(), e),
+                    format!("Failed to read file '{}': {}", input.display(), e),
                 )
             })?;
             let series: BarSeries =
@@ -1977,7 +1977,7 @@ fn run(command: Commands, raw: bool) -> Result<String, CliError> {
             let file_content = std::fs::read_to_string(&input).map_err(|e| {
                 std::io::Error::new(
                     e.kind(),
-                    format!("Could not open input file '{}': {}", input.display(), e),
+                    format!("Failed to read file '{}': {}", input.display(), e),
                 )
             })?;
             let series: BarSeries =
@@ -2009,7 +2009,7 @@ fn run(command: Commands, raw: bool) -> Result<String, CliError> {
             let file_content = std::fs::read_to_string(&input).map_err(|e| {
                 std::io::Error::new(
                     e.kind(),
-                    format!("Could not open input file '{}': {}", input.display(), e),
+                    format!("Failed to read file '{}': {}", input.display(), e),
                 )
             })?;
             let series: BarSeries =
@@ -2044,7 +2044,7 @@ fn run(command: Commands, raw: bool) -> Result<String, CliError> {
             let file_content = std::fs::read_to_string(&input).map_err(|e| {
                 std::io::Error::new(
                     e.kind(),
-                    format!("Could not open input file '{}': {}", input.display(), e),
+                    format!("Failed to read file '{}': {}", input.display(), e),
                 )
             })?;
             let series: BarSeries =
@@ -2080,7 +2080,7 @@ fn run(command: Commands, raw: bool) -> Result<String, CliError> {
             let file_content = std::fs::read_to_string(&input).map_err(|e| {
                 std::io::Error::new(
                     e.kind(),
-                    format!("Could not open input file '{}': {}", input.display(), e),
+                    format!("Failed to read file '{}': {}", input.display(), e),
                 )
             })?;
             let series: BarSeries =
@@ -2114,7 +2114,7 @@ fn run(command: Commands, raw: bool) -> Result<String, CliError> {
             let file_content = std::fs::read_to_string(&input).map_err(|e| {
                 std::io::Error::new(
                     e.kind(),
-                    format!("Could not open input file '{}': {}", input.display(), e),
+                    format!("Failed to read file '{}': {}", input.display(), e),
                 )
             })?;
             let series: BarSeries =
@@ -2141,7 +2141,7 @@ fn run(command: Commands, raw: bool) -> Result<String, CliError> {
             let file_content = std::fs::read_to_string(&input).map_err(|e| {
                 std::io::Error::new(
                     e.kind(),
-                    format!("Could not open input file '{}': {}", input.display(), e),
+                    format!("Failed to read file '{}': {}", input.display(), e),
                 )
             })?;
             let series: BarSeries =
@@ -2167,7 +2167,7 @@ fn run(command: Commands, raw: bool) -> Result<String, CliError> {
             let file_content = std::fs::read_to_string(&input).map_err(|e| {
                 std::io::Error::new(
                     e.kind(),
-                    format!("Could not open input file '{}': {}", input.display(), e),
+                    format!("Failed to read file '{}': {}", input.display(), e),
                 )
             })?;
             let series: BarSeries =
@@ -2378,7 +2378,7 @@ where
     let raw_str = std::fs::read_to_string(path).map_err(|e| {
         std::io::Error::new(
             e.kind(),
-            format!("Could not open file '{}': {}", path.display(), e),
+            format!("Failed to read file '{}': {}", path.display(), e),
         )
     })?;
     if let Ok(envelope) = serde_json::from_str::<ResponseEnvelope<T>>(&raw_str)
