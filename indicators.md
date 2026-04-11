@@ -906,6 +906,46 @@ let adl_series = adl::calculate(&df)?;
 - Returns `Result<Series>`.
 - The output Series is named "adl".
 
+## Gator Oscillator
+
+**Name:** Gator Oscillator
+**Description:** The Gator Oscillator is a technical indicator created by Bill Williams. It is used to identify when a market is trending, or when it is range-bound.
+**Rationale:** The oscillator is based on the Alligator indicator, plotting the absolute differences between the Jaw and Teeth (upper histogram), and the Teeth and Lips (lower histogram).
+
+### Implementation Details
+- Uses `rust_decimal::Decimal` iteratively for all math calculations to ensure financial precision, explicitly converting from and to `f64` only for Polars boundaries.
+- Returns a tuple of two Polars `Series` of `f64` values: (Upper Histogram, Lower Histogram).
+
+### Usage
+
+```rust
+use strategies::indicators::gator;
+use polars::prelude::*;
+
+// Assuming df is a DataFrame with "high" and "low" columns
+let jaw_period = 13;
+let jaw_shift = 8;
+let teeth_period = 8;
+let teeth_shift = 5;
+let lips_period = 5;
+let lips_shift = 3;
+let (upper, lower) = gator::calculate(&df, jaw_period, jaw_shift, teeth_period, teeth_shift, lips_period, lips_shift)?;
+```
+
+### Parameters
+- `data`: Reference to a Polars `DataFrame`. Must contain numeric "high" and "low" columns.
+- `jaw_period`: Lookback period for Jaw (e.g., 13).
+- `jaw_shift`: Forward shift for Jaw (e.g., 8).
+- `teeth_period`: Lookback period for Teeth (e.g., 8).
+- `teeth_shift`: Forward shift for Teeth (e.g., 5).
+- `lips_period`: Lookback period for Lips (e.g., 5).
+- `lips_shift`: Forward shift for Lips (e.g., 3).
+
+### Output
+- Returns `Result<(Series, Series)>` representing `(upper_gator, lower_gator)`.
+- The upper histogram is the absolute difference between Jaw and Teeth.
+- The lower histogram is the negative absolute difference between Teeth and Lips.
+
 ## Volume Oscillator
 
 **Name:** Volume Oscillator
