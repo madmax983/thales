@@ -111,6 +111,8 @@ enum Commands {
         initial_capital: f64,
         #[arg(long, default_value = "100.0")]
         risk: f64,
+        #[arg(long)]
+        output_csv: Option<PathBuf>,
     },
     Benchmark {
         #[arg(long)]
@@ -611,6 +613,7 @@ fn run(command: Commands, raw: bool) -> Result<String, CliError> {
             strategy,
             initial_capital,
             risk,
+            output_csv,
         } => {
             let raw_str = std::fs::read_to_string(&input).map_err(|e| {
                 std::io::Error::new(
@@ -639,6 +642,11 @@ fn run(command: Commands, raw: bool) -> Result<String, CliError> {
             let result = rt
                 .block_on(async { backtest::run_backtest(&series, &strategy, config).await })
                 .map_err(|e: anyhow::Error| CliError::Validation(e.to_string()))?;
+
+            if let Some(csv_path) = output_csv {
+                thales_cli::backtest_csv::export_backtest_csv(&result, &csv_path)
+                    .map_err(|e| CliError::Validation(format!("Failed to write CSV: {}", e)))?;
+            }
 
             ok_envelope(result, vec![], raw)
         }
