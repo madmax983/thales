@@ -5944,6 +5944,21 @@
 | 2026-04-11 00:56:13 | SPY | equities:SPY:unknown:1775840135407 | Invalid input: provider error: kraken api error: EQuery:Unknown asset pair |
 | 2026-04-11 00:56:13 | BTCUSD | crypto:BTCUSD:unknown:1775840135373 | No sellable balance available (BTC 0.00000000) |
 | 2026-04-11 00:56:14 | ETHUSD | crypto:ETHUSD:unknown:1775840135391 | No sellable balance available (ETH 0.00000000) |
+| 2026-04-11 05:11:07 | BTCUSD | crypto:BTCUSD:unknown:1775772194006 | Signal too old (31.1 hours > 24 hours) |
+| 2026-04-11 05:11:07 | ETHUSD | crypto:ETHUSD:unknown:1775772194029 | Signal too old (31.1 hours > 24 hours) |
+| 2026-04-11 05:11:07 | SPY | equities:SPY:unknown:1775772194047 | Signal too old (31.1 hours > 24 hours) |
+| 2026-04-11 05:11:07 | BTCUSD | crypto:BTCUSD:unknown:1775774937835 | Signal too old (30.4 hours > 24 hours) |
+| 2026-04-11 05:11:07 | ETHUSD | crypto:ETHUSD:unknown:1775774937854 | Signal too old (30.4 hours > 24 hours) |
+| 2026-04-11 05:11:07 | SPY | equities:SPY:unknown:1775774937871 | Signal too old (30.4 hours > 24 hours) |
+| 2026-04-11 05:11:07 | BTCUSD | crypto:BTCUSD:unknown:1775783188689 | Signal too old (28.1 hours > 24 hours) |
+| 2026-04-11 05:11:07 | ETHUSD | crypto:ETHUSD:unknown:1775783188776 | Signal too old (28.1 hours > 24 hours) |
+| 2026-04-11 05:11:07 | SPY | equities:SPY:unknown:1775783188789 | Signal too old (28.1 hours > 24 hours) |
+| 2026-04-11 05:11:07 | BTCUSD | crypto:BTCUSD:unknown:1775790237190 | Signal too old (26.1 hours > 24 hours) |
+| 2026-04-11 05:11:07 | ETHUSD | crypto:ETHUSD:unknown:1775790237204 | Signal too old (26.1 hours > 24 hours) |
+| 2026-04-11 05:11:07 | SPY | equities:SPY:unknown:1775790237216 | Signal too old (26.1 hours > 24 hours) |
+| 2026-04-11 05:11:09 | ETHUSD | crypto:ETHUSD:unknown:1775840135391 | CONFLICT: Conflicting signals (Buy and Sell) detected for ETHUSD. Trading halted for this asset. |
+| 2026-04-11 05:11:10 | SPY | equities:SPY:unknown:1775840135407 | Invalid input: provider error: kraken api error: EQuery:Unknown asset pair |
+| 2026-04-11 05:11:10 | BTCUSD | crypto:BTCUSD:unknown:1775840135373 | Rejected by Risk Agent: Position size below exchange minimum for BTCUSD (6.149e-05 < 0.0001) |
 
 ## Executed Trades
 
