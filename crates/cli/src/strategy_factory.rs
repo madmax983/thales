@@ -66,6 +66,7 @@ use strategies::hma_macd_trend::{HmaMacdTrend, HmaMacdTrendConfig};
 use strategies::ichimoku_cloud::{IchimokuCloud, IchimokuCloudConfig};
 use strategies::kama_crossover::{KamaCrossover, KamaCrossoverConfig};
 use strategies::kdj_indicator::{KdjIndicatorStrategy, KdjIndicatorStrategyConfig};
+use strategies::atr_breakout::{AtrBreakout, AtrBreakoutConfig};
 use strategies::kdj_strategy::{KdjStrategy, KdjStrategyConfig};
 use strategies::keltner_channel_breakout::{KeltnerChannelBreakout, KeltnerChannelBreakoutConfig};
 use strategies::kst_trend::{KstTrend, KstTrendConfig};
@@ -742,6 +743,16 @@ pub fn create_strategy(name: &str, symbol: &str) -> Result<Box<dyn Strategy>> {
             };
             Ok(Box::new(ZScoreMeanReversion::new(config)))
         }
+        "AtrBreakout" => {
+            let config = AtrBreakoutConfig {
+                atr_period: 14,
+                breakout_multiplier: 1.5,
+                max_position_size: 100.0,
+                stop_loss_atr_mult: 1.0,
+                symbol: symbol.to_string(),
+            };
+            Ok(Box::new(AtrBreakout::new(config)))
+        }
         "AdlMomentum" => {
             let config = AdlMomentumConfig {
                 adl_sma_period: 14,
@@ -1008,6 +1019,7 @@ pub fn list_strategies() -> Vec<&'static str> {
         "VptTrendFollowing",
         "ZlemaCrossover",
         "ZScoreMeanReversion",
+        "AtrBreakout",
         "BollingerRsiMeanReversion",
         "StochRsiMeanReversion",
         "RocMomentum",
