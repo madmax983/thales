@@ -4,7 +4,7 @@
 //!
 //! Traditional Fear and Greed indices (like CNN's or Alternative.me's crypto index) rely heavily on
 //! external, qualitative data sources such as social media sentiment, Google search trends, or broad market surveys.
-//! Since the Thales CLI operates purely on quantitative OHLCV data, this module attempts to proxy market sentiment
+//! Since the Thales CLI operates purely on quantitative price data, this module attempts to proxy market sentiment
 //! mathematically using three core components:
 //!
 //! 1. **Momentum (Price Action):** Compares the current price against a moving average. Consistent upward momentum is interpreted as greed, while downward momentum suggests fear.
