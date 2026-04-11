@@ -4223,3 +4223,39 @@ Trend Following
 - **Win Rate:** 45% - 55%
 - **Sharpe Ratio:** > 1.2
 - **Max Drawdown:** < 15%
+
+---
+
+# Trading Strategy: ATR Breakout
+
+## Strategy Specification
+
+**Name:** AtrBreakout
+
+**Description:** A trend following breakout strategy that triggers entries when the price moves beyond a defined multiple of the Average True Range (ATR) from the previous close.
+
+**Rationale:** By identifying strong directional momentum outside the normal volatility bounds (measured by ATR), the strategy aims to capture emerging trends early.
+
+## Requirements
+
+### Implementation Details
+- Uses Polars for fast vector operations over market data.
+- Implements the `Strategy` trait in Rust.
+- Utilizes the `atr` indicator for dynamically sizing the breakout threshold and stop-losses.
+
+### Strategy Type
+Trend Following
+
+### Config Parameters
+- `atr_period` (usize): Lookback period for ATR (default: 14)
+- `breakout_multiplier` (f64): Multiplier for the ATR to establish the entry threshold (default: 1.5)
+- `max_position_size` (f64): Fixed capital allocation per trade (default: 100.0)
+- `stop_loss_atr_mult` (f64): ATR multiplier for the trailing or static stop-loss distance (default: 1.0)
+- `symbol` (String): Trading pair symbol
+
+### Signal Generation Logic
+
+- **Long Entry:** Current price > previous close + (previous ATR * breakout_multiplier)
+- **Short Entry:** Current price < previous close - (previous ATR * breakout_multiplier)
+- **Long Exit:** Current price < previous close - (previous ATR * 1.0)
+- **Short Exit:** Current price > previous close + (previous ATR * 1.0)
