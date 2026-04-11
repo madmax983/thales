@@ -3,6 +3,7 @@ pub mod candlestick_patterns;
 pub mod cycle_analysis;
 pub mod export;
 pub mod kinematics;
+pub mod market_ecosystem;
 pub mod market_energy;
 pub mod market_gravity;
 pub mod market_seismology;

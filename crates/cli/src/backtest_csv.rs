@@ -1,8 +1,8 @@
+use crate::backtest::BacktestResult;
+use anyhow::Result;
 use std::fs::File;
 use std::io::Write;
 use std::path::Path;
-use crate::backtest::BacktestResult;
-use anyhow::Result;
 
 pub fn export_backtest_csv(result: &BacktestResult, output_path: &Path) -> Result<()> {
     let mut file = File::create(output_path)?;
