@@ -113,7 +113,7 @@ def format_price(val):
         return str(val)
 
 def is_missing(val):
-    if not val or str(val) in ["None", "-", "0", "0.0"]:
+    if not val or format_price(val) in ["None", "0.0", "0", "-"]:
         return True
     try:
         if float(val) == 0.0:
