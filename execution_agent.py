@@ -119,7 +119,7 @@ def manage_orders(provider):
                 }
                 log_skipped(dummy_intent, "Partial Fill Adjustment")
 
-                remaining = format_size_hint(qty - filled_qty)
+                remaining = format_size(qty - filled_qty)
                 side = order.get("side", "buy")
                 symbol = order.get("symbol")
 
@@ -262,7 +262,7 @@ def format_price(val):
     except (ValueError, TypeError):
         return str(val)
 
-def format_size_hint(size):
+def format_size(size):
     """
     Formats a numeric size as a compact decimal string.
     Gracefully handles string hints like 'max'.
@@ -296,7 +296,7 @@ def log_trade(intent, result, slippage=None):
     if signal_type_clean:
         action = f"{action} ({signal_type_clean})"
 
-    size = format_size_hint(intent.get("size_hint", "0"))
+    size = format_size(intent.get("size_hint", "0"))
     price = format_price(intent.get("limit_price"))
     if price == "-": price = "Market"
 
