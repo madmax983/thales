@@ -6,6 +6,7 @@
 //!
 //! All structs are `Serialize` and `Deserialize` to facilitate JSON-based communication.
 
+pub mod deserialize;
 use serde::{Deserialize, Serialize};
 
 /// Represents a desire to make a trade.
@@ -138,14 +139,19 @@ pub struct Bar {
     /// The start time of the bar in milliseconds since Unix epoch.
     pub timestamp_unix_ms: i64,
     /// The opening price.
+    #[serde(deserialize_with = "deserialize::deserialize_f64_nan")]
     pub open: f64,
     /// The highest price during the interval.
+    #[serde(deserialize_with = "deserialize::deserialize_f64_nan")]
     pub high: f64,
     /// The lowest price during the interval.
+    #[serde(deserialize_with = "deserialize::deserialize_f64_nan")]
     pub low: f64,
     /// The closing price.
+    #[serde(deserialize_with = "deserialize::deserialize_f64_nan")]
     pub close: f64,
     /// The volume traded during the interval.
+    #[serde(deserialize_with = "deserialize::deserialize_f64_nan")]
     pub volume: f64,
 }
 
