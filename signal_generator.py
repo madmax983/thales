@@ -156,10 +156,8 @@ def format_signal(intent):
 
     # Explicit missing variable checks
     missing_sl = is_missing(sl_val)
-    missing_tp = is_missing(tp_val)
 
-    if missing_tp and not missing_sl:
-        missing_tp = is_missing(tp_val)
+    missing_tp = is_missing(tp_val)
 
     sl = format_price(sl_val) if not missing_sl else 'None'
     tp = format_price(tp_val) if not missing_tp else 'None'
@@ -177,7 +175,7 @@ def format_signal(intent):
     output += f"- Suggested size (quantity): {size}\n"
     output += f"- Stop loss and take profit levels: SL: {sl}, TP: {tp}\n"
     output += f"- Clear reasoning (including historical context): {reason}"
-    return output
+    return output.rstrip('\n')
 
 def main():
     if not os.path.exists(CLI_PATH):
@@ -333,7 +331,10 @@ def main():
                                 side_raw = intent.get('side', '')
                                 side = str(side_raw).lower() if side_raw else ''
                                 vol_label = analysis.get("volatility", "").lower() if analysis else ""
-                                new_sl, new_tp = calculate_fallback_sl_tp(last_close_price, side, vol_label, missing_sl, missing_tp, sl_val)
+
+                                # Use missing_tp=True implicitly to generate a 1:2 R:R fallback if missing_tp and not missing_sl
+                                calc_missing_tp = True if missing_tp and not missing_sl else missing_tp
+                                new_sl, new_tp = calculate_fallback_sl_tp(last_close_price, side, vol_label, missing_sl, calc_missing_tp, sl_val)
 
                                 if new_sl is not None:
                                     intent["stop_loss"] = format_price(new_sl)
@@ -361,14 +362,16 @@ def main():
                         side = str(side_raw).lower() if side_raw else ''
                         sentiment = analysis.get("sentiment", "").lower()
 
+                        # Check sentiment against intended side
                         # We specifically look for (overbought) / (oversold) in the sentiment
-                        # To avoid false positives on rationale like "not overbought", we check sentiment primarily.
-                        if side in ["buy", "long"] and "overbought" in sentiment:
-                            print(f"Skipping long signal for {symbol}: Chasing move (Sentiment is Overbought)", file=sys.stderr)
-                            continue
-                        elif side in ["sell", "short"] and "oversold" in sentiment:
-                            print(f"Skipping short signal for {symbol}: Chasing move (Sentiment is Oversold)", file=sys.stderr)
-                            continue
+                        if side in ["buy", "long"]:
+                            if "overbought" in sentiment:
+                                print(f"Skipping long signal for {symbol}: Chasing move (Sentiment is Overbought)", file=sys.stderr)
+                                continue
+                        elif side in ["sell", "short"]:
+                            if "oversold" in sentiment:
+                                print(f"Skipping short signal for {symbol}: Chasing move (Sentiment is Oversold)", file=sys.stderr)
+                                continue
 
                     # Filter: Check historical trades before generating new signals
                     rationale = intent.get("rationale") or ""
