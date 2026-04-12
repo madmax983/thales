@@ -6456,6 +6456,39 @@
 | 2026-04-12 12:55:27 | SPY | equities:SPY:unknown:1775910326153 | Signal too old (24.5 hours > 24 hours) |
 | 2026-04-12 12:55:29 | BSXUSD | NO_REF | CONFLICT: Conflicting signals (Buy and Sell) detected for BSXUSD. Trading halted for this asset. |
 | 2026-04-12 12:55:30 | ZBCNUSD | NO_REF | CONFLICT: Conflicting signals (Buy and Sell) detected for ZBCNUSD. Trading halted for this asset. |
+| 2026-04-12 16:07:35 | BTCUSD | crypto:BTCUSD:unknown:1775772194006 | Signal too old (66.1 hours > 24 hours) |
+| 2026-04-12 16:07:35 | ETHUSD | crypto:ETHUSD:unknown:1775772194029 | Signal too old (66.1 hours > 24 hours) |
+| 2026-04-12 16:07:35 | SPY | equities:SPY:unknown:1775772194047 | Signal too old (66.1 hours > 24 hours) |
+| 2026-04-12 16:07:35 | BTCUSD | crypto:BTCUSD:unknown:1775774937835 | Signal too old (65.3 hours > 24 hours) |
+| 2026-04-12 16:07:35 | ETHUSD | crypto:ETHUSD:unknown:1775774937854 | Signal too old (65.3 hours > 24 hours) |
+| 2026-04-12 16:07:35 | SPY | equities:SPY:unknown:1775774937871 | Signal too old (65.3 hours > 24 hours) |
+| 2026-04-12 16:07:35 | BTCUSD | crypto:BTCUSD:unknown:1775783188689 | Signal too old (63.0 hours > 24 hours) |
+| 2026-04-12 16:07:35 | ETHUSD | crypto:ETHUSD:unknown:1775783188776 | Signal too old (63.0 hours > 24 hours) |
+| 2026-04-12 16:07:35 | SPY | equities:SPY:unknown:1775783188789 | Signal too old (63.0 hours > 24 hours) |
+| 2026-04-12 16:07:35 | BTCUSD | crypto:BTCUSD:unknown:1775790237190 | Signal too old (61.1 hours > 24 hours) |
+| 2026-04-12 16:07:35 | ETHUSD | crypto:ETHUSD:unknown:1775790237204 | Signal too old (61.1 hours > 24 hours) |
+| 2026-04-12 16:07:35 | SPY | equities:SPY:unknown:1775790237216 | Signal too old (61.1 hours > 24 hours) |
+| 2026-04-12 16:07:35 | BTCUSD | crypto:BTCUSD:unknown:1775820589643 | Signal too old (52.6 hours > 24 hours) |
+| 2026-04-12 16:07:35 | ETHUSD | crypto:ETHUSD:unknown:1775820589668 | Signal too old (52.6 hours > 24 hours) |
+| 2026-04-12 16:07:35 | SPY | equities:SPY:unknown:1775820589697 | Signal too old (52.6 hours > 24 hours) |
+| 2026-04-12 16:07:35 | BTCUSD | crypto:BTCUSD:unknown:1775824142739 | Signal too old (51.6 hours > 24 hours) |
+| 2026-04-12 16:07:35 | ETHUSD | crypto:ETHUSD:unknown:1775824142758 | Signal too old (51.6 hours > 24 hours) |
+| 2026-04-12 16:07:35 | SPY | equities:SPY:unknown:1775824142775 | Signal too old (51.6 hours > 24 hours) |
+| 2026-04-12 16:07:35 | BTCUSD | crypto:BTCUSD:unknown:1775824729042 | Signal too old (51.5 hours > 24 hours) |
+| 2026-04-12 16:07:35 | ETHUSD | crypto:ETHUSD:unknown:1775824729057 | Signal too old (51.5 hours > 24 hours) |
+| 2026-04-12 16:07:35 | SPY | equities:SPY:unknown:1775824729071 | Signal too old (51.5 hours > 24 hours) |
+| 2026-04-12 16:07:35 | BTCUSD | crypto:BTCUSD:unknown:1775840135373 | Signal too old (47.2 hours > 24 hours) |
+| 2026-04-12 16:07:35 | ETHUSD | crypto:ETHUSD:unknown:1775840135391 | Signal too old (47.2 hours > 24 hours) |
+| 2026-04-12 16:07:35 | SPY | equities:SPY:unknown:1775840135407 | Signal too old (47.2 hours > 24 hours) |
+| 2026-04-12 16:07:35 | BTCUSD | crypto:BTCUSD:unknown:1775910326119 | Signal too old (27.7 hours > 24 hours) |
+| 2026-04-12 16:07:35 | ETHUSD | crypto:ETHUSD:unknown:1775910326137 | Signal too old (27.7 hours > 24 hours) |
+| 2026-04-12 16:07:35 | SPY | equities:SPY:unknown:1775910326153 | Signal too old (27.7 hours > 24 hours) |
+| 2026-04-12 16:07:36 | BTCUSD | crypto:BTCUSD:unknown:1775997718075 | Invalid input: provider error: missing required environment variable: KRAKEN_API_KEY |
+| 2026-04-12 16:07:36 | ETHUSD | crypto:ETHUSD:unknown:1775997718091 | Invalid input: provider error: missing required environment variable: KRAKEN_API_KEY |
+| 2026-04-12 16:07:36 | SPY | equities:SPY:unknown:1775997718107 | Invalid input: provider error: missing required environment variable: KRAKEN_API_KEY |
+| 2026-04-12 16:07:43 | BTCUSD | crypto:BTCUSD:unknown:1775997718075 | CONFLICT: Conflicting signals (Buy and Sell) detected for BTCUSD. Trading halted for this asset. |
+| 2026-04-12 16:07:43 | ETHUSD | crypto:ETHUSD:unknown:1775997718091 | CONFLICT: Conflicting signals (Buy and Sell) detected for ETHUSD. Trading halted for this asset. |
+| 2026-04-12 16:07:44 | SPY | equities:SPY:unknown:1775997718107 | CONFLICT: Conflicting signals (Buy and Sell) detected for SPY. Trading halted for this asset. |
 
 ## Executed Trades
 
