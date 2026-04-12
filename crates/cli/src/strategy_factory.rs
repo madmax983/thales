@@ -96,7 +96,7 @@ use strategies::tema_crossover::{TemaCrossover, TemaCrossoverConfig};
 use strategies::triple_ema_crossover::{TripleEmaCrossover, TripleEmaCrossoverConfig};
 use strategies::triple_sma_crossover::{TripleSmaCrossover, TripleSmaCrossoverConfig};
 use strategies::trix_crossover::{TrixCrossover, TrixCrossoverConfig};
-use strategies::trix_momentum::{TrixMomentum, TrixMomentumConfig};
+use strategies::trix_momentum::{TrixMomentumStrategy, TrixMomentumConfig};
 use strategies::tsi_trend::{TsiTrend, TsiTrendConfig};
 use strategies::ttm_squeeze::{TtmSqueeze, TtmSqueezeConfig};
 use strategies::ultimate_oscillator::{UltimateOscillator, UltimateOscillatorConfig};
@@ -177,16 +177,6 @@ pub fn create_strategy(name: &str, symbol: &str) -> Result<Box<dyn Strategy>> {
             };
             Ok(Box::new(AroonOscillator::new(config)))
         }
-        "TrixMomentum" => {
-            let config = TrixMomentumConfig {
-                trix_period: 15,
-                signal_period: 9,
-                stop_loss_atr_mult: 2.0,
-                atr_period: 14,
-                symbol: symbol.to_string(),
-            };
-            Ok(Box::new(TrixMomentum::new(config)))
-        }
         "TrixCrossover" => {
             let config = TrixCrossoverConfig {
                 trix_period: 15,
@@ -196,6 +186,16 @@ pub fn create_strategy(name: &str, symbol: &str) -> Result<Box<dyn Strategy>> {
                 symbol: symbol.to_string(),
             };
             Ok(Box::new(TrixCrossover::new(config)))
+        }
+        "TrixMomentum" => {
+            let config = TrixMomentumConfig {
+                trix_period: 14,
+                signal_period: 9,
+                stop_loss_atr_mult: 2.0,
+                atr_period: 14,
+                symbol: symbol.to_string(),
+            };
+            Ok(Box::new(TrixMomentumStrategy::new(config)))
         }
         "AwesomeOscillator" => {
             let config = AwesomeOscillatorConfig {
@@ -1025,6 +1025,7 @@ pub fn list_strategies() -> Vec<&'static str> {
         "RocMomentum",
         "MacdRsiTrend",
         "TrixCrossover",
+        "TrixMomentum",
         "TsiTrend",
         "DemaCrossover",
         "TemaCrossover",

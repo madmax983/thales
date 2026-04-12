@@ -32,11 +32,9 @@ fn calculate_sma(data: &[Option<Decimal>], window: usize) -> Result<Vec<Option<D
         }
 
         if queue.len() > window {
-            if let Some(popped) = queue.pop_front() {
-                if let Some(val) = popped {
-                    sum -= val;
-                    count -= 1;
-                }
+            if let Some(Some(val)) = queue.pop_front() {
+                sum -= val;
+                count -= 1;
             }
         }
 

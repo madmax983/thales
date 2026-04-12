@@ -4259,3 +4259,38 @@ Trend Following
 - **Short Entry:** Current price < previous close - (previous ATR * breakout_multiplier)
 - **Long Exit:** Current price < previous close - (previous ATR * 1.0)
 - **Short Exit:** Current price > previous close + (previous ATR * 1.0)
+
+---
+
+# Trading Strategy: TRIX Momentum
+
+## Strategy Specification
+
+**Name:** TrixMomentum
+
+**Description:** A momentum-based trend following strategy utilizing the TRIX (Triple Exponential Moving Average Oscillator) and its Signal Line (SMA of TRIX). It enters a long position when TRIX crosses above its Signal Line (bullish) and goes short when TRIX crosses below its Signal Line (bearish).
+
+**Rationale:** By applying a triple exponential smoothing, the TRIX indicator successfully filters out insignificant price movements and minor volatility, allowing for clear identification of underlying trends. When TRIX crosses its Signal Line, it confirms a shift in momentum that is likely to persist.
+
+## Requirements
+
+### Implementation Details
+- Uses Polars for fast calculation of the TRIX and Signal lines.
+- Implements the `Strategy` trait in Rust.
+- Calculates ATR to implement volatility-adjusted stop losses.
+
+### Strategy Type
+Momentum
+
+### Entry Conditions
+- **Long Entry (Buy):** TRIX crosses above the Signal Line.
+- **Short Entry (Sell):** TRIX crosses below the Signal Line.
+
+### Exit Conditions
+- **Long Exit:** TRIX crosses below the Signal Line (often flips to a short position).
+- **Short Exit:** TRIX crosses above the Signal Line (often flips to a long position).
+
+### Expected Backtesting Metrics
+- **Win Rate:** ~45-55%
+- **Sharpe Ratio:** > 1.2
+- **Max Drawdown:** < 15%
