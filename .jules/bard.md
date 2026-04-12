@@ -126,3 +126,7 @@
 ## 2024-06-11 - The Silent Choppiness and Keltner Breakout
 **Confusion:** The Choppiness Index Trend and Keltner Channel Breakout strategies lacked module-level documentation, leaving users confused about the specific parameters required and how signals were generated using the CHOP threshold and EMA/ATR-based channel boundaries.
 **Clarification:** Added module-level documentation (`//!`) and executable examples (`# Examples`) for `ChoppinessIndexTrendConfig`, `ChoppinessIndexTrend`, `KeltnerChannelBreakoutConfig` and `KeltnerChannelBreakout`, detailing the exact breakout and trend confirmation logic.
+
+## 2026-04-10 - The Unmapped Nova Elements
+**Confusion:** Experimental modules like `market_temperature.rs`, `price_magnetism.rs`, `time_dilation.rs`, and `price_dna.rs` in `crates/cli/src/experimental/` lacked executable examples and documentation. Users could not discover how to analyze market heat, magnetic pull, time dilation, or sequence biological nucleotides from market data.
+**Clarification:** Added storytelling module-level documentation (`//!`) to explain the core concepts. Added executable `# Examples` to all configuration structures, report definitions, and main functions (`analyze_temperature`, `analyze_magnetism`, `analyze_time_dilation`, `sequence_dna`), guiding developers on proper initialization and result interpretation.

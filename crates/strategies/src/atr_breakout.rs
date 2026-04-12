@@ -120,9 +120,7 @@ impl Strategy for AtrBreakout {
                         confidence: 0.8,
                         stop_loss: None,
                         take_profit: None,
-                        reason: format!(
-                            "ATR Long Exit (Price dropped below prev close - ATR)"
-                        ),
+                        reason: format!("ATR Long Exit (Price dropped below prev close - ATR)"),
                         timestamp_ms: timestamp,
                     });
                 }
@@ -136,9 +134,7 @@ impl Strategy for AtrBreakout {
                         confidence: 0.8,
                         stop_loss: None,
                         take_profit: None,
-                        reason: format!(
-                            "ATR Short Exit (Price rose above prev close + ATR)"
-                        ),
+                        reason: format!("ATR Short Exit (Price rose above prev close + ATR)"),
                         timestamp_ms: timestamp,
                     });
                 }
