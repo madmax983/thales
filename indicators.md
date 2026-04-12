@@ -1524,3 +1524,32 @@ use polars::prelude::*;
 **Name:** Custom Aroon Indicator
 **Description:** A mean-reversion and momentum indicator.
 **Rationale:** The Custom Aroon indicator helps to identify the start of a new trend and the strength of the trend, implemented using pure Decimal math.
+
+## True Range (TR)
+
+**Name:** True Range
+**Description:** Measures market volatility. It is defined as the greatest of the following: Current High less the Current Low, Absolute value of the Current High less the Previous Close, Absolute value of the Current Low less the Previous Close.
+**Rationale:** Helps measure the true volatility of a market, which can be useful in assessing the impact of gaps on price movements.
+
+### Implementation Details
+- Uses `rust_decimal::Decimal` iteratively for math calculations to ensure financial precision.
+- Strictly unboxes inputs as strings and parses them to `rust_decimal::Decimal` to avoid floating point imprecision.
+- Returns a Polars `Series` of `String` values containing the Decimal representation to maintain precision per strict "No f64" requirements.
+- Formula: `max(High - Low, abs(High - PrevClose), abs(Low - PrevClose))`
+
+### Usage
+
+```rust
+use strategies::indicators::true_range;
+use polars::prelude::*;
+
+// Assuming df is a DataFrame with "high", "low", and "close" columns
+let tr_series = true_range::calculate(&df)?;
+```
+
+### Parameters
+- `data`: Reference to a Polars `DataFrame`. Must contain numeric "high", "low", and "close" columns.
+
+### Output
+- Returns `Result<Series>`.
+- The output Series is named "true_range".
