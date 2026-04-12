@@ -904,7 +904,7 @@ def log_trade(intent, result, slippage=None):
     symbol = symbol.replace("|", "\\|")
     action = action.replace("|", "\\|")
 
-    size = format_size_hint(intent.get("size_hint", "0"))
+    size = format_size(intent.get("size_hint", "0"))
     price = format_price(intent.get("limit_price"))
     if price == "-": price = "Market"
 
@@ -956,7 +956,7 @@ def log_submitted(intent, result):
     symbol = symbol.replace("|", "\\|")
     action = action.replace("|", "\\|")
 
-    size = format_size_hint(intent.get("size_hint", "0"))
+    size = format_size(intent.get("size_hint", "0"))
     price = format_price(intent.get("limit_price"))
     if price == "-": price = "Market"
 
@@ -1052,7 +1052,7 @@ def format_price(val):
     except (ValueError, TypeError):
         return str(val)
 
-def format_size_hint(size):
+def format_size(size):
     """Formats a numeric size as a compact decimal string."""
     if str(size).lower() == "max":
         return "max"
@@ -1113,7 +1113,7 @@ def adjust_buy_size_to_buying_power(intent, current_price, safety_buffer=0.99):
     if requested_size <= max_affordable_size:
         return True, "Size within buying power"
 
-    adjusted_size = format_size_hint(max_affordable_size)
+    adjusted_size = format_size(max_affordable_size)
     if adjusted_size == "0":
         return False, f"No buying power available after buffer ({currency} {buying_power:.2f})"
 
@@ -1172,7 +1172,7 @@ def adjust_sell_size_to_sellable_balance(intent):
     if requested_size <= sellable_balance:
         return True, "Size within sellable balance"
 
-    intent["size_hint"] = format_size_hint(sellable_balance)
+    intent["size_hint"] = format_size(sellable_balance)
     old_rationale = intent.get("rationale", "").strip()
     sizing_note = (
         f"Sell size adjusted from {size_hint} to max based on "
@@ -1321,7 +1321,7 @@ def manage_orders():
                      }
                      log_skipped(dummy_intent, "Partial Fill Adjustment")
 
-                     remaining = format_size_hint(qty - filled_qty)
+                     remaining = format_size(qty - filled_qty)
                      side = order.get("side", "buy")
                      symbol = order.get("symbol")
 
