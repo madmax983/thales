@@ -271,6 +271,14 @@ enum Commands {
         visualize: bool,
     },
     #[cfg(feature = "nova")]
+    /// Analyze market orbit
+    AnalyzeOrbit {
+        #[arg(long)]
+        input: PathBuf,
+        #[arg(long)]
+        visualize: bool,
+    },
+    #[cfg(feature = "nova")]
     /// Analyze market ecosystem
     AnalyzeEcosystem {
         #[arg(long)]
@@ -2187,6 +2195,39 @@ fn run(command: Commands, raw: bool) -> Result<String, CliError> {
                 println!(
                     "Time Dilation Report:\nBase Rate: {:.2}\nDilation Factor: {:.2}",
                     report.base_volume_rate, report.dilation_factor
+                );
+            }
+
+            ok_envelope(report, vec![], raw)
+        }
+        #[cfg(feature = "nova")]
+        Commands::AnalyzeOrbit { input, visualize } => {
+            let file_content = std::fs::read_to_string(&input).map_err(|e| {
+                std::io::Error::new(
+                    e.kind(),
+                    format!("Failed to read file '{}': {}", input.display(), e),
+                )
+            })?;
+            let series: BarSeries =
+                match serde_json::from_str::<ResponseEnvelope<BarSeries>>(&file_content) {
+                    Ok(envelope) => envelope
+                        .data
+                        .ok_or(CliError::Validation("Envelope has no data".to_string()))?,
+                    Err(_) => serde_json::from_str::<BarSeries>(&file_content)?,
+                };
+
+            let report = thales_cli::experimental::market_orbit::analyze_orbit(&series)
+                .ok_or_else(|| {
+                    CliError::Validation("Failed to calculate market orbit".to_string())
+                })?;
+
+            if visualize {
+                println!(
+                    "Market Orbit Report:\nDistance: {:.2}%\nVelocity: {:.2}%\nEccentricity: {:.2}\nTrajectory: {}",
+                    report.orbital_distance,
+                    report.orbital_velocity,
+                    report.eccentricity,
+                    report.trajectory
                 );
             }
 

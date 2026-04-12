@@ -103,10 +103,10 @@ mod tests {
         let mut bars = Vec::new();
         // create low volatility
         for _ in 0..13 {
-            bars.push(create_mock_bar(101.0, 99.0, 100.0, 100.0));
+            bars.push(create_mock_bar(100.5, 99.5, 100.0, 100.0));
         }
         // Last bar: huge volume, low volatility
-        bars.push(create_mock_bar(101.0, 99.0, 100.0, 500.0));
+        bars.push(create_mock_bar(100.5, 99.5, 100.0, 500.0));
 
         let series = BarSeries {
             schema_version: "v0".to_string(),
