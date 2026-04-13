@@ -18,6 +18,18 @@ use contracts::BarSeries;
 use serde::{Deserialize, Serialize};
 
 /// Configuration for analyzing the Price DNA.
+///
+/// # Examples
+///
+/// ```rust
+/// use thales_cli::experimental::price_dna::PriceDnaConfig;
+///
+/// let config = PriceDnaConfig {
+///     volume_threshold_multiplier: 1.5,
+/// };
+///
+/// assert_eq!(config.volume_threshold_multiplier, 1.5);
+/// ```
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct PriceDnaConfig {
     /// Multiplier to determine if a bar has high or low volume relative to the average.
@@ -34,6 +46,20 @@ impl Default for PriceDnaConfig {
 }
 
 /// The output report containing the calculated sequence of biological nucleotides.
+///
+/// # Examples
+///
+/// ```rust
+/// use thales_cli::experimental::price_dna::PriceDnaReport;
+///
+/// let report = PriceDnaReport {
+///     symbol: "BTCUSD".to_string(),
+///     sequence: "ATCG".to_string(),
+///     description: "Legend...".to_string(),
+/// };
+///
+/// assert_eq!(report.sequence, "ATCG");
+/// ```
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct PriceDnaReport {
     /// The market asset symbol.
