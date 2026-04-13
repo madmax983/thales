@@ -4294,3 +4294,40 @@ Momentum
 - **Win Rate:** ~45-55%
 - **Sharpe Ratio:** > 1.2
 - **Max Drawdown:** < 15%
+
+# Trading Strategy: Gator Oscillator
+
+## Strategy Specification
+
+**Name:** GatorOscillator
+
+**Description:** A trend-following oscillator based on Bill Williams' Gator Oscillator. It expands the Alligator indicator to visualize the widening and narrowing of the Jaw, Teeth, and Lips lines, indicating trend strength and phase (sleeping, awakening, eating, sated).
+
+**Rationale:** The Gator Oscillator simplifies reading the Alligator indicator. When the upper and lower histograms expand, it indicates the trend is strengthening ("eating"). When they contract, it indicates the trend is weakening or consolidating ("sleeping"). The strategy aims to enter trades during the awakening/eating phases and exit during the sated/sleeping phases.
+
+## Requirements
+
+### Implementation Details
+- Uses Polars for data analysis.
+- Implements the `Strategy` trait in Rust.
+- Uses `gator` and `atr` indicators.
+
+### Strategy Type
+TrendFollowing
+
+### Entry Conditions
+- **Long Entry:** Histograms expand (Upper current > Upper previous AND Lower current < Lower previous).
+- **Short Entry:** Histograms contract (Upper current < Upper previous AND Lower current > Lower previous).
+
+### Exit Conditions
+- **Long Exit:** Histograms contract OR Stop loss hit.
+- **Short Exit:** Histograms expand OR Stop loss hit.
+- **Stop Loss:** Entry Price +/- (ATR * `stop_loss_atr_mult`).
+
+### Position Sizing
+- **Size Hint:** "100" (fixed units) for entry, "max" for exits.
+
+### Expected Backtesting Metrics
+- **Expected Win Rate:** 45-55%
+- **Expected Sharpe Ratio:** > 1.2
+- **Max Drawdown:** < 15%
