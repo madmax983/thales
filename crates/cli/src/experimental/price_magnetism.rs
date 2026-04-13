@@ -16,6 +16,19 @@ use contracts::BarSeries;
 use serde::{Deserialize, Serialize};
 
 /// The output report containing the calculated price magnetism.
+///
+/// # Examples
+///
+/// ```rust
+/// use thales_cli::experimental::price_magnetism::PriceMagnetismReport;
+///
+/// let report = PriceMagnetismReport {
+///     current_price: 105.0,
+///     net_magnetic_force: -5.0,
+/// };
+///
+/// assert_eq!(report.current_price, 105.0);
+/// ```
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct PriceMagnetismReport {
     /// The most recent close price of the asset.

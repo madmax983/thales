@@ -18,6 +18,19 @@ use contracts::BarSeries;
 use serde::{Deserialize, Serialize};
 
 /// The output report containing the calculated time dilation factor.
+///
+/// # Examples
+///
+/// ```rust
+/// use thales_cli::experimental::time_dilation::TimeDilationReport;
+///
+/// let report = TimeDilationReport {
+///     base_volume_rate: 100.0,
+///     dilation_factor: 2.0,
+/// };
+///
+/// assert_eq!(report.dilation_factor, 2.0);
+/// ```
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct TimeDilationReport {
     /// The average volume aggregated per time step across the whole series.

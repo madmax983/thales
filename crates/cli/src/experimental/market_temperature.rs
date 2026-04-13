@@ -19,6 +19,18 @@ use contracts::BarSeries;
 use serde::{Deserialize, Serialize};
 
 /// Configuration for calculating the Market Temperature.
+///
+/// # Examples
+///
+/// ```rust
+/// use thales_cli::experimental::market_temperature::TemperatureConfig;
+///
+/// let config = TemperatureConfig {
+///     window_size: 14,
+/// };
+///
+/// assert_eq!(config.window_size, 14);
+/// ```
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct TemperatureConfig {
     /// The number of recent periods to include in the temperature calculation.
@@ -26,6 +38,18 @@ pub struct TemperatureConfig {
 }
 
 /// The output report containing the calculated market temperature.
+///
+/// # Examples
+///
+/// ```rust
+/// use thales_cli::experimental::market_temperature::TemperatureReport;
+///
+/// let report = TemperatureReport {
+///     temperature: 42.0,
+/// };
+///
+/// assert_eq!(report.temperature, 42.0);
+/// ```
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct TemperatureReport {
     /// The calculated temperature metric. Higher values indicate a "hotter" market.
