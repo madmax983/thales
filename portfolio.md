@@ -6942,6 +6942,39 @@
 | 2026-04-13 14:55:39 | ETHUSD | crypto:ETHUSD:unknown:1776083662311 | CONFLICT: Conflicting signals (Buy and Sell) detected for ETHUSD. Trading halted for this asset. |
 | 2026-04-13 14:55:39 | SPY | equities:SPY:unknown:1776083662330 | Invalid input: provider error: kraken api error: EQuery:Unknown asset pair |
 | 2026-04-13 14:55:40 | BTCUSD | crypto:BTCUSD:unknown:1776083662275 | provider error: kraken api error: EOrder:Insufficient funds |
+| 2026-04-13 15:52:37 | BTCUSD | crypto:BTCUSD:unknown:1775772194006 | Signal too old (89.8 hours > 24 hours) |
+| 2026-04-13 15:52:37 | ETHUSD | crypto:ETHUSD:unknown:1775772194029 | Signal too old (89.8 hours > 24 hours) |
+| 2026-04-13 15:52:37 | SPY | equities:SPY:unknown:1775772194047 | Signal too old (89.8 hours > 24 hours) |
+| 2026-04-13 15:52:37 | BTCUSD | crypto:BTCUSD:unknown:1775774937835 | Signal too old (89.1 hours > 24 hours) |
+| 2026-04-13 15:52:37 | ETHUSD | crypto:ETHUSD:unknown:1775774937854 | Signal too old (89.1 hours > 24 hours) |
+| 2026-04-13 15:52:37 | SPY | equities:SPY:unknown:1775774937871 | Signal too old (89.1 hours > 24 hours) |
+| 2026-04-13 15:52:37 | BTCUSD | crypto:BTCUSD:unknown:1775783188689 | Signal too old (86.8 hours > 24 hours) |
+| 2026-04-13 15:52:37 | ETHUSD | crypto:ETHUSD:unknown:1775783188776 | Signal too old (86.8 hours > 24 hours) |
+| 2026-04-13 15:52:37 | SPY | equities:SPY:unknown:1775783188789 | Signal too old (86.8 hours > 24 hours) |
+| 2026-04-13 15:52:37 | BTCUSD | crypto:BTCUSD:unknown:1775790237190 | Signal too old (84.8 hours > 24 hours) |
+| 2026-04-13 15:52:37 | ETHUSD | crypto:ETHUSD:unknown:1775790237204 | Signal too old (84.8 hours > 24 hours) |
+| 2026-04-13 15:52:37 | SPY | equities:SPY:unknown:1775790237216 | Signal too old (84.8 hours > 24 hours) |
+| 2026-04-13 15:52:37 | BTCUSD | crypto:BTCUSD:unknown:1775820589643 | Signal too old (76.4 hours > 24 hours) |
+| 2026-04-13 15:52:37 | ETHUSD | crypto:ETHUSD:unknown:1775820589668 | Signal too old (76.4 hours > 24 hours) |
+| 2026-04-13 15:52:37 | SPY | equities:SPY:unknown:1775820589697 | Signal too old (76.4 hours > 24 hours) |
+| 2026-04-13 15:52:37 | BTCUSD | crypto:BTCUSD:unknown:1775824142739 | Signal too old (75.4 hours > 24 hours) |
+| 2026-04-13 15:52:37 | ETHUSD | crypto:ETHUSD:unknown:1775824142758 | Signal too old (75.4 hours > 24 hours) |
+| 2026-04-13 15:52:37 | SPY | equities:SPY:unknown:1775824142775 | Signal too old (75.4 hours > 24 hours) |
+| 2026-04-13 15:52:37 | BTCUSD | crypto:BTCUSD:unknown:1775824729042 | Signal too old (75.2 hours > 24 hours) |
+| 2026-04-13 15:52:37 | ETHUSD | crypto:ETHUSD:unknown:1775824729057 | Signal too old (75.2 hours > 24 hours) |
+| 2026-04-13 15:52:37 | SPY | equities:SPY:unknown:1775824729071 | Signal too old (75.2 hours > 24 hours) |
+| 2026-04-13 15:52:37 | BTCUSD | crypto:BTCUSD:unknown:1775840135373 | Signal too old (71.0 hours > 24 hours) |
+| 2026-04-13 15:52:37 | ETHUSD | crypto:ETHUSD:unknown:1775840135391 | Signal too old (71.0 hours > 24 hours) |
+| 2026-04-13 15:52:37 | SPY | equities:SPY:unknown:1775840135407 | Signal too old (71.0 hours > 24 hours) |
+| 2026-04-13 15:52:37 | BTCUSD | crypto:BTCUSD:unknown:1775910326119 | Signal too old (51.5 hours > 24 hours) |
+| 2026-04-13 15:52:37 | ETHUSD | crypto:ETHUSD:unknown:1775910326137 | Signal too old (51.5 hours > 24 hours) |
+| 2026-04-13 15:52:37 | SPY | equities:SPY:unknown:1775910326153 | Signal too old (51.5 hours > 24 hours) |
+| 2026-04-13 15:52:37 | BTCUSD | crypto:BTCUSD:unknown:1775997718075 | Signal too old (27.2 hours > 24 hours) |
+| 2026-04-13 15:52:37 | ETHUSD | crypto:ETHUSD:unknown:1775997718091 | Signal too old (27.2 hours > 24 hours) |
+| 2026-04-13 15:52:37 | SPY | equities:SPY:unknown:1775997718107 | Signal too old (27.2 hours > 24 hours) |
+| 2026-04-13 15:52:38 | BTCUSD | crypto:BTCUSD:unknown:1776083662275 | CONFLICT: Conflicting signals (Buy and Sell) detected for BTCUSD. Trading halted for this asset. |
+| 2026-04-13 15:52:39 | ETHUSD | crypto:ETHUSD:unknown:1776083662311 | CONFLICT: Conflicting signals (Buy and Sell) detected for ETHUSD. Trading halted for this asset. |
+| 2026-04-13 15:52:39 | SPY | equities:SPY:unknown:1776083662330 | Invalid input: provider error: kraken api error: EQuery:Unknown asset pair |
 
 ## Executed Trades
 
