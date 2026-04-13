@@ -951,6 +951,14 @@ pub fn create_strategy(name: &str, symbol: &str) -> Result<Box<dyn Strategy>> {
             };
             Ok(Box::new(UlcerIndexMeanReversion::new(config)))
         }
+        "GatorOscillator" => {
+            use strategies::gator_oscillator::{GatorOscillator, GatorOscillatorConfig};
+            let config = GatorOscillatorConfig {
+                symbol: symbol.to_string(),
+                ..GatorOscillatorConfig::default()
+            };
+            Ok(Box::new(GatorOscillator::new(config)))
+        }
         "VwapCciTrend" => {
             use strategies::vwap_cci_trend::{VwapCciTrend, VwapCciTrendConfig};
             let config = VwapCciTrendConfig {
@@ -1047,5 +1055,6 @@ pub fn list_strategies() -> Vec<&'static str> {
         "TtmSqueeze",
         "VwMacd",
         "UlcerIndexMeanReversion",
+        "GatorOscillator",
     ]
 }

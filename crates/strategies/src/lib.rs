@@ -108,3 +108,4 @@ pub mod kst_trend;
 pub mod relative_vigor_index_trend;
 pub mod ultimate_oscillator;
 pub mod vwap_cci_trend;
+pub mod gator_oscillator;
