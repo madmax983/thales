@@ -96,7 +96,7 @@ use strategies::tema_crossover::{TemaCrossover, TemaCrossoverConfig};
 use strategies::triple_ema_crossover::{TripleEmaCrossover, TripleEmaCrossoverConfig};
 use strategies::triple_sma_crossover::{TripleSmaCrossover, TripleSmaCrossoverConfig};
 use strategies::trix_crossover::{TrixCrossover, TrixCrossoverConfig};
-use strategies::trix_momentum::{TrixMomentumStrategy, TrixMomentumConfig};
+use strategies::trix_momentum::{TrixMomentumConfig, TrixMomentumStrategy};
 use strategies::tsi_trend::{TsiTrend, TsiTrendConfig};
 use strategies::ttm_squeeze::{TtmSqueeze, TtmSqueezeConfig};
 use strategies::ultimate_oscillator::{UltimateOscillator, UltimateOscillatorConfig};
