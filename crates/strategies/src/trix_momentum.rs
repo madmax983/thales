@@ -109,7 +109,10 @@ impl Strategy for TrixMomentumStrategy {
                             confidence: 0.8,
                             stop_loss: None,
                             take_profit: None,
-                            reason: format!("TRIX Bullish Crossover: {:.2} > {:.2}", t_curr, s_curr),
+                            reason: format!(
+                                "TRIX Bullish Crossover: {:.2} > {:.2}",
+                                t_curr, s_curr
+                            ),
                             timestamp_ms: timestamp,
                         });
                         position = None;
@@ -128,7 +131,10 @@ impl Strategy for TrixMomentumStrategy {
                             confidence: 0.8,
                             stop_loss: Some(sl.to_f64().unwrap_or(0.0)),
                             take_profit: Some(tp.to_f64().unwrap_or(0.0)),
-                            reason: format!("TRIX Bullish Crossover: {:.2} > {:.2}", t_curr, s_curr),
+                            reason: format!(
+                                "TRIX Bullish Crossover: {:.2} > {:.2}",
+                                t_curr, s_curr
+                            ),
                             timestamp_ms: timestamp,
                         });
                         position = Some("long");
@@ -145,7 +151,10 @@ impl Strategy for TrixMomentumStrategy {
                             confidence: 0.8,
                             stop_loss: None,
                             take_profit: None,
-                            reason: format!("TRIX Bearish Crossover: {:.2} < {:.2}", t_curr, s_curr),
+                            reason: format!(
+                                "TRIX Bearish Crossover: {:.2} < {:.2}",
+                                t_curr, s_curr
+                            ),
                             timestamp_ms: timestamp,
                         });
                         position = None;
@@ -164,7 +173,10 @@ impl Strategy for TrixMomentumStrategy {
                             confidence: 0.8,
                             stop_loss: Some(sl.to_f64().unwrap_or(0.0)),
                             take_profit: Some(tp.to_f64().unwrap_or(0.0)),
-                            reason: format!("TRIX Bearish Crossover: {:.2} < {:.2}", t_curr, s_curr),
+                            reason: format!(
+                                "TRIX Bearish Crossover: {:.2} < {:.2}",
+                                t_curr, s_curr
+                            ),
                             timestamp_ms: timestamp,
                         });
                         position = Some("short");
@@ -250,7 +262,10 @@ mod tests {
         let has_short_entry = signals
             .iter()
             .any(|s| s.signal_type == SignalType::Entry && s.side == "sell");
-        assert!(has_short_entry, "Should generate an entry short signal (flip)");
+        assert!(
+            has_short_entry,
+            "Should generate an entry short signal (flip)"
+        );
 
         Ok(())
     }
@@ -273,7 +288,10 @@ mod tests {
             "low" => &[9.5]
         )?;
         let signals = strategy.generate_signals(&df_small).await?;
-        assert!(signals.is_empty(), "Should generate no signals for small data");
+        assert!(
+            signals.is_empty(),
+            "Should generate no signals for small data"
+        );
 
         Ok(())
     }
