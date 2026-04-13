@@ -5,6 +5,7 @@ pub mod export;
 pub mod kinematics;
 pub mod market_ecosystem;
 pub mod market_energy;
+pub mod market_fluid_dynamics;
 pub mod market_gravity;
 pub mod market_seismology;
 pub mod market_temperature;
