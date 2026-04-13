@@ -72,7 +72,10 @@ mod tests {
         let df_valid = df!("close" => &[10.0])?;
         let res = calculate(&df_valid, 0);
         assert!(res.is_err());
-        assert_eq!(res.unwrap_err().to_string(), "Period must be greater than 0");
+        assert_eq!(
+            res.unwrap_err().to_string(),
+            "Period must be greater than 0"
+        );
 
         Ok(())
     }

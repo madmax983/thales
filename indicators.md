@@ -1553,3 +1553,23 @@ let tr_series = true_range::calculate(&df)?;
 ### Output
 - Returns `Result<Series>`.
 - The output Series is named "true_range".
+
+## Positive Volume Index (PVI)
+
+**Name:** PVI
+**Description:** A cumulative indicator that uses the change in volume to decide when the less smart money is active.
+**Rationale:** Tracks volume changes to determine market sentiment, assuming less informed investors are active on high volume days.
+
+### Implementation Details
+- Implemented using Polars vector operations.
+- Uses `rust_decimal::Decimal` for precision handling and accepts string casting for zero floating-point imprecision.
+
+### Usage
+
+```rust
+use strategies::indicators::pvi;
+use polars::prelude::*;
+
+// Let df be a DataFrame containing "close" and "volume" columns
+// let pvi_series = pvi::calculate(&df)?;
+```
