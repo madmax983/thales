@@ -534,6 +534,18 @@ enum Commands {
         #[arg(long)]
         visualize: bool,
     },
+    #[cfg(feature = "nova")]
+    /// Analyze market immunology
+    AnalyzeImmunology {
+        #[arg(long)]
+        input: PathBuf,
+        #[arg(long, default_value = "2.0")]
+        shock_threshold_pct: f64,
+        #[arg(long, default_value = "5")]
+        recovery_window: usize,
+        #[arg(long)]
+        visualize: bool,
+    },
 }
 
 fn main() {
@@ -2255,6 +2267,44 @@ fn run(command: Commands, raw: bool) -> Result<String, CliError> {
                 thales_cli::experimental::market_fluid_dynamics::print_ascii_fluid_dynamics(
                     &report,
                 );
+            }
+
+            ok_envelope(report, vec![], raw)
+        }
+        #[cfg(feature = "nova")]
+        Commands::AnalyzeImmunology {
+            input,
+            shock_threshold_pct,
+            recovery_window,
+            visualize,
+        } => {
+            let file_content = std::fs::read_to_string(&input).map_err(|e| {
+                std::io::Error::new(
+                    e.kind(),
+                    format!("Could not open input file '{}': {}", input.display(), e),
+                )
+            })?;
+            let series: BarSeries =
+                match serde_json::from_str::<ResponseEnvelope<BarSeries>>(&file_content) {
+                    Ok(envelope) => envelope
+                        .data
+                        .ok_or(CliError::Validation("Envelope has no data".to_string()))?,
+                    Err(_) => serde_json::from_str::<BarSeries>(&file_content)?,
+                };
+
+            let config = thales_cli::experimental::market_immunology::ImmunologyConfig {
+                shock_threshold_pct,
+                recovery_window,
+            };
+
+            let report =
+                thales_cli::experimental::market_immunology::analyze_immunology(&series, config)
+                    .ok_or_else(|| {
+                        CliError::Validation("Failed to calculate immunology".to_string())
+                    })?;
+
+            if visualize {
+                thales_cli::experimental::market_immunology::print_ascii_immunology(&report);
             }
 
             ok_envelope(report, vec![], raw)
