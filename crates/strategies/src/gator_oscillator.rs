@@ -123,15 +123,9 @@ impl Strategy for GatorOscillator {
                 Some(p_low),
                 Some(close_price),
                 Some(ts),
-                Some(atr_val)
+                Some(atr_val),
             ) = (
-                curr_upper,
-                prev_upper,
-                curr_lower,
-                prev_lower,
-                curr_close,
-                curr_ts,
-                curr_atr,
+                curr_upper, prev_upper, curr_lower, prev_lower, curr_close, curr_ts, curr_atr,
             ) {
                 // Upper is positive, so expanding means c_up > p_up.
                 // Lower is negative, so expanding (abs increasing) means c_low < p_low.
@@ -315,15 +309,22 @@ mod tests {
             "low" => lows,
             "close" => closes,
             "timestamp_unix_ms" => timestamps,
-        ).unwrap();
+        )
+        .unwrap();
 
         let config = GatorOscillatorConfig::default();
         let strategy = GatorOscillator::new(config);
         let signals = strategy.generate_signals(&data).await.unwrap();
 
         // Should detect expansion
-        let entry_signals: Vec<_> = signals.iter().filter(|s| s.signal_type == SignalType::Entry).collect();
-        assert!(!entry_signals.is_empty(), "Expected entry signal due to expansion");
+        let entry_signals: Vec<_> = signals
+            .iter()
+            .filter(|s| s.signal_type == SignalType::Entry)
+            .collect();
+        assert!(
+            !entry_signals.is_empty(),
+            "Expected entry signal due to expansion"
+        );
 
         if let Some(signal) = entry_signals.first() {
             assert_eq!(signal.side, "buy");
@@ -360,15 +361,22 @@ mod tests {
             "low" => lows,
             "close" => closes,
             "timestamp_unix_ms" => timestamps,
-        ).unwrap();
+        )
+        .unwrap();
 
         let config = GatorOscillatorConfig::default();
         let strategy = GatorOscillator::new(config);
         let signals = strategy.generate_signals(&data).await.unwrap();
 
         // Should detect contraction
-        let entry_signals: Vec<_> = signals.iter().filter(|s| s.signal_type == SignalType::Entry).collect();
-        assert!(!entry_signals.is_empty(), "Expected entry signal due to contraction");
+        let entry_signals: Vec<_> = signals
+            .iter()
+            .filter(|s| s.signal_type == SignalType::Entry)
+            .collect();
+        assert!(
+            !entry_signals.is_empty(),
+            "Expected entry signal due to contraction"
+        );
 
         if let Some(signal) = entry_signals.last() {
             assert_eq!(signal.side, "sell");

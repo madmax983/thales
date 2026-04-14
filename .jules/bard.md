@@ -130,3 +130,7 @@
 ## 2026-04-10 - The Unmapped Nova Elements
 **Confusion:** Experimental modules like `market_temperature.rs`, `price_magnetism.rs`, `time_dilation.rs`, and `price_dna.rs` in `crates/cli/src/experimental/` lacked executable examples and documentation. Users could not discover how to analyze market heat, magnetic pull, time dilation, or sequence biological nucleotides from market data.
 **Clarification:** Added storytelling module-level documentation (`//!`) to explain the core concepts. Added executable `# Examples` to all configuration structures, report definitions, and main functions (`analyze_temperature`, `analyze_magnetism`, `analyze_time_dilation`, `sequence_dna`), guiding developers on proper initialization and result interpretation.
+
+## 2026-04-10 - The Unmapped Fluid Dynamics
+**Confusion:** The Fluid Dynamics module `market_fluid_dynamics.rs` in `crates/cli/src/experimental/` lacked executable examples and documentation. Users could not discover how to analyze market fluid dynamics.
+**Clarification:** Added storytelling module-level documentation (`//!`) to explain the core concepts. Added executable `# Examples` to the configuration structures, report definitions, and the main function `analyze_fluid_dynamics`, guiding developers on proper initialization and result interpretation.

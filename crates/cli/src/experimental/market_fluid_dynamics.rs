@@ -1,11 +1,61 @@
 #![cfg(feature = "nova")]
 
+//! 🌟 Nova: Market Fluid Dynamics
+//!
+//! # The Theory
+//! Markets are not just a series of static prices; they act as a fluid system where volume acts as a driving force (pressure) and price structures provide resistance (viscosity). By applying principles of fluid dynamics, we can measure how easily the market "flows" in a given direction.
+//!
+//! - **Flow Pressure**: The directional volume push. High flow pressure indicates strong, concerted movement.
+//! - **Viscosity**: The resistance to movement. High viscosity means it takes a lot of volume to move the price by a single unit. When viscosity rises while pressure drops, a trend may be exhausting.
+//! - **Turbulence**: Fluctuation relative to net movement. High turbulence indicates choppy, uncertain price action where buying and selling forces are colliding.
+
 use contracts::BarSeries;
 use serde::{Deserialize, Serialize};
 
-/// 🌟 Nova: Market Fluid Dynamics
-/// Analyzes market price and volume movement as a fluid.
-/// Measures flow pressure, viscosity (resistance to movement), and turbulence.
+/// 🌟 Nova: Market Fluid Dynamics Report
+///
+/// Contains the calculated metrics for flow pressure, viscosity, and turbulence over a given period.
+///
+/// # Examples
+/// ```rust
+/// use contracts::{Bar, BarSeries};
+/// use thales_cli::experimental::market_fluid_dynamics::{analyze_fluid_dynamics, FluidDynamicsReport};
+///
+/// let bars = vec![
+///     Bar {
+///         symbol: "TEST".to_string(),
+///         market: "test".to_string(),
+///         timeframe: "1d".to_string(),
+///         timestamp_unix_ms: 0,
+///         open: 100.0,
+///         high: 105.0,
+///         low: 95.0,
+///         close: 100.0,
+///         volume: 1000.0,
+///     },
+///     Bar {
+///         symbol: "TEST".to_string(),
+///         market: "test".to_string(),
+///         timeframe: "1d".to_string(),
+///         timestamp_unix_ms: 1,
+///         open: 100.0,
+///         high: 110.0,
+///         low: 100.0,
+///         close: 110.0,
+///         volume: 2000.0,
+///     },
+/// ];
+///
+/// let series = BarSeries {
+///     schema_version: "v0".to_string(),
+///     bars,
+/// };
+///
+/// let report = analyze_fluid_dynamics(&series).unwrap();
+/// assert_eq!(report.flow_pressure, 2000.0);
+/// assert_eq!(report.viscosity, 200.0);
+/// assert_eq!(report.turbulence, 0.0);
+/// ```
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct FluidDynamicsReport {
     pub flow_pressure: f64,
@@ -13,6 +63,28 @@ pub struct FluidDynamicsReport {
     pub turbulence: f64,
 }
 
+/// Analyzes market price and volume movement to generate a [`FluidDynamicsReport`].
+///
+/// Returns `None` if the provided `series` has fewer than 2 bars.
+///
+/// # Examples
+/// ```rust
+/// use contracts::{Bar, BarSeries};
+/// use thales_cli::experimental::market_fluid_dynamics::analyze_fluid_dynamics;
+///
+/// let series = BarSeries {
+///     schema_version: "v0".to_string(),
+///     bars: vec![
+///         Bar { symbol: "TEST".to_string(), market: "test".to_string(), timeframe: "1d".to_string(), timestamp_unix_ms: 0, open: 100.0, high: 105.0, low: 95.0, close: 100.0, volume: 1000.0 },
+///         Bar { symbol: "TEST".to_string(), market: "test".to_string(), timeframe: "1d".to_string(), timestamp_unix_ms: 1, open: 100.0, high: 110.0, low: 100.0, close: 110.0, volume: 2000.0 },
+///     ],
+/// };
+///
+/// let report = analyze_fluid_dynamics(&series).unwrap();
+/// println!("Pressure: {}", report.flow_pressure);
+/// println!("Viscosity: {}", report.viscosity);
+/// println!("Turbulence: {}", report.turbulence);
+/// ```
 pub fn analyze_fluid_dynamics(series: &BarSeries) -> Option<FluidDynamicsReport> {
     if series.bars.len() < 2 {
         return None;
