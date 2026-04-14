@@ -24,7 +24,7 @@ Critical rules:
 - Monitor for partial fills and adjust
 - Report all executions immediately
 - Log slippage for analysis
-- Cancel stale orders (>5 min unfilled limits)"""
+- Cancel stale orders (>5 min unfilled limits)"#"""
 import json
 import subprocess
 import os
