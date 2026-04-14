@@ -7311,6 +7311,39 @@
 | 2026-04-14 07:15:28 | SPY | equities:SPY:unknown:1776083662330 | Invalid input: provider error: kraken api error: EQuery:Unknown asset pair |
 | 2026-04-14 07:15:29 | BTCUSD | crypto:BTCUSD:unknown:1776083662275 | No buying power available (USD 0.00) |
 | 2026-04-14 07:15:29 | ETHUSD | crypto:ETHUSD:unknown:1776083662311 | No buying power available (USD 0.00) |
+| 2026-04-14 09:13:15 | BTCUSD | crypto:BTCUSD:unknown:1775772194006 | Signal too old (107.2 hours > 24 hours) |
+| 2026-04-14 09:13:15 | ETHUSD | crypto:ETHUSD:unknown:1775772194029 | Signal too old (107.2 hours > 24 hours) |
+| 2026-04-14 09:13:15 | SPY | equities:SPY:unknown:1775772194047 | Signal too old (107.2 hours > 24 hours) |
+| 2026-04-14 09:13:15 | BTCUSD | crypto:BTCUSD:unknown:1775774937835 | Signal too old (106.4 hours > 24 hours) |
+| 2026-04-14 09:13:15 | ETHUSD | crypto:ETHUSD:unknown:1775774937854 | Signal too old (106.4 hours > 24 hours) |
+| 2026-04-14 09:13:15 | SPY | equities:SPY:unknown:1775774937871 | Signal too old (106.4 hours > 24 hours) |
+| 2026-04-14 09:13:15 | BTCUSD | crypto:BTCUSD:unknown:1775783188689 | Signal too old (104.1 hours > 24 hours) |
+| 2026-04-14 09:13:15 | ETHUSD | crypto:ETHUSD:unknown:1775783188776 | Signal too old (104.1 hours > 24 hours) |
+| 2026-04-14 09:13:15 | SPY | equities:SPY:unknown:1775783188789 | Signal too old (104.1 hours > 24 hours) |
+| 2026-04-14 09:13:15 | BTCUSD | crypto:BTCUSD:unknown:1775790237190 | Signal too old (102.2 hours > 24 hours) |
+| 2026-04-14 09:13:15 | ETHUSD | crypto:ETHUSD:unknown:1775790237204 | Signal too old (102.2 hours > 24 hours) |
+| 2026-04-14 09:13:15 | SPY | equities:SPY:unknown:1775790237216 | Signal too old (102.2 hours > 24 hours) |
+| 2026-04-14 09:13:15 | BTCUSD | crypto:BTCUSD:unknown:1775820589643 | Signal too old (93.7 hours > 24 hours) |
+| 2026-04-14 09:13:15 | ETHUSD | crypto:ETHUSD:unknown:1775820589668 | Signal too old (93.7 hours > 24 hours) |
+| 2026-04-14 09:13:15 | SPY | equities:SPY:unknown:1775820589697 | Signal too old (93.7 hours > 24 hours) |
+| 2026-04-14 09:13:15 | BTCUSD | crypto:BTCUSD:unknown:1775824142739 | Signal too old (92.7 hours > 24 hours) |
+| 2026-04-14 09:13:15 | ETHUSD | crypto:ETHUSD:unknown:1775824142758 | Signal too old (92.7 hours > 24 hours) |
+| 2026-04-14 09:13:15 | SPY | equities:SPY:unknown:1775824142775 | Signal too old (92.7 hours > 24 hours) |
+| 2026-04-14 09:13:15 | BTCUSD | crypto:BTCUSD:unknown:1775824729042 | Signal too old (92.6 hours > 24 hours) |
+| 2026-04-14 09:13:15 | ETHUSD | crypto:ETHUSD:unknown:1775824729057 | Signal too old (92.6 hours > 24 hours) |
+| 2026-04-14 09:13:15 | SPY | equities:SPY:unknown:1775824729071 | Signal too old (92.6 hours > 24 hours) |
+| 2026-04-14 09:13:15 | BTCUSD | crypto:BTCUSD:unknown:1775840135373 | Signal too old (88.3 hours > 24 hours) |
+| 2026-04-14 09:13:15 | ETHUSD | crypto:ETHUSD:unknown:1775840135391 | Signal too old (88.3 hours > 24 hours) |
+| 2026-04-14 09:13:15 | SPY | equities:SPY:unknown:1775840135407 | Signal too old (88.3 hours > 24 hours) |
+| 2026-04-14 09:13:15 | BTCUSD | crypto:BTCUSD:unknown:1775910326119 | Signal too old (68.8 hours > 24 hours) |
+| 2026-04-14 09:13:15 | ETHUSD | crypto:ETHUSD:unknown:1775910326137 | Signal too old (68.8 hours > 24 hours) |
+| 2026-04-14 09:13:15 | SPY | equities:SPY:unknown:1775910326153 | Signal too old (68.8 hours > 24 hours) |
+| 2026-04-14 09:13:15 | BTCUSD | crypto:BTCUSD:unknown:1775997718075 | Signal too old (44.5 hours > 24 hours) |
+| 2026-04-14 09:13:15 | ETHUSD | crypto:ETHUSD:unknown:1775997718091 | Signal too old (44.5 hours > 24 hours) |
+| 2026-04-14 09:13:15 | SPY | equities:SPY:unknown:1775997718107 | Signal too old (44.5 hours > 24 hours) |
+| 2026-04-14 09:13:17 | BTCUSD | crypto:BTCUSD:unknown:1776083662275 | CONFLICT: Conflicting signals (Buy and Sell) detected for BTCUSD. Trading halted for this asset. |
+| 2026-04-14 09:13:18 | ETHUSD | crypto:ETHUSD:unknown:1776083662311 | CONFLICT: Conflicting signals (Buy and Sell) detected for ETHUSD. Trading halted for this asset. |
+| 2026-04-14 09:13:18 | SPY | equities:SPY:unknown:1776083662330 | Invalid input: provider error: kraken api error: EQuery:Unknown asset pair |
 
 ## Executed Trades
 
