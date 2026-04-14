@@ -4331,3 +4331,72 @@ TrendFollowing
 - **Expected Win Rate:** 45-55%
 - **Expected Sharpe Ratio:** > 1.2
 - **Max Drawdown:** < 15%
+
+## PviTrend Strategy
+
+## Strategy Specification
+
+**Name:** Positive Volume Index (PVI) Trend
+
+**Description:** A strategy based on the Positive Volume Index (PVI) and its Simple Moving Average (SMA).
+
+**Rationale:** The Positive Volume Index (PVI) is a cumulative indicator that uses the change in volume to decide when the less smart money is active. By observing when the PVI crosses its moving average, we can determine the bullish or bearish trend and trade accordingly.
+
+## Requirements
+
+### Strategy Type
+Trend Following
+
+### Entry Conditions
+- **Long Entry:** PVI crosses above its SMA (Bullish Trend).
+- **Short Entry:** PVI crosses below its SMA (Bearish Trend).
+
+### Exit Conditions
+- **Long Exit:** PVI crosses below its SMA.
+- **Short Exit:** PVI crosses above its SMA.
+
+### Position Sizing
+Fixed size of 100 units.
+
+## Code Pattern
+
+```rust
+use crate::indicators::{atr, pvi, sma};
+use crate::strategy::{Signal, SignalType, Strategy, StrategyConfig, StrategyType};
+use anyhow::{bail, Result};
+use async_trait::async_trait;
+use polars::prelude::*;
+use rust_decimal::prelude::*;
+use rust_decimal::Decimal;
+use serde::{Deserialize, Serialize};
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct PviTrendConfig {
+    pub pvi_sma_period: usize,
+    pub atr_period: usize,
+    pub stop_loss_atr_mult: f64,
+    pub symbol: String,
+}
+
+impl Default for PviTrendConfig {
+    fn default() -> Self {
+        Self {
+            pvi_sma_period: 255,
+            atr_period: 14,
+            stop_loss_atr_mult: 2.0,
+            symbol: "UNKNOWN".to_string(),
+        }
+    }
+}
+```
+
+## Critical Considerations
+
+### Risk Management Integration
+- Uses ATR-based stop loss logic with a multiplier.
+- Sets a theoretical take profit equal to twice the risk (2:1 reward/risk ratio).
+
+### Expected Backtesting Metrics
+- **Win Rate:** Varies depending on asset and parameters, roughly 40-50% in trending environments.
+- **Sharpe Ratio:** Targets > 1.2 in bull trends.
+- **Max Drawdown:** Moderated via ATR stops but can be high during whipsaw conditions.

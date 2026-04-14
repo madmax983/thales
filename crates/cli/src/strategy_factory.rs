@@ -77,6 +77,7 @@ use strategies::money_flow_index::{MoneyFlowIndex, MoneyFlowIndexConfig};
 use strategies::nvi_trend::{NviTrend, NviTrendConfig};
 use strategies::obv_trend::{ObvTrendFollowing, ObvTrendFollowingConfig};
 use strategies::parabolic_sar::{ParabolicSar, ParabolicSarConfig};
+use strategies::pvi_trend::{PviTrend, PviTrendConfig};
 use strategies::ppo_rsi_trend::{PpoRsiTrend, PpoRsiTrendConfig};
 use strategies::relative_vigor_index_trend::{
     RelativeVigorIndexTrend, RelativeVigorIndexTrendConfig,
@@ -536,6 +537,15 @@ pub fn create_strategy(name: &str, symbol: &str) -> Result<Box<dyn Strategy>> {
                 symbol: symbol.to_string(),
             };
             Ok(Box::new(NviTrend::new(config)))
+        }
+        "PviTrend" => {
+            let config = PviTrendConfig {
+                pvi_sma_period: 255,
+                atr_period: 14,
+                stop_loss_atr_mult: 2.0,
+                symbol: symbol.to_string(),
+            };
+            Ok(Box::new(PviTrend::new(config)))
         }
         "ObvTrendFollowing" => {
             let config = ObvTrendFollowingConfig {
