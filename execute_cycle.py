@@ -31,6 +31,7 @@ MEAN_REVERSION_STRATEGIES = {
     "SupertrendRsi",
     "DisparityIndexReversion",
     "BollingerRsiMeanReversion",
+    "KdjIndicatorStrategy",
 }
 TREND_FOLLOWING_STRATEGIES = {
     "AlmaCrossover",
