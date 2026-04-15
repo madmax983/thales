@@ -103,10 +103,22 @@ impl Strategy for PviTrend {
                 Some(s_prev),
                 Some(price_s),
                 Some(atr_val),
-            ) = (pvi_curr_s, pvi_prev_s, sig_curr, sig_prev, price_s_opt, atr_opt)
-            {
-                let p_curr = Decimal::from_str(p_curr_s).unwrap_or(Decimal::ZERO).to_f64().unwrap_or(0.0);
-                let p_prev = Decimal::from_str(p_prev_s).unwrap_or(Decimal::ZERO).to_f64().unwrap_or(0.0);
+            ) = (
+                pvi_curr_s,
+                pvi_prev_s,
+                sig_curr,
+                sig_prev,
+                price_s_opt,
+                atr_opt,
+            ) {
+                let p_curr = Decimal::from_str(p_curr_s)
+                    .unwrap_or(Decimal::ZERO)
+                    .to_f64()
+                    .unwrap_or(0.0);
+                let p_prev = Decimal::from_str(p_prev_s)
+                    .unwrap_or(Decimal::ZERO)
+                    .to_f64()
+                    .unwrap_or(0.0);
 
                 let price_dec = Decimal::from_str(price_s).unwrap_or(Decimal::ZERO);
                 let atr_dec = Decimal::from_f64_retain(atr_val).unwrap_or(Decimal::ZERO);

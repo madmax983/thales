@@ -6,6 +6,7 @@ pub mod kinematics;
 pub mod market_ecosystem;
 pub mod market_energy;
 pub mod market_fluid_dynamics;
+pub mod market_friction;
 pub mod market_gravity;
 pub mod market_immunology;
 pub mod market_seismology;

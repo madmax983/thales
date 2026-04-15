@@ -109,6 +109,13 @@ enum Commands {
         #[arg(long)]
         visualize: bool,
     },
+    #[cfg(feature = "nova")]
+    AnalyzeFriction {
+        #[arg(long)]
+        input: PathBuf,
+        #[arg(long)]
+        visualize: bool,
+    },
     Backtest {
         #[arg(long)]
         input: PathBuf,
@@ -1340,6 +1347,38 @@ fn run(command: Commands, raw: bool) -> Result<String, CliError> {
 
             let report = monte_carlo::run_simulation(&backtest, config)
                 .map_err(|e: anyhow::Error| CliError::Validation(e.to_string()))?;
+
+            ok_envelope(report, vec![], raw)
+        }
+        #[cfg(feature = "nova")]
+        Commands::AnalyzeFriction { input, visualize } => {
+            let file_content = std::fs::read_to_string(&input).map_err(|e| {
+                std::io::Error::new(
+                    e.kind(),
+                    format!("Could not open input file '{}': {}", input.display(), e),
+                )
+            })?;
+            let series: BarSeries =
+                match serde_json::from_str::<ResponseEnvelope<BarSeries>>(&file_content) {
+                    Ok(envelope) => envelope
+                        .data
+                        .ok_or(CliError::Validation("Envelope has no data".to_string()))?,
+                    Err(_) => serde_json::from_str::<BarSeries>(&file_content)?,
+                };
+
+            let report = thales_cli::experimental::market_friction::analyze_friction(&series)
+                .ok_or_else(|| {
+                    CliError::Validation("Failed to calculate market friction".to_string())
+                })?;
+
+            if visualize {
+                println!("🌟 Market Friction Analysis");
+                println!("==============================");
+                println!("Current Friction: {:.2}", report.current_friction);
+                println!("Average Friction: {:.2}", report.average_friction);
+                println!("Trend:            {}", report.friction_trend);
+                println!("Regime:           {}", report.regime);
+            }
 
             ok_envelope(report, vec![], raw)
         }
