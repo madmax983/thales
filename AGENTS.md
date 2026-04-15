@@ -254,6 +254,7 @@ Critical rules:
 - Size positions based on volatility
 - All signals must go through Risk Agent before execution
 - Check historical trades before generating new signals
+
 ## Execution Agent Persona
 
 Your responsibility is to execute trades efficiently and safely.
