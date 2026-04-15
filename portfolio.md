@@ -7623,6 +7623,12 @@
 | 2026-04-15 12:49:31 | PEPEUSD | NO_REF | CONFLICT: Conflicting signals (Buy and Sell) detected for PEPEUSD. Trading halted for this asset. |
 | 2026-04-15 12:49:32 | MOGUSD | NO_REF | CONFLICT: Conflicting signals (Buy and Sell) detected for MOGUSD. Trading halted for this asset. |
 | 2026-04-15 12:49:33 | BONKUSD | crypto:BONKUSD:buy:1776254400000 | provider error: kraken api error: EOrder:Insufficient funds |
+| 2026-04-15 17:43:02 | BTCUSD | crypto:BTCUSD:unknown:1776170439561 | Signal too old (29.0 hours > 24 hours) |
+| 2026-04-15 17:43:03 | ETHUSD | crypto:ETHUSD:unknown:1776170439577 | Signal too old (29.0 hours > 24 hours) |
+| 2026-04-15 17:43:03 | SPY | equities:SPY:unknown:1776170439592 | Signal too old (29.0 hours > 24 hours) |
+| 2026-04-15 17:43:04 | MOGUSD | NO_REF | CONFLICT: Conflicting signals (Buy and Sell) detected for MOGUSD. Trading halted for this asset. |
+| 2026-04-15 17:43:06 | BONKUSD | NO_REF | CONFLICT: Conflicting signals (Buy and Sell) detected for BONKUSD. Trading halted for this asset. |
+| 2026-04-15 17:43:07 | PEPEUSD | crypto:PEPEUSD:sell:1776272400000 | No sellable balance available (PEPE 0.00000000) |
 
 ## Executed Trades
 
