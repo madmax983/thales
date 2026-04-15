@@ -1,3 +1,7 @@
+//! The Balance of Power (BOP) Strategy
+//!
+//! Uses the Balance of Power indicator to gauge the strength of buyers vs sellers.
+//!
 use crate::strategy::{Signal, SignalType, Strategy, StrategyType};
 use anyhow::Result;
 use async_trait::async_trait;

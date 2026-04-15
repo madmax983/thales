@@ -1,3 +1,10 @@
+//! The Vortex Indicator Breakout Strategy
+//!
+//! The Vortex Indicator (VI) consists of two lines - VI+ and VI- - that capture positive and negative trend movement.
+//!
+//! - **Entry Signal:** A buy signal is generated when VI+ crosses above VI-.
+//! - **Exit Signal:** A sell signal is generated when VI- crosses above VI+, or when the stop loss is triggered.
+//!
 use crate::indicators::{atr, vortex};
 use crate::strategy::{Signal, SignalType, Strategy, StrategyConfig, StrategyType};
 use anyhow::Result;
@@ -5,6 +12,20 @@ use async_trait::async_trait;
 use polars::prelude::*;
 
 /// Configuration for the Vortex Breakout strategy.
+/// Configuration parameters for the `VortexBreakout` strategy.
+///
+/// # Examples
+///
+/// ```
+/// use strategies::vortex_breakout::VortexBreakoutConfig;
+///
+/// let config = VortexBreakoutConfig {
+///     period: 14,
+///     stop_loss_atr_mult: 2.0,
+///     atr_period: 14,
+///     symbol: "BTCUSD".to_string(),
+/// };
+/// ```
 #[derive(Debug, Clone, serde::Deserialize, serde::Serialize)]
 pub struct VortexBreakoutConfig {
     /// Lookback period for the Vortex Indicator (typically 14)
@@ -24,6 +45,24 @@ impl StrategyConfig for VortexBreakoutConfig {}
 /// Generates signals based on the crossing of VI+ and VI- lines.
 /// Buys when VI+ crosses above VI-.
 /// Sells when VI+ crosses below VI-.
+/// The Vortex Indicator Breakout strategy implementation.
+///
+/// # Examples
+///
+/// ```
+/// use strategies::vortex_breakout::{VortexBreakout, VortexBreakoutConfig};
+/// use strategies::strategy::Strategy;
+///
+/// let config = VortexBreakoutConfig {
+///     period: 14,
+///     stop_loss_atr_mult: 2.0,
+///     atr_period: 14,
+///     symbol: "BTCUSD".to_string(),
+/// };
+///
+/// let strategy = VortexBreakout::new(config);
+/// assert_eq!(strategy.name(), "VortexBreakout");
+/// ```
 pub struct VortexBreakout {
     config: VortexBreakoutConfig,
 }

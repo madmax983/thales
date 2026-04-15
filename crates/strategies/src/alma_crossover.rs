@@ -1,3 +1,7 @@
+//! The ALMA Crossover Strategy
+//!
+//! Uses Arnaud Legoux Moving Averages (ALMA) in a fast/slow crossover system to identify trends with low lag.
+//!
 use crate::indicators::{alma, atr};
 use crate::strategy::{Signal, SignalType, Strategy, StrategyConfig, StrategyType};
 use anyhow::Result;

@@ -1,3 +1,7 @@
+//! The Chande Momentum Oscillator Strategy
+//!
+//! A mean reversion strategy using the CMO.
+//!
 use crate::indicators::{atr, cmo};
 use crate::strategy::{Signal, SignalType, Strategy, StrategyConfig, StrategyType};
 use anyhow::Result;

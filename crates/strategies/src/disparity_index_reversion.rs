@@ -1,3 +1,7 @@
+//! The Disparity Index Strategy
+//!
+//! A mean reversion strategy based on the percentage distance of price from its moving average.
+//!
 use crate::indicators::{atr, disparity_index};
 use crate::strategy::{Signal, SignalType, Strategy, StrategyType};
 use anyhow::Result;

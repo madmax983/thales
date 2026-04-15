@@ -1,3 +1,7 @@
+//! The HMA + MACD Strategy
+//!
+//! Combines the Hull Moving Average with MACD.
+//!
 use crate::indicators::{atr, hma, macd};
 use crate::strategy::{Signal, SignalType, Strategy, StrategyConfig, StrategyType};
 use anyhow::Result;

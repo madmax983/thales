@@ -1,13 +1,57 @@
+//! The Volume Oscillator Trend Strategy
+//!
+//! The Volume Oscillator displays the difference between two moving averages of a security's volume.
+//! This strategy uses the volume oscillator to confirm price trends.
+//!
+//! - **Entry Signal:** A buy signal is generated when price is in an uptrend (above SMA) and the volume oscillator is positive (short-term volume > long-term volume), confirming the trend with volume.
+//! - **Exit Signal:** A sell signal is generated when price falls below the SMA or the volume oscillator becomes negative.
+//!
 use crate::indicators::{atr, sma, volume_oscillator};
 use crate::strategy::{Signal, SignalType, Strategy, StrategyConfig, StrategyType};
 use anyhow::Result;
 use async_trait::async_trait;
 use polars::prelude::*;
 
+/// The Volume Oscillator Trend strategy implementation.
+///
+/// # Examples
+///
+/// ```
+/// use strategies::volume_oscillator_trend::{VolumeOscillatorTrend, VolumeOscillatorTrendConfig};
+/// use strategies::strategy::Strategy;
+///
+/// let config = VolumeOscillatorTrendConfig {
+///     short_period: 14,
+///     long_period: 28,
+///     price_sma_period: 50,
+///     stop_loss_atr_mult: 2.0,
+///     atr_period: 14,
+///     symbol: "BTCUSD".to_string(),
+/// };
+///
+/// let strategy = VolumeOscillatorTrend::new(config);
+/// assert_eq!(strategy.name(), "VolumeOscillatorTrend");
+/// ```
 pub struct VolumeOscillatorTrend {
     config: VolumeOscillatorTrendConfig,
 }
 
+/// Configuration parameters for the `VolumeOscillatorTrend` strategy.
+///
+/// # Examples
+///
+/// ```
+/// use strategies::volume_oscillator_trend::VolumeOscillatorTrendConfig;
+///
+/// let config = VolumeOscillatorTrendConfig {
+///     short_period: 14,
+///     long_period: 28,
+///     price_sma_period: 50,
+///     stop_loss_atr_mult: 2.0,
+///     atr_period: 14,
+///     symbol: "BTCUSD".to_string(),
+/// };
+/// ```
 #[derive(Debug, Clone, serde::Deserialize)]
 pub struct VolumeOscillatorTrendConfig {
     pub short_period: usize,

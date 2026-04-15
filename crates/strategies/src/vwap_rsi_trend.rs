@@ -1,3 +1,10 @@
+//! The VWAP + RSI Trend Strategy
+//!
+//! This strategy uses the Volume Weighted Average Price (VWAP) for trend direction and the Relative Strength Index (RSI) for pullback entries.
+//!
+//! - **Entry Signal:** A buy signal is generated when the price is above the VWAP (indicating an uptrend) and the RSI drops into oversold territory (e.g., < 30) and turns back up.
+//! - **Exit Signal:** A sell signal is generated when the price falls below the VWAP, or the RSI enters overbought territory (e.g., > 70).
+//!
 use crate::indicators::{rsi, vwap};
 use crate::strategy::{Signal, SignalType, Strategy, StrategyConfig, StrategyType};
 use anyhow::Result;
@@ -5,6 +12,19 @@ use async_trait::async_trait;
 use polars::prelude::*;
 use serde::{Deserialize, Serialize};
 
+/// Configuration parameters for the `VwapRsiTrend` strategy.
+///
+/// # Examples
+///
+/// ```
+/// use strategies::vwap_rsi_trend::VwapRsiTrendConfig;
+///
+/// let config = VwapRsiTrendConfig {
+///     rsi_period: 14,
+///     rsi_threshold: 30.0,
+///     symbol: "BTCUSD".to_string(),
+/// };
+/// ```
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct VwapRsiTrendConfig {
     pub rsi_period: usize,
@@ -24,6 +44,23 @@ impl Default for VwapRsiTrendConfig {
 
 impl StrategyConfig for VwapRsiTrendConfig {}
 
+/// The VWAP + RSI Trend strategy implementation.
+///
+/// # Examples
+///
+/// ```
+/// use strategies::vwap_rsi_trend::{VwapRsiTrend, VwapRsiTrendConfig};
+/// use strategies::strategy::Strategy;
+///
+/// let config = VwapRsiTrendConfig {
+///     rsi_period: 14,
+///     rsi_threshold: 30.0,
+///     symbol: "BTCUSD".to_string(),
+/// };
+///
+/// let strategy = VwapRsiTrend::new(config);
+/// assert_eq!(strategy.name(), "VwapRsiTrend");
+/// ```
 pub struct VwapRsiTrend {
     config: VwapRsiTrendConfig,
 }

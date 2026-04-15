@@ -1,12 +1,38 @@
+//! The Stochastic RSI Mean Reversion Strategy
+//!
+//! Stochastic RSI (StochRSI) applies the Stochastic oscillator formula to RSI values instead of price values.
+//! It is an indicator of an indicator, making it very sensitive to momentum changes.
+//!
+//! - **Entry Signal:** A buy signal is generated when the fast Stochastic line (K) crosses above the slow Stochastic line (D) while both are in oversold territory (e.g., < 20).
+//! - **Exit Signal:** A sell signal is generated when the K line crosses below the D line in overbought territory (e.g., > 80), or when the stop-loss is hit.
+//!
 use anyhow::{Context, Result};
 use async_trait::async_trait;
 use polars::prelude::*;
 use rust_decimal::prelude::*;
-use rust_decimal::Decimal;
 
 use crate::strategy::{Signal, SignalType, Strategy, StrategyType};
 
 /// Configuration for the StochRSI Mean Reversion Strategy
+/// Configuration parameters for the `StochRsiMeanReversion` strategy.
+///
+/// # Examples
+///
+/// ```
+/// use strategies::stoch_rsi_mean_reversion::StochRsiMeanReversionConfig;
+///
+/// let config = StochRsiMeanReversionConfig {
+///     rsi_period: 14,
+///     stoch_period: 14,
+///     k_period: 3,
+///     d_period: 3,
+///     oversold_threshold: 20.0,
+///     overbought_threshold: 80.0,
+///     stop_loss_atr_mult: rust_decimal::Decimal::new(2, 0),
+///     atr_period: 14,
+///     symbol: "BTCUSD".to_string(),
+/// };
+/// ```
 #[derive(Debug, Clone)]
 pub struct StochRsiMeanReversionConfig {
     /// Lookback period for RSI
@@ -49,6 +75,29 @@ impl Default for StochRsiMeanReversionConfig {
 ///
 /// Applies the Stochastic oscillator formula to the Relative Strength Index (RSI)
 /// to identify overbought and oversold conditions with greater sensitivity.
+/// The Stochastic RSI Mean Reversion strategy implementation.
+///
+/// # Examples
+///
+/// ```
+/// use strategies::stoch_rsi_mean_reversion::{StochRsiMeanReversion, StochRsiMeanReversionConfig};
+/// use strategies::strategy::Strategy;
+///
+/// let config = StochRsiMeanReversionConfig {
+///     rsi_period: 14,
+///     stoch_period: 14,
+///     k_period: 3,
+///     d_period: 3,
+///     oversold_threshold: 20.0,
+///     overbought_threshold: 80.0,
+///     stop_loss_atr_mult: rust_decimal::Decimal::new(2, 0),
+///     atr_period: 14,
+///     symbol: "BTCUSD".to_string(),
+/// };
+///
+/// let strategy = StochRsiMeanReversion::new(config);
+/// assert_eq!(strategy.name(), "StochRsiMeanReversion");
+/// ```
 pub struct StochRsiMeanReversion {
     config: StochRsiMeanReversionConfig,
 }

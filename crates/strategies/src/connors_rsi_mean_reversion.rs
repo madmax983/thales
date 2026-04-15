@@ -1,3 +1,7 @@
+//! The Connors RSI Mean Reversion Strategy
+//!
+//! A high-probability short-term mean reversion strategy using Connors RSI.
+//!
 use crate::indicators::{connors_rsi, sma};
 use crate::strategy::{Signal, SignalType, Strategy, StrategyConfig, StrategyType};
 use anyhow::Result;

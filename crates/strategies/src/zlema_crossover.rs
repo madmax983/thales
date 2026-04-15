@@ -1,3 +1,11 @@
+//! The Zero Lag Exponential Moving Average (ZLEMA) Crossover Strategy
+//!
+//! ZLEMA is designed to eliminate the inherent lag associated with all trend-following indicators.
+//! This strategy uses a fast ZLEMA and a slow ZLEMA to generate highly responsive trend-following signals.
+//!
+//! - **Entry Signal:** A buy signal is generated when the fast ZLEMA crosses above the slow ZLEMA.
+//! - **Exit Signal:** A sell signal is generated when the fast ZLEMA crosses below the slow ZLEMA.
+//!
 use crate::indicators::{atr, zlema};
 use crate::strategy::{Signal, SignalType, Strategy, StrategyConfig, StrategyType};
 use anyhow::Result;
@@ -5,6 +13,23 @@ use async_trait::async_trait;
 use polars::prelude::*;
 use serde::{Deserialize, Serialize};
 
+/// Configuration parameters for the `ZlemaCrossover` strategy.
+///
+/// # Examples
+///
+/// ```
+/// use strategies::zlema_crossover::ZlemaCrossoverConfig;
+///
+/// let config = ZlemaCrossoverConfig {
+///     short_period: 9,
+///     long_period: 21,
+///     stop_loss_atr_mult: 2.0,
+///     take_profit_atr_mult: 2.0,
+///     max_position_size: 100.0,
+///     atr_period: 14,
+///     symbol: "BTCUSD".to_string(),
+/// };
+/// ```
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ZlemaCrossoverConfig {
     pub short_period: usize,
@@ -32,6 +57,27 @@ impl Default for ZlemaCrossoverConfig {
 
 impl StrategyConfig for ZlemaCrossoverConfig {}
 
+/// The ZLEMA Crossover strategy implementation.
+///
+/// # Examples
+///
+/// ```
+/// use strategies::zlema_crossover::{ZlemaCrossover, ZlemaCrossoverConfig};
+/// use strategies::strategy::Strategy;
+///
+/// let config = ZlemaCrossoverConfig {
+///     short_period: 9,
+///     long_period: 21,
+///     stop_loss_atr_mult: 2.0,
+///     take_profit_atr_mult: 2.0,
+///     max_position_size: 100.0,
+///     atr_period: 14,
+///     symbol: "BTCUSD".to_string(),
+/// };
+///
+/// let strategy = ZlemaCrossover::new(config);
+/// assert_eq!(strategy.name(), "ZlemaCrossover");
+/// ```
 pub struct ZlemaCrossover {
     config: ZlemaCrossoverConfig,
 }

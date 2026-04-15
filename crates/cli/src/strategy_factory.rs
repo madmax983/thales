@@ -77,8 +77,8 @@ use strategies::money_flow_index::{MoneyFlowIndex, MoneyFlowIndexConfig};
 use strategies::nvi_trend::{NviTrend, NviTrendConfig};
 use strategies::obv_trend::{ObvTrendFollowing, ObvTrendFollowingConfig};
 use strategies::parabolic_sar::{ParabolicSar, ParabolicSarConfig};
-use strategies::pvi_trend::{PviTrend, PviTrendConfig};
 use strategies::ppo_rsi_trend::{PpoRsiTrend, PpoRsiTrendConfig};
+use strategies::pvi_trend::{PviTrend, PviTrendConfig};
 use strategies::relative_vigor_index_trend::{
     RelativeVigorIndexTrend, RelativeVigorIndexTrendConfig,
 };

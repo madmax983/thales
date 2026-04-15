@@ -1,3 +1,7 @@
+//! The ADX + MACD Trend Strategy
+//!
+//! Combines ADX for trend strength and MACD for trend direction.
+//!
 use crate::indicators::{adx, atr, macd};
 use crate::strategy::{Signal, SignalType, Strategy, StrategyConfig, StrategyType};
 use anyhow::Result;

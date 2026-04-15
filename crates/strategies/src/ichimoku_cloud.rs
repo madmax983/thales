@@ -1,3 +1,7 @@
+//! The Ichimoku Cloud Strategy
+//!
+//! A trend-following strategy using the Ichimoku Kinko Hyo indicator.
+//!
 use crate::indicators::ichimoku;
 use crate::strategy::{Signal, SignalType, Strategy, StrategyType};
 use anyhow::Result;

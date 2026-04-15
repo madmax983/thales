@@ -1,3 +1,10 @@
+//! The Triple SMA Crossover Strategy
+//!
+//! This strategy uses a fast SMA, a medium SMA, and a slow SMA to generate trend-following signals with additional confirmation.
+//!
+//! - **Entry Signal:** A buy signal is generated when the fast SMA crosses above both the medium and slow SMAs.
+//! - **Exit Signal:** A sell signal is generated when the fast SMA crosses below both the medium and slow SMAs.
+//!
 use crate::indicators::{atr, sma};
 use crate::strategy::{Signal, SignalType, Strategy, StrategyConfig, StrategyType};
 use anyhow::Result;
@@ -7,6 +14,22 @@ use rust_decimal::prelude::ToPrimitive;
 use rust_decimal::Decimal;
 use serde::{Deserialize, Serialize};
 
+/// Configuration parameters for the `TripleSmaCrossover` strategy.
+///
+/// # Examples
+///
+/// ```
+/// use strategies::triple_sma_crossover::TripleSmaCrossoverConfig;
+///
+/// let config = TripleSmaCrossoverConfig {
+///     short_period: 9,
+///     medium_period: 21,
+///     long_period: 50,
+///     stop_loss_atr_mult: 2.0,
+///     atr_period: 14,
+///     symbol: "BTCUSD".to_string(),
+/// };
+/// ```
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct TripleSmaCrossoverConfig {
     pub short_period: usize,
@@ -32,6 +55,26 @@ impl Default for TripleSmaCrossoverConfig {
     }
 }
 
+/// The Triple SMA Crossover strategy implementation.
+///
+/// # Examples
+///
+/// ```
+/// use strategies::triple_sma_crossover::{TripleSmaCrossover, TripleSmaCrossoverConfig};
+/// use strategies::strategy::Strategy;
+///
+/// let config = TripleSmaCrossoverConfig {
+///     short_period: 9,
+///     medium_period: 21,
+///     long_period: 50,
+///     stop_loss_atr_mult: 2.0,
+///     atr_period: 14,
+///     symbol: "BTCUSD".to_string(),
+/// };
+///
+/// let strategy = TripleSmaCrossover::new(config);
+/// assert_eq!(strategy.name(), "TripleSmaCrossover");
+/// ```
 pub struct TripleSmaCrossover {
     config: TripleSmaCrossoverConfig,
 }

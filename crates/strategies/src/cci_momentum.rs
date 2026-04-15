@@ -1,3 +1,7 @@
+//! The CCI Momentum Strategy
+//!
+//! Uses the Commodity Channel Index to identify momentum and overbought/oversold conditions.
+//!
 use crate::indicators::{atr, cci};
 use crate::strategy::{Signal, SignalType, Strategy, StrategyConfig, StrategyType};
 use anyhow::Result;

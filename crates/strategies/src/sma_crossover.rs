@@ -1,3 +1,7 @@
+//! The SMA Crossover Strategy
+//!
+//! A classic fast/slow Simple Moving Average crossover strategy.
+//!
 use crate::indicators::{atr, sma};
 use crate::strategy::{Signal, SignalType, Strategy, StrategyConfig, StrategyType};
 use anyhow::Result;

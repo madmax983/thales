@@ -1,3 +1,7 @@
+//! The Negative Volume Index (NVI) Strategy
+//!
+//! A trend strategy based on NVI, tracking 'smart money' on low volume days.
+//!
 use crate::indicators::{atr, nvi, sma};
 use crate::strategy::{Signal, SignalType, Strategy, StrategyConfig, StrategyType};
 use anyhow::{bail, Result};

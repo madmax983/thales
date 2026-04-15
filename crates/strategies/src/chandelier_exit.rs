@@ -1,3 +1,7 @@
+//! The Chandelier Exit Strategy
+//!
+//! A trend-following strategy using ATR-based trailing stops.
+//!
 use crate::indicators::chandelier_exit;
 use crate::strategy::{Signal, SignalType, Strategy, StrategyConfig, StrategyType};
 use anyhow::Result;

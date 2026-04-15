@@ -1,3 +1,11 @@
+//! The Z-Score Mean Reversion Strategy
+//!
+//! The Z-Score measures the number of standard deviations a price is from its moving average.
+//! It is useful for identifying statistically significant price extremes.
+//!
+//! - **Entry Signal:** A buy signal is generated when the Z-Score drops below a negative threshold (e.g., -2.0), indicating the price is unusually low and may revert upwards.
+//! - **Exit Signal:** A sell signal is generated when the Z-Score rises above a positive threshold (e.g., 2.0), indicating the price is unusually high.
+//!
 use crate::indicators::{atr, sma, zscore};
 use crate::strategy::{Signal, SignalType, Strategy, StrategyConfig, StrategyType};
 use anyhow::Result;
@@ -7,6 +15,22 @@ use rust_decimal::prelude::ToPrimitive;
 use rust_decimal::Decimal;
 use serde::{Deserialize, Serialize};
 
+/// Configuration parameters for the `ZScoreMeanReversion` strategy.
+///
+/// # Examples
+///
+/// ```
+/// use strategies::zscore_mean_reversion::ZScoreMeanReversionConfig;
+///
+/// let config = ZScoreMeanReversionConfig {
+///     period: 20,
+///     entry_threshold: -2.0,
+///     exit_threshold: 2.0,
+///     stop_loss_atr_mult: 2.0,
+///     atr_period: 14,
+///     symbol: "BTCUSD".to_string(),
+/// };
+/// ```
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ZScoreMeanReversionConfig {
     pub period: usize,
@@ -19,6 +43,26 @@ pub struct ZScoreMeanReversionConfig {
 
 impl StrategyConfig for ZScoreMeanReversionConfig {}
 
+/// The Z-Score Mean Reversion strategy implementation.
+///
+/// # Examples
+///
+/// ```
+/// use strategies::zscore_mean_reversion::{ZScoreMeanReversion, ZScoreMeanReversionConfig};
+/// use strategies::strategy::Strategy;
+///
+/// let config = ZScoreMeanReversionConfig {
+///     period: 20,
+///     entry_threshold: -2.0,
+///     exit_threshold: 2.0,
+///     stop_loss_atr_mult: 2.0,
+///     atr_period: 14,
+///     symbol: "BTCUSD".to_string(),
+/// };
+///
+/// let strategy = ZScoreMeanReversion::new(config);
+/// assert_eq!(strategy.name(), "ZScoreMeanReversion");
+/// ```
 pub struct ZScoreMeanReversion {
     pub config: ZScoreMeanReversionConfig,
 }

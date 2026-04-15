@@ -1,3 +1,7 @@
+//! The Force Index Strategy
+//!
+//! Uses Alexander Elder's Force Index to trade pullbacks in the direction of the trend.
+//!
 use crate::indicators::{atr, ema, force_index};
 use crate::strategy::{Signal, SignalType, Strategy, StrategyConfig, StrategyType};
 use anyhow::Result;

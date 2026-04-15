@@ -1,3 +1,10 @@
+//! The VWAP + CCI Trend Strategy
+//!
+//! This strategy uses the Volume Weighted Average Price (VWAP) as a primary trend filter and the Commodity Channel Index (CCI) for timing entries and exits.
+//!
+//! - **Entry Signal:** A buy signal is generated when the price is above the VWAP (indicating an uptrend) and the CCI crosses above a specified buy threshold (e.g., 100), indicating strong momentum.
+//! - **Exit Signal:** A sell signal is generated when the price falls below the VWAP or the CCI drops below a sell threshold (e.g., -100).
+//!
 use crate::indicators::{atr, cci, vwap};
 use crate::strategy::{Signal, SignalType, Strategy, StrategyConfig, StrategyType};
 use anyhow::Result;
@@ -5,6 +12,22 @@ use async_trait::async_trait;
 use polars::prelude::*;
 use serde::{Deserialize, Serialize};
 
+/// Configuration parameters for the `VwapCciTrend` strategy.
+///
+/// # Examples
+///
+/// ```
+/// use strategies::vwap_cci_trend::VwapCciTrendConfig;
+///
+/// let config = VwapCciTrendConfig {
+///     cci_period: 20,
+///     cci_buy_threshold: 100.0,
+///     cci_sell_threshold: -100.0,
+///     stop_loss_atr_mult: 2.0,
+///     atr_period: 14,
+///     symbol: "BTCUSD".to_string(),
+/// };
+/// ```
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct VwapCciTrendConfig {
     pub cci_period: usize,
@@ -30,6 +53,26 @@ impl Default for VwapCciTrendConfig {
 
 impl StrategyConfig for VwapCciTrendConfig {}
 
+/// The VWAP + CCI Trend strategy implementation.
+///
+/// # Examples
+///
+/// ```
+/// use strategies::vwap_cci_trend::{VwapCciTrend, VwapCciTrendConfig};
+/// use strategies::strategy::Strategy;
+///
+/// let config = VwapCciTrendConfig {
+///     cci_period: 20,
+///     cci_buy_threshold: 100.0,
+///     cci_sell_threshold: -100.0,
+///     stop_loss_atr_mult: 2.0,
+///     atr_period: 14,
+///     symbol: "BTCUSD".to_string(),
+/// };
+///
+/// let strategy = VwapCciTrend::new(config);
+/// assert_eq!(strategy.name(), "VwapCciTrend");
+/// ```
 pub struct VwapCciTrend {
     config: VwapCciTrendConfig,
 }

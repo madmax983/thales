@@ -1,3 +1,7 @@
+//! The EMA + RSI Trend Strategy
+//!
+//! Uses an EMA for trend direction and RSI for pullback entries.
+//!
 use crate::indicators::{atr, ema, rsi};
 use crate::strategy::{Signal, SignalType, Strategy, StrategyConfig, StrategyType};
 use anyhow::Result;

@@ -1,3 +1,7 @@
+//! The ATR Breakout Strategy
+//!
+//! A volatility breakout system using the Average True Range.
+//!
 use crate::indicators::atr;
 use crate::strategy::{Signal, SignalType, Strategy, StrategyType};
 use anyhow::Result;

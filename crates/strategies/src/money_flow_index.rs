@@ -1,3 +1,7 @@
+//! The Money Flow Index (MFI) Strategy
+//!
+//! A mean reversion strategy using the volume-weighted MFI.
+//!
 use crate::indicators::{atr, mfi};
 use crate::strategy::{Signal, SignalType, Strategy, StrategyConfig, StrategyType};
 use anyhow::Result;

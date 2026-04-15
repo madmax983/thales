@@ -1,3 +1,11 @@
+//! The Triple Exponential Moving Average (TEMA) Crossover Strategy
+//!
+//! TEMA further reduces lag compared to DEMA by applying a triple exponential moving average calculation.
+//! This strategy uses a fast TEMA and a slow TEMA to generate highly responsive trend-following signals.
+//!
+//! - **Entry Signal:** A buy signal is generated when the fast TEMA crosses above the slow TEMA.
+//! - **Exit Signal:** A sell signal is generated when the fast TEMA crosses below the slow TEMA.
+//!
 use crate::indicators::{atr, tema};
 use crate::strategy::{Signal, SignalType, Strategy, StrategyConfig, StrategyType};
 use anyhow::Result;
@@ -5,6 +13,21 @@ use async_trait::async_trait;
 use polars::prelude::*;
 
 /// Configuration for the TEMA Crossover strategy.
+/// Configuration parameters for the `TemaCrossover` strategy.
+///
+/// # Examples
+///
+/// ```
+/// use strategies::tema_crossover::TemaCrossoverConfig;
+///
+/// let config = TemaCrossoverConfig {
+///     short_period: 9,
+///     long_period: 21,
+///     stop_loss_atr_mult: 2.0,
+///     atr_period: 14,
+///     symbol: "BTCUSD".to_string(),
+/// };
+/// ```
 #[derive(Debug, Clone, serde::Deserialize)]
 pub struct TemaCrossoverConfig {
     pub short_period: usize,
@@ -32,6 +55,25 @@ impl Default for TemaCrossoverConfig {
 ///
 /// A trend-following strategy that generates signals based on the crossover of two
 /// Triple Exponential Moving Averages (TEMA) of different periods.
+/// The TEMA Crossover strategy implementation.
+///
+/// # Examples
+///
+/// ```
+/// use strategies::tema_crossover::{TemaCrossover, TemaCrossoverConfig};
+/// use strategies::strategy::Strategy;
+///
+/// let config = TemaCrossoverConfig {
+///     short_period: 9,
+///     long_period: 21,
+///     stop_loss_atr_mult: 2.0,
+///     atr_period: 14,
+///     symbol: "BTCUSD".to_string(),
+/// };
+///
+/// let strategy = TemaCrossover::new(config);
+/// assert_eq!(strategy.name(), "TemaCrossover");
+/// ```
 pub struct TemaCrossover {
     config: TemaCrossoverConfig,
 }

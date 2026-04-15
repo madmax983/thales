@@ -1,3 +1,7 @@
+//! The MACD + RSI Strategy
+//!
+//! Combines MACD for momentum and RSI for overbought/oversold levels.
+//!
 use crate::indicators::{atr, macd, rsi};
 use crate::strategy::{Signal, SignalType, Strategy, StrategyConfig, StrategyType};
 use anyhow::Result;

@@ -1,13 +1,57 @@
+//! The True Strength Index (TSI) Trend Strategy
+//!
+//! The True Strength Index (TSI) is a momentum oscillator based on a double smoothed moving average of price changes.
+//! It is useful for determining overbought/oversold conditions and overall trend direction.
+//!
+//! - **Entry Signal:** A buy signal is generated when the TSI crosses above its Signal line.
+//! - **Exit Signal:** A sell signal is generated when the TSI crosses below its Signal line.
+//!
 use crate::indicators::{atr, ema, tsi};
 use crate::strategy::{Signal, SignalType, Strategy, StrategyConfig, StrategyType};
 use anyhow::Result;
 use async_trait::async_trait;
 use polars::prelude::*;
 
+/// The TSI Trend strategy implementation.
+///
+/// # Examples
+///
+/// ```
+/// use strategies::tsi_trend::{TsiTrend, TsiTrendConfig};
+/// use strategies::strategy::Strategy;
+///
+/// let config = TsiTrendConfig {
+///     long_period: 25,
+///     short_period: 13,
+///     signal_period: 7,
+///     stop_loss_atr_mult: 2.0,
+///     atr_period: 14,
+///     symbol: "BTCUSD".to_string(),
+/// };
+///
+/// let strategy = TsiTrend::new(config);
+/// assert_eq!(strategy.name(), "TsiTrend");
+/// ```
 pub struct TsiTrend {
     config: TsiTrendConfig,
 }
 
+/// Configuration parameters for the `TsiTrend` strategy.
+///
+/// # Examples
+///
+/// ```
+/// use strategies::tsi_trend::TsiTrendConfig;
+///
+/// let config = TsiTrendConfig {
+///     long_period: 25,
+///     short_period: 13,
+///     signal_period: 7,
+///     stop_loss_atr_mult: 2.0,
+///     atr_period: 14,
+///     symbol: "BTCUSD".to_string(),
+/// };
+/// ```
 #[derive(Debug, Clone, serde::Deserialize)]
 pub struct TsiTrendConfig {
     pub long_period: usize,

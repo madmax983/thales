@@ -1,3 +1,7 @@
+//! The KDJ Indicator Strategy
+//!
+//! Uses the KDJ indicator to identify overbought and oversold conditions.
+//!
 use crate::indicators::{atr, kdj};
 use crate::strategy::{Signal, SignalType, Strategy, StrategyConfig};
 use anyhow::Result;

@@ -1,3 +1,7 @@
+//! The Know Sure Thing (KST) Strategy
+//!
+//! Uses the KST momentum oscillator to capture major trends.
+//!
 use crate::strategy::{Signal, SignalType, Strategy, StrategyType};
 use anyhow::Result;
 use async_trait::async_trait;

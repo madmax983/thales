@@ -1,3 +1,7 @@
+//! The ADX Momentum Strategy
+//!
+//! Uses the ADX indicator to trigger trades when trend strength reaches a certain threshold.
+//!
 use crate::indicators::{adx, atr};
 use crate::strategy::{Signal, SignalType, Strategy, StrategyType};
 use anyhow::{Context, Result};
