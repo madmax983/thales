@@ -84,6 +84,13 @@ TREND_FOLLOWING_STRATEGIES = {
     "KstTrend",
     "VhfTrendFollowing",
     "DpoBreakout",
+    "SmaRsiTrend",
+    "GatorOscillator",
+    "AtrBreakout",
+    "TtmSqueeze",
+    "NviTrend",
+    "KamaRsiTrend",
+    "HmaMacdTrend",
 }
 BREAKOUT_STRATEGIES = {
     "Supertrend",
