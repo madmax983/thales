@@ -7647,6 +7647,15 @@
 | 2026-04-15 20:56:00 | PEPEUSD | NO_REF | CONFLICT: Conflicting signals (Buy and Sell) detected for PEPEUSD. Trading halted for this asset. |
 | 2026-04-15 20:56:02 | BONKUSD | NO_REF | CONFLICT: Conflicting signals (Buy and Sell) detected for BONKUSD. Trading halted for this asset. |
 | 2026-04-15 20:56:02 | MOGUSD | crypto:MOGUSD:sell:1776283200000 | Rejected by Risk Agent: Order value below exchange minimum fiat volume (0.00 < 5.0) |
+| 2026-04-15 21:51:07 | BTCUSD | crypto:BTCUSD:unknown:1776170439561 | Signal too old (33.2 hours > 24 hours) |
+| 2026-04-15 21:51:07 | ETHUSD | crypto:ETHUSD:unknown:1776170439577 | Signal too old (33.2 hours > 24 hours) |
+| 2026-04-15 21:51:07 | SPY | equities:SPY:unknown:1776170439592 | Signal too old (33.2 hours > 24 hours) |
+| 2026-04-15 21:51:10 | BONKUSD | NO_REF | CONFLICT: Conflicting signals (Buy and Sell) detected for BONKUSD. Trading halted for this asset. |
+| 2026-04-15 21:51:11 | MOGUSD | crypto:MOGUSD:sell:1776286800000 | Rejected by Risk Agent: Order value below exchange minimum fiat volume (0.00 < 5.0) |
+| 2026-04-15 21:51:11 | PEPEUSD | crypto:PEPEUSD:sell:1776286800000 | No sellable balance available (PEPE 0.00000000) |
+| 2026-04-15 21:51:50 | BONKUSD | NO_REF | CONFLICT: Conflicting signals (Buy and Sell) detected for BONKUSD. Trading halted for this asset. |
+| 2026-04-15 21:51:50 | MOGUSD | crypto:MOGUSD:sell:1776286800000 | Rejected by Risk Agent: Order value below exchange minimum fiat volume (0.00 < 5.0) |
+| 2026-04-15 21:51:51 | PEPEUSD | crypto:PEPEUSD:sell:1776286800000 | No sellable balance available (PEPE 0.00000000) |
 
 ## Executed Trades
 
