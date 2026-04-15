@@ -1,3 +1,7 @@
+//! The Ease of Movement (EOM) Strategy
+//!
+//! Uses the EOM indicator to find trends with strong volume support.
+//!
 use crate::indicators::{atr, eom, sma};
 use crate::strategy::{Signal, SignalType, Strategy, StrategyConfig, StrategyType};
 use anyhow::Result;

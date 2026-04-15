@@ -1,3 +1,7 @@
+//! The Accumulation/Distribution Line (ADL) Momentum Strategy
+//!
+//! This strategy uses the ADL to identify momentum by checking for crossovers of the ADL and its EMA.
+//!
 use crate::indicators::{adl, atr, ema};
 use crate::strategy::{Signal, SignalType, Strategy, StrategyConfig, StrategyType};
 use anyhow::Result;

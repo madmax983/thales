@@ -1,3 +1,7 @@
+//! The Rate of Change (ROC) Strategy
+//!
+//! A momentum strategy based on the simple Rate of Change indicator.
+//!
 use crate::indicators::{atr, roc};
 use crate::strategy::{Signal, SignalType, Strategy, StrategyConfig, StrategyType};
 use anyhow::Result;

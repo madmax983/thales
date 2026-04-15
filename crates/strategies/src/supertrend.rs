@@ -1,3 +1,11 @@
+//! The Supertrend Strategy
+//!
+//! The Supertrend indicator is a trend-following indicator based on the Average True Range (ATR).
+//! It is plotted on the price chart and indicates the current trend direction.
+//!
+//! - **Entry Signal:** A buy signal is generated when the price crosses above the Supertrend line, turning the indicator bullish.
+//! - **Exit Signal:** A sell signal is generated when the price crosses below the Supertrend line, turning the indicator bearish.
+//!
 use crate::indicators::supertrend;
 use crate::strategy::{Signal, SignalType, Strategy, StrategyConfig, StrategyType};
 use anyhow::Result;
@@ -5,6 +13,19 @@ use async_trait::async_trait;
 use polars::prelude::*;
 use serde::{Deserialize, Serialize};
 
+/// Configuration parameters for the `SupertrendStrategy` strategy.
+///
+/// # Examples
+///
+/// ```
+/// use strategies::supertrend::SupertrendConfig;
+///
+/// let config = SupertrendConfig {
+///     period: 14,
+///     factor: 3.0,
+///     symbol: "BTCUSD".to_string(),
+/// };
+/// ```
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct SupertrendConfig {
     pub period: usize,

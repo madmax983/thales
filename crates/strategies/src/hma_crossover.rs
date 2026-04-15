@@ -1,3 +1,7 @@
+//! The HMA Crossover Strategy
+//!
+//! A fast/slow crossover strategy using the low-lag Hull Moving Average.
+//!
 use crate::indicators::{atr, hma};
 use crate::strategy::{Signal, SignalType, Strategy, StrategyConfig, StrategyType};
 use anyhow::Result;

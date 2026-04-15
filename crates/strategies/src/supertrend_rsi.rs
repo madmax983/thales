@@ -1,3 +1,10 @@
+//! The Supertrend + RSI Strategy
+//!
+//! This strategy uses the Supertrend indicator for overall trend direction and the Relative Strength Index (RSI) to find optimal entry points during pullbacks.
+//!
+//! - **Entry Signal:** A buy signal is generated when the Supertrend is bullish and the RSI dips into oversold territory (e.g., < 30) and then turns back up.
+//! - **Exit Signal:** A sell signal is generated when the Supertrend turns bearish or the RSI enters overbought territory (e.g., > 70).
+//!
 use crate::indicators::{atr, rsi, supertrend};
 use crate::strategy::{Signal, SignalType, Strategy, StrategyConfig, StrategyType};
 use anyhow::Result;
@@ -7,6 +14,24 @@ use rust_decimal::prelude::ToPrimitive;
 use rust_decimal::Decimal;
 use serde::{Deserialize, Serialize};
 
+/// Configuration parameters for the `SupertrendRsi` strategy.
+///
+/// # Examples
+///
+/// ```
+/// use strategies::supertrend_rsi::SupertrendRsiConfig;
+///
+/// let config = SupertrendRsiConfig {
+///     supertrend_period: 14,
+///     supertrend_multiplier: 3.0,
+///     rsi_period: 14,
+///     rsi_oversold: 30.0,
+///     rsi_overbought: 70.0,
+///     stop_loss_atr_mult: 2.0,
+///     atr_period: 14,
+///     symbol: "BTCUSD".to_string(),
+/// };
+/// ```
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct SupertrendRsiConfig {
     pub supertrend_period: usize,
@@ -36,6 +61,28 @@ impl Default for SupertrendRsiConfig {
 
 impl StrategyConfig for SupertrendRsiConfig {}
 
+/// The Supertrend + RSI strategy implementation.
+///
+/// # Examples
+///
+/// ```
+/// use strategies::supertrend_rsi::{SupertrendRsi, SupertrendRsiConfig};
+/// use strategies::strategy::Strategy;
+///
+/// let config = SupertrendRsiConfig {
+///     supertrend_period: 14,
+///     supertrend_multiplier: 3.0,
+///     rsi_period: 14,
+///     rsi_oversold: 30.0,
+///     rsi_overbought: 70.0,
+///     stop_loss_atr_mult: 2.0,
+///     atr_period: 14,
+///     symbol: "BTCUSD".to_string(),
+/// };
+///
+/// let strategy = SupertrendRsi::new(config);
+/// assert_eq!(strategy.name(), "SupertrendRsi");
+/// ```
 pub struct SupertrendRsi {
     config: SupertrendRsiConfig,
 }

@@ -1,3 +1,7 @@
+//! The Double EMA Crossover Strategy
+//!
+//! A fast/slow crossover strategy using Double Exponential Moving Averages (DEMA).
+//!
 use crate::indicators::{atr, dema};
 use crate::strategy::{Signal, SignalType, Strategy, StrategyConfig, StrategyType};
 use anyhow::Result;

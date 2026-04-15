@@ -1,3 +1,7 @@
+//! The PPO + RSI Strategy
+//!
+//! Combines the Percentage Price Oscillator with RSI.
+//!
 use crate::indicators::{atr, ppo, rsi};
 use crate::strategy::{Signal, SignalType, Strategy, StrategyConfig, StrategyType};
 use anyhow::{Context, Result};

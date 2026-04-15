@@ -1,13 +1,57 @@
+//! The Triple EMA (TEMA) Crossover Strategy
+//!
+//! TEMA reduces the lag of traditional EMAs, making it more responsive to price changes.
+//! This strategy uses a fast TEMA, a medium TEMA, and a slow TEMA to generate trend-following signals with additional confirmation.
+//!
+//! - **Entry Signal:** A buy signal is generated when the fast TEMA crosses above both the medium and slow TEMAs.
+//! - **Exit Signal:** A sell signal is generated when the fast TEMA crosses below both the medium and slow TEMAs.
+//!
 use crate::indicators::{atr, ema};
 use crate::strategy::{Signal, SignalType, Strategy};
 use anyhow::Result;
 use async_trait::async_trait;
 use polars::prelude::*;
 
+/// The Triple EMA Crossover strategy implementation.
+///
+/// # Examples
+///
+/// ```
+/// use strategies::triple_ema_crossover::{TripleEmaCrossover, TripleEmaCrossoverConfig};
+/// use strategies::strategy::Strategy;
+///
+/// let config = TripleEmaCrossoverConfig {
+///     short_period: 9,
+///     medium_period: 21,
+///     long_period: 50,
+///     stop_loss_atr_mult: 2.0,
+///     atr_period: 14,
+///     symbol: "BTCUSD".to_string(),
+/// };
+///
+/// let strategy = TripleEmaCrossover::new(config).unwrap();
+/// assert_eq!(strategy.name(), "TripleEmaCrossover");
+/// ```
 pub struct TripleEmaCrossover {
     config: TripleEmaCrossoverConfig,
 }
 
+/// Configuration parameters for the `TripleEmaCrossover` strategy.
+///
+/// # Examples
+///
+/// ```
+/// use strategies::triple_ema_crossover::TripleEmaCrossoverConfig;
+///
+/// let config = TripleEmaCrossoverConfig {
+///     short_period: 9,
+///     medium_period: 21,
+///     long_period: 50,
+///     stop_loss_atr_mult: 2.0,
+///     atr_period: 14,
+///     symbol: "BTCUSD".to_string(),
+/// };
+/// ```
 #[derive(Debug, Clone, serde::Deserialize)]
 pub struct TripleEmaCrossoverConfig {
     pub short_period: usize,

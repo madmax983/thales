@@ -1,3 +1,10 @@
+//! The TRIX Momentum Strategy
+//!
+//! TRIX is a momentum oscillator that measures the percentage rate of change of a triple exponentially smoothed moving average.
+//!
+//! - **Entry Signal:** A buy signal is generated when TRIX crosses above zero, indicating positive momentum.
+//! - **Exit Signal:** A sell signal is generated when TRIX crosses below zero, indicating negative momentum.
+//!
 use crate::indicators::{atr, sma, trix};
 use crate::strategy::{Signal, SignalType, Strategy, StrategyConfig, StrategyType};
 use anyhow::Result;
@@ -6,6 +13,21 @@ use polars::prelude::*;
 use rust_decimal::prelude::*;
 use serde::{Deserialize, Serialize};
 
+/// Configuration parameters for the `TrixMomentum` strategy.
+///
+/// # Examples
+///
+/// ```
+/// use strategies::trix_momentum::TrixMomentumConfig;
+///
+/// let config = TrixMomentumConfig {
+///     trix_period: 15,
+///     signal_period: 9,
+///     stop_loss_atr_mult: 2.0,
+///     atr_period: 14,
+///     symbol: "BTCUSD".to_string(),
+/// };
+/// ```
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct TrixMomentumConfig {
     pub trix_period: usize,

@@ -1,13 +1,55 @@
+//! The Weighted Moving Average (WMA) Crossover Strategy
+//!
+//! The Weighted Moving Average assigns more weight to recent data points, making it more responsive to price changes than a Simple Moving Average.
+//! This strategy uses a fast WMA and a slow WMA to generate trend-following signals.
+//!
+//! - **Entry Signal:** A buy signal is generated when the fast WMA crosses above the slow WMA.
+//! - **Exit Signal:** A sell signal is generated when the fast WMA crosses below the slow WMA.
+//!
 use crate::indicators::{atr, wma};
 use crate::strategy::{Signal, SignalType, Strategy, StrategyConfig, StrategyType};
 use anyhow::Result;
 use async_trait::async_trait;
 use polars::prelude::*;
 
+/// The WMA Crossover strategy implementation.
+///
+/// # Examples
+///
+/// ```
+/// use strategies::wma_crossover::{WmaCrossover, WmaCrossoverConfig};
+/// use strategies::strategy::Strategy;
+///
+/// let config = WmaCrossoverConfig {
+///     short_window: 9,
+///     long_window: 21,
+///     stop_loss_atr_mult: 2.0,
+///     atr_period: 14,
+///     symbol: "BTCUSD".to_string(),
+/// };
+///
+/// let strategy = WmaCrossover::new(config);
+/// assert_eq!(strategy.name(), "WmaCrossover");
+/// ```
 pub struct WmaCrossover {
     config: WmaCrossoverConfig,
 }
 
+/// Configuration parameters for the `WmaCrossover` strategy.
+///
+/// # Examples
+///
+/// ```
+/// use strategies::wma_crossover::WmaCrossoverConfig;
+///
+/// let config = WmaCrossoverConfig {
+///     short_window: 9,
+///     long_window: 21,
+///     stop_loss_atr_mult: 2.0,
+///     atr_period: 14,
+///     symbol: "BTCUSD".to_string(),
+/// };
+/// ```
 #[derive(Debug, Clone, serde::Deserialize)]
 pub struct WmaCrossoverConfig {
     pub short_window: usize,

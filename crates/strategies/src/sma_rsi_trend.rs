@@ -1,3 +1,11 @@
+//! The SMA + RSI Trend Following Strategy
+//!
+//! This strategy uses a Simple Moving Average (SMA) to determine the overall trend direction,
+//! and the Relative Strength Index (RSI) to identify pullbacks within that trend.
+//!
+//! - **Entry Signal:** A buy signal is generated when the price is above the SMA (uptrend) and the RSI drops below an oversold threshold (indicating a pullback) and then turns back up.
+//! - **Exit Signal:** A sell signal is generated when the price drops below the SMA (downtrend) or the RSI rises above an overbought threshold.
+//!
 use crate::indicators::{atr, rsi, sma};
 use crate::strategy::{Signal, SignalType, Strategy, StrategyConfig, StrategyType};
 use anyhow::Result;
@@ -7,6 +15,23 @@ use rust_decimal::prelude::*;
 use rust_decimal::Decimal;
 use serde::{Deserialize, Serialize};
 
+/// Configuration parameters for the `SmaRsiTrend` strategy.
+///
+/// # Examples
+///
+/// ```
+/// use strategies::sma_rsi_trend::SmaRsiTrendConfig;
+///
+/// let config = SmaRsiTrendConfig {
+///     sma_period: 50,
+///     rsi_period: 14,
+///     rsi_oversold: 30.0,
+///     rsi_overbought: 70.0,
+///     stop_loss_atr_mult: 2.0,
+///     atr_period: 14,
+///     symbol: "BTCUSD".to_string(),
+/// };
+/// ```
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct SmaRsiTrendConfig {
     pub sma_period: usize,
@@ -20,6 +45,27 @@ pub struct SmaRsiTrendConfig {
 
 impl StrategyConfig for SmaRsiTrendConfig {}
 
+/// The SMA + RSI Trend strategy implementation.
+///
+/// # Examples
+///
+/// ```
+/// use strategies::sma_rsi_trend::{SmaRsiTrend, SmaRsiTrendConfig};
+/// use strategies::strategy::Strategy;
+///
+/// let config = SmaRsiTrendConfig {
+///     sma_period: 50,
+///     rsi_period: 14,
+///     rsi_oversold: 30.0,
+///     rsi_overbought: 70.0,
+///     stop_loss_atr_mult: 2.0,
+///     atr_period: 14,
+///     symbol: "BTCUSD".to_string(),
+/// };
+///
+/// let strategy = SmaRsiTrend::new(config);
+/// assert_eq!(strategy.name(), "SmaRsiTrend");
+/// ```
 pub struct SmaRsiTrend {
     config: SmaRsiTrendConfig,
 }

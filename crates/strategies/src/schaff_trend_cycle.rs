@@ -1,3 +1,7 @@
+//! The Schaff Trend Cycle Strategy
+//!
+//! Uses the STC indicator to identify fast market cycles.
+//!
 use crate::indicators::{atr, stc};
 use crate::strategy::{Signal, SignalType, Strategy, StrategyConfig, StrategyType};
 use anyhow::Result;

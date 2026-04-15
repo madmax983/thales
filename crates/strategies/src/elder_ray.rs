@@ -1,3 +1,7 @@
+//! The Elder-Ray Strategy
+//!
+//! Uses Bull and Bear power to identify trend reversals.
+//!
 use crate::indicators::{atr, elder_ray};
 use crate::strategy::{Signal, SignalType, Strategy, StrategyType};
 use anyhow::{Context, Result};

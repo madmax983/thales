@@ -1,3 +1,10 @@
+//! The Supertrend + EMA Crossover Strategy
+//!
+//! This strategy combines the trend-following Supertrend indicator with an Exponential Moving Average (EMA) crossover system.
+//!
+//! - **Entry Signal:** A buy signal is generated when the Supertrend indicates a bullish trend AND a fast EMA crosses above a slow EMA.
+//! - **Exit Signal:** A sell signal is generated when the Supertrend turns bearish OR the fast EMA crosses below the slow EMA.
+//!
 use crate::indicators::{atr, ema, supertrend};
 use crate::strategy::{Signal, SignalType, Strategy, StrategyConfig, StrategyType};
 use anyhow::Result;
@@ -7,6 +14,23 @@ use rust_decimal::prelude::ToPrimitive;
 use rust_decimal::Decimal;
 use serde::{Deserialize, Serialize};
 
+/// Configuration parameters for the `SupertrendEmaCrossover` strategy.
+///
+/// # Examples
+///
+/// ```
+/// use strategies::supertrend_ema_crossover::SupertrendEmaCrossoverConfig;
+///
+/// let config = SupertrendEmaCrossoverConfig {
+///     supertrend_period: 10,
+///     supertrend_multiplier: 3.0,
+///     ema_short_period: 9,
+///     ema_long_period: 21,
+///     stop_loss_atr_mult: 2.0,
+///     atr_period: 14,
+///     symbol: "BTCUSD".to_string(),
+/// };
+/// ```
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct SupertrendEmaCrossoverConfig {
     pub supertrend_period: usize,
@@ -34,6 +58,27 @@ impl Default for SupertrendEmaCrossoverConfig {
 
 impl StrategyConfig for SupertrendEmaCrossoverConfig {}
 
+/// The Supertrend + EMA Crossover strategy implementation.
+///
+/// # Examples
+///
+/// ```
+/// use strategies::supertrend_ema_crossover::{SupertrendEmaCrossover, SupertrendEmaCrossoverConfig};
+/// use strategies::strategy::Strategy;
+///
+/// let config = SupertrendEmaCrossoverConfig {
+///     supertrend_period: 10,
+///     supertrend_multiplier: 3.0,
+///     ema_short_period: 9,
+///     ema_long_period: 21,
+///     stop_loss_atr_mult: 2.0,
+///     atr_period: 14,
+///     symbol: "BTCUSD".to_string(),
+/// };
+///
+/// let strategy = SupertrendEmaCrossover::new(config);
+/// assert_eq!(strategy.name(), "SupertrendEmaCrossover");
+/// ```
 pub struct SupertrendEmaCrossover {
     config: SupertrendEmaCrossoverConfig,
 }

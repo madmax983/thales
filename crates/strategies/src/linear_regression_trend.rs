@@ -1,3 +1,7 @@
+//! The Linear Regression Trend Strategy
+//!
+//! Uses a linear regression line to identify trend direction.
+//!
 use crate::indicators::{atr, linear_regression};
 use crate::strategy::{Signal, SignalType, Strategy, StrategyType};
 use anyhow::{Context, Result};

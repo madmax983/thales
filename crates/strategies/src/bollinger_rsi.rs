@@ -1,3 +1,7 @@
+//! The Bollinger Bands + RSI Strategy
+//!
+//! Combines Bollinger Bands with RSI for mean reversion trading.
+//!
 use crate::indicators::{atr, bollinger_bands, rsi};
 use crate::strategy::{Signal, SignalType, Strategy, StrategyConfig, StrategyType};
 use anyhow::Result;

@@ -1,3 +1,7 @@
+//! The KAMA + RSI Strategy
+//!
+//! Combines Kaufman's Adaptive Moving Average with RSI for adaptive trend trading.
+//!
 use crate::indicators::{atr, kama, rsi};
 use crate::strategy::{Signal, SignalType, Strategy, StrategyConfig, StrategyType};
 use anyhow::{bail, Result};

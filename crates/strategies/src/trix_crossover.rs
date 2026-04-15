@@ -1,3 +1,10 @@
+//! The TRIX Crossover Strategy
+//!
+//! The TRIX is a momentum oscillator that displays the percent rate of change of a triple exponentially smoothed moving average.
+//!
+//! - **Entry Signal:** A buy signal is generated when the TRIX line crosses above the Signal line.
+//! - **Exit Signal:** A sell signal is generated when the TRIX line crosses below the Signal line.
+//!
 use crate::indicators::{atr, sma, trix};
 use crate::strategy::{Signal, SignalType, Strategy, StrategyConfig, StrategyType};
 use anyhow::Result;
@@ -7,6 +14,21 @@ use rust_decimal::prelude::*;
 use rust_decimal::Decimal;
 use serde::{Deserialize, Serialize};
 
+/// Configuration parameters for the `TrixCrossover` strategy.
+///
+/// # Examples
+///
+/// ```
+/// use strategies::trix_crossover::TrixCrossoverConfig;
+///
+/// let config = TrixCrossoverConfig {
+///     trix_period: 15,
+///     trix_signal_period: 9,
+///     stop_loss_atr_mult: 2.0,
+///     atr_period: 14,
+///     symbol: "BTCUSD".to_string(),
+/// };
+/// ```
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct TrixCrossoverConfig {
     pub trix_period: usize,
@@ -30,6 +52,25 @@ impl Default for TrixCrossoverConfig {
 
 impl StrategyConfig for TrixCrossoverConfig {}
 
+/// The TRIX Crossover strategy implementation.
+///
+/// # Examples
+///
+/// ```
+/// use strategies::trix_crossover::{TrixCrossover, TrixCrossoverConfig};
+/// use strategies::strategy::Strategy;
+///
+/// let config = TrixCrossoverConfig {
+///     trix_period: 15,
+///     trix_signal_period: 9,
+///     stop_loss_atr_mult: 2.0,
+///     atr_period: 14,
+///     symbol: "BTCUSD".to_string(),
+/// };
+///
+/// let strategy = TrixCrossover::new(config);
+/// assert_eq!(strategy.name(), "TrixCrossover");
+/// ```
 pub struct TrixCrossover {
     config: TrixCrossoverConfig,
 }

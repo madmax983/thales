@@ -1,3 +1,11 @@
+//! The Volume Price Trend (VPT) Strategy
+//!
+//! The Volume Price Trend (VPT) combines price and volume to determine the balance between supply and demand.
+//! It is similar to On-Balance Volume (OBV) but adjusts the volume added or subtracted by the percentage change in the price trend.
+//!
+//! - **Entry Signal:** A buy signal is generated when the VPT crosses above its Simple Moving Average (SMA).
+//! - **Exit Signal:** A sell signal is generated when the VPT crosses below its SMA.
+//!
 use crate::indicators::{atr, sma, vpt};
 use crate::strategy::{Signal, SignalType, Strategy, StrategyConfig, StrategyType};
 use anyhow::Result;
@@ -5,6 +13,21 @@ use async_trait::async_trait;
 use polars::prelude::*;
 
 /// Configuration for the Volume Price Trend (VPT) trend-following strategy.
+/// Configuration parameters for the `VptTrend` strategy.
+///
+/// # Examples
+///
+/// ```
+/// use strategies::vpt_trend::VptTrendConfig;
+///
+/// let config = VptTrendConfig {
+///     vpt_sma_period: 21,
+///     price_sma_period: 21,
+///     stop_loss_atr_mult: 2.0,
+///     atr_period: 14,
+///     symbol: "BTCUSD".to_string(),
+/// };
+/// ```
 #[derive(Debug, Clone, serde::Deserialize)]
 pub struct VptTrendConfig {
     /// Period for the Simple Moving Average (SMA) of the VPT indicator.
@@ -31,6 +54,25 @@ impl VptTrendConfig {
 }
 
 /// A trend-following strategy based on the Volume Price Trend (VPT) indicator.
+/// The VPT Trend strategy implementation.
+///
+/// # Examples
+///
+/// ```
+/// use strategies::vpt_trend::{VptTrend, VptTrendConfig};
+/// use strategies::strategy::Strategy;
+///
+/// let config = VptTrendConfig {
+///     vpt_sma_period: 21,
+///     price_sma_period: 21,
+///     stop_loss_atr_mult: 2.0,
+///     atr_period: 14,
+///     symbol: "BTCUSD".to_string(),
+/// };
+///
+/// let strategy = VptTrend::new(config);
+/// assert_eq!(strategy.name(), "VptTrend");
+/// ```
 pub struct VptTrend {
     config: VptTrendConfig,
 }

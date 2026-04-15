@@ -134,3 +134,7 @@
 ## 2026-04-10 - The Unmapped Fluid Dynamics
 **Confusion:** The Fluid Dynamics module `market_fluid_dynamics.rs` in `crates/cli/src/experimental/` lacked executable examples and documentation. Users could not discover how to analyze market fluid dynamics.
 **Clarification:** Added storytelling module-level documentation (`//!`) to explain the core concepts. Added executable `# Examples` to the configuration structures, report definitions, and the main function `analyze_fluid_dynamics`, guiding developers on proper initialization and result interpretation.
+
+## 2026-05-15 - The Unmapped Strategies
+**Confusion:** The strategy modules in `crates/strategies/src/` lacked both module-level storytelling documentation (`//!`) and executable examples (`# Examples`) for their configurations and implementations. This made it difficult for users to understand what each strategy did, what its parameters represented, and how to instantiate it properly.
+**Clarification:** Systematically added module-level documentation explaining the core concept, entry signals, and exit signals for each strategy. Also added executable doctests for configuration structs and main strategy structures to demonstrate correct initialization.

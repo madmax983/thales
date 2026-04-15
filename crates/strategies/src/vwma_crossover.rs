@@ -1,3 +1,10 @@
+//! The Volume Weighted Moving Average (VWMA) Crossover Strategy
+//!
+//! VWMA places more weight on price data with higher volume, highlighting trend changes that are supported by significant market participation.
+//!
+//! - **Entry Signal:** A buy signal is generated when the fast VWMA crosses above the slow VWMA.
+//! - **Exit Signal:** A sell signal is generated when the fast VWMA crosses below the slow VWMA.
+//!
 use crate::indicators::{atr, sma, vwma};
 use crate::strategy::{Signal, SignalType, Strategy, StrategyConfig, StrategyType};
 use anyhow::Result;
@@ -7,6 +14,21 @@ use rust_decimal::prelude::*;
 use rust_decimal::Decimal;
 use serde::{Deserialize, Serialize};
 
+/// Configuration parameters for the `VwmaCrossover` strategy.
+///
+/// # Examples
+///
+/// ```
+/// use strategies::vwma_crossover::VwmaCrossoverConfig;
+///
+/// let config = VwmaCrossoverConfig {
+///     vwma_period: 9,
+///     sma_period: 21,
+///     stop_loss_atr_mult: 2.0,
+///     atr_period: 14,
+///     symbol: "BTCUSD".to_string(),
+/// };
+/// ```
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct VwmaCrossoverConfig {
     pub vwma_period: usize,
@@ -18,6 +40,25 @@ pub struct VwmaCrossoverConfig {
 
 impl StrategyConfig for VwmaCrossoverConfig {}
 
+/// The VWMA Crossover strategy implementation.
+///
+/// # Examples
+///
+/// ```
+/// use strategies::vwma_crossover::{VwmaCrossover, VwmaCrossoverConfig};
+/// use strategies::strategy::Strategy;
+///
+/// let config = VwmaCrossoverConfig {
+///     vwma_period: 9,
+///     sma_period: 21,
+///     stop_loss_atr_mult: 2.0,
+///     atr_period: 14,
+///     symbol: "BTCUSD".to_string(),
+/// };
+///
+/// let strategy = VwmaCrossover::new(config);
+/// assert_eq!(strategy.name(), "VwmaCrossover");
+/// ```
 pub struct VwmaCrossover {
     config: VwmaCrossoverConfig,
 }
