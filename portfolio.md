@@ -7635,6 +7635,12 @@
 | 2026-04-15 18:06:55 | MOGUSD | NO_REF | CONFLICT: Conflicting signals (Buy and Sell) detected for MOGUSD. Trading halted for this asset. |
 | 2026-04-15 18:06:56 | PEPEUSD | NO_REF | CONFLICT: Conflicting signals (Buy and Sell) detected for PEPEUSD. Trading halted for this asset. |
 | 2026-04-15 18:06:58 | BONKUSD | NO_REF | CONFLICT: Conflicting signals (Buy and Sell) detected for BONKUSD. Trading halted for this asset. |
+| 2026-04-15 19:56:12 | BTCUSD | crypto:BTCUSD:unknown:1776170439561 | Signal too old (31.3 hours > 24 hours) |
+| 2026-04-15 19:56:12 | ETHUSD | crypto:ETHUSD:unknown:1776170439577 | Signal too old (31.3 hours > 24 hours) |
+| 2026-04-15 19:56:12 | SPY | equities:SPY:unknown:1776170439592 | Signal too old (31.3 hours > 24 hours) |
+| 2026-04-15 19:56:14 | MOGUSD | NO_REF | CONFLICT: Conflicting signals (Buy and Sell) detected for MOGUSD. Trading halted for this asset. |
+| 2026-04-15 19:56:16 | PEPEUSD | NO_REF | CONFLICT: Conflicting signals (Buy and Sell) detected for PEPEUSD. Trading halted for this asset. |
+| 2026-04-15 19:56:17 | BONKUSD | NO_REF | CONFLICT: Conflicting signals (Buy and Sell) detected for BONKUSD. Trading halted for this asset. |
 
 ## Executed Trades
 
