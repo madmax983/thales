@@ -1573,3 +1573,27 @@ use polars::prelude::*;
 // Let df be a DataFrame containing "close" and "volume" columns
 // let pvi_series = pvi::calculate(&df)?;
 ```
+
+## Typical Price
+
+**Name:** Typical Price
+**Description:** Calculates the arithmetic average of high, low, and close prices.
+**Rationale:** Typical price is a useful indicator for determining the average price of an asset over a period, providing a more balanced view of the market's value during that time compared to just looking at the closing price.
+
+### Implementation Details
+- Uses `rust_decimal::Decimal` for all internal calculations to ensure precision and avoids `f64`.
+- Returns a Polars `Series` of String values.
+
+### Usage
+
+```rust
+use strategies::indicators::typical_price;
+use polars::prelude::*;
+
+let df = df!(
+    "high" => &["10.0", "12.0", "15.0"],
+    "low" => &["5.0", "8.0", "10.0"],
+    "close" => &["7.0", "10.0", "14.0"]
+).unwrap();
+let res = typical_price::calculate(&df).unwrap();
+```
