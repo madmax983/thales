@@ -519,6 +519,11 @@ enum Commands {
         visualize: bool,
     },
     #[cfg(feature = "nova")]
+    AnalyzeAstrophysics {
+        #[arg(long)]
+        input: PathBuf,
+    },
+    #[cfg(feature = "nova")]
     AnalyzeSeismology {
         #[arg(long)]
         input: PathBuf,
@@ -2140,6 +2145,32 @@ fn run(command: Commands, raw: bool) -> Result<String, CliError> {
             }
 
             ok_envelope(report, vec![], raw)
+        }
+        #[cfg(feature = "nova")]
+        Commands::AnalyzeAstrophysics { input } => {
+            let file_content = std::fs::read_to_string(&input).map_err(|e| {
+                std::io::Error::new(
+                    e.kind(),
+                    format!("Failed to read file '{}': {}", input.display(), e),
+                )
+            })?;
+            let series: BarSeries =
+                match serde_json::from_str::<ResponseEnvelope<BarSeries>>(&file_content) {
+                    Ok(envelope) => envelope
+                        .data
+                        .ok_or(CliError::Validation("Envelope has no data".to_string()))?,
+                    Err(_) => serde_json::from_str::<BarSeries>(&file_content)?,
+                };
+            let report =
+                thales_cli::experimental::market_astrophysics::analyze_astrophysics(&series)
+                    .ok_or_else(|| {
+                        CliError::Validation("Not enough data to analyze astrophysics".to_string())
+                    })?;
+
+            if !raw {
+                thales_cli::experimental::market_astrophysics::print_ascii_astrophysics(&report);
+            }
+            ok_envelope(json!(report), vec![], raw)
         }
         #[cfg(feature = "nova")]
         Commands::AnalyzeSeismology {
