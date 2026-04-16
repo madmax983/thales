@@ -31,6 +31,7 @@ use strategies::adx_macd_trend::{AdxMacdTrend, AdxMacdTrendConfig};
 use strategies::adx_momentum::{AdxMomentum, AdxMomentumConfig};
 use strategies::alma_crossover::{AlmaCrossover, AlmaCrossoverConfig};
 use strategies::aroon_oscillator::{AroonOscillator, AroonOscillatorConfig};
+use strategies::typical_price_trend::{TypicalPriceTrend, TypicalPriceTrendConfig};
 use strategies::atr_breakout::{AtrBreakout, AtrBreakoutConfig};
 use strategies::awesome_oscillator::{AwesomeOscillator, AwesomeOscillatorConfig};
 use strategies::bollinger_bands::{BollingerBandsConfig, BollingerBandsMeanReversion};
@@ -170,6 +171,13 @@ pub fn create_strategy(name: &str, symbol: &str) -> Result<Box<dyn Strategy>> {
                 symbol: symbol.to_string(),
             };
             Ok(Box::new(ChoppinessIndexTrend::new(config)))
+        }
+        "TypicalPriceTrend" => {
+            let config = TypicalPriceTrendConfig {
+                symbol: symbol.to_string(),
+                ..TypicalPriceTrendConfig::default()
+            };
+            Ok(Box::new(TypicalPriceTrend::new(config)))
         }
         "AroonOscillator" => {
             let config = AroonOscillatorConfig {
@@ -994,6 +1002,7 @@ pub fn list_strategies() -> Vec<&'static str> {
         "KamaRsiTrend",
         "AlmaCrossover",
         "AdxMacdTrend",
+        "TypicalPriceTrend",
         "AroonOscillator",
         "BollingerBands",
         "ElderRay",
