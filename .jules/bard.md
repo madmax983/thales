@@ -138,3 +138,7 @@
 ## 2026-05-15 - The Unmapped Strategies
 **Confusion:** The strategy modules in `crates/strategies/src/` lacked both module-level storytelling documentation (`//!`) and executable examples (`# Examples`) for their configurations and implementations. This made it difficult for users to understand what each strategy did, what its parameters represented, and how to instantiate it properly.
 **Clarification:** Systematically added module-level documentation explaining the core concept, entry signals, and exit signals for each strategy. Also added executable doctests for configuration structs and main strategy structures to demonstrate correct initialization.
+
+## 2026-05-16 - The Black Box Orchestrator
+**Confusion:** The main orchestrator `main.rs` and core reporting tools like `backtest_csv.rs` and `stress_test.rs` lacked module-level documentation. Users didn't understand the 'why' behind these critical files.
+**Clarification:** Added storytelling module-level documentation (`//!`) to explain the core concepts and workflows. Added executable `# Examples` to demonstrate how to export CSVs and run stress tests safely.
