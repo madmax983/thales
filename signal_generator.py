@@ -31,6 +31,7 @@ Critical rules:
 - Size positions based on volatility
 - All signals must go through Risk Agent before execution
 - Check historical trades before generating new signals
+
 """
 import subprocess
 import json
