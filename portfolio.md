@@ -7688,6 +7688,12 @@
 | 2026-04-16 09:03:27 | PEPEUSD | NO_REF | CONFLICT: Conflicting signals (Buy and Sell) detected for PEPEUSD. Trading halted for this asset. |
 | 2026-04-16 09:03:30 | MOGUSD | crypto:MOGUSD:sell:1776330000000 | Rejected by Risk Agent: Order value below exchange minimum fiat volume (0.00 < 5.0) |
 | 2026-04-16 09:03:30 | SHIBUSD | crypto:SHIBUSD:buy:1776330000000 | No buying power available (USD 0.00) |
+| 2026-04-16 16:06:06 | BTCUSD | crypto:BTCUSD:unknown:1776170439561 | Signal too old (51.4 hours > 24 hours) |
+| 2026-04-16 16:06:06 | ETHUSD | crypto:ETHUSD:unknown:1776170439577 | Signal too old (51.4 hours > 24 hours) |
+| 2026-04-16 16:06:06 | SPY | equities:SPY:unknown:1776170439592 | Signal too old (51.4 hours > 24 hours) |
+| 2026-04-16 16:06:08 | BTCUSD | crypto:BTCUSD:unknown:1776342049006 | CONFLICT: Conflicting signals (Buy and Sell) detected for BTCUSD. Trading halted for this asset. |
+| 2026-04-16 16:06:10 | SPY | equities:SPY:unknown:1776342049038 | Invalid input: provider error: kraken api error: EQuery:Unknown asset pair |
+| 2026-04-16 16:06:10 | ETHUSD | crypto:ETHUSD:unknown:1776342049023 | No buying power available (USD 0.00) |
 
 ## Executed Trades
 
