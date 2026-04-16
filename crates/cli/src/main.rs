@@ -1,3 +1,16 @@
+//! # Thales CLI Entry Point
+//!
+//! This is the main entry point for the Thales Trading CLI. It handles command-line argument parsing,
+//! orchestrates the flow of data between the various functional modules (like fetching data, backtesting,
+//! and signal generation), and standardizes the output format as JSON.
+//!
+//! # Core Responsibilities
+//! - **Command Parsing:** Uses `clap` to parse user commands and arguments.
+//! - **Input/Output Routing:** Reads configuration and market data files, passes them to the engine,
+//!   and wraps the results in a standardized `ResponseEnvelope` for machine readability.
+//! - **Error Handling:** Catches application errors and surfaces them as formatted JSON errors to
+//!   prevent silent failures in automated trading pipelines.
+
 use std::{path::PathBuf, process};
 
 use alpaca_provider::{AlpacaClient, AlpacaConfig};
