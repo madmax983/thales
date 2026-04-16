@@ -7682,6 +7682,12 @@
 | 2026-04-16 07:06:33 | BTCUSD | crypto:BTCUSD:unknown:1776170439561 | Signal too old (42.4 hours > 24 hours) |
 | 2026-04-16 07:06:33 | ETHUSD | crypto:ETHUSD:unknown:1776170439577 | Signal too old (42.4 hours > 24 hours) |
 | 2026-04-16 07:06:33 | SPY | equities:SPY:unknown:1776170439592 | Signal too old (42.4 hours > 24 hours) |
+| 2026-04-16 09:03:26 | BTCUSD | crypto:BTCUSD:unknown:1776170439561 | Signal too old (44.4 hours > 24 hours) |
+| 2026-04-16 09:03:26 | ETHUSD | crypto:ETHUSD:unknown:1776170439577 | Signal too old (44.4 hours > 24 hours) |
+| 2026-04-16 09:03:26 | SPY | equities:SPY:unknown:1776170439592 | Signal too old (44.4 hours > 24 hours) |
+| 2026-04-16 09:03:27 | PEPEUSD | NO_REF | CONFLICT: Conflicting signals (Buy and Sell) detected for PEPEUSD. Trading halted for this asset. |
+| 2026-04-16 09:03:30 | MOGUSD | crypto:MOGUSD:sell:1776330000000 | Rejected by Risk Agent: Order value below exchange minimum fiat volume (0.00 < 5.0) |
+| 2026-04-16 09:03:30 | SHIBUSD | crypto:SHIBUSD:buy:1776330000000 | No buying power available (USD 0.00) |
 
 ## Executed Trades
 
