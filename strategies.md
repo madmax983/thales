@@ -4400,3 +4400,40 @@ impl Default for PviTrendConfig {
 - **Win Rate:** Varies depending on asset and parameters, roughly 40-50% in trending environments.
 - **Sharpe Ratio:** Targets > 1.2 in bull trends.
 - **Max Drawdown:** Moderated via ATR stops but can be high during whipsaw conditions.
+
+# Trading Strategy: Typical Price Trend
+
+## Strategy Specification
+
+**Name:** TypicalPriceTrend
+
+**Description:** A trend-following strategy that uses the Typical Price (TP = (High + Low + Close) / 3) and its Simple Moving Average (SMA).
+
+**Rationale:** Typical Price provides a single price point that represents the average price of a period, capturing the high and low. A trend is identified when the Typical Price crosses its SMA.
+
+## Requirements
+
+### Implementation Details
+- Uses Polars for data analysis and generating signals.
+- Implements the `Strategy` trait in Rust.
+- Utilizes the `sma` and `atr` indicators.
+
+### Strategy Type
+Trend Following
+
+### Entry Conditions
+- **Long Entry:** Typical Price crosses above its SMA.
+- **Short Entry:** Typical Price crosses below its SMA.
+
+### Exit Conditions
+- **Long Exit:** Typical Price crosses below its SMA OR Stop Loss is hit.
+- **Short Exit:** Typical Price crosses above its SMA OR Stop Loss is hit.
+- **Stop Loss:** Entry Price +/- (ATR * `stop_loss_atr_mult`).
+
+### Position Sizing
+- **Size Hint:** "100" (fixed units) for entry, "max" for exits.
+
+### Expected Backtesting Metrics
+- **Expected Win Rate:** 45-55%
+- **Expected Sharpe Ratio:** > 1.0
+- **Max Drawdown:** < 20%
