@@ -7745,6 +7745,9 @@
 | 2026-04-17 18:34:34 | BTCUSD | crypto:BTCUSD:unknown:1776428067986 | No active strategy generated a signal (Strategies: BollingerBands, AdlMomentum, BopMomentum, CoppockCurve, KdjIndicatorStrategy, KamaCrossover, AlmaCrossover, AdxMacdTrend, AroonOscillator, ElderRay, UlcerIndexMeanReversion, EmaCrossover, FisherTransformReversal, RsiMeanReversion, Macd, Supertrend, SupertrendEmaCrossover, SupertrendRsi, DonchianBreakout, ParabolicSar, KeltnerChannelBreakout, StochasticOscillator, AdxMomentum, IchimokuCloud, CciMomentum, ChaikinMoneyFlow, ChaikinOscillatorMomentum, ChandelierExit, ChoppinessIndexTrend, CmoMeanReversion, LinearRegressionTrend, EaseOfMovement, ForceIndexTrend, ObvTrendFollowing, MoneyFlowIndex, ConnorsRsiMeanReversion, AwesomeOscillator, WilliamsR, VwmaCrossover, VwapReversion, VortexBreakout, TripleSmaCrossover, TripleEmaCrossover, UltimateOscillator, RelativeVigorIndexTrend, VolumeOscillatorTrend, VptTrendFollowing, ZlemaCrossover, ZScoreMeanReversion, VwMacd, BollingerRsiMeanReversion, StochRsiMeanReversion, RocMomentum, MacdRsiTrend, TrixCrossover, TsiTrend, DemaCrossover, TemaCrossover, WmaCrossover, HmaCrossover, SmaCrossover, EmaRsiTrendFollowing, PpoRsiTrend, KstTrend, VhfTrendFollowing, SchaffTrendCycle, DisparityIndexReversion, DpoBreakout, DoubleEmaCrossover) |
 | 2026-04-17 18:34:35 | SPY | equities:SPY:unknown:1776428068017 | Invalid input: provider error: kraken api error: EQuery:Unknown asset pair |
 | 2026-04-17 18:34:35 | ETHUSD | crypto:ETHUSD:unknown:1776428068002 | No sellable balance available (ETH 0.00000000) |
+| 2026-04-17 19:54:28 | SPY | equities:SPY:unknown:1776428068017 | Invalid input: provider error: kraken api error: EQuery:Unknown asset pair |
+| 2026-04-17 19:54:28 | BTCUSD | crypto:BTCUSD:unknown:1776428067986 | No buying power available (USD 0.00) |
+| 2026-04-17 19:54:29 | ETHUSD | crypto:ETHUSD:unknown:1776428068002 | No buying power available (USD 0.00) |
 
 ## Executed Trades
 
