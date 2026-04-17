@@ -38,6 +38,7 @@ use thales_cli::experimental::cycle_analysis;
 use thales_cli::experimental::market_energy;
 #[cfg(feature = "nova")]
 use thales_cli::experimental::market_gravity;
+
 #[cfg(feature = "nova")]
 use thales_cli::experimental::market_seismology;
 #[cfg(feature = "nova")]
@@ -112,6 +113,12 @@ enum Commands {
     },
     #[cfg(feature = "nova")]
     MarketWeather {
+        #[arg(long)]
+        input: PathBuf,
+    },
+
+    #[cfg(feature = "nova")]
+    AnalyzeQuantum {
         #[arg(long)]
         input: PathBuf,
     },
@@ -2320,6 +2327,36 @@ fn run(command: Commands, raw: bool) -> Result<String, CliError> {
                     "Ecosystem Report:\nCondition: {}\nVolume Trend: {:.2}\nPrice Trend: {:.2}\nVolatility: {:.2}",
                     report.ecosystem, report.volume_trend, report.price_trend, report.volatility
                 );
+            }
+
+            ok_envelope(report, vec![], raw)
+        }
+
+        #[cfg(feature = "nova")]
+        Commands::AnalyzeQuantum { input } => {
+            let file_content = std::fs::read_to_string(&input).map_err(|e| {
+                std::io::Error::new(
+                    e.kind(),
+                    format!("Failed to read file '{}': {}", input.display(), e),
+                )
+            })?;
+
+            let series: BarSeries = serde_json::from_str(&file_content).map_err(|e| {
+                CliError::Validation(format!(
+                    "Failed to parse BarSeries from {}: {}",
+                    input.display(),
+                    e
+                ))
+            })?;
+
+            let config = thales_cli::experimental::market_quantum::QuantumConfig::default();
+            let report = thales_cli::experimental::market_quantum::analyze_quantum(&series, config)
+                .ok_or_else(|| {
+                    CliError::Validation("Failed to calculate market quantum".to_string())
+                })?;
+
+            if !raw {
+                thales_cli::experimental::market_quantum::print_ascii_quantum(&report);
             }
 
             ok_envelope(report, vec![], raw)

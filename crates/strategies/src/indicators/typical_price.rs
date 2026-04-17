@@ -48,10 +48,7 @@ pub fn calculate(data: &DataFrame) -> Result<Series> {
     // so we can use a Vec of Strings to construct the Series.
     let mut typical_prices = Vec::with_capacity(len);
 
-    let iter = high_ca
-        .into_iter()
-        .zip(low_ca)
-        .zip(close_ca);
+    let iter = high_ca.into_iter().zip(low_ca).zip(close_ca);
 
     for (i, ((h_opt, l_opt), c_opt)) in iter.enumerate() {
         if let (Some(h_str), Some(l_str), Some(c_str)) = (h_opt, l_opt, c_opt) {
