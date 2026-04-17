@@ -142,3 +142,6 @@
 ## 2026-05-16 - The Black Box Orchestrator
 **Confusion:** The main orchestrator `main.rs` and core reporting tools like `backtest_csv.rs` and `stress_test.rs` lacked module-level documentation. Users didn't understand the 'why' behind these critical files.
 **Clarification:** Added storytelling module-level documentation (`//!`) to explain the core concepts and workflows. Added executable `# Examples` to demonstrate how to export CSVs and run stress tests safely.
+## 2024-05-31 - The Unmapped Missing Indicators
+**Confusion:** The `pvi_trend.rs` and `typical_price_trend.rs` strategy files lacked module-level documentation (`//!`). Users had no idea how these strategies worked.
+**Clarification:** Added module-level documentation and executable examples (`# Examples`) to both files to explain the concepts and demonstrate instantiation.

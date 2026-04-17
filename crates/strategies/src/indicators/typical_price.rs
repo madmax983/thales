@@ -24,13 +24,22 @@ pub fn calculate(data: &DataFrame) -> Result<Series> {
         anyhow::bail!("Data cannot be empty");
     }
 
-    let high = data.column("high").context("DataFrame must contain 'high' column")?.cast(&DataType::String)?;
+    let high = data
+        .column("high")
+        .context("DataFrame must contain 'high' column")?
+        .cast(&DataType::String)?;
     let high_ca = high.str()?;
 
-    let low = data.column("low").context("DataFrame must contain 'low' column")?.cast(&DataType::String)?;
+    let low = data
+        .column("low")
+        .context("DataFrame must contain 'low' column")?
+        .cast(&DataType::String)?;
     let low_ca = low.str()?;
 
-    let close = data.column("close").context("DataFrame must contain 'close' column")?.cast(&DataType::String)?;
+    let close = data
+        .column("close")
+        .context("DataFrame must contain 'close' column")?
+        .cast(&DataType::String)?;
     let close_ca = close.str()?;
 
     let len = data.height();
@@ -39,7 +48,10 @@ pub fn calculate(data: &DataFrame) -> Result<Series> {
     // so we can use a Vec of Strings to construct the Series.
     let mut typical_prices = Vec::with_capacity(len);
 
-    let iter = high_ca.into_iter().zip(low_ca.into_iter()).zip(close_ca.into_iter());
+    let iter = high_ca
+        .into_iter()
+        .zip(low_ca)
+        .zip(close_ca);
 
     for (i, ((h_opt, l_opt), c_opt)) in iter.enumerate() {
         if let (Some(h_str), Some(l_str), Some(c_str)) = (h_opt, l_opt, c_opt) {
@@ -47,14 +59,16 @@ pub fn calculate(data: &DataFrame) -> Result<Series> {
                 anyhow::bail!("NaN value found at index {}", i);
             }
 
-            let h_dec = Decimal::from_str(h_str).context("Failed to parse high price as Decimal")?;
+            let h_dec =
+                Decimal::from_str(h_str).context("Failed to parse high price as Decimal")?;
             let l_dec = Decimal::from_str(l_str).context("Failed to parse low price as Decimal")?;
-            let c_dec = Decimal::from_str(c_str).context("Failed to parse close price as Decimal")?;
+            let c_dec =
+                Decimal::from_str(c_str).context("Failed to parse close price as Decimal")?;
 
             let tp = (h_dec + l_dec + c_dec) / Decimal::from(3);
             typical_prices.push(tp.to_string());
         } else {
-             anyhow::bail!("Missing data or null value at index {}", i);
+            anyhow::bail!("Missing data or null value at index {}", i);
         }
     }
 
@@ -75,9 +89,15 @@ mod tests {
         let res = calculate(&df)?;
         let s = res.str()?;
 
-        let tp1 = (Decimal::from_str("10.0")? + Decimal::from_str("5.0")? + Decimal::from_str("7.0")?) / Decimal::from(3);
-        let tp2 = (Decimal::from_str("12.0")? + Decimal::from_str("8.0")? + Decimal::from_str("10.0")?) / Decimal::from(3);
-        let tp3 = (Decimal::from_str("15.0")? + Decimal::from_str("10.0")? + Decimal::from_str("14.0")?) / Decimal::from(3);
+        let tp1 =
+            (Decimal::from_str("10.0")? + Decimal::from_str("5.0")? + Decimal::from_str("7.0")?)
+                / Decimal::from(3);
+        let tp2 =
+            (Decimal::from_str("12.0")? + Decimal::from_str("8.0")? + Decimal::from_str("10.0")?)
+                / Decimal::from(3);
+        let tp3 =
+            (Decimal::from_str("15.0")? + Decimal::from_str("10.0")? + Decimal::from_str("14.0")?)
+                / Decimal::from(3);
 
         assert_eq!(s.get(0).unwrap_or(""), tp1.to_string());
         assert_eq!(s.get(1).unwrap_or(""), tp2.to_string());

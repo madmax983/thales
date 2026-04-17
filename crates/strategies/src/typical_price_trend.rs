@@ -1,3 +1,31 @@
+//! Typical Price Trend Strategy
+//!
+//! This module implements a trend-following strategy based on the Typical Price indicator
+//! and its Simple Moving Average (SMA). The Typical Price provides a single-line representation
+//! of the high, low, and close prices for a given period.
+//!
+//! # Core Concept
+//! The strategy generates signals based on the crossover between the Typical Price and its SMA:
+//! - **Bullish Trend:** Typical Price crosses above its SMA.
+//! - **Bearish Trend:** Typical Price crosses below its SMA.
+//!
+//! Risk management is handled by an ATR-based stop-loss and a 2:1 risk-reward take-profit.
+//!
+//! # Examples
+//!
+//! ```
+//! use strategies::typical_price_trend::{TypicalPriceTrend, TypicalPriceTrendConfig};
+//!
+//! let config = TypicalPriceTrendConfig {
+//!     sma_period: 20,
+//!     atr_period: 14,
+//!     stop_loss_atr_mult: 2.0,
+//!     symbol: "BTCUSD".to_string(),
+//! };
+//!
+//! let strategy = TypicalPriceTrend::new(config);
+//! ```
+
 use crate::indicators::{atr, sma};
 use crate::strategy::{Signal, SignalType, Strategy, StrategyConfig, StrategyType};
 use anyhow::{bail, Result};
@@ -102,22 +130,9 @@ impl Strategy for TypicalPriceTrend {
             let price_opt = close_arr.get(i);
             let atr_opt = atr_arr.get(i);
 
-            if let (
-                Some(tp_c),
-                Some(tp_p),
-                Some(sma_c),
-                Some(sma_p),
-                Some(price),
-                Some(atr_val),
-            ) = (
-                tp_curr,
-                tp_prev,
-                sma_curr,
-                sma_prev,
-                price_opt,
-                atr_opt,
-            ) {
-
+            if let (Some(tp_c), Some(tp_p), Some(sma_c), Some(sma_p), Some(price), Some(atr_val)) =
+                (tp_curr, tp_prev, sma_curr, sma_prev, price_opt, atr_opt)
+            {
                 let price_dec = Decimal::from_f64_retain(price).unwrap_or(Decimal::ZERO);
                 let atr_dec = Decimal::from_f64_retain(atr_val).unwrap_or(Decimal::ZERO);
 
