@@ -7750,6 +7750,10 @@
 | 2026-04-17 19:54:29 | ETHUSD | crypto:ETHUSD:unknown:1776428068002 | No buying power available (USD 0.00) |
 | 2026-04-17 20:40:28 | SPY | equities:SPY:unknown:1776428068017 | Invalid input: provider error: kraken api error: EQuery:Unknown asset pair |
 | 2026-04-17 20:40:29 | ETHUSD | crypto:ETHUSD:unknown:1776428068002 | No sellable balance available (ETH 0.00000000) |
+| 2026-04-17 22:00:12 | BTCUSD | crypto:BTCUSD:unknown:1776428067986 | Signal already executed/submitted (Ref: crypto:BTCUSD:unknown:1776428067986) |
+| 2026-04-17 22:00:13 | SPY | equities:SPY:unknown:1776428068017 | Invalid input: provider error: kraken api error: EQuery:Unknown asset pair |
+| 2026-04-17 22:00:15 | MOGUSD | NO_REF | CONFLICT: Conflicting signals (Buy and Sell) detected for MOGUSD. Trading halted for this asset. |
+| 2026-04-17 22:00:15 | ETHUSD | crypto:ETHUSD:unknown:1776428068002 | No sellable balance available (ETH 0.00000000) |
 
 ## Executed Trades
 
