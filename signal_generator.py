@@ -221,7 +221,7 @@ def format_signal(intent):
     return "\n".join(lines)
 
 def main():
-    print(__doc__)
+
     if not os.path.exists(CLI_PATH):
         print(f"Error: {CLI_PATH} not found. Please run 'cargo build --release' first.", file=sys.stderr)
         return
