@@ -1,3 +1,31 @@
+//! Positive Volume Index (PVI) Trend Strategy
+//!
+//! This module implements a trend-following strategy based on the Positive Volume Index (PVI)
+//! indicator and its Simple Moving Average (SMA). The PVI focuses on days where trading volume
+//! has increased compared to the previous day.
+//!
+//! # Core Concept
+//! The strategy generates signals based on the crossover between the PVI and its SMA (the Signal Line):
+//! - **Bullish Trend:** PVI crosses above its Signal Line.
+//! - **Bearish Trend:** PVI crosses below its Signal Line.
+//!
+//! Risk management is handled by an ATR-based stop-loss and a 2:1 risk-reward take-profit.
+//!
+//! # Examples
+//!
+//! ```
+//! use strategies::pvi_trend::{PviTrend, PviTrendConfig};
+//!
+//! let config = PviTrendConfig {
+//!     pvi_sma_period: 255,
+//!     atr_period: 14,
+//!     stop_loss_atr_mult: 2.0,
+//!     symbol: "BTCUSD".to_string(),
+//! };
+//!
+//! let strategy = PviTrend::new(config);
+//! ```
+
 use crate::indicators::{atr, pvi, sma};
 use crate::strategy::{Signal, SignalType, Strategy, StrategyConfig, StrategyType};
 use anyhow::{bail, Result};
