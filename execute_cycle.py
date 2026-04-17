@@ -86,6 +86,7 @@ TREND_FOLLOWING_STRATEGIES = {
     "DpoBreakout",
     "SmaRsiTrend",
     "GatorOscillator",
+    "TypicalPriceTrend",
     "AtrBreakout",
     "TtmSqueeze",
     "NviTrend",
