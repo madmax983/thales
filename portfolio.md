@@ -7739,6 +7739,9 @@
 | 2026-04-17 17:00:32 | SPY | equities:SPY:unknown:1776428068017 | Invalid input: provider error: kraken api error: EQuery:Unknown asset pair |
 | 2026-04-17 17:00:33 | BTCUSD | crypto:BTCUSD:unknown:1776428067986 | No buying power available (USD 0.00) |
 | 2026-04-17 17:00:33 | ETHUSD | crypto:ETHUSD:unknown:1776428068002 | No buying power available (USD 0.00) |
+| 2026-04-17 17:44:47 | ETHUSD | crypto:ETHUSD:unknown:1776428068002 | CONFLICT: Conflicting signals (Buy and Sell) detected for ETHUSD. Trading halted for this asset. |
+| 2026-04-17 17:44:47 | SPY | equities:SPY:unknown:1776428068017 | Invalid input: provider error: kraken api error: EQuery:Unknown asset pair |
+| 2026-04-17 17:44:48 | BTCUSD | crypto:BTCUSD:unknown:1776428067986 | No buying power available (USD 0.00) |
 
 ## Executed Trades
 
