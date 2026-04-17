@@ -1597,3 +1597,28 @@ let df = df!(
 ).unwrap();
 let res = typical_price::calculate(&df).unwrap();
 ```
+
+## Weighted Close
+
+**Name:** Weighted Close
+**Description:** Calculates the weighted average of high, low, and close prices ((High + Low + Close * 2) / 4).
+**Rationale:** The Weighted Close indicator puts more emphasis on the most recent closing price, providing a more responsive view of the average price over a period.
+
+### Implementation Details
+- Uses `rust_decimal::Decimal` iteratively for math calculations to ensure financial precision and avoids `f64`.
+- Returns a Polars `Series` of String values.
+- Validates data to ensure there are no missing or `NaN` values.
+
+### Usage
+
+```rust
+use strategies::indicators::weighted_close;
+use polars::prelude::*;
+
+let df = df!(
+    "high" => &["10.0", "12.0", "15.0"],
+    "low" => &["5.0", "8.0", "10.0"],
+    "close" => &["7.0", "10.0", "14.0"]
+).unwrap();
+let res = weighted_close::calculate(&df).unwrap();
+```
