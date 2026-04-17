@@ -103,7 +103,8 @@ STRATEGIES = [
     "TtmSqueeze",
     "VwMacd",
     "UlcerIndexMeanReversion",
-    "GatorOscillator"
+    "GatorOscillator",
+    "TypicalPriceTrend"
 ]
 
 def run_cmd(cmd):
