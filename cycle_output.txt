@@ -1,57 +1,78 @@
-Active Strategies: ['BollingerBands', 'AdlMomentum', 'BopMomentum', 'CoppockCurve', 'KdjIndicatorStrategy', 'KamaCrossover', 'AlmaCrossover', 'AdxMacdTrend', 'AroonOscillator', 'ElderRay', 'UlcerIndexMeanReversion', 'EmaCrossover', 'FisherTransformReversal', 'RsiMeanReversion', 'Macd', 'Supertrend', 'SupertrendEmaCrossover', 'SupertrendRsi', 'DonchianBreakout', 'ParabolicSar', 'KeltnerChannelBreakout', 'StochasticOscillator', 'AdxMomentum', 'IchimokuCloud', 'CciMomentum', 'ChaikinMoneyFlow', 'ChaikinOscillatorMomentum', 'ChandelierExit', 'ChoppinessIndexTrend', 'CmoMeanReversion', 'LinearRegressionTrend', 'EaseOfMovement', 'ForceIndexTrend', 'ObvTrendFollowing', 'MoneyFlowIndex', 'ConnorsRsiMeanReversion', 'AwesomeOscillator', 'WilliamsR', 'VwmaCrossover', 'VwapReversion', 'VortexBreakout', 'TripleSmaCrossover', 'TripleEmaCrossover', 'UltimateOscillator', 'RelativeVigorIndexTrend', 'VolumeOscillatorTrend', 'VptTrendFollowing', 'ZlemaCrossover', 'ZScoreMeanReversion', 'VwMacd', 'BollingerRsiMeanReversion', 'StochRsiMeanReversion', 'RocMomentum', 'MacdRsiTrend', 'TrixCrossover', 'TsiTrend', 'DemaCrossover', 'TemaCrossover', 'WmaCrossover', 'HmaCrossover', 'SmaCrossover', 'EmaRsiTrendFollowing', 'PpoRsiTrend', 'KstTrend', 'VhfTrendFollowing', 'SchaffTrendCycle', 'DisparityIndexReversion', 'DpoBreakout', 'DoubleEmaCrossover']
-Scanning Kraken (Crypto)...
-Scanning Alpaca (Equities)...
-Skipping already processed signal for ETHUSD: Signal already executed/submitted (Ref: crypto:ETHUSD:unknown:1775391896195)
-Skipping already processed signal for BTCUSD: Signal already executed/submitted (Ref: crypto:BTCUSD:unknown:1775415830150)
-Skipping already processed signal for BTCUSD: Signal already executed/submitted (Ref: crypto:BTCUSD:unknown:1775421987273)
-Skipping already processed signal for ETHUSD: Signal already executed/submitted (Ref: crypto:ETHUSD:unknown:1775421987290)
-Skipping already processed signal for BTCUSD: Signal already executed/submitted (Ref: crypto:BTCUSD:unknown:1775425605936)
-Skipping already processed signal for BTCUSD: Signal already executed/submitted (Ref: crypto:BTCUSD:unknown:1775450872693)
-Selected 3 candidates for deep analysis (from 21 scanned + 3 signals).
- - BTCUSD (crypto)
- - ETHUSD (crypto)
- - SPY (equities)
-Fetching open positions...
-Evaluating candidates...
-  BTCUSD: regime=trending_down, using strategies=['BollingerBands', 'AdlMomentum', 'BopMomentum', 'CoppockCurve', 'KdjIndicatorStrategy', 'KamaCrossover', 'AlmaCrossover', 'AdxMacdTrend', 'AroonOscillator', 'ElderRay', 'UlcerIndexMeanReversion', 'EmaCrossover', 'FisherTransformReversal', 'RsiMeanReversion', 'Macd', 'Supertrend', 'SupertrendEmaCrossover', 'SupertrendRsi', 'DonchianBreakout', 'ParabolicSar', 'KeltnerChannelBreakout', 'StochasticOscillator', 'AdxMomentum', 'IchimokuCloud', 'CciMomentum', 'ChaikinMoneyFlow', 'ChaikinOscillatorMomentum', 'ChandelierExit', 'ChoppinessIndexTrend', 'CmoMeanReversion', 'LinearRegressionTrend', 'EaseOfMovement', 'ForceIndexTrend', 'ObvTrendFollowing', 'MoneyFlowIndex', 'ConnorsRsiMeanReversion', 'AwesomeOscillator', 'WilliamsR', 'VwmaCrossover', 'VwapReversion', 'VortexBreakout', 'TripleSmaCrossover', 'TripleEmaCrossover', 'UltimateOscillator', 'RelativeVigorIndexTrend', 'VolumeOscillatorTrend', 'VptTrendFollowing', 'ZlemaCrossover', 'ZScoreMeanReversion', 'VwMacd', 'BollingerRsiMeanReversion', 'StochRsiMeanReversion', 'RocMomentum', 'MacdRsiTrend', 'TrixCrossover', 'TsiTrend', 'DemaCrossover', 'TemaCrossover', 'WmaCrossover', 'HmaCrossover', 'SmaCrossover', 'EmaRsiTrendFollowing', 'PpoRsiTrend', 'KstTrend', 'VhfTrendFollowing', 'SchaffTrendCycle', 'DisparityIndexReversion', 'DpoBreakout', 'DoubleEmaCrossover']
-  BTCUSD: Selected 1 valid signals.
-  ETHUSD: regime=trending_up, using strategies=['BollingerBands', 'AdlMomentum', 'BopMomentum', 'CoppockCurve', 'KdjIndicatorStrategy', 'KamaCrossover', 'AlmaCrossover', 'AdxMacdTrend', 'AroonOscillator', 'ElderRay', 'UlcerIndexMeanReversion', 'EmaCrossover', 'FisherTransformReversal', 'RsiMeanReversion', 'Macd', 'Supertrend', 'SupertrendEmaCrossover', 'SupertrendRsi', 'DonchianBreakout', 'ParabolicSar', 'KeltnerChannelBreakout', 'StochasticOscillator', 'AdxMomentum', 'IchimokuCloud', 'CciMomentum', 'ChaikinMoneyFlow', 'ChaikinOscillatorMomentum', 'ChandelierExit', 'ChoppinessIndexTrend', 'CmoMeanReversion', 'LinearRegressionTrend', 'EaseOfMovement', 'ForceIndexTrend', 'ObvTrendFollowing', 'MoneyFlowIndex', 'ConnorsRsiMeanReversion', 'AwesomeOscillator', 'WilliamsR', 'VwmaCrossover', 'VwapReversion', 'VortexBreakout', 'TripleSmaCrossover', 'TripleEmaCrossover', 'UltimateOscillator', 'RelativeVigorIndexTrend', 'VolumeOscillatorTrend', 'VptTrendFollowing', 'ZlemaCrossover', 'ZScoreMeanReversion', 'VwMacd', 'BollingerRsiMeanReversion', 'StochRsiMeanReversion', 'RocMomentum', 'MacdRsiTrend', 'TrixCrossover', 'TsiTrend', 'DemaCrossover', 'TemaCrossover', 'WmaCrossover', 'HmaCrossover', 'SmaCrossover', 'EmaRsiTrendFollowing', 'PpoRsiTrend', 'KstTrend', 'VhfTrendFollowing', 'SchaffTrendCycle', 'DisparityIndexReversion', 'DpoBreakout', 'DoubleEmaCrossover']
-  ETHUSD: Selected 1 valid signals.
-Error executing ['fetch-market-data', '--provider', 'kraken', '--symbol', 'SPY', '--timeframe', '1h']: provider error: kraken api error: EQuery:Unknown asset pair
-  SPY: Invalid input: provider error: kraken api error: EQuery:Unknown asset pair
-Selected top 2 signals for execution.
+Scanning market for candidates...
+Found candidates: BTCUSD, ETHUSD, SPY
 
---- NEW SIGNAL ---
-Symbol: BTCUSD (crypto)
-Direction: SELL
-Signal Type: Entry
-Confidence: 64.0%
-Size Hint: 0.148493
-Stop Loss: 69629.53143849102
-Take Profit: 67609.23712301799
-Reasoning: Strategy: BopMomentum (64%, MA: 0.80). Reason: BOP Crossover Down: BOP -0.42 < SMA 0.16. Market Context: Trending Down (Short Term) (Medium Volatility). No similar past trades found. Research: Historical Context: [Source: knowledge.txt] Similar market conditions in Q4 2023 showed a strong bullish trend following consolidation periods. The market is currently exhibiting similar behavior. Research: [Source: research.txt] Bitcoin ETFs are seeing strong institutional inflows following SEC approvals. Analysts remain bullish due to positive macroeconomic indicators and recent halving events.. News: [Source: news.txt] Major indices are hitting new highs, with Bitcoin showing resilience against recent regulatory concerns.. (Selling weakness in Oversold conditions) (Risk: $100, SL Dist: 673.43)
+Evaluating BTCUSD...
+Note: No similar past trades found for BTCUSD.
+Note: No similar past trades found for BTCUSD.
+
+Evaluating ETHUSD...
+Note: No similar past trades found for ETHUSD.
+Skipping long signal for ETHUSD: Chasing move (Sentiment is Overbought)
+
+Evaluating SPY...
+Note: No similar past trades found for SPY.
+Skipping long signal for SPY: Chasing move (Sentiment is Overbought)
+
+=== Signal Generator Output ===
+
+
+You are the Signal Generator agent for an autonomous trading system.
+
+Your responsibilities:
+1. SIGNAL GENERATION: Create entry and exit signals based on market analysis
+2. POSITION SIZING: Calculate appropriate position sizes based on risk
+3. STOP LOSSES: Set protective stop loss levels
+4. TAKE PROFITS: Set realistic take profit targets
+5. SIGNAL FILTERING: Avoid redundant or conflicting signals
+6. LEARN FROM HISTORY: Use RAG tools to find similar past trades
+
+Signal types:
+- Entry: Open a new position
+- Exit: Close an existing position
+- ScaleIn: Add to an existing position
+- ScaleOut: Partially close a position
+
+Output format:
+Each signal must include:
+- Symbol and direction (long/short)
+- Signal type and strength (0-100%)
+- Suggested size (quantity)
+- Stop loss and take profit levels
+- Clear reasoning (including historical context)
+
+Critical rules:
+- Never generate signals without proper analysis
+- Always include stop loss for every entry
+- Limit to 1-3 signals per symbol per day
+- Do not chase moves - wait for pullbacks
+- Size positions based on volatility
+- All signals must go through Risk Agent before execution
+- Check historical trades before generating new signals
+
+- Symbol and direction (long/short): BTCUSD (long)
+- Signal type and strength (0-100%): Entry (64.0%)
+- Suggested size (quantity): 0.03785
+- Stop loss and take profit levels: SL: 56825.0117, TP: 63048.2445
+- Clear reasoning (including historical context): Strategy: BollingerBands (64%, MA: 0.80). Reason: Close 59467.027 < Lower Band 60406.23. Market Context: Trending Down (Short Term) (Medium Volatility). No similar past trades found. (Opening new position) (Risk: $100, SL Dist: 2642.02)
 ------------------
 
-Fetching latest price for BTCUSD on kraken...
-Latest price for BTCUSD: 68956.1
-Adjusted sell size for BTCUSD: 0.148493 -> max (sellable: BTC 0.00995222)
-Order Type: LIMIT
-Algorithm: Limit
-Executing sell BTCUSD via kraken...
-Error executing ['execute-intent', '--provider', 'kraken', '--input', 'temp_intent_BTCUSD.json']: provider error: kraken api error: EOrder:Insufficient funds
-Execution failed: provider error: kraken api error: EOrder:Insufficient funds
-
---- NEW SIGNAL ---
-Symbol: ETHUSD (crypto)
-Direction: SELL
-Signal Type: Entry
-Confidence: 64.0%
-Size Hint: 3.330210
-Stop Loss: 2154.018139896307
-Take Profit: 2063.9337202073857
-Reasoning: Strategy: KDJ Indicator Trading Strategy (64%, MA: 0.80). Reason: KDJ Short Entry (J:78.88, K:81.63, D:83.00). Market Context: Trending Up (Short Term) (Medium Volatility). No similar past trades found. Research: Historical Context: [Source: knowledge.txt] Historical technicals show mean reversion likely. Research: [Source: General_Market_Report] Steady accumulation observed. Technical indicators suggest continuation of the trend.. News: [Source: news.txt] Mixed economic data causes market uncertainty.. (Risk: $100, SL Dist: 30.03)
+- Symbol and direction (long/short): BTCUSD (long)
+- Signal type and strength (0-100%): Entry (64.0%)
+- Suggested size (quantity): 0.065375
+- Stop loss and take profit levels: SL: 57937.3802, TP: 63210.8916
+- Clear reasoning (including historical context): Strategy: RsiMeanReversion (64%, MA: 0.80). Reason: RSI Oversold: 21.74 < 30.00. Market Context: Trending Down (Short Term) (Medium Volatility). No similar past trades found. (Risk: $100, SL Dist: 1529.65)
 ------------------
 
-Fetching latest price for ETHUSD on kraken...
-Latest price for ETHUSD: 2123.99
-Skipping ETHUSD: No sellable balance available (ETH 0.00000000)
+- Symbol and direction (long/short): ETHUSD (short)
+- Signal type and strength (0-100%): Entry (64.0%)
+- Suggested size (quantity): 0.36234
+- Stop loss and take profit levels: SL: 3627.1234, TP: 3000.7162
+- Clear reasoning (including historical context): Strategy: BollingerBands (64%, MA: 0.80). Reason: Close 3351.1398 > Upper Band 3276.70. Market Context: Trending Up (Short Term) (Medium Volatility). No similar past trades found. (Opening new position) (Risk: $100, SL Dist: 275.98)
+------------------
+
+- Symbol and direction (long/short): SPY (short)
+- Signal type and strength (0-100%): Entry (64.0%)
+- Suggested size (quantity): 2.174042
+- Stop loss and take profit levels: SL: 604.5206, TP: 500.1194
+- Clear reasoning (including historical context): Strategy: BollingerBands (64%, MA: 0.80). Reason: Close 558.5233 > Upper Band 546.12. Market Context: Trending Up (Short Term) (Medium Volatility). No similar past trades found. (Opening new position) (Risk: $100, SL Dist: 46.00)
+------------------
