@@ -7777,6 +7777,10 @@
 | 2026-04-18 08:59:07 | SPY | equities:SPY:unknown:1776428068017 | Invalid input: provider error: kraken api error: EQuery:Unknown asset pair |
 | 2026-04-18 08:59:08 | MOGUSD | crypto:MOGUSD:sell:1776499200000 | Rejected by Risk Agent: Order value below exchange minimum fiat volume (0.00 < 5.0) |
 | 2026-04-18 08:59:09 | ETHUSD | crypto:ETHUSD:unknown:1776428068002 | No sellable balance available (ETH 0.00000000) |
+| 2026-04-18 11:05:25 | BTCUSD | crypto:BTCUSD:unknown:1776428067986 | Signal already executed/submitted (Ref: crypto:BTCUSD:unknown:1776428067986) |
+| 2026-04-18 11:05:26 | ETHUSD | crypto:ETHUSD:unknown:1776428068002 | CONFLICT: Conflicting signals (Buy and Sell) detected for ETHUSD. Trading halted for this asset. |
+| 2026-04-18 11:05:26 | SPY | equities:SPY:unknown:1776428068017 | Invalid input: provider error: kraken api error: EQuery:Unknown asset pair |
+| 2026-04-18 11:05:28 | LUNAUSD | crypto:LUNAUSD:sell:1776510000000 | provider error: kraken api error: EOrder:Insufficient funds |
 
 ## Executed Trades
 
