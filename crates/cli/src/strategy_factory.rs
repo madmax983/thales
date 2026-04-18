@@ -172,6 +172,16 @@ pub fn create_strategy(name: &str, symbol: &str) -> Result<Box<dyn Strategy>> {
             };
             Ok(Box::new(ChoppinessIndexTrend::new(config)))
         }
+                "WeightedCloseTrend" => {
+            use strategies::weighted_close_trend::{WeightedCloseTrend, WeightedCloseTrendConfig};
+            let config = WeightedCloseTrendConfig {
+                sma_period: 20,
+                atr_period: 14,
+                stop_loss_atr_mult: 2.0,
+                symbol: symbol.to_string(),
+            };
+            Ok(Box::new(WeightedCloseTrend::new(config)))
+        }
         "TypicalPriceTrend" => {
             let config = TypicalPriceTrendConfig {
                 symbol: symbol.to_string(),
@@ -1002,6 +1012,7 @@ pub fn list_strategies() -> Vec<&'static str> {
         "KamaRsiTrend",
         "AlmaCrossover",
         "AdxMacdTrend",
+                "WeightedCloseTrend",
         "TypicalPriceTrend",
         "AroonOscillator",
         "BollingerBands",

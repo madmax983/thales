@@ -104,7 +104,8 @@ STRATEGIES = [
     "VwMacd",
     "UlcerIndexMeanReversion",
     "GatorOscillator",
-    "TypicalPriceTrend"
+    "TypicalPriceTrend",
+    "WeightedCloseTrend"
 ]
 
 def run_cmd(cmd):
