@@ -111,3 +111,4 @@ pub mod relative_vigor_index_trend;
 pub mod typical_price_trend;
 pub mod ultimate_oscillator;
 pub mod vwap_cci_trend;
+pub mod weighted_close_trend;

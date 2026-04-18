@@ -4437,3 +4437,27 @@ Trend Following
 - **Expected Win Rate:** 45-55%
 - **Expected Sharpe Ratio:** > 1.0
 - **Max Drawdown:** < 20%
+
+# Trading Strategy: Weighted Close Trend
+**Description:** A trend-following strategy that uses the Weighted Close and its Simple Moving Average (SMA).
+**Rationale:** The Weighted Close indicator puts more emphasis on the most recent closing price, providing a more responsive view of the average price over a period. A trend is identified when the Weighted Close crosses its SMA.
+
+### Strategy Type
+Trend Following
+
+### Entry Conditions
+- **Long Entry:** Weighted Close crosses above its SMA.
+- **Short Entry:** Weighted Close crosses below its SMA.
+
+### Exit Conditions
+- **Long Exit:** Weighted Close crosses below its SMA OR Stop Loss is hit.
+- **Short Exit:** Weighted Close crosses above its SMA OR Stop Loss is hit.
+- **Stop Loss:** Entry Price +/- (ATR * `stop_loss_atr_mult`).
+
+### Position Sizing
+- **Size Hint:** "100" (fixed units) for entry, "max" for exits.
+
+### Expected Backtesting Metrics
+- **Expected Win Rate:** 45-55%
+- **Expected Sharpe Ratio:** > 1.0
+- **Max Drawdown:** < 20%
