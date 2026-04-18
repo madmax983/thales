@@ -145,3 +145,7 @@
 ## 2024-05-31 - The Unmapped Missing Indicators
 **Confusion:** The `pvi_trend.rs` and `typical_price_trend.rs` strategy files lacked module-level documentation (`//!`). Users had no idea how these strategies worked.
 **Clarification:** Added module-level documentation and executable examples (`# Examples`) to both files to explain the concepts and demonstrate instantiation.
+
+## 2026-04-18 - The Unmapped Weather Region
+**Confusion:** The experimental module `market_weather.rs` in `crates/cli/src/experimental/` lacked executable examples and storytelling module-level documentation. Users could not discover how to analyze market weather conditions.
+**Clarification:** Added storytelling module-level documentation (`//!`) to explain the core meteorological concepts. Added executable `# Examples` to the `MarketWeather` struct and `calculate_weather` function to guide developers on proper initialization and result interpretation.
