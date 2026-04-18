@@ -1,15 +1,42 @@
 #![cfg(feature = "nova")]
 
+//! 🌟 Nova: Market Weather Module
+//!
+//! This module gamifies market data by translating abstract financial conditions
+//! into relatable meteorological terms.
+//!
+//! Why explain market dynamics using dry statistics when you can warn traders of
+//! an incoming "Hurricane" (high volatility and volume) or advise them to wait out
+//! the "Foggy / Stagnant" conditions (low momentum)?
+//!
+//! This approach provides an alternative, intuitive way to quickly assess a financial
+//! instrument's current state based on temperature (trend), wind speed (momentum),
+//! and precipitation (volume).
+
 use contracts::BarSeries;
 use serde::{Deserialize, Serialize};
 
-/// 🌟 Nova: Market Weather
-/// Translates market conditions into meteorological terms.
+/// Represents the meteorological state derived from market price action.
 ///
 /// - High Volatility = Stormy
 /// - High Momentum = Windy
 /// - High Volume = Heavy Precipitation
 /// - Sideways = Foggy
+///
+/// # Examples
+///
+/// ```rust
+/// use thales_cli::experimental::market_weather::MarketWeather;
+///
+/// let weather = MarketWeather {
+///     temperature: 15.0,
+///     wind_speed: 25.5,
+///     precipitation: 1.8,
+///     condition: "Hurricane".to_string(),
+/// };
+///
+/// assert_eq!(weather.condition, "Hurricane");
+/// ```
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct MarketWeather {
     pub temperature: f64,   // Trend (positive = hot, negative = cold)
@@ -18,6 +45,30 @@ pub struct MarketWeather {
     pub condition: String,  // The final weather state
 }
 
+/// Calculates `MarketWeather` by evaluating the trend, momentum, and volume over the last 14 bars.
+///
+/// # Examples
+///
+/// ```rust
+/// use contracts::{Bar, BarSeries};
+/// use thales_cli::experimental::market_weather::calculate_weather;
+///
+/// // Create a dummy series with at least 14 bars to satisfy the requirement
+/// let mut bars = Vec::new();
+/// for i in 0..14 {
+///     bars.push(Bar {
+///         symbol: "AAPL".to_string(),
+///         market: "equities".to_string(),
+///         timeframe: "1d".to_string(),
+///         timestamp_unix_ms: i * 86400000,
+///         open: 100.0, high: 100.0, low: 100.0, close: 100.0, volume: 100.0,
+///     });
+/// }
+/// let series = BarSeries { schema_version: "v1".to_string(), bars };
+///
+/// let weather = calculate_weather(&series).unwrap();
+/// assert_eq!(weather.condition, "Foggy / Stagnant");
+/// ```
 pub fn calculate_weather(series: &BarSeries) -> Option<MarketWeather> {
     if series.bars.len() < 14 {
         return None;
