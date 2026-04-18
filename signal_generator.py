@@ -497,7 +497,27 @@ def main():
             # But the requirement is "Limit to 1-3 signals per symbol per day".
             # The slicing `[:allowance]` already caps it.
             filtered_intents = filtered_intents[:allowance]
-            all_intents.extend(filtered_intents)
+
+            # Global deduplication across all symbols
+            for fi in filtered_intents:
+                sig = (
+                    fi.get("symbol"),
+                    fi.get("side"),
+                    fi.get("size_hint"),
+                    fi.get("stop_loss"),
+                    fi.get("take_profit"),
+                    fi.get("signal_type")
+                )
+                if not any(
+                    (ai.get("symbol") == sig[0] and
+                     ai.get("side") == sig[1] and
+                     ai.get("size_hint") == sig[2] and
+                     ai.get("stop_loss") == sig[3] and
+                     ai.get("take_profit") == sig[4] and
+                     ai.get("signal_type") == sig[5])
+                    for ai in all_intents
+                ):
+                    all_intents.append(fi)
 
         # Cleanup
         if os.path.exists(data_file):
