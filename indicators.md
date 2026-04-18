@@ -1622,3 +1622,27 @@ let df = df!(
 ).unwrap();
 let res = weighted_close::calculate(&df).unwrap();
 ```
+
+## Median Price
+
+**Name:** Median Price
+**Description:** Calculates the average of high and low prices ((High + Low) / 2).
+**Rationale:** The Median Price indicator provides a simple measure of the average price over a period, useful for smoothing out volatility.
+
+### Implementation Details
+- Uses `rust_decimal::Decimal` iteratively for math calculations to ensure financial precision and avoids `f64`.
+- Returns a Polars `Series` of String values.
+- Validates data to ensure there are no missing or `NaN` values.
+
+### Usage
+
+```rust
+use strategies::indicators::median_price;
+use polars::prelude::*;
+
+let df = df!(
+    "high" => &["10.0", "12.0", "15.0"],
+    "low" => &["5.0", "8.0", "10.0"]
+).unwrap();
+let res = median_price::calculate(&df).unwrap();
+```
