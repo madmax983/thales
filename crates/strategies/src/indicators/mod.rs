@@ -69,3 +69,4 @@ pub mod wma;
 pub mod zlema;
 pub mod zscore;
 pub mod weighted_close;
+pub mod median_price;
