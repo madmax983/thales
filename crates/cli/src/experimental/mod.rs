@@ -10,6 +10,7 @@ pub mod market_fluid_dynamics;
 pub mod market_friction;
 pub mod market_gravity;
 pub mod market_immunology;
+pub mod market_optics;
 pub mod market_quantum;
 pub mod market_seismology;
 pub mod market_temperature;
