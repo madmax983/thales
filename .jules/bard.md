@@ -149,3 +149,6 @@
 ## 2026-04-18 - The Unmapped Weather Region
 **Confusion:** The experimental module `market_weather.rs` in `crates/cli/src/experimental/` lacked executable examples and storytelling module-level documentation. Users could not discover how to analyze market weather conditions.
 **Clarification:** Added storytelling module-level documentation (`//!`) to explain the core meteorological concepts. Added executable `# Examples` to the `MarketWeather` struct and `calculate_weather` function to guide developers on proper initialization and result interpretation.
+## 2024-05-31 - The Unmapped Kinematics
+**Confusion:** The experimental module `kinematics.rs` in `crates/cli/src/experimental/` lacked executable examples and storytelling module-level documentation. Users could not discover how to analyze market kinematics.
+**Clarification:** Added storytelling module-level documentation (`//!`) to explain the core kinematic concepts. Added executable `# Examples` to the `PriceKinematics` struct and `calculate_kinematics` function to guide developers on proper initialization and result interpretation.

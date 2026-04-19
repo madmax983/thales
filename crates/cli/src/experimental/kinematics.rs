@@ -1,9 +1,38 @@
+//! Market Kinematics Analysis
+//!
+//! This module applies classical mechanics to market data, calculating the "velocity",
+//! "acceleration", and "jerk" of price action. By translating price changes into
+//! physical motion, traders can detect momentum shifts before they appear on standard indicators.
+//!
+//! # Why Kinematics?
+//! Standard momentum indicators (like RSI or MACD) often lag. By measuring the rate of change
+//! of the rate of change (acceleration) and its derivative (jerk), you can anticipate
+//! trend exhaustion when acceleration begins to decelerate, even while velocity is still positive.
+
 #![cfg(feature = "nova")]
 
 use contracts::BarSeries;
 use serde::{Deserialize, Serialize};
 
-/// Kinematic traits
+/// Represents the physical motion characteristics of price action.
+///
+/// * **Velocity:** The rate of change of price.
+/// * **Acceleration:** The rate of change of velocity (momentum strength).
+/// * **Jerk:** The rate of change of acceleration (early warning for trend shifts).
+///
+/// # Examples
+///
+/// ```rust
+/// use thales_cli::experimental::kinematics::PriceKinematics;
+///
+/// let kinematics = PriceKinematics {
+///     velocity: 15.0,
+///     acceleration: 5.0,
+///     jerk: -2.0,
+/// };
+///
+/// assert_eq!(kinematics.velocity, 15.0);
+/// ```
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct PriceKinematics {
     pub velocity: f64,
@@ -11,6 +40,30 @@ pub struct PriceKinematics {
     pub jerk: f64,
 }
 
+/// Calculates the velocity, acceleration, and jerk for a given series of market data.
+///
+/// Requires at least 4 data points to calculate finite differences up to the third derivative (jerk).
+/// Returns `None` if the series contains fewer than 4 bars.
+///
+/// # Examples
+///
+/// ```rust
+/// use contracts::{Bar, BarSeries};
+/// use thales_cli::experimental::kinematics::calculate_kinematics;
+///
+/// let bars = vec![
+///     Bar { symbol: "AAPL".into(), market: "equities".into(), timeframe: "1d".into(), timestamp_unix_ms: 0, open: 100.0, high: 100.0, low: 100.0, close: 100.0, volume: 100.0 },
+///     Bar { symbol: "AAPL".into(), market: "equities".into(), timeframe: "1d".into(), timestamp_unix_ms: 1, open: 105.0, high: 105.0, low: 105.0, close: 105.0, volume: 100.0 },
+///     Bar { symbol: "AAPL".into(), market: "equities".into(), timeframe: "1d".into(), timestamp_unix_ms: 2, open: 115.0, high: 115.0, low: 115.0, close: 115.0, volume: 100.0 },
+///     Bar { symbol: "AAPL".into(), market: "equities".into(), timeframe: "1d".into(), timestamp_unix_ms: 3, open: 130.0, high: 130.0, low: 130.0, close: 130.0, volume: 100.0 },
+/// ];
+/// let series = BarSeries { schema_version: "v1".into(), bars };
+///
+/// let kinematics = calculate_kinematics(&series).unwrap();
+/// assert_eq!(kinematics.velocity, 15.0);
+/// assert_eq!(kinematics.acceleration, 5.0);
+/// assert_eq!(kinematics.jerk, 0.0);
+/// ```
 pub fn calculate_kinematics(series: &BarSeries) -> Option<PriceKinematics> {
     if series.bars.len() < 4 {
         return None;
