@@ -1,16 +1,81 @@
 import re
 
 with open('signal_generator.py', 'r') as f:
-    content = f.read()
+    code = f.read()
 
-# Fix the duplicate logic problem directly in the script
-# Currently it checks:
-# if not any((ai.get("symbol") == sig[0] and ai.get("side") == sig[1] ... ) for ai in all_intents):
-# but it uses rationale as part of the signature!
-# The reviewer complained about the "exact, word-for-word duplicate of the signal immediately preceding the patch insertion point."
-# Looking at the original output, it seems we generated a duplicate of the last signal BEFORE we appended.
-# Why? Because we didn't check the EXISTING contents of Signals.md before generating!
+patch = """
+            existing_rationales = set()
+            try:
+                for fname in ["Signals.md", "Signals_Archive.md"]:
+                    if os.path.exists(fname):
+                        with open(fname, "r") as f:
+                            content = f.read()
+                            # Extract existing rationales
+                            for line in content.split('\\n'):
+                                if line.startswith("- Clear reasoning (including historical context): "):
+                                    # Normalize float representation for robust duplicate matching
+                                    extracted_rationale = line.replace("- Clear reasoning (including historical context): ", "").strip()
+                                    extracted_rationale = re.sub(r'\\d+\\.\\d{5,}', truncate_float, extracted_rationale)
+                                    existing_rationales.add(extracted_rationale)
+            except Exception:
+                pass
 
-# No wait, the reviewer said: "The newly appended SPY (short) signal is an exact, word-for-word duplicate of the signal immediately preceding the patch insertion point. This suggests the agent failed to check the existing history to filter out signals that were already active or previously generated for SPY."
+            unique_intents = []
+            for intent in symbol_intents:
+                if intent.get('side', 'long') == primary_direction:
+                    # Apply float truncation to intent rationale before comparison
+                    intent_rationale = intent.get("rationale", "")
+                    intent_rationale = re.sub(r'\\d+\\.\\d{5,}', truncate_float, intent_rationale).strip()
 
-# Let's fix signal_generator.py to check existing signals in Signals.md before generating!
+                    # Create a signature of the intent based on critical fields to filter duplicates
+                    sig = (
+                        intent.get("symbol"),
+                        intent.get("side"),
+                        intent.get("signal_type"),
+                        intent_rationale
+                    )
+                    # Deduplicate using rationale against existing logs to avoid word-for-word duplicates
+                    # as required by the "Avoid redundant or conflicting signals" persona rule.
+                    if sig not in seen_params and intent_rationale not in existing_rationales:
+                        seen_params.add(sig)
+                        unique_intents.append(intent)
+                    elif intent_rationale in existing_rationales:
+                        print(f"Skipping redundant signal for {intent.get('symbol')}: Signal already exists in logs.", file=sys.stderr)
+"""
+
+old_code = """
+            existing_rationales = set()
+            try:
+                for fname in ["Signals.md", "Signals_Archive.md"]:
+                    if os.path.exists(fname):
+                        with open(fname, "r") as f:
+                            content = f.read()
+                            # Extract existing rationales
+                            for line in content.split('\\n'):
+                                if line.startswith("- Clear reasoning (including historical context): "):
+                                    existing_rationales.add(line.replace("- Clear reasoning (including historical context): ", "").strip())
+            except Exception:
+                pass
+
+            unique_intents = []
+            for intent in symbol_intents:
+                if intent.get('side', 'long') == primary_direction:
+                    # Create a signature of the intent based on critical fields to filter duplicates
+                    sig = (
+                        intent.get("symbol"),
+                        intent.get("side"),
+                        intent.get("signal_type"),
+                        intent.get("rationale")
+                    )
+                    # Deduplicate using rationale against existing logs to avoid word-for-word duplicates
+                    # as required by the "Avoid redundant or conflicting signals" persona rule.
+                    if sig not in seen_params and intent.get("rationale", "").strip() not in existing_rationales:
+                        seen_params.add(sig)
+                        unique_intents.append(intent)
+                    elif intent.get("rationale", "").strip() in existing_rationales:
+                        print(f"Skipping redundant signal for {intent.get('symbol')}: Signal already exists in logs.", file=sys.stderr)
+"""
+
+code = code.replace(old_code.strip(), patch.strip())
+with open('signal_generator.py', 'w') as f:
+    f.write(code)
