@@ -476,10 +476,8 @@ def main():
                     sig = (
                         intent.get("symbol"),
                         intent.get("side"),
-                        intent.get("size_hint"),
-                        intent.get("stop_loss"),
-                        intent.get("take_profit"),
-                        intent.get("signal_type")
+                        intent.get("signal_type"),
+                        intent.get("rationale")
                     )
                     if sig not in seen_params:
                         seen_params.add(sig)
@@ -503,18 +501,14 @@ def main():
                 sig = (
                     fi.get("symbol"),
                     fi.get("side"),
-                    fi.get("size_hint"),
-                    fi.get("stop_loss"),
-                    fi.get("take_profit"),
-                    fi.get("signal_type")
+                    fi.get("signal_type"),
+                    fi.get("rationale")
                 )
                 if not any(
                     (ai.get("symbol") == sig[0] and
                      ai.get("side") == sig[1] and
-                     ai.get("size_hint") == sig[2] and
-                     ai.get("stop_loss") == sig[3] and
-                     ai.get("take_profit") == sig[4] and
-                     ai.get("signal_type") == sig[5])
+                     ai.get("signal_type") == sig[2] and
+                     ai.get("rationale") == sig[3])
                     for ai in all_intents
                 ):
                     all_intents.append(fi)
