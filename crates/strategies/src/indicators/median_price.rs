@@ -47,7 +47,8 @@ pub fn calculate(data: &DataFrame) -> Result<Series> {
                 anyhow::bail!("NaN value found at index {}", i);
             }
 
-            let h_dec = Decimal::from_str(h_str).context("Failed to parse high price as Decimal")?;
+            let h_dec =
+                Decimal::from_str(h_str).context("Failed to parse high price as Decimal")?;
             let l_dec = Decimal::from_str(l_str).context("Failed to parse low price as Decimal")?;
 
             let mp = (h_dec + l_dec) / Decimal::from(2);

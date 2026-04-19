@@ -53,9 +53,11 @@ pub fn calculate(data: &DataFrame) -> Result<Series> {
                 anyhow::bail!("NaN value found at index {}", i);
             }
 
-            let h_dec = Decimal::from_str(h_str).context("Failed to parse high price as Decimal")?;
+            let h_dec =
+                Decimal::from_str(h_str).context("Failed to parse high price as Decimal")?;
             let l_dec = Decimal::from_str(l_str).context("Failed to parse low price as Decimal")?;
-            let c_dec = Decimal::from_str(c_str).context("Failed to parse close price as Decimal")?;
+            let c_dec =
+                Decimal::from_str(c_str).context("Failed to parse close price as Decimal")?;
 
             let wc = (h_dec + l_dec + (c_dec * Decimal::from(2))) / Decimal::from(4);
             weighted_closes.push(wc.to_string());
@@ -81,9 +83,18 @@ mod tests {
         let res = calculate(&df)?;
         let s = res.str()?;
 
-        let wc1 = (Decimal::from_str("10.0")? + Decimal::from_str("5.0")? + Decimal::from_str("7.0")? * Decimal::from(2)) / Decimal::from(4);
-        let wc2 = (Decimal::from_str("12.0")? + Decimal::from_str("8.0")? + Decimal::from_str("10.0")? * Decimal::from(2)) / Decimal::from(4);
-        let wc3 = (Decimal::from_str("15.0")? + Decimal::from_str("10.0")? + Decimal::from_str("14.0")? * Decimal::from(2)) / Decimal::from(4);
+        let wc1 = (Decimal::from_str("10.0")?
+            + Decimal::from_str("5.0")?
+            + Decimal::from_str("7.0")? * Decimal::from(2))
+            / Decimal::from(4);
+        let wc2 = (Decimal::from_str("12.0")?
+            + Decimal::from_str("8.0")?
+            + Decimal::from_str("10.0")? * Decimal::from(2))
+            / Decimal::from(4);
+        let wc3 = (Decimal::from_str("15.0")?
+            + Decimal::from_str("10.0")?
+            + Decimal::from_str("14.0")? * Decimal::from(2))
+            / Decimal::from(4);
 
         assert_eq!(s.get(0).unwrap_or(""), wc1.to_string());
         assert_eq!(s.get(1).unwrap_or(""), wc2.to_string());

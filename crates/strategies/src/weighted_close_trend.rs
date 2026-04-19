@@ -301,10 +301,13 @@ mod tests {
             .filter(|s| s.signal_type == SignalType::Exit)
             .collect::<Vec<_>>();
 
-                assert!(!_entry_signals.is_empty(), "Should generate entry signals");
+        assert!(!_entry_signals.is_empty(), "Should generate entry signals");
         assert!(!_exit_signals.is_empty(), "Should generate exit signals");
         for signal in &_entry_signals {
-            assert!(signal.stop_loss.is_some(), "Entry signals must have a stop loss");
+            assert!(
+                signal.stop_loss.is_some(),
+                "Entry signals must have a stop loss"
+            );
         }
         Ok(())
     }
