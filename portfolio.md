@@ -7832,6 +7832,12 @@
 | 2026-04-19 11:03:01 | ETHUSD | crypto:ETHUSD:unknown:1776515027477 | No active strategy generated a signal (Strategies: BollingerBands, AdlMomentum, BopMomentum, CoppockCurve, KdjIndicatorStrategy, KamaCrossover, AlmaCrossover, AdxMacdTrend, AroonOscillator, ElderRay, UlcerIndexMeanReversion, EmaCrossover, FisherTransformReversal, RsiMeanReversion, Macd, Supertrend, SupertrendEmaCrossover, SupertrendRsi, DonchianBreakout, ParabolicSar, KeltnerChannelBreakout, StochasticOscillator, AdxMomentum, IchimokuCloud, CciMomentum, ChaikinMoneyFlow, ChaikinOscillatorMomentum, ChandelierExit, ChoppinessIndexTrend, CmoMeanReversion, LinearRegressionTrend, EaseOfMovement, ForceIndexTrend, ObvTrendFollowing, MoneyFlowIndex, ConnorsRsiMeanReversion, AwesomeOscillator, WilliamsR, VwmaCrossover, VwapReversion, VortexBreakout, TripleSmaCrossover, TripleEmaCrossover, UltimateOscillator, RelativeVigorIndexTrend, VolumeOscillatorTrend, VptTrendFollowing, ZlemaCrossover, ZScoreMeanReversion, VwMacd, BollingerRsiMeanReversion, StochRsiMeanReversion, RocMomentum, MacdRsiTrend, TrixCrossover, TsiTrend, DemaCrossover, TemaCrossover, WmaCrossover, HmaCrossover, SmaCrossover, EmaRsiTrendFollowing, PpoRsiTrend, KstTrend, VhfTrendFollowing, SchaffTrendCycle, DisparityIndexReversion, DpoBreakout, DoubleEmaCrossover) |
 | 2026-04-19 11:03:01 | SPY | equities:SPY:unknown:1776515027493 | Invalid input: provider error: kraken api error: EQuery:Unknown asset pair |
 | 2026-04-19 11:03:02 | BTCUSD | crypto:BTCUSD:unknown:1776515027459 | provider error: kraken api error: EOrder:Insufficient funds |
+| 2026-04-19 12:34:14 | BTCUSD | crypto:BTCUSD:unknown:1776515027459 | Signal too old (24.2 hours > 24 hours) |
+| 2026-04-19 12:34:14 | ETHUSD | crypto:ETHUSD:unknown:1776515027477 | Signal too old (24.2 hours > 24 hours) |
+| 2026-04-19 12:34:14 | SPY | equities:SPY:unknown:1776515027493 | Signal too old (24.2 hours > 24 hours) |
+| 2026-04-19 12:34:18 | BTCUSD | crypto:BTCUSD:unknown:1776600447929 | CONFLICT: Conflicting signals (Buy and Sell) detected for BTCUSD. Trading halted for this asset. |
+| 2026-04-19 12:34:23 | ETHUSD | crypto:ETHUSD:unknown:1776600447969 | CONFLICT: Conflicting signals (Buy and Sell) detected for ETHUSD. Trading halted for this asset. |
+| 2026-04-19 12:34:23 | SPY | equities:SPY:unknown:1776600448006 | Invalid input: provider error: kraken api error: EQuery:Unknown asset pair |
 
 ## Executed Trades
 
