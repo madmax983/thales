@@ -4461,3 +4461,12 @@ Trend Following
 - **Expected Win Rate:** 45-55%
 - **Expected Sharpe Ratio:** > 1.0
 - **Max Drawdown:** < 20%
+
+## SMMA Crossover Strategy
+- **Description:** Smoothed Moving Average (SMMA) Crossover Strategy
+
+### Sample Historical Performance Metrics
+
+- **Expected Win Rate:** ~52% in trending markets.
+- **Sharpe Ratio:** 1.2
+- **Max Drawdown:** 15%

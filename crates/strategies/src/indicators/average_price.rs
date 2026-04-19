@@ -63,7 +63,7 @@ pub fn calculate(data: &DataFrame) -> Result<Series> {
         result_values.push(val);
     }
 
-    Ok(Series::new("average_price".into(), result_values))
+    Ok(Series::new("average_price", result_values))
 }
 
 #[cfg(test)]
