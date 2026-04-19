@@ -1646,3 +1646,25 @@ let df = df!(
 ).unwrap();
 let res = median_price::calculate(&df).unwrap();
 ```
+
+## Average Price (OHLC4)
+
+**Name:** Average Price
+**Description:** Calculates the average of the open, high, low, and close prices for each period.
+**Rationale:** Provides a single representative price for a period, smoothing out intra-period volatility.
+
+### Implementation Details
+- Uses `rust_decimal::Decimal` for all internal calculations to ensure precision and prevent floating point errors.
+- Casts input Polars columns to `String` and returns a `Series` of `String` values to guarantee zero floating-point imprecision.
+- Handled missing values (nulls) by propagating None when invalid data is encountered.
+
+### Usage
+
+```rust
+use strategies::indicators::average_price;
+use polars::prelude::*;
+
+// Assuming `df` is a Polars DataFrame with "open", "high", "low", and "close" columns
+// Result is a Series containing the average price values as strings
+let result = average_price::calculate(&df)?;
+```
