@@ -24,10 +24,22 @@ pub fn calculate(data: &DataFrame) -> Result<Series> {
         anyhow::bail!("Data cannot be empty");
     }
 
-    let open_series = data.column("open").context("Missing open column")?.cast(&DataType::String)?;
-    let high_series = data.column("high").context("Missing high column")?.cast(&DataType::String)?;
-    let low_series = data.column("low").context("Missing low column")?.cast(&DataType::String)?;
-    let close_series = data.column("close").context("Missing close column")?.cast(&DataType::String)?;
+    let open_series = data
+        .column("open")
+        .context("Missing open column")?
+        .cast(&DataType::String)?;
+    let high_series = data
+        .column("high")
+        .context("Missing high column")?
+        .cast(&DataType::String)?;
+    let low_series = data
+        .column("low")
+        .context("Missing low column")?
+        .cast(&DataType::String)?;
+    let close_series = data
+        .column("close")
+        .context("Missing close column")?
+        .cast(&DataType::String)?;
 
     let open_ca = open_series.str()?;
     let high_ca = high_series.str()?;
@@ -38,11 +50,8 @@ pub fn calculate(data: &DataFrame) -> Result<Series> {
 
     let mut result_values = Vec::with_capacity(open_ca.len());
 
-    for (((o_opt, h_opt), l_opt), c_opt) in open_ca
-        .into_iter()
-        .zip(high_ca)
-        .zip(low_ca)
-        .zip(close_ca)
+    for (((o_opt, h_opt), l_opt), c_opt) in
+        open_ca.into_iter().zip(high_ca).zip(low_ca).zip(close_ca)
     {
         let val = match (o_opt, h_opt, l_opt, c_opt) {
             (Some(o_str), Some(h_str), Some(l_str), Some(c_str)) => {
@@ -63,7 +72,7 @@ pub fn calculate(data: &DataFrame) -> Result<Series> {
         result_values.push(val);
     }
 
-    Ok(Series::new("average_price".into(), result_values))
+    Ok(Series::new("average_price", result_values))
 }
 
 #[cfg(test)]
