@@ -469,6 +469,22 @@ def main():
 
             # Filter out duplicate intents with same parameters (e.g. from different strategies matching)
             seen_params = set()
+
+            # Persona Rule: Also ensure we don't duplicate signals already in Signals.md or Signals_Archive.md
+            # We specifically check the rationale since it contains the strategy logic which we want to be unique.
+            existing_rationales = set()
+            try:
+                for fname in ["Signals.md", "Signals_Archive.md"]:
+                    if os.path.exists(fname):
+                        with open(fname, "r") as f:
+                            content = f.read()
+                            # Extract existing rationales
+                            for line in content.split('\n'):
+                                if line.startswith("- Clear reasoning (including historical context): "):
+                                    existing_rationales.add(line.replace("- Clear reasoning (including historical context): ", "").strip())
+            except Exception:
+                pass
+
             unique_intents = []
             for intent in symbol_intents:
                 if intent.get('side', 'long') == primary_direction:
@@ -479,11 +495,47 @@ def main():
                         intent.get("signal_type"),
                         intent.get("rationale")
                     )
-                    if sig not in seen_params:
+                    # Deduplicate using rationale against existing logs to avoid word-for-word duplicates
+                    # as required by the "Avoid redundant or conflicting signals" persona rule.
+                    if sig not in seen_params and intent.get("rationale", "").strip() not in existing_rationales:
                         seen_params.add(sig)
                         unique_intents.append(intent)
+                    elif intent.get("rationale", "").strip() in existing_rationales:
+                        print(f"Skipping redundant signal for {intent.get('symbol')}: Signal already exists in logs.", file=sys.stderr)
 
             filtered_intents = unique_intents
+
+            # Filter against recent execution history (Avoid redundant signals)
+            try:
+                if os.path.exists(HISTORY_PATH):
+                    with open(HISTORY_PATH, "r") as f:
+                        history = json.load(f)
+                    now_ms = int(datetime.datetime.now(datetime.timezone.utc).timestamp() * 1000)
+                    day_ms = 24 * 60 * 60 * 1000
+
+                    non_redundant = []
+                    for intent in filtered_intents:
+                        is_redundant = False
+                        for entry in reversed(history):
+                            trade_intent = entry.get("intent", {})
+                            ts = entry.get("market_analysis", {}).get("timestamp_unix_ms", 0)
+                            if (now_ms - ts) < day_ms:
+                                if trade_intent.get("symbol") == intent.get("symbol") and \
+                                   trade_intent.get("side") == intent.get("side") and \
+                                   trade_intent.get("signal_type") == intent.get("signal_type") and \
+                                   trade_intent.get("rationale") == intent.get("rationale"):
+                                    is_redundant = True
+                                    break
+                            else:
+                                break # History is ordered, we can stop looking
+
+                        if not is_redundant:
+                            non_redundant.append(intent)
+                        else:
+                            print(f"Skipping redundant signal for {intent.get('symbol')}: Already generated recently in history.", file=sys.stderr)
+                    filtered_intents = non_redundant
+            except (json.JSONDecodeError, OSError):
+                pass
 
             # Limit strictly to 1-3 signals per symbol per day
             # We already skipped processing if history had >= 3.
