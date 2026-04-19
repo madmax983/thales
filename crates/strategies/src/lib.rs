@@ -112,3 +112,4 @@ pub mod typical_price_trend;
 pub mod ultimate_oscillator;
 pub mod vwap_cci_trend;
 pub mod weighted_close_trend;
+pub mod smma_crossover;
