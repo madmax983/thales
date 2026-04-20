@@ -10,7 +10,7 @@
 - **Rust**: Latest stable version (`rustup update stable`)
 - **Environment Variables**: See [Configuration](#configuration)
 
-> **Note on Experimental Features**: Some commands (e.g., `simulate-black-swan`) are experimental and require the `--features nova` flag to compile and run (e.g., `cargo run --features nova -p thales-cli -- simulate-black-swan ...`).
+> **Note on Experimental Features**: Some commands (e.g., `simulate-black-swan`, `analyze-optics`) are experimental and require the `--features nova` flag to compile and run (e.g., `cargo run --features nova -p thales-cli -- simulate-black-swan ...`). If you encounter an "unrecognized subcommand" error for an experimental feature, ensure you have enabled this feature flag.
 
 > **REQUIRES FEATURE NOVA**: Running the `story_demo` example requires enabling the `nova` feature flag (e.g., `cargo run --features nova --example story_demo ...`).
 

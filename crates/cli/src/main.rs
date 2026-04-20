@@ -567,6 +567,13 @@ enum Commands {
         visualize: bool,
     },
     #[cfg(feature = "nova")]
+    /// Analyze market optics (refraction, dispersion)
+    AnalyzeOptics {
+        #[arg(long)]
+        /// Input JSON file containing a BarSeries
+        input: PathBuf,
+    },
+    #[cfg(feature = "nova")]
     /// Analyze market immunology
     AnalyzeImmunology {
         #[arg(long)]
@@ -2390,6 +2397,39 @@ fn run(command: Commands, raw: bool) -> Result<String, CliError> {
             }
 
             ok_envelope(report, vec![], raw)
+        }
+        #[cfg(feature = "nova")]
+        Commands::AnalyzeOptics { input } => {
+            let file_content = std::fs::read_to_string(&input).map_err(|e| {
+                CliError::Io(std::io::Error::new(
+                    e.kind(),
+                    format!("Could not open input file '{}': {}", input.display(), e),
+                ))
+            })?;
+
+            let series: contracts::BarSeries =
+                serde_json::from_str(&file_content).map_err(|e| {
+                    CliError::Io(std::io::Error::new(
+                        std::io::ErrorKind::InvalidData,
+                        format!("Failed to parse JSON: {}", e),
+                    ))
+                })?;
+
+            let report = thales_cli::experimental::market_optics::analyze_optics(&series)
+                .ok_or_else(|| {
+                    CliError::Io(std::io::Error::new(
+                        std::io::ErrorKind::InvalidData,
+                        "Not enough data for optics analysis",
+                    ))
+                })?;
+
+            let envelope = contracts::ResponseEnvelope {
+                status: contracts::EnvelopeStatus::Ok,
+                errors: vec![],
+                warnings: vec![],
+                data: Some(report),
+            };
+            Ok(serde_json::to_string_pretty(&envelope)?)
         }
         #[cfg(feature = "nova")]
         Commands::AnalyzeImmunology {
