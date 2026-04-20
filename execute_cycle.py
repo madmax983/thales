@@ -494,7 +494,10 @@ def get_candidates_from_signals():
             provider = "paper"
         else:
             # Route based on market
-            provider = "kraken"
+            if market == "equities":
+                provider = "alpaca"
+            else:
+                provider = "kraken"
 
         # Extract JSON
         json_match = re.search(r"```json\s*(\{.*?\})\s*```", chunk, re.DOTALL)
@@ -642,8 +645,13 @@ def evaluate_candidate(candidate, strategies, portfolio_path=None):
     provider = candidate["provider"]
     symbol = candidate["symbol"]
 
+    # Determine the correct provider for data fetching based on market to avoid query errors
+    data_provider = provider
+    if candidate.get("market") == "equities":
+        data_provider = "alpaca"
+
     # Fetch Data
-    bars = run_command(["fetch-market-data", "--provider", provider, "--symbol", symbol, "--timeframe", "1h"])
+    bars = run_command(["fetch-market-data", "--provider", data_provider, "--symbol", symbol, "--timeframe", "1h"])
     if not bars or not isinstance(bars, dict) or not bars.get("bars"):
         last_error = getattr(run_command, 'last_error', '')
         if last_error:
@@ -1272,8 +1280,6 @@ def manage_orders():
     if os.environ.get("SIMULATION") == "true":
         providers.append("paper")
     else:
-        # User requested direct API access to Kraken for BOTH crypto and equities.
-        # Check Alpaca just in case since they want us to check current portfolio on Kraken and Alpaca
         providers.append("alpaca")
         providers.append("kraken")
 

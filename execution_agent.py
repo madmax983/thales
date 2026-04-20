@@ -462,7 +462,18 @@ def execute_agent(intent_file):
         if os.environ.get("SIMULATION") == "true":
             intent["provider"] = "paper"
         else:
-            intent["provider"] = "kraken"
+            market = intent.get("market")
+            if market:
+                if market == "equities":
+                    intent["provider"] = "alpaca"
+                else:
+                    intent["provider"] = "kraken"
+            else:
+                sym = intent.get("symbol", "")
+                if "USD" in sym and "SPY" not in sym:
+                    intent["provider"] = "kraken"
+                else:
+                    intent["provider"] = "alpaca"
 
         provider = intent.get("provider", "paper")
 
