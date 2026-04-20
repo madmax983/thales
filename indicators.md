@@ -1668,3 +1668,15 @@ use polars::prelude::*;
 // Result is a Series containing the average price values as strings
 let result = average_price::calculate(&df)?;
 ```
+
+## Volume Rate of Change (VROC)
+
+**Name:** Volume Rate of Change (VROC)
+**Description:** Measures the percentage change in volume between the current volume and the volume a certain number of periods ago.
+**Rationale:** Volume momentum indicator used to identify volume trends and breakouts.
+
+### Implementation Details
+- Implemented using Polars DataFrame interface
+- Uses `rust_decimal::Decimal` for all calculations
+- Input parameters: `data: &DataFrame`, `period: usize`
+- Output: `Result<Series>`
