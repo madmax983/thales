@@ -7901,6 +7901,9 @@
 | 2026-04-20 18:03:41 | SPY | equities:SPY:unknown:1776687408060 | Invalid input: provider error: kraken api error: EQuery:Unknown asset pair |
 | 2026-04-20 18:03:41 | BTCUSD | crypto:BTCUSD:unknown:1776687407975 | provider error: kraken api error: EOrder:Insufficient funds |
 | 2026-04-20 18:03:42 | ETHUSD | crypto:ETHUSD:unknown:1776687408019 | provider error: kraken api error: EOrder:Insufficient funds |
+| 2026-04-20 20:05:00 | ETHUSD | crypto:ETHUSD:unknown:1776687408019 | CONFLICT: Conflicting signals (Buy and Sell) detected for ETHUSD. Trading halted for this asset. |
+| 2026-04-20 20:05:00 | SPY | equities:SPY:unknown:1776687408060 | Invalid input: provider error: kraken api error: EQuery:Unknown asset pair |
+| 2026-04-20 20:05:01 | BTCUSD | crypto:BTCUSD:unknown:1776687407975 | No sellable balance available (BTC 0.00000000) |
 
 ## Executed Trades
 
