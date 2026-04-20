@@ -1,7 +1,31 @@
+//! # Candlestick Pattern Recognition Module
+//!
+//! This module provides algorithms for detecting classic candlestick patterns
+//! (like Doji, Hammer, Shooting Star, and Engulfing patterns) within a [`BarSeries`].
+//!
+//! It helps traders analyze market sentiment and identify potential reversals.
+//!
+//! ## Core Concepts
+//! - **Doji**: A neutral pattern indicating indecision.
+//! - **Hammer**: A bullish reversal pattern formed after a decline.
+//! - **Shooting Star**: A bearish reversal pattern formed after an advance.
+//! - **Engulfing**: Strong reversal patterns (bullish or bearish).
+
 use anyhow::Result;
 use contracts::BarSeries;
 use serde::{Deserialize, Serialize};
 
+/// Configuration for Candlestick Pattern detection.
+///
+/// ## Examples
+/// ```
+/// use thales_cli::experimental::candlestick_patterns::CandlestickPatternsConfig;
+///
+/// let config = CandlestickPatternsConfig {
+///     window_size: 14,
+///     doji_threshold_pct: 0.15,
+/// };
+/// ```
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct CandlestickPatternsConfig {
     pub window_size: usize,
@@ -35,6 +59,45 @@ pub struct CandlestickPatternsReport {
     pub total_bearish: usize,
 }
 
+/// Analyzes a `BarSeries` for classic candlestick patterns.
+///
+/// ## Errors
+/// Returns an `Err` if the `BarSeries` is empty.
+///
+/// ## Examples
+/// ```
+/// use thales_cli::experimental::candlestick_patterns::{analyze_candlestick_patterns, CandlestickPatternsConfig};
+/// use contracts::{BarSeries, Bar};
+///
+/// let mut series = BarSeries { schema_version: "v0".to_string(), bars: vec![] };
+/// series.bars.push(Bar {
+///     symbol: "AAPL".to_string(),
+///     market: "equities".to_string(),
+///     timeframe: "1d".to_string(),
+///     timestamp_unix_ms: 1000,
+///     open: 100.0,
+///     high: 110.0,
+///     low: 90.0,
+///     close: 95.0,
+///     volume: 1000.0,
+/// });
+/// series.bars.push(Bar {
+///     symbol: "AAPL".to_string(),
+///     market: "equities".to_string(),
+///     timeframe: "1d".to_string(),
+///     timestamp_unix_ms: 2000,
+///     open: 100.0,
+///     high: 105.0,
+///     low: 95.0,
+///     close: 100.001,
+///     volume: 1000.0,
+/// });
+///
+/// let config = CandlestickPatternsConfig { window_size: 2, doji_threshold_pct: 0.1 };
+/// let report = analyze_candlestick_patterns(&series, config).unwrap();
+/// assert_eq!(report.matches.len(), 1);
+/// assert_eq!(report.matches[0].pattern_name, "Doji");
+/// ```
 pub fn analyze_candlestick_patterns(
     series: &BarSeries,
     config: CandlestickPatternsConfig,
