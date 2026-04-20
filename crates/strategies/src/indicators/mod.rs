@@ -63,6 +63,7 @@ pub mod vhf;
 pub mod volume_oscillator;
 pub mod vortex;
 pub mod vpt;
+pub mod vroc;
 pub mod vwap;
 pub mod vwma;
 pub mod vwmo;
