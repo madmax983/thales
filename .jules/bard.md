@@ -152,3 +152,6 @@
 ## 2024-05-31 - The Unmapped Kinematics
 **Confusion:** The experimental module `kinematics.rs` in `crates/cli/src/experimental/` lacked executable examples and storytelling module-level documentation. Users could not discover how to analyze market kinematics.
 **Clarification:** Added storytelling module-level documentation (`//!`) to explain the core kinematic concepts. Added executable `# Examples` to the `PriceKinematics` struct and `calculate_kinematics` function to guide developers on proper initialization and result interpretation.
+## 2026-04-18 - The Unmapped Candlestick Region
+**Confusion:** The experimental module `candlestick_patterns.rs` in `crates/cli/src/experimental/` lacked executable examples and storytelling module-level documentation. Users could not discover how to detect classic candlestick patterns.
+**Clarification:** Added storytelling module-level documentation (`//!`) to explain the core concepts of candlestick patterns. Added executable `# Examples` to the `CandlestickPatternsConfig` struct and `analyze_candlestick_patterns` function to guide developers on proper initialization and pattern interpretation.

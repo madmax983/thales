@@ -314,9 +314,9 @@ mod tests_invalid_params {
     use polars::df;
 
     fn create_test_data() -> DataFrame {
-        let mut close_vals = vec![100.0; 50];
-        let mut high_vals = vec![101.0; 50];
-        let mut low_vals = vec![99.0; 50];
+        let close_vals = vec![100.0; 50];
+        let high_vals = vec![101.0; 50];
+        let low_vals = vec![99.0; 50];
         let timestamps: Vec<i64> = (0..50).map(|i| i as i64 * 1000).collect();
 
         df!(
