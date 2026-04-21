@@ -1,3 +1,29 @@
+//! Price Density Module
+//!
+//! This module calculates the price density, which measures the amount
+//! of time spent at each price level. It serves as a primitive alternative
+//! to volume profile, focusing purely on price action to identify zones
+//! of heavy consolidation or swift rejection.
+//!
+//! # Examples
+//! ```rust
+//! use thales_cli::experimental::price_density::calculate_price_density;
+//! use contracts::{BarSeries, Bar};
+//!
+//! let series = BarSeries {
+//!     schema_version: "v0".to_string(),
+//!     bars: vec![
+//!         Bar { symbol: "TEST".into(), market: "test".into(), timeframe: "1d".into(), timestamp_unix_ms: 0, open: 100.0, high: 110.0, low: 90.0, close: 105.0, volume: 1000.0 },
+//!         Bar { symbol: "TEST".into(), market: "test".into(), timeframe: "1d".into(), timestamp_unix_ms: 1000, open: 105.0, high: 115.0, low: 95.0, close: 110.0, volume: 2000.0 },
+//!     ],
+//! };
+//!
+//! if let Ok(density) = calculate_price_density(&series, 5) {
+//!     println!("Density bins: {}", density.len());
+//! }
+//! ```
+
+
 use anyhow::Result;
 use contracts::BarSeries;
 use std::collections::HashMap;

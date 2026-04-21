@@ -1,4 +1,10 @@
 #![cfg(feature = "nova")]
+
+//! Experimental Modules
+//!
+//! This module contains highly experimental, creative, and out-of-the-box
+//! approaches to market analysis. Here you will find modules that map market
+//! data to concepts in physics, biology, ecology, and more.
 pub mod candlestick_patterns;
 pub mod cycle_analysis;
 pub mod export;

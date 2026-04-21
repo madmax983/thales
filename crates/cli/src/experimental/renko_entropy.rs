@@ -1,3 +1,31 @@
+//! Renko Entropy Module
+//!
+//! This module calculates the Shannon entropy of Renko brick transitions
+//! (Up-Up, Up-Down, Down-Up, Down-Down). By measuring the randomness of
+//! these transitions, it helps determine if a market is trending predictably
+//! or moving randomly like pure noise.
+//!
+//! # Examples
+//! ```rust
+//! #[cfg(feature = "nova")]
+//! # {
+//! use thales_cli::experimental::renko_entropy::{analyze_renko_entropy, RenkoEntropyConfig};
+//! use contracts::{BarSeries, Bar};
+//!
+//! let mut bars = Vec::new();
+//! for i in 0..10 {
+//!     bars.push(Bar { symbol: "TEST".into(), market: "test".into(), timeframe: "1d".into(), timestamp_unix_ms: i * 1000, open: 100.0 + i as f64 * 5.0, high: 105.0 + i as f64 * 5.0, low: 95.0 + i as f64 * 5.0, close: 100.0 + i as f64 * 5.0, volume: 1000.0 });
+//! }
+//! let series = BarSeries { schema_version: "v0".to_string(), bars };
+//! let config = RenkoEntropyConfig { brick_size: 2.0 };
+//!
+//! if let Ok(report) = analyze_renko_entropy(&series, config) {
+//!     println!("Entropy: {}", report.entropy);
+//! }
+//! # }
+//! ```
+
+
 use anyhow::Result;
 use contracts::BarSeries;
 use serde::{Deserialize, Serialize};

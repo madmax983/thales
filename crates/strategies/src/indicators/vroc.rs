@@ -4,7 +4,7 @@
 
 use anyhow::{Context, Result};
 use polars::prelude::*;
-use rust_decimal::prelude::*;
+
 use rust_decimal::Decimal;
 use std::str::FromStr;
 
