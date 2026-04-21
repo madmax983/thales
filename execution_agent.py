@@ -462,7 +462,14 @@ def execute_agent(intent_file):
         if os.environ.get("SIMULATION") == "true":
             intent["provider"] = "paper"
         else:
-            intent["provider"] = "kraken"
+            market = intent.get("market", "").lower()
+            symbol = intent.get("symbol", "").upper()
+            if market == "equities" or symbol in ["SPY", "AAPL", "MSFT", "TSLA"]:
+                intent["provider"] = "alpaca"
+            elif market == "crypto" or symbol in ["BTCUSD", "ETHUSD", "SOLUSD"]:
+                intent["provider"] = "kraken"
+            else:
+                intent["provider"] = "kraken"
 
         provider = intent.get("provider", "paper")
 
@@ -480,9 +487,40 @@ def execute_agent(intent_file):
 
         # 3. Refine Intent (Algo Selection & Order Type)
         intent = refine_intent(intent, current_price)
+
+        # SLIPPAGE CONTROL: Monitor and minimize execution slippage
+        # Convert market orders to limit orders with a slippage bound if we have price
+        if current_price and intent.get("order_type") == "market":
+            intent["order_type"] = "limit"
+            if intent.get("side", "").lower() == "buy":
+                intent["limit_price"] = current_price * 1.01 # 1% max slippage
+            else:
+                intent["limit_price"] = current_price * 0.99
+
         print(f"Order Type: {intent['order_type'].upper()}")
         if intent.get("execution_algo"):
             print(f"Algorithm: {intent['execution_algo']}")
+
+        # ORDER SIZING LOGIC: Prevent 'Insufficient funds'
+        if provider != "paper" and str(intent.get("size_hint", "")).lower() != "max":
+            if intent.get("side") == "buy" and current_price:
+                bp_res = run_command(["get-buying-power", "--provider", provider])
+                if isinstance(bp_res, dict) and "amount" in bp_res:
+                    bp = float(bp_res["amount"])
+                    req_size = float(intent.get("size_hint", 0))
+                    cost = req_size * current_price
+                    if cost > bp and bp > 0:
+                        new_size = (bp * 0.98) / current_price
+                        print(f"Insufficient funds: cost {cost} > bp {bp}. Adjusting size to {new_size}.")
+                        intent["size_hint"] = format_size(new_size)
+            elif intent.get("side") == "sell":
+                sp_res = run_command(["get-selling-power", "--provider", provider, "--symbol", intent['symbol']])
+                if isinstance(sp_res, dict) and "amount" in sp_res:
+                    sp = float(sp_res["amount"])
+                    req_size = float(intent.get("size_hint", 0))
+                    if req_size > sp:
+                        print(f"Insufficient funds: req size {req_size} > balance {sp}. Adjusting size to {sp}.")
+                        intent["size_hint"] = format_size(sp)
 
         # 4. Always set stop losses when available (Critical rule enforcement)
         # Ensure a stop loss is present for safety; if not, calculate a fallback.
