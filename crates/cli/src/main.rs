@@ -89,6 +89,11 @@ struct Cli {
 #[derive(Debug, Subcommand)]
 enum Commands {
     #[cfg(feature = "nova")]
+    AnalyzeMetallurgy {
+        #[arg(long)]
+        input: PathBuf,
+    },
+    #[cfg(feature = "nova")]
     ExportCsv {
         #[arg(long)]
         input: PathBuf,
@@ -602,6 +607,22 @@ fn main() {
 
 fn run(command: Commands, raw: bool) -> Result<String, CliError> {
     match command {
+        #[cfg(feature = "nova")]
+        Commands::AnalyzeMetallurgy { input } => {
+            let file_content = std::fs::read_to_string(&input).map_err(|e| {
+                CliError::Io(e)
+            })?;
+            let series: BarSeries =
+                match serde_json::from_str::<ResponseEnvelope<BarSeries>>(&file_content) {
+                    Ok(envelope) => envelope
+                        .data
+                        .ok_or(CliError::Validation("Envelope has no data".to_string()))?,
+                    Err(_) => serde_json::from_str::<BarSeries>(&file_content)?,
+                };
+            let report = thales_cli::experimental::market_metallurgy::analyze_metallurgy(&series)
+                .ok_or_else(|| CliError::Validation("Failed to analyze metallurgy".to_string()))?;
+            ok_envelope(report, vec![], raw)
+        }
         #[cfg(feature = "nova")]
         Commands::ExportCsv { input, output } => {
             let file_content = std::fs::read_to_string(&input).map_err(|e| {
