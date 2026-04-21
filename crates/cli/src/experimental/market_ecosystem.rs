@@ -1,5 +1,31 @@
 #![cfg(feature = "nova")]
 
+//! Market Ecosystem Module
+//!
+//! This module translates market conditions into ecological terms (animals/biomes).
+//! For example, High Volume & Low Volatility equates to a "Whale Feeding Ground"
+//! (Accumulation), while High Volume & Strong Up Trend becomes a "Bull Stampede".
+//!
+//! # Examples
+//! ```rust
+//! #[cfg(feature = "nova")]
+//! # {
+//! use thales_cli::experimental::market_ecosystem::analyze_ecosystem;
+//! use contracts::{BarSeries, Bar};
+//!
+//! let mut bars = Vec::new();
+//! for i in 0..15 {
+//!     bars.push(Bar { symbol: "TEST".into(), market: "test".into(), timeframe: "1d".into(), timestamp_unix_ms: i * 1000, open: 100.0, high: 105.0, low: 95.0, close: 100.0, volume: 1000.0 });
+//! }
+//! let series = BarSeries { schema_version: "v0".to_string(), bars };
+//!
+//! if let Some(report) = analyze_ecosystem(&series) {
+//!     println!("Ecosystem: {}", report.ecosystem);
+//! }
+//! # }
+//! ```
+
+
 use contracts::BarSeries;
 use serde::{Deserialize, Serialize};
 

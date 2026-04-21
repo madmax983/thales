@@ -1,5 +1,33 @@
 #![cfg(feature = "nova")]
 
+//! Market Gravity Module
+//!
+//! This module calculates the "gravity" of different price levels by tracking
+//! how much volume was traded at each price. High gravity levels act as strong
+//! support or resistance zones.
+//!
+//! # Examples
+//! ```rust
+//! #[cfg(feature = "nova")]
+//! # {
+//! use thales_cli::experimental::market_gravity::{calculate_gravity, MarketGravityConfig};
+//! use contracts::{BarSeries, Bar};
+//!
+//! let series = BarSeries {
+//!     schema_version: "v0".to_string(),
+//!     bars: vec![
+//!         Bar { symbol: "TEST".into(), market: "test".into(), timeframe: "1d".into(), timestamp_unix_ms: 0, open: 100.0, high: 110.0, low: 90.0, close: 105.0, volume: 1000.0 },
+//!     ],
+//! };
+//! let config = MarketGravityConfig { num_bins: 5 };
+//!
+//! if let Some(report) = calculate_gravity(&series, config) {
+//!     println!("Center of Mass: {}", report.center_of_mass);
+//! }
+//! # }
+//! ```
+
+
 use contracts::BarSeries;
 use serde::{Deserialize, Serialize};
 

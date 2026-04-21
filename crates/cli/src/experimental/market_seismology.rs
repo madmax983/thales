@@ -1,5 +1,32 @@
 #![cfg(feature = "nova")]
 
+//! Market Seismology Module
+//!
+//! This module analyzes market volatility as seismic activity. It calculates
+//! ambient noise and detects "tremors" or earthquakes based on sudden spikes
+//! in price range relative to the baseline.
+//!
+//! # Examples
+//! ```rust
+//! #[cfg(feature = "nova")]
+//! # {
+//! use thales_cli::experimental::market_seismology::{analyze_seismology, SeismologyConfig};
+//! use contracts::{BarSeries, Bar};
+//!
+//! let mut bars = Vec::new();
+//! for i in 0..10 {
+//!     bars.push(Bar { symbol: "TEST".into(), market: "test".into(), timeframe: "1d".into(), timestamp_unix_ms: i * 1000, open: 100.0, high: 105.0, low: 95.0, close: 100.0, volume: 1000.0 });
+//! }
+//! let series = BarSeries { schema_version: "v0".to_string(), bars };
+//! let config = SeismologyConfig { window_size: 5, tremor_threshold: 2.0 };
+//!
+//! if let Ok(report) = analyze_seismology(&series, config) {
+//!     println!("Tremor Detected: {}", report.is_tremor);
+//! }
+//! # }
+//! ```
+
+
 use contracts::BarSeries;
 use serde::{Deserialize, Serialize};
 

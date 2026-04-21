@@ -1,5 +1,34 @@
 #![cfg(feature = "nova")]
 
+//! Market Astrophysics Module
+//!
+//! This module analyzes market data through the lens of astrophysics,
+//! calculating velocity, acceleration, and gravitational force based on
+//! price movements and volume mass. It identifies celestial states like
+//! "Supernova" or "Black Hole" to indicate explosive or implosive market trends.
+//!
+//! # Examples
+//! ```rust
+//! #[cfg(feature = "nova")]
+//! # {
+//! use thales_cli::experimental::market_astrophysics::analyze_astrophysics;
+//! use contracts::{BarSeries, Bar};
+//!
+//! let series = BarSeries {
+//!     schema_version: "v0".to_string(),
+//!     bars: vec![
+//!         Bar { symbol: "TEST".into(), market: "test".into(), timeframe: "1d".into(), timestamp_unix_ms: 0, open: 100.0, high: 110.0, low: 90.0, close: 105.0, volume: 1000.0 },
+//!         Bar { symbol: "TEST".into(), market: "test".into(), timeframe: "1d".into(), timestamp_unix_ms: 1000, open: 105.0, high: 115.0, low: 95.0, close: 110.0, volume: 2000.0 },
+//!     ],
+//! };
+//!
+//! if let Some(report) = analyze_astrophysics(&series) {
+//!     println!("Celestial State: {}", report.celestial_state);
+//! }
+//! # }
+//! ```
+
+
 use contracts::BarSeries;
 use serde::{Deserialize, Serialize};
 

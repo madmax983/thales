@@ -1,5 +1,31 @@
 #![cfg(feature = "nova")]
 
+//! Market Optics Module
+//!
+//! This module applies optical principles like refraction and dispersion
+//! to market trends. By splitting a time series into two mediums, it
+//! analyzes how a trend "bends" or disperses based on changes in volume density.
+//!
+//! # Examples
+//! ```rust
+//! #[cfg(feature = "nova")]
+//! # {
+//! use thales_cli::experimental::market_optics::analyze_optics;
+//! use contracts::{BarSeries, Bar};
+//!
+//! let mut bars = Vec::new();
+//! for i in 0..10 {
+//!     bars.push(Bar { symbol: "TEST".into(), market: "test".into(), timeframe: "1d".into(), timestamp_unix_ms: i * 1000, open: 100.0, high: 105.0, low: 95.0, close: 100.0, volume: 1000.0 });
+//! }
+//! let series = BarSeries { schema_version: "v0".to_string(), bars };
+//!
+//! if let Some(report) = analyze_optics(&series) {
+//!     println!("Optical State: {}", report.optical_state);
+//! }
+//! # }
+//! ```
+
+
 use contracts::BarSeries;
 use serde::{Deserialize, Serialize};
 

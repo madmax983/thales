@@ -1,5 +1,32 @@
 #![cfg(feature = "nova")]
 
+//! Market Resonance Module
+//!
+//! This module measures market resonance by analyzing the combined variance
+//! of price and volume over a given window. High resonance indicates a market
+//! entering a high-energy, potentially explosive state.
+//!
+//! # Examples
+//! ```rust
+//! #[cfg(feature = "nova")]
+//! # {
+//! use thales_cli::experimental::resonance::{analyze_resonance, ResonanceConfig};
+//! use contracts::{BarSeries, Bar};
+//!
+//! let mut bars = Vec::new();
+//! for i in 0..10 {
+//!     bars.push(Bar { symbol: "TEST".into(), market: "test".into(), timeframe: "1d".into(), timestamp_unix_ms: i * 1000, open: 100.0, high: 105.0, low: 95.0, close: 100.0, volume: 1000.0 });
+//! }
+//! let series = BarSeries { schema_version: "v0".to_string(), bars };
+//! let config = ResonanceConfig { window_size: 5, amplitude_threshold: 10.0 };
+//!
+//! if let Ok(report) = analyze_resonance(&series, config) {
+//!     println!("Combined Resonance: {}", report.combined_resonance);
+//! }
+//! # }
+//! ```
+
+
 use contracts::BarSeries;
 use serde::{Deserialize, Serialize};
 
