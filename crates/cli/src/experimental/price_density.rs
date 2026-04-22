@@ -23,7 +23,6 @@
 //! }
 //! ```
 
-
 use anyhow::Result;
 use contracts::BarSeries;
 use std::collections::HashMap;

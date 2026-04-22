@@ -25,7 +25,6 @@
 //! # }
 //! ```
 
-
 use anyhow::Result;
 use contracts::BarSeries;
 use serde::{Deserialize, Serialize};

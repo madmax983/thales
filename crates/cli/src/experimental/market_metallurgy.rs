@@ -1,5 +1,33 @@
 #![cfg(feature = "nova")]
 
+//! Market Metallurgy Module
+//!
+//! This module analyzes market data by mapping price action to metallurgical concepts.
+//! Just as metals are shaped by heat and pressure, markets are shaped by volume and volatility.
+//! We measure 'tensile strength' (how much volume is needed to move price), 'malleability'
+//! (ability to stretch in price range), and 'heat treatment' (accumulation of volatility).
+//!
+//! # Examples
+//! ```rust
+//! #[cfg(feature = "nova")]
+//! # {
+//! use thales_cli::experimental::market_metallurgy::analyze_metallurgy;
+//! use contracts::{BarSeries, Bar};
+//!
+//! let series = BarSeries {
+//!     schema_version: "v0".to_string(),
+//!     bars: vec![
+//!         Bar { symbol: "TEST".to_string(), market: "test".to_string(), timeframe: "1d".to_string(), timestamp_unix_ms: 0, open: 100.0, high: 110.0, low: 90.0, close: 105.0, volume: 1000.0 },
+//!         Bar { symbol: "TEST".to_string(), market: "test".to_string(), timeframe: "1d".to_string(), timestamp_unix_ms: 1000, open: 105.0, high: 115.0, low: 95.0, close: 110.0, volume: 2000.0 },
+//!     ],
+//! };
+//!
+//! if let Some(report) = analyze_metallurgy(&series) {
+//!     println!("Malleability: {}", report.malleability);
+//! }
+//! # }
+//! ```
+
 use contracts::BarSeries;
 use serde::{Deserialize, Serialize};
 
@@ -23,8 +51,12 @@ pub fn analyze_metallurgy(series: &BarSeries) -> Option<MetallurgyReport> {
     let mut total_heat = 0.0; // measure of consecutive up/down swings
 
     for bar in &series.bars {
-        if bar.high > max_high { max_high = bar.high; }
-        if bar.low < min_low { min_low = bar.low; }
+        if bar.high > max_high {
+            max_high = bar.high;
+        }
+        if bar.low < min_low {
+            min_low = bar.low;
+        }
         total_volume += bar.volume;
 
         let swing = (bar.close - prev_close).abs();
@@ -52,9 +84,9 @@ pub fn analyze_metallurgy(series: &BarSeries) -> Option<MetallurgyReport> {
 
     // Heat Treatment: Normalized accumulation of volatility (swings) over time
     let heat_treatment = if price_range > 0.0 {
-         total_heat / price_range
+        total_heat / price_range
     } else {
-         0.0
+        0.0
     };
 
     Some(MetallurgyReport {
