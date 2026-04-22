@@ -4470,3 +4470,34 @@ Trend Following
 - **Expected Win Rate:** ~52% in trending markets.
 - **Sharpe Ratio:** 1.2
 - **Max Drawdown:** 15%
+
+# Trading Strategy: Qstick Trend
+
+## Strategy Specification
+
+**Name:** QstickTrend
+
+**Description:** A trend following strategy based on the Qstick indicator. It enters a long position when Qstick crosses above 0 and enters a short position (or exits long) when Qstick crosses below 0.
+
+**Rationale:** The Qstick indicator measures buying and selling pressure by taking a moving average of the difference between close and open prices. A positive Qstick indicates buying pressure (closes are generally higher than opens), and a negative Qstick indicates selling pressure.
+
+## Requirements
+
+### Implementation Details
+- Uses Polars for data analysis.
+- Implements the `Strategy` trait in Rust.
+- Calculates Qstick as an SMA of (Close - Open).
+
+### Strategy Type
+Trend Following
+
+### Entry Conditions
+- **Long Entry (Buy):** Qstick crosses above 0.
+
+### Exit Conditions
+- **Long Exit (Sell):** Qstick crosses below 0.
+
+### Expected Backtesting Metrics
+- **Win Rate:** ~45-55%
+- **Sharpe Ratio:** > 1.2
+- **Max Drawdown:** < 20%
