@@ -1,27 +1,27 @@
-# 🔭 Vantage: Spec for CLI DX Improvements
+# 🔭 Vantage: Spec for Robust Backtesting Engine
 
 ## 1. 👤 The "User Story"
-**As a** Quantitative Developer or Trader building autonomous agents,
-**I want** clear, verbose feedback from CLI commands and streamlined data outputs,
-**So that** I don't waste time debugging "silent failures" or writing boilerplate code to parse cumbersome JSON envelopes when analyzing trading signals.
+**As a** Quantitative Trader,
+**I want to** backtest my strategies against volatile markets with missing or dirty data,
+**So that** I can rely on my backtesting engine to process real-world data feeds without crashing, and export the results for deeper analysis.
 
 ## 2. 💡 The "So What?" (Business Value)
-Currently, new users evaluating the `thales-cli` frequently encounter confusion during the "Getting Started" flow. The `generate-signals` command successfully executes but often returns an empty data array (`[]`) without prominent explanation, leading users to falsely believe the system is broken. Furthermore, the mandatory JSON envelope (`{"status": "ok", "data": [...]}`) adds unnecessary friction for users trying to pipe data directly into other CLI tools or scripts.
-- **Problem:** "Silent failures" (empty data returns masquerading as success) destroy trust and increase onboarding time. Cumbersome output formats reduce the utility of the tool in Unix-style pipelines.
-- **Solution:** Implement verbose, user-friendly warnings for empty signal generations and introduce a `--raw` output flag to bypass the JSON envelope.
-- **Metric:** Success = 0% drop-off rate from users attempting the README "Quick Start", and a 50% reduction in support queries related to "empty signals".
+Currently, our backtesting suite assumes perfect historical data. However, real-world data is inherently messy—exchanges experience downtime, and price feeds can drop or inject invalid values. If the backtester panics on a single bad data point, traders lose trust and waste hours cleaning data manually. Furthermore, they need a way to integrate our results into their existing toolchains (like Excel or Python).
+- **Problem:** Brittle data handling causes unexpected panics during strategy validation. Lack of flat-file reporting limits third-party analysis.
+- **Solution:** Implement robust handling of missing/invalid data, ensuring continuous processing, and provide a standardized CSV export option.
+- **Metric:** Success = 0 panics when processing datasets with up to 5% invalid/NaN values, and 100% successful generation of a readable CSV report for executed trades.
 
 ## 3. ⚖️ Gap Analysis
-- **Market Standard:** Standard CLI tools (like `jq`, `grep`, or mature data engineering CLIs) either provide explicit reasons for empty outputs (via stderr) or offer formatting flags (e.g., `--raw-output` or `-r`) to facilitate seamless pipeline integration.
-- **Our System:** Our `generate-signals` command returns `{"status":"ok", "data":[]}` when no signal is triggered on the latest candle. While technically correct, this lacks context. To get the actual reason (e.g., "Skipping sell signal due to low confidence"), the user must actively monitor `stderr`, which is often ignored or redirected. There is also no native way to output just the data payload.
+- **Market Standard:** Leading backtesting platforms (e.g., Backtrader, QuantConnect) automatically forward-fill missing data or skip invalid candles, logging warnings instead of crashing. They also natively support exporting trade logs to CSV.
+- **Our System:** Panics when encountering `NaN` values, halting the entire simulation. Outputs are restricted to JSON, which is cumbersome for rapid visual inspection by non-engineers.
 
 ## 4. ✅ Acceptance Criteria
-- **Verbose Warnings:** If the `generate-signals` command results in an empty `data` array, the JSON envelope's `warnings` array MUST contain a clear, human-readable explanation (e.g., `"warnings": ["No signals triggered for latest candle (2025-02-18 12:00)"]`).
-- **Interactive Feedback:** If the CLI detects it is running interactively (attached to a TTY), it MUST prominently print a message to `stderr` indicating that no signals were generated.
-- **Raw Output Flag:** All commands that output data MUST support a new `--raw` flag.
-- **Raw Output Behavior:** When `--raw` is passed, the CLI MUST omit the `{"status": "ok", ...}` envelope and print only the inner JSON payload (e.g., the array of `TradeIntent` objects or the `BarSeries` array) to `stdout`.
+- **Data Resilience:** Must handle `NaN` (Not a Number) data points gracefully without panicking or halting the execution cycle.
+- **Data Integrity:** Missing or invalid data points should be logged as warnings. The engine should either safely skip the corrupted bar or apply a simple forward-fill logic.
+- **Reporting Format:** The `backtest` command must accept a new flag to specify output format.
+- **CSV Export:** Must output a CSV report containing a complete trade log (e.g., Entry Time, Exit Time, Side, Quantity, Entry Price, Exit Price, PnL, PnL %).
 
 ## 5. 🚫 Out of Scope (Phase 1)
-- Implementing alternative output formats like CSV, XML, or YAML.
-- Modifying the underlying signal generation logic or strategy implementations.
-- Refactoring the entire error handling or logging framework beyond these specific CLI surface improvements.
+- Real-time execution (Phase 2).
+- Complex data imputation algorithms (e.g., machine learning-based gap filling).
+- Multi-asset correlation handling for missing data.
