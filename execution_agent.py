@@ -464,12 +464,15 @@ def execute_agent(intent_file):
         else:
             market = intent.get("market", "").lower()
             symbol = intent.get("symbol", "").upper()
-            if market == "equities" or symbol in ["SPY", "AAPL", "MSFT", "TSLA"]:
+            if market == "equities" or symbol in ["SPY", "AAPL", "MSFT", "TSLA", "QQQ", "TQQQ"]:
                 intent["provider"] = "alpaca"
-            elif market == "crypto" or symbol in ["BTCUSD", "ETHUSD", "SOLUSD"]:
+            elif market == "crypto" or "USD" in symbol and symbol not in ["SPY", "AAPL", "MSFT", "TSLA", "QQQ", "TQQQ"]:
                 intent["provider"] = "kraken"
             else:
-                intent["provider"] = "kraken"
+                if "USD" in symbol and symbol not in ["SPY", "AAPL", "MSFT", "TSLA", "QQQ", "TQQQ"]:
+                    intent["provider"] = "kraken"
+                else:
+                    intent["provider"] = "alpaca"
 
         provider = intent.get("provider", "paper")
 
@@ -504,15 +507,24 @@ def execute_agent(intent_file):
         # ORDER SIZING LOGIC: Prevent 'Insufficient funds'
         if provider != "paper" and str(intent.get("size_hint", "")).lower() != "max":
             if intent.get("side") == "buy" and current_price:
-                bp_res = run_command(["get-buying-power", "--provider", provider])
+                bp_args = ["get-buying-power", "--provider", provider]
+                if provider == "kraken":
+                    bp_args.extend(["--symbol", intent['symbol']])
+                bp_res = run_command(bp_args)
                 if isinstance(bp_res, dict) and "amount" in bp_res:
                     bp = float(bp_res["amount"])
                     req_size = float(intent.get("size_hint", 0))
                     cost = req_size * current_price
-                    if cost > bp and bp > 0:
-                        new_size = (bp * 0.98) / current_price
-                        print(f"Insufficient funds: cost {cost} > bp {bp}. Adjusting size to {new_size}.")
-                        intent["size_hint"] = format_size(new_size)
+                    if cost > bp:
+                        if bp > 0:
+                            new_size = (bp * 0.98) / current_price
+                            print(f"Insufficient funds: cost {cost} > bp {bp}. Adjusting size to {new_size}.")
+                            intent["size_hint"] = format_size(new_size)
+                        else:
+                            print(f"Insufficient funds: cost {cost} > bp {bp}. Cannot adjust size. Aborting trade.")
+                            intent["size_hint"] = "0"
+                            log_skipped(intent, "Insufficient funds")
+                            continue
             elif intent.get("side") == "sell":
                 sp_res = run_command(["get-selling-power", "--provider", provider, "--symbol", intent['symbol']])
                 if isinstance(sp_res, dict) and "amount" in sp_res:
