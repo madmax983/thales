@@ -530,7 +530,7 @@ def main():
                                 if trade_intent.get("symbol") == intent.get("symbol") and \
                                    trade_intent.get("side") == intent.get("side") and \
                                    trade_intent.get("signal_type") == intent.get("signal_type") and \
-                                   trade_intent.get("rationale") == intent.get("rationale"):
+                                   re.sub(r"\d+\.\d{5,}", truncate_float, trade_intent.get("rationale", "")) == re.sub(r"\d+\.\d{5,}", truncate_float, intent.get("rationale", "")):
                                     is_redundant = True
                                     break
                             else:
@@ -557,17 +557,18 @@ def main():
 
             # Global deduplication across all symbols
             for fi in filtered_intents:
+                intent_rationale = re.sub(r"\d+\.\d{5,}", truncate_float, fi.get("rationale", ""))
                 sig = (
                     fi.get("symbol"),
                     fi.get("side"),
                     fi.get("signal_type"),
-                    fi.get("rationale")
+                    intent_rationale
                 )
                 if not any(
                     (ai.get("symbol") == sig[0] and
                      ai.get("side") == sig[1] and
                      ai.get("signal_type") == sig[2] and
-                     ai.get("rationale") == sig[3])
+                     re.sub(r"\d+\.\d{5,}", truncate_float, ai.get("rationale", "")) == sig[3])
                     for ai in all_intents
                 ):
                     all_intents.append(fi)
