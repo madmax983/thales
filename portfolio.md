@@ -7973,6 +7973,12 @@
 | 2026-04-22 10:41:04 | SPY | equities:SPY:unknown:1776775068269 | Invalid input: provider error: kraken api error: EQuery:Unknown asset pair |
 | 2026-04-22 10:41:05 | BTCUSD | crypto:BTCUSD:unknown:1776775068192 | No buying power available (USD 0.00) |
 | 2026-04-22 10:41:05 | ETHUSD | crypto:ETHUSD:unknown:1776775068231 | No buying power available (USD 0.00) |
+| 2026-04-22 12:44:18 | BTCUSD | crypto:BTCUSD:unknown:1776775068192 | Signal too old (24.1 hours > 24 hours) |
+| 2026-04-22 12:44:18 | ETHUSD | crypto:ETHUSD:unknown:1776775068231 | Signal too old (24.1 hours > 24 hours) |
+| 2026-04-22 12:44:18 | SPY | equities:SPY:unknown:1776775068269 | Signal too old (24.1 hours > 24 hours) |
+| 2026-04-22 12:44:20 | BTCUSD | crypto:BTCUSD:unknown:1776859799549 | CONFLICT: Conflicting signals (Buy and Sell) detected for BTCUSD. Trading halted for this asset. |
+| 2026-04-22 12:44:21 | SPY | equities:SPY:unknown:1776859799627 | Invalid input: provider error: kraken api error: EQuery:Unknown asset pair |
+| 2026-04-22 12:44:21 | ETHUSD | crypto:ETHUSD:unknown:1776859799589 | No buying power available (USD 0.00) |
 
 ## Executed Trades
 
