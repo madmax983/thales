@@ -158,3 +158,7 @@
 ## 2026-05-18 - The Unmapped Experimental Dimensions
 **Confusion:** The experimental modules in `crates/cli/src/experimental/` (such as `market_astrophysics.rs`, `market_friction.rs`, `market_ecosystem.rs`, `market_optics.rs`, `market_seismology.rs`, `market_gravity.rs`, `resonance.rs`, `renko_entropy.rs`, and `price_density.rs`) lacked module-level storytelling documentation. Users could not understand the core concepts and analogies behind these creative market analysis tools.
 **Clarification:** Added storytelling module-level documentation (`//!`) to all of the aforementioned files to explain their core concepts. Also added documentation to `mod.rs` to explain the purpose of the experimental folder.
+
+## 2026-04-22 - The Unmapped Metallurgy Region
+**Confusion:** The experimental module `market_metallurgy.rs` in `crates/cli/src/experimental/` lacked executable examples and storytelling module-level documentation. Users could not discover how to analyze market metallurgy.
+**Clarification:** Added storytelling module-level documentation (`//!`) to explain the core metallurgical concepts. Added executable `# Examples` to the `analyze_metallurgy` function to guide developers on proper initialization and result interpretation.
