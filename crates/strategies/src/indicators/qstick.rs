@@ -35,7 +35,8 @@ pub fn calculate(data: &DataFrame, period: usize) -> Result<Series> {
     let mut qstick_values: Vec<Option<f64>> = Vec::with_capacity(close.len());
     let mut window: VecDeque<Decimal> = VecDeque::with_capacity(period);
     let mut sum = Decimal::ZERO;
-    let period_dec = Decimal::from_usize(period).context("Invalid period for Decimal conversion")?;
+    let period_dec =
+        Decimal::from_usize(period).context("Invalid period for Decimal conversion")?;
 
     for i in 0..close.len() {
         let close_opt = close.get(i);
@@ -43,7 +44,9 @@ pub fn calculate(data: &DataFrame, period: usize) -> Result<Series> {
 
         match (close_opt, open_opt) {
             (Some(c), Some(o)) => {
-                if let (Some(dc), Some(do_)) = (Decimal::from_f64_retain(c), Decimal::from_f64_retain(o)) {
+                if let (Some(dc), Some(do_)) =
+                    (Decimal::from_f64_retain(c), Decimal::from_f64_retain(o))
+                {
                     let diff = dc - do_;
                     sum += diff;
                     window.push_back(diff);

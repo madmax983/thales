@@ -609,7 +609,7 @@ fn run(command: Commands, raw: bool) -> Result<String, CliError> {
     match command {
         #[cfg(feature = "nova")]
         Commands::AnalyzeMetallurgy { input } => {
-            let file_content = std::fs::read_to_string(&input).map_err(|e| CliError::Io(e))?;
+            let file_content = std::fs::read_to_string(&input).map_err(CliError::Io)?;
             let series: BarSeries =
                 match serde_json::from_str::<ResponseEnvelope<BarSeries>>(&file_content) {
                     Ok(envelope) => envelope
