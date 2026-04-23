@@ -59,7 +59,9 @@ impl Strategy for QstickTrend {
             let qs_curr_opt = qstick_arr.get(i);
             let qs_prev_opt = qstick_arr.get(i - 1);
 
-            if let (Some(price), Some(qs_curr), Some(qs_prev)) = (price_opt, qs_curr_opt, qs_prev_opt) {
+            if let (Some(price), Some(qs_curr), Some(qs_prev)) =
+                (price_opt, qs_curr_opt, qs_prev_opt)
+            {
                 // Bullish Crossover (Qstick crosses above 0)
                 if qs_prev <= 0.0 && qs_curr > 0.0 {
                     let sl = price * (1.0 - self.config.stop_loss_pct);
