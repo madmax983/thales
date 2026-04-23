@@ -8018,6 +8018,10 @@
 | 2026-04-23 06:55:33 | SPY | equities:SPY:unknown:1776859799627 | Invalid input: provider error: kraken api error: EQuery:Unknown asset pair |
 | 2026-04-23 06:55:39 | PEPEUSD | crypto:PEPEUSD:buy:1776924000000 | provider error: kraken api error: EOrder:Insufficient funds |
 | 2026-04-23 06:55:40 | ETHUSD | crypto:ETHUSD:unknown:1776859799589 | provider error: kraken api error: EOrder:Insufficient funds |
+| 2026-04-23 10:42:04 | BTCUSD | crypto:BTCUSD:unknown:1776859799549 | Signal already executed/submitted (Ref: crypto:BTCUSD:unknown:1776859799549) |
+| 2026-04-23 10:42:06 | SPY | equities:SPY:unknown:1776859799627 | Invalid input: provider error: kraken api error: EQuery:Unknown asset pair |
+| 2026-04-23 10:42:07 | ETHUSD | crypto:ETHUSD:unknown:1776859799589 | No sellable balance available (ETH 0.00000000) |
+| 2026-04-23 10:42:08 | CATUSD | crypto:CATUSD:buy:1776938400000 | provider error: kraken api error: EOrder:Insufficient funds |
 
 ## Executed Trades
 
