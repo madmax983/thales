@@ -8014,6 +8014,10 @@
 | 2026-04-23 05:00:44 | SPY | equities:SPY:unknown:1776859799627 | Invalid input: provider error: kraken api error: EQuery:Unknown asset pair |
 | 2026-04-23 05:00:48 | DUCKUSD | NO_REF | CONFLICT: Conflicting signals (Buy and Sell) detected for DUCKUSD. Trading halted for this asset. |
 | 2026-04-23 05:00:49 | ETHUSD | crypto:ETHUSD:unknown:1776859799589 | provider error: kraken api error: EOrder:Insufficient funds |
+| 2026-04-23 06:55:29 | BTCUSD | crypto:BTCUSD:unknown:1776859799549 | Signal already executed/submitted (Ref: crypto:BTCUSD:unknown:1776859799549) |
+| 2026-04-23 06:55:33 | SPY | equities:SPY:unknown:1776859799627 | Invalid input: provider error: kraken api error: EQuery:Unknown asset pair |
+| 2026-04-23 06:55:39 | PEPEUSD | crypto:PEPEUSD:buy:1776924000000 | provider error: kraken api error: EOrder:Insufficient funds |
+| 2026-04-23 06:55:40 | ETHUSD | crypto:ETHUSD:unknown:1776859799589 | provider error: kraken api error: EOrder:Insufficient funds |
 
 ## Executed Trades
 
