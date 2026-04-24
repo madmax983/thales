@@ -1687,7 +1687,17 @@ def main():
         print("------------------\n")
 
         # Fetch latest price for execution logic using original provider
-        current_price = get_latest_price(intent.get("provider", "kraken"), intent["symbol"])
+        provider = intent.get("provider")
+        if not provider:
+            market = intent.get("market", "").lower()
+            symbol = intent.get("symbol", "").upper()
+            if market == "equities" or symbol in ["SPY", "AAPL", "MSFT", "TSLA", "QQQ", "TQQQ"]:
+                provider = "alpaca"
+            elif market == "crypto" or "USD" in symbol and symbol not in ["SPY", "AAPL", "MSFT", "TSLA", "QQQ", "TQQQ"]:
+                provider = "kraken"
+            else:
+                provider = "alpaca"
+        current_price = get_latest_price(provider, intent["symbol"])
 
         if os.environ.get("SIMULATION") == "true":
             intent["provider"] = "paper"
