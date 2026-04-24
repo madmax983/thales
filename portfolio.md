@@ -8085,6 +8085,9 @@
 | 2026-04-24 18:37:18 | SPY | equities:SPY:unknown:1777034338816 | Invalid input: provider error: kraken api error: EQuery:Unknown asset pair |
 | 2026-04-24 18:37:18 | ETHUSD | crypto:ETHUSD:unknown:1777034338769 | No sellable balance available (ETH 0.00000000) |
 | 2026-04-24 18:37:19 | BTCUSD | crypto:BTCUSD:unknown:1777034338726 | No sellable balance available (BTC 0.00000000) |
+| 2026-04-24 19:42:46 | SPY | equities:SPY:unknown:1777034338816 | Invalid input: provider error: kraken api error: EQuery:Unknown asset pair |
+| 2026-04-24 19:42:47 | BTCUSD | crypto:BTCUSD:unknown:1777034338726 | provider error: kraken api error: EOrder:Insufficient funds |
+| 2026-04-24 19:42:48 | ETHUSD | crypto:ETHUSD:unknown:1777034338769 | No sellable balance available (ETH 0.00000000) |
 
 ## Executed Trades
 
