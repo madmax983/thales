@@ -12,6 +12,7 @@ pub mod kinematics;
 pub mod market_aerodynamics;
 pub mod market_alchemy;
 pub mod market_astrophysics;
+pub mod market_cartography;
 pub mod market_ecosystem;
 pub mod market_energy;
 pub mod market_fluid_dynamics;
