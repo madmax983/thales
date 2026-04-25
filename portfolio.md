@@ -8115,6 +8115,12 @@
 | 2026-04-25 10:44:53 | SPY | equities:SPY:unknown:1777034338816 | Invalid input: provider error: kraken api error: EQuery:Unknown asset pair |
 | 2026-04-25 10:44:54 | BTCUSD | crypto:BTCUSD:unknown:1777034338726 | provider error: kraken api error: EOrder:Insufficient funds |
 | 2026-04-25 10:44:54 | ETHUSD | crypto:ETHUSD:unknown:1777034338769 | provider error: kraken api error: EOrder:Insufficient funds |
+| 2026-04-25 12:55:55 | BTCUSD | crypto:BTCUSD:unknown:1777034338726 | Signal too old (24.3 hours > 24 hours) |
+| 2026-04-25 12:55:55 | ETHUSD | crypto:ETHUSD:unknown:1777034338769 | Signal too old (24.3 hours > 24 hours) |
+| 2026-04-25 12:55:55 | SPY | equities:SPY:unknown:1777034338816 | Signal too old (24.3 hours > 24 hours) |
+| 2026-04-25 12:55:59 | BTCUSD | crypto:BTCUSD:unknown:1777119786246 | No active strategy generated a signal (Strategies: BollingerBands, AdlMomentum, BopMomentum, CoppockCurve, KdjIndicatorStrategy, KamaCrossover, AlmaCrossover, AdxMacdTrend, AroonOscillator, ElderRay, UlcerIndexMeanReversion, EmaCrossover, FisherTransformReversal, RsiMeanReversion, Macd, Supertrend, SupertrendEmaCrossover, SupertrendRsi, DonchianBreakout, ParabolicSar, KeltnerChannelBreakout, StochasticOscillator, AdxMomentum, IchimokuCloud, CciMomentum, ChaikinMoneyFlow, ChaikinOscillatorMomentum, ChandelierExit, ChoppinessIndexTrend, CmoMeanReversion, LinearRegressionTrend, EaseOfMovement, ForceIndexTrend, ObvTrendFollowing, MoneyFlowIndex, ConnorsRsiMeanReversion, AwesomeOscillator, WilliamsR, VwmaCrossover, VwapReversion, VortexBreakout, TripleSmaCrossover, TripleEmaCrossover, UltimateOscillator, RelativeVigorIndexTrend, VolumeOscillatorTrend, VptTrendFollowing, ZlemaCrossover, ZScoreMeanReversion, VwMacd, BollingerRsiMeanReversion, StochRsiMeanReversion, RocMomentum, MacdRsiTrend, TrixCrossover, TsiTrend, DemaCrossover, TemaCrossover, WmaCrossover, HmaCrossover, SmaCrossover, EmaRsiTrendFollowing, PpoRsiTrend, KstTrend, VhfTrendFollowing, SchaffTrendCycle, DisparityIndexReversion, DpoBreakout, DoubleEmaCrossover) |
+| 2026-04-25 12:56:04 | ETHUSD | crypto:ETHUSD:unknown:1777119786290 | CONFLICT: Conflicting signals (Buy and Sell) detected for ETHUSD. Trading halted for this asset. |
+| 2026-04-25 12:56:04 | SPY | equities:SPY:unknown:1777119786332 | Invalid input: provider error: kraken api error: EQuery:Unknown asset pair |
 
 ## Executed Trades
 
