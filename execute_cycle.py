@@ -494,7 +494,10 @@ def get_candidates_from_signals():
             provider = "paper"
         else:
             # Route based on market
-            provider = "kraken"
+            if "USD" in symbol and symbol not in ["SPY", "AAPL", "MSFT", "TSLA", "QQQ", "TQQQ"]:
+                provider = "kraken"
+            else:
+                provider = "alpaca"
 
         # Extract JSON
         json_match = re.search(r"```json\s*(\{.*?\})\s*```", chunk, re.DOTALL)
