@@ -548,6 +548,11 @@ enum Commands {
         input: PathBuf,
     },
     #[cfg(feature = "nova")]
+    AnalyzeArchaeology {
+        #[arg(long)]
+        input: PathBuf,
+    },
+    #[cfg(feature = "nova")]
     AnalyzeSeismology {
         #[arg(long)]
         input: PathBuf,
@@ -619,6 +624,39 @@ fn main() {
 
 fn run(command: Commands, raw: bool) -> Result<String, CliError> {
     match command {
+        #[cfg(feature = "nova")]
+        Commands::AnalyzeArchaeology { input } => {
+            let file_content = std::fs::read_to_string(&input)?;
+            let series: BarSeries =
+                match serde_json::from_str::<ResponseEnvelope<BarSeries>>(&file_content) {
+                    Ok(envelope) => envelope
+                        .data
+                        .ok_or(CliError::Validation("Envelope has no data".to_string()))?,
+                    Err(_) => serde_json::from_str::<BarSeries>(&file_content)?,
+                };
+            let report = thales_cli::experimental::market_archaeology::analyze_archaeology(&series)
+                .ok_or_else(|| {
+                    CliError::Validation("Not enough data to analyze archaeology".to_string())
+                })?;
+
+            if !raw {
+                println!("=== Market Archaeology Report ===");
+                println!("Artifacts Found: {}", report.artifacts_found);
+                for artifact in &report.artifacts {
+                    println!(
+                        "  Price Level: {}, Hits: {}",
+                        artifact.price_level, artifact.hits
+                    );
+                }
+            }
+            let envelope = ResponseEnvelope {
+                status: EnvelopeStatus::Ok,
+                errors: vec![],
+                warnings: vec![],
+                data: Some(report),
+            };
+            Ok(serde_json::to_string_pretty(&envelope)?)
+        }
         #[cfg(feature = "nova")]
         Commands::AnalyzeMetallurgy { input } => {
             let file_content = std::fs::read_to_string(&input).map_err(CliError::Io)?;
