@@ -11,6 +11,7 @@ pub mod export;
 pub mod kinematics;
 pub mod market_aerodynamics;
 pub mod market_alchemy;
+pub mod market_archaeology;
 pub mod market_astrophysics;
 pub mod market_cartography;
 pub mod market_ecosystem;
