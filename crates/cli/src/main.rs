@@ -607,6 +607,13 @@ enum Commands {
         #[arg(long)]
         visualize: bool,
     },
+    #[cfg(feature = "nova")]
+    /// Experimental: Analyzes the market using principles of Thermodynamics.
+    AnalyzeThermodynamics {
+        /// Path to the input JSON file containing BarSeries.
+        #[arg(short, long)]
+        input: std::path::PathBuf,
+    },
 }
 
 fn main() {
@@ -2544,6 +2551,25 @@ fn run(command: Commands, raw: bool) -> Result<String, CliError> {
                 thales_cli::experimental::market_aerodynamics::analyze_aerodynamics(&series)
                     .ok_or_else(|| {
                         CliError::Validation("Failed to calculate aerodynamics".to_string())
+                    })?;
+
+            ok_envelope(report, vec![], raw)
+        }
+        #[cfg(feature = "nova")]
+        Commands::AnalyzeThermodynamics { input } => {
+            let file_content = std::fs::read_to_string(&input)?;
+            let series: BarSeries =
+                match serde_json::from_str::<ResponseEnvelope<BarSeries>>(&file_content) {
+                    Ok(envelope) => envelope
+                        .data
+                        .ok_or(CliError::Validation("Envelope has no data".to_string()))?,
+                    Err(_) => serde_json::from_str::<BarSeries>(&file_content)?,
+                };
+
+            let report =
+                thales_cli::experimental::market_thermodynamics::analyze_thermodynamics(&series)
+                    .ok_or_else(|| {
+                        CliError::Validation("Failed to calculate thermodynamics".to_string())
                     })?;
 
             ok_envelope(report, vec![], raw)

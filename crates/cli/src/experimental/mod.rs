@@ -25,6 +25,7 @@ pub mod market_optics;
 pub mod market_quantum;
 pub mod market_seismology;
 pub mod market_temperature;
+pub mod market_thermodynamics;
 pub mod market_weather;
 pub mod price_density;
 pub mod price_dna;
