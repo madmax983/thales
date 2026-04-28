@@ -8271,6 +8271,11 @@
 | 2026-04-28 10:57:22 | SPY | equities:SPY:unknown:1777292142316 | No active strategy generated a signal (Strategies: BollingerBands, AdlMomentum, BopMomentum, CoppockCurve, KdjIndicatorStrategy, KamaCrossover, AlmaCrossover, AdxMacdTrend, AroonOscillator, ElderRay, UlcerIndexMeanReversion, EmaCrossover, FisherTransformReversal, RsiMeanReversion, Macd, Supertrend, SupertrendEmaCrossover, SupertrendRsi, DonchianBreakout, ParabolicSar, KeltnerChannelBreakout, StochasticOscillator, AdxMomentum, IchimokuCloud, CciMomentum, ChaikinMoneyFlow, ChaikinOscillatorMomentum, ChandelierExit, ChoppinessIndexTrend, CmoMeanReversion, LinearRegressionTrend, EaseOfMovement, ForceIndexTrend, ObvTrendFollowing, MoneyFlowIndex, ConnorsRsiMeanReversion, AwesomeOscillator, WilliamsR, VwmaCrossover, VwapReversion, VortexBreakout, TripleSmaCrossover, TripleEmaCrossover, UltimateOscillator, RelativeVigorIndexTrend, VolumeOscillatorTrend, VptTrendFollowing, ZlemaCrossover, ZScoreMeanReversion, VwMacd, BollingerRsiMeanReversion, StochRsiMeanReversion, RocMomentum, MacdRsiTrend, TrixCrossover, TsiTrend, DemaCrossover, TemaCrossover, WmaCrossover, HmaCrossover, SmaCrossover, EmaRsiTrendFollowing, PpoRsiTrend, KstTrend, VhfTrendFollowing, SchaffTrendCycle, DisparityIndexReversion, DpoBreakout, DoubleEmaCrossover) |
 | 2026-04-28 10:57:23 | BTCUSD | crypto:BTCUSD:unknown:1777292142231 | provider error: kraken api error: EOrder:Insufficient funds |
 | 2026-04-28 10:57:24 | ETHUSD | crypto:ETHUSD:unknown:1777292142275 | provider error: kraken api error: EOrder:Insufficient funds |
+| 2026-04-28 13:18:55 | BTCUSD | crypto:BTCUSD:unknown:1777292142231 | Signal too old (25.1 hours > 24 hours) |
+| 2026-04-28 13:18:55 | ETHUSD | crypto:ETHUSD:unknown:1777292142275 | Signal too old (25.1 hours > 24 hours) |
+| 2026-04-28 13:18:55 | SPY | equities:SPY:unknown:1777292142316 | Signal too old (25.1 hours > 24 hours) |
+| 2026-04-28 13:19:11 | DENTUSD | crypto:DENTUSD:buy:1777381200000 | provider error: kraken api error: EOrder:Insufficient funds |
+| 2026-04-28 13:19:12 | COQUSD | crypto:COQUSD:sell:1777381200000 | provider error: kraken api error: EOrder:Insufficient funds |
 
 ## Executed Trades
 
