@@ -1,8 +1,38 @@
+//! # Market Thermodynamics 🌡️
+//!
+//! This module applies the laws of thermodynamics to market data, treating price
+//! and volume as physical properties of a dynamic system.
+//!
+//! - **Temperature (Volatility):** Measures the kinetic energy of price movements.
+//! - **Entropy (Choppiness):** Measures the disorder or lack of a clear trend.
+//! - **Enthalpy (Energy):** Measures the total volume-weighted price movement.
+//! - **Free Energy (Momentum):** Measures the energy available to do work (trend).
+//!
+//! This is an experimental module designed to provide a unique perspective on market
+//! conditions, translating financial data into states of matter (Solid, Liquid, Gas, Plasma).
+
 #![cfg(feature = "nova")]
 
 use contracts::BarSeries;
 use serde::{Deserialize, Serialize};
 
+/// Represents the thermodynamic state of a market.
+///
+/// # Examples
+///
+/// ```
+/// use thales_cli::experimental::market_thermodynamics::ThermodynamicsReport;
+///
+/// let report = ThermodynamicsReport {
+///     temperature: 0.04,
+///     entropy: 0.25,
+///     enthalpy: 150000.0,
+///     free_energy: 112500.0,
+///     phase_state: "Plasma (High Volatility, Strong Trend)".to_string(),
+/// };
+///
+/// assert_eq!(report.phase_state, "Plasma (High Volatility, Strong Trend)");
+/// ```
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ThermodynamicsReport {
     pub temperature: f64,
@@ -12,6 +42,28 @@ pub struct ThermodynamicsReport {
     pub phase_state: String,
 }
 
+/// Analyzes a series of market bars to determine their thermodynamic properties.
+///
+/// This function calculates temperature, entropy, enthalpy, and free energy
+/// to classify the market's current "phase state" (e.g., Solid, Liquid, Gas, Plasma).
+///
+/// # Examples
+///
+/// ```
+/// use contracts::{BarSeries, Bar};
+/// use thales_cli::experimental::market_thermodynamics::analyze_thermodynamics;
+///
+/// let series = BarSeries {
+///     schema_version: "v1".to_string(),
+///     bars: vec![
+///         Bar { symbol: "BTC".to_string(), market: "crypto".to_string(), timeframe: "1d".to_string(), timestamp_unix_ms: 1000, open: 100.0, high: 110.0, low: 90.0, close: 105.0, volume: 1000.0 },
+///         Bar { symbol: "BTC".to_string(), market: "crypto".to_string(), timeframe: "1d".to_string(), timestamp_unix_ms: 2000, open: 105.0, high: 115.0, low: 95.0, close: 110.0, volume: 1500.0 },
+///     ],
+/// };
+///
+/// let report = analyze_thermodynamics(&series).unwrap();
+/// assert!(report.temperature > 0.0);
+/// ```
 pub fn analyze_thermodynamics(series: &BarSeries) -> Option<ThermodynamicsReport> {
     if series.bars.is_empty() {
         return None;
