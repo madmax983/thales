@@ -8325,6 +8325,9 @@
 | 2026-04-29 16:45:20 | SPY | equities:SPY:unknown:1777467863530 | No active strategy generated a signal (Strategies: BollingerBands, AdlMomentum, BopMomentum, CoppockCurve, KdjIndicatorStrategy, KamaCrossover, AlmaCrossover, AdxMacdTrend, AroonOscillator, ElderRay, UlcerIndexMeanReversion, EmaCrossover, FisherTransformReversal, RsiMeanReversion, Macd, Supertrend, SupertrendEmaCrossover, SupertrendRsi, DonchianBreakout, ParabolicSar, KeltnerChannelBreakout, StochasticOscillator, AdxMomentum, IchimokuCloud, CciMomentum, ChaikinMoneyFlow, ChaikinOscillatorMomentum, ChandelierExit, ChoppinessIndexTrend, CmoMeanReversion, LinearRegressionTrend, EaseOfMovement, ForceIndexTrend, ObvTrendFollowing, MoneyFlowIndex, ConnorsRsiMeanReversion, AwesomeOscillator, WilliamsR, VwmaCrossover, VwapReversion, VortexBreakout, TripleSmaCrossover, TripleEmaCrossover, UltimateOscillator, RelativeVigorIndexTrend, VolumeOscillatorTrend, VptTrendFollowing, ZlemaCrossover, ZScoreMeanReversion, VwMacd, BollingerRsiMeanReversion, StochRsiMeanReversion, RocMomentum, MacdRsiTrend, TrixCrossover, TsiTrend, DemaCrossover, TemaCrossover, WmaCrossover, HmaCrossover, SmaCrossover, EmaRsiTrendFollowing, PpoRsiTrend, KstTrend, VhfTrendFollowing, SchaffTrendCycle, DisparityIndexReversion, DpoBreakout, DoubleEmaCrossover) |
 | 2026-04-29 16:45:20 | BTCUSD | crypto:BTCUSD:unknown:1777467863452 | No sellable balance available (BTC 0.00000000) |
 | 2026-04-29 16:45:21 | ETHUSD | crypto:ETHUSD:unknown:1777467863491 | No sellable balance available (ETH 0.00000000) |
+| 2026-04-29 20:53:09 | BTCUSD | crypto:BTCUSD:unknown:1777467863452 | provider error: kraken api error: EOrder:Insufficient funds |
+| 2026-04-29 20:53:10 | ETHUSD | crypto:ETHUSD:unknown:1777467863491 | provider error: kraken api error: EOrder:Insufficient funds |
+| 2026-04-29 20:53:10 | SPY | equities:SPY:unknown:1777467863530 | No sellable balance available (SPY -0.00000000) |
 
 ## Executed Trades
 
