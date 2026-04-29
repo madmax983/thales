@@ -162,3 +162,6 @@
 ## 2026-04-22 - The Unmapped Metallurgy Region
 **Confusion:** The experimental module `market_metallurgy.rs` in `crates/cli/src/experimental/` lacked executable examples and storytelling module-level documentation. Users could not discover how to analyze market metallurgy.
 **Clarification:** Added storytelling module-level documentation (`//!`) to explain the core metallurgical concepts. Added executable `# Examples` to the `analyze_metallurgy` function to guide developers on proper initialization and result interpretation.
+## 2024-05-31 - The Unmapped Thermodynamics
+**Confusion:** The experimental module `market_thermodynamics.rs` in `crates/cli/src/experimental/` lacked executable examples and storytelling module-level documentation. Users could not discover how to analyze market thermodynamics.
+**Clarification:** Added storytelling module-level documentation (`//!`) to explain the core thermodynamic concepts. Added executable `# Examples` to the `ThermodynamicsReport` struct and `analyze_thermodynamics` function to guide developers on proper initialization and result interpretation.
