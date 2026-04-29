@@ -1612,7 +1612,7 @@ def main():
                          market = "crypto" if "USD" in sym and "SPY" not in sym else "equities"
                     else:
                          if "USD" in sym and sym not in ["SPY", "AAPL", "MSFT", "TSLA", "QQQ", "TQQQ"]:
-                             provider = pos.get("provider", "kraken")
+                             provider = pos.get("provider", "kraken") if "USD" in sym and sym not in ["SPY", "AAPL", "MSFT", "TSLA", "QQQ", "TQQQ"] else "alpaca"
                          else:
                              provider = "alpaca"
                          market = "crypto" if "USD" in sym and "SPY" not in sym else "equities"
@@ -1693,7 +1693,7 @@ def main():
         print("------------------\n")
 
         # Fetch latest price for execution logic using original provider
-        current_price = get_latest_price(intent.get("provider", "kraken"), intent["symbol"])
+        current_price = get_latest_price(intent.get("provider", "kraken" if "USD" in intent["symbol"] and intent["symbol"] not in ["SPY", "AAPL", "MSFT", "TSLA", "QQQ", "TQQQ"] else "alpaca"), intent["symbol"])
 
         if os.environ.get("SIMULATION") == "true":
             intent["provider"] = "paper"
