@@ -514,7 +514,7 @@ def execute_agent(intent_file):
                     cost = req_size * current_price
                     if cost > bp:
                         if bp > 0:
-                            new_size = (bp * 0.95) / current_price
+                            new_size = (bp * 0.99) / current_price
                             if new_size > 0:
                                 print(f"Insufficient funds: cost {cost} > bp {bp}. Adjusting size to {new_size}.")
                                 intent["size_hint"] = format_size(new_size)
