@@ -8335,6 +8335,7 @@
 | 2026-04-30 20:54:00 | ETHUSD | crypto:ETHUSD:unknown:1777467863491 | Signal too old (31.8 hours > 24 hours) |
 | 2026-04-30 20:54:00 | SPY | equities:SPY:unknown:1777467863530 | Signal too old (31.8 hours > 24 hours) |
 | 2026-04-30 20:54:04 | LUNAUSD | crypto:LUNAUSD:sell:1777579200000 | provider error: kraken api error: EOrder:Insufficient funds |
+| 2026-05-07 11:10:34 | PEPEUSD | crypto:PEPEUSD:buy:1778151600000 | No buying power available (USD 0.00) |
 
 ## Executed Trades
 
