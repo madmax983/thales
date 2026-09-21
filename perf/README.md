@@ -58,3 +58,28 @@ immediately discarded on the `f64` round-trip.
 called by 79 of ~85 strategies (nearly every strategy uses ATR for
 stop-loss sizing) and performs 3 `Decimal::from_f64_retain` conversions per
 bar across the full series.
+
+## After: ATR indicator rewritten in native f64
+
+`crates/strategies/src/indicators/atr.rs` rewritten to compute Wilder's
+smoothing entirely in `f64` instead of `rust_decimal::Decimal` (algorithm
+and NaN handling unchanged; see commit history for the diff). Same
+harness, same fixture, same machine, same session:
+
+```
+I refs: 6,790,514,448   (baseline: 8,842,303,257)
+```
+
+| | Ir | % of baseline |
+|---|---:|---:|
+| Baseline | 8,842,303,257 | 100.00% |
+| After ATR fix | 6,790,514,448 | 76.80% |
+| **Delta** | **-2,051,788,809** | **-23.20%** |
+
+Clears the impact floor (≥5% instruction reduction) by a wide margin.
+`base2_to_decimal` self-cost drops from 43.92% to 38.14% of the (now
+smaller) total, and the other `rust_decimal` ops functions shrink
+proportionally — consistent with removing ATR's 3-conversions-per-bar
+across ~93% of strategies while leaving every other indicator's Decimal
+usage untouched. Those remaining indicators (`sma`, `ema`, `rsi`, etc.)
+are separate, smaller-diff follow-ups; see the PR for scope notes.
