@@ -44,6 +44,7 @@ use std::path::Path;
 ///         recommendation: None,
 ///         confidence: 0.8,
 ///         timestamp_unix_ms: 1622505600000,
+///         jev: None,
 ///     },
 ///     outcome: Some(0.05), // 5% profit
 /// };
@@ -100,6 +101,7 @@ pub struct HistoricalPerformance {
 ///             recommendation: None,
 ///             confidence: 0.8,
 ///             timestamp_unix_ms: 1622505600000,
+///             jev: None,
 ///         },
 ///         outcome: Some(0.10), // Win
 ///     },
@@ -119,6 +121,7 @@ pub struct HistoricalPerformance {
 ///             recommendation: None,
 ///             confidence: 0.8,
 ///             timestamp_unix_ms: 1622505600000,
+///             jev: None,
 ///         },
 ///         outcome: Some(-0.05), // Loss
 ///     }
@@ -207,6 +210,7 @@ pub fn analyze_performance(entries: &[HistoryEntry]) -> HistoricalPerformance {
 ///     recommendation: None,
 ///     confidence: 0.8,
 ///     timestamp_unix_ms: 2000,
+///     jev: None,
 /// };
 ///
 /// // 3. Find similar trades
@@ -364,6 +368,7 @@ pub fn count_todays_signals(symbol: &str, history_path: &Path, reference_ts: i64
 ///             recommendation: None,
 ///             confidence: 0.8,
 ///             timestamp_unix_ms: 1622505600000,
+///             jev: None,
 ///         },
 ///         outcome: Some(0.10),
 ///     }
@@ -439,6 +444,7 @@ mod tests {
             recommendation: None,
             confidence: 0.5,
             timestamp_unix_ms: 1000,
+            jev: None,
         }
     }
 

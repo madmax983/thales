@@ -64,6 +64,7 @@ use std::path::Path;
 ///     recommendation: Some(String::from("Trend Following (Long)")),
 ///     confidence: 0.85,
 ///     timestamp_unix_ms: 1622505600000,
+///     jev: None,
 /// };
 ///
 /// let report = generate_report(&analysis, &[], Some("Ranging"));
@@ -338,6 +339,7 @@ pub fn append_to_file(path: &Path, content: &str) -> Result<()> {
 ///     recommendation: None,
 ///     confidence: 0.5,
 ///     timestamp_unix_ms: 1622505600000,
+///     jev: None,
 /// };
 ///
 /// let report = generate_regime_report(&analysis);
@@ -382,6 +384,7 @@ pub fn generate_regime_report(analysis: &MarketAnalysis) -> String {
 ///     recommendation: Some(String::from("Wait")),
 ///     confidence: 0.8,
 ///     timestamp_unix_ms: 1622505600000,
+///     jev: None,
 /// };
 ///
 /// let report = generate_volatility_report(&analysis);
@@ -431,6 +434,7 @@ pub fn generate_volatility_report(analysis: &MarketAnalysis) -> String {
 ///     recommendation: None,
 ///     confidence: 0.9,
 ///     timestamp_unix_ms: 1622505600000,
+///     jev: None,
 /// };
 ///
 /// let report = generate_research_report(&analysis);
@@ -505,6 +509,7 @@ mod tests {
             recommendation: None,
             confidence: 0.9,
             timestamp_unix_ms: 1600000000000,
+            jev: None,
         };
 
         let report = generate_report(&analysis, &[], Some("Ranging"));

@@ -19,6 +19,7 @@ tokio.workspace = true
 contracts = { path = "../contracts" }
 strategies = { path = "../strategies" }
 alpaca-provider = { path = "../providers/alpaca" }
+jev-provider = { path = "../providers/jev" }
 kraken-provider = { path = "../providers/kraken" }
 paper-provider = { path = "../providers/paper" }
 chrono = "0.4"

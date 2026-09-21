@@ -117,18 +117,49 @@ cargo run -p thales-cli -- generate-signals --input <path-to-bars-json> --strate
 - Returns a list of `TradeIntent` objects.
 - Supported strategies: `BollingerBands`, `BollingerBandsMeanReversion`.
 
+### `judge-signals`
+
+```powershell
+cargo run -p thales-cli -- judge-signals --input <path-to-signals-json> [--analysis <path>] [--bars <path>] [--portfolio <path>]
+```
+
+- Adjudicates generated signals with a TypeSafe AI System One model (**Jev**) before execution.
+- Requires `TYPESAFE_API_KEY`. Fails loudly if absent, rather than passing signals through ungated.
+- Asks four questions in one round trip: a verdict (`execute`/`reduce_size`/`skip`),
+  an instrument-quality veto, a regime-fit check, and a conviction rating.
+- Approves a signal only if, in order:
+  1. instrument quality >= `--min-instrument-quality` (default `0.5`)
+  2. verdict confidence >= `--min-confidence` (default `0.60`)
+  3. the verdict is not `skip`
+  4. the chosen action's probability >= `--min-probability` (default `0.55`)
+- On approval, `confidence` becomes the calibrated probability of `execute`, and a
+  `reduce_size` verdict scales `size_hint` by `--reduce-factor` (default `0.5`).
+- Emits the surviving `TradeIntent` list by default, so it pipes into `execute-intent`.
+  `--emit report` returns the full audit trail instead.
+- `--log <path>` appends rejected signals as `| Date/Time | Symbol | Signal Ref | Rejection Reason |` rows.
+- The gate can only remove or shrink signals. It never creates them.
+
 ### `analyze-market`
 
 ```powershell
-cargo run -p thales-cli -- analyze-market --input <path-to-bars-json> [--research "Research Summary"] [--news "News Summary"]
+cargo run -p thales-cli -- analyze-market --input <path-to-bars-json> [--research "Research Summary"] [--news "News Summary"] [--jev]
 ```
 
 - Analyzes market data for regime, sentiment, patterns, key levels, and volatility.
+- `--jev` re-labels regime, sentiment and volatility with a System One model, replacing
+  the heuristic labels and attaching the calibrated probabilities behind each under a
+  `jev` field. Requires `TYPESAFE_API_KEY`. Sets `confidence` to the regime probability.
 - Logs a structured report to `Signals.md`.
 - Optional arguments `--research` and `--news` allow injecting external context (e.g., from search tools) into the report.
 - Returns `MarketAnalysis` envelope.
 
 ## Required Environment Variables
+
+### TypeSafe AI
+Required by `judge-signals` and `analyze-market --jev` only.
+- `TYPESAFE_API_KEY`
+- `TYPESAFE_BASE_URL` (optional, defaults to `https://api.typesafe.ai`)
+- `TYPESAFE_MODEL` (optional, defaults to `jev-latest`)
 
 ### Alpaca
 - `ALPACA_API_KEY`
@@ -147,7 +178,8 @@ cargo run -p thales-cli -- fetch-market-data --provider alpaca --symbol AAPL --t
 cargo run -p thales-cli -- normalize-bars --input artifacts/fetch.json > artifacts/bars.json
 cargo run -p thales-cli -- generate-trade-intent --market equities --symbol AAPL --side buy --size-hint 1 --confidence 0.7 > artifacts/intent.json
 cargo run -p thales-cli -- validate-intent --input artifacts/intent.json
-cargo run -p thales-cli -- execute-intent --provider alpaca --input artifacts/intent.json > artifacts/execution.json
+cargo run -p thales-cli -- judge-signals --input artifacts/intent.json --bars artifacts/bars.json > artifacts/judged.json
+cargo run -p thales-cli -- execute-intent --provider alpaca --input artifacts/judged.json > artifacts/execution.json
 ```
 
 ## Market Analyst Agent Persona
@@ -315,8 +347,14 @@ Your primary objective is capital preservation, followed by consistent, risk-adj
    Read signals.md for pending signals from the signal analyst. Cross-validate each signal against the strategy criteria and the live market data you just retrieved.
    If the files are empty, stale, or contradictory — do nothing and log why.
 
-3. Execute or Hold:
-   If a signal validates against the active strategy — place the order now. If you feel now is an opportune time to sell, sell.
+3. Gate the Candidates:
+   Run `judge-signals` over the surviving signals before placing anything. It vetoes
+   thin or novelty listings where a technical signal carries no edge, and rejects
+   setups that fight the current regime. A signal the gate rejects is not traded —
+   log the rejection and move on. Prefer `--log portfolio.md` so rejections are recorded.
+
+4. Execute or Hold:
+   If a signal validates against the active strategy and clears the gate — place the order now. If you feel now is an opportune time to sell, sell.
    If nothing qualifies — do nothing. Doing nothing is a valid and expected outcome.
 
 5. Log Every Decision:

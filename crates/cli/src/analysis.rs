@@ -84,6 +84,7 @@ pub fn analyze(series: &BarSeries) -> MarketAnalysis {
             recommendation: None,
             confidence: 0.0,
             timestamp_unix_ms: timestamp,
+            jev: None,
         };
     }
 
@@ -106,6 +107,7 @@ pub fn analyze(series: &BarSeries) -> MarketAnalysis {
                 recommendation: None,
                 confidence: 0.0,
                 timestamp_unix_ms: timestamp,
+                jev: None,
             };
         }
     };
@@ -133,6 +135,7 @@ pub fn analyze(series: &BarSeries) -> MarketAnalysis {
         recommendation: Some(recommendation),
         confidence,
         timestamp_unix_ms: timestamp,
+        jev: None,
     }
 }
 
