@@ -42,7 +42,8 @@ Thales CLI follows a pipeline approach where commands output JSON envelopes that
 ### 1. Fetch Market Data
 Fetch price data from a provider.
 
-> **Note**: If no API keys are provided, this command will return synthetic scaffolding data for testing purposes.
+> **Note**: `kraken` and `alpaca` require API keys and will error without them. Use
+> `--provider paper` to get synthetic data for testing with no keys configured.
 
 ```bash
 cargo run -p thales-cli -- fetch-market-data \
@@ -76,11 +77,11 @@ cargo run -p thales-cli -- benchmark \
 ### 4. Generate Signals
 Run a strategy to generate trade intents for the **current** timestamp.
 
-> **Note**: This command outputs signals **only if** the strategy triggers at the latest available data point (the last candle in your input file). If the output is empty (`[]`), it means no trading condition was met at that specific time. We provide a `dummy_data.json` that guarantees a signal for the `BollingerBands` strategy to demonstrate the output structure.
+> **Note**: This command outputs signals **only if** the strategy triggers at the latest available data point (the last candle in your input file). If the output is empty (`[]`), it means no trading condition was met at that specific time — that is normal, not a failure. To see the output structure, generate synthetic bars with `--provider paper`, which reliably triggers `BollingerBands`.
 
 ```bash
 cargo run -p thales-cli -- generate-signals \
-  --input dummy_data.json \
+  --input market_data.json \
   --strategy BollingerBands > signals.json
 ```
 
