@@ -11,3 +11,4 @@ paper_portfolio.json
 
 # Per-run artifacts. These are outputs, not source.
 /artifacts
+/perf/callgrind.*.out
