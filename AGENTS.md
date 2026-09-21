@@ -309,9 +309,10 @@ volatility labels with the probabilities behind them).
 **Never.** Recommend a trade, size a position, or choose a strategy. Never write to
 `Signals.md` directly — return the analysis and let the coordinator log it.
 
-The report format the coordinator writes to `Signals.md` is parsed by
-`execute_cycle.py`, which expects a `## Market Analysis Report - <market> - <symbol>`
-header, a JSON block, then `**Research**:` and `**News**:` sections:
+The coordinator logs the analysis to `Signals.md` under a
+`## Market Analysis Report - <market> - <symbol>` header, with a JSON block followed
+by `**Research**:` and `**News**:` sections. This is an audit record for a human
+reader, not input to anything:
 
 ```json
 {
