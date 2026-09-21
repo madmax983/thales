@@ -564,6 +564,7 @@ mod tests {
                 recommendation: None,
                 confidence: 0.5,
                 timestamp_unix_ms: timestamp,
+                jev: None,
             },
             outcome: Some(1.0),
         }
@@ -1310,6 +1311,7 @@ mod tests {
             recommendation: None,
             confidence: 0.8,
             timestamp_unix_ms: now + i * 60000,
+            jev: None,
         };
         let intents = generate_signals(
             &series,
@@ -1455,6 +1457,7 @@ mod tests {
             recommendation: None,
             confidence: 0.8,
             timestamp_unix_ms: now,
+            jev: None,
         };
 
         for _ in 0..5 {
@@ -1596,6 +1599,7 @@ mod tests {
             recommendation: None,
             confidence: 0.8,
             timestamp_unix_ms: now + 20 * 60000,
+            jev: None,
         };
 
         let intents_skipped = generate_signals(
@@ -1659,6 +1663,7 @@ mod tests {
             recommendation: None,
             confidence: 0.8,
             timestamp_unix_ms: now + 20 * 60000,
+            jev: None,
         };
 
         let intents_skipped_sell = generate_signals(
@@ -1690,6 +1695,7 @@ mod tests {
             recommendation: None,
             confidence: 0.8,
             timestamp_unix_ms: now + 20 * 60000,
+            jev: None,
         };
 
         let intents_allowed = generate_signals(
@@ -1761,6 +1767,7 @@ mod tests {
             recommendation: None,
             confidence: 0.4, // Low confidence
             timestamp_unix_ms: now + 20 * 60000,
+            jev: None,
         };
 
         let intents = generate_signals(
@@ -1836,6 +1843,7 @@ mod tests {
             recommendation: None,
             confidence: 0.8,
             timestamp_unix_ms: now + 20 * 60000,
+            jev: None,
         };
 
         // 3. Generate Signals with DonchianBreakout
@@ -2157,6 +2165,7 @@ mod tests {
             recommendation: None,
             confidence: 0.8,
             timestamp_unix_ms: last_ts,
+            jev: None,
         };
 
         // Run AdxMomentum
@@ -2255,6 +2264,7 @@ mod tests {
             recommendation: None,
             confidence: 0.8,
             timestamp_unix_ms: now + i * 60000,
+            jev: None,
         };
 
         let intents = generate_signals(
@@ -2343,6 +2353,7 @@ mod tests {
             recommendation: None,
             confidence: 0.8,
             timestamp_unix_ms: now + i * 60000,
+            jev: None,
         };
 
         // 4. Generate Signals with EmaCrossover (TrendFollowing)
@@ -2425,6 +2436,7 @@ mod tests {
             recommendation: None,
             confidence: 0.8,
             timestamp_unix_ms: now + i * 60000,
+            jev: None,
         };
 
         let intents = generate_signals(
@@ -2524,6 +2536,7 @@ mod tests {
             recommendation: None,
             confidence: 0.8,
             timestamp_unix_ms: now + i * 60000,
+            jev: None,
         };
 
         let intents = generate_signals(
@@ -2655,6 +2668,7 @@ mod tests {
             recommendation: None,
             confidence: 0.8,
             timestamp_unix_ms: now + (100 + 2) * 60000,
+            jev: None,
         };
 
         let intents = generate_signals(

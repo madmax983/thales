@@ -199,6 +199,7 @@ mod tests {
                 recommendation: None,
                 confidence: 0.8,
                 timestamp_unix_ms: entry_ts,
+                jev: None,
             },
             outcome: None,
         };

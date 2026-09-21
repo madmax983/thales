@@ -7,6 +7,8 @@
 //! All structs are `Serialize` and `Deserialize` to facilitate JSON-based communication.
 
 pub mod deserialize;
+use std::collections::BTreeMap;
+
 use serde::{Deserialize, Serialize};
 
 /// Represents a desire to make a trade.
@@ -288,6 +290,48 @@ pub struct ResponseEnvelope<T> {
     pub data: Option<T>,
 }
 
+/// One field classified by a System One model, with its calibrated distribution.
+///
+/// Heuristics produce a label and nothing else. A classifier produces a label
+/// *and* the mass behind it, which is what lets a downstream gate tell a
+/// confident call from a coin flip.
+///
+/// # Examples
+///
+/// ```rust
+/// use contracts::ClassifiedField;
+///
+/// let field = ClassifiedField {
+///     value: "Trending Up".to_string(),
+///     confidence: 0.88,
+///     probabilities: [("Trending Up".to_string(), 0.76)].into_iter().collect(),
+/// };
+///
+/// assert_eq!(field.value, "Trending Up");
+/// ```
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct ClassifiedField {
+    /// The selected label.
+    pub value: String,
+    /// The model's confidence in its own distribution, in `[0, 1]`.
+    pub confidence: f64,
+    /// Probability mass over every label offered.
+    pub probabilities: BTreeMap<String, f64>,
+}
+
+/// A System One classification of the market, attached to a [`MarketAnalysis`].
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct JevClassification {
+    /// The concrete model version that answered.
+    pub model: String,
+    /// The classified market regime.
+    pub regime: ClassifiedField,
+    /// The classified market sentiment.
+    pub sentiment: ClassifiedField,
+    /// The classified volatility state.
+    pub volatility: ClassifiedField,
+}
+
 /// Detailed market analysis data.
 ///
 /// This struct holds the result of technical and sentiment analysis on market data.
@@ -311,6 +355,7 @@ pub struct ResponseEnvelope<T> {
 ///     recommendation: Some("Buy on pullback".to_string()),
 ///     confidence: 0.85,
 ///     timestamp_unix_ms: 1622505600000,
+///     jev: None,
 /// };
 ///
 /// assert_eq!(analysis.symbol, "AAPL");
@@ -347,6 +392,12 @@ pub struct MarketAnalysis {
     pub confidence: f64,
     /// Timestamp of the analysis.
     pub timestamp_unix_ms: i64,
+    /// The System One classification, when `analyze-market --jev` produced one.
+    ///
+    /// Absent by default, so reports written before this field existed still
+    /// deserialize and consumers that predate it still parse reports that carry it.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub jev: Option<JevClassification>,
 }
 
 /// Represents an open position.

@@ -10,6 +10,8 @@
 //! - [`search_history`]: search history for historical trade context.
 //! - [`reporting`]: Generation of markdown reports for the user.
 //! - [`signals`]: Signal generation pipeline, connecting strategies to market data.
+//! - [`jev_analysis`]: System One classification of market regime, sentiment and volatility.
+//! - [`jev_gate`]: System One decision gate that adjudicates signals before execution.
 
 pub mod analysis;
 pub mod backtest;
@@ -26,6 +28,8 @@ pub mod fear_and_greed;
 #[cfg(feature = "nova")]
 pub mod fractal_dimension;
 pub mod history;
+pub mod jev_analysis;
+pub mod jev_gate;
 #[cfg(feature = "nova")]
 pub mod market_phases;
 #[cfg(feature = "nova")]

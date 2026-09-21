@@ -22,6 +22,9 @@ use serde::Serialize;
 use serde_json::json;
 use thiserror::Error;
 
+use jev_provider::{JevClient, Questions};
+use thales_cli::jev_analysis;
+use thales_cli::jev_gate::{self, GateThresholds, JudgeContext, PRICE_SUMMARY_BARS, PriceSummary};
 use thales_cli::{
     analysis, backtest, benchmark, history, optimizer, reporting, search_history, signals,
 };
@@ -246,6 +249,12 @@ enum Commands {
         news: Option<String>,
         #[arg(long)]
         no_report: bool,
+        /// Re-label regime, sentiment and volatility with a System One model.
+        ///
+        /// Requires `TYPESAFE_API_KEY`. Replaces the heuristic labels and
+        /// attaches the calibrated probabilities behind each one.
+        #[arg(long)]
+        jev: bool,
     },
     GenerateSignals {
         #[arg(long)]
@@ -614,6 +623,47 @@ enum Commands {
         #[arg(short, long)]
         input: std::path::PathBuf,
     },
+    /// Adjudicates generated signals with a TypeSafe System One (Jev) model.
+    ///
+    /// Requires `TYPESAFE_API_KEY`. Emits the surviving signals by default, so
+    /// the output pipes straight into `execute-intent`.
+    JudgeSignals {
+        /// Path to the signals JSON (one TradeIntent or a list).
+        #[arg(long)]
+        input: PathBuf,
+        /// Path to an `analyze-market` report, used as context.
+        #[arg(long)]
+        analysis: Option<PathBuf>,
+        /// Path to a BarSeries, summarised into recent price action.
+        #[arg(long)]
+        bars: Option<PathBuf>,
+        /// Path to open positions, so the model can see concentration.
+        #[arg(long)]
+        portfolio: Option<PathBuf>,
+        /// Minimum probability the chosen action must carry.
+        #[arg(long, default_value = "0.55")]
+        min_probability: f64,
+        /// Minimum confidence the model must have in its own verdict.
+        #[arg(long, default_value = "0.60")]
+        min_confidence: f64,
+        /// Multiplier applied to size_hint on a reduce_size verdict.
+        #[arg(long, default_value = "0.5")]
+        reduce_factor: f64,
+        /// Minimum probability that the instrument is worth trading at all.
+        ///
+        /// Vetoes thin or novelty listings before the verdict is considered.
+        #[arg(long, default_value = "0.5")]
+        min_instrument_quality: f64,
+        /// Path to a custom question set, replacing the built-in one.
+        #[arg(long)]
+        questions: Option<PathBuf>,
+        /// `intents` for the approved signals, `report` for the full audit.
+        #[arg(long, default_value = "intents")]
+        emit: String,
+        /// Append rejected signals to this markdown file (e.g. portfolio.md).
+        #[arg(long)]
+        log: Option<PathBuf>,
+    },
 }
 
 fn main() {
@@ -962,11 +1012,140 @@ fn run(command: Commands, raw: bool) -> Result<String, CliError> {
 
             ok_envelope(results, vec![], raw)
         }
+        Commands::JudgeSignals {
+            input,
+            analysis,
+            bars,
+            portfolio,
+            min_probability,
+            min_confidence,
+            reduce_factor,
+            min_instrument_quality,
+            questions,
+            emit,
+            log,
+        } => {
+            if !matches!(emit.as_str(), "intents" | "report") {
+                return Err(CliError::Validation(format!(
+                    "unknown --emit value '{emit}', expected 'intents' or 'report'"
+                )));
+            }
+            for (name, value) in [
+                ("--min-probability", min_probability),
+                ("--min-confidence", min_confidence),
+                ("--min-instrument-quality", min_instrument_quality),
+            ] {
+                if !(0.0..=1.0).contains(&value) {
+                    return Err(CliError::Validation(format!(
+                        "{name} must be in [0,1], got {value}"
+                    )));
+                }
+            }
+            if !(reduce_factor > 0.0 && reduce_factor <= 1.0) {
+                return Err(CliError::Validation(format!(
+                    "--reduce-factor must be in (0,1], got {reduce_factor}"
+                )));
+            }
+
+            let intents: Vec<TradeIntent> = match read_json_file::<Vec<TradeIntent>>(&input) {
+                Ok(list) => list,
+                Err(_) => vec![read_json_file::<TradeIntent>(&input).map_err(|e| {
+                    CliError::Validation(format!(
+                        "Failed to parse TradeIntents from '{}'. Did you pass market data instead of signals? (Original error: {})",
+                        input.display(),
+                        e
+                    ))
+                })?],
+            };
+
+            if intents.is_empty() {
+                return ok_envelope(
+                    Vec::<TradeIntent>::new(),
+                    vec!["No signals to judge.".to_string()],
+                    raw,
+                );
+            }
+
+            let context = JudgeContext {
+                analysis: match analysis {
+                    Some(path) => Some(read_json_file::<contracts::MarketAnalysis>(&path)?),
+                    None => None,
+                },
+                price: match bars {
+                    Some(path) => {
+                        let series = read_json_file::<BarSeries>(&path)?;
+                        PriceSummary::from_series(&series, PRICE_SUMMARY_BARS)
+                    }
+                    None => None,
+                },
+                positions: match portfolio {
+                    Some(path) => read_json_file::<Vec<contracts::Position>>(&path)?,
+                    None => Vec::new(),
+                },
+            };
+
+            let question_set = match questions {
+                Some(path) => {
+                    let set = read_json_file::<Questions>(&path)?;
+                    if set.is_empty() {
+                        return Err(CliError::Validation(format!(
+                            "question set '{}' is empty",
+                            path.display()
+                        )));
+                    }
+                    set
+                }
+                None => jev_gate::default_questions(),
+            };
+
+            let thresholds = GateThresholds {
+                min_probability,
+                min_confidence,
+                reduce_factor,
+                min_instrument_quality,
+            };
+
+            let client = JevClient::from_env().map_err(|e| CliError::Provider(e.to_string()))?;
+            let report = jev_gate::judge(&client, &intents, &context, &thresholds, &question_set)
+                .map_err(|e| CliError::Provider(e.to_string()))?;
+
+            if let Some(path) = log {
+                let rows = jev_gate::rejection_log(&report, &chrono::Utc::now().to_rfc3339());
+                if !rows.is_empty()
+                    && let Err(e) = reporting::append_to_file(&path, &rows)
+                {
+                    eprintln!("Warning: Failed to write to {}: {}", path.display(), e);
+                }
+            }
+
+            let mut warnings: Vec<String> = report
+                .verdicts
+                .iter()
+                .filter(|v| !v.approved)
+                .map(|v| {
+                    format!(
+                        "Rejected {} ({}): {}",
+                        v.intent_id,
+                        v.decision,
+                        v.reasons.join("; ")
+                    )
+                })
+                .collect();
+            if report.approved.is_empty() {
+                warnings.push("No signals survived the Jev gate.".to_string());
+            }
+
+            if emit == "report" {
+                return ok_envelope(report, warnings, raw);
+            }
+            ok_envelope(report.approved, warnings, raw)
+        }
         Commands::AnalyzeMarket {
             input,
             research,
             news,
             no_report,
+            jev,
         } => {
             let raw_str = std::fs::read_to_string(&input).map_err(|e| {
                 std::io::Error::new(
@@ -985,6 +1164,15 @@ fn run(command: Commands, raw: bool) -> Result<String, CliError> {
             let mut analysis = analysis::analyze(&series);
             analysis.research_summary = research;
             analysis.news_summary = news;
+
+            // Classify before reporting, so the reports record the labels the
+            // rest of the pipeline will actually see.
+            if jev {
+                let client =
+                    JevClient::from_env().map_err(|e| CliError::Provider(e.to_string()))?;
+                analysis = jev_analysis::classify(&client, &analysis, &series)
+                    .map_err(|e| CliError::Provider(e.to_string()))?;
+            }
 
             if !no_report {
                 // Reporting Step

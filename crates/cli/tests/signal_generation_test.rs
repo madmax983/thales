@@ -43,6 +43,7 @@ fn create_history_entry(
             research_summary: None,
             news_summary: None,
             recommendation: None,
+            jev: None,
         },
         outcome: Some(0.0), // Default to 0.0 (Breakeven/Closed) so it counts as a completed trade
     }
