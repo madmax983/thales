@@ -3,3 +3,11 @@ __pycache__/
 temp_*
 *.log
 paper_portfolio.json
+
+# Secrets. Never commit these.
+.env
+.env.*
+!.env.example
+
+# Per-run artifacts. These are outputs, not source.
+/artifacts

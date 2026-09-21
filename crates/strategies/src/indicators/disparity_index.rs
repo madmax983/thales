@@ -57,7 +57,7 @@ pub fn calculate(data: &DataFrame, period: usize) -> Result<Series> {
     let mut disparity_vals: Vec<Option<f64>> = Vec::with_capacity(close.len());
     let hundred = Decimal::new(100, 0);
 
-    for (c_opt, sma_opt) in close.into_iter().zip(sma_f64.into_iter()) {
+    for (c_opt, sma_opt) in close.into_iter().zip(sma_f64) {
         match (c_opt, sma_opt) {
             (Some(c), Some(s)) => {
                 let c_dec_opt = Decimal::from_f64_retain(c);

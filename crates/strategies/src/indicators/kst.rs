@@ -100,12 +100,7 @@ pub fn calculate(
     let d3_weight = Decimal::from(3);
     let d4_weight = Decimal::from(4);
 
-    for (((v1, v2), v3), v4) in rcma1
-        .into_iter()
-        .zip(rcma2.into_iter())
-        .zip(rcma3.into_iter())
-        .zip(rcma4.into_iter())
-    {
+    for (((v1, v2), v3), v4) in rcma1.into_iter().zip(rcma2).zip(rcma3).zip(rcma4) {
         if let (Some(val1), Some(val2), Some(val3), Some(val4)) = (v1, v2, v3, v4) {
             if val1.is_nan() || val2.is_nan() || val3.is_nan() || val4.is_nan() {
                 kst_values.push(None);

@@ -62,11 +62,7 @@ pub fn calculate(data: &DataFrame) -> Result<Series> {
 
     let mut prev_close_opt: Option<Decimal> = None;
 
-    for ((h_opt, l_opt), c_opt) in high_chunked
-        .into_iter()
-        .zip(low_chunked.into_iter())
-        .zip(close_chunked.into_iter())
-    {
+    for ((h_opt, l_opt), c_opt) in high_chunked.into_iter().zip(low_chunked).zip(close_chunked) {
         let curr_close = c_opt.and_then(|c| Decimal::from_str(c).ok());
 
         if let (Some(h_str), Some(l_str)) = (h_opt, l_opt) {

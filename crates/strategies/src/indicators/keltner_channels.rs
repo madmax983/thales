@@ -58,7 +58,7 @@ pub fn calculate(
     let mut upper_vals = Vec::with_capacity(len);
     let mut lower_vals = Vec::with_capacity(len);
 
-    for (e_opt, a_opt) in ema_ca.into_iter().zip(atr_ca.into_iter()) {
+    for (e_opt, a_opt) in ema_ca.into_iter().zip(atr_ca) {
         match (e_opt, a_opt) {
             (Some(e), Some(a)) => {
                 // Convert f64 to Decimal

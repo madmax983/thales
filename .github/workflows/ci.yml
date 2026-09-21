@@ -1,0 +1,67 @@
+name: CI
+
+on:
+    pull_request:
+    push:
+        branches: [trunk]
+
+concurrency:
+    group: ci-${{ github.ref }}
+    cancel-in-progress: true
+
+env:
+    CARGO_TERM_COLOR: always
+
+jobs:
+    check:
+        name: fmt / clippy / test
+        runs-on: ubuntu-latest
+        timeout-minutes: 45
+        steps:
+            - name: Checkout repository
+              uses: actions/checkout@v4
+
+            - name: Install Rust toolchain
+              uses: dtolnay/rust-toolchain@stable
+              with:
+                  components: rustfmt, clippy
+
+            - name: Cache cargo artifacts
+              uses: Swatinem/rust-cache@v2
+
+            - name: Check formatting
+              run: cargo fmt --all --check
+
+            # `-D warnings` is passed to clippy rather than set in RUSTFLAGS on
+            # purpose: RUSTFLAGS would also apply to crates.io dependencies, so a
+            # future compiler release adding a warning to a dependency would break
+            # CI for reasons unrelated to this repo.
+            - name: Clippy
+              run: cargo clippy --workspace --all-targets -- -D warnings
+
+            - name: Test
+              run: cargo test --workspace
+
+            # The `nova` feature gates a large block of experimental commands
+            # that the default build never compiles. Without this it can rot
+            # unnoticed, which is exactly how this repo ended up unbuildable.
+            - name: Build experimental (nova) feature
+              run: cargo check -p thales-cli --features nova --all-targets
+
+    automerge:
+        name: Auto-merge PRs from madmax983
+        needs: check
+        runs-on: ubuntu-latest
+        if: github.event_name == 'pull_request' && github.actor == 'madmax983'
+        permissions:
+            contents: write
+            pull-requests: write
+        steps:
+            - name: Checkout repository
+              uses: actions/checkout@v4
+
+            - name: Enable auto-merge
+              run: gh pr merge --auto --squash "${{ github.event.pull_request.number }}" || echo "Auto-merge failed (likely due to missing branch protection rules), skipping."
+              env:
+                  GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+                  GH_REPO: ${{ github.repository }}
