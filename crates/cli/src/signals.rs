@@ -43,9 +43,9 @@ fn resolve_signal_type(
                     rationale_suffix.push_str(" (Closing opposite position)");
                 }
             }
-            SignalType::Exit => {
+            SignalType::Exit
                 // Check if this is a partial exit (ScaleOut)
-                if signal_side_long != pos_side_long {
+                if signal_side_long != pos_side_long => {
                     if let Ok(size) = signal.size_hint.parse::<f64>() {
                         if size < pos.qty {
                             final_signal_type = SignalType::ScaleOut;
@@ -59,7 +59,6 @@ fn resolve_signal_type(
                         rationale_suffix.push_str(" (Closing position)");
                     }
                 }
-            }
             _ => {}
         }
     } else {

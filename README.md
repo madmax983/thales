@@ -180,9 +180,23 @@ Set the following environment variables based on your provider:
 
 ## 🤝 Contributing
 
+CI runs on every pull request and **gates auto-merge** — nothing lands unless all
+of these pass, so run them locally first:
+
+```bash
+cargo fmt --all --check
+cargo clippy --workspace --all-targets -- -D warnings
+cargo test --workspace
+cargo check -p thales-cli --features nova --all-targets   # experimental commands
+```
+
 1. **Documentation**: If you change public APIs, update the docs. Run `cargo doc --open` to verify.
 2. **Testing**: Run `cargo test` to ensure no regressions.
 3. **Formatting**: Run `cargo fmt` before committing.
+
+### Secrets
+
+Copy `.env.example` to `.env` and fill it in. `.env` is gitignored; never commit real keys.
 
 ## 📄 License
 

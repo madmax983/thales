@@ -58,7 +58,7 @@ pub fn calculate(data: &DataFrame, period: usize) -> Result<(Series, Series)> {
     let mut highs: Vec<Option<Decimal>> = Vec::with_capacity(data.height());
     let mut lows: Vec<Option<Decimal>> = Vec::with_capacity(data.height());
 
-    for (h, l) in high_chunked.into_iter().zip(low_chunked.into_iter()) {
+    for (h, l) in high_chunked.into_iter().zip(low_chunked) {
         highs.push(h.map(|s| Decimal::from_str(s).unwrap_or(Decimal::ZERO)));
         lows.push(l.map(|s| Decimal::from_str(s).unwrap_or(Decimal::ZERO)));
     }

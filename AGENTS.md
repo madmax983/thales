@@ -317,6 +317,14 @@ Critical rules:
 - Log slippage for analysis
 - Cancel stale orders (>5 min unfilled limits)"#
 
+## CI
+
+Every pull request runs `cargo fmt --all --check`, `cargo clippy --workspace
+--all-targets -- -D warnings`, `cargo test --workspace`, and a `--features nova`
+build. Auto-merge depends on that job, so a red build cannot merge.
+
+Run those four commands locally before pushing.
+
 ## Notes For Scheduled VM Tasks
 
 - Treat runs as ephemeral and stateless.

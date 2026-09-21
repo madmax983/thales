@@ -172,6 +172,9 @@ impl Strategy for DisparityIndexReversion {
                         current_position = 0;
                     }
                 }
+                // Kept as a nested `if` rather than a match guard so this arm stays
+                // structurally identical to the long-exit arm above it.
+                #[allow(clippy::collapsible_match)]
                 -1 => {
                     // Short Exit: DI returns to mean (crosses below 0) or Stop Loss hit or Take profit hit
                     if (prev_di_val > 0.0 && di_val <= 0.0)
