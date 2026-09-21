@@ -12,8 +12,6 @@
 
 use anyhow::{Context, Result};
 use polars::prelude::*;
-use rust_decimal::prelude::*;
-use rust_decimal::Decimal;
 
 /// Calculate Average True Range (ATR)
 ///
@@ -64,10 +62,10 @@ pub fn calculate(data: &DataFrame, period: usize) -> Result<Series> {
         return Ok(Series::new("atr", atr_values));
     }
 
-    let period_dec = Decimal::from_usize(period).context("Invalid period")?;
-    let period_minus_one = period_dec - Decimal::ONE;
+    let period_f = period as f64;
+    let period_minus_one = period_f - 1.0;
 
-    let mut tr_sum = Decimal::ZERO;
+    let mut tr_sum = 0.0f64;
     let mut valid_start = true;
 
     // Calculate initial SMA of TRs
@@ -79,10 +77,10 @@ pub fn calculate(data: &DataFrame, period: usize) -> Result<Series> {
     // Let's do it in loop.
 
     // First TR (index 0)
-    let h0 = Decimal::from_f64_retain(high.get(0).unwrap_or(f64::NAN)).unwrap_or(Decimal::ZERO);
-    let l0 = Decimal::from_f64_retain(low.get(0).unwrap_or(f64::NAN)).unwrap_or(Decimal::ZERO);
+    let h0 = high.get(0).unwrap_or(f64::NAN);
+    let l0 = low.get(0).unwrap_or(f64::NAN);
 
-    if high.get(0).unwrap_or(f64::NAN).is_nan() || low.get(0).unwrap_or(f64::NAN).is_nan() {
+    if h0.is_nan() || l0.is_nan() {
         valid_start = false;
     }
 
@@ -91,15 +89,11 @@ pub fn calculate(data: &DataFrame, period: usize) -> Result<Series> {
 
     // Subsequent TRs for initial SMA
     for i in 1..period {
-        let h = Decimal::from_f64_retain(high.get(i).unwrap_or(f64::NAN)).unwrap_or(Decimal::ZERO);
-        let l = Decimal::from_f64_retain(low.get(i).unwrap_or(f64::NAN)).unwrap_or(Decimal::ZERO);
-        let cp =
-            Decimal::from_f64_retain(close.get(i - 1).unwrap_or(f64::NAN)).unwrap_or(Decimal::ZERO);
+        let h = high.get(i).unwrap_or(f64::NAN);
+        let l = low.get(i).unwrap_or(f64::NAN);
+        let cp = close.get(i - 1).unwrap_or(f64::NAN);
 
-        if high.get(i).unwrap_or(f64::NAN).is_nan()
-            || low.get(i).unwrap_or(f64::NAN).is_nan()
-            || close.get(i - 1).unwrap_or(f64::NAN).is_nan()
-        {
+        if h.is_nan() || l.is_nan() || cp.is_nan() {
             valid_start = false;
             break;
         }
@@ -114,20 +108,16 @@ pub fn calculate(data: &DataFrame, period: usize) -> Result<Series> {
     }
 
     // Initial ATR at index period-1
-    let mut prev_atr = tr_sum / period_dec;
-    atr_values[period - 1] = Some(prev_atr.to_f64().unwrap_or(0.0));
+    let mut prev_atr = tr_sum / period_f;
+    atr_values[period - 1] = Some(prev_atr);
 
     // Calculate remaining ATRs using Wilder's Smoothing
     for (i, atr_val) in atr_values.iter_mut().enumerate().take(len).skip(period) {
-        let h = Decimal::from_f64_retain(high.get(i).unwrap_or(f64::NAN)).unwrap_or(Decimal::ZERO);
-        let l = Decimal::from_f64_retain(low.get(i).unwrap_or(f64::NAN)).unwrap_or(Decimal::ZERO);
-        let cp =
-            Decimal::from_f64_retain(close.get(i - 1).unwrap_or(f64::NAN)).unwrap_or(Decimal::ZERO);
+        let h = high.get(i).unwrap_or(f64::NAN);
+        let l = low.get(i).unwrap_or(f64::NAN);
+        let cp = close.get(i - 1).unwrap_or(f64::NAN);
 
-        if high.get(i).unwrap_or(f64::NAN).is_nan()
-            || low.get(i).unwrap_or(f64::NAN).is_nan()
-            || close.get(i - 1).unwrap_or(f64::NAN).is_nan()
-        {
+        if h.is_nan() || l.is_nan() || cp.is_nan() {
             *atr_val = None;
             // Strategy: if missing data, we can't easily continue smoothing.
             // We could reset, or just emit None.
@@ -144,16 +134,16 @@ pub fn calculate(data: &DataFrame, period: usize) -> Result<Series> {
         let tr = calculate_tr(h, l, cp);
 
         // ATR[i] = (ATR[i-1] * (period - 1) + TR[i]) / period
-        let current_atr = (prev_atr * period_minus_one + tr) / period_dec;
+        let current_atr = (prev_atr * period_minus_one + tr) / period_f;
 
-        *atr_val = Some(current_atr.to_f64().unwrap_or(0.0));
+        *atr_val = Some(current_atr);
         prev_atr = current_atr;
     }
 
     Ok(Series::new("atr", atr_values))
 }
 
-fn calculate_tr(high: Decimal, low: Decimal, prev_close: Decimal) -> Decimal {
+fn calculate_tr(high: f64, low: f64, prev_close: f64) -> f64 {
     let hl = high - low;
     let hcp = (high - prev_close).abs();
     let lcp = (low - prev_close).abs();
