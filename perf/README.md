@@ -178,6 +178,84 @@ tree in the previous section: a large share of that edge's calls were
 converting *indicator values* for display/comparison, not the
 price/ATR/output values this fix targets.
 
+## Baseline for this run (before the indicator-layer Decimal fix)
+
+Recorded with `valgrind-3.22.0`, `perf/bolt_benchmark.sh --callgrind`,
+release build of `thales-cli` (`--features nova`), same fixture, same
+machine, same session, at the commit that includes the strategy-layer fix
+above:
+
+```
+I refs: 6,155,105,907
+```
+
+`rust_decimal` internals are still ~73% of total instructions — now the
+dominant cost is entirely in the shared indicator layer (`sma`, `ema`,
+`rsi`, etc.), exactly as flagged as a follow-up in the previous section:
+
+| Ir | % | Function |
+|---:|---:|---|
+| 2,024,588,995 | 32.89% | `rust_decimal::decimal::base2_to_decimal` |
+| 614,022,121 | 9.98% | `rust_decimal::ops::common::Buf24::rescale` |
+| 547,913,757 | 8.90% | `rust_decimal::ops::div::div_impl` |
+| 290,865,214 | 4.73% | `rust_decimal::ops::add::add_sub_internal` |
+| 276,983,125 | 4.50% | `rust_decimal::ops::mul::mul_impl` |
+| 240,321,886 | 3.90% | `polars_core::chunked_array::ChunkedArray<T>::get` |
+| 211,099,798 | 3.43% | `rust_decimal::ops::add::unaligned_add` |
+| 159,577,844 | 2.59% | `Decimal::to_f64` |
+| 134,483,308 | 2.18% | `rust_decimal::ops::add::aligned_add` |
+| 65,382,480 | 1.06% | `rust_decimal::ops::cmp::cmp_impl` |
+| 57,695,542 | 0.94% | `Decimal::from_f64_retain` |
+| 53,982,159 | 0.88% | `rust_decimal::ops::common::Buf12::find_scale` |
+| 47,417,364 | 0.77% | `rust_decimal::ops::cmp::cmp_internal` |
+
+`rust_decimal` internal functions alone sum to **~72.9%** of total
+instructions. Per-indicator self-cost is small and diffuse (no single
+`indicators::*::calculate` function exceeds 0.5% self-cost — see
+`crates/strategies/src/indicators/sma.rs`, `.../ema.rs`, `.../rsi.rs` for
+representative examples), because the cost is spread across ~44 indicator
+files that each independently perform the same discarded round-trip: an
+`f64` input is converted to `rust_decimal::Decimal` via
+`Decimal::from_f64_retain`, accumulated/smoothed/multiplied in `Decimal`
+across the bar series, then converted back with `.to_f64().unwrap_or(0.0)`
+because every indicator's public contract is a `Series` of `f64`. Same
+defect class as the ATR and strategy-layer fixes above, just duplicated
+across the indicator layer instead of centralized.
+
+Of the ~57 indicator files that import `rust_decimal`, 13 are excluded
+from this fix because they have a genuine precision-sensitive reason to
+use `Decimal` (confirmed by source inspection, not assumption):
+
+- `bollinger_bands.rs`, `stddev.rs`, `zscore.rs`, `ulcer_index.rs` compute
+  a sum-of-squares/variance in `Decimal` before `.sqrt()`. This is the
+  same numerical-stability concern documented for `bollinger_bands.rs` in
+  the previous section (`f64` catastrophic cancellation can make the
+  variance spuriously negative, and `.sqrt()` of a negative number is
+  `NaN`) — not a discarded round-trip.
+- `true_range.rs`, `typical_price.rs`, `average_price.rs`,
+  `median_price.rs`, `weighted_close.rs`, `aroon_custom.rs`, `pvi.rs`,
+  `vroc.rs`, `vwmo.rs` cast their input columns to `String` and parse with
+  `Decimal::from_str` specifically *to avoid* `f64` precision loss at the
+  boundary (see the doc comment in `true_range.rs`: "Cast inputs to String
+  to avoid any f64 float precision loss at the boundary"), and several of
+  them (`true_range.rs`, `typical_price.rs`) return `Series` of `String`,
+  not `f64` — the `Decimal` precision is preserved all the way to the
+  output, so there is no round-trip to remove.
+
+The remaining 44 files (`adl`, `adx`, `alma`, `bop`,
+`chaikin_oscillator`, `chandelier_exit`, `choppiness_index`, `cmf`, `cmo`,
+`disparity_index`, `donchian_channels`, `dpo`, `ema`, `eom`,
+`fisher_transform`, `force_index`, `gator`, `ichimoku`, `kama`, `kdj`,
+`keltner_channels`, `kst`, `linear_regression`, `mfi`, `momentum`, `nvi`,
+`obv`, `ppo`, `qstick`, `roc`, `rsi`, `rvi`, `sma`, `smma`, `stc`,
+`stoch_rsi`, `stochastic`, `supertrend`, `ultimate_oscillator`, `vhf`,
+`vpt`, `vwap`, `vwma`, `zlema`) match the discarded-round-trip shape:
+`f64` in, `Decimal` arithmetic with no persisted precision benefit, `f64`
+out via `.to_f64().unwrap_or(0.0)`. None use `round_dp` for display (that
+pattern only existed in the strategy layer), so no partial-conversion
+carve-out is needed this time — see the PR for the per-file conversion
+and after-measurement.
+
 Same harness, same fixture, same machine, same session:
 
 ```
