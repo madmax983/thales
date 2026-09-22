@@ -14,8 +14,6 @@ use crate::strategy::{Signal, SignalType, Strategy, StrategyConfig, StrategyType
 use anyhow::{bail, Result};
 use async_trait::async_trait;
 use polars::prelude::*;
-use rust_decimal::prelude::*;
-use rust_decimal::Decimal;
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -109,9 +107,8 @@ impl Strategy for AveragePriceTrend {
         let ap_arr = ap_series.f64()?;
 
         let mut signals = Vec::new();
-        let sl_mult =
-            Decimal::from_f64_retain(self.config.stop_loss_atr_mult).unwrap_or(Decimal::ZERO);
-        let two_dec = Decimal::from(2);
+        let sl_mult = self.config.stop_loss_atr_mult;
+        let two_dec = 2.0;
 
         let size_hint = format!("{:.4}", self.config.max_position_size);
 
@@ -130,8 +127,8 @@ impl Strategy for AveragePriceTrend {
             if let (Some(ap_c), Some(ap_p), Some(sma_c), Some(sma_p), Some(price), Some(atr_val)) =
                 (ap_curr, ap_prev, sma_curr, sma_prev, price_opt, atr_opt)
             {
-                let price_dec = Decimal::from_f64_retain(price).unwrap_or(Decimal::ZERO);
-                let atr_dec = Decimal::from_f64_retain(atr_val).unwrap_or(Decimal::ZERO);
+                let price_dec = price;
+                let atr_dec = atr_val;
 
                 // Long Entry
                 if ap_p <= sma_p && ap_c > sma_c {
@@ -145,8 +142,8 @@ impl Strategy for AveragePriceTrend {
                         side: "buy".to_string(),
                         size_hint: size_hint.clone(),
                         confidence: 0.8,
-                        stop_loss: Some(sl.to_f64().unwrap_or(0.0)),
-                        take_profit: Some(tp.to_f64().unwrap_or(0.0)),
+                        stop_loss: Some(sl),
+                        take_profit: Some(tp),
                         reason: "Average Price crossed above SMA (Bullish Trend)".to_string(),
                         timestamp_ms: timestamp,
                     });
@@ -164,8 +161,8 @@ impl Strategy for AveragePriceTrend {
                         side: "sell".to_string(),
                         size_hint: size_hint.clone(),
                         confidence: 0.8,
-                        stop_loss: Some(sl.to_f64().unwrap_or(0.0)),
-                        take_profit: Some(tp.to_f64().unwrap_or(0.0)),
+                        stop_loss: Some(sl),
+                        take_profit: Some(tp),
                         reason: "Average Price crossed below SMA (Bearish Trend)".to_string(),
                         timestamp_ms: timestamp,
                     });

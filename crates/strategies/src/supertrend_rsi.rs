@@ -10,8 +10,6 @@ use crate::strategy::{Signal, SignalType, Strategy, StrategyConfig, StrategyType
 use anyhow::Result;
 use async_trait::async_trait;
 use polars::prelude::*;
-use rust_decimal::prelude::ToPrimitive;
-use rust_decimal::Decimal;
 use serde::{Deserialize, Serialize};
 
 /// Configuration parameters for the `SupertrendRsi` strategy.
@@ -128,28 +126,25 @@ impl Strategy for SupertrendRsi {
         let time_arr = time_arr.i64()?;
 
         let mut signals = Vec::new();
-        let sl_mult =
-            Decimal::from_f64_retain(self.config.stop_loss_atr_mult).unwrap_or(Decimal::new(2, 0));
+        let sl_mult = self.config.stop_loss_atr_mult;
 
         for i in 1..close_arr.len() {
             let timestamp = time_arr.get(i).unwrap_or(0);
 
             let st_trend_opt = st_trend_arr.get(i);
             let st_trend_prev_opt = st_trend_arr.get(i - 1);
-            let rsi_curr_opt = rsi_arr.get(i).and_then(Decimal::from_f64_retain);
-            let price_opt = close_arr.get(i).and_then(Decimal::from_f64_retain);
-            let atr_opt = atr_arr.get(i).and_then(Decimal::from_f64_retain);
+            let rsi_curr_opt = rsi_arr.get(i);
+            let price_opt = close_arr.get(i);
+            let atr_opt = atr_arr.get(i);
 
             if let (Some(st_trend), Some(st_trend_prev), Some(rsi_curr), Some(price)) =
                 (st_trend_opt, st_trend_prev_opt, rsi_curr_opt, price_opt)
             {
-                let rsi_oversold = Decimal::from_f64_retain(self.config.rsi_oversold)
-                    .unwrap_or(Decimal::new(30, 0));
-                let rsi_overbought = Decimal::from_f64_retain(self.config.rsi_overbought)
-                    .unwrap_or(Decimal::new(70, 0));
+                let rsi_oversold = self.config.rsi_oversold;
+                let rsi_overbought = self.config.rsi_overbought;
 
                 if st_trend == 1 && rsi_curr < rsi_oversold {
-                    let mut sl = price * Decimal::new(99, 2);
+                    let mut sl = price * 0.99;
                     if let Some(atr_val) = atr_opt {
                         sl = price - (atr_val * sl_mult);
                     }
@@ -160,7 +155,7 @@ impl Strategy for SupertrendRsi {
                         side: "buy".to_string(),
                         size_hint: "100".to_string(),
                         confidence: 0.8,
-                        stop_loss: Some(sl.to_f64().unwrap_or(0.0)),
+                        stop_loss: Some(sl),
                         take_profit: None,
                         reason: format!(
                             "Bullish Supertrend RSI: ST Up, RSI {:.2} < {:.2}",
@@ -171,7 +166,7 @@ impl Strategy for SupertrendRsi {
                 }
 
                 if st_trend == -1 && rsi_curr > rsi_overbought {
-                    let mut sl = price * Decimal::new(101, 2);
+                    let mut sl = price * 1.01;
                     if let Some(atr_val) = atr_opt {
                         sl = price + (atr_val * sl_mult);
                     }
@@ -182,7 +177,7 @@ impl Strategy for SupertrendRsi {
                         side: "sell".to_string(),
                         size_hint: "100".to_string(),
                         confidence: 0.8,
-                        stop_loss: Some(sl.to_f64().unwrap_or(0.0)),
+                        stop_loss: Some(sl),
                         take_profit: None,
                         reason: format!(
                             "Bearish Supertrend RSI: ST Down, RSI {:.2} > {:.2}",

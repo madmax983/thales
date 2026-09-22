@@ -7,8 +7,6 @@ use crate::strategy::{Signal, SignalType, Strategy, StrategyConfig, StrategyType
 use anyhow::Result;
 use async_trait::async_trait;
 use polars::prelude::*;
-use rust_decimal::prelude::ToPrimitive;
-use rust_decimal::Decimal;
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -71,14 +69,13 @@ impl Strategy for ConnorsRsiMeanReversion {
         };
 
         let mut signals = Vec::new();
-        let stop_loss_pct_dec =
-            Decimal::from_f64_retain(self.config.stop_loss_pct).unwrap_or(Decimal::ZERO);
-        let one_dec = Decimal::ONE;
+        let stop_loss_pct_dec = self.config.stop_loss_pct;
+        let one_dec = 1.0;
 
         // Iterate through data
         for i in 1..close_arr.len() {
             let timestamp = time_arr.get(i).unwrap_or(0);
-            let price_opt = close_arr.get(i).and_then(Decimal::from_f64_retain);
+            let price_opt = close_arr.get(i);
             let crsi_opt = crsi_arr.get(i);
 
             if let (Some(price), Some(crsi_val)) = (price_opt, crsi_opt) {
@@ -96,7 +93,7 @@ impl Strategy for ConnorsRsiMeanReversion {
                     );
                 } else if let Some(ref sma_vals) = sma_arr {
                     if let Some(Some(sma_val)) = sma_vals.get(i) {
-                        if price.to_f64().unwrap_or(0.0) > *sma_val {
+                        if price > *sma_val {
                             exit_signal = true;
                             exit_reason = format!(
                                 "Price {:.2} > SMA({}) {:.2}",
@@ -128,7 +125,7 @@ impl Strategy for ConnorsRsiMeanReversion {
                     // TP: Mean Reversion usually targets the SMA or overbought.
                     // We can set a heuristic TP or rely on Exit signal.
                     // Let's set TP at 5% above for now or rely on dynamic management.
-                    let tp = price * (Decimal::new(105, 2));
+                    let tp = price * 1.05;
 
                     signals.push(Signal {
                         signal_type: SignalType::Entry,
@@ -136,8 +133,8 @@ impl Strategy for ConnorsRsiMeanReversion {
                         side: "buy".to_string(),
                         size_hint: "100".to_string(),
                         confidence: 0.8,
-                        stop_loss: Some(sl.to_f64().unwrap_or(0.0)),
-                        take_profit: Some(tp.to_f64().unwrap_or(0.0)),
+                        stop_loss: Some(sl),
+                        take_profit: Some(tp),
                         reason: format!(
                             "CRSI Oversold: {:.2} < {:.2}",
                             crsi_val, self.config.oversold_threshold

@@ -10,7 +10,6 @@ use crate::strategy::{Signal, SignalType, Strategy, StrategyConfig, StrategyType
 use anyhow::Result;
 use async_trait::async_trait;
 use polars::prelude::*;
-use rust_decimal::prelude::ToPrimitive;
 use rust_decimal::Decimal;
 use serde::{Deserialize, Serialize};
 
@@ -116,15 +115,16 @@ impl Strategy for TripleSmaCrossover {
         let atr_arr = atr_series.f64()?;
 
         let mut signals = Vec::new();
-        let atr_mult_dec =
-            Decimal::from_f64_retain(self.config.stop_loss_atr_mult).unwrap_or(Decimal::new(2, 0));
+        let atr_mult_dec = self.config.stop_loss_atr_mult;
 
         // Iterate through data
         for i in 1..close_arr.len() {
             let timestamp = time_arr.get(i).unwrap_or(0);
-            let price_opt = close_arr.get(i).and_then(Decimal::from_f64_retain);
+            let price_opt = close_arr.get(i);
 
             // Ensure we have SMA values
+            // NOTE: these remain Decimal (not converted) because `sc`/`mc`/`lc` below use
+            // `.round_dp(2)` in the reason strings, which is not a simple round-trip shape.
             let s_curr_opt = short_sma.get(i).and_then(Decimal::from_f64_retain);
             let m_curr_opt = medium_sma.get(i).and_then(Decimal::from_f64_retain);
             let l_curr_opt = long_sma.get(i).and_then(Decimal::from_f64_retain);
@@ -133,7 +133,7 @@ impl Strategy for TripleSmaCrossover {
             let m_prev_opt = medium_sma.get(i - 1).and_then(Decimal::from_f64_retain);
             let l_prev_opt = long_sma.get(i - 1).and_then(Decimal::from_f64_retain);
 
-            let atr_opt = atr_arr.get(i).and_then(Decimal::from_f64_retain);
+            let atr_opt = atr_arr.get(i);
 
             if let (
                 Some(sc),
@@ -161,7 +161,7 @@ impl Strategy for TripleSmaCrossover {
                         side: "buy".to_string(),
                         size_hint: "100".to_string(),
                         confidence: 0.8,
-                        stop_loss: Some(sl.to_f64().unwrap_or(0.0)),
+                        stop_loss: Some(sl),
                         take_profit: None,
                         reason: format!(
                             "Bullish Triple Crossover: Short {} > Medium {} > Long {}",
@@ -185,7 +185,7 @@ impl Strategy for TripleSmaCrossover {
                         side: "sell".to_string(),
                         size_hint: "100".to_string(),
                         confidence: 0.8,
-                        stop_loss: Some(sl.to_f64().unwrap_or(0.0)),
+                        stop_loss: Some(sl),
                         take_profit: None,
                         reason: format!(
                             "Bearish Triple Crossover: Short {} < Medium {} < Long {}",

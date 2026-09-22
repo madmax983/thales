@@ -8,8 +8,6 @@ use crate::strategy::{Signal, SignalType, Strategy, StrategyConfig, StrategyType
 use anyhow::Result;
 use async_trait::async_trait;
 use polars::prelude::*;
-use rust_decimal::prelude::*;
-use rust_decimal::Decimal;
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -103,9 +101,8 @@ impl Strategy for VhfTrendFollowing {
         let atr_arr = atr_series.f64()?;
 
         let mut signals = Vec::new();
-        let sl_mult =
-            Decimal::from_f64_retain(self.config.stop_loss_atr_mult).unwrap_or(Decimal::ZERO);
-        let two_dec = Decimal::from(2);
+        let sl_mult = self.config.stop_loss_atr_mult;
+        let two_dec = 2.0;
 
         let mut active_long = false;
         let mut active_short = false;
@@ -133,8 +130,8 @@ impl Strategy for VhfTrendFollowing {
             ) = (
                 vhf_curr, vhf_prev, sma_curr, sma_prev, price_curr, price_prev, atr_opt,
             ) {
-                let price_dec = Decimal::from_f64_retain(price_c).unwrap_or(Decimal::ZERO);
-                let atr_dec = Decimal::from_f64_retain(atr_val).unwrap_or(Decimal::ZERO);
+                let price_dec = price_c;
+                let atr_dec = atr_val;
 
                 // Exit Long Logic
                 if active_long && (vhf_c < self.config.trend_threshold || price_c < sma_c) {
@@ -184,8 +181,8 @@ impl Strategy for VhfTrendFollowing {
                         side: "buy".to_string(),
                         size_hint: self.config.max_position_size.to_string(),
                         confidence: 0.8,
-                        stop_loss: Some(sl.to_f64().unwrap_or(0.0)),
-                        take_profit: Some(tp.to_f64().unwrap_or(0.0)),
+                        stop_loss: Some(sl),
+                        take_profit: Some(tp),
                         reason: format!(
                             "VHF Trend Up: VHF {:.2} > {}, Price {:.2} > SMA {:.2}",
                             vhf_c, self.config.trend_threshold, price_c, sma_c
@@ -210,8 +207,8 @@ impl Strategy for VhfTrendFollowing {
                         side: "sell".to_string(), // Entry Short
                         size_hint: self.config.max_position_size.to_string(),
                         confidence: 0.8,
-                        stop_loss: Some(sl.to_f64().unwrap_or(0.0)),
-                        take_profit: Some(tp.to_f64().unwrap_or(0.0)),
+                        stop_loss: Some(sl),
+                        take_profit: Some(tp),
                         reason: format!(
                             "VHF Trend Down: VHF {:.2} > {}, Price {:.2} < SMA {:.2}",
                             vhf_c, self.config.trend_threshold, price_c, sma_c

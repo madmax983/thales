@@ -72,8 +72,6 @@ pub struct VolumeSurgeReversalConfig {
 impl StrategyConfig for VolumeSurgeReversalConfig {}
 
 use crate::indicators::{atr, rsi, volume_oscillator};
-use rust_decimal::prelude::*;
-use rust_decimal::Decimal;
 
 /// The Volume Surge Reversal Strategy.
 ///
@@ -148,13 +146,8 @@ impl Strategy for VolumeSurgeReversal {
         let atr_arr = atr_series.f64()?;
 
         let mut signals = Vec::new();
-        let sl_mult_opt = Decimal::from_f64_retain(self.config.stop_loss_atr_mult);
-        let sl_mult = if let Some(m) = sl_mult_opt {
-            m
-        } else {
-            Decimal::ZERO
-        };
-        let two_dec = Decimal::from(2);
+        let sl_mult = self.config.stop_loss_atr_mult;
+        let two_dec = 2.0;
 
         for i in 1..close_arr.len() {
             let timestamp = time_arr.get(i).unwrap_or_default();
@@ -166,24 +159,16 @@ impl Strategy for VolumeSurgeReversal {
             if let (Some(price), Some(rsi_val), Some(vol_val), Some(atr_val)) =
                 (price_opt, rsi_curr_opt, vol_curr_opt, atr_opt)
             {
-                let price_dec = if let Some(p) = Decimal::from_f64_retain(price) {
-                    p
-                } else {
-                    Decimal::ZERO
-                };
-                let atr_dec = if let Some(a) = Decimal::from_f64_retain(atr_val) {
-                    a
-                } else {
-                    Decimal::ZERO
-                };
+                let price_dec = price;
+                let atr_dec = atr_val;
 
                 // Long Entry: RSI oversold AND Volume Surge
                 if rsi_val < self.config.rsi_oversold && vol_val > self.config.vol_threshold {
                     let sl = price_dec - (atr_dec * sl_mult);
                     let risk = price_dec - sl;
                     let tp = price_dec + (risk * two_dec);
-                    let sl_f64 = sl.to_f64().unwrap_or(0.0);
-                    let tp_f64 = tp.to_f64().unwrap_or(0.0);
+                    let sl_f64 = sl;
+                    let tp_f64 = tp;
 
                     signals.push(Signal {
                         signal_type: SignalType::Entry,
@@ -207,8 +192,8 @@ impl Strategy for VolumeSurgeReversal {
                     let sl = price_dec + (atr_dec * sl_mult);
                     let risk = sl - price_dec;
                     let tp = price_dec - (risk * two_dec);
-                    let sl_f64 = sl.to_f64().unwrap_or(0.0);
-                    let tp_f64 = tp.to_f64().unwrap_or(0.0);
+                    let sl_f64 = sl;
+                    let tp_f64 = tp;
 
                     signals.push(Signal {
                         signal_type: SignalType::Entry,

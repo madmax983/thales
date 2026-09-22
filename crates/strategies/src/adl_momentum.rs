@@ -7,8 +7,6 @@ use crate::strategy::{Signal, SignalType, Strategy, StrategyConfig, StrategyType
 use anyhow::Result;
 use async_trait::async_trait;
 use polars::prelude::*;
-use rust_decimal::prelude::ToPrimitive;
-use rust_decimal::Decimal;
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -87,20 +85,19 @@ impl Strategy for AdlMomentum {
         let atr_arr = atr_series.f64()?;
 
         let mut signals = Vec::new();
-        let atr_mult_dec =
-            Decimal::from_f64_retain(self.config.stop_loss_atr_mult).unwrap_or(Decimal::new(2, 0));
+        let atr_mult_dec = self.config.stop_loss_atr_mult;
 
         // Iterate through data starting from 1 to check for crossover
         for i in 1..close_arr.len() {
             let timestamp = time_arr.get(i).unwrap_or(0);
-            let price_opt = close_arr.get(i).and_then(Decimal::from_f64_retain);
+            let price_opt = close_arr.get(i);
 
             let adl_curr_opt = adl_arr.get(i);
             let adl_prev_opt = adl_arr.get(i - 1);
             let ema_curr_opt = adl_ema_arr.get(i);
             let ema_prev_opt = adl_ema_arr.get(i - 1);
 
-            let atr_opt = atr_arr.get(i).and_then(Decimal::from_f64_retain);
+            let atr_opt = atr_arr.get(i);
 
             if let (Some(price), Some(adl_curr), Some(adl_prev), Some(ema_curr), Some(ema_prev)) = (
                 price_opt,
@@ -114,7 +111,7 @@ impl Strategy for AdlMomentum {
                     let sl = if let Some(atr_val) = atr_opt {
                         price - (atr_val * atr_mult_dec)
                     } else {
-                        price * Decimal::from_f64_retain(0.98).unwrap_or(Decimal::ONE)
+                        price * 0.98
                     };
 
                     signals.push(Signal {
@@ -123,7 +120,7 @@ impl Strategy for AdlMomentum {
                         side: "buy".to_string(),
                         size_hint: "100".to_string(),
                         confidence: 0.8,
-                        stop_loss: Some(sl.to_f64().unwrap_or(0.0)),
+                        stop_loss: Some(sl),
                         take_profit: None,
                         reason: format!(
                             "ADL ({:.2}) crossed above EMA ({:.2})",

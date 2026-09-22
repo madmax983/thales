@@ -9,8 +9,6 @@ use crate::strategy::{Signal, SignalType, Strategy, StrategyConfig, StrategyType
 use anyhow::Result;
 use async_trait::async_trait;
 use polars::prelude::*;
-use rust_decimal::prelude::ToPrimitive;
-use rust_decimal::Decimal;
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -90,8 +88,7 @@ impl Strategy for TtmSqueeze {
         let atr_arr = atr_series.f64()?;
 
         let mut signals = Vec::new();
-        let atr_mult_dec =
-            Decimal::from_f64_retain(self.config.stop_loss_atr_mult).unwrap_or(Decimal::new(2, 0));
+        let atr_mult_dec = self.config.stop_loss_atr_mult;
 
         let mut in_position = false;
         let mut current_stop_loss = 0.0;
@@ -99,14 +96,14 @@ impl Strategy for TtmSqueeze {
 
         for i in 1..data.height() {
             let timestamp = time_arr.get(i).unwrap_or(0);
-            let price_opt = close_arr.get(i).and_then(Decimal::from_f64_retain);
+            let price_opt = close_arr.get(i);
 
             let sqz_curr_opt = squeeze_arr.get(i);
             let sqz_prev_opt = squeeze_arr.get(i - 1);
             let mom_curr_opt = mom_arr.get(i);
             let mom_prev_opt = mom_arr.get(i - 1);
 
-            let atr_opt = atr_arr.get(i).and_then(Decimal::from_f64_retain);
+            let atr_opt = atr_arr.get(i);
 
             if let (Some(price), Some(sqz_c), Some(sqz_p), Some(mom_c), Some(mom_p)) = (
                 price_opt,
@@ -115,16 +112,16 @@ impl Strategy for TtmSqueeze {
                 mom_curr_opt,
                 mom_prev_opt,
             ) {
-                let price_f64 = price.to_f64().unwrap_or(0.0);
+                let price_f64 = price;
 
                 if !in_position {
                     // Entry Condition: Breakout of Squeeze (Squeeze OFF after being ON)
                     if sqz_p && !sqz_c {
                         let sl = if let Some(atr_val) = atr_opt {
                             if mom_c > 0.0 {
-                                (price - (atr_val * atr_mult_dec)).to_f64().unwrap_or(0.0)
+                                price - (atr_val * atr_mult_dec)
                             } else {
-                                (price + (atr_val * atr_mult_dec)).to_f64().unwrap_or(0.0)
+                                price + (atr_val * atr_mult_dec)
                             }
                         } else {
                             if mom_c > 0.0 {

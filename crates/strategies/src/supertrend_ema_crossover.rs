@@ -10,8 +10,6 @@ use crate::strategy::{Signal, SignalType, Strategy, StrategyConfig, StrategyType
 use anyhow::Result;
 use async_trait::async_trait;
 use polars::prelude::*;
-use rust_decimal::prelude::ToPrimitive;
-use rust_decimal::Decimal;
 use serde::{Deserialize, Serialize};
 
 /// Configuration parameters for the `SupertrendEmaCrossover` strategy.
@@ -124,8 +122,7 @@ impl Strategy for SupertrendEmaCrossover {
         let time_arr = time_arr.i64()?;
 
         let mut signals = Vec::new();
-        let sl_mult =
-            Decimal::from_f64_retain(self.config.stop_loss_atr_mult).unwrap_or(Decimal::new(2, 0));
+        let sl_mult = self.config.stop_loss_atr_mult;
 
         // Iterate through data (start at 1 for prev values)
         for i in 1..close_arr.len() {
@@ -133,12 +130,12 @@ impl Strategy for SupertrendEmaCrossover {
 
             // Fetch current and previous values
             let st_trend_opt = st_trend_arr.get(i);
-            let ema_short_curr_opt = ema_short_arr.get(i).and_then(Decimal::from_f64_retain);
-            let ema_long_curr_opt = ema_long_arr.get(i).and_then(Decimal::from_f64_retain);
-            let ema_short_prev_opt = ema_short_arr.get(i - 1).and_then(Decimal::from_f64_retain);
-            let ema_long_prev_opt = ema_long_arr.get(i - 1).and_then(Decimal::from_f64_retain);
-            let price_opt = close_arr.get(i).and_then(Decimal::from_f64_retain);
-            let atr_opt = atr_arr.get(i).and_then(Decimal::from_f64_retain);
+            let ema_short_curr_opt = ema_short_arr.get(i);
+            let ema_long_curr_opt = ema_long_arr.get(i);
+            let ema_short_prev_opt = ema_short_arr.get(i - 1);
+            let ema_long_prev_opt = ema_long_arr.get(i - 1);
+            let price_opt = close_arr.get(i);
+            let atr_opt = atr_arr.get(i);
 
             if let (
                 Some(st_trend),
@@ -160,7 +157,7 @@ impl Strategy for SupertrendEmaCrossover {
                     && ema_short_curr > ema_long_curr
                     && ema_short_prev <= ema_long_prev
                 {
-                    let mut sl = price * Decimal::new(99, 2); // default 1% SL fallback
+                    let mut sl = price * 0.99; // default 1% SL fallback
                     if let Some(atr_val) = atr_opt {
                         sl = price - (atr_val * sl_mult);
                     }
@@ -171,7 +168,7 @@ impl Strategy for SupertrendEmaCrossover {
                         side: "buy".to_string(),
                         size_hint: "100".to_string(), // 100% position size or specific units
                         confidence: 0.8,
-                        stop_loss: Some(sl.to_f64().unwrap_or(0.0)),
+                        stop_loss: Some(sl),
                         take_profit: None,
                         reason: format!(
                             "Bullish Supertrend EMA Crossover: ST Up, Short {:.2} > Long {:.2}",
@@ -186,7 +183,7 @@ impl Strategy for SupertrendEmaCrossover {
                     && ema_short_curr < ema_long_curr
                     && ema_short_prev >= ema_long_prev
                 {
-                    let mut sl = price * Decimal::new(101, 2); // default 1% SL fallback
+                    let mut sl = price * 1.01; // default 1% SL fallback
                     if let Some(atr_val) = atr_opt {
                         sl = price + (atr_val * sl_mult);
                     }
@@ -197,7 +194,7 @@ impl Strategy for SupertrendEmaCrossover {
                         side: "sell".to_string(),
                         size_hint: "100".to_string(),
                         confidence: 0.8,
-                        stop_loss: Some(sl.to_f64().unwrap_or(0.0)),
+                        stop_loss: Some(sl),
                         take_profit: None,
                         reason: format!(
                             "Bearish Supertrend EMA Crossover: ST Down, Short {:.2} < Long {:.2}",

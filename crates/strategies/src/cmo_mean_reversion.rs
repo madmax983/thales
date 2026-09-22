@@ -7,8 +7,6 @@ use crate::strategy::{Signal, SignalType, Strategy, StrategyConfig, StrategyType
 use anyhow::Result;
 use async_trait::async_trait;
 use polars::prelude::*;
-use rust_decimal::prelude::*;
-use rust_decimal::Decimal;
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -60,8 +58,7 @@ impl Strategy for CmoMeanReversion {
         let atr_arr = atr_series.f64()?;
 
         let mut signals = Vec::new();
-        let atr_mult_dec =
-            Decimal::from_f64_retain(self.config.stop_loss_atr_mult).unwrap_or(Decimal::ZERO);
+        let atr_mult_dec = self.config.stop_loss_atr_mult;
 
         for i in 1..close_arr.len() {
             let timestamp = time_arr.get(i).unwrap_or(0);
@@ -85,8 +82,8 @@ impl Strategy for CmoMeanReversion {
                 if prev_cmo_val <= self.config.oversold_threshold
                     && cmo_val > self.config.oversold_threshold
                 {
-                    let price_dec = Decimal::from_f64_retain(price).unwrap_or(Decimal::ZERO);
-                    let atr_dec = Decimal::from_f64_retain(atr_val).unwrap_or(Decimal::ZERO);
+                    let price_dec = price;
+                    let atr_dec = atr_val;
                     let sl = price_dec - (atr_dec * atr_mult_dec);
 
                     signals.push(Signal {
@@ -95,7 +92,7 @@ impl Strategy for CmoMeanReversion {
                         side: "buy".to_string(),
                         size_hint: "100".to_string(),
                         confidence: 0.8,
-                        stop_loss: Some(sl.to_f64().unwrap_or(0.0)),
+                        stop_loss: Some(sl),
                         take_profit: None,
                         reason: format!(
                             "CMO Cross Up: {:.2} > {:.2}",

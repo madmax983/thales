@@ -17,8 +17,6 @@ use crate::strategy::{Signal, SignalType, Strategy, StrategyConfig, StrategyType
 use anyhow::Result;
 use async_trait::async_trait;
 use polars::prelude::*;
-use rust_decimal::prelude::*;
-use rust_decimal::Decimal;
 use serde::{Deserialize, Serialize};
 
 /// Configuration parameters for the `RelativeVigorIndexTrend` strategy.
@@ -75,9 +73,8 @@ impl Strategy for RelativeVigorIndexTrend {
         let atr_arr = atr_series.f64()?;
 
         let mut signals = Vec::new();
-        let sl_mult =
-            Decimal::from_f64_retain(self.config.stop_loss_atr_mult).unwrap_or(Decimal::ZERO);
-        let two_dec = Decimal::from(2);
+        let sl_mult = self.config.stop_loss_atr_mult;
+        let two_dec = 2.0;
 
         for i in 1..close_arr.len() {
             let timestamp = time_arr.get(i).unwrap_or(0);
@@ -94,8 +91,8 @@ impl Strategy for RelativeVigorIndexTrend {
             if let (Some(r_c), Some(r_p), Some(s_c), Some(s_p), Some(price), Some(atr_val)) =
                 (rvi_curr, rvi_prev, sig_curr, sig_prev, price_opt, atr_opt)
             {
-                let price_dec = Decimal::from_f64_retain(price).unwrap_or(Decimal::ZERO);
-                let atr_dec = Decimal::from_f64_retain(atr_val).unwrap_or(Decimal::ZERO);
+                let price_dec = price;
+                let atr_dec = atr_val;
 
                 // Long Entry: RVI crosses ABOVE Signal line
                 if r_p <= s_p && r_c > s_c {
@@ -123,8 +120,8 @@ impl Strategy for RelativeVigorIndexTrend {
                         side: "buy".to_string(),
                         size_hint: "100".to_string(),
                         confidence: 0.8,
-                        stop_loss: Some(sl.to_f64().unwrap_or(0.0)),
-                        take_profit: Some(tp.to_f64().unwrap_or(0.0)),
+                        stop_loss: Some(sl),
+                        take_profit: Some(tp),
                         reason: format!("RVI Crossover Up: RVI {:.2} > Signal {:.2}", r_c, s_c),
                         timestamp_ms: timestamp,
                     });
@@ -155,8 +152,8 @@ impl Strategy for RelativeVigorIndexTrend {
                         side: "sell".to_string(), // Entry Short
                         size_hint: "100".to_string(),
                         confidence: 0.8,
-                        stop_loss: Some(sl.to_f64().unwrap_or(0.0)),
-                        take_profit: Some(tp.to_f64().unwrap_or(0.0)),
+                        stop_loss: Some(sl),
+                        take_profit: Some(tp),
                         reason: format!("RVI Crossover Down: RVI {:.2} < Signal {:.2}", r_c, s_c),
                         timestamp_ms: timestamp,
                     });

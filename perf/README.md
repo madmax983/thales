@@ -148,3 +148,57 @@ precision-sensitive numerical-stability concern (a negative variance
 would feed `.sqrt()` and produce `NaN`/wrong signals). That needs
 case-by-case numerical analysis (e.g. Welford's algorithm), not a
 mechanical swap, so it's left as a follow-up; see the PR for details.
+
+## After: strategy-layer stop-loss/take-profit round-trip removed
+
+47 of the 49 candidate files converted (mechanical swap: drop the
+`Decimal::from_f64_retain` / `.to_f64()` round-trip around the
+`close`/ATR-derived stop-loss and take-profit arithmetic, operate on the
+`f64` values directly). Two files were intentionally left untouched
+because their `Decimal` usage doesn't match the discarded-round-trip
+shape:
+
+- `crates/strategies/src/pvi_trend.rs` and
+  `crates/strategies/src/weighted_close_trend.rs` parse `Decimal` values
+  from a *string*-typed column (`Decimal::from_str`, not
+  `from_f64_retain`) and, in `weighted_close_trend.rs`, carry a running
+  sum accumulator in `Decimal` across bars — the same "real precision use,
+  not a discarded round-trip" pattern as `bollinger_bands.rs` above.
+  Follow-up, not touched here.
+
+A handful of the 47 converted files (`ema_crossover.rs`,
+`kama_crossover.rs`, `macd.rs`, `triple_sma_crossover.rs`,
+`hma_macd_trend.rs`) only partially converted: the *comparison* values
+(e.g. short/long EMA, MACD/signal, HMA) are displayed via
+`Decimal::round_dp(2)` in the signal's `reason` string, so those specific
+bindings were left as `Decimal` while the independent price/ATR/output
+stop-loss arithmetic was still converted. This is why the win is smaller
+than the 35.87% upper bound estimated from the `from_f64_retain` caller
+tree in the previous section: a large share of that edge's calls were
+converting *indicator values* for display/comparison, not the
+price/ATR/output values this fix targets.
+
+Same harness, same fixture, same machine, same session:
+
+```
+I refs: 6,154,709,880   (this run's baseline: 6,793,524,674)
+```
+
+| | Ir | % of this run's baseline |
+|---|---:|---:|
+| Baseline (post-ATR-fix) | 6,793,524,674 | 100.00% |
+| After strategy-layer fix | 6,154,709,880 | 90.60% |
+| **Delta** | **-638,814,794** | **-9.40%** |
+
+Clears the impact floor (≥5% instruction reduction) with room to spare.
+`base2_to_decimal` self-cost drops from 2,589,703,962 (38.12%) to
+2,024,588,995 (32.89%) — consistent with removing the price/ATR/output
+round-trip from 47 files while deliberately leaving indicator-value
+`Decimal` conversions (needed for `round_dp` display) and the two
+`from_str`-based files untouched. `rust_decimal` internals still account
+for the majority of instructions (~61%), split roughly evenly now between
+the remaining indicator-value conversions in the 5 partially-converted
+files, the 2 `from_str` files, `bollinger_bands.rs`'s variance
+accumulator, and the indicator layer itself (`sma`, `ema`, `rsi`, etc. —
+still `Decimal`-based per the original baseline note above). Each of
+those is a separate, smaller, more case-by-case follow-up.

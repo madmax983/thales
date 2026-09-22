@@ -16,8 +16,6 @@ use crate::strategy::{Signal, SignalType, Strategy, StrategyConfig, StrategyType
 use anyhow::Result;
 use async_trait::async_trait;
 use polars::prelude::*;
-use rust_decimal::prelude::*;
-use rust_decimal::Decimal;
 use serde::{Deserialize, Serialize};
 
 /// Configuration parameters for the `MacdTrendFollower` strategy.
@@ -139,11 +137,10 @@ impl Strategy for MacdTrendFollower {
                 Some(atr_val),
             ) = (macd_curr, macd_prev, sig_curr, sig_prev, price_opt, atr_opt)
             {
-                let price_dec = Decimal::from_f64_retain(price).unwrap_or(Decimal::ZERO);
-                let atr_dec = Decimal::from_f64_retain(atr_val).unwrap_or(Decimal::ZERO);
-                let sl_mult = Decimal::from_f64_retain(self.config.stop_loss_atr_mult)
-                    .unwrap_or(Decimal::ZERO);
-                let two_dec = Decimal::from(2);
+                let price_dec = price;
+                let atr_dec = atr_val;
+                let sl_mult = self.config.stop_loss_atr_mult;
+                let two_dec = 2.0;
 
                 // Long Entry: MACD Line crosses above Signal Line.
                 if macd_p <= sig_p && macd_c > sig_c {
@@ -174,8 +171,8 @@ impl Strategy for MacdTrendFollower {
                         side: "buy".to_string(),
                         size_hint: "100".to_string(),
                         confidence: 0.8,
-                        stop_loss: Some(sl.to_f64().unwrap_or(0.0)),
-                        take_profit: Some(tp.to_f64().unwrap_or(0.0)),
+                        stop_loss: Some(sl),
+                        take_profit: Some(tp),
                         reason: format!(
                             "MACD Crossover Up: MACD {:.2} > Signal {:.2}",
                             macd_c, sig_c
@@ -212,8 +209,8 @@ impl Strategy for MacdTrendFollower {
                         side: "sell".to_string(),
                         size_hint: "100".to_string(),
                         confidence: 0.8,
-                        stop_loss: Some(sl.to_f64().unwrap_or(0.0)),
-                        take_profit: Some(tp.to_f64().unwrap_or(0.0)),
+                        stop_loss: Some(sl),
+                        take_profit: Some(tp),
                         reason: format!(
                             "MACD Crossover Down: MACD {:.2} < Signal {:.2}",
                             macd_c, sig_c

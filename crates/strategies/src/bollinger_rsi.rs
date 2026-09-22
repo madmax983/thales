@@ -7,8 +7,6 @@ use crate::strategy::{Signal, SignalType, Strategy, StrategyConfig, StrategyType
 use anyhow::Result;
 use async_trait::async_trait;
 use polars::prelude::*;
-use rust_decimal::prelude::ToPrimitive;
-use rust_decimal::Decimal;
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -72,30 +70,29 @@ impl Strategy for BollingerRsiMeanReversion {
         let atr_arr = atr_series.f64()?;
 
         let mut signals = Vec::new();
-        let atr_mult_dec =
-            Decimal::from_f64_retain(self.config.stop_loss_atr_mult).unwrap_or(Decimal::new(2, 0));
+        let atr_mult_dec = self.config.stop_loss_atr_mult;
 
         let mut in_position = false;
         let mut current_stop_loss = 0.0;
 
         for i in 1..close_arr.len() {
             let timestamp = time_arr.get(i).unwrap_or(0);
-            let price_opt = close_arr.get(i).and_then(Decimal::from_f64_retain);
+            let price_opt = close_arr.get(i);
             let lower_bb_opt = lower_bb_arr.get(i);
             let upper_bb_opt = upper_bb_arr.get(i);
             let rsi_opt = rsi_arr.get(i);
-            let atr_opt = atr_arr.get(i).and_then(Decimal::from_f64_retain);
+            let atr_opt = atr_arr.get(i);
 
             if let (Some(price), Some(lower), Some(upper), Some(rsi_val)) =
                 (price_opt, lower_bb_opt, upper_bb_opt, rsi_opt)
             {
-                let price_f64 = price.to_f64().unwrap_or(0.0);
+                let price_f64 = price;
 
                 if !in_position {
                     // Check for Entry (Price < Lower Band AND RSI < Oversold)
                     if price_f64 < lower && rsi_val < self.config.rsi_oversold {
                         let sl = if let Some(atr_val) = atr_opt {
-                            (price - (atr_val * atr_mult_dec)).to_f64().unwrap_or(0.0)
+                            price - (atr_val * atr_mult_dec)
                         } else {
                             price_f64 * 0.95 // 5% fallback
                         };

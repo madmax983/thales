@@ -7,7 +7,6 @@ use crate::strategy::{Signal, SignalType, Strategy, StrategyConfig, StrategyType
 use anyhow::Result;
 use async_trait::async_trait;
 use polars::prelude::*;
-use rust_decimal::prelude::*;
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -62,8 +61,7 @@ impl Strategy for CciMomentum {
         let atr_arr = atr_series.f64()?;
 
         let mut signals = Vec::new();
-        let stop_loss_mult =
-            Decimal::from_f64_retain(self.config.stop_loss_atr_mult).unwrap_or(Decimal::ZERO);
+        let stop_loss_mult = self.config.stop_loss_atr_mult;
 
         for i in self.config.period..data.height() {
             let timestamp = time_arr.get(i).unwrap_or(0);
@@ -78,13 +76,9 @@ impl Strategy for CciMomentum {
                 // Buy Signal: Crossover Buy Threshold (e.g. 100)
                 if curr > self.config.buy_threshold && prev <= self.config.buy_threshold {
                     let sl = if let Some(atr) = atr_val {
-                        let price_dec = Decimal::from_f64_retain(price).unwrap_or(Decimal::ZERO);
-                        let atr_dec = Decimal::from_f64_retain(atr).unwrap_or(Decimal::ZERO);
-                        Some(
-                            (price_dec - (atr_dec * stop_loss_mult))
-                                .to_f64()
-                                .unwrap_or(0.0),
-                        )
+                        let price_dec = price;
+                        let atr_dec = atr;
+                        Some(price_dec - (atr_dec * stop_loss_mult))
                     } else {
                         None
                     };
