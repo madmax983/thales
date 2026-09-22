@@ -3,8 +3,6 @@
 use super::{atr, ema};
 use anyhow::{Context, Result};
 use polars::prelude::*;
-use rust_decimal::prelude::*;
-use rust_decimal::Decimal;
 
 /// Calculate Keltner Channels
 ///
@@ -48,8 +46,12 @@ pub fn calculate(
     // Calculate ATR (Band Width)
     let atr_series = atr::calculate(data, atr_period).context("Failed to calculate ATR")?;
 
-    // Iterate and calculate bands using Decimal for precision
-    let mult = Decimal::from_f64_retain(atr_multiplier).unwrap_or(Decimal::ZERO);
+    // Iterate and calculate bands
+    let mult = if atr_multiplier.is_finite() {
+        atr_multiplier
+    } else {
+        0.0
+    };
 
     let ema_ca = ema_series.f64()?;
     let atr_ca = atr_series.f64()?;
@@ -61,17 +63,13 @@ pub fn calculate(
     for (e_opt, a_opt) in ema_ca.into_iter().zip(atr_ca) {
         match (e_opt, a_opt) {
             (Some(e), Some(a)) => {
-                // Convert f64 to Decimal
-                let e_dec = Decimal::from_f64_retain(e);
-                let a_dec = Decimal::from_f64_retain(a);
+                if e.is_finite() && a.is_finite() {
+                    let band_width = a * mult;
+                    let upper = e + band_width;
+                    let lower = e - band_width;
 
-                if let (Some(ed), Some(ad)) = (e_dec, a_dec) {
-                    let band_width = ad * mult;
-                    let upper = ed + band_width;
-                    let lower = ed - band_width;
-
-                    upper_vals.push(upper.to_f64());
-                    lower_vals.push(lower.to_f64());
+                    upper_vals.push(Some(upper));
+                    lower_vals.push(Some(lower));
                 } else {
                     // Conversion failure (e.g. NaN)
                     upper_vals.push(None);

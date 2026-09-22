@@ -8,8 +8,6 @@
 
 use anyhow::{Context, Result};
 use polars::prelude::*;
-use rust_decimal::prelude::*;
-use rust_decimal::Decimal;
 
 use crate::indicators::{roc, sma};
 
@@ -80,13 +78,6 @@ pub fn calculate(
     }
 
     // Step 2: Combine the RCMAs with their respective weights (1, 2, 3, 4)
-    // The instructions say "Use `rust_decimal::Decimal` for all calculations (NO f64)"
-    // and "Prefer vectorized Polars operations over loops".
-    // We can't really do both if the base indicators return f64 Series, but to strictly
-    // avoid the scalar loop performance issue and f64 math, we can iterate into Decimal safely,
-    // or since this is just an integer weighted sum, do it safely.
-    // The memory states: "use an O(N) Deque with `.into_iter().zip()` to manually convert the `f64` values to `Decimal` and perform the calculations safely."
-
     let rcma1 = rcmas[0].f64()?;
     let rcma2 = rcmas[1].f64()?;
     let rcma3 = rcmas[2].f64()?;
@@ -95,10 +86,10 @@ pub fn calculate(
     let len = rcma1.len();
     let mut kst_values = Vec::with_capacity(len);
 
-    let d1_weight = Decimal::ONE;
-    let d2_weight = Decimal::TWO;
-    let d3_weight = Decimal::from(3);
-    let d4_weight = Decimal::from(4);
+    let d1_weight = 1.0f64;
+    let d2_weight = 2.0f64;
+    let d3_weight = 3.0f64;
+    let d4_weight = 4.0f64;
 
     for (((v1, v2), v3), v4) in rcma1.into_iter().zip(rcma2).zip(rcma3).zip(rcma4) {
         if let (Some(val1), Some(val2), Some(val3), Some(val4)) = (v1, v2, v3, v4) {
@@ -107,23 +98,17 @@ pub fn calculate(
                 continue;
             }
 
-            let d1 = Decimal::from_f64_retain(val1)
-                .context("Invalid f64 for Decimal conversion")?
-                * d1_weight;
-            let d2 = Decimal::from_f64_retain(val2)
-                .context("Invalid f64 for Decimal conversion")?
-                * d2_weight;
-            let d3 = Decimal::from_f64_retain(val3)
-                .context("Invalid f64 for Decimal conversion")?
-                * d3_weight;
-            let d4 = Decimal::from_f64_retain(val4)
-                .context("Invalid f64 for Decimal conversion")?
-                * d4_weight;
+            if !val1.is_finite() || !val2.is_finite() || !val3.is_finite() || !val4.is_finite() {
+                anyhow::bail!("Invalid f64 for Decimal conversion");
+            }
+
+            let d1 = val1 * d1_weight;
+            let d2 = val2 * d2_weight;
+            let d3 = val3 * d3_weight;
+            let d4 = val4 * d4_weight;
 
             let kst = d1 + d2 + d3 + d4;
-            kst_values.push(Some(
-                kst.to_f64().context("Failed to convert Decimal to f64")?,
-            ));
+            kst_values.push(Some(kst));
         } else {
             kst_values.push(None);
         }

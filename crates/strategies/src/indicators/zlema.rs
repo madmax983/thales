@@ -8,8 +8,6 @@
 
 use anyhow::{Context, Result};
 use polars::prelude::*;
-use rust_decimal::prelude::*;
-use rust_decimal::Decimal;
 
 /// Calculate Zero Lag Exponential Moving Average (ZLEMA)
 ///
@@ -44,11 +42,11 @@ pub fn calculate(data: &DataFrame, period: usize) -> Result<Series> {
 
     let lag = (period - 1) / 2;
 
-    let period_dec = Decimal::from_usize(period).context("Invalid period")?;
-    let k = Decimal::TWO / (period_dec + Decimal::ONE);
+    let period_f = period as f64;
+    let k = 2.0f64 / (period_f + 1.0);
 
-    let mut prev_ema: Option<Decimal> = None;
-    let mut window_sum = Decimal::ZERO;
+    let mut prev_ema: Option<f64> = None;
+    let mut window_sum = 0.0f64;
     let mut count = 0;
 
     let mut zlema_values: Vec<Option<f64>> = Vec::with_capacity(close.len());
@@ -67,8 +65,8 @@ pub fn calculate(data: &DataFrame, period: usize) -> Result<Series> {
 
         match (val_opt, lag_val_opt) {
             (Some(val), Some(lag_val)) if val.is_finite() && lag_val.is_finite() => {
-                let d = Decimal::from_f64_retain(val).unwrap_or(Decimal::ZERO);
-                let lag_d = Decimal::from_f64_retain(lag_val).unwrap_or(Decimal::ZERO);
+                let d = val;
+                let lag_d = lag_val;
 
                 // Adjusted Data = Close + (Close - Close[lag])
                 let adj_data = d + (d - lag_d);
@@ -79,8 +77,8 @@ pub fn calculate(data: &DataFrame, period: usize) -> Result<Series> {
 
                     if count == period {
                         // Calculate SMA as seed
-                        let seed = window_sum / period_dec;
-                        zlema_values.push(seed.to_f64());
+                        let seed = window_sum / period_f;
+                        zlema_values.push(Some(seed));
                         prev_ema = Some(seed);
                     } else {
                         zlema_values.push(None);
@@ -88,8 +86,8 @@ pub fn calculate(data: &DataFrame, period: usize) -> Result<Series> {
                 } else {
                     // Calculate EMA
                     if let Some(prev) = prev_ema {
-                        let ema = (adj_data * k) + (prev * (Decimal::ONE - k));
-                        zlema_values.push(ema.to_f64());
+                        let ema = (adj_data * k) + (prev * (1.0 - k));
+                        zlema_values.push(Some(ema));
                         prev_ema = Some(ema);
                     } else {
                         zlema_values.push(None);
@@ -100,7 +98,7 @@ pub fn calculate(data: &DataFrame, period: usize) -> Result<Series> {
                 // Invalid or Missing value (NaN, None, etc.)
                 zlema_values.push(None);
                 count = 0;
-                window_sum = Decimal::ZERO;
+                window_sum = 0.0;
                 prev_ema = None;
             }
         }

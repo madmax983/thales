@@ -1,7 +1,5 @@
 use anyhow::Result;
 use polars::prelude::*;
-use rust_decimal::prelude::*;
-use rust_decimal::Decimal;
 
 use crate::indicators::sma;
 
@@ -35,12 +33,9 @@ pub fn calculate(data: &DataFrame, period: usize) -> Result<Series> {
             let past_idx = i - shift_periods;
 
             if let (Some(price), Some(sma_val)) = (close.get(past_idx), sma_f64.get(i)) {
-                if let (Some(price_dec), Some(sma_dec)) = (
-                    Decimal::from_f64_retain(price),
-                    Decimal::from_f64_retain(sma_val),
-                ) {
-                    let dpo_val = price_dec - sma_dec;
-                    dpo_values.push(dpo_val.to_f64());
+                if price.is_finite() && sma_val.is_finite() {
+                    let dpo_val = price - sma_val;
+                    dpo_values.push(Some(dpo_val));
                 } else {
                     dpo_values.push(None);
                 }

@@ -1,7 +1,5 @@
 use anyhow::Result;
 use polars::prelude::*;
-use rust_decimal::prelude::*;
-use rust_decimal::Decimal;
 use std::collections::VecDeque;
 
 /// Calculate Stochastic RSI (StochRSI)
@@ -112,20 +110,21 @@ pub fn calculate(
 
     // 2. Smooth StochRSI to get %K (SMA over k_period)
     let mut k_values: Vec<Option<f64>> = vec![None; len];
-    let mut k_sum = Decimal::ZERO;
+    let mut k_sum = 0.0f64;
     let mut k_count = 0;
     let mut k_start_idx = 0;
 
     for (i, k_val) in k_values.iter_mut().enumerate().take(len) {
         if let Some(val) = stoch_rsi_values[i] {
-            if let Some(d) = Decimal::from_f64_retain(val) {
+            if val.is_finite() {
+                let d = val;
                 k_sum += d;
                 k_count += 1;
 
                 if k_count > k_period {
                     if let Some(out_val) = stoch_rsi_values[k_start_idx] {
-                        if let Some(out_d) = Decimal::from_f64_retain(out_val) {
-                            k_sum -= out_d;
+                        if out_val.is_finite() {
+                            k_sum -= out_val;
                         }
                     }
                     k_count -= 1;
@@ -133,13 +132,13 @@ pub fn calculate(
                 }
 
                 if k_count == k_period {
-                    let k_dec = Decimal::from_usize(k_period).unwrap_or(Decimal::ONE);
+                    let k_dec = if k_period == 0 { 1.0 } else { k_period as f64 };
                     let avg = k_sum / k_dec;
-                    *k_val = Some(avg.to_f64().unwrap_or(0.0));
+                    *k_val = Some(avg);
                 }
             }
         } else {
-            k_sum = Decimal::ZERO;
+            k_sum = 0.0;
             k_count = 0;
             k_start_idx = i + 1;
         }
@@ -147,20 +146,21 @@ pub fn calculate(
 
     // 3. Smooth %K to get %D (SMA over d_period)
     let mut d_values: Vec<Option<f64>> = vec![None; len];
-    let mut d_sum = Decimal::ZERO;
+    let mut d_sum = 0.0f64;
     let mut d_count = 0;
     let mut d_start_idx = 0;
 
     for (i, d_val) in d_values.iter_mut().enumerate().take(len) {
         if let Some(val) = k_values[i] {
-            if let Some(d) = Decimal::from_f64_retain(val) {
+            if val.is_finite() {
+                let d = val;
                 d_sum += d;
                 d_count += 1;
 
                 if d_count > d_period {
                     if let Some(out_val) = k_values[d_start_idx] {
-                        if let Some(out_d) = Decimal::from_f64_retain(out_val) {
-                            d_sum -= out_d;
+                        if out_val.is_finite() {
+                            d_sum -= out_val;
                         }
                     }
                     d_count -= 1;
@@ -168,13 +168,13 @@ pub fn calculate(
                 }
 
                 if d_count == d_period {
-                    let d_dec = Decimal::from_usize(d_period).unwrap_or(Decimal::ONE);
+                    let d_dec = if d_period == 0 { 1.0 } else { d_period as f64 };
                     let avg = d_sum / d_dec;
-                    *d_val = Some(avg.to_f64().unwrap_or(0.0));
+                    *d_val = Some(avg);
                 }
             }
         } else {
-            d_sum = Decimal::ZERO;
+            d_sum = 0.0;
             d_count = 0;
             d_start_idx = i + 1;
         }

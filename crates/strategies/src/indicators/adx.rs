@@ -5,8 +5,6 @@
 
 use anyhow::{Context, Result};
 use polars::prelude::*;
-use rust_decimal::prelude::*;
-use rust_decimal::Decimal;
 
 /// Calculate ADX, +DI, and -DI
 ///
@@ -44,8 +42,8 @@ pub fn calculate(data: &DataFrame, period: usize) -> Result<(Series, Series, Ser
         ));
     }
 
-    let period_dec = Decimal::from_usize(period).unwrap();
-    let period_minus_one = period_dec - Decimal::ONE;
+    let period_f = period as f64;
+    let period_minus_one = period_f - 1.0;
 
     // Vectors for intermediate calculations
     let mut tr_vec = Vec::with_capacity(len);
@@ -58,24 +56,47 @@ pub fn calculate(data: &DataFrame, period: usize) -> Result<(Series, Series, Ser
     // Let's treat index 0 as valid but TR is just H-L, DM is 0.
 
     // Index 0
-    let h0 = Decimal::from_f64_retain(high.get(0).unwrap_or(f64::NAN)).unwrap_or(Decimal::ZERO);
-    let l0 = Decimal::from_f64_retain(low.get(0).unwrap_or(f64::NAN)).unwrap_or(Decimal::ZERO);
+    let h0_raw = high.get(0).unwrap_or(f64::NAN);
+    let l0_raw = low.get(0).unwrap_or(f64::NAN);
+    let h0 = if h0_raw.is_finite() { h0_raw } else { 0.0 };
+    let l0 = if l0_raw.is_finite() { l0_raw } else { 0.0 };
 
     tr_vec.push(h0 - l0);
-    plus_dm_vec.push(Decimal::ZERO);
-    minus_dm_vec.push(Decimal::ZERO);
+    plus_dm_vec.push(0.0);
+    minus_dm_vec.push(0.0);
 
     for i in 1..len {
-        let h_curr =
-            Decimal::from_f64_retain(high.get(i).unwrap_or(f64::NAN)).unwrap_or(Decimal::ZERO);
-        let l_curr =
-            Decimal::from_f64_retain(low.get(i).unwrap_or(f64::NAN)).unwrap_or(Decimal::ZERO);
-        let h_prev =
-            Decimal::from_f64_retain(high.get(i - 1).unwrap_or(f64::NAN)).unwrap_or(Decimal::ZERO);
-        let l_prev =
-            Decimal::from_f64_retain(low.get(i - 1).unwrap_or(f64::NAN)).unwrap_or(Decimal::ZERO);
-        let c_prev =
-            Decimal::from_f64_retain(close.get(i - 1).unwrap_or(f64::NAN)).unwrap_or(Decimal::ZERO);
+        let h_curr_raw = high.get(i).unwrap_or(f64::NAN);
+        let l_curr_raw = low.get(i).unwrap_or(f64::NAN);
+        let h_prev_raw = high.get(i - 1).unwrap_or(f64::NAN);
+        let l_prev_raw = low.get(i - 1).unwrap_or(f64::NAN);
+        let c_prev_raw = close.get(i - 1).unwrap_or(f64::NAN);
+
+        let h_curr = if h_curr_raw.is_finite() {
+            h_curr_raw
+        } else {
+            0.0
+        };
+        let l_curr = if l_curr_raw.is_finite() {
+            l_curr_raw
+        } else {
+            0.0
+        };
+        let h_prev = if h_prev_raw.is_finite() {
+            h_prev_raw
+        } else {
+            0.0
+        };
+        let l_prev = if l_prev_raw.is_finite() {
+            l_prev_raw
+        } else {
+            0.0
+        };
+        let c_prev = if c_prev_raw.is_finite() {
+            c_prev_raw
+        } else {
+            0.0
+        };
 
         // TR
         let hl = h_curr - l_curr;
@@ -88,13 +109,13 @@ pub fn calculate(data: &DataFrame, period: usize) -> Result<(Series, Series, Ser
         let up_move = h_curr - h_prev;
         let down_move = l_prev - l_curr;
 
-        let mut plus_dm = Decimal::ZERO;
-        let mut minus_dm = Decimal::ZERO;
+        let mut plus_dm = 0.0;
+        let mut minus_dm = 0.0;
 
-        if up_move > down_move && up_move > Decimal::ZERO {
+        if up_move > down_move && up_move > 0.0 {
             plus_dm = up_move;
         }
-        if down_move > up_move && down_move > Decimal::ZERO {
+        if down_move > up_move && down_move > 0.0 {
             minus_dm = down_move;
         }
 
@@ -111,9 +132,9 @@ pub fn calculate(data: &DataFrame, period: usize) -> Result<(Series, Series, Ser
     // Actually, TR at index 0 is valid range. DM at index 0 is 0.
     // Let's sum from index 0 to period-1.
 
-    let mut smoothed_tr = Decimal::ZERO;
-    let mut smoothed_plus_dm = Decimal::ZERO;
-    let mut smoothed_minus_dm = Decimal::ZERO;
+    let mut smoothed_tr = 0.0;
+    let mut smoothed_plus_dm = 0.0;
+    let mut smoothed_minus_dm = 0.0;
 
     for i in 0..period {
         smoothed_tr += tr_vec[i];
@@ -124,48 +145,40 @@ pub fn calculate(data: &DataFrame, period: usize) -> Result<(Series, Series, Ser
     // Wilder's Smoothing Update uses (Prev * (N-1) + Curr) / N
     // This expects Prev to be an AVERAGE, not a SUM.
     // So we must initialize with the SMA (Sum / N).
-    smoothed_tr /= period_dec;
-    smoothed_plus_dm /= period_dec;
-    smoothed_minus_dm /= period_dec;
+    smoothed_tr /= period_f;
+    smoothed_plus_dm /= period_f;
+    smoothed_minus_dm /= period_f;
 
     // Store DX values to smooth later
     // We can't calculate ADX until we have smoothed DX.
     // DX is calculated from smoothed DMs/TRs.
 
     // We need to store smoothed values to evolve them.
-    let mut dx_vec: Vec<Option<Decimal>> = vec![None; len];
+    let mut dx_vec: Vec<Option<f64>> = vec![None; len];
 
     // First DX value is at index `period - 1`
     // DX = 100 * |+DI - -DI| / (+DI + -DI)
     // DI = 100 * SmoothedDM / SmoothedTR
-    let calc_dx = |p_dm: Decimal, m_dm: Decimal, tr: Decimal| -> Option<Decimal> {
-        if tr == Decimal::ZERO {
+    let calc_dx = |p_dm: f64, m_dm: f64, tr: f64| -> Option<f64> {
+        if tr == 0.0 {
             return None;
         }
-        let p_di = (p_dm / tr) * Decimal::from(100);
-        let m_di = (m_dm / tr) * Decimal::from(100);
+        let p_di = (p_dm / tr) * 100.0;
+        let m_di = (m_dm / tr) * 100.0;
         let sum = p_di + m_di;
-        if sum == Decimal::ZERO {
-            return Some(Decimal::ZERO);
+        if sum == 0.0 {
+            return Some(0.0);
         }
-        Some(((p_di - m_di).abs() / sum) * Decimal::from(100))
+        Some(((p_di - m_di).abs() / sum) * 100.0)
     };
 
     if let Some(dx) = calc_dx(smoothed_plus_dm, smoothed_minus_dm, smoothed_tr) {
         dx_vec[period - 1] = Some(dx);
 
         // Output DIs for this index
-        if smoothed_tr != Decimal::ZERO {
-            plus_di_values[period - 1] = Some(
-                ((smoothed_plus_dm / smoothed_tr) * Decimal::from(100))
-                    .to_f64()
-                    .unwrap_or(0.0),
-            );
-            minus_di_values[period - 1] = Some(
-                ((smoothed_minus_dm / smoothed_tr) * Decimal::from(100))
-                    .to_f64()
-                    .unwrap_or(0.0),
-            );
+        if smoothed_tr != 0.0 {
+            plus_di_values[period - 1] = Some((smoothed_plus_dm / smoothed_tr) * 100.0);
+            minus_di_values[period - 1] = Some((smoothed_minus_dm / smoothed_tr) * 100.0);
         }
     }
 
@@ -177,25 +190,17 @@ pub fn calculate(data: &DataFrame, period: usize) -> Result<(Series, Series, Ser
 
         // Wilder's Smoothing: Next = Prev - (Prev/n) + Curr
         // Which is: (Prev * (n-1) + Curr) / n
-        smoothed_tr = (smoothed_tr * period_minus_one + tr) / period_dec;
-        smoothed_plus_dm = (smoothed_plus_dm * period_minus_one + p_dm) / period_dec;
-        smoothed_minus_dm = (smoothed_minus_dm * period_minus_one + m_dm) / period_dec;
+        smoothed_tr = (smoothed_tr * period_minus_one + tr) / period_f;
+        smoothed_plus_dm = (smoothed_plus_dm * period_minus_one + p_dm) / period_f;
+        smoothed_minus_dm = (smoothed_minus_dm * period_minus_one + m_dm) / period_f;
 
         if let Some(dx) = calc_dx(smoothed_plus_dm, smoothed_minus_dm, smoothed_tr) {
             dx_vec[i] = Some(dx);
 
             // Output DIs
-            if smoothed_tr != Decimal::ZERO {
-                plus_di_values[i] = Some(
-                    ((smoothed_plus_dm / smoothed_tr) * Decimal::from(100))
-                        .to_f64()
-                        .unwrap_or(0.0),
-                );
-                minus_di_values[i] = Some(
-                    ((smoothed_minus_dm / smoothed_tr) * Decimal::from(100))
-                        .to_f64()
-                        .unwrap_or(0.0),
-                );
+            if smoothed_tr != 0.0 {
+                plus_di_values[i] = Some((smoothed_plus_dm / smoothed_tr) * 100.0);
+                minus_di_values[i] = Some((smoothed_minus_dm / smoothed_tr) * 100.0);
             }
         }
     }
@@ -220,7 +225,7 @@ pub fn calculate(data: &DataFrame, period: usize) -> Result<(Series, Series, Ser
         ));
     }
 
-    let mut dx_sum = Decimal::ZERO;
+    let mut dx_sum = 0.0;
     let mut valid_dx_count = 0;
 
     for val in dx_vec.iter().skip(dx_start_idx).take(period).flatten() {
@@ -229,16 +234,16 @@ pub fn calculate(data: &DataFrame, period: usize) -> Result<(Series, Series, Ser
     }
 
     if valid_dx_count == period {
-        let mut smoothed_adx = dx_sum / period_dec;
-        adx_values[adx_start_idx] = Some(smoothed_adx.to_f64().unwrap_or(0.0));
+        let mut smoothed_adx = dx_sum / period_f;
+        adx_values[adx_start_idx] = Some(smoothed_adx);
 
         // Subsequent ADXs
         for i in (adx_start_idx + 1)..len {
             if let Some(dx) = dx_vec[i] {
                 // Wilder's Smoothing for ADX
                 // ADX[i] = (ADX[i-1] * (n-1) + DX[i]) / n
-                smoothed_adx = (smoothed_adx * period_minus_one + dx) / period_dec;
-                adx_values[i] = Some(smoothed_adx.to_f64().unwrap_or(0.0));
+                smoothed_adx = (smoothed_adx * period_minus_one + dx) / period_f;
+                adx_values[i] = Some(smoothed_adx);
             }
         }
     }

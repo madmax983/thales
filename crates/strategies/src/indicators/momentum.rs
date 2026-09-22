@@ -5,7 +5,6 @@
 
 use anyhow::{Context, Result};
 use polars::prelude::*;
-use rust_decimal::prelude::*;
 
 /// Calculate Momentum
 ///
@@ -47,10 +46,11 @@ pub fn calculate(data: &DataFrame, period: usize) -> Result<Series> {
             }
             let opt_prev = close_chunked.get(i - period);
             if let (Some(curr_f64), Some(prev_f64)) = (opt_curr, opt_prev) {
-                let curr_dec = Decimal::from_f64_retain(curr_f64)?;
-                let prev_dec = Decimal::from_f64_retain(prev_f64)?;
-                let mom = curr_dec - prev_dec;
-                mom.to_f64()
+                if !curr_f64.is_finite() || !prev_f64.is_finite() {
+                    return None;
+                }
+                let mom = curr_f64 - prev_f64;
+                Some(mom)
             } else {
                 None
             }

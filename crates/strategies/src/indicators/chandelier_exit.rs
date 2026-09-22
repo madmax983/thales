@@ -9,8 +9,6 @@
 use crate::indicators::atr;
 use anyhow::{Context, Result};
 use polars::prelude::*;
-use rust_decimal::prelude::*;
-use rust_decimal::Decimal;
 use std::collections::VecDeque;
 
 /// Calculate Chandelier Exit
@@ -57,7 +55,11 @@ pub fn calculate(data: &DataFrame, period: usize, multiplier: f64) -> Result<(Se
         ));
     }
 
-    let mult_dec = Decimal::from_f64_retain(multiplier).unwrap_or(Decimal::ZERO);
+    let mult_dec = if multiplier.is_finite() {
+        multiplier
+    } else {
+        0.0
+    };
 
     // O(N) rolling max for highs
     let mut max_deque: VecDeque<usize> = VecDeque::new();
@@ -124,15 +126,15 @@ pub fn calculate(data: &DataFrame, period: usize, multiplier: f64) -> Result<(Se
                 (max_deque.front(), min_deque.front(), atr_val_opt)
             {
                 if let (Some(max_h), Some(min_l)) = (high.get(max_idx), low.get(min_idx)) {
-                    let highest_high = Decimal::from_f64_retain(max_h).unwrap_or(Decimal::ZERO);
-                    let lowest_low = Decimal::from_f64_retain(min_l).unwrap_or(Decimal::ZERO);
-                    let atr_dec = Decimal::from_f64_retain(atr_val).unwrap_or(Decimal::ZERO);
+                    let highest_high = if max_h.is_finite() { max_h } else { 0.0 };
+                    let lowest_low = if min_l.is_finite() { min_l } else { 0.0 };
+                    let atr_dec = if atr_val.is_finite() { atr_val } else { 0.0 };
 
                     let long_exit = highest_high - (atr_dec * mult_dec);
                     let short_exit = lowest_low + (atr_dec * mult_dec);
 
-                    long_exit_vals[i] = long_exit.to_f64();
-                    short_exit_vals[i] = short_exit.to_f64();
+                    long_exit_vals[i] = Some(long_exit);
+                    short_exit_vals[i] = Some(short_exit);
                 }
             }
         }

@@ -6,8 +6,6 @@
 use anyhow::{Context, Result};
 use chrono::{DateTime, TimeZone, Utc};
 use polars::prelude::*;
-use rust_decimal::prelude::*;
-use rust_decimal::Decimal;
 
 use super::ema;
 
@@ -56,7 +54,7 @@ pub fn calculate(data: &DataFrame, period: usize) -> Result<Series> {
 
     let mut raw_fi_values: Vec<Option<f64>> = Vec::with_capacity(close.len());
 
-    let mut prev_close: Option<Decimal> = None;
+    let mut prev_close: Option<f64> = None;
 
     let close_iter = close.into_iter();
     let vol_iter = volume.into_iter();
@@ -75,16 +73,14 @@ pub fn calculate(data: &DataFrame, period: usize) -> Result<Series> {
                     }
                 };
 
-                if let (Some(c), Some(v)) =
-                    (Decimal::from_f64_retain(c_f), Decimal::from_f64_retain(v_f))
-                {
+                if c_f.is_finite() && v_f.is_finite() {
                     if let Some(pc) = prev_close {
-                        let fi = (c - pc) * v;
-                        raw_fi_values.push(fi.to_f64());
+                        let fi = (c_f - pc) * v_f;
+                        raw_fi_values.push(Some(fi));
                     } else {
                         raw_fi_values.push(None);
                     }
-                    prev_close = Some(c);
+                    prev_close = Some(c_f);
                 } else {
                     raw_fi_values.push(None);
                     prev_close = None;

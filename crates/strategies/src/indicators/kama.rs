@@ -6,8 +6,6 @@
 
 use anyhow::{Context, Result};
 use polars::prelude::*;
-use rust_decimal::prelude::*;
-use rust_decimal::Decimal;
 
 /// Calculate Kaufman's Adaptive Moving Average (KAMA)
 ///
@@ -53,26 +51,27 @@ pub fn calculate(
         return Ok(Series::new("kama", kama_values));
     }
 
-    let decimal_close: Vec<Option<Decimal>> = close
+    let decimal_close: Vec<Option<f64>> = close
         .into_iter()
-        .map(|opt_val| opt_val.and_then(Decimal::from_f64_retain))
+        .map(|opt_val| opt_val.filter(|v| v.is_finite()))
         .collect();
 
     // EMA constants
-    let two = Decimal::from_usize(2).context("Failed to create Decimal from 2")?;
-    let fast_ema_plus_one = Decimal::from_usize(fast_ema_period + 1)
-        .context("Failed to create Decimal from fast_ema_period")?;
-    let slow_ema_plus_one = Decimal::from_usize(slow_ema_period + 1)
-        .context("Failed to create Decimal from slow_ema_period")?;
+    let fast_ema_plus_one = (fast_ema_period + 1) as f64;
+    let slow_ema_plus_one = (slow_ema_period + 1) as f64;
 
-    let fast_sc = two
-        .checked_div(fast_ema_plus_one)
-        .context("Division by zero in fast EMA SC")?;
-    let slow_sc = two
-        .checked_div(slow_ema_plus_one)
-        .context("Division by zero in slow EMA SC")?;
+    let fast_sc = if fast_ema_plus_one == 0.0 {
+        anyhow::bail!("Division by zero in fast EMA SC")
+    } else {
+        2.0 / fast_ema_plus_one
+    };
+    let slow_sc = if slow_ema_plus_one == 0.0 {
+        anyhow::bail!("Division by zero in slow EMA SC")
+    } else {
+        2.0 / slow_ema_plus_one
+    };
 
-    let mut prev_kama: Option<Decimal> = None;
+    let mut prev_kama: Option<f64> = None;
 
     for i in period..decimal_close.len() {
         let current_close = match decimal_close[i] {
@@ -85,7 +84,7 @@ pub fn calculate(
 
         if prev_kama.is_none() {
             // Initialize KAMA with simple moving average of the previous `period` elements (i - period to i - 1)
-            let mut sum = Decimal::ZERO;
+            let mut sum = 0.0f64;
             let mut valid = true;
             for j in 0..period {
                 if let Some(val) = decimal_close[i - period + j] {
@@ -97,16 +96,11 @@ pub fn calculate(
             }
 
             if valid {
-                let period_dec =
-                    Decimal::from_usize(period).context("Failed to create Decimal from period")?;
-                let init_kama = sum / period_dec;
+                let period_f = period as f64;
+                let init_kama = sum / period_f;
                 prev_kama = Some(init_kama);
 
-                kama_values[i - 1] = Some(
-                    init_kama
-                        .to_f64()
-                        .context("Failed to convert init_kama to f64")?,
-                );
+                kama_values[i - 1] = Some(init_kama);
             } else {
                 kama_values[i] = None;
                 continue;
@@ -126,7 +120,7 @@ pub fn calculate(
 
         let change = (current_close - period_start_close).abs();
 
-        let mut volatility = Decimal::ZERO;
+        let mut volatility = 0.0f64;
         let mut valid_volatility = true;
         for j in 0..period {
             let curr = decimal_close[i - j];
@@ -144,8 +138,8 @@ pub fn calculate(
             continue;
         }
 
-        let er = if volatility.is_zero() {
-            Decimal::ZERO
+        let er = if volatility == 0.0 {
+            0.0
         } else {
             change / volatility
         };
@@ -155,11 +149,7 @@ pub fn calculate(
 
         let current_kama = p_kama + sc_squared * (current_close - p_kama);
         prev_kama = Some(current_kama);
-        kama_values[i] = Some(
-            current_kama
-                .to_f64()
-                .context("Failed to convert KAMA to f64")?,
-        );
+        kama_values[i] = Some(current_kama);
     }
 
     Ok(Series::new("kama", kama_values))

@@ -2,8 +2,6 @@
 
 use anyhow::{Context, Result};
 use polars::prelude::*;
-use rust_decimal::prelude::*;
-use rust_decimal::Decimal;
 
 /// Calculate Choppiness Index (CHOP)
 ///
@@ -60,9 +58,9 @@ pub fn calculate(data: &DataFrame, period: usize) -> Result<Series> {
         return Ok(Series::new("choppiness_index", chop_values));
     }
 
-    let mut tr_values: Vec<Decimal> = Vec::with_capacity(len);
-    let mut high_decimals: Vec<Decimal> = Vec::with_capacity(len);
-    let mut low_decimals: Vec<Decimal> = Vec::with_capacity(len);
+    let mut tr_values: Vec<f64> = Vec::with_capacity(len);
+    let mut high_decimals: Vec<f64> = Vec::with_capacity(len);
+    let mut low_decimals: Vec<f64> = Vec::with_capacity(len);
 
     for i in 0..len {
         let h_f64 = high.get(i).context("Failed to get high value")?;
@@ -73,8 +71,14 @@ pub fn calculate(data: &DataFrame, period: usize) -> Result<Series> {
             anyhow::bail!("Data contains NaN values, cannot calculate CHOP");
         }
 
-        let h = Decimal::from_f64_retain(h_f64).context("Failed to convert high to Decimal")?;
-        let l = Decimal::from_f64_retain(l_f64).context("Failed to convert low to Decimal")?;
+        if !h_f64.is_finite() {
+            anyhow::bail!("High value is not finite");
+        }
+        if !l_f64.is_finite() {
+            anyhow::bail!("Low value is not finite");
+        }
+        let h = h_f64;
+        let l = l_f64;
 
         high_decimals.push(h);
         low_decimals.push(l);
@@ -83,8 +87,10 @@ pub fn calculate(data: &DataFrame, period: usize) -> Result<Series> {
             tr_values.push(h - l);
         } else {
             let prev_c_f64 = close.get(i - 1).context("Failed to get previous close")?;
-            let prev_c = Decimal::from_f64_retain(prev_c_f64)
-                .context("Failed to convert prev close to Decimal")?;
+            if !prev_c_f64.is_finite() {
+                anyhow::bail!("Previous close value is not finite");
+            }
+            let prev_c = prev_c_f64;
             let tr1 = h - l;
             let tr2 = (h - prev_c).abs();
             let tr3 = (l - prev_c).abs();
@@ -93,11 +99,11 @@ pub fn calculate(data: &DataFrame, period: usize) -> Result<Series> {
         }
     }
 
-    let log10_period = Decimal::from(period).log10();
-    let hundred = Decimal::from(100);
+    let log10_period = (period as f64).log10();
+    let hundred = 100.0;
 
     // Optimize sliding window by keeping running sum
-    let mut tr_sum = Decimal::ZERO;
+    let mut tr_sum = 0.0;
 
     // Initialize the first window
     for &tr_val in tr_values.iter().take(period) {
@@ -110,8 +116,8 @@ pub fn calculate(data: &DataFrame, period: usize) -> Result<Series> {
             tr_sum -= tr_values[i - period];
         }
 
-        let mut max_h = Decimal::MIN;
-        let mut min_l = Decimal::MAX;
+        let mut max_h = f64::MIN;
+        let mut min_l = f64::MAX;
 
         // O(period) rolling max/min - keeping it simple for small periods,
         // could use VecDeque for O(N) but period is usually 14 so this is fast enough.
@@ -128,11 +134,11 @@ pub fn calculate(data: &DataFrame, period: usize) -> Result<Series> {
 
         let range = max_h - min_l;
 
-        if !range.is_zero() && !tr_sum.is_zero() {
+        if range != 0.0 && tr_sum != 0.0 {
             let ratio = tr_sum / range;
-            if ratio > Decimal::ZERO {
+            if ratio > 0.0 {
                 let chop = hundred * ratio.log10() / log10_period;
-                chop_values[i] = chop.to_f64().context("Failed to convert CHOP to f64")?;
+                chop_values[i] = chop;
             }
         }
     }

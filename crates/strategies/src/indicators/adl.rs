@@ -2,8 +2,6 @@
 
 use anyhow::{Context, Result};
 use polars::prelude::*;
-use rust_decimal::prelude::*;
-use rust_decimal::Decimal;
 
 /// Calculate Accumulation/Distribution Line (ADL)
 ///
@@ -63,19 +61,23 @@ pub fn calculate(data: &DataFrame) -> Result<Series> {
     let len = close.len();
     let mut adl_values: Vec<f64> = Vec::with_capacity(len);
 
-    let mut current_adl = Decimal::ZERO;
+    let mut current_adl = 0.0f64;
 
     for i in 0..len {
-        let h = Decimal::from_f64_retain(high.get(i).unwrap_or(f64::NAN)).unwrap_or(Decimal::ZERO);
-        let l = Decimal::from_f64_retain(low.get(i).unwrap_or(f64::NAN)).unwrap_or(Decimal::ZERO);
-        let c = Decimal::from_f64_retain(close.get(i).unwrap_or(f64::NAN)).unwrap_or(Decimal::ZERO);
-        let v =
-            Decimal::from_f64_retain(volume.get(i).unwrap_or(f64::NAN)).unwrap_or(Decimal::ZERO);
+        let h_raw = high.get(i).unwrap_or(f64::NAN);
+        let l_raw = low.get(i).unwrap_or(f64::NAN);
+        let c_raw = close.get(i).unwrap_or(f64::NAN);
+        let v_raw = volume.get(i).unwrap_or(f64::NAN);
+
+        let h = if h_raw.is_finite() { h_raw } else { 0.0 };
+        let l = if l_raw.is_finite() { l_raw } else { 0.0 };
+        let c = if c_raw.is_finite() { c_raw } else { 0.0 };
+        let v = if v_raw.is_finite() { v_raw } else { 0.0 };
 
         let high_low_diff = h - l;
 
-        let mfm = if high_low_diff.is_zero() {
-            Decimal::ZERO
+        let mfm = if high_low_diff == 0.0 {
+            0.0
         } else {
             // Money Flow Multiplier = ((Close - Low) - (High - Close)) / (High - Low)
             ((c - l) - (h - c)) / high_low_diff
@@ -85,7 +87,7 @@ pub fn calculate(data: &DataFrame) -> Result<Series> {
         let mfv = mfm * v;
 
         current_adl += mfv;
-        adl_values.push(current_adl.to_f64().unwrap_or(0.0));
+        adl_values.push(current_adl);
     }
 
     Ok(Series::new("adl", adl_values))

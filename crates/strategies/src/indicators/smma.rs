@@ -1,7 +1,5 @@
 use anyhow::{Context, Result};
 use polars::prelude::*;
-use rust_decimal::prelude::*;
-use rust_decimal::Decimal;
 
 /// Calculate Smoothed Moving Average (SMMA)
 ///
@@ -28,25 +26,26 @@ pub fn calculate(data: &DataFrame, period: usize) -> Result<Series> {
         .context("Close column must be numeric (f64)")?;
 
     let mut smma_values: Vec<Option<f64>> = Vec::with_capacity(close.len());
-    let mut prev_smma: Option<Decimal> = None;
-    let mut window_sum = Decimal::ZERO;
+    let mut prev_smma: Option<f64> = None;
+    let mut window_sum = 0.0f64;
     let mut count = 0;
-    let period_dec = Decimal::from_usize(period).context("Invalid period")?;
+    let period_f = period as f64;
 
     for i in 0..close.len() {
         let val_opt = close.get(i);
 
         match val_opt {
             Some(val) => {
-                if let Some(d) = Decimal::from_f64_retain(val) {
+                if val.is_finite() {
+                    let d = val;
                     if count < period {
                         window_sum += d;
                         count += 1;
 
                         if count == period {
                             // Calculate SMA as seed
-                            let seed = window_sum / period_dec;
-                            smma_values.push(seed.to_f64());
+                            let seed = window_sum / period_f;
+                            smma_values.push(Some(seed));
                             prev_smma = Some(seed);
                         } else {
                             smma_values.push(None);
@@ -54,8 +53,8 @@ pub fn calculate(data: &DataFrame, period: usize) -> Result<Series> {
                     } else {
                         // Calculate SMMA
                         if let Some(prev) = prev_smma {
-                            let smma = (prev * (period_dec - Decimal::ONE) + d) / period_dec;
-                            smma_values.push(smma.to_f64());
+                            let smma = prev + (d - prev) / period_f;
+                            smma_values.push(Some(smma));
                             prev_smma = Some(smma);
                         } else {
                             // Should not happen if logic is correct
@@ -67,7 +66,7 @@ pub fn calculate(data: &DataFrame, period: usize) -> Result<Series> {
                     // Reset
                     smma_values.push(None);
                     count = 0;
-                    window_sum = Decimal::ZERO;
+                    window_sum = 0.0;
                     prev_smma = None;
                 }
             }
@@ -75,7 +74,7 @@ pub fn calculate(data: &DataFrame, period: usize) -> Result<Series> {
                 // Missing value
                 smma_values.push(None);
                 count = 0;
-                window_sum = Decimal::ZERO;
+                window_sum = 0.0;
                 prev_smma = None;
             }
         }

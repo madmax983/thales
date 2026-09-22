@@ -4,7 +4,6 @@ use super::adl;
 use super::ema;
 use anyhow::{Context, Result};
 use polars::prelude::*;
-use rust_decimal::prelude::*;
 
 /// Calculate Chaikin Oscillator
 ///
@@ -68,12 +67,12 @@ pub fn calculate(data: &DataFrame, fast_period: usize, slow_period: usize) -> Re
 
         match (fast_val, slow_val) {
             (Some(f), Some(s)) if !s.is_nan() && !f.is_nan() => {
-                let f_dec = Decimal::from_f64_retain(f).unwrap_or(Decimal::ZERO);
-                let s_dec = Decimal::from_f64_retain(s).unwrap_or(Decimal::ZERO);
+                let f_dec = if f.is_finite() { f } else { 0.0 };
+                let s_dec = if s.is_finite() { s } else { 0.0 };
 
                 // Chaikin Oscillator = Fast EMA of ADL - Slow EMA of ADL
                 let osc = f_dec - s_dec;
-                chaikin_values.push(osc.to_f64());
+                chaikin_values.push(Some(osc));
             }
             _ => chaikin_values.push(None),
         }

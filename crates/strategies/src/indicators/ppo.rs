@@ -3,7 +3,6 @@
 use super::ema;
 use anyhow::{Context, Result};
 use polars::prelude::*;
-use rust_decimal::prelude::*;
 
 /// Calculate Percentage Price Oscillator (PPO)
 ///
@@ -56,7 +55,7 @@ pub fn calculate(
 
     let len = data.height();
     let mut ppo_values: Vec<Option<f64>> = Vec::with_capacity(len);
-    let hundred = Decimal::new(100, 0);
+    let hundred = 100.0f64;
 
     for i in 0..len {
         let fast_val = fast_ema.get(i);
@@ -64,12 +63,12 @@ pub fn calculate(
 
         match (fast_val, slow_val) {
             (Some(f), Some(s)) if !s.is_nan() && s != 0.0 && !f.is_nan() => {
-                let f_dec = Decimal::from_f64_retain(f).unwrap_or(Decimal::ZERO);
-                let s_dec = Decimal::from_f64_retain(s).unwrap_or(Decimal::ZERO);
+                let f_val = if f.is_finite() { f } else { 0.0 };
+                let s_val = if s.is_finite() { s } else { 0.0 };
 
-                if !s_dec.is_zero() {
-                    let ppo = ((f_dec - s_dec) / s_dec) * hundred;
-                    ppo_values.push(ppo.to_f64());
+                if s_val != 0.0 {
+                    let ppo = ((f_val - s_val) / s_val) * hundred;
+                    ppo_values.push(Some(ppo));
                 } else {
                     ppo_values.push(None);
                 }
@@ -90,7 +89,7 @@ pub fn calculate(
 
     signal_line.rename("ppo_signal");
 
-    // Calculate Histogram = PPO Line - Signal Line iteratively with Decimal
+    // Calculate Histogram = PPO Line - Signal Line
     let mut hist_values: Vec<Option<f64>> = Vec::with_capacity(len);
     let signal_vals = signal_line.f64()?;
     let ppo_vals = ppo_line.f64()?;
@@ -101,11 +100,11 @@ pub fn calculate(
 
         match (p_val, s_val) {
             (Some(p), Some(s)) if !p.is_nan() && !s.is_nan() => {
-                let p_dec = Decimal::from_f64_retain(p).unwrap_or(Decimal::ZERO);
-                let s_dec = Decimal::from_f64_retain(s).unwrap_or(Decimal::ZERO);
+                let p_val = if p.is_finite() { p } else { 0.0 };
+                let s_val = if s.is_finite() { s } else { 0.0 };
 
-                let hist = p_dec - s_dec;
-                hist_values.push(hist.to_f64());
+                let hist = p_val - s_val;
+                hist_values.push(Some(hist));
             }
             _ => hist_values.push(None),
         }

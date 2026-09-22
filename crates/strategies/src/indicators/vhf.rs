@@ -1,7 +1,5 @@
 use anyhow::{Context, Result};
 use polars::prelude::*;
-use rust_decimal::prelude::*;
-use rust_decimal::Decimal;
 use std::collections::VecDeque;
 
 /// Calculates the Vertical Horizontal Filter (VHF).
@@ -40,15 +38,16 @@ pub fn calculate(data: &DataFrame, period: usize) -> Result<Series> {
 
     let mut vhf_values: Vec<Option<f64>> = Vec::with_capacity(close.len());
     // closes_window holds period + 1 prices, to compute `period` differences
-    let mut closes_window: VecDeque<Decimal> = VecDeque::with_capacity(period + 1);
-    let mut diffs_window: VecDeque<Decimal> = VecDeque::with_capacity(period);
-    let mut sum_diffs = Decimal::ZERO;
+    let mut closes_window: VecDeque<f64> = VecDeque::with_capacity(period + 1);
+    let mut diffs_window: VecDeque<f64> = VecDeque::with_capacity(period);
+    let mut sum_diffs = 0.0f64;
 
-    let mut prev_close: Option<Decimal> = None;
+    let mut prev_close: Option<f64> = None;
 
     for i in 0..close.len() {
         if let Some(val) = close.get(i) {
-            if let Some(d) = Decimal::from_f64_retain(val) {
+            if val.is_finite() {
+                let d = val;
                 closes_window.push_back(d);
                 if closes_window.len() > period + 1 {
                     closes_window.pop_front();
@@ -74,19 +73,19 @@ pub fn calculate(data: &DataFrame, period: usize) -> Result<Series> {
                         .iter()
                         .copied()
                         .reduce(|a, b| a.max(b))
-                        .unwrap_or(Decimal::ZERO);
+                        .unwrap_or(0.0);
                     let min_close = closes_window
                         .iter()
                         .copied()
                         .reduce(|a, b| a.min(b))
-                        .unwrap_or(Decimal::ZERO);
+                        .unwrap_or(0.0);
                     let numerator = max_close - min_close;
 
-                    if sum_diffs.is_zero() {
+                    if sum_diffs == 0.0 {
                         vhf_values.push(Some(0.0));
                     } else {
                         let vhf = numerator / sum_diffs;
-                        vhf_values.push(vhf.to_f64());
+                        vhf_values.push(Some(vhf));
                     }
                 } else {
                     vhf_values.push(None);
@@ -95,14 +94,14 @@ pub fn calculate(data: &DataFrame, period: usize) -> Result<Series> {
                 vhf_values.push(None);
                 closes_window.clear();
                 diffs_window.clear();
-                sum_diffs = Decimal::ZERO;
+                sum_diffs = 0.0;
                 prev_close = None;
             }
         } else {
             vhf_values.push(None);
             closes_window.clear();
             diffs_window.clear();
-            sum_diffs = Decimal::ZERO;
+            sum_diffs = 0.0;
             prev_close = None;
         }
     }

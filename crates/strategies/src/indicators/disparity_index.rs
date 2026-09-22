@@ -8,8 +8,6 @@
 
 use anyhow::{Context, Result};
 use polars::prelude::*;
-use rust_decimal::prelude::*;
-use rust_decimal::Decimal;
 
 use crate::indicators::sma;
 
@@ -55,20 +53,17 @@ pub fn calculate(data: &DataFrame, period: usize) -> Result<Series> {
         .context("SMA series must be numeric (f64)")?;
 
     let mut disparity_vals: Vec<Option<f64>> = Vec::with_capacity(close.len());
-    let hundred = Decimal::new(100, 0);
+    let hundred = 100.0;
 
     for (c_opt, sma_opt) in close.into_iter().zip(sma_f64) {
         match (c_opt, sma_opt) {
             (Some(c), Some(s)) => {
-                let c_dec_opt = Decimal::from_f64_retain(c);
-                let s_dec_opt = Decimal::from_f64_retain(s);
-
-                if let (Some(c_dec), Some(s_dec)) = (c_dec_opt, s_dec_opt) {
-                    if s_dec.is_zero() {
+                if c.is_finite() && s.is_finite() {
+                    if s == 0.0 {
                         disparity_vals.push(Some(0.0));
                     } else {
-                        let disparity = (c_dec - s_dec) / s_dec * hundred;
-                        disparity_vals.push(Some(disparity.to_f64().unwrap_or(0.0)));
+                        let disparity = (c - s) / s * hundred;
+                        disparity_vals.push(Some(disparity));
                     }
                 } else {
                     disparity_vals.push(None);

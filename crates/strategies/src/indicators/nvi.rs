@@ -5,8 +5,6 @@
 
 use anyhow::{Context, Result};
 use polars::prelude::*;
-use rust_decimal::prelude::*;
-use rust_decimal::Decimal;
 
 /// Calculate Negative Volume Index (NVI)
 ///
@@ -46,13 +44,9 @@ pub fn calculate(data: &DataFrame) -> Result<Series> {
         return Ok(Series::new("nvi", nvi_values));
     }
 
-    let mut current_nvi = Decimal::new(1000, 0); // Base value 1000
+    let mut current_nvi = 1000.0f64; // Base value 1000
 
-    nvi_values.push(Some(
-        current_nvi
-            .to_f64()
-            .context("Failed to convert Decimal to f64")?,
-    ));
+    nvi_values.push(Some(current_nvi));
 
     for i in 1..close.len() {
         let prev_close_opt = close.get(i - 1);
@@ -61,27 +55,18 @@ pub fn calculate(data: &DataFrame) -> Result<Series> {
         let curr_vol_opt = volume.get(i);
 
         match (prev_close_opt, curr_close_opt, prev_vol_opt, curr_vol_opt) {
-            (Some(prev_close), Some(curr_close), Some(prev_vol), Some(curr_vol)) => {
-                let prev_close_dec = Decimal::from_f64_retain(prev_close);
-                let curr_close_dec = Decimal::from_f64_retain(curr_close);
-                let prev_vol_dec = Decimal::from_f64_retain(prev_vol);
-                let curr_vol_dec = Decimal::from_f64_retain(curr_vol);
-
-                if let (Some(pc), Some(cc), Some(pv), Some(cv)) =
-                    (prev_close_dec, curr_close_dec, prev_vol_dec, curr_vol_dec)
-                {
-                    if cv < pv && !pc.is_zero() {
-                        let rate_of_change = (cc - pc) / pc;
-                        current_nvi += current_nvi * rate_of_change;
-                    }
-                    nvi_values.push(Some(
-                        current_nvi
-                            .to_f64()
-                            .context("Failed to convert Decimal to f64")?,
-                    ));
-                } else {
-                    nvi_values.push(None);
+            (Some(prev_close), Some(curr_close), Some(prev_vol), Some(curr_vol))
+                if prev_close.is_finite()
+                    && curr_close.is_finite()
+                    && prev_vol.is_finite()
+                    && curr_vol.is_finite() =>
+            {
+                let (pc, cc, pv, cv) = (prev_close, curr_close, prev_vol, curr_vol);
+                if cv < pv && pc != 0.0 {
+                    let rate_of_change = (cc - pc) / pc;
+                    current_nvi += current_nvi * rate_of_change;
                 }
+                nvi_values.push(Some(current_nvi));
             }
             _ => {
                 nvi_values.push(None);

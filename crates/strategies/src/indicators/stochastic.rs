@@ -9,7 +9,6 @@
 
 use anyhow::{Context, Result};
 use polars::prelude::*;
-use rust_decimal::prelude::*;
 use std::collections::VecDeque;
 
 /// Calculate Stochastic Oscillator (%K and %D)
@@ -47,18 +46,18 @@ pub fn calculate(
         .context("Missing 'close' column")?
         .f64()?;
 
-    // Convert to Decimal for precision, treating NaN/Inf as None
-    let highs: Vec<Option<Decimal>> = high_series
+    // Convert to f64, treating NaN/Inf as None
+    let highs: Vec<Option<f64>> = high_series
         .into_iter()
-        .map(|v| v.and_then(Decimal::from_f64_retain))
+        .map(|v| v.filter(|x| x.is_finite()))
         .collect();
-    let lows: Vec<Option<Decimal>> = low_series
+    let lows: Vec<Option<f64>> = low_series
         .into_iter()
-        .map(|v| v.and_then(Decimal::from_f64_retain))
+        .map(|v| v.filter(|x| x.is_finite()))
         .collect();
-    let closes: Vec<Option<Decimal>> = close_series
+    let closes: Vec<Option<f64>> = close_series
         .into_iter()
-        .map(|v| v.and_then(Decimal::from_f64_retain))
+        .map(|v| v.filter(|x| x.is_finite()))
         .collect();
 
     // 1. Calculate Lowest Low and Highest High over k_period
@@ -68,15 +67,15 @@ pub fn calculate(
     // 2. Calculate Raw %K
     // %K = 100 * (Close - Lowest Low) / (Highest High - Lowest Low)
     let mut raw_k = vec![None; data.height()];
-    let hundred = Decimal::new(100, 0);
+    let hundred = 100.0f64;
 
     for i in 0..data.height() {
         if let (Some(c), Some(ll), Some(hh)) = (closes[i], lowest_low[i], highest_high[i]) {
             let range = hh - ll;
-            if range.is_zero() {
+            if range == 0.0 {
                 // If High == Low, price is flat. Undefined mathematically.
                 // Convention: 50 (neutral).
-                raw_k[i] = Some(Decimal::new(50, 0));
+                raw_k[i] = Some(50.0);
             } else {
                 let k = hundred * (c - ll) / range;
                 raw_k[i] = Some(k);
@@ -94,24 +93,14 @@ pub fn calculate(
     // 4. Calculate %D (SMA of %K)
     let d_values = calculate_sma(&k_values, d_period);
 
-    // Convert back to f64 Series
-    let k_f64: Vec<Option<f64>> = k_values
-        .into_iter()
-        .map(|d| d.map(|v| v.to_f64().unwrap_or(0.0)))
-        .collect();
-    let d_f64: Vec<Option<f64>> = d_values
-        .into_iter()
-        .map(|d| d.map(|v| v.to_f64().unwrap_or(0.0)))
-        .collect();
-
-    let k_series = Series::new("stochastic_k", k_f64);
-    let d_series = Series::new("stochastic_d", d_f64);
+    let k_series = Series::new("stochastic_k", k_values);
+    let d_series = Series::new("stochastic_d", d_values);
 
     Ok((k_series, d_series))
 }
 
 /// Calculate Rolling Min using Monotonic Queue (O(N))
-fn rolling_min(data: &[Option<Decimal>], window: usize) -> Vec<Option<Decimal>> {
+fn rolling_min(data: &[Option<f64>], window: usize) -> Vec<Option<f64>> {
     let mut result = vec![None; data.len()];
     let mut deque: VecDeque<usize> = VecDeque::new();
     let mut none_count = 0;
@@ -167,7 +156,7 @@ fn rolling_min(data: &[Option<Decimal>], window: usize) -> Vec<Option<Decimal>> 
 }
 
 /// Calculate Rolling Max using Monotonic Queue (O(N))
-fn rolling_max(data: &[Option<Decimal>], window: usize) -> Vec<Option<Decimal>> {
+fn rolling_max(data: &[Option<f64>], window: usize) -> Vec<Option<f64>> {
     let mut result = vec![None; data.len()];
     let mut deque: VecDeque<usize> = VecDeque::new();
     let mut none_count = 0;
@@ -222,11 +211,11 @@ fn rolling_max(data: &[Option<Decimal>], window: usize) -> Vec<Option<Decimal>> 
 }
 
 /// Calculate Simple Moving Average (SMA)
-fn calculate_sma(data: &[Option<Decimal>], window: usize) -> Vec<Option<Decimal>> {
+fn calculate_sma(data: &[Option<f64>], window: usize) -> Vec<Option<f64>> {
     let mut result = vec![None; data.len()];
-    let mut sum = Decimal::ZERO;
+    let mut sum = 0.0f64;
     let mut count = 0;
-    let mut queue: VecDeque<Option<Decimal>> = VecDeque::new();
+    let mut queue: VecDeque<Option<f64>> = VecDeque::new();
 
     for i in 0..data.len() {
         let val_opt = data[i];
@@ -248,7 +237,7 @@ fn calculate_sma(data: &[Option<Decimal>], window: usize) -> Vec<Option<Decimal>
         if queue.len() == window {
             if count == window {
                 // All values valid
-                result[i] = Some(sum / Decimal::from_usize(window).unwrap());
+                result[i] = Some(sum / (window as f64));
             } else {
                 // Some values were None
                 result[i] = None;

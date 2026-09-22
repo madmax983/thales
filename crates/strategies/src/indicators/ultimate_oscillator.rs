@@ -7,8 +7,6 @@
 
 use anyhow::{Context, Result};
 use polars::prelude::*;
-use rust_decimal::prelude::*;
-use rust_decimal::Decimal;
 
 /// Calculate Ultimate Oscillator
 ///
@@ -69,33 +67,21 @@ pub fn calculate(
         return Ok(Series::new("ultimate_oscillator", ultimate_values));
     }
 
-    let hundred = Decimal::new(100, 0);
-    let d4 = Decimal::new(4, 0);
-    let d2 = Decimal::new(2, 0);
-    let d1 = Decimal::ONE;
+    let hundred = 100.0f64;
+    let d4 = 4.0f64;
+    let d2 = 2.0f64;
+    let d1 = 1.0f64;
     let sum_weights = d4 + d2 + d1;
 
     // True Range and Buying Pressure
-    let mut bp: Vec<Option<Decimal>> = vec![None; len];
-    let mut tr: Vec<Option<Decimal>> = vec![None; len];
+    let mut bp: Vec<Option<f64>> = vec![None; len];
+    let mut tr: Vec<Option<f64>> = vec![None; len];
 
     for i in 1..len {
-        let curr_high = match high.get(i) {
-            Some(v) => Decimal::from_f64_retain(v),
-            None => None,
-        };
-        let curr_low = match low.get(i) {
-            Some(v) => Decimal::from_f64_retain(v),
-            None => None,
-        };
-        let curr_close = match close.get(i) {
-            Some(v) => Decimal::from_f64_retain(v),
-            None => None,
-        };
-        let prev_close = match close.get(i - 1) {
-            Some(v) => Decimal::from_f64_retain(v),
-            None => None,
-        };
+        let curr_high = high.get(i).filter(|v| v.is_finite());
+        let curr_low = low.get(i).filter(|v| v.is_finite());
+        let curr_close = close.get(i).filter(|v| v.is_finite());
+        let prev_close = close.get(i - 1).filter(|v| v.is_finite());
 
         if let (Some(ch), Some(cl), Some(cc), Some(pc)) =
             (curr_high, curr_low, curr_close, prev_close)
@@ -116,12 +102,12 @@ pub fn calculate(
     #[allow(clippy::needless_range_loop)]
     for i in period3..len {
         let mut valid = true;
-        let mut sum_bp1 = Decimal::ZERO;
-        let mut sum_tr1 = Decimal::ZERO;
-        let mut sum_bp2 = Decimal::ZERO;
-        let mut sum_tr2 = Decimal::ZERO;
-        let mut sum_bp3 = Decimal::ZERO;
-        let mut sum_tr3 = Decimal::ZERO;
+        let mut sum_bp1 = 0.0f64;
+        let mut sum_tr1 = 0.0f64;
+        let mut sum_bp2 = 0.0f64;
+        let mut sum_tr2 = 0.0f64;
+        let mut sum_bp3 = 0.0f64;
+        let mut sum_tr3 = 0.0f64;
 
         for j in (i + 1 - period3)..=i {
             if let (Some(bp_val), Some(tr_val)) = (bp[j], tr[j]) {
@@ -147,7 +133,7 @@ pub fn calculate(
             continue; // Leaves as None
         }
 
-        if sum_tr1.is_zero() || sum_tr2.is_zero() || sum_tr3.is_zero() {
+        if sum_tr1 == 0.0 || sum_tr2 == 0.0 || sum_tr3 == 0.0 {
             ultimate_values[i] = Some(50.0); // Neutral
             continue;
         }
@@ -157,7 +143,7 @@ pub fn calculate(
         let avg3 = sum_bp3 / sum_tr3;
 
         let uo = hundred * ((d4 * avg1) + (d2 * avg2) + (d1 * avg3)) / sum_weights;
-        ultimate_values[i] = uo.to_f64();
+        ultimate_values[i] = Some(uo);
     }
 
     Ok(Series::new("ultimate_oscillator", ultimate_values))

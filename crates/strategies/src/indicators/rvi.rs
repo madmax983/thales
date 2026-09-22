@@ -1,7 +1,5 @@
 use anyhow::Result;
 use polars::prelude::*;
-use rust_decimal::prelude::*;
-use rust_decimal::Decimal;
 use std::collections::VecDeque;
 
 /// Calculate Relative Vigor Index (RVI)
@@ -30,8 +28,8 @@ pub fn calculate(data: &DataFrame, period: usize) -> Result<DataFrame> {
     let mut rvi_values = vec![None; len];
     let mut signal_values = vec![None; len];
 
-    let mut numerator_vals = vec![Decimal::ZERO; len];
-    let mut denominator_vals = vec![Decimal::ZERO; len];
+    let mut numerator_vals = vec![0.0f64; len];
+    let mut denominator_vals = vec![0.0f64; len];
 
     // Compute Num & Den for each period i >= 3
     for i in 3..len {
@@ -75,28 +73,28 @@ pub fn calculate(data: &DataFrame, period: usize) -> Result<DataFrame> {
         ) = (
             o0, h0, l0, c0, o1, h1, l1, c1, o2, h2, l2, c2, o3, h3, l3, c3,
         ) {
-            let o0d = Decimal::from_f64_retain(o0).unwrap_or(Decimal::ZERO);
-            let h0d = Decimal::from_f64_retain(h0).unwrap_or(Decimal::ZERO);
-            let l0d = Decimal::from_f64_retain(l0).unwrap_or(Decimal::ZERO);
-            let c0d = Decimal::from_f64_retain(c0).unwrap_or(Decimal::ZERO);
+            let o0d = if o0.is_finite() { o0 } else { 0.0 };
+            let h0d = if h0.is_finite() { h0 } else { 0.0 };
+            let l0d = if l0.is_finite() { l0 } else { 0.0 };
+            let c0d = if c0.is_finite() { c0 } else { 0.0 };
 
-            let o1d = Decimal::from_f64_retain(o1).unwrap_or(Decimal::ZERO);
-            let h1d = Decimal::from_f64_retain(h1).unwrap_or(Decimal::ZERO);
-            let l1d = Decimal::from_f64_retain(l1).unwrap_or(Decimal::ZERO);
-            let c1d = Decimal::from_f64_retain(c1).unwrap_or(Decimal::ZERO);
+            let o1d = if o1.is_finite() { o1 } else { 0.0 };
+            let h1d = if h1.is_finite() { h1 } else { 0.0 };
+            let l1d = if l1.is_finite() { l1 } else { 0.0 };
+            let c1d = if c1.is_finite() { c1 } else { 0.0 };
 
-            let o2d = Decimal::from_f64_retain(o2).unwrap_or(Decimal::ZERO);
-            let h2d = Decimal::from_f64_retain(h2).unwrap_or(Decimal::ZERO);
-            let l2d = Decimal::from_f64_retain(l2).unwrap_or(Decimal::ZERO);
-            let c2d = Decimal::from_f64_retain(c2).unwrap_or(Decimal::ZERO);
+            let o2d = if o2.is_finite() { o2 } else { 0.0 };
+            let h2d = if h2.is_finite() { h2 } else { 0.0 };
+            let l2d = if l2.is_finite() { l2 } else { 0.0 };
+            let c2d = if c2.is_finite() { c2 } else { 0.0 };
 
-            let o3d = Decimal::from_f64_retain(o3).unwrap_or(Decimal::ZERO);
-            let h3d = Decimal::from_f64_retain(h3).unwrap_or(Decimal::ZERO);
-            let l3d = Decimal::from_f64_retain(l3).unwrap_or(Decimal::ZERO);
-            let c3d = Decimal::from_f64_retain(c3).unwrap_or(Decimal::ZERO);
+            let o3d = if o3.is_finite() { o3 } else { 0.0 };
+            let h3d = if h3.is_finite() { h3 } else { 0.0 };
+            let l3d = if l3.is_finite() { l3 } else { 0.0 };
+            let c3d = if c3.is_finite() { c3 } else { 0.0 };
 
-            let two = Decimal::from(2);
-            let six = Decimal::from(6);
+            let two = 2.0f64;
+            let six = 6.0f64;
 
             let a = c0d - o0d;
             let b = c1d - o1d;
@@ -114,13 +112,13 @@ pub fn calculate(data: &DataFrame, period: usize) -> Result<DataFrame> {
         }
     }
 
-    let period_dec = Decimal::from_usize(period).unwrap_or(Decimal::ONE);
+    let period_f = period as f64;
 
     // SMA of Numerator and SMA of Denominator
-    let mut num_window: VecDeque<Decimal> = VecDeque::with_capacity(period);
-    let mut den_window: VecDeque<Decimal> = VecDeque::with_capacity(period);
-    let mut num_sum = Decimal::ZERO;
-    let mut den_sum = Decimal::ZERO;
+    let mut num_window: VecDeque<f64> = VecDeque::with_capacity(period);
+    let mut den_window: VecDeque<f64> = VecDeque::with_capacity(period);
+    let mut num_sum = 0.0f64;
+    let mut den_sum = 0.0f64;
 
     // To compute RVI at index i, we need SMA of num up to i, SMA of den up to i.
     // They are valid only for i >= 3 + period - 1
@@ -144,13 +142,13 @@ pub fn calculate(data: &DataFrame, period: usize) -> Result<DataFrame> {
         }
 
         if num_window.len() == period {
-            let num_sma = num_sum / period_dec;
-            let den_sma = den_sum / period_dec;
+            let num_sma = num_sum / period_f;
+            let den_sma = den_sum / period_f;
 
             // Avoid division by zero
-            if den_sma != Decimal::ZERO {
+            if den_sma != 0.0 {
                 let rvi = num_sma / den_sma;
-                rvi_values[i] = rvi.to_f64();
+                rvi_values[i] = Some(rvi);
             } else {
                 rvi_values[i] = Some(0.0);
             }

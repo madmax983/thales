@@ -2,8 +2,6 @@
 
 use anyhow::{Context, Result};
 use polars::prelude::*;
-use rust_decimal::prelude::*;
-use rust_decimal::Decimal;
 use std::collections::VecDeque;
 
 /// Calculate Donchian Channels
@@ -53,16 +51,13 @@ pub fn calculate(data: &DataFrame, period: usize) -> Result<(Series, Series, Ser
 
     // Calculate Middle Band = (Upper + Lower) / 2
     let mut middle_vals = Vec::with_capacity(high.len());
-    let two = Decimal::from(2);
 
     for i in 0..high.len() {
         match (upper_vals[i], lower_vals[i]) {
             (Some(u), Some(l)) => {
-                if let (Some(u_dec), Some(l_dec)) =
-                    (Decimal::from_f64_retain(u), Decimal::from_f64_retain(l))
-                {
-                    let m = (u_dec + l_dec) / two;
-                    middle_vals.push(m.to_f64());
+                if u.is_finite() && l.is_finite() {
+                    let m = (u + l) / 2.0;
+                    middle_vals.push(Some(m));
                 } else {
                     middle_vals.push(None);
                 }

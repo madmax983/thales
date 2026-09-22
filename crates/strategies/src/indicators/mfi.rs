@@ -1,7 +1,5 @@
 use anyhow::{Context, Result};
 use polars::prelude::*;
-use rust_decimal::prelude::*;
-use rust_decimal::Decimal;
 
 /// Calculate Money Flow Index (MFI)
 ///
@@ -51,19 +49,22 @@ pub fn calculate(data: &DataFrame, period: usize) -> Result<Series> {
         return Ok(Series::new("mfi", mfi_values));
     }
 
-    // Prepare Decimals for calculation
-    let mut typical_prices: Vec<Decimal> = Vec::with_capacity(len);
-    let mut raw_money_flows: Vec<Decimal> = Vec::with_capacity(len);
+    // Prepare values for calculation
+    let mut typical_prices: Vec<f64> = Vec::with_capacity(len);
+    let mut raw_money_flows: Vec<f64> = Vec::with_capacity(len);
 
     for i in 0..len {
-        let h = Decimal::from_f64_retain(high.get(i).unwrap_or(f64::NAN)).unwrap_or(Decimal::ZERO);
-        let l = Decimal::from_f64_retain(low.get(i).unwrap_or(f64::NAN)).unwrap_or(Decimal::ZERO);
-        let c = Decimal::from_f64_retain(close.get(i).unwrap_or(f64::NAN)).unwrap_or(Decimal::ZERO);
-        let v =
-            Decimal::from_f64_retain(volume.get(i).unwrap_or(f64::NAN)).unwrap_or(Decimal::ZERO);
+        let h_raw = high.get(i).unwrap_or(f64::NAN);
+        let l_raw = low.get(i).unwrap_or(f64::NAN);
+        let c_raw = close.get(i).unwrap_or(f64::NAN);
+        let v_raw = volume.get(i).unwrap_or(f64::NAN);
+        let h = if h_raw.is_finite() { h_raw } else { 0.0 };
+        let l = if l_raw.is_finite() { l_raw } else { 0.0 };
+        let c = if c_raw.is_finite() { c_raw } else { 0.0 };
+        let v = if v_raw.is_finite() { v_raw } else { 0.0 };
 
         // Typical Price = (High + Low + Close) / 3
-        let tp = (h + l + c) / Decimal::from(3);
+        let tp = (h + l + c) / 3.0;
         typical_prices.push(tp);
 
         // Raw Money Flow = Typical Price * Volume
@@ -72,8 +73,8 @@ pub fn calculate(data: &DataFrame, period: usize) -> Result<Series> {
     }
 
     // Calculate Positive and Negative Money Flows
-    let mut positive_flows: Vec<Decimal> = vec![Decimal::ZERO; len];
-    let mut negative_flows: Vec<Decimal> = vec![Decimal::ZERO; len];
+    let mut positive_flows: Vec<f64> = vec![0.0; len];
+    let mut negative_flows: Vec<f64> = vec![0.0; len];
 
     // Start from 1 because we compare with previous
     for i in 1..len {
@@ -96,8 +97,8 @@ pub fn calculate(data: &DataFrame, period: usize) -> Result<Series> {
 
     // Efficient rolling sum
     // Initialize first window sum
-    let mut sum_pos = Decimal::ZERO;
-    let mut sum_neg = Decimal::ZERO;
+    let mut sum_pos = 0.0f64;
+    let mut sum_neg = 0.0f64;
 
     // Sum first 'period' elements (indices 1 to period)
     // Note: index 0 has no flow because no previous price.
@@ -110,17 +111,17 @@ pub fn calculate(data: &DataFrame, period: usize) -> Result<Series> {
         }
     }
 
-    let hundred = Decimal::from(100);
+    let hundred = 100.0f64;
 
     // Calculate MFI at index `period`
     if len > period {
-        let mfi = if sum_neg.is_zero() {
+        let mfi = if sum_neg == 0.0 {
             hundred
         } else {
-            let mfr = sum_pos.checked_div(sum_neg).unwrap_or(Decimal::ZERO);
-            hundred - (hundred / (Decimal::ONE + mfr))
+            let mfr = sum_pos / sum_neg;
+            hundred - (hundred / (1.0 + mfr))
         };
-        mfi_values[period] = mfi.to_f64();
+        mfi_values[period] = Some(mfi);
     }
 
     // Slide window
@@ -133,26 +134,26 @@ pub fn calculate(data: &DataFrame, period: usize) -> Result<Series> {
         sum_pos -= positive_flows[i - period];
         sum_neg -= negative_flows[i - period];
 
-        // Ensure non-negative due to potential floating point issues (though using Decimal helps)
-        if sum_pos < Decimal::ZERO {
-            sum_pos = Decimal::ZERO;
+        // Ensure non-negative due to potential floating point issues
+        if sum_pos < 0.0 {
+            sum_pos = 0.0;
         }
-        if sum_neg < Decimal::ZERO {
-            sum_neg = Decimal::ZERO;
+        if sum_neg < 0.0 {
+            sum_neg = 0.0;
         }
 
-        let mfi = if sum_neg.is_zero() {
+        let mfi = if sum_neg == 0.0 {
             hundred
         } else {
-            let mfr = sum_pos.checked_div(sum_neg).unwrap_or(Decimal::ZERO);
-            let denominator = Decimal::ONE + mfr;
-            if denominator.is_zero() {
+            let mfr = sum_pos / sum_neg;
+            let denominator = 1.0 + mfr;
+            if denominator == 0.0 {
                 hundred
             } else {
-                hundred - (hundred.checked_div(denominator).unwrap_or(Decimal::ZERO))
+                hundred - (hundred / denominator)
             }
         };
-        mfi_values[i] = mfi.to_f64();
+        mfi_values[i] = Some(mfi);
     }
 
     Ok(Series::new("mfi", mfi_values))

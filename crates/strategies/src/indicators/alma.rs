@@ -8,7 +8,6 @@
 
 use anyhow::{Context, Result};
 use polars::prelude::*;
-use rust_decimal::Decimal;
 
 /// Calculate ALMA
 ///
@@ -51,29 +50,30 @@ pub fn calculate(data: &DataFrame, period: usize, offset: f64, sigma: f64) -> Re
         .context("DataFrame must have a 'close' column")?;
     let close = close_series.f64()?;
 
-    // Convert f64 values to Decimal for all financial calculations.
-    let prices: Vec<Option<Decimal>> = close
+    // Filter out non-finite values (NaN/infinite), matching the previous
+    // Decimal-based conversion's rejection of such values.
+    let prices: Vec<Option<f64>> = close
         .into_iter()
-        .map(|opt_val| opt_val.and_then(Decimal::from_f64_retain))
+        .map(|opt_val| opt_val.filter(|v| v.is_finite()))
         .collect();
 
     let m = offset * (period as f64 - 1.0);
     let s = (period as f64) / sigma;
 
     // Precalculate weights
-    let mut weights: Vec<Decimal> = Vec::with_capacity(period);
-    let mut weight_sum = Decimal::ZERO;
+    let mut weights: Vec<f64> = Vec::with_capacity(period);
+    let mut weight_sum = 0.0f64;
 
     for i in 0..period {
         let im = (i as f64) - m;
         let w_f64 = (-(im * im) / (2.0 * s * s)).exp();
-        let w = Decimal::from_f64_retain(w_f64).unwrap_or(Decimal::ZERO);
+        let w = if w_f64.is_finite() { w_f64 } else { 0.0 };
         weights.push(w);
         weight_sum += w;
     }
 
     // Normalize weights
-    if weight_sum.is_zero() {
+    if weight_sum == 0.0 {
         anyhow::bail!("Calculated weight sum is zero, invalid parameters");
     }
     for w in weights.iter_mut() {
@@ -87,7 +87,7 @@ pub fn calculate(data: &DataFrame, period: usize, offset: f64, sigma: f64) -> Re
         if i < period - 1 {
             alma_values.push(None);
         } else {
-            let mut sum = Decimal::ZERO;
+            let mut sum = 0.0f64;
             let mut valid = true;
 
             for (j, w) in weights.iter().enumerate().take(period) {
@@ -101,8 +101,7 @@ pub fn calculate(data: &DataFrame, period: usize, offset: f64, sigma: f64) -> Re
             }
 
             if valid {
-                use rust_decimal::prelude::ToPrimitive;
-                alma_values.push(sum.to_f64());
+                alma_values.push(Some(sum));
             } else {
                 alma_values.push(None);
             }

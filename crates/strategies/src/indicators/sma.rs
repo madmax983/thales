@@ -1,7 +1,5 @@
 use anyhow::{Context, Result};
 use polars::prelude::*;
-use rust_decimal::prelude::*;
-use rust_decimal::Decimal;
 use std::collections::VecDeque;
 
 /// Calculate Simple Moving Average (SMA)
@@ -29,20 +27,19 @@ pub fn calculate(data: &DataFrame, period: usize) -> Result<Series> {
         .context("Close column must be numeric (f64)")?;
 
     let mut sma_values: Vec<Option<f64>> = Vec::with_capacity(close.len());
-    let mut window: VecDeque<Decimal> = VecDeque::with_capacity(period);
-    let mut sum = Decimal::ZERO;
-    let period_dec =
-        Decimal::from_usize(period).context("Invalid period for Decimal conversion")?;
+    let mut window: VecDeque<f64> = VecDeque::with_capacity(period);
+    let mut sum = 0.0f64;
+    let period_f = period as f64;
 
     for i in 0..close.len() {
         let val_opt = close.get(i);
 
         match val_opt {
             Some(val) => {
-                // Convert to Decimal
                 // Handle potential NaN or infinity by treating as None or error?
                 // For robustness, let's treat invalid f64 as gap.
-                if let Some(d) = Decimal::from_f64_retain(val) {
+                if val.is_finite() {
+                    let d = val;
                     sum += d;
                     window.push_back(d);
 
@@ -53,8 +50,8 @@ pub fn calculate(data: &DataFrame, period: usize) -> Result<Series> {
                     }
 
                     if window.len() == period {
-                        let avg = sum / period_dec;
-                        sma_values.push(avg.to_f64());
+                        let avg = sum / period_f;
+                        sma_values.push(Some(avg));
                     } else {
                         sma_values.push(None);
                     }
@@ -62,14 +59,14 @@ pub fn calculate(data: &DataFrame, period: usize) -> Result<Series> {
                     // Failed to convert (e.g. NaN)
                     sma_values.push(None);
                     window.clear();
-                    sum = Decimal::ZERO;
+                    sum = 0.0;
                 }
             }
             None => {
                 // Missing data point
                 sma_values.push(None);
                 window.clear();
-                sum = Decimal::ZERO;
+                sum = 0.0;
             }
         }
     }
