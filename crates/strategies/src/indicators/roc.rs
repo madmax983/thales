@@ -5,8 +5,6 @@
 
 use anyhow::{Context, Result};
 use polars::prelude::*;
-use rust_decimal::prelude::*;
-use rust_decimal::Decimal;
 
 /// Calculate Rate of Change (ROC)
 ///
@@ -44,7 +42,7 @@ pub fn calculate(data: &DataFrame, period: usize) -> Result<Series> {
         return Ok(Series::new("roc", roc_values));
     }
 
-    let hundred = Decimal::new(100, 0);
+    let hundred = 100.0f64;
 
     for (i, roc_val) in roc_values
         .iter_mut()
@@ -56,16 +54,16 @@ pub fn calculate(data: &DataFrame, period: usize) -> Result<Series> {
         let prev_opt = close.get(i - period);
 
         if let (Some(curr), Some(prev)) = (curr_opt, prev_opt) {
-            let curr_dec = Decimal::from_f64_retain(curr).unwrap_or(Decimal::ZERO);
-            let prev_dec = Decimal::from_f64_retain(prev).unwrap_or(Decimal::ZERO);
+            let curr_f = if curr.is_finite() { curr } else { 0.0 };
+            let prev_f = if prev.is_finite() { prev } else { 0.0 };
 
-            if prev_dec.is_zero() {
+            if prev_f == 0.0 {
                 // If previous price is zero, we can't calculate ROC. Use None.
                 *roc_val = None;
             } else {
-                let change = curr_dec - prev_dec;
-                let roc = (change / prev_dec) * hundred;
-                *roc_val = roc.to_f64();
+                let change = curr_f - prev_f;
+                let roc = (change / prev_f) * hundred;
+                *roc_val = Some(roc);
             }
         } else {
             *roc_val = None;

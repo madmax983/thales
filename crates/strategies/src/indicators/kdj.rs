@@ -29,8 +29,6 @@
 
 use anyhow::Result;
 use polars::prelude::*;
-use rust_decimal::prelude::ToPrimitive;
-use rust_decimal::Decimal;
 
 use crate::indicators::stochastic;
 
@@ -57,9 +55,6 @@ pub fn calculate(
     }
 
     // Reuse stochastic calculation for %K and %D
-    // Stochastic calculates internal using Decimal, but returns f64 series.
-    // To strictly follow the `rust_decimal::Decimal` constraint without a manual map,
-    // we would have to pull everything to Decimals.
     let (k_series, d_series) = stochastic::calculate(data, k_period, k_smoothing, d_period)?;
 
     let k_arr = k_series.f64()?;
@@ -67,17 +62,11 @@ pub fn calculate(
 
     let mut j_f64: Vec<Option<f64>> = vec![None; data.height()];
 
-    let three = Decimal::new(3, 0);
-    let two = Decimal::new(2, 0);
-
     for (i, j_val) in j_f64.iter_mut().enumerate().take(data.height()) {
         if let (Some(k), Some(d)) = (k_arr.get(i), d_arr.get(i)) {
-            if let (Some(k_dec), Some(d_dec)) =
-                (Decimal::from_f64_retain(k), Decimal::from_f64_retain(d))
-            {
+            if k.is_finite() && d.is_finite() {
                 // %J = 3 * %K - 2 * %D
-                let j_dec = (three * k_dec) - (two * d_dec);
-                *j_val = j_dec.to_f64();
+                *j_val = Some((3.0 * k) - (2.0 * d));
             }
         }
     }

@@ -4,8 +4,6 @@
 
 use anyhow::{Context, Result};
 use polars::prelude::*;
-use rust_decimal::prelude::*;
-use rust_decimal::Decimal;
 
 /// Calculate Weighted Moving Average (WMA)
 ///
@@ -19,7 +17,6 @@ use rust_decimal::Decimal;
 /// # Example
 /// ```rust
 /// use polars::prelude::*;
-/// use rust_decimal::Decimal;
 /// use strategies::indicators::wma;
 ///
 /// let df = df!(
@@ -44,32 +41,24 @@ pub fn calculate(data: &DataFrame, period: usize) -> Result<Series> {
 
     let close = close_s.f64().context("Close column must be numeric")?;
 
-    // Pre-extract into contiguous Vec<Option<Decimal>>
-    let decimal_close: Vec<Option<Decimal>> = close
+    // Pre-extract into a contiguous Vec, treating non-finite values as missing
+    let finite_close: Vec<Option<f64>> = close
         .into_iter()
-        .map(|opt_val| {
-            if let Some(val) = opt_val {
-                Decimal::from_f64_retain(val)
-            } else {
-                None
-            }
-        })
+        .map(|opt_val| opt_val.filter(|v| v.is_finite()))
         .collect();
 
-    let mut wma_values: Vec<Option<f64>> = vec![None; decimal_close.len()];
+    let mut wma_values: Vec<Option<f64>> = vec![None; finite_close.len()];
 
     // Sum of weights: n*(n+1)/2
-    let denominator_usize = (period * (period + 1)) / 2;
-    let denominator =
-        Decimal::from_usize(denominator_usize).context("Invalid period for WMA calculation")?;
+    let denominator = ((period * (period + 1)) / 2) as f64;
 
     for (i, wma_out) in wma_values
         .iter_mut()
         .enumerate()
-        .take(decimal_close.len())
+        .take(finite_close.len())
         .skip(period - 1)
     {
-        let mut sum = Decimal::ZERO;
+        let mut sum = 0.0f64;
         let mut valid = true;
 
         for j in 0..period {
@@ -77,18 +66,9 @@ pub fn calculate(data: &DataFrame, period: usize) -> Result<Series> {
             let idx = i + 1 + j - period;
 
             // Weight is 1 for the oldest, 2 for the next, ... period for the newest
-            let weight_val = j + 1;
-            // Unwrapping here is safe because `period` and `j` are bounded and small enough,
-            // but we can use fallible conversion:
-            let weight = match Decimal::from_usize(weight_val) {
-                Some(w) => w,
-                None => {
-                    valid = false;
-                    break;
-                }
-            };
+            let weight = (j + 1) as f64;
 
-            if let Some(d) = decimal_close[idx] {
+            if let Some(d) = finite_close[idx] {
                 sum += d * weight;
             } else {
                 valid = false;
@@ -97,8 +77,7 @@ pub fn calculate(data: &DataFrame, period: usize) -> Result<Series> {
         }
 
         if valid {
-            let wma = sum / denominator;
-            *wma_out = wma.to_f64();
+            *wma_out = Some(sum / denominator);
         }
     }
 

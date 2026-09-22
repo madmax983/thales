@@ -1,7 +1,5 @@
 use anyhow::{Context, Result};
 use polars::prelude::*;
-use rust_decimal::prelude::*;
-use rust_decimal::Decimal;
 
 /// Calculate On-Balance Volume (OBV)
 ///
@@ -29,7 +27,7 @@ pub fn calculate(data: &DataFrame) -> Result<Series> {
         .context("Volume column must be numeric (f64)")?;
 
     let mut obv_values: Vec<Option<f64>> = Vec::with_capacity(close.len());
-    let mut current_obv = Decimal::ZERO;
+    let mut current_obv = 0.0f64;
     let mut initialized = false;
 
     for i in 0..close.len() {
@@ -37,13 +35,13 @@ pub fn calculate(data: &DataFrame) -> Result<Series> {
         let vol_val = volume.get(i);
 
         if let (Some(c), Some(v)) = (close_val, vol_val) {
-            let c_dec = Decimal::from_f64_retain(c).unwrap_or(Decimal::ZERO);
-            let v_dec = Decimal::from_f64_retain(v).unwrap_or(Decimal::ZERO);
+            let c_f = if c.is_finite() { c } else { 0.0 };
+            let v_f = if v.is_finite() { v } else { 0.0 };
 
             if !initialized {
                 // First valid point. OBV starts at 0.
                 initialized = true;
-                obv_values.push(Some(current_obv.to_f64().unwrap_or(0.0)));
+                obv_values.push(Some(current_obv));
             } else {
                 // We need previous VALID close.
                 // But simplified: check i-1. If i-1 was None, we can't determine direction.
@@ -53,23 +51,23 @@ pub fn calculate(data: &DataFrame) -> Result<Series> {
 
                 let prev_close_opt = close.get(i - 1);
                 if let Some(prev_c) = prev_close_opt {
-                    let prev_c_dec = Decimal::from_f64_retain(prev_c).unwrap_or(Decimal::ZERO);
+                    let prev_c_f = if prev_c.is_finite() { prev_c } else { 0.0 };
 
-                    if c_dec > prev_c_dec {
-                        current_obv += v_dec;
-                    } else if c_dec < prev_c_dec {
-                        current_obv -= v_dec;
+                    if c_f > prev_c_f {
+                        current_obv += v_f;
+                    } else if c_f < prev_c_f {
+                        current_obv -= v_f;
                     }
                     // If equal, no change
 
-                    obv_values.push(Some(current_obv.to_f64().unwrap_or(0.0)));
+                    obv_values.push(Some(current_obv));
                 } else {
                     // Previous close missing, cannot determine direction.
                     // Push current OBV (flat) or None?
                     // Let's push None to indicate uncertainty, or just hold previous?
                     // If we hold previous, we assume no change.
                     // Let's hold previous.
-                    obv_values.push(Some(current_obv.to_f64().unwrap_or(0.0)));
+                    obv_values.push(Some(current_obv));
                 }
             }
         } else {

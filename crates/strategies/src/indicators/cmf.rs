@@ -1,7 +1,5 @@
 use anyhow::{Context, Result};
 use polars::prelude::*;
-use rust_decimal::prelude::*;
-use rust_decimal::Decimal;
 
 /// Calculate Chaikin Money Flow (CMF)
 ///
@@ -51,21 +49,25 @@ pub fn calculate(data: &DataFrame, period: usize) -> Result<Series> {
         return Ok(Series::new("cmf", cmf_values));
     }
 
-    // Prepare Decimals for calculation
-    let mut money_flow_volumes: Vec<Decimal> = Vec::with_capacity(len);
-    let mut volumes: Vec<Decimal> = Vec::with_capacity(len);
+    // Prepare values for calculation
+    let mut money_flow_volumes: Vec<f64> = Vec::with_capacity(len);
+    let mut volumes: Vec<f64> = Vec::with_capacity(len);
 
     for i in 0..len {
-        let h = Decimal::from_f64_retain(high.get(i).unwrap_or(f64::NAN)).unwrap_or(Decimal::ZERO);
-        let l = Decimal::from_f64_retain(low.get(i).unwrap_or(f64::NAN)).unwrap_or(Decimal::ZERO);
-        let c = Decimal::from_f64_retain(close.get(i).unwrap_or(f64::NAN)).unwrap_or(Decimal::ZERO);
-        let v =
-            Decimal::from_f64_retain(volume.get(i).unwrap_or(f64::NAN)).unwrap_or(Decimal::ZERO);
+        let h_raw = high.get(i).unwrap_or(f64::NAN);
+        let l_raw = low.get(i).unwrap_or(f64::NAN);
+        let c_raw = close.get(i).unwrap_or(f64::NAN);
+        let v_raw = volume.get(i).unwrap_or(f64::NAN);
+
+        let h = if h_raw.is_finite() { h_raw } else { 0.0 };
+        let l = if l_raw.is_finite() { l_raw } else { 0.0 };
+        let c = if c_raw.is_finite() { c_raw } else { 0.0 };
+        let v = if v_raw.is_finite() { v_raw } else { 0.0 };
 
         let high_low_diff = h - l;
 
-        let mfm = if high_low_diff.is_zero() {
-            Decimal::ZERO
+        let mfm = if high_low_diff == 0.0 {
+            0.0
         } else {
             // Money Flow Multiplier = ((Close - Low) - (High - Close)) / (High - Low)
             ((c - l) - (h - c)) / high_low_diff
@@ -79,8 +81,8 @@ pub fn calculate(data: &DataFrame, period: usize) -> Result<Series> {
 
     // Efficient rolling sum
     // Initialize first window sum
-    let mut sum_mfv = Decimal::ZERO;
-    let mut sum_vol = Decimal::ZERO;
+    let mut sum_mfv = 0.0;
+    let mut sum_vol = 0.0;
 
     // Sum first 'period' elements (indices 0 to period - 1)
     for i in 0..period {
@@ -89,12 +91,12 @@ pub fn calculate(data: &DataFrame, period: usize) -> Result<Series> {
     }
 
     // Calculate CMF at index `period - 1`
-    let cmf = if sum_vol.is_zero() {
-        Decimal::ZERO
+    let cmf = if sum_vol == 0.0 {
+        0.0
     } else {
-        sum_mfv.checked_div(sum_vol).unwrap_or(Decimal::ZERO)
+        sum_mfv / sum_vol
     };
-    cmf_values[period - 1] = cmf.to_f64();
+    cmf_values[period - 1] = Some(cmf);
 
     // Slide window
     for i in period..len {
@@ -106,12 +108,12 @@ pub fn calculate(data: &DataFrame, period: usize) -> Result<Series> {
         sum_mfv -= money_flow_volumes[i - period];
         sum_vol -= volumes[i - period];
 
-        let cmf = if sum_vol.is_zero() {
-            Decimal::ZERO
+        let cmf = if sum_vol == 0.0 {
+            0.0
         } else {
-            sum_mfv.checked_div(sum_vol).unwrap_or(Decimal::ZERO)
+            sum_mfv / sum_vol
         };
-        cmf_values[i] = cmf.to_f64();
+        cmf_values[i] = Some(cmf);
     }
 
     Ok(Series::new("cmf", cmf_values))

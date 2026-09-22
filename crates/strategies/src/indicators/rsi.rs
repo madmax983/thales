@@ -7,8 +7,6 @@
 
 use anyhow::{Context, Result};
 use polars::prelude::*;
-use rust_decimal::prelude::*;
-use rust_decimal::Decimal;
 
 /// Calculate Relative Strength Index (RSI)
 ///
@@ -48,12 +46,12 @@ pub fn calculate(data: &DataFrame, period: usize) -> Result<Series> {
         return Ok(Series::new("rsi", rsi_values));
     }
 
-    let period_dec = Decimal::from_usize(period).context("Invalid period")?;
-    let period_minus_one = period_dec - Decimal::ONE;
-    let hundred = Decimal::new(100, 0);
+    let period_f = period as f64;
+    let period_minus_one = period_f - 1.0;
+    let hundred = 100.0f64;
 
-    let mut avg_gain = Decimal::ZERO;
-    let mut avg_loss = Decimal::ZERO;
+    let mut avg_gain = 0.0f64;
+    let mut avg_loss = 0.0f64;
 
     // Calculate initial SMA of gains/losses
     // Changes are at indices 1 to period (inclusive)
@@ -67,10 +65,9 @@ pub fn calculate(data: &DataFrame, period: usize) -> Result<Series> {
             break;
         }
 
-        let change = Decimal::from_f64_retain(curr).unwrap_or(Decimal::ZERO)
-            - Decimal::from_f64_retain(prev).unwrap_or(Decimal::ZERO);
+        let change = curr - prev;
 
-        if change > Decimal::ZERO {
+        if change > 0.0 {
             avg_gain += change;
         } else {
             avg_loss += change.abs();
@@ -83,22 +80,22 @@ pub fn calculate(data: &DataFrame, period: usize) -> Result<Series> {
         return Ok(Series::new("rsi", rsi_values));
     }
 
-    avg_gain /= period_dec;
-    avg_loss /= period_dec;
+    avg_gain /= period_f;
+    avg_loss /= period_f;
 
     // Calculate first RSI (at index period)
-    let first_rsi = if avg_loss.is_zero() {
-        if avg_gain.is_zero() {
-            Decimal::new(50, 0) // No change
+    let first_rsi = if avg_loss == 0.0 {
+        if avg_gain == 0.0 {
+            50.0 // No change
         } else {
             hundred // Pure gain
         }
     } else {
         let rs = avg_gain / avg_loss;
-        hundred - (hundred / (Decimal::ONE + rs))
+        hundred - (hundred / (1.0 + rs))
     };
 
-    rsi_values[period] = first_rsi.to_f64();
+    rsi_values[period] = Some(first_rsi);
 
     // Loop for the rest
     for (i, rsi_val) in rsi_values
@@ -111,32 +108,31 @@ pub fn calculate(data: &DataFrame, period: usize) -> Result<Series> {
         let prev_opt = close.get(i - 1);
 
         if let (Some(curr), Some(prev)) = (curr_opt, prev_opt) {
-            let change = Decimal::from_f64_retain(curr).unwrap_or(Decimal::ZERO)
-                - Decimal::from_f64_retain(prev).unwrap_or(Decimal::ZERO);
+            let change = curr - prev;
 
-            let (curr_gain, curr_loss) = if change > Decimal::ZERO {
-                (change, Decimal::ZERO)
+            let (curr_gain, curr_loss) = if change > 0.0 {
+                (change, 0.0)
             } else {
-                (Decimal::ZERO, change.abs())
+                (0.0, change.abs())
             };
 
             // Wilder's Smoothing
             // AvgGain = (PrevAvgGain * (period - 1) + CurrGain) / period
-            avg_gain = (avg_gain * period_minus_one + curr_gain) / period_dec;
-            avg_loss = (avg_loss * period_minus_one + curr_loss) / period_dec;
+            avg_gain = (avg_gain * period_minus_one + curr_gain) / period_f;
+            avg_loss = (avg_loss * period_minus_one + curr_loss) / period_f;
 
-            let rsi = if avg_loss.is_zero() {
-                if avg_gain.is_zero() {
-                    Decimal::new(50, 0)
+            let rsi = if avg_loss == 0.0 {
+                if avg_gain == 0.0 {
+                    50.0
                 } else {
                     hundred
                 }
             } else {
                 let rs = avg_gain / avg_loss;
-                hundred - (hundred / (Decimal::ONE + rs))
+                hundred - (hundred / (1.0 + rs))
             };
 
-            *rsi_val = rsi.to_f64();
+            *rsi_val = Some(rsi);
         } else {
             // Missing data
             *rsi_val = None;
@@ -146,8 +142,8 @@ pub fn calculate(data: &DataFrame, period: usize) -> Result<Series> {
             // Resetting is safest or treating as 0 change.
             // Resetting implies we need another `period` to restart.
             // Let's reset for correctness.
-            avg_gain = Decimal::ZERO;
-            avg_loss = Decimal::ZERO;
+            avg_gain = 0.0;
+            avg_loss = 0.0;
             // Note: This implementation doesn't automatically restart logic.
             // To properly restart, we'd need to re-enter the "initial SMA" mode.
             // For this implementation, we will just output None and keep avgs as 0 (effectively restarting but with 0 history).

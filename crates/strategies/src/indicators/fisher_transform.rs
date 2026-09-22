@@ -7,8 +7,6 @@
 
 use anyhow::Result;
 use polars::prelude::*;
-use rust_decimal::prelude::*;
-use rust_decimal::Decimal;
 
 /// Calculate Fisher Transform
 ///
@@ -46,16 +44,16 @@ pub fn calculate(data: &DataFrame, period: usize) -> Result<Series> {
         return Ok(Series::new("fisher_transform", fisher_values));
     }
 
-    let mut value1 = Decimal::ZERO;
-    let mut prev_fisher = Decimal::ZERO;
+    let mut value1 = 0.0f64;
+    let mut prev_fisher = 0.0f64;
 
     // Convert high/low series to vectors to iterate over windows
     let h_vec: Vec<Option<f64>> = high.into_iter().collect();
     let l_vec: Vec<Option<f64>> = low.into_iter().collect();
 
     for i in (period - 1)..len {
-        let mut highest_high = Decimal::MIN;
-        let mut lowest_low = Decimal::MAX;
+        let mut highest_high = f64::MIN;
+        let mut lowest_low = f64::MAX;
         let mut valid_window = true;
 
         for j in 0..period {
@@ -64,14 +62,14 @@ pub fn calculate(data: &DataFrame, period: usize) -> Result<Series> {
 
             match (h_opt, l_opt) {
                 (Some(h_val), Some(l_val)) => {
-                    let h_dec = Decimal::from_f64_retain(h_val).unwrap_or(Decimal::ZERO);
-                    let l_dec = Decimal::from_f64_retain(l_val).unwrap_or(Decimal::ZERO);
+                    let h_f = if h_val.is_finite() { h_val } else { 0.0 };
+                    let l_f = if l_val.is_finite() { l_val } else { 0.0 };
 
-                    if h_dec > highest_high {
-                        highest_high = h_dec;
+                    if h_f > highest_high {
+                        highest_high = h_f;
                     }
-                    if l_dec < lowest_low {
-                        lowest_low = l_dec;
+                    if l_f < lowest_low {
+                        lowest_low = l_f;
                     }
                 }
                 _ => {
@@ -88,27 +86,29 @@ pub fn calculate(data: &DataFrame, period: usize) -> Result<Series> {
 
         // Calculate median price for current period (typically (High + Low) / 2)
         // Here we just use the current period's median
-        let curr_h = Decimal::from_f64_retain(h_vec[i].unwrap_or(0.0)).unwrap_or(Decimal::ZERO);
-        let curr_l = Decimal::from_f64_retain(l_vec[i].unwrap_or(0.0)).unwrap_or(Decimal::ZERO);
-        let price = (curr_h + curr_l) / Decimal::TWO;
+        let h_val = h_vec[i].unwrap_or(0.0);
+        let l_val = l_vec[i].unwrap_or(0.0);
+        let curr_h = if h_val.is_finite() { h_val } else { 0.0 };
+        let curr_l = if l_val.is_finite() { l_val } else { 0.0 };
+        let price = (curr_h + curr_l) / 2.0;
 
         let range = highest_high - lowest_low;
 
         // Normalize the price to a value between -1 and 1
-        let x = if range > Decimal::ZERO {
+        let x = if range > 0.0 {
             let p_norm = (price - lowest_low) / range; // 0 to 1
-            p_norm * Decimal::TWO - Decimal::ONE // -1 to 1
+            p_norm * 2.0 - 1.0 // -1 to 1
         } else {
-            Decimal::ZERO
+            0.0
         };
 
         // Smooth value1
-        let x_smoothed = Decimal::new(66, 2) * x + Decimal::new(33, 2) * value1;
+        let x_smoothed = 0.66 * x + 0.33 * value1;
         value1 = x_smoothed;
 
         // Truncate value1 to avoid infinities
-        let limit = Decimal::new(999, 3); // 0.999
-        let neg_limit = limit * Decimal::NEGATIVE_ONE; // -0.999
+        let limit = 0.999;
+        let neg_limit = -limit;
 
         if value1 > limit {
             value1 = limit;
@@ -118,24 +118,22 @@ pub fn calculate(data: &DataFrame, period: usize) -> Result<Series> {
 
         // Calculate Fisher Transform
         // Formula: 0.5 * ln((1 + X) / (1 - X))
-        let one = Decimal::ONE;
+        let one = 1.0f64;
         let num = one + value1;
         let den = one - value1;
 
-        let mut current_fisher = Decimal::ZERO;
-        if den > Decimal::ZERO {
+        let mut current_fisher = 0.0f64;
+        if den > 0.0 {
             let ratio = num / den;
-            let ratio_f64 = ratio.to_f64().unwrap_or(1.0);
 
-            if ratio_f64 > 0.0 {
-                let ln_val = ratio_f64.ln();
-                let ln_dec = Decimal::from_f64_retain(ln_val).unwrap_or(Decimal::ZERO);
+            if ratio > 0.0 {
+                let ln_val = ratio.ln();
 
-                current_fisher = Decimal::new(5, 1) * ln_dec + Decimal::new(5, 1) * prev_fisher;
+                current_fisher = 0.5 * ln_val + 0.5 * prev_fisher;
             }
         }
 
-        fisher_values[i] = Some(current_fisher.to_f64().unwrap_or(0.0));
+        fisher_values[i] = Some(current_fisher);
         prev_fisher = current_fisher;
     }
 

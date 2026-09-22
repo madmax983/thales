@@ -7,8 +7,6 @@
 
 use anyhow::{Context, Result};
 use polars::prelude::*;
-use rust_decimal::prelude::*;
-use rust_decimal::Decimal;
 
 /// Calculate Volume Price Trend (VPT)
 ///
@@ -42,7 +40,7 @@ pub fn calculate(data: &DataFrame) -> Result<Series> {
         .f64()
         .context("Volume column must be numeric (f64)")?;
 
-    let mut current_vpt = Decimal::ZERO;
+    let mut current_vpt = 0.0f64;
     let mut initialized = false;
     let mut vpt_values: Vec<Option<f64>> = vec![None; close.len()];
 
@@ -52,11 +50,11 @@ pub fn calculate(data: &DataFrame) -> Result<Series> {
         let vol_opt = volume.get(i);
 
         if let (Some(curr_c), Some(prev_c), Some(v)) = (curr_close_opt, prev_close_opt, vol_opt) {
-            let curr_c_dec = Decimal::from_f64_retain(curr_c).unwrap_or(Decimal::ZERO);
-            let prev_c_dec = Decimal::from_f64_retain(prev_c).unwrap_or(Decimal::ZERO);
-            let v_dec = Decimal::from_f64_retain(v).unwrap_or(Decimal::ZERO);
+            let curr_c_dec = if curr_c.is_finite() { curr_c } else { 0.0 };
+            let prev_c_dec = if prev_c.is_finite() { prev_c } else { 0.0 };
+            let v_dec = if v.is_finite() { v } else { 0.0 };
 
-            if prev_c_dec.is_zero() {
+            if prev_c_dec == 0.0 {
                 // Cannot divide by zero
                 *val = None;
                 continue;
@@ -66,11 +64,11 @@ pub fn calculate(data: &DataFrame) -> Result<Series> {
             let vpt_change = v_dec * price_change_pct;
 
             current_vpt += vpt_change;
-            *val = Some(current_vpt.to_f64().unwrap_or(0.0));
+            *val = Some(current_vpt);
             initialized = true;
         } else if initialized {
             // Carry forward previous value if data is missing, similar to OBV
-            *val = Some(current_vpt.to_f64().unwrap_or(0.0));
+            *val = Some(current_vpt);
         } else {
             *val = None;
         }

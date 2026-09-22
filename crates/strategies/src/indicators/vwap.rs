@@ -7,8 +7,6 @@
 use anyhow::{Context, Result};
 use chrono::{Datelike, TimeZone, Utc};
 use polars::prelude::*;
-use rust_decimal::prelude::*;
-use rust_decimal::Decimal;
 
 /// Calculate volume spreading (VWAP) (Volume Weighted Average Price)
 ///
@@ -64,11 +62,11 @@ pub fn calculate(data: &DataFrame) -> Result<Series> {
 
     let mut vwap_values: Vec<Option<f64>> = Vec::with_capacity(close.len());
 
-    let mut sum_price_vol = Decimal::ZERO;
-    let mut sum_vol = Decimal::ZERO;
+    let mut sum_price_vol = 0.0f64;
+    let mut sum_vol = 0.0f64;
     let mut current_day: Option<u32> = None;
 
-    let three = Decimal::from(3);
+    let three = 3.0f64;
 
     let high_iter = high.into_iter();
     let low_iter = low.into_iter();
@@ -91,28 +89,28 @@ pub fn calculate(data: &DataFrame) -> Result<Series> {
 
                     if current_day.is_none() || current_day != Some(day_of_year) {
                         // Reset accumulators for the new day
-                        sum_price_vol = Decimal::ZERO;
-                        sum_vol = Decimal::ZERO;
+                        sum_price_vol = 0.0;
+                        sum_vol = 0.0;
                         current_day = Some(day_of_year);
                     }
 
-                    if let (Some(h_dec), Some(l_dec), Some(c_dec), Some(v_dec)) = (
-                        Decimal::from_f64_retain(h),
-                        Decimal::from_f64_retain(l),
-                        Decimal::from_f64_retain(c),
-                        Decimal::from_f64_retain(v),
-                    ) {
+                    if h.is_finite() && l.is_finite() && c.is_finite() && v.is_finite() {
+                        let h_dec = h;
+                        let l_dec = l;
+                        let c_dec = c;
+                        let v_dec = v;
+
                         let typical_price = (h_dec + l_dec + c_dec) / three;
                         let price_vol = typical_price * v_dec;
 
                         sum_price_vol += price_vol;
                         sum_vol += v_dec;
 
-                        if sum_vol == Decimal::ZERO {
+                        if sum_vol == 0.0 {
                             vwap_values.push(Some(c)); // fallback to close price
                         } else {
-                            let avg = sum_price_vol.checked_div(sum_vol).unwrap_or(Decimal::ZERO);
-                            vwap_values.push(avg.to_f64());
+                            let avg = sum_price_vol / sum_vol;
+                            vwap_values.push(Some(avg));
                         }
                     } else {
                         vwap_values.push(None);

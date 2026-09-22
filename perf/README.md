@@ -242,19 +242,128 @@ use `Decimal` (confirmed by source inspection, not assumption):
   not `f64` — the `Decimal` precision is preserved all the way to the
   output, so there is no round-trip to remove.
 
-The remaining 44 files (`adl`, `adx`, `alma`, `bop`,
-`chaikin_oscillator`, `chandelier_exit`, `choppiness_index`, `cmf`, `cmo`,
-`disparity_index`, `donchian_channels`, `dpo`, `ema`, `eom`,
-`fisher_transform`, `force_index`, `gator`, `ichimoku`, `kama`, `kdj`,
-`keltner_channels`, `kst`, `linear_regression`, `mfi`, `momentum`, `nvi`,
-`obv`, `ppo`, `qstick`, `roc`, `rsi`, `rvi`, `sma`, `smma`, `stc`,
-`stoch_rsi`, `stochastic`, `supertrend`, `ultimate_oscillator`, `vhf`,
-`vpt`, `vwap`, `vwma`, `zlema`) match the discarded-round-trip shape:
-`f64` in, `Decimal` arithmetic with no persisted precision benefit, `f64`
-out via `.to_f64().unwrap_or(0.0)`. None use `round_dp` for display (that
-pattern only existed in the strategy layer), so no partial-conversion
-carve-out is needed this time — see the PR for the per-file conversion
-and after-measurement.
+The remaining files (`adl`, `adx`, `alma`, `bop`, `chaikin_oscillator`,
+`chandelier_exit`, `choppiness_index`, `cmf`, `cmo`, `disparity_index`,
+`donchian_channels`, `dpo`, `eom`, `fisher_transform`, `force_index`,
+`gator`, `ichimoku`, `kama`, `kdj`, `keltner_channels`, `kst`,
+`linear_regression`, `mfi`, `momentum`, `nvi`, `obv`, `ppo`, `qstick`,
+`roc`, `rsi`, `rvi`, `sma`, `smma`, `stc`, `stoch_rsi`, `stochastic`,
+`supertrend`, `ultimate_oscillator`, `vhf`, `vpt`, `vwap`, `vwma`, `wma`,
+`zlema` — 44 files) match the discarded-round-trip shape: `f64` in,
+`Decimal` arithmetic with no persisted precision benefit, `f64` out via
+`.to_f64().unwrap_or(0.0)`. None use `round_dp` for display (that pattern
+only existed in the strategy layer), so no partial-conversion carve-out
+is needed this time.
+
+One file initially in this list, `ema.rs`, was converted and then
+**reverted** after it broke an existing test — see the negative-result
+note below. `smma.rs` needed a numerically-stable reformulation (not a
+plain type swap) to match the original's output bit-for-bit; see its note
+below too.
+
+## After: 44 indicator files converted to native f64
+
+Same harness, same fixture, same machine, same session:
+
+```
+I refs: 2,624,688,881   (this run's baseline: 6,155,105,907)
+```
+
+| | Ir | % of this run's baseline |
+|---|---:|---:|
+| Baseline (post-strategy-layer-fix) | 6,155,105,907 | 100.00% |
+| After indicator-layer fix | 2,624,688,881 | 42.64% |
+| **Delta** | **-3,530,417,026** | **-57.36%** |
+
+Clears the impact floor (≥5% instruction reduction) by more than 11x.
+`rust_decimal` internals are still present (`base2_to_decimal` 20.15%,
+`Buf24::rescale` 8.00%, `div_impl` 6.33%, `mul_impl` 3.57%,
+`add_sub_internal` 2.52%, `unaligned_add` 2.29%, `Decimal::to_f64`
+2.08% — ~45% of the new, smaller total) but now entirely attributable to
+the 13 files excluded above for genuine precision reasons, plus
+`ema.rs` (kept as `Decimal` — see below). `polars_core::ChunkedArray::get`
+(9.16%) and `thales_cli::backtest::run_backtest_with_strategy::{{closure}}`
+(5.30%) are now among the largest single entries, i.e. cost has shifted
+from "indicator arithmetic" to "reading columns and running the backtest
+loop itself" — the next follow-up, if any, is in that direction rather
+than in `rust_decimal`.
+
+### Negative result: `ema.rs` reverted
+
+`ema.rs` matched the discarded-round-trip pattern exactly like every
+other file in this batch (input `f64` → `Decimal::from_f64_retain` →
+Wilder-style exponential smoothing in `Decimal` → `.to_f64()` on output,
+same shape as the already-fixed `atr.rs`), and its own unit tests passed
+unchanged after conversion. But the full workspace suite
+(`cargo test --workspace --all-features`) caught one failure:
+`double_ema_crossover::tests::test_entry_and_exit_signals`, which feeds
+synthetic linear-ramp price data (up 50 bars, down 50 bars) through
+`dema::calculate` (`DEMA = 2*EMA - EMA(EMA)`, i.e. `ema::calculate`
+applied twice in series) and asserts on exact crossover-driven
+entry/exit signals.
+
+Root cause, confirmed by instrumenting the strategy's signal loop and
+diffing per-bar EMA output between the `Decimal` and `f64` versions: the
+original `Decimal` implementation keeps `prev_ema` as a `Decimal` across
+the whole series (not rounded to `f64` until the final push), so it
+carries ~28-29 significant decimal digits of internal precision through
+every iteration, compounding differently than an `f64` accumulator
+(~15-17 significant digits) does over the same number of steps. For most
+consumers this difference is invisible (both round to the same `f64` at
+the point of use). But right after `dema`'s own warm-up completes, on
+data that is still a perfectly straight, monotonic price ramp, the
+`Decimal` version's iterative rounding produces a handful of *spurious*
+sub-`1e-13`-magnitude sign flips in `short_dema - long_dema`, which the
+strategy's exact `>`/`<=` crossover comparison reads as real trend
+reversals — generating whipsaw entry/exit pairs on data that has no
+actual reversal yet. The clean `f64` recomputation doesn't reproduce
+that noise (it converges smoothly through the warmup instead), so those
+spurious signals disappear and the test's hard-coded expectation of a
+non-empty exit list breaks.
+
+Tried and rejected: reordering the update to the algebraically-identical,
+better-conditioned incremental form `prev + (val - prev) * k` (the same
+kind of fix that worked for `smma.rs`, below) — this did not reproduce
+the original's spurious oscillation either, confirming the divergence is
+from `Decimal`'s extra internal precision itself, not from a poorly
+conditioned `f64` formula.
+
+This is arguably a case where the `f64` version is *more* correct (no
+whipsaw on a monotonic trend), but per the hard gate here — preserve
+behavior exactly, existing tests must pass unchanged — that's not this
+fix's call to make. `ema.rs` was reverted to its original `Decimal`
+implementation and excluded from this PR. It's used by 13 strategies
+directly plus several other indicators (`dema`, `tema`, `macd`, `kama`,
+...), so a change to its numerical behavior is high-blast-radius; revisiting
+it would need either a formulation proven bit-identical to the current
+output (as found for `smma.rs`) or a deliberate, reviewed decision to
+accept the behavior change and update the affected test(s).
+
+### `smma.rs`: numerically-stable reformulation required
+
+A literal type-swap translation of `smma`'s update step
+(`(prev * (period - 1) + val) / period`) failed
+`test_smma_calculation` by 1 ULP (`12.444444444444443` vs the expected
+`...445`) for the same reason as the `ema.rs` case above — per-step `f64`
+rounding compounds differently than `Decimal`'s higher internal
+precision. Unlike `ema.rs`, this one had a fix: the algebraically
+identical but better-conditioned running-average form
+`prev + (val - prev) / period` reproduces the `Decimal`-derived output
+bit-for-bit (this is the standard numerically-stable incremental-mean
+formula — it avoids scaling `prev` up by `period - 1` and back down,
+which is where the extra rounding was introduced). All 3 `smma` tests
+pass unchanged with this form; no test was modified.
+
+### `wma.rs` was missed in the initial audit, converted separately
+
+`wma.rs` matches the discarded-round-trip pattern (weighted rolling sum
+over a `Decimal` window, `.to_f64()` on output) but was omitted from the
+file list dispatched for conversion in this PR due to an audit oversight
+— caught by a post-conversion `grep -rl rust_decimal` sweep over
+`crates/strategies/src/indicators/` and fixed directly. Its 3 unit tests
+pass unchanged.
+
+See the PR for the full per-file diff.
 
 Same harness, same fixture, same machine, same session:
 

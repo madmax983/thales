@@ -1,7 +1,5 @@
 use anyhow::{Context, Result};
 use polars::prelude::*;
-use rust_decimal::prelude::*;
-use rust_decimal::Decimal;
 use std::collections::VecDeque;
 
 /// Calculate Qstick indicator
@@ -33,10 +31,9 @@ pub fn calculate(data: &DataFrame, period: usize) -> Result<Series> {
         .context("Open column must be numeric (f64)")?;
 
     let mut qstick_values: Vec<Option<f64>> = Vec::with_capacity(close.len());
-    let mut window: VecDeque<Decimal> = VecDeque::with_capacity(period);
-    let mut sum = Decimal::ZERO;
-    let period_dec =
-        Decimal::from_usize(period).context("Invalid period for Decimal conversion")?;
+    let mut window: VecDeque<f64> = VecDeque::with_capacity(period);
+    let mut sum = 0.0f64;
+    let period_f = period as f64;
 
     for i in 0..close.len() {
         let close_opt = close.get(i);
@@ -44,10 +41,8 @@ pub fn calculate(data: &DataFrame, period: usize) -> Result<Series> {
 
         match (close_opt, open_opt) {
             (Some(c), Some(o)) => {
-                if let (Some(dc), Some(do_)) =
-                    (Decimal::from_f64_retain(c), Decimal::from_f64_retain(o))
-                {
-                    let diff = dc - do_;
+                if c.is_finite() && o.is_finite() {
+                    let diff = c - o;
                     sum += diff;
                     window.push_back(diff);
 
@@ -58,21 +53,21 @@ pub fn calculate(data: &DataFrame, period: usize) -> Result<Series> {
                     }
 
                     if window.len() == period {
-                        let avg = sum / period_dec;
-                        qstick_values.push(avg.to_f64());
+                        let avg = sum / period_f;
+                        qstick_values.push(Some(avg));
                     } else {
                         qstick_values.push(None);
                     }
                 } else {
                     qstick_values.push(None);
                     window.clear();
-                    sum = Decimal::ZERO;
+                    sum = 0.0;
                 }
             }
             _ => {
                 qstick_values.push(None);
                 window.clear();
-                sum = Decimal::ZERO;
+                sum = 0.0;
             }
         }
     }

@@ -1,7 +1,6 @@
 use super::macd;
 use anyhow::Result;
 use polars::prelude::*;
-use rust_decimal::prelude::*;
 
 /// Calculate Schaff Trend Cycle (STC)
 ///
@@ -41,20 +40,20 @@ pub fn calculate(
 
     let macd_vals = macd_line.f64()?;
 
-    // We'll calculate STC using Decimal for precision
-    let mut macd_decimals: Vec<Option<Decimal>> = Vec::with_capacity(macd_vals.len());
+    // We'll calculate STC using f64 arithmetic
+    let mut macd_decimals: Vec<Option<f64>> = Vec::with_capacity(macd_vals.len());
     for i in 0..macd_vals.len() {
-        macd_decimals.push(macd_vals.get(i).and_then(Decimal::from_f64_retain));
+        macd_decimals.push(macd_vals.get(i).filter(|v| v.is_finite()));
     }
 
     // First Stochastic on MACD
     let mut k1 = vec![None; macd_decimals.len()];
-    let hundred = Decimal::new(100, 0);
+    let hundred = 100.0f64;
 
     for i in 0..macd_decimals.len() {
         if i >= safe_cycle_period - 1 {
-            let mut highest = Decimal::MIN;
-            let mut lowest = Decimal::MAX;
+            let mut highest = f64::MIN;
+            let mut lowest = f64::MAX;
             let mut valid = true;
 
             for val_opt in macd_decimals
@@ -78,8 +77,8 @@ pub fn calculate(
             if valid {
                 if let Some(current) = macd_decimals[i] {
                     let range = highest - lowest;
-                    if range.is_zero() {
-                        k1[i] = Some(Decimal::ZERO);
+                    if range == 0.0 {
+                        k1[i] = Some(0.0);
                     } else {
                         k1[i] = Some(hundred * (current - lowest) / range);
                     }
@@ -96,8 +95,8 @@ pub fn calculate(
 
     for i in 0..d1.len() {
         if i >= safe_cycle_period - 1 {
-            let mut highest = Decimal::MIN;
-            let mut lowest = Decimal::MAX;
+            let mut highest = f64::MIN;
+            let mut lowest = f64::MAX;
             let mut valid = true;
 
             for val_opt in d1.iter().take(i + 1).skip(i + 1 - safe_cycle_period) {
@@ -117,8 +116,8 @@ pub fn calculate(
             if valid {
                 if let Some(current) = d1[i] {
                     let range = highest - lowest;
-                    if range.is_zero() {
-                        k2[i] = Some(Decimal::ZERO);
+                    if range == 0.0 {
+                        k2[i] = Some(0.0);
                     } else {
                         k2[i] = Some(hundred * (current - lowest) / range);
                     }
@@ -130,33 +129,28 @@ pub fn calculate(
     // Smooth K2 to get STC
     let stc = calculate_ema(&k2, d_period);
 
-    let stc_f64: Vec<Option<f64>> = stc
-        .into_iter()
-        .map(|opt| opt.map(|d| d.to_f64().unwrap_or(0.0)))
-        .collect();
-
-    Ok(Series::new("stc", stc_f64))
+    Ok(Series::new("stc", stc))
 }
 
-fn calculate_ema(data: &[Option<Decimal>], period: usize) -> Vec<Option<Decimal>> {
+fn calculate_ema(data: &[Option<f64>], period: usize) -> Vec<Option<f64>> {
     let mut ema_values = vec![None; data.len()];
     if period == 0 || data.is_empty() {
         return ema_values;
     }
 
     let k_f64 = 2.0 / (period as f64 + 1.0);
-    let k = match Decimal::from_f64_retain(k_f64) {
-        Some(val) => val,
-        None => return ema_values, // Fallback if k calculation fails
-    };
+    if !k_f64.is_finite() {
+        return ema_values; // Fallback if k calculation fails
+    }
+    let k = k_f64;
 
-    let mut prev_ema: Option<Decimal> = None;
+    let mut prev_ema: Option<f64> = None;
 
     // The smoothing typically starts when we have the first valid value, we can use it as the initial EMA seed
     for i in 0..data.len() {
         if let Some(val) = data[i] {
             if let Some(prev) = prev_ema {
-                let ema = (val * k) + (prev * (Decimal::ONE - k));
+                let ema = (val * k) + (prev * (1.0 - k));
                 ema_values[i] = Some(ema);
                 prev_ema = Some(ema);
             } else {

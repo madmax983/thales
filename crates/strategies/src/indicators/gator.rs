@@ -7,20 +7,18 @@
 
 use anyhow::{Context, Result};
 use polars::prelude::*;
-use rust_decimal::prelude::*;
-use rust_decimal::Decimal;
 
-/// Calculate the SMA over `window` periods for a slice of `Decimal` values.
-fn calculate_sma(data: &[Option<Decimal>], window: usize) -> Result<Vec<Option<Decimal>>> {
+/// Calculate the SMA over `window` periods for a slice of `f64` values.
+fn calculate_sma(data: &[Option<f64>], window: usize) -> Result<Vec<Option<f64>>> {
     if window == 0 {
         anyhow::bail!("Window must be greater than 0");
     }
 
     let mut result = vec![None; data.len()];
-    let mut sum = Decimal::ZERO;
+    let mut sum = 0.0f64;
     let mut count = 0;
-    let mut queue: std::collections::VecDeque<Option<Decimal>> = std::collections::VecDeque::new();
-    let window_dec = Decimal::from_usize(window).context("Invalid window size")?;
+    let mut queue: std::collections::VecDeque<Option<f64>> = std::collections::VecDeque::new();
+    let window_f = window as f64;
 
     for i in 0..data.len() {
         let val_opt = data[i];
@@ -41,7 +39,7 @@ fn calculate_sma(data: &[Option<Decimal>], window: usize) -> Result<Vec<Option<D
         if queue.len() == window {
             if count == window {
                 // All values valid
-                result[i] = Some(sum / window_dec);
+                result[i] = Some(sum / window_f);
             } else {
                 // Some values were None
                 result[i] = None;
@@ -52,14 +50,14 @@ fn calculate_sma(data: &[Option<Decimal>], window: usize) -> Result<Vec<Option<D
 }
 
 /// Calculate the Smoothed Moving Average (SMMA).
-fn calculate_smma(data: &[Option<Decimal>], window: usize) -> Result<Vec<Option<Decimal>>> {
+fn calculate_smma(data: &[Option<f64>], window: usize) -> Result<Vec<Option<f64>>> {
     if window == 0 {
         anyhow::bail!("Window must be greater than 0");
     }
 
     let mut result = vec![None; data.len()];
-    let mut prev_smma: Option<Decimal> = None;
-    let window_dec = Decimal::from_usize(window).context("Invalid window size")?;
+    let mut prev_smma: Option<f64> = None;
+    let window_f = window as f64;
 
     let sma_vals = calculate_sma(data, window)?;
 
@@ -67,7 +65,7 @@ fn calculate_smma(data: &[Option<Decimal>], window: usize) -> Result<Vec<Option<
         if let Some(val) = data[i] {
             if let Some(prev) = prev_smma {
                 // SMMA = (PREVSUM - PREVSMMA + CLOSE) / N
-                let new_smma = ((prev * window_dec) - prev + val) / window_dec;
+                let new_smma = ((prev * window_f) - prev + val) / window_f;
                 result[i] = Some(new_smma);
                 prev_smma = Some(new_smma);
             } else if let Some(sma) = sma_vals[i] {
@@ -84,7 +82,7 @@ fn calculate_smma(data: &[Option<Decimal>], window: usize) -> Result<Vec<Option<
 }
 
 /// Shift data forward by `shift` periods.
-fn shift_forward(data: &[Option<Decimal>], shift: usize) -> Vec<Option<Decimal>> {
+fn shift_forward(data: &[Option<f64>], shift: usize) -> Vec<Option<f64>> {
     let mut result = vec![None; data.len()];
     for i in 0..data.len() {
         if i >= shift {
@@ -146,15 +144,12 @@ pub fn calculate(
         .context("Low column must be numeric (f64)")?;
 
     // Calculate typical price (Median Price = (High + Low) / 2)
-    let two = Decimal::new(2, 0);
-    let mut median_prices: Vec<Option<Decimal>> = Vec::with_capacity(data.height());
+    let mut median_prices: Vec<Option<f64>> = Vec::with_capacity(data.height());
 
     for i in 0..data.height() {
         if let (Some(h), Some(l)) = (high_series.get(i), low_series.get(i)) {
             if h.is_finite() && l.is_finite() {
-                let h_dec = Decimal::from_f64_retain(h).unwrap_or(Decimal::ZERO);
-                let l_dec = Decimal::from_f64_retain(l).unwrap_or(Decimal::ZERO);
-                median_prices.push(Some((h_dec + l_dec) / two));
+                median_prices.push(Some((h + l) / 2.0));
             } else {
                 median_prices.push(None);
             }
@@ -179,11 +174,11 @@ pub fn calculate(
     for i in 0..data.height() {
         if let (Some(jaw), Some(teeth)) = (shifted_jaw[i], shifted_teeth[i]) {
             let diff = (jaw - teeth).abs();
-            upper_vals[i] = diff.to_f64();
+            upper_vals[i] = Some(diff);
         }
         if let (Some(teeth), Some(lips)) = (shifted_teeth[i], shifted_lips[i]) {
             let diff = -(teeth - lips).abs();
-            lower_vals[i] = diff.to_f64();
+            lower_vals[i] = Some(diff);
         }
     }
 

@@ -1,7 +1,5 @@
 use anyhow::{Context, Result};
 use polars::prelude::*;
-use rust_decimal::prelude::*;
-use rust_decimal::Decimal;
 use std::collections::VecDeque;
 
 /// Calculate Volume Weighted Moving Average (VWMA)
@@ -36,10 +34,10 @@ pub fn calculate(data: &DataFrame, period: usize) -> Result<Series> {
         .context("Volume column must be numeric (f64)")?;
 
     let mut vwma_values: Vec<Option<f64>> = Vec::with_capacity(close.len());
-    let mut window: VecDeque<(Decimal, Decimal)> = VecDeque::with_capacity(period);
+    let mut window: VecDeque<(f64, f64)> = VecDeque::with_capacity(period);
 
-    let mut sum_close_vol = Decimal::ZERO;
-    let mut sum_vol = Decimal::ZERO;
+    let mut sum_close_vol = 0.0f64;
+    let mut sum_vol = 0.0f64;
 
     for i in 0..close.len() {
         let close_opt = close.get(i);
@@ -47,9 +45,9 @@ pub fn calculate(data: &DataFrame, period: usize) -> Result<Series> {
 
         match (close_opt, vol_opt) {
             (Some(c), Some(v)) => {
-                if let (Some(c_dec), Some(v_dec)) =
-                    (Decimal::from_f64_retain(c), Decimal::from_f64_retain(v))
-                {
+                if c.is_finite() && v.is_finite() {
+                    let c_dec = c;
+                    let v_dec = v;
                     let cv_dec = c_dec * v_dec;
 
                     sum_close_vol += cv_dec;
@@ -65,13 +63,13 @@ pub fn calculate(data: &DataFrame, period: usize) -> Result<Series> {
                     }
 
                     if window.len() == period {
-                        if sum_vol == Decimal::ZERO {
+                        if sum_vol == 0.0 {
                             // Avoid division by zero, though unlikely unless volume is exactly 0 for the whole period
                             vwma_values.push(Some(c)); // fallback to close price
                         } else {
                             // Check for safe division
-                            let avg = sum_close_vol.checked_div(sum_vol).unwrap_or(Decimal::ZERO);
-                            vwma_values.push(avg.to_f64());
+                            let avg = sum_close_vol / sum_vol;
+                            vwma_values.push(Some(avg));
                         }
                     } else {
                         vwma_values.push(None);
@@ -79,16 +77,16 @@ pub fn calculate(data: &DataFrame, period: usize) -> Result<Series> {
                 } else {
                     vwma_values.push(None);
                     window.clear();
-                    sum_close_vol = Decimal::ZERO;
-                    sum_vol = Decimal::ZERO;
+                    sum_close_vol = 0.0;
+                    sum_vol = 0.0;
                 }
             }
             _ => {
                 // Missing data point
                 vwma_values.push(None);
                 window.clear();
-                sum_close_vol = Decimal::ZERO;
-                sum_vol = Decimal::ZERO;
+                sum_close_vol = 0.0;
+                sum_vol = 0.0;
             }
         }
     }

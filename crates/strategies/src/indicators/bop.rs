@@ -1,7 +1,5 @@
 use anyhow::{Context, Result};
 use polars::prelude::*;
-use rust_decimal::prelude::*;
-use rust_decimal::Decimal;
 
 /// Calculate Balance of Power (BOP)
 ///
@@ -47,19 +45,14 @@ pub fn calculate(data: &DataFrame) -> Result<Series> {
         if let (Some(o_val), Some(h_val), Some(l_val), Some(c_val)) =
             (open.get(i), high.get(i), low.get(i), close.get(i))
         {
-            if let (Some(o), Some(h), Some(l), Some(c)) = (
-                Decimal::from_f64_retain(o_val),
-                Decimal::from_f64_retain(h_val),
-                Decimal::from_f64_retain(l_val),
-                Decimal::from_f64_retain(c_val),
-            ) {
-                let range = h - l;
-                if range.is_zero() {
+            if o_val.is_finite() && h_val.is_finite() && l_val.is_finite() && c_val.is_finite() {
+                let range = h_val - l_val;
+                if range == 0.0 {
                     // Avoid division by zero
                     bop_values.push(Some(0.0));
                 } else {
-                    let bop = (c - o) / range;
-                    bop_values.push(bop.to_f64());
+                    let bop = (c_val - o_val) / range;
+                    bop_values.push(Some(bop));
                 }
             } else {
                 bop_values.push(None);

@@ -2,8 +2,6 @@
 
 use anyhow::{Context, Result};
 use polars::prelude::*;
-use rust_decimal::prelude::*;
-use rust_decimal::Decimal;
 use std::collections::VecDeque;
 
 /// Calculate Ichimoku Cloud components
@@ -72,16 +70,13 @@ pub fn calculate(
             let max_vals = rolling_max_opt(highs, period);
             let min_vals = rolling_min_opt(lows, period);
             let mut result = Vec::with_capacity(highs.len());
-            let two = Decimal::from(2);
 
             for i in 0..highs.len() {
                 match (max_vals[i], min_vals[i]) {
                     (Some(h), Some(l)) => {
-                        if let (Some(h_dec), Some(l_dec)) =
-                            (Decimal::from_f64_retain(h), Decimal::from_f64_retain(l))
-                        {
-                            let mid = (h_dec + l_dec) / two;
-                            result.push(mid.to_f64());
+                        if h.is_finite() && l.is_finite() {
+                            let mid = (h + l) / 2.0;
+                            result.push(Some(mid));
                         } else {
                             result.push(None);
                         }
@@ -105,7 +100,6 @@ pub fn calculate(
 
     // 3. Calculate Senkou Span A: (Tenkan + Kijun) / 2 shifted forward
     let mut span_a_vals = Vec::with_capacity(data.height());
-    let two = Decimal::from(2);
 
     // We calculate Span A based on Tenkan and Kijun *before* shifting.
     // The value for Span A at time T is derived from Tenkan and Kijun at time T-offset.
@@ -115,11 +109,9 @@ pub fn calculate(
     for i in 0..data.height() {
         match (tenkan_vals[i], kijun_vals[i]) {
             (Some(t), Some(k)) => {
-                if let (Some(t_dec), Some(k_dec)) =
-                    (Decimal::from_f64_retain(t), Decimal::from_f64_retain(k))
-                {
-                    let avg = (t_dec + k_dec) / two;
-                    span_a_vals.push(avg.to_f64());
+                if t.is_finite() && k.is_finite() {
+                    let avg = (t + k) / 2.0;
+                    span_a_vals.push(Some(avg));
                 } else {
                     span_a_vals.push(None);
                 }

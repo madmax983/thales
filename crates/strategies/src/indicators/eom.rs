@@ -4,8 +4,6 @@
 
 use anyhow::{Context, Result};
 use polars::prelude::*;
-use rust_decimal::prelude::ToPrimitive;
-use rust_decimal::Decimal;
 
 use crate::indicators::sma;
 
@@ -60,9 +58,6 @@ pub fn calculate(data: &DataFrame, period: usize) -> Result<Series> {
     let len = data.height();
     let mut eom_1_period_values: Vec<Option<f64>> = vec![None; len];
 
-    let decimal_two = Decimal::from(2);
-    let decimal_divisor = Decimal::from(100_000_000); // Usually volume is scaled by 10,000, 100,000, or 100_000_000. Standard EOM formula uses 100,000_000.
-
     for (i, val) in eom_1_period_values.iter_mut().enumerate().take(len).skip(1) {
         let curr_high_opt = high_col.get(i);
         let curr_low_opt = low_col.get(i);
@@ -78,27 +73,28 @@ pub fn calculate(data: &DataFrame, period: usize) -> Result<Series> {
             prev_high_opt,
             prev_low_opt,
         ) {
-            let ch = Decimal::from_f64_retain(curr_high);
-            let cl = Decimal::from_f64_retain(curr_low);
-            let cv = Decimal::from_f64_retain(curr_vol);
-            let ph = Decimal::from_f64_retain(prev_high);
-            let pl = Decimal::from_f64_retain(prev_low);
+            if curr_high.is_finite()
+                && curr_low.is_finite()
+                && curr_vol.is_finite()
+                && prev_high.is_finite()
+                && prev_low.is_finite()
+            {
+                let (ch, cl, cv, ph, pl) = (curr_high, curr_low, curr_vol, prev_high, prev_low);
 
-            if let (Some(ch), Some(cl), Some(cv), Some(ph), Some(pl)) = (ch, cl, cv, ph, pl) {
                 // Distance Moved = ((Current High + Current Low) / 2) - ((Prior High + Prior Low) / 2)
-                let curr_midpoint = (ch + cl) / decimal_two;
-                let prev_midpoint = (ph + pl) / decimal_two;
+                let curr_midpoint = (ch + cl) / 2.0;
+                let prev_midpoint = (ph + pl) / 2.0;
                 let distance_moved = curr_midpoint - prev_midpoint;
 
                 let range = ch - cl;
-                if range != Decimal::ZERO && cv != Decimal::ZERO {
+                if range != 0.0 && cv != 0.0 {
                     // Box Ratio = (Volume / 100,000,000) / (High - Low)
-                    let volume_scaled = cv / decimal_divisor;
+                    let volume_scaled = cv / 100_000_000.0; // Usually volume is scaled by 10,000, 100,000, or 100_000_000. Standard EOM formula uses 100,000_000.
                     let box_ratio = volume_scaled / range;
 
-                    if box_ratio != Decimal::ZERO {
+                    if box_ratio != 0.0 {
                         let eom_1 = distance_moved / box_ratio;
-                        *val = eom_1.to_f64();
+                        *val = Some(eom_1);
                     } else {
                         *val = Some(0.0);
                     }

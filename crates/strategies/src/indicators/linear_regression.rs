@@ -1,7 +1,5 @@
 use anyhow::{Context, Result};
 use polars::prelude::*;
-use rust_decimal::prelude::*;
-use rust_decimal::Decimal;
 use std::collections::VecDeque;
 
 /// Calculate Linear Regression Slope
@@ -28,8 +26,7 @@ pub fn calculate(data: &DataFrame, period: usize) -> Result<Series> {
 
     let mut slope_values: Vec<Option<f64>> = vec![None; close.len()];
 
-    let n = Decimal::from_usize(period).context("Invalid period")?;
-    let n_f64 = n.to_f64().unwrap();
+    let n_f64 = period as f64;
 
     // Constant terms involving x (0..N-1)
     // Sum X = N*(N-1)/2

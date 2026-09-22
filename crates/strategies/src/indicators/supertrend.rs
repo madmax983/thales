@@ -24,8 +24,6 @@
 use crate::indicators::atr;
 use anyhow::{Context, Result};
 use polars::prelude::*;
-use rust_decimal::prelude::*;
-use rust_decimal::Decimal;
 
 /// Calculate Supertrend
 ///
@@ -67,13 +65,21 @@ pub fn calculate(data: &DataFrame, period: usize, multiplier: f64) -> Result<(Se
 
     if start_idx < len {
         // Initialize first value
-        let h = Decimal::from_f64(high.get(start_idx).unwrap_or(0.0)).unwrap_or(Decimal::ZERO);
-        let l = Decimal::from_f64(low.get(start_idx).unwrap_or(0.0)).unwrap_or(Decimal::ZERO);
-        let c = Decimal::from_f64(close.get(start_idx).unwrap_or(0.0)).unwrap_or(Decimal::ZERO);
-        let atr_val = Decimal::from_f64(atr_values[start_idx].unwrap()).unwrap_or(Decimal::ZERO);
-        let mult = Decimal::from_f64(multiplier).unwrap_or(Decimal::ZERO);
+        let h_raw = high.get(start_idx).unwrap_or(0.0);
+        let h = if h_raw.is_finite() { h_raw } else { 0.0 };
+        let l_raw = low.get(start_idx).unwrap_or(0.0);
+        let l = if l_raw.is_finite() { l_raw } else { 0.0 };
+        let c_raw = close.get(start_idx).unwrap_or(0.0);
+        let c = if c_raw.is_finite() { c_raw } else { 0.0 };
+        let atr_raw = atr_values[start_idx].unwrap();
+        let atr_val = if atr_raw.is_finite() { atr_raw } else { 0.0 };
+        let mult = if multiplier.is_finite() {
+            multiplier
+        } else {
+            0.0
+        };
 
-        let two = Decimal::from(2);
+        let two = 2.0f64;
         let basic_upper = (h + l) / two + mult * atr_val;
         let basic_lower = (h + l) / two - mult * atr_val;
 
@@ -88,24 +94,41 @@ pub fn calculate(data: &DataFrame, period: usize, multiplier: f64) -> Result<(Se
         } else {
             prev_final_upper
         };
-        supertrend_values[start_idx] = st.to_f64();
+        supertrend_values[start_idx] = Some(st);
         trend_values[start_idx] = Some(prev_trend);
 
         for i in (start_idx + 1)..len {
-            let h = Decimal::from_f64(high.get(i).unwrap_or(0.0)).unwrap_or(Decimal::ZERO);
-            let l = Decimal::from_f64(low.get(i).unwrap_or(0.0)).unwrap_or(Decimal::ZERO);
-            let c = Decimal::from_f64(close.get(i).unwrap_or(0.0)).unwrap_or(Decimal::ZERO);
+            let h_raw = high.get(i).unwrap_or(0.0);
+            let h = if h_raw.is_finite() { h_raw } else { 0.0 };
+            let l_raw = low.get(i).unwrap_or(0.0);
+            let l = if l_raw.is_finite() { l_raw } else { 0.0 };
+            let c_raw = close.get(i).unwrap_or(0.0);
+            let c = if c_raw.is_finite() { c_raw } else { 0.0 };
             // Previous close is needed for the logic: "Previous Close > Previous Final Upper Band"
-            let prev_c =
-                Decimal::from_f64(close.get(i - 1).unwrap_or(0.0)).unwrap_or(Decimal::ZERO);
+            let prev_c_raw = close.get(i - 1).unwrap_or(0.0);
+            let prev_c = if prev_c_raw.is_finite() {
+                prev_c_raw
+            } else {
+                0.0
+            };
 
             let atr_val = match atr_values[i] {
-                Some(v) => Decimal::from_f64(v).unwrap_or(Decimal::ZERO),
+                Some(v) => {
+                    if v.is_finite() {
+                        v
+                    } else {
+                        0.0
+                    }
+                }
                 None => continue, // Should not happen after start_idx
             };
-            let mult = Decimal::from_f64(multiplier).unwrap_or(Decimal::ZERO);
+            let mult = if multiplier.is_finite() {
+                multiplier
+            } else {
+                0.0
+            };
 
-            let two = Decimal::from(2);
+            let two = 2.0f64;
             let basic_upper = (h + l) / two + mult * atr_val;
             let basic_lower = (h + l) / two - mult * atr_val;
 
@@ -134,7 +157,7 @@ pub fn calculate(data: &DataFrame, period: usize, multiplier: f64) -> Result<(Se
             // Supertrend Value
             let st = if trend == 1 { final_lower } else { final_upper };
 
-            supertrend_values[i] = st.to_f64();
+            supertrend_values[i] = Some(st);
             trend_values[i] = Some(trend);
 
             prev_final_upper = final_upper;

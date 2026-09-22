@@ -7,8 +7,6 @@
 
 use anyhow::{Context, Result};
 use polars::prelude::*;
-use rust_decimal::prelude::*;
-use rust_decimal::Decimal;
 
 /// Calculate Chande Momentum Oscillator (CMO)
 ///
@@ -22,7 +20,6 @@ use rust_decimal::Decimal;
 /// # Example
 /// ```rust
 /// use polars::prelude::*;
-/// use rust_decimal::Decimal;
 /// use strategies::indicators::cmo;
 ///
 /// let df = df!(
@@ -46,20 +43,14 @@ pub fn calculate(data: &DataFrame, period: usize) -> Result<Series> {
 
     let close = close_s.f64().context("Close column must be numeric")?;
 
-    let decimal_close: Vec<Option<Decimal>> = close
+    let decimal_close: Vec<Option<f64>> = close
         .into_iter()
-        .map(|opt_val| {
-            if let Some(val) = opt_val {
-                Decimal::from_f64_retain(val)
-            } else {
-                None
-            }
-        })
+        .map(|opt_val| opt_val.filter(|v| v.is_finite()))
         .collect();
 
     let mut cmo_values: Vec<Option<f64>> = vec![None; decimal_close.len()];
 
-    let hundred = Decimal::from(100);
+    let hundred = 100.0;
 
     for (i, cmo_val) in cmo_values
         .iter_mut()
@@ -67,8 +58,8 @@ pub fn calculate(data: &DataFrame, period: usize) -> Result<Series> {
         .take(decimal_close.len())
         .skip(period)
     {
-        let mut sum_gains = Decimal::ZERO;
-        let mut sum_losses = Decimal::ZERO;
+        let mut sum_gains = 0.0;
+        let mut sum_losses = 0.0;
         let mut valid = true;
 
         for j in 0..period {
@@ -77,9 +68,9 @@ pub fn calculate(data: &DataFrame, period: usize) -> Result<Series> {
 
             if let (Some(curr), Some(prev)) = (decimal_close[idx_curr], decimal_close[idx_prev]) {
                 let diff = curr - prev;
-                if diff > Decimal::ZERO {
+                if diff > 0.0 {
                     sum_gains += diff;
-                } else if diff < Decimal::ZERO {
+                } else if diff < 0.0 {
                     // diff is negative, losses must be absolute positive
                     sum_losses -= diff;
                 }
@@ -91,9 +82,9 @@ pub fn calculate(data: &DataFrame, period: usize) -> Result<Series> {
 
         if valid {
             let total_movement = sum_gains + sum_losses;
-            if total_movement > Decimal::ZERO {
+            if total_movement > 0.0 {
                 let cmo = ((sum_gains - sum_losses) / total_movement) * hundred;
-                *cmo_val = cmo.to_f64();
+                *cmo_val = Some(cmo);
             } else {
                 *cmo_val = Some(0.0);
             }
