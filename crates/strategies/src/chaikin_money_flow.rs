@@ -18,8 +18,6 @@ use crate::strategy::{Signal, SignalType, Strategy, StrategyConfig, StrategyType
 use anyhow::Result;
 use async_trait::async_trait;
 use polars::prelude::*;
-use rust_decimal::prelude::ToPrimitive;
-use rust_decimal::Decimal;
 use serde::{Deserialize, Serialize};
 
 /// Configuration parameters for the `ChaikinMoneyFlow` strategy.
@@ -117,16 +115,15 @@ impl Strategy for ChaikinMoneyFlow {
         let atr_arr = atr_series.f64()?;
 
         let mut signals = Vec::new();
-        let stop_loss_mult_dec =
-            Decimal::from_f64_retain(self.config.stop_loss_atr_mult).unwrap_or(Decimal::ZERO);
+        let stop_loss_mult_dec = self.config.stop_loss_atr_mult;
 
         // Iterate through data to identify crossovers
         for i in 1..close_arr.len() {
             let timestamp = time_arr.get(i).unwrap_or(0);
-            let price_opt = close_arr.get(i).and_then(Decimal::from_f64_retain);
+            let price_opt = close_arr.get(i);
             let cmf_val_opt = cmf_arr.get(i);
             let prev_cmf_val_opt = cmf_arr.get(i - 1);
-            let atr_opt = atr_arr.get(i).and_then(Decimal::from_f64_retain);
+            let atr_opt = atr_arr.get(i);
 
             if let (Some(price), Some(cmf_val), Some(prev_cmf), Some(atr_val)) =
                 (price_opt, cmf_val_opt, prev_cmf_val_opt, atr_opt)
@@ -142,7 +139,7 @@ impl Strategy for ChaikinMoneyFlow {
                         side: "buy".to_string(),
                         size_hint: "100".to_string(),
                         confidence: 0.8,
-                        stop_loss: Some(sl.to_f64().unwrap_or(0.0)),
+                        stop_loss: Some(sl),
                         take_profit: None, // Momentum strategy, ride the trend until exit signal
                         reason: format!(
                             "CMF crossed above Buy Threshold: {:.3} > {:.3}",

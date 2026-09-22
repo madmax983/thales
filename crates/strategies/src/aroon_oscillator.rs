@@ -9,8 +9,6 @@ use crate::strategy::{Signal, SignalType, Strategy, StrategyConfig, StrategyType
 use anyhow::{Context, Result};
 use async_trait::async_trait;
 use polars::prelude::*;
-use rust_decimal::prelude::*;
-use rust_decimal::Decimal;
 
 /// Configuration for the Aroon Oscillator Strategy
 #[derive(Debug, Clone, serde::Deserialize)]
@@ -118,13 +116,8 @@ impl Strategy for AroonOscillator {
                 p_osc >= self.config.sell_threshold && l_osc < self.config.sell_threshold;
 
             if buy_condition {
-                let sl_dist = Decimal::from_f64_retain(atr_val).unwrap_or(Decimal::ZERO)
-                    * Decimal::from_f64_retain(self.config.stop_loss_atr_mult)
-                        .unwrap_or(Decimal::ZERO);
-                let sl_price = (Decimal::from_f64_retain(close_price).unwrap_or(Decimal::ZERO)
-                    - sl_dist)
-                    .to_f64()
-                    .unwrap_or(0.0);
+                let sl_dist = atr_val * self.config.stop_loss_atr_mult;
+                let sl_price = close_price - sl_dist;
 
                 signals.push(Signal {
                     signal_type: SignalType::Entry,
@@ -141,13 +134,8 @@ impl Strategy for AroonOscillator {
                     timestamp_ms: ts,
                 });
             } else if sell_condition {
-                let sl_dist = Decimal::from_f64_retain(atr_val).unwrap_or(Decimal::ZERO)
-                    * Decimal::from_f64_retain(self.config.stop_loss_atr_mult)
-                        .unwrap_or(Decimal::ZERO);
-                let sl_price = (Decimal::from_f64_retain(close_price).unwrap_or(Decimal::ZERO)
-                    + sl_dist)
-                    .to_f64()
-                    .unwrap_or(0.0);
+                let sl_dist = atr_val * self.config.stop_loss_atr_mult;
+                let sl_price = close_price + sl_dist;
 
                 signals.push(Signal {
                     signal_type: SignalType::Entry,

@@ -20,8 +20,6 @@ use crate::strategy::{Signal, SignalType, Strategy, StrategyConfig, StrategyType
 use anyhow::Result;
 use async_trait::async_trait;
 use polars::prelude::*;
-use rust_decimal::prelude::ToPrimitive;
-use rust_decimal::Decimal;
 use serde::{Deserialize, Serialize};
 
 /// Configuration for the Choppiness Index Trend Strategy.
@@ -118,17 +116,16 @@ impl Strategy for ChoppinessIndexTrend {
         let atr_arr = atr_series.f64()?;
 
         let mut signals = Vec::new();
-        let stop_loss_mult_dec =
-            Decimal::from_f64_retain(self.config.stop_loss_atr_mult).unwrap_or(Decimal::ZERO);
+        let stop_loss_mult_dec = self.config.stop_loss_atr_mult;
 
         for i in 1..close_arr.len() {
             let timestamp = time_arr.get(i).unwrap_or(0);
-            let price_opt = close_arr.get(i).and_then(Decimal::from_f64_retain);
-            let prev_price_opt = close_arr.get(i - 1).and_then(Decimal::from_f64_retain);
+            let price_opt = close_arr.get(i);
+            let prev_price_opt = close_arr.get(i - 1);
             let chop_val_opt = chop_arr.get(i);
             let prev_chop_val_opt = chop_arr.get(i - 1);
-            let sma_val_opt = sma_arr.get(i).and_then(Decimal::from_f64_retain);
-            let atr_opt = atr_arr.get(i).and_then(Decimal::from_f64_retain);
+            let sma_val_opt = sma_arr.get(i);
+            let atr_opt = atr_arr.get(i);
 
             if let (
                 Some(price),
@@ -161,7 +158,7 @@ impl Strategy for ChoppinessIndexTrend {
                             side: "buy".to_string(),
                             size_hint: "100".to_string(),
                             confidence: 0.8,
-                            stop_loss: Some(sl.to_f64().unwrap_or(0.0)),
+                            stop_loss: Some(sl),
                             take_profit: None,
                             reason: format!(
                                 "CHOP dropped below threshold ({:.2} < {:.2}) in Uptrend (Price > SMA)",
@@ -180,7 +177,7 @@ impl Strategy for ChoppinessIndexTrend {
                             side: "sell".to_string(),
                             size_hint: "100".to_string(),
                             confidence: 0.8,
-                            stop_loss: Some(sl.to_f64().unwrap_or(0.0)),
+                            stop_loss: Some(sl),
                             take_profit: None,
                             reason: format!(
                                 "CHOP dropped below threshold ({:.2} < {:.2}) in Downtrend (Price < SMA)",

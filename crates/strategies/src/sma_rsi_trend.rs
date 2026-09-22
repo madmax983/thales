@@ -11,8 +11,6 @@ use crate::strategy::{Signal, SignalType, Strategy, StrategyConfig, StrategyType
 use anyhow::Result;
 use async_trait::async_trait;
 use polars::prelude::*;
-use rust_decimal::prelude::*;
-use rust_decimal::Decimal;
 use serde::{Deserialize, Serialize};
 
 /// Configuration parameters for the `SmaRsiTrend` strategy.
@@ -104,8 +102,7 @@ impl Strategy for SmaRsiTrend {
         let atr_arr = atr_series.f64()?;
 
         let mut signals = Vec::new();
-        let atr_mult_dec =
-            Decimal::from_f64_retain(self.config.stop_loss_atr_mult).unwrap_or(Decimal::ZERO);
+        let atr_mult_dec = self.config.stop_loss_atr_mult;
 
         for i in 1..close_arr.len() {
             let timestamp = time_arr.get(i).unwrap_or(0);
@@ -119,8 +116,8 @@ impl Strategy for SmaRsiTrend {
             if let (Some(price), Some(prev_rsi), Some(curr_rsi), Some(sma), Some(atr_val)) =
                 (price_opt, prev_rsi_opt, curr_rsi_opt, sma_opt, atr_opt)
             {
-                let price_dec = Decimal::from_f64_retain(price).unwrap_or(Decimal::ZERO);
-                let atr_dec = Decimal::from_f64_retain(atr_val).unwrap_or(Decimal::ZERO);
+                let price_dec = price;
+                let atr_dec = atr_val;
                 let sl_dist = atr_dec * atr_mult_dec;
 
                 // Long Entry
@@ -135,7 +132,7 @@ impl Strategy for SmaRsiTrend {
                         side: "buy".to_string(),
                         size_hint: "100".to_string(),
                         confidence: 0.8,
-                        stop_loss: Some(sl.to_f64().unwrap_or(0.0)),
+                        stop_loss: Some(sl),
                         take_profit: None,
                         reason: format!(
                             "SMA/RSI Long: Price > SMA ({:.2} > {:.2}) & RSI crossed above Oversold ({:.2} > {:.2})",
@@ -157,7 +154,7 @@ impl Strategy for SmaRsiTrend {
                         side: "sell".to_string(),
                         size_hint: "100".to_string(),
                         confidence: 0.8,
-                        stop_loss: Some(sl.to_f64().unwrap_or(0.0)),
+                        stop_loss: Some(sl),
                         take_profit: None,
                         reason: format!(
                             "SMA/RSI Short: Price < SMA ({:.2} < {:.2}) & RSI crossed below Overbought ({:.2} < {:.2})",

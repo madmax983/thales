@@ -11,8 +11,6 @@ use crate::strategy::{Signal, SignalType, Strategy, StrategyConfig, StrategyType
 use anyhow::Result;
 use async_trait::async_trait;
 use polars::prelude::*;
-use rust_decimal::prelude::ToPrimitive;
-use rust_decimal::Decimal;
 use serde::{Deserialize, Serialize};
 
 /// Configuration parameters for the `ZScoreMeanReversion` strategy.
@@ -104,8 +102,7 @@ impl Strategy for ZScoreMeanReversion {
         let atr_arr = atr_series.f64()?;
 
         let mut signals = Vec::new();
-        let atr_mult_dec =
-            Decimal::from_f64_retain(self.config.stop_loss_atr_mult).unwrap_or(Decimal::new(2, 0));
+        let atr_mult_dec = self.config.stop_loss_atr_mult;
 
         let entry_threshold = self.config.entry_threshold;
         let exit_threshold = self.config.exit_threshold;
@@ -116,24 +113,24 @@ impl Strategy for ZScoreMeanReversion {
         for i in 1..close_arr.len() {
             let timestamp = time_arr.get(i).unwrap_or(0);
 
-            let price_opt = close_arr.get(i).and_then(Decimal::from_f64_retain);
+            let price_opt = close_arr.get(i);
 
             let prev_zscore_opt = zscore_arr.get(i - 1);
             let zscore_opt = zscore_arr.get(i);
 
             let sma_opt = sma_arr.get(i);
-            let atr_opt = atr_arr.get(i).and_then(Decimal::from_f64_retain);
+            let atr_opt = atr_arr.get(i);
 
             if let (Some(price), Some(prev_z), Some(curr_z)) =
                 (price_opt, prev_zscore_opt, zscore_opt)
             {
                 // Determine sl dynamically if available
-                let atr_dec = atr_opt.unwrap_or(Decimal::ZERO);
+                let atr_dec = atr_opt.unwrap_or(0.0);
 
                 // Long Entry: Z-Score crosses below -entry_threshold
                 if prev_z >= neg_entry_threshold && curr_z < neg_entry_threshold {
                     let sl = price - (atr_dec * atr_mult_dec);
-                    let tp = sma_opt.unwrap_or(price.to_f64().unwrap_or(0.0) * 1.02);
+                    let tp = sma_opt.unwrap_or(price * 1.02);
 
                     signals.push(Signal {
                         signal_type: SignalType::Entry,
@@ -141,7 +138,7 @@ impl Strategy for ZScoreMeanReversion {
                         side: "buy".to_string(),
                         size_hint: "100".to_string(),
                         confidence: 0.8,
-                        stop_loss: Some(sl.to_f64().unwrap_or(0.0)),
+                        stop_loss: Some(sl),
                         take_profit: Some(tp),
                         reason: format!(
                             "ZScore Oversold: {:.2} < {:.2}",
@@ -153,7 +150,7 @@ impl Strategy for ZScoreMeanReversion {
                 // Short Entry: Z-Score crosses above entry_threshold
                 else if prev_z <= entry_threshold && curr_z > entry_threshold {
                     let sl = price + (atr_dec * atr_mult_dec);
-                    let tp = sma_opt.unwrap_or(price.to_f64().unwrap_or(0.0) * 0.98);
+                    let tp = sma_opt.unwrap_or(price * 0.98);
 
                     signals.push(Signal {
                         signal_type: SignalType::Entry,
@@ -161,7 +158,7 @@ impl Strategy for ZScoreMeanReversion {
                         side: "sell".to_string(),
                         size_hint: "100".to_string(),
                         confidence: 0.8,
-                        stop_loss: Some(sl.to_f64().unwrap_or(0.0)),
+                        stop_loss: Some(sl),
                         take_profit: Some(tp),
                         reason: format!(
                             "ZScore Overbought: {:.2} > {:.2}",

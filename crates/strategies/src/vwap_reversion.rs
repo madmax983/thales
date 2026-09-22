@@ -18,8 +18,6 @@ use crate::strategy::{Signal, SignalType, Strategy, StrategyConfig, StrategyType
 use anyhow::Result;
 use async_trait::async_trait;
 use polars::prelude::*;
-use rust_decimal::prelude::*;
-use rust_decimal::Decimal;
 use serde::{Deserialize, Serialize};
 
 /// Configuration for the time/volume spreading Reversion Strategy.
@@ -117,14 +115,11 @@ impl Strategy for VwapReversion {
         let atr_arr = atr_series.f64()?;
 
         let mut signals = Vec::new();
-        let sl_mult =
-            Decimal::from_f64_retain(self.config.stop_loss_atr_mult).unwrap_or(Decimal::ZERO);
+        let sl_mult = self.config.stop_loss_atr_mult;
 
-        let oversold_thresh =
-            Decimal::from_f64_retain(self.config.oversold_threshold_pct).unwrap_or(Decimal::ZERO);
-        let overbought_thresh =
-            Decimal::from_f64_retain(self.config.overbought_threshold_pct).unwrap_or(Decimal::ZERO);
-        let one_dec = Decimal::ONE;
+        let oversold_thresh = self.config.oversold_threshold_pct;
+        let overbought_thresh = self.config.overbought_threshold_pct;
+        let one_dec = 1.0;
 
         for i in 1..close_arr.len() {
             let timestamp = time_arr.get(i).unwrap_or(0);
@@ -143,12 +138,11 @@ impl Strategy for VwapReversion {
                 Some(atr_val),
             ) = (price_opt, prev_price_opt, vwma_opt, prev_vwma_opt, atr_opt)
             {
-                let price_dec = Decimal::from_f64_retain(price).unwrap_or(Decimal::ZERO);
-                let prev_price_dec = Decimal::from_f64_retain(prev_price).unwrap_or(Decimal::ZERO);
-                let vwma_dec = Decimal::from_f64_retain(vwma_val).unwrap_or(Decimal::ZERO);
-                let prev_vwma_dec =
-                    Decimal::from_f64_retain(prev_vwma_val).unwrap_or(Decimal::ZERO);
-                let atr_dec = Decimal::from_f64_retain(atr_val).unwrap_or(Decimal::ZERO);
+                let price_dec = price;
+                let prev_price_dec = prev_price;
+                let vwma_dec = vwma_val;
+                let prev_vwma_dec = prev_vwma_val;
+                let atr_dec = atr_val;
 
                 let lower_band = vwma_dec * (one_dec - oversold_thresh);
                 let upper_band = vwma_dec * (one_dec + overbought_thresh);
@@ -169,8 +163,8 @@ impl Strategy for VwapReversion {
                         side: "buy".to_string(),
                         size_hint: "100".to_string(),
                         confidence: 0.8,
-                        stop_loss: Some(sl.to_f64().unwrap_or(0.0)),
-                        take_profit: Some(tp.to_f64().unwrap_or(0.0)),
+                        stop_loss: Some(sl),
+                        take_profit: Some(tp),
                         reason: format!(
                             "time/volume spreading Reversion: Price {:.2} < Lower Band {:.2}",
                             price, lower_band
@@ -191,8 +185,8 @@ impl Strategy for VwapReversion {
                         side: "sell".to_string(), // Entry Short
                         size_hint: "100".to_string(),
                         confidence: 0.8,
-                        stop_loss: Some(sl.to_f64().unwrap_or(0.0)),
-                        take_profit: Some(tp.to_f64().unwrap_or(0.0)),
+                        stop_loss: Some(sl),
+                        take_profit: Some(tp),
                         reason: format!(
                             "time/volume spreading Reversion: Price {:.2} > Upper Band {:.2}",
                             price, upper_band

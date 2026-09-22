@@ -11,8 +11,6 @@ use crate::strategy::{Signal, SignalType, Strategy, StrategyConfig, StrategyType
 use anyhow::Result;
 use async_trait::async_trait;
 use polars::prelude::*;
-use rust_decimal::prelude::*;
-use rust_decimal::Decimal;
 
 /// Configuration parameters for the `CoppockCurve` strategy.
 ///
@@ -152,9 +150,8 @@ impl Strategy for CoppockCurve {
         let time_arr = time_series.i64()?;
 
         let mut signals = Vec::new();
-        let sl_mult =
-            Decimal::from_f64_retain(self.config.stop_loss_atr_mult).unwrap_or(Decimal::ZERO);
-        let two_dec = Decimal::from(2);
+        let sl_mult = self.config.stop_loss_atr_mult;
+        let two_dec = 2.0;
 
         // Let size hint be bounded by max_position_size
         let size_hint_str = format!("{:.2}", self.config.max_position_size);
@@ -170,8 +167,8 @@ impl Strategy for CoppockCurve {
             if let (Some(c_curr), Some(c_prev), Some(price), Some(atr_val)) =
                 (cc_curr, cc_prev, price_opt, atr_opt)
             {
-                let price_dec = Decimal::from_f64_retain(price).unwrap_or(Decimal::ZERO);
-                let atr_dec = Decimal::from_f64_retain(atr_val).unwrap_or(Decimal::ZERO);
+                let price_dec = price;
+                let atr_dec = atr_val;
 
                 // Entry Long: Coppock Curve crosses above zero
                 if c_prev <= 0.0 && c_curr > 0.0 {
@@ -199,8 +196,8 @@ impl Strategy for CoppockCurve {
                         side: "buy".to_string(),
                         size_hint: size_hint_str.clone(),
                         confidence: 0.8,
-                        stop_loss: Some(sl.to_f64().unwrap_or(0.0)),
-                        take_profit: Some(tp.to_f64().unwrap_or(0.0)),
+                        stop_loss: Some(sl),
+                        take_profit: Some(tp),
                         reason: "Coppock Curve crossed above zero (Trend Reversal Up)".to_string(),
                         timestamp_ms: timestamp,
                     });
@@ -232,8 +229,8 @@ impl Strategy for CoppockCurve {
                         side: "sell".to_string(),
                         size_hint: size_hint_str.clone(),
                         confidence: 0.8,
-                        stop_loss: Some(sl.to_f64().unwrap_or(0.0)),
-                        take_profit: Some(tp.to_f64().unwrap_or(0.0)),
+                        stop_loss: Some(sl),
+                        take_profit: Some(tp),
                         reason: "Coppock Curve crossed below zero (Trend Reversal Down)"
                             .to_string(),
                         timestamp_ms: timestamp,

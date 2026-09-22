@@ -9,8 +9,6 @@ use crate::strategy::{Signal, SignalType, Strategy, StrategyConfig, StrategyType
 use anyhow::Result;
 use async_trait::async_trait;
 use polars::prelude::*;
-use rust_decimal::prelude::ToPrimitive;
-use rust_decimal::Decimal;
 use serde::{Deserialize, Serialize};
 
 /// Configuration for the [`DpoBreakout`] strategy.
@@ -73,28 +71,27 @@ impl Strategy for DpoBreakout {
 
         let mut signals = Vec::new();
 
-        let atr_mult_dec =
-            Decimal::from_f64_retain(self.config.stop_loss_atr_mult).unwrap_or(Decimal::new(2, 0));
+        let atr_mult_dec = self.config.stop_loss_atr_mult;
 
         let size_hint = self.config.max_position_size.to_string();
 
         for i in 1..close_arr.len() {
             let timestamp = time_arr.get(i).unwrap_or(0);
-            let price_opt = close_arr.get(i).and_then(Decimal::from_f64_retain);
+            let price_opt = close_arr.get(i);
 
-            let dpo_curr_opt = dpo_arr.get(i).and_then(Decimal::from_f64_retain);
-            let dpo_prev_opt = dpo_arr.get(i - 1).and_then(Decimal::from_f64_retain);
-            let atr_opt = atr_arr.get(i).and_then(Decimal::from_f64_retain);
+            let dpo_curr_opt = dpo_arr.get(i);
+            let dpo_prev_opt = dpo_arr.get(i - 1);
+            let atr_opt = atr_arr.get(i);
 
             if let (Some(dpo_curr), Some(dpo_prev), Some(price)) =
                 (dpo_curr_opt, dpo_prev_opt, price_opt)
             {
                 // Buy when DPO crosses above 0
-                if dpo_curr > Decimal::ZERO && dpo_prev <= Decimal::ZERO {
+                if dpo_curr > 0.0 && dpo_prev <= 0.0 {
                     let sl = if let Some(atr_val) = atr_opt {
                         price - (atr_val * atr_mult_dec)
                     } else {
-                        price * Decimal::from_f64_retain(0.95).unwrap()
+                        price * 0.95
                     };
 
                     signals.push(Signal {
@@ -103,7 +100,7 @@ impl Strategy for DpoBreakout {
                         side: "buy".to_string(),
                         size_hint: size_hint.clone(),
                         confidence: 0.7,
-                        stop_loss: Some(sl.to_f64().unwrap_or(0.0)),
+                        stop_loss: Some(sl),
                         take_profit: None,
                         reason: format!("DPO ({}) crossed above zero", self.config.period),
                         timestamp_ms: timestamp,
@@ -111,7 +108,7 @@ impl Strategy for DpoBreakout {
                 }
 
                 // Sell when DPO crosses below 0
-                if dpo_curr < Decimal::ZERO && dpo_prev >= Decimal::ZERO {
+                if dpo_curr < 0.0 && dpo_prev >= 0.0 {
                     signals.push(Signal {
                         signal_type: SignalType::Exit,
                         symbol: self.config.symbol.clone(),

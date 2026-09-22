@@ -19,7 +19,6 @@ use crate::strategy::{Signal, SignalType, Strategy, StrategyConfig, StrategyType
 use anyhow::{bail, Result};
 use async_trait::async_trait;
 use polars::prelude::*;
-use rust_decimal::prelude::ToPrimitive;
 use rust_decimal::Decimal;
 use serde::{Deserialize, Serialize};
 
@@ -164,19 +163,18 @@ impl Strategy for KamaCrossover {
         let atr_arr = atr_series.f64()?;
 
         let mut signals = Vec::new();
-        let atr_mult_dec =
-            Decimal::from_f64_retain(self.config.stop_loss_atr_mult).unwrap_or(Decimal::new(2, 0));
+        let atr_mult_dec = self.config.stop_loss_atr_mult;
 
         for i in 1..close_arr.len() {
             let timestamp = time_arr.get(i).unwrap_or(0);
-            let price_opt = close_arr.get(i).and_then(Decimal::from_f64_retain);
+            let price_opt = close_arr.get(i);
 
             let s_curr_opt = short_kama.get(i).and_then(Decimal::from_f64_retain);
             let l_curr_opt = long_kama.get(i).and_then(Decimal::from_f64_retain);
             let s_prev_opt = short_kama.get(i - 1).and_then(Decimal::from_f64_retain);
             let l_prev_opt = long_kama.get(i - 1).and_then(Decimal::from_f64_retain);
 
-            let atr_opt = atr_arr.get(i).and_then(Decimal::from_f64_retain);
+            let atr_opt = atr_arr.get(i);
 
             if let (Some(sc), Some(lc), Some(sp), Some(lp), Some(price)) =
                 (s_curr_opt, l_curr_opt, s_prev_opt, l_prev_opt, price_opt)
@@ -206,7 +204,7 @@ impl Strategy for KamaCrossover {
                         price - (atr_val * atr_mult_dec)
                     } else {
                         // Fallback SL if ATR is not available yet
-                        price * Decimal::from_f64_retain(0.95).unwrap()
+                        price * 0.95
                     };
 
                     signals.push(Signal {
@@ -215,7 +213,7 @@ impl Strategy for KamaCrossover {
                         side: "buy".to_string(),
                         size_hint: "100".to_string(),
                         confidence: 0.8,
-                        stop_loss: Some(sl.to_f64().unwrap_or(0.0)),
+                        stop_loss: Some(sl),
                         take_profit: None,
                         reason: format!(
                             "Bullish KAMA Crossover: Short {} > Long {}",

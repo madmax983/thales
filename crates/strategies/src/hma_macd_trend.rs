@@ -97,7 +97,7 @@ impl Strategy for HmaMacdTrend {
             let hma_curr = hma_arr.get(i).and_then(Decimal::from_f64_retain);
 
             let hist_curr = macd_hist.get(i).and_then(Decimal::from_f64_retain);
-            let hist_prev = macd_hist.get(i - 1).and_then(Decimal::from_f64_retain);
+            let hist_prev = macd_hist.get(i - 1);
 
             let atr_opt = atr_arr.get(i).and_then(Decimal::from_f64_retain);
 
@@ -105,7 +105,7 @@ impl Strategy for HmaMacdTrend {
                 (price_opt, hma_curr, hist_curr, hist_prev)
             {
                 // Long Entry
-                if price > hma && hc > Decimal::ZERO && hp <= Decimal::ZERO {
+                if price > hma && hc > Decimal::ZERO && hp <= 0.0 {
                     let sl: Decimal = if let Some(atr_val) = atr_opt {
                         price - (atr_val * atr_mult_dec)
                     } else {
@@ -145,7 +145,7 @@ impl Strategy for HmaMacdTrend {
                 }
 
                 // Short Entry
-                if price < hma && hc < Decimal::ZERO && hp >= Decimal::ZERO {
+                if price < hma && hc < Decimal::ZERO && hp >= 0.0 {
                     let sl: Decimal = if let Some(atr_val) = atr_opt {
                         price + (atr_val * atr_mult_dec)
                     } else {

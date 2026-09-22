@@ -9,7 +9,6 @@ use crate::strategy::{Signal, SignalType, Strategy, StrategyConfig, StrategyType
 use anyhow::{Context, Result};
 use async_trait::async_trait;
 use polars::prelude::*;
-use rust_decimal::prelude::*;
 
 /// Configuration for the Gator Oscillator Strategy
 #[derive(Debug, Clone, serde::Deserialize)]
@@ -135,16 +134,11 @@ impl Strategy for GatorOscillator {
                 // c_up < p_up and c_low > p_low
                 let is_contracting = c_up < p_up && c_low > p_low;
 
-                let sl_dist = Decimal::from_f64_retain(atr_val).unwrap_or(Decimal::ZERO)
-                    * Decimal::from_f64_retain(self.config.stop_loss_atr_mult)
-                        .unwrap_or(Decimal::ZERO);
+                let sl_dist = atr_val * self.config.stop_loss_atr_mult;
 
                 if is_expanding && !was_expanding {
                     // Long Entry
-                    let sl_price = (Decimal::from_f64_retain(close_price).unwrap_or(Decimal::ZERO)
-                        - sl_dist)
-                        .to_f64()
-                        .unwrap_or(0.0);
+                    let sl_price = close_price - sl_dist;
 
                     signals.push(Signal {
                         signal_type: SignalType::Entry,
@@ -172,10 +166,7 @@ impl Strategy for GatorOscillator {
                     });
                 } else if is_contracting && !was_contracting {
                     // Short Entry
-                    let sl_price = (Decimal::from_f64_retain(close_price).unwrap_or(Decimal::ZERO)
-                        + sl_dist)
-                        .to_f64()
-                        .unwrap_or(0.0);
+                    let sl_price = close_price + sl_dist;
 
                     signals.push(Signal {
                         signal_type: SignalType::Entry,

@@ -7,8 +7,6 @@ use crate::strategy::{Signal, SignalType, Strategy, StrategyConfig, StrategyType
 use anyhow::Result;
 use async_trait::async_trait;
 use polars::prelude::*;
-use rust_decimal::prelude::ToPrimitive;
-use rust_decimal::Decimal;
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -60,15 +58,14 @@ impl Strategy for MoneyFlowIndex {
         let atr_arr = atr_series.f64()?;
 
         let mut signals = Vec::new();
-        let stop_loss_mult_dec =
-            Decimal::from_f64_retain(self.config.stop_loss_atr_mult).unwrap_or(Decimal::ZERO);
+        let stop_loss_mult_dec = self.config.stop_loss_atr_mult;
 
         // Iterate through data
         for i in 1..close_arr.len() {
             let timestamp = time_arr.get(i).unwrap_or(0);
-            let price_opt = close_arr.get(i).and_then(Decimal::from_f64_retain);
+            let price_opt = close_arr.get(i);
             let mfi_opt = mfi_arr.get(i);
-            let atr_opt = atr_arr.get(i).and_then(Decimal::from_f64_retain);
+            let atr_opt = atr_arr.get(i);
 
             if let (Some(price), Some(mfi_val), Some(atr_val)) = (price_opt, mfi_opt, atr_opt) {
                 // Check for Exit (Overbought) - Stateless
@@ -96,7 +93,7 @@ impl Strategy for MoneyFlowIndex {
                     // Take profit: Simple risk:reward 1:2 or fixed?
                     // Let's use a simple 2x Stop Loss distance for TP target
                     let risk = sl_dist;
-                    let tp = price + (risk * Decimal::from(2));
+                    let tp = price + (risk * 2.0);
 
                     signals.push(Signal {
                         signal_type: SignalType::Entry,
@@ -104,8 +101,8 @@ impl Strategy for MoneyFlowIndex {
                         side: "buy".to_string(), // Enter Long
                         size_hint: "100".to_string(),
                         confidence: 0.8,
-                        stop_loss: Some(sl.to_f64().unwrap_or(0.0)),
-                        take_profit: Some(tp.to_f64().unwrap_or(0.0)),
+                        stop_loss: Some(sl),
+                        take_profit: Some(tp),
                         reason: format!(
                             "MFI Oversold: {:.2} < {:.2}",
                             mfi_val, self.config.oversold_threshold

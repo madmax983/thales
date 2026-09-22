@@ -7,8 +7,6 @@ use crate::strategy::{Signal, SignalType, Strategy, StrategyConfig, StrategyType
 use anyhow::Result;
 use async_trait::async_trait;
 use polars::prelude::*;
-use rust_decimal::prelude::ToPrimitive;
-use rust_decimal::Decimal;
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -74,20 +72,19 @@ impl Strategy for AlmaCrossover {
         let atr_arr = atr_series.f64()?;
 
         let mut signals = Vec::new();
-        let atr_mult_dec =
-            Decimal::from_f64_retain(self.config.stop_loss_atr_mult).unwrap_or(Decimal::new(2, 0));
+        let atr_mult_dec = self.config.stop_loss_atr_mult;
 
         // Iterate through data starting from 1 to check for crossover
         for i in 1..close_arr.len() {
             let timestamp = time_arr.get(i).unwrap_or(0);
-            let price_opt = close_arr.get(i).and_then(Decimal::from_f64_retain);
+            let price_opt = close_arr.get(i);
 
             let fast_curr_opt = fast_alma_arr.get(i);
             let fast_prev_opt = fast_alma_arr.get(i - 1);
             let slow_curr_opt = slow_alma_arr.get(i);
             let slow_prev_opt = slow_alma_arr.get(i - 1);
 
-            let atr_opt = atr_arr.get(i).and_then(Decimal::from_f64_retain);
+            let atr_opt = atr_arr.get(i);
 
             if let (
                 Some(price),
@@ -108,7 +105,7 @@ impl Strategy for AlmaCrossover {
                         price - (atr_val * atr_mult_dec)
                     } else {
                         // Fallback stop loss if ATR is missing (e.g. 2%)
-                        price * Decimal::from_f64_retain(0.98).unwrap_or(Decimal::ONE)
+                        price * 0.98
                     };
 
                     signals.push(Signal {
@@ -117,7 +114,7 @@ impl Strategy for AlmaCrossover {
                         side: "buy".to_string(), // Enter Long
                         size_hint: "100".to_string(),
                         confidence: 0.8,
-                        stop_loss: Some(sl.to_f64().unwrap_or(0.0)),
+                        stop_loss: Some(sl),
                         take_profit: None, // Follow trend
                         reason: format!(
                             "Fast ALMA ({:.2}) crossed above Slow ALMA ({:.2})",

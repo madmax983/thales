@@ -17,7 +17,6 @@ use crate::strategy::{Signal, SignalType, Strategy, StrategyConfig, StrategyType
 use anyhow::Result;
 use async_trait::async_trait;
 use polars::prelude::*;
-use rust_decimal::prelude::*;
 use serde::{Deserialize, Serialize};
 
 /// 🎻 **Donchian Breakout Configuration**
@@ -95,8 +94,7 @@ impl Strategy for DonchianBreakout {
         let atr_arr = atr_series.f64()?;
 
         let mut signals = Vec::new();
-        let stop_loss_mult =
-            Decimal::from_f64_retain(self.config.stop_loss_atr_mult).unwrap_or(Decimal::ZERO);
+        let stop_loss_mult = self.config.stop_loss_atr_mult;
         let len = data.height();
 
         // Iterate through data
@@ -118,19 +116,14 @@ impl Strategy for DonchianBreakout {
             let atr_opt = atr_arr.get(i);
 
             if let Some(price) = price_opt {
-                let price_dec = Decimal::from_f64_retain(price).unwrap_or(Decimal::ZERO);
+                let price_dec = price;
 
                 // Entry Condition: Close > Upper Channel (from previous bar)
                 if let Some(upper) = upper_val_prev {
                     if price > upper {
                         let sl = if let Some(atr_val) = atr_opt {
-                            let atr_dec =
-                                Decimal::from_f64_retain(atr_val).unwrap_or(Decimal::ZERO);
-                            Some(
-                                (price_dec - (atr_dec * stop_loss_mult))
-                                    .to_f64()
-                                    .unwrap_or(0.0),
-                            )
+                            let atr_dec = atr_val;
+                            Some(price_dec - (atr_dec * stop_loss_mult))
                         } else {
                             // Fallback stop loss if ATR is not available
                             // Use Lower Channel as strict stop if available

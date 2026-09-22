@@ -12,7 +12,6 @@ use crate::strategy::{Signal, SignalType, Strategy, StrategyConfig, StrategyType
 use anyhow::Result;
 use async_trait::async_trait;
 use polars::prelude::*;
-use rust_decimal::prelude::ToPrimitive;
 use rust_decimal::Decimal;
 use serde::{Deserialize, Serialize};
 
@@ -121,23 +120,21 @@ impl Strategy for Macd {
         let atr_arr = atr_series.f64()?;
 
         let mut signals = Vec::new();
-        let stop_loss_pct_dec =
-            Decimal::from_f64_retain(self.config.stop_loss_pct).unwrap_or(Decimal::ZERO);
-        let one_dec = Decimal::ONE;
-        let atr_mult_dec =
-            Decimal::from_f64_retain(self.config.atr_mult).unwrap_or(Decimal::new(2, 0));
+        let stop_loss_pct_dec = self.config.stop_loss_pct;
+        let one_dec = 1.0;
+        let atr_mult_dec = self.config.atr_mult;
 
         // Iterate through data
         for i in 1..close_arr.len() {
             let timestamp = time_arr.get(i).unwrap_or(0);
-            let price_opt = close_arr.get(i).and_then(Decimal::from_f64_retain);
+            let price_opt = close_arr.get(i);
 
             let m_curr_opt = macd_arr.get(i).and_then(Decimal::from_f64_retain);
             let s_curr_opt = signal_arr.get(i).and_then(Decimal::from_f64_retain);
             let m_prev_opt = macd_arr.get(i - 1).and_then(Decimal::from_f64_retain);
             let s_prev_opt = signal_arr.get(i - 1).and_then(Decimal::from_f64_retain);
 
-            let atr_opt = atr_arr.get(i).and_then(Decimal::from_f64_retain);
+            let atr_opt = atr_arr.get(i);
 
             if let (Some(mc), Some(sc), Some(mp), Some(sp), Some(price)) =
                 (m_curr_opt, s_curr_opt, m_prev_opt, s_prev_opt, price_opt)
@@ -177,7 +174,7 @@ impl Strategy for Macd {
                         side: "buy".to_string(),
                         size_hint: "100".to_string(),
                         confidence: 0.8,
-                        stop_loss: Some(sl.to_f64().unwrap_or(0.0)),
+                        stop_loss: Some(sl),
                         take_profit: None, // Let trend run
                         reason: format!(
                             "Bullish Crossover: MACD {} > Signal {}",
