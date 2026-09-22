@@ -40,28 +40,22 @@ pub fn calculate(data: &DataFrame, period: usize) -> Result<Series> {
         let open_opt = open.get(i);
 
         match (close_opt, open_opt) {
-            (Some(c), Some(o)) => {
-                if c.is_finite() && o.is_finite() {
-                    let diff = c - o;
-                    sum += diff;
-                    window.push_back(diff);
+            (Some(c), Some(o)) if c.is_finite() && o.is_finite() => {
+                let diff = c - o;
+                sum += diff;
+                window.push_back(diff);
 
-                    if window.len() > period {
-                        if let Some(old) = window.pop_front() {
-                            sum -= old;
-                        }
+                if window.len() > period {
+                    if let Some(old) = window.pop_front() {
+                        sum -= old;
                     }
+                }
 
-                    if window.len() == period {
-                        let avg = sum / period_f;
-                        qstick_values.push(Some(avg));
-                    } else {
-                        qstick_values.push(None);
-                    }
+                if window.len() == period {
+                    let avg = sum / period_f;
+                    qstick_values.push(Some(avg));
                 } else {
                     qstick_values.push(None);
-                    window.clear();
-                    sum = 0.0;
                 }
             }
             _ => {

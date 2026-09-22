@@ -55,21 +55,18 @@ pub fn calculate(data: &DataFrame) -> Result<Series> {
         let curr_vol_opt = volume.get(i);
 
         match (prev_close_opt, curr_close_opt, prev_vol_opt, curr_vol_opt) {
-            (Some(prev_close), Some(curr_close), Some(prev_vol), Some(curr_vol)) => {
+            (Some(prev_close), Some(curr_close), Some(prev_vol), Some(curr_vol))
                 if prev_close.is_finite()
                     && curr_close.is_finite()
                     && prev_vol.is_finite()
-                    && curr_vol.is_finite()
-                {
-                    let (pc, cc, pv, cv) = (prev_close, curr_close, prev_vol, curr_vol);
-                    if cv < pv && pc != 0.0 {
-                        let rate_of_change = (cc - pc) / pc;
-                        current_nvi += current_nvi * rate_of_change;
-                    }
-                    nvi_values.push(Some(current_nvi));
-                } else {
-                    nvi_values.push(None);
+                    && curr_vol.is_finite() =>
+            {
+                let (pc, cc, pv, cv) = (prev_close, curr_close, prev_vol, curr_vol);
+                if cv < pv && pc != 0.0 {
+                    let rate_of_change = (cc - pc) / pc;
+                    current_nvi += current_nvi * rate_of_change;
                 }
+                nvi_values.push(Some(current_nvi));
             }
             _ => {
                 nvi_values.push(None);
