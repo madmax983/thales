@@ -389,3 +389,159 @@ files, the 2 `from_str` files, `bollinger_bands.rs`'s variance
 accumulator, and the indicator layer itself (`sma`, `ema`, `rsi`, etc. —
 still `Decimal`-based per the original baseline note above). Each of
 those is a separate, smaller, more case-by-case follow-up.
+
+## Baseline for this run (before the backtest-loop O(n²) fix)
+
+Recorded with `valgrind-3.22.0`, `perf/bolt_benchmark.sh --callgrind`,
+release build of `thales-cli` (`--features nova`), same fixture, same
+machine, same session, at the commit that includes the indicator-layer fix
+above:
+
+```
+I refs: 2,623,791,528
+```
+
+```
+Ir                    file:function
+528,961,837 (20.16%)  rust_decimal::decimal::base2_to_decimal
+240,536,843 ( 9.17%)  polars_core::chunked_array::ChunkedArray<T>::get
+210,101,676 ( 8.01%)  rust_decimal::ops::common::Buf24::rescale
+166,159,247 ( 6.33%)  rust_decimal::ops::div::div_impl
+139,180,543 ( 5.30%)  thales_cli::backtest::run_backtest_with_strategy::{{closure}}
+ 93,809,950 ( 3.58%)  rust_decimal::ops::mul::mul_impl
+ 71,683,433 ( 2.73%)  __memcpy_avx_unaligned_erms
+ 66,201,049 ( 2.52%)  rust_decimal::ops::add::add_sub_internal
+ 64,434,900 ( 2.46%)  polars_core::chunked_array::builder::ChunkedBuilder::append_option
+ 60,016,571 ( 2.29%)  rust_decimal::ops::add::unaligned_add
+```
+
+`rust_decimal` internals remain the dominant cost (all attributable to the
+13 indicators with a genuine precision reason, per the previous section).
+The next entry that is a single, nameable function rather than diffuse
+per-file cost is `polars_core::chunked_array::ChunkedArray<T>::get`
+(9.17%) — but a `callgrind_annotate --tree=caller` walk shows that edge
+fed by ~150 distinct call sites (every indicator and every strategy's
+`generate_signals` closure), none contributing more than ~2% individually.
+Fixing it would mean touching essentially every file that reads a polars
+column, each with its own loop shape (some with backward-looking relative
+indices) — not a single mechanism with a bounded, auditable diff, so it's
+left as a finding rather than a fix (see PR notes).
+
+The next candidate, `thales_cli::backtest::run_backtest_with_strategy::{{closure}}`
+at **5.30%** self-cost, *is* a single function and clears the "worth
+changing" bar (>5% of the profile). Reading `crates/cli/src/backtest.rs`'s
+per-bar simulation loop shows why: on every bar (`for i in
+0..bars.bars.len()`), the "Update Equity Curve" step recomputes
+
+```rust
+let realized_pnl: f64 = trades.iter().map(|t| t.pnl).sum();
+```
+
+— a full re-sum over *every trade closed so far* — to fold into the
+equity-curve point for that single bar. `trades` only grows (trades are
+never removed), so this is `O(bars × trades-closed-so-far)`, i.e.
+quadratic in the length of the run for a strategy with a roughly constant
+trade frequency, when a running accumulator updated at the two trade-close
+sites (stop-loss/take-profit exit and signal-driven exit) would make it
+`O(bars)`. At the fixture's scale (5,000 bars, ~tens of trades per
+strategy) this doesn't yet dominate the profile the way `rust_decimal`
+does, but it is a real algorithmic defect that gets worse, not better, as
+users backtest over longer histories.
+
+### Demonstrating the O(n²) shape before fixing it
+
+A single fixed-size run can't distinguish "5.30% of a profile" from "5.30%
+of a profile, and it doesn't scale" — for that we need the curve. Added
+`perf/bolt_asymptotic.sh`, which drives the same public `backtest` entry
+point with a single trade-heavy strategy (`EmaCrossover`, chosen because it
+trades often enough on the synthetic random walk to make the
+accumulated-`trades` effect visible) over three input sizes: the existing
+5,000-bar fixture plus two new committed fixtures
+(`perf/fixtures/synthetic_bars_10000.json`,
+`..._20000.json`, generated the same way via
+`thales-cli generate-synthetic-data --symbol SYNTH --initial-price 150.0
+--timeframe 1h --num-bars <N>`).
+
+Self-cost of `run_backtest_with_strategy::{{closure}}` alone, same
+machine, same session, **at this commit** (fix not yet applied):
+
+| Bars | Trades | Ir (closure self-cost) | % of run's total Ir |
+|---:|---:|---:|---:|
+| 5,000 | 124 | 1,239,653 | 1.27% |
+| 10,000 | 222 | 3,600,788 | 1.86% |
+| 20,000 | 479 | 11,729,958 | 2.97% |
+
+Doubling the input roughly *triples* this function's self-cost each time
+(2.96x, then 3.26x) — well past the ~2x a linear cost would produce, and
+consistent with the `O(bars × trades)` mechanism read from the source:
+trades grow roughly linearly with bars here, so the pure sum-recompute
+term is quadratic in bars (would give 4x per doubling), and the observed
+~3x is what that looks like once diluted by the other, genuinely linear
+per-bar work already living in the same closure (equity-curve push,
+signal-map lookup, position bookkeeping). This is the asymptotic-argument
+evidence class (see project instructions): the fix is expected to flatten
+this curve, not just shave a constant off it.
+## After: backtest-loop realized-PnL accumulator
+
+`crates/cli/src/backtest.rs`: replaced the per-bar `trades.iter().map(|t|
+t.pnl).sum()` with a `realized_pnl: f64` accumulator initialized to `0.0`
+before the simulation loop and incremented by `pnl` at each of the two
+trade-close sites (intrabar SL/TP exit, and signal-driven exit) — the same
+two places that already compute `pnl` for the trade being pushed. The
+post-loop "Finalize Metrics" recomputation of the same sum was removed
+too, reusing the accumulator instead (both are the same value, summed in
+the same order, so this is bit-identical, not just equivalent). No
+algorithm, ordering, or public output changed — this is a pure
+`O(n²) -> O(n)` reduction of redundant work already being tracked
+elsewhere.
+
+Primary harness (`perf/bolt_benchmark.sh --callgrind`, same fixture, same
+machine, same session):
+
+```
+I refs: 2,533,550,698   (this run's baseline: 2,623,791,528)
+```
+
+| | Ir | % of this run's baseline |
+|---|---:|---:|
+| Baseline (post-indicator-layer-fix) | 2,623,791,528 | 100.00% |
+| After backtest-loop fix | 2,533,550,698 | 96.56% |
+| **Delta** | **-90,240,830** | **-3.44%** |
+
+`run_backtest_with_strategy::{{closure}}` self-cost drops from
+139,180,543 (5.30%) to 51,106,946 (2.02%) — a 63% reduction in the target
+function itself. The whole-workload delta (-3.44%) does not on its own
+clear the flat "≥5% of total instructions" bar, so this change is
+justified instead by the asymptotic-improvement criterion: same three
+input sizes, same `perf/bolt_asymptotic.sh` harness, **after** the fix:
+
+| Bars | Trades | Ir (closure self-cost) | % of run's total Ir |
+|---:|---:|---:|---:|
+| 5,000 | 124 | 547,140 | 0.57% |
+| 10,000 | 222 | 1,258,253 | 0.66% |
+| 20,000 | 479 | 2,141,407 | 0.56% |
+
+Before the fix this function's cost share grew with input size (1.27% ->
+1.86% -> 2.97%); after the fix it is flat (~0.55-0.66%, no growth trend) —
+the quadratic term is gone, leaving the genuinely linear per-bar work
+(equity-curve push, signal-map lookup, position bookkeeping). This is the
+"asymptotic complexity improvement, demonstrated across input sizes" gate,
+independent of the whole-workload percentage, which is small only because
+`rust_decimal` still dominates the total at this fixture size (see
+previous sections) — the defect this fixes gets proportionally worse, not
+better, on longer backtests, which is exactly the scenario a real user
+runs when evaluating a strategy over years of history rather than a few
+thousand hourly bars.
+
+`cargo test --workspace --all-features` (924 unit + doctests across the
+workspace) passes unchanged; no test's expected trade count, PnL, or
+equity value needed updating, consistent with this being a pure
+redundant-work removal rather than a behavior change.
+
+### Reproduce
+
+```sh
+cargo build --release -p thales-cli --features nova
+perf/bolt_benchmark.sh --callgrind     # whole-workload delta
+perf/bolt_asymptotic.sh --callgrind    # per-size scaling curve
+```
