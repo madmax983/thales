@@ -1,23 +1,29 @@
 //! Deterministic ensemble dedup for the four-strategy scan.
 //!
 //! The morning scan evaluates `BollingerBands`, `RsiMeanReversion`,
-//! `Supertrend`, and `DonchianBreakout` independently per symbol. Each
-//! strategy file is gated through `judge-signals` — but the gate must never
-//! see two live candidates for the same symbol, or one symbol could take
-//! multiple positions from a single scan.
+//! `Supertrend`, and `DonchianBreakout` independently per symbol. Every
+//! non-empty raw strategy file passes through `judge-signals` (via
+//! `scripts/judge-with-jev.sh`) on its own, and only the independently
+//! approved outputs reach this dedup. Empty strategy files are valid
+//! no-signals: they are recorded, never gated, and never produce output.
 //!
 //! Rules (deterministic, no judgement calls):
-//! - **Conflict:** if the ensemble fires both `buy` and `sell` on a symbol
-//!   (any two distinct sides), emit nothing for it and record the conflict.
-//!   Neither side is gated.
-//! - **Same-direction corroboration:** multiple same-side candidates collapse
-//!   to exactly one intent — the highest `confidence`; ties break on
+//! - **Conflict:** if the ensemble's approved outputs contain both `buy` and
+//!   `sell` on a symbol (any two distinct sides), emit nothing for it and
+//!   record the conflict. Neither side executes.
+//! - **Same-direction corroboration:** multiple same-side approved candidates
+//!   collapse to exactly one intent — the highest `confidence`; ties break on
 //!   `strategy` ascending, then `intent_id` ascending. The dropped candidates
-//!   are recorded in the disposition, never gated, never executed.
-//! - **Single:** one candidate passes through untouched.
+//!   are recorded in the disposition, never executed. (Gate approval already
+//!   replaced `confidence` with Jev's calibrated probability, so the kept
+//!   candidate is the one Jev believed most.)
+//! - **Single:** one approved candidate passes through untouched.
 //!
 //! The kept intent is never mutated: confidence is not inflated for
 //! corroboration. The disposition record is where the corroboration lives.
+//!
+//! At most one intent per symbol survives a scan, so execution can never
+//! take multiple positions on a symbol from a single run.
 
 use std::collections::BTreeMap;
 
@@ -32,9 +38,9 @@ pub enum Disposition {
     None,
     /// Exactly one candidate — passed through untouched.
     Single,
-    /// Multiple same-direction candidates — kept one, dropped the rest.
+    /// Multiple same-direction approved candidates — kept one, dropped the rest.
     Deduped,
-    /// Buy and sell both fired — emitted nothing, gated nothing.
+    /// Buy and sell both survived the gate — emitted nothing, neither executes.
     Conflict,
 }
 
@@ -64,7 +70,7 @@ pub struct SymbolDisposition {
     pub kept_intent_id: Option<String>,
     pub kept_strategy: Option<String>,
     /// Candidates that were not emitted: dropped corroborators (`Deduped`)
-    /// or every candidate (`Conflict`).
+    /// or every approved candidate (`Conflict`).
     pub dropped_intent_ids: Vec<String>,
 }
 
@@ -123,10 +129,11 @@ pub fn dedupe_files(inputs: Vec<(String, Vec<TradeIntent>)>) -> DedupeResult {
         strategies.dedup();
 
         if sides.len() > 1 {
-            // Conflict: opposite directions — emit nothing, gate nothing.
+            // Conflict: opposite directions among approved outputs — emit
+            // nothing, execute nothing.
             let ids: Vec<String> = candidates.iter().map(|c| c.intent_id.clone()).collect();
             warnings.push(format!(
-                "CONFLICT on {symbol}: ensemble fired {} ({}) — no signal emitted, nothing gated",
+                "CONFLICT on {symbol}: ensemble approved {} ({}) — no signal emitted, nothing executes",
                 sides.join("/"),
                 strategies.join(", ")
             ));
@@ -197,9 +204,12 @@ pub fn dedupe_files(inputs: Vec<(String, Vec<TradeIntent>)>) -> DedupeResult {
 /// Renders dedup dispositions as audit rows in the same four-column shape
 /// `judge-signals --log` uses, so one `audit.md` reads end to end.
 ///
-/// Returns an empty string when there is nothing to record.
+/// Returns an empty string only when there is genuinely nothing to record
+/// (no dispositions and no empty inputs). An all-empty ensemble still
+/// writes its empty-input row, so a no-setup run leaves a visible audit
+/// record instead of silence.
 pub fn dedup_log(result: &DedupeResult, timestamp: &str) -> String {
-    if result.dispositions.is_empty() {
+    if result.dispositions.is_empty() && result.empty_inputs.is_empty() {
         return String::new();
     }
     let mut out = String::from("\n| Date/Time | Symbol | Signal Ref | Disposition |\n");
@@ -211,7 +221,7 @@ pub fn dedup_log(result: &DedupeResult, timestamp: &str) -> String {
             .unwrap_or_else(|| d.dropped_intent_ids.join(", "));
         let detail = match d.disposition {
             Disposition::Single => format!(
-                "single: {} fired alone — passed through to the gate",
+                "single: {} approved alone — proceeds to execution",
                 d.kept_strategy.clone().unwrap_or_default()
             ),
             Disposition::Deduped => format!(
@@ -222,7 +232,7 @@ pub fn dedup_log(result: &DedupeResult, timestamp: &str) -> String {
                 d.dropped_intent_ids.join(", ")
             ),
             Disposition::Conflict => format!(
-                "CONFLICT: ensemble fired {} ({}) — no signal emitted, nothing gated",
+                "CONFLICT: ensemble approved {} ({}) — no signal emitted, nothing executes",
                 d.sides.join("/"),
                 d.strategies.join(", ")
             ),
@@ -235,7 +245,7 @@ pub fn dedup_log(result: &DedupeResult, timestamp: &str) -> String {
     }
     if !result.empty_inputs.is_empty() {
         out.push_str(&format!(
-            "| {timestamp} | — | — | no-signal inputs (empty strategy files): {} |\n",
+            "| {timestamp} | — | — | inputs with no approved intent (strategy silent or gate rejected): {} |\n",
             result.empty_inputs.join(", ")
         ));
     }
@@ -370,8 +380,35 @@ mod tests {
     }
 
     #[test]
-    fn dedup_log_is_empty_when_nothing_happened() {
+    fn dedup_log_records_empty_inputs_when_nothing_fired() {
+        // An all-empty ensemble must still leave an audit record: silence
+        // here would make a no-setup run indistinguishable from a skipped step.
         let r = dedupe_files(vec![("f".into(), vec![])]);
+        assert_eq!(r.empty_inputs, vec!["f".to_string()]);
+        let log = dedup_log(&r, "2026-09-23T00:00:00Z");
+        assert!(log.contains("| Date/Time | Symbol | Signal Ref | Disposition |"));
+        assert!(log.contains("inputs with no approved intent"));
+        assert!(log.contains("f"));
+    }
+
+    #[test]
+    fn dedup_log_is_empty_only_when_nothing_at_all() {
+        let r = dedupe_files(vec![]);
         assert!(dedup_log(&r, "t").is_empty());
+    }
+
+    #[test]
+    fn dedup_log_lists_empty_inputs_beside_dispositions() {
+        let r = dedupe_files(vec![
+            ("empty-a".into(), vec![]),
+            (
+                "f".into(),
+                vec![intent("a", "BTCUSD", "BollingerBands", "buy", 0.6)],
+            ),
+        ]);
+        let log = dedup_log(&r, "t");
+        assert!(log.contains("single: BollingerBands approved alone"));
+        assert!(log.contains("inputs with no approved intent"));
+        assert!(log.contains("empty-a"));
     }
 }

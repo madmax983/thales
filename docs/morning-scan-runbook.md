@@ -234,34 +234,16 @@ done
 - **Strategy identity in `intent_id`:** every intent id carries its strategy
   (`<market>:<symbol>:<strategy>:<side>:<timestamp_ms>`), so two ensemble
   strategies firing on the same symbol/side can never collapse into one id.
-- **Ensemble dedup — at most one position per symbol.** After the four
-  strategy files are written, resolve them deterministically with
-  `dedupe-signals` before anything reaches the gate:
-
-```bash
-$BIN dedupe-signals \
-  --input runs/<run-id>/signals-BTCUSD-BollingerBands.json \
-  --input runs/<run-id>/signals-BTCUSD-RsiMeanReversion.json \
-  --input runs/<run-id>/signals-BTCUSD-Supertrend.json \
-  --input runs/<run-id>/signals-BTCUSD-DonchianBreakout.json \
-  --log runs/<run-id>/audit.md \
-  --report runs/<run-id>/dedup-BTCUSD.json \
-  > runs/<run-id>/deduped-BTCUSD.json
-```
-
-- **Conflict rule:** if two strategies fire opposite directions on the same
-  symbol (any `buy` and any `sell` across its strategy files), `dedupe-signals`
-  emits nothing for it — the conflict is recorded in the audit trail and
-  neither side is gated.
-- **Same-direction corroboration:** multiple same-side candidates collapse to
-  exactly one intent — highest confidence wins; ties break on strategy name,
-  then intent_id. Corroboration never multiplies exposure: the dropped
-  candidates are recorded in the disposition report and the audit trail, and
-  are never gated or executed. The kept intent is not modified — its
-  confidence is not inflated for being corroborated.
+- **Gate before dedup — every non-empty strategy file is judged on its own.**
+  Each non-empty raw strategy file passes through `judge-signals`
+  independently (step 5); the gate replaces heuristic `confidence` with a
+  calibrated probability, so the later dedup (§6) resolves corroboration on
+  Jev's numbers, not the strategies'. Empty files are valid no-signals:
+  they are recorded in the audit trail, never gated, never produce output.
 - **The four raw strategy files are kept** in the run directory — never
   deleted, never overwritten. An empty `data` list in one of them is that
-  strategy's no-signal record.
+  strategy's no-signal record. The independently judged reports
+  (`judged-<SYM>-<STRAT>.json`) are kept alongside them.
 - Every signal from `generate-signals` carries stop_loss/take_profit sizing;
   never hand-craft intents through `generate-trade-intent` for execution without
   adding risk fields.
@@ -269,27 +251,30 @@ $BIN dedupe-signals \
 ## 5. Gate — `judge-signals`, a direct tool call, never a subagent
 
 Run the gate through the credential wrapper (from `~/workspace/thales`).
-The input is the **deduped** file from step 4 — at most one intent per symbol,
-already conflict-checked. Gate it directly; there is no second conflict check
-here:
+**Every non-empty raw strategy file from step 4 passes through the gate
+independently** — one `judge-with-jev.sh` invocation per non-empty file. The
+gate judges each strategy's candidate on its own merits, replacing heuristic
+`confidence` with a calibrated probability; the ensemble resolution happens
+afterwards, in step 6.
 
 ```bash
 export PATH="$HOME/.cargo/bin:$PATH"
-# Deduped file holds at most one intent per symbol (empty on conflict or
-# no-signal). Empty files are valid no-setups: skip them without burning a
-# Jev call.
-F=runs/<run-id>/deduped-BTCUSD.json
-if python3 -c "import json,sys; sys.exit(0 if (json.load(open('$F')).get('data')) else 1)"; then
-  ./scripts/judge-with-jev.sh \
-    --input $F \
-    --analysis runs/<run-id>/analysis-BTCUSD.json \
-    --bars runs/<run-id>/bars-BTCUSD.json \
-    --portfolio runs/<run-id>/positions.json \
-    --emit report \
-    --log runs/<run-id>/audit.md > runs/<run-id>/judged-$(basename $F .json).json
-else
-  echo "$(date -u +%FT%TZ) | BTCUSD | no deduped candidate — nothing to gate" >> runs/<run-id>/audit.md
-fi
+# Gate each non-empty raw strategy file independently. An empty `data` list
+# is a valid no-signal: record it and skip without burning a Jev call.
+for STRAT in BollingerBands RsiMeanReversion Supertrend DonchianBreakout; do
+  F=runs/<run-id>/signals-BTCUSD-$STRAT.json
+  if python3 -c "import json,sys; sys.exit(0 if (json.load(open('$F')).get('data')) else 1)"; then
+    ./scripts/judge-with-jev.sh \
+      --input $F \
+      --analysis runs/<run-id>/analysis-BTCUSD.json \
+      --bars runs/<run-id>/bars-BTCUSD.json \
+      --portfolio runs/<run-id>/positions.json \
+      --emit report \
+      --log runs/<run-id>/audit.md > runs/<run-id>/judged-BTCUSD-$STRAT.json
+  else
+    echo "$(date -u +%FT%TZ) | BTCUSD | $STRAT | no-signal (empty strategy file) — nothing to gate" >> runs/<run-id>/audit.md
+  fi
+done
 ```
 
 `scripts/judge-with-jev.sh` fetches a short-lived surrogate for the
@@ -316,7 +301,9 @@ Rules (non-negotiable):
   with a reason — not inside a run.
 - With `--emit report` the output `data` is the full `JudgeReport`
   (`approved`, `rejected`, `verdicts`, `thresholds`, `usage`); without it,
-  `data` is only the surviving `TradeIntent` list and feeds `execute-intent`.
+  `data` is only the surviving `TradeIntent` list. Step 6 extracts
+  `data.approved` from each judged report as the dedup inputs — the verdict
+  trail is what makes per-candidate approval auditable.
 - Rejected signals land in `runs/<run-id>/audit.md` via `--log` as
   `| Date/Time | Symbol | Signal Ref | Rejection Reason |` rows.
 - **No credential → the gate fails closed.** If the wrapper cannot obtain the
@@ -324,11 +311,70 @@ Rules (non-negotiable):
   record "gate unavailable — no credential", do NOT execute anything, do not
   bypass. An ungated execution is never acceptable.
 
-## 6. Execute — only what survived the gate, paper only
+## 6. Ensemble dedup — at most one position per symbol
+
+The gate has judged every raw candidate independently. Now resolve the
+independently approved outputs deterministically with `dedupe-signals` —
+the step that guarantees one symbol never takes multiple positions from a
+single scan:
 
 ```bash
-# judged.json data is the approved TradeIntent list (--emit intents, the default)
-$BIN execute-intent --provider paper --input runs/<run-id>/approved-BTCUSD.json \
+# Step 6a: collect the approved intents from each judged report. Strategies
+# whose file was empty have no judged report (steps 4/5 already logged their
+# no-signal rows); strategies whose candidates were all rejected contribute
+# an empty approved list here.
+python3 - <<'EOF'
+import json, glob
+RUN = "runs/<run-id>"
+approved = []
+for p in sorted(glob.glob(f"{RUN}/judged-BTCUSD-*.json")):
+    rep = json.load(open(p))
+    out = p.replace("judged-", "approved-")
+    json.dump(rep["data"]["approved"], open(out, "w"), indent=2)
+    approved.append(out)
+json.dump(approved, open(f"{RUN}/approved-manifest-BTCUSD.json", "w"), indent=2)
+print(f"approved strategy files: {len(approved)}")
+EOF
+
+# Step 6b: dedupe the approved outputs (only files that exist are passed).
+INPUTS=$(python3 -c "
+import json
+files = json.load(open('runs/<run-id>/approved-manifest-BTCUSD.json'))
+print(' '.join(f'--input {f}' for f in files))")
+if [ -n "$INPUTS" ]; then
+  $BIN dedupe-signals $INPUTS \
+    --log runs/<run-id>/audit.md \
+    --report runs/<run-id>/dedup-BTCUSD.json \
+    > runs/<run-id>/deduped-BTCUSD.json
+else
+  echo "$(date -u +%FT%TZ) | BTCUSD | no approved candidates — nothing to dedupe, nothing to execute" >> runs/<run-id>/audit.md
+fi
+```
+
+Rules (deterministic, no judgement calls):
+
+- **Conflict rule:** if the approved outputs contain opposite directions on the
+  same symbol (any `buy` and any `sell`), `dedupe-signals` emits nothing for
+  it — the conflict is recorded in the audit trail and the disposition
+  report, and neither side executes.
+- **Same-direction corroboration:** multiple same-side approved candidates
+  collapse to exactly one intent — highest `confidence` wins; ties break on
+  strategy name, then `intent_id`. This `confidence` is Jev's calibrated
+  probability from step 5, not the strategies' heuristics. Corroboration never
+  multiplies exposure: the dropped candidates are recorded in the disposition
+  report and the audit trail, and are never executed. The kept intent is not
+  modified — its confidence is not inflated for being corroborated.
+- **Single:** one approved candidate passes through untouched.
+- The dedup can only **remove** candidates. It never creates them.
+- `deduped-<SYM>.json` holds **at most one intent per symbol** — this is the
+  execution input.
+
+## 7. Execute — only what survived the gate and the dedup, paper only
+
+```bash
+# deduped-BTCUSD.json data is the surviving TradeIntent list (at most one per
+# symbol, every intent independently gate-approved)
+$BIN execute-intent --provider paper --input runs/<run-id>/deduped-BTCUSD.json \
   > runs/<run-id>/execution-BTCUSD.json
 ```
 
@@ -337,11 +383,11 @@ $BIN execute-intent --provider paper --input runs/<run-id>/approved-BTCUSD.json 
   come from Kraken's **public** Ticker when reachable, else the intent's
   limit/stop price, else a dummy 100.0 with a stderr warning. A dummy-price fill
   is a plumbing test, not a simulation — record which price source was used.
-- Never execute an intent that did not come out of `judge-signals`. Never
-  re-judge, override, or resize a gated intent; if it looks wrong, return it
-  unexecuted with the reason.
+- Never execute an intent that did not survive both `judge-signals` and the
+  ensemble dedup. Never re-judge, override, or resize a gated intent; if it
+  looks wrong, return it unexecuted with the reason.
 
-## 7. Audit trail — accepted AND rejected, every run
+## 8. Audit trail — accepted AND rejected, every run
 
 The coordinator appends to `runs/<run-id>/ledger.md` after the run:
 
@@ -367,20 +413,25 @@ rejected candidates get
 
 Every run preserves, per symbol:
 
-- **Symbol and strategy** — which of the four strategies fired, and which one
-  survived the dedup (kept strategy + intent_id, e.g.
+- **Symbol and strategy** — which of the four strategies fired, which passed
+  the gate, and which one survived the dedup (kept strategy + intent_id, e.g.
   `crypto:BTCUSD:BollingerBands:buy:1790183127000`).
 - **Signal / no-signal** — all four raw strategy files
   (`signals-<SYM>-<STRAT>.json`) stay in the run directory; an empty `data`
   list in one of them is that strategy's no-signal record. Never delete or
   overwrite them.
-- **Gate verdict and reasons** — `judge-signals --emit report --log audit.md`
-  records the verdict, instrument-quality, regime fit, conviction, and reasons
-  for every deduped candidate.
+- **Gate verdict and reasons** — every non-empty strategy file is gated
+  independently: `judge-with-jev.sh --emit report --log audit.md` records the
+  verdict, instrument-quality, regime fit, conviction, and reasons for every
+  raw candidate. Rejections land in `audit.md`; the full judged reports
+  (`judged-<SYM>-<STRAT>.json`) keep every verdict. An empty strategy file
+  gets an explicit no-signal audit row — it never costs a gate call.
 - **Conflict / dedup disposition** — `dedupe-signals --log audit.md --report
-  dedup-<SYM>.json` records, per symbol, `single` / `deduped` / `conflict` /
-  no-signal; which intent was kept; which candidates were dropped as
-  corroborators; and which were cancelled by conflict (never gated).
+  dedup-<SYM>.json` runs over the independently approved outputs and records,
+  per symbol, `single` / `deduped` / `conflict`; which intent was kept; which
+  candidates were dropped as corroborators; which were cancelled by conflict
+  (never execute); and which strategy inputs had no approved intent (strategy
+  silent or gate-rejected — the step-4/5 rows say which).
 - **All four raw strategy files** — retained verbatim as the audit record of
   what each strategy saw on the latest candle.
 
@@ -429,7 +480,8 @@ Stop and record — never manufacture a signal:
 
 - Empty bar series → skip symbol, log "no data".
 - Stale latest bar (> 2x timeframe) → skip symbol, log "stale data".
-- Contradictory strategies on one asset → no signal, log the conflict.
+- Contradictory strategies on one asset (both sides approved by the gate) →
+  no signal, log the conflict (step 6).
 - Gate unavailable (no `TYPESAFE_API_KEY`) → end run at step 5, log it.
 - Any provider `status: "error"` → stop, record the error, do not retry in a loop.
 
@@ -444,6 +496,7 @@ envelope and exit 0 on success, non-zero on validation/provider failure.
 - `generate-signals` → `data`: `TradeIntent[]`; empty list is a valid no-setup result.
 - `judge-signals --emit intents` → `data`: surviving `TradeIntent[]`.
 - `judge-signals --emit report` → `data`: `JudgeReport {approved, rejected, verdicts, thresholds, usage}`.
+- `dedupe-signals` → `data`: surviving `TradeIntent[]`, at most one per symbol; `--report` writes `{dispositions, empty_inputs}`.
 - `execute-intent` → `data`: `ExecutionResult[]` with `provider_order_id`.
 - `TradeIntent` carries `intent_id "<market>:<symbol>:<strategy>:<side>:<timestamp_ms>"`
   (strategy is part of the id so ensemble strategies cannot collide), `size_hint`,

@@ -146,19 +146,25 @@ cargo run -p thales-cli -- judge-signals --input <path-to-signals-json> [--analy
 ### `dedupe-signals`
 
 ```powershell
-cargo run -p thales-cli -- dedupe-signals --input <signals-A.json> --input <signals-B.json> [--log <audit.md>] [--report <dedup.json>]
+cargo run -p thales-cli -- dedupe-signals --input <approved-A.json> --input <approved-B.json> [--log <audit.md>] [--report <dedup.json>]
 ```
 
-- Deterministically resolves one symbol's ensemble strategy files to **at most
-  one intent**: opposite directions (`buy` vs `sell`) → conflict, emits nothing
-  and gates nothing; same-direction corroboration → keeps exactly one (highest
-  `confidence`; ties break on strategy name, then `intent_id`); a single
-  candidate passes through untouched.
+- Deterministically resolves one symbol's **independently gate-approved**
+  outputs to **at most one intent**: every non-empty raw strategy file passes
+  through `judge-signals` (via `scripts/judge-with-jev.sh`) first, and only
+  the approved outputs reach this step. Opposite directions (`buy` vs `sell`)
+  → conflict, emits nothing, neither side executes; same-direction
+  corroboration → keeps exactly one (highest `confidence` — now Jev's
+  calibrated probability; ties break on strategy name, then `intent_id`); a
+  single candidate passes through untouched.
 - The kept intent is never mutated. Output `data` is the surviving `TradeIntent`
-  list (sorted by symbol), ready for `judge-signals`.
+  list (sorted by symbol), ready for `execute-intent`.
 - `--report` writes the per-symbol disposition JSON (`single` / `deduped` /
-  `conflict`, kept id, dropped ids); `--log` appends disposition rows to the
-  audit file in the same four-column shape `judge-signals --log` uses.
+  `conflict`, kept id, dropped ids) plus `empty_inputs` (inputs with no
+  approved intent); `--log` appends disposition rows to the audit file in the
+  same four-column shape `judge-signals --log` uses — including the
+  empty-input row when the whole ensemble produced nothing, so a no-setup run
+  leaves a visible audit record.
 
 ### `analyze-market`
 
