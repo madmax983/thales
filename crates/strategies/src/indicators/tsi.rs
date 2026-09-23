@@ -119,19 +119,23 @@ mod tests {
         let df_empty = DataFrame::default();
         let res_empty = calculate(&df_empty, 25, 13);
         assert!(res_empty.is_err());
-        assert!(res_empty
-            .unwrap_err()
-            .to_string()
-            .contains("Data cannot be empty"));
+        assert!(
+            res_empty
+                .unwrap_err()
+                .to_string()
+                .contains("Data cannot be empty")
+        );
 
         // Single row
         let df_single = df!("close" => &[100.0])?;
         let res_single = calculate(&df_single, 25, 13);
         assert!(res_single.is_err());
-        assert!(res_single
-            .unwrap_err()
-            .to_string()
-            .contains("Data cannot be empty"));
+        assert!(
+            res_single
+                .unwrap_err()
+                .to_string()
+                .contains("Data cannot be empty")
+        );
 
         // Period > Data length should just return Nones
         let df_short = df!("close" => &[10.0, 11.0, 12.0])?;

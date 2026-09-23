@@ -112,7 +112,7 @@ pub struct FractalReport {
 ///         low: 99.0 + i as f64,
 ///         close: 100.0 + i as f64,
 ///         volume: 1000.0,
-///     }
+///     adjusted_close: None, }
 /// }).collect();
 ///
 /// let series = BarSeries {
@@ -244,6 +244,7 @@ mod tests {
             low: close,
             close,
             volume: 100.0,
+            adjusted_close: None,
         }
     }
 

@@ -77,7 +77,7 @@ pub struct MarketPhasesReport {
 ///         timestamp_unix_ms: i * 86400000,
 ///         open: price, high: price, low: price, close: price, volume: 1.0,
 ///         timeframe: "1d".to_string(),
-///     });
+///     adjusted_close: None, });
 /// }
 ///
 /// let series = BarSeries { schema_version: "1.0".to_string(), bars };
@@ -173,6 +173,7 @@ mod tests {
             low: close,
             close,
             volume: 100.0,
+            adjusted_close: None,
         }
     }
 

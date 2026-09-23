@@ -31,6 +31,7 @@ fn main() -> Result<()> {
                 low: 90.0,
                 close: 140.0,
                 volume: 50000.0,
+                adjusted_close: None,
             },
             Bar {
                 symbol: "DRGN".to_string(),
@@ -42,6 +43,7 @@ fn main() -> Result<()> {
                 low: 130.0,
                 close: 175.0,
                 volume: 75000.0,
+                adjusted_close: None,
             },
         ];
         let series = BarSeries {

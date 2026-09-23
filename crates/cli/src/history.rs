@@ -220,6 +220,7 @@ mod tests {
                     low: 99.0,
                     close: 100.0,
                     volume: 1.0,
+                    adjusted_close: None,
                 },
                 Bar {
                     symbol: "BTCUSD".to_string(),
@@ -231,6 +232,7 @@ mod tests {
                     low: 109.0,
                     close: 110.0,
                     volume: 1.0,
+                    adjusted_close: None,
                 },
             ])
         };

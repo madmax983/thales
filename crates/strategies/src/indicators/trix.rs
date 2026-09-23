@@ -46,11 +46,11 @@ pub fn calculate(data: &DataFrame, period: usize) -> Result<Series> {
 
     // TRIX = (EMA3 - EMA3_prev) / EMA3_prev * 100
     for (i, val) in trix_vals.iter_mut().enumerate().take(data.height()).skip(1) {
-        if let (Some(curr), Some(prev)) = (ema3_arr.get(i), ema3_arr.get(i - 1)) {
-            if prev != 0.0 {
-                let trix = ((curr - prev) / prev) * 100.0;
-                *val = Some(trix);
-            }
+        if let (Some(curr), Some(prev)) = (ema3_arr.get(i), ema3_arr.get(i - 1))
+            && prev != 0.0
+        {
+            let trix = ((curr - prev) / prev) * 100.0;
+            *val = Some(trix);
         }
     }
 

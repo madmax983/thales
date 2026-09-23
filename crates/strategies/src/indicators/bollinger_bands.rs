@@ -2,8 +2,8 @@
 
 use anyhow::{Context, Result};
 use polars::prelude::*;
-use rust_decimal::prelude::*;
 use rust_decimal::Decimal;
+use rust_decimal::prelude::*;
 use std::collections::VecDeque;
 
 /// Calculate Bollinger Bands
@@ -70,11 +70,11 @@ pub fn calculate(
                     window.push_back(d);
 
                     // Maintain window size
-                    if window.len() > period {
-                        if let Some(old) = window.pop_front() {
-                            sum_x -= old;
-                            sum_x2 -= old * old;
-                        }
+                    if window.len() > period
+                        && let Some(old) = window.pop_front()
+                    {
+                        sum_x -= old;
+                        sum_x2 -= old * old;
                     }
 
                     if window.len() == period {

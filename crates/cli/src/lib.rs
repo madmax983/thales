@@ -19,9 +19,9 @@ pub mod backtest_csv;
 pub mod benchmark;
 #[cfg(feature = "nova")]
 pub mod black_swan;
+pub mod dedupe;
 #[cfg(feature = "nova")]
 pub mod entropy;
-#[cfg(feature = "nova")]
 pub mod experimental;
 #[cfg(feature = "nova")]
 pub mod fear_and_greed;

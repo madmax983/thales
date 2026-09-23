@@ -119,52 +119,52 @@ impl Strategy for DonchianBreakout {
                 let price_dec = price;
 
                 // Entry Condition: Close > Upper Channel (from previous bar)
-                if let Some(upper) = upper_val_prev {
-                    if price > upper {
-                        let sl = if let Some(atr_val) = atr_opt {
-                            let atr_dec = atr_val;
-                            Some(price_dec - (atr_dec * stop_loss_mult))
-                        } else {
-                            // Fallback stop loss if ATR is not available
-                            // Use Lower Channel as strict stop if available
-                            lower_val_prev.or(Some(upper * 0.95)) // 5% fallback if no lower channel
-                        };
+                if let Some(upper) = upper_val_prev
+                    && price > upper
+                {
+                    let sl = if let Some(atr_val) = atr_opt {
+                        let atr_dec = atr_val;
+                        Some(price_dec - (atr_dec * stop_loss_mult))
+                    } else {
+                        // Fallback stop loss if ATR is not available
+                        // Use Lower Channel as strict stop if available
+                        lower_val_prev.or(Some(upper * 0.95)) // 5% fallback if no lower channel
+                    };
 
-                        signals.push(Signal {
-                            signal_type: SignalType::Entry,
-                            symbol: self.config.symbol.clone(),
-                            side: "buy".to_string(),
-                            size_hint: "100".to_string(),
-                            confidence: 0.8,
-                            stop_loss: sl,
-                            take_profit: None,
-                            reason: format!(
-                                "Breakout: Close {:.2} > Upper Channel {:.2}",
-                                price, upper
-                            ),
-                            timestamp_ms: timestamp,
-                        });
-                    }
+                    signals.push(Signal {
+                        signal_type: SignalType::Entry,
+                        symbol: self.config.symbol.clone(),
+                        side: "buy".to_string(),
+                        size_hint: "100".to_string(),
+                        confidence: 0.8,
+                        stop_loss: sl,
+                        take_profit: None,
+                        reason: format!(
+                            "Breakout: Close {:.2} > Upper Channel {:.2}",
+                            price, upper
+                        ),
+                        timestamp_ms: timestamp,
+                    });
                 }
 
                 // Exit Condition: Close < Lower Channel (from previous bar)
-                if let Some(lower) = lower_val_prev {
-                    if price < lower {
-                        signals.push(Signal {
-                            signal_type: SignalType::Exit,
-                            symbol: self.config.symbol.clone(),
-                            side: "sell".to_string(),
-                            size_hint: "max".to_string(),
-                            confidence: 0.8,
-                            stop_loss: None,
-                            take_profit: None,
-                            reason: format!(
-                                "Breakdown: Close {:.2} < Lower Channel {:.2}",
-                                price, lower
-                            ),
-                            timestamp_ms: timestamp,
-                        });
-                    }
+                if let Some(lower) = lower_val_prev
+                    && price < lower
+                {
+                    signals.push(Signal {
+                        signal_type: SignalType::Exit,
+                        symbol: self.config.symbol.clone(),
+                        side: "sell".to_string(),
+                        size_hint: "max".to_string(),
+                        confidence: 0.8,
+                        stop_loss: None,
+                        take_profit: None,
+                        reason: format!(
+                            "Breakdown: Close {:.2} < Lower Channel {:.2}",
+                            price, lower
+                        ),
+                        timestamp_ms: timestamp,
+                    });
                 }
             }
         }

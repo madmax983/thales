@@ -7,8 +7,8 @@ use crate::strategy::{Signal, SignalType, Strategy, StrategyConfig, StrategyType
 use anyhow::Result;
 use async_trait::async_trait;
 use polars::prelude::*;
-use rust_decimal::prelude::ToPrimitive;
 use rust_decimal::Decimal;
+use rust_decimal::prelude::ToPrimitive;
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

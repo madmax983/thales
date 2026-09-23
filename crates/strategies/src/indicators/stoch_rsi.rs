@@ -122,10 +122,10 @@ pub fn calculate(
                 k_count += 1;
 
                 if k_count > k_period {
-                    if let Some(out_val) = stoch_rsi_values[k_start_idx] {
-                        if out_val.is_finite() {
-                            k_sum -= out_val;
-                        }
+                    if let Some(out_val) = stoch_rsi_values[k_start_idx]
+                        && out_val.is_finite()
+                    {
+                        k_sum -= out_val;
                     }
                     k_count -= 1;
                     k_start_idx += 1;
@@ -158,10 +158,10 @@ pub fn calculate(
                 d_count += 1;
 
                 if d_count > d_period {
-                    if let Some(out_val) = k_values[d_start_idx] {
-                        if out_val.is_finite() {
-                            d_sum -= out_val;
-                        }
+                    if let Some(out_val) = k_values[d_start_idx]
+                        && out_val.is_finite()
+                    {
+                        d_sum -= out_val;
                     }
                     d_count -= 1;
                     d_start_idx += 1;

@@ -1,0 +1,16 @@
+[package]
+name = "yahoo-provider"
+edition.workspace = true
+version.workspace = true
+license.workspace = true
+description = "Yahoo Finance public chart API provider for Thales CLI (no credentials)"
+
+[dependencies]
+contracts = { path = "../../contracts" }
+thiserror.workspace = true
+reqwest.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+
+[dev-dependencies]
+serde_json.workspace = true

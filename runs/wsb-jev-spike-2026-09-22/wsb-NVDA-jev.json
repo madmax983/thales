@@ -1,0 +1,150 @@
+{
+  "spike": "wsb-jev-spike-2026-09-22",
+  "symbol": "NVDA",
+  "scored_at": "2026-09-22T22:53:31.529353-05:00",
+  "state": {
+    "task": "wsb_sentiment_spike",
+    "ticker": "NVDA",
+    "asof": "2026-09-22T22:53:29.167384-05:00",
+    "context": "You are scoring WallStreetBets retail sentiment as a CONTRARIAN mania meter for a paper-trading scan. WSB speaks in irony, sarcasm, and gallows humor \u2014 read tone, not just keywords. Euphoria means crowded-trade caution, never a buy signal. Some sources are stale-dated; weigh recency. Answer only from the sources below.",
+    "sources": [
+      {
+        "title": "NVDA - NVIDIA, Reddit sentiment and mention history (ApeWisdom)",
+        "snippet": "NVDA Overall Summary (last 24h): Mentions 119 (+183%), Upvotes 831 (+748%), mentioning users 83 (+124%), Sentiment 54%. NVDA Sentiment on WSB: 45%. During the last 24H NVDA was mentioned 87 times on WallstreetBets by 55 different users. 54% positive comments versus 46% negative. Most common keywords alongside NVDA: 'amd', 'puts', 'up', 'avgo', 'even'.",
+        "url": "https://apewisdom.io/stocks/NVDA/",
+        "date": "crawled 13 hours ago"
+      },
+      {
+        "title": "NVIDIA (NVDA) Reddit Mentions & Sentiment: Trending Stocks Tracker (AltIndex)",
+        "snippet": "NVIDIA (NVDA) is generating 349 mentions a day across major investing subreddits including r/wallstreetbets, r/stocks, and r/investing, up 29% versus its recent average. Reddit sentiment for NVDA: 59/100 - Neutral. Mention volume is event-driven and spikes around earnings, catalysts, and meme-stock momentum.",
+        "url": "https://altindex.com/ticker/nvda/reddit-mentions",
+        "date": "crawled 6 hours ago"
+      },
+      {
+        "title": "Reddit's WallStreetBets Top Trending Stocks This Week: Nvidia, SPY, TSMC (TradingView/Benzinga)",
+        "snippet": "According to data from Quiver Quantitative, the stock with the most mentions this week is, once again, Nvidia Corporation (NVDA) with more than 6,700 mentions over the past seven days. WallStreetBets' Redditors remain bullish on the stock. 'AI will change the world, it's not a hype that will go away and its capabilities grow at (an) almost terrifying pace. It's not overrated, no tulips.'",
+        "url": "https://kr.tradingview.com/news/benzinga%3A34aa9a6ad094b%3A0-reddit-s-wallstreetbets-top-trending-stocks-this-week-nvidia-spy-tsmc/",
+        "date": "published ~244 days ago (stale)"
+      },
+      {
+        "title": "Nvidia tops finance Reddit discussions in 2026, Bitcoin ranks seventh (CryptoBriefing)",
+        "snippet": "Nvidia has claimed the top spot as the most-discussed asset across finance-focused Reddit communities in 2026, including r/stocks, r/wallstreetbets, and r/investing. The conversations center on earnings calls, AI infrastructure buildouts, and the company's positioning at the center of what may be the defining technology trend of the decade.",
+        "url": "https://cryptobriefing.com/nvidia-tops-reddit-discussions-bitcoin-seventh/",
+        "date": "published ~96 days ago"
+      },
+      {
+        "title": "NVDA Options Signal: Heavy $230 Call Wall Meets Earnings Momentum (ainvest)",
+        "snippet": "The heavy concentration of call open interest at the $230 strike suggests that level is the immediate magnet. The Total Put/Call ratio for open interest sits at 0.876 - more capital flowing into calls than puts, sentiment leaning optimistic. Traders aren't buying insurance against a crash; they're buying exposure to a rally. Overall sentiment isn't panic. It's cautious accumulation.",
+        "url": "https://www.ainvest.com/news/nvda-options-signal-heavy-230-call-wall-meets-earnings-momentum-2609/",
+        "date": "published ~11 days ago"
+      },
+      {
+        "title": "NVDA Options Signal: $200 Call Wall vs. $185 Put Floor - A Strategic Pause in the Bull Run (ainvest)",
+        "snippet": "The Put/Call ratio of 0.80 suggests cautious optimism, with traders hedging rather than betting on a crash. This is a bullish-to-neutral signal. It suggests confidence, not euphoria.",
+        "url": "https://www.ainvest.com/news/nvda-options-signal-200-call-wall-185-put-floor-strategic-pause-bull-run-2607/",
+        "date": "published ~83 days ago (stale)"
+      },
+      {
+        "title": "WSB Rally: Reddit Sees 344% Discussion Surge on WallStreetBets (ainvest)",
+        "snippet": "NVIDIA (NVDA) has recently seen a notable increase in its discussion popularity, with 132 mentions on WallStreetBets. Analysts maintain a bullish outlook on NVIDIA, with a consensus rating of 'Strong Buy' based on 39 ratings, though some express caution on customer concentration and slowing revenue growth.",
+        "url": "https://www.ainvest.com/news/wsb-rally-reddit-sees-344-discussion-surge-wallstreetbets-2510/",
+        "date": "published ~356 days ago (stale)"
+      },
+      {
+        "title": "stock-trending weekly report 2026-W29 (GitHub, ApeWisdom-based)",
+        "snippet": "Weekly factor report on trending tickers from ApeWisdom (7-day accumulated mentions). In the wallstreetbets track, NVDA appears in the top-3 by factor R-squared (Large/Growth). Mania Index top 3 for the wallstreetbets pool: NBIS 86.67, SNDK 83.33, ASTS 60.00 - NVDA is not among the mania leaders.",
+        "url": "https://github.com/foxp1ush/stock-trending/blob/HEAD/reports/weekly/2026-W29.md",
+        "date": "updated 5 days ago"
+      }
+    ]
+  },
+  "questions": {
+    "lean": {
+      "type": "choice",
+      "instructions": "What is the directional lean of WSB chatter on NVDA across these sources?",
+      "criteria": {
+        "bullish": "Chatter clearly leans bullish: more optimism, upside targets, and call-side energy than fear.",
+        "bearish": "Chatter clearly leans bearish: more fear, downside talk, and put-side hedging than optimism.",
+        "mixed": "Genuinely two-sided: bullish and bearish voices both present, no clear majority.",
+        "quiet": "Too little real chatter to call a lean: stale, off-topic, or thin results."
+      }
+    },
+    "conviction": {
+      "type": "score",
+      "instructions": "How intense is the WSB attention on NVDA right now?",
+      "criteria": [
+        "No meaningful attention: quiet or stale results only",
+        "Light chatter: routine mentions, no excitement",
+        "Moderate buzz: elevated mentions, real debate",
+        "Heavy buzz: surging mentions, strong directional energy",
+        "Euphoric pile-on: mania-like, meme-stock energy"
+      ]
+    },
+    "euphoria": {
+      "type": "noul",
+      "instructions": "Is WSB euphoric about NVDA \u2014 crowded-trade territory?",
+      "criteria": {
+        "true": "Euphoric: pile-on, moon-talk, mania-like. Read as crowded-trade caution.",
+        "false": "Not euphoric: measured, mixed, or quiet chatter."
+      }
+    },
+    "surface": {
+      "type": "noul",
+      "instructions": "Is this sentiment development worth surfacing to Mark in the morning briefing?",
+      "criteria": {
+        "true": "Yes: new, strong, or surprising enough to earn a line in the brief.",
+        "false": "No: routine or thin. Keep it in the audit file only."
+      }
+    }
+  },
+  "jev_report": {
+    "ok": true,
+    "status": 200,
+    "latency_ms": 1045.8,
+    "model": "jev-1.13.0",
+    "answers": {
+      "lean": {
+        "type": "choice",
+        "choice": "bullish",
+        "confidence": 0.49,
+        "probabilities": {
+          "quiet": 0.0,
+          "mixed": 0.38,
+          "bullish": 0.62,
+          "bearish": 0.0
+        }
+      },
+      "conviction": {
+        "type": "score",
+        "score": 2.53,
+        "confidence": 0.6,
+        "legend": {
+          "0": "No meaningful attention: quiet or stale results only",
+          "1": "Light chatter: routine mentions, no excitement",
+          "2": "Moderate buzz: elevated mentions, real debate",
+          "3": "Heavy buzz: surging mentions, strong directional energy",
+          "4": "Euphoric pile-on: mania-like, meme-stock energy"
+        },
+        "probabilities": {
+          "0": 0.0,
+          "1": 0.01,
+          "2": 0.46,
+          "3": 0.53,
+          "4": 0.0
+        }
+      },
+      "euphoria": {
+        "type": "noul",
+        "noul": 0.2
+      },
+      "surface": {
+        "type": "noul",
+        "noul": 0.54
+      }
+    },
+    "usage": {
+      "input_tokens": 2244,
+      "output_tokens": 99
+    }
+  }
+}

@@ -116,9 +116,9 @@ fn resolve_signal_type(
 /// let bars = BarSeries {
 ///     schema_version: "1.0".to_string(),
 ///     bars: vec![
-///         Bar { symbol: "AAPL".to_string(), market: "equities".to_string(), timestamp_unix_ms: 1000, open: 150.0, high: 155.0, low: 149.0, close: 154.0, volume: 1000.0, timeframe: "1d".to_string() },
-///         Bar { symbol: "AAPL".to_string(), market: "equities".to_string(), timestamp_unix_ms: 2000, open: 154.0, high: 158.0, low: 153.0, close: 157.0, volume: 1200.0, timeframe: "1d".to_string() },
-///         Bar { symbol: "AAPL".to_string(), market: "equities".to_string(), timestamp_unix_ms: 3000, open: 157.0, high: 160.0, low: 156.0, close: 159.0, volume: 1500.0, timeframe: "1d".to_string() },
+///         Bar { symbol: "AAPL".to_string(), market: "equities".to_string(), timestamp_unix_ms: 1000, open: 150.0, high: 155.0, low: 149.0, close: 154.0, volume: 1000.0, timeframe: "1d".to_string() adjusted_close: None, },
+///         Bar { symbol: "AAPL".to_string(), market: "equities".to_string(), timestamp_unix_ms: 2000, open: 154.0, high: 158.0, low: 153.0, close: 157.0, volume: 1200.0, timeframe: "1d".to_string() adjusted_close: None, },
+///         Bar { symbol: "AAPL".to_string(), market: "equities".to_string(), timestamp_unix_ms: 3000, open: 157.0, high: 160.0, low: 156.0, close: 159.0, volume: 1500.0, timeframe: "1d".to_string() adjusted_close: None, },
 ///     ],
 /// };
 ///
@@ -474,9 +474,17 @@ pub async fn generate_signals(
                 );
 
                 let intent = TradeIntent {
+                    // Strategy is part of the id: two ensemble strategies may
+                    // fire on the same symbol/side/timestamp, and collapsing
+                    // them to one id would hide a collision the dedup step
+                    // must see as two distinct candidates.
                     intent_id: format!(
-                        "{}:{}:{}:{}",
-                        market_analysis.market, signal.symbol, signal.side, signal.timestamp_ms
+                        "{}:{}:{}:{}:{}",
+                        market_analysis.market,
+                        signal.symbol,
+                        strategy.name(),
+                        signal.side,
+                        signal.timestamp_ms
                     ),
                     market: market_analysis.market.clone(),
                     symbol: signal.symbol.clone(),
@@ -587,6 +595,7 @@ mod tests {
                 low: 99.0,
                 close: 100.0,
                 volume: 1000.0,
+                adjusted_close: None,
             });
         }
 
@@ -602,6 +611,7 @@ mod tests {
             low: 100.0,
             close: 110.0, // Big jump
             volume: 5000.0,
+            adjusted_close: None,
         });
 
         let series = BarSeries {
@@ -649,6 +659,7 @@ mod tests {
                 low: close - 1.0,
                 close,
                 volume: 1000.0,
+                adjusted_close: None,
             });
         }
 
@@ -663,6 +674,7 @@ mod tests {
             low: 90.0,
             close: 90.0, // Drop
             volume: 1000.0,
+            adjusted_close: None,
         });
 
         let series = BarSeries {
@@ -722,6 +734,7 @@ mod tests {
                 low: close - 500.0,
                 close,
                 volume: 1.0,
+                adjusted_close: None,
             });
         }
 
@@ -736,6 +749,7 @@ mod tests {
             low: 45000.0,
             close: 45000.0,
             volume: 1.0,
+            adjusted_close: None,
         });
 
         let series = BarSeries {
@@ -771,6 +785,7 @@ mod tests {
                 low: 99.0,
                 close: 100.0,
                 volume: 1000.0,
+                adjusted_close: None,
             });
         }
         // Trigger signal
@@ -784,6 +799,7 @@ mod tests {
             low: 100.0,
             close: 110.0,
             volume: 5000.0,
+            adjusted_close: None,
         });
 
         let series = BarSeries {
@@ -820,6 +836,7 @@ mod tests {
                 low: 99.0,
                 close: 100.0,
                 volume: 1000.0,
+                adjusted_close: None,
             });
         }
         // Trigger Buy (Lower Band)
@@ -833,6 +850,7 @@ mod tests {
             low: 90.0,
             close: 90.0,
             volume: 1000.0,
+            adjusted_close: None,
         });
 
         let series = BarSeries {
@@ -893,6 +911,7 @@ mod tests {
                 low: close - 1.0,
                 close,
                 volume: 1000.0,
+                adjusted_close: None,
             });
         }
 
@@ -932,6 +951,7 @@ mod tests {
                 low: 99.0,
                 close: 100.0,
                 volume: 1000.0,
+                adjusted_close: None,
             });
         }
 
@@ -946,6 +966,7 @@ mod tests {
             low: 90.0,
             close: 90.0,
             volume: 1000.0,
+            adjusted_close: None,
         });
 
         let series = BarSeries {
@@ -990,6 +1011,7 @@ mod tests {
                 low: 99.0,
                 close: 100.0,
                 volume: 1000.0,
+                adjusted_close: None,
             });
         }
         // Trigger Buy
@@ -1003,6 +1025,7 @@ mod tests {
             low: 90.0,
             close: 90.0,
             volume: 1000.0,
+            adjusted_close: None,
         });
         let series = BarSeries {
             schema_version: "v0".to_string(),
@@ -1069,6 +1092,7 @@ mod tests {
                 low: 99.9,
                 close: 100.0,
                 volume: 1000.0,
+                adjusted_close: None,
             });
         }
         // Trigger Buy with Drop (triggers Trending Down)
@@ -1082,6 +1106,7 @@ mod tests {
             low: 90.0,
             close: 90.0,
             volume: 1000.0,
+            adjusted_close: None,
         });
 
         let series = BarSeries {
@@ -1144,6 +1169,7 @@ mod tests {
                     low: 99.0,
                     close: 100.0,
                     volume: 1000.0,
+                    adjusted_close: None,
                 });
             }
             bars.push(Bar {
@@ -1156,6 +1182,7 @@ mod tests {
                 low: drop_to,
                 close: drop_to,
                 volume: 1000.0,
+                adjusted_close: None,
             });
             let series = BarSeries {
                 schema_version: "v0".to_string(),
@@ -1205,6 +1232,7 @@ mod tests {
                 low: close - 2.0,
                 close,
                 volume: 1000.0,
+                adjusted_close: None,
             });
         }
         // 2. Flip to Uptrend
@@ -1223,6 +1251,7 @@ mod tests {
             low: close - 2.0,
             close: close_rally,
             volume: 1000.0,
+            adjusted_close: None,
         });
 
         let series = BarSeries {
@@ -1271,6 +1300,7 @@ mod tests {
                 low: close - 2.0,
                 close,
                 volume: 1000.0,
+                adjusted_close: None,
             });
         }
 
@@ -1287,6 +1317,7 @@ mod tests {
             low: close - 2.0,
             close: close_rally,
             volume: 1000.0,
+            adjusted_close: None,
         });
 
         let series = BarSeries {
@@ -1419,6 +1450,7 @@ mod tests {
                 low: close - 1.0,
                 close,
                 volume: 1000.0,
+                adjusted_close: None,
             });
         }
         // Trigger Buy (Lower Band)
@@ -1432,6 +1464,7 @@ mod tests {
             low: 90.0,
             close: 90.0,
             volume: 1000.0,
+            adjusted_close: None,
         });
         let series = BarSeries {
             schema_version: "v0".to_string(),
@@ -1545,6 +1578,7 @@ mod tests {
                 low: 99.0,
                 close: 100.0,
                 volume: 1000.0,
+                adjusted_close: None,
             });
         }
         // Trigger Buy signal (Drop below Lower Band)
@@ -1558,6 +1592,7 @@ mod tests {
             low: 90.0,
             close: 90.0,
             volume: 1000.0,
+            adjusted_close: None,
         });
 
         let series = BarSeries {
@@ -1629,6 +1664,7 @@ mod tests {
                 low: 99.0,
                 close: 100.0,
                 volume: 1000.0,
+                adjusted_close: None,
             });
         }
         // Spike to trigger Sell
@@ -1642,6 +1678,7 @@ mod tests {
             low: 100.0,
             close: 120.0,
             volume: 1000.0,
+            adjusted_close: None,
         });
         let series_sell = BarSeries {
             schema_version: "v0".to_string(),
@@ -1730,6 +1767,7 @@ mod tests {
                 low: 99.0,
                 close: 100.0,
                 volume: 1000.0,
+                adjusted_close: None,
             });
         }
         // Trigger signal
@@ -1743,6 +1781,7 @@ mod tests {
             low: 90.0,
             close: 90.0,
             volume: 1000.0,
+            adjusted_close: None,
         });
 
         let series = BarSeries {
@@ -1806,6 +1845,7 @@ mod tests {
                 low: close - 1.0,
                 close,
                 volume: 1000.0,
+                adjusted_close: None,
             });
         }
         // Breakout!
@@ -1819,6 +1859,7 @@ mod tests {
             low: 105.0,
             close: 110.0,
             volume: 5000.0,
+            adjusted_close: None,
         });
 
         let series = BarSeries {
@@ -1889,6 +1930,7 @@ mod tests {
                 low: close - 1.0,
                 close,
                 volume: 1000.0,
+                adjusted_close: None,
             });
         }
         // Bars 20-35: Low price (80). This pushes Stochastic down.
@@ -1904,6 +1946,7 @@ mod tests {
                 low: close - 1.0,
                 close,
                 volume: 1000.0,
+                adjusted_close: None,
             });
         }
         // Bar 36: Price ticks up slightly to cause %K > %D crossover while still oversold?
@@ -1921,6 +1964,7 @@ mod tests {
             low: 80.0,
             close: 82.0,
             volume: 1000.0,
+            adjusted_close: None,
         });
 
         let series = BarSeries {
@@ -1966,6 +2010,7 @@ mod tests {
                 low: close - 1.0,
                 close,
                 volume: 1000.0,
+                adjusted_close: None,
             });
         }
         // 2. Trigger Crossover (Short > Long)
@@ -1982,6 +2027,7 @@ mod tests {
             low: 99.0,
             close: close_rally,
             volume: 1000.0,
+            adjusted_close: None,
         });
 
         let series = BarSeries {
@@ -2021,6 +2067,7 @@ mod tests {
                 low: close - 1.0,
                 close,
                 volume: 1000.0,
+                adjusted_close: None,
             });
         }
 
@@ -2060,6 +2107,7 @@ mod tests {
                 low: 99.9,
                 close: 100.0,
                 volume: 1000.0,
+                adjusted_close: None,
             });
         }
         // 2. Breakout (Close > Upper Channel)
@@ -2076,6 +2124,7 @@ mod tests {
             low: 100.0,
             close: 102.0,
             volume: 1000.0,
+            adjusted_close: None,
         });
 
         let series = BarSeries {
@@ -2120,6 +2169,7 @@ mod tests {
                 low: p - 0.1,
                 close: p,
                 volume: 1000.0,
+                adjusted_close: None,
             });
         }
 
@@ -2138,6 +2188,7 @@ mod tests {
                 low: p - 0.1,
                 close: p + 2.0,
                 volume: 1000.0,
+                adjusted_close: None,
             });
         }
 
@@ -2216,6 +2267,7 @@ mod tests {
                 low: close - 0.1,
                 close,
                 volume: 1000.0,
+                adjusted_close: None,
             });
         }
 
@@ -2239,6 +2291,7 @@ mod tests {
             low: 99.9,
             close: close_rally,
             volume: 1000.0,
+            adjusted_close: None,
         });
 
         let series = BarSeries {
@@ -2312,6 +2365,7 @@ mod tests {
                 low: close - 0.1,
                 close,
                 volume: 1000.0,
+                adjusted_close: None,
             });
         }
 
@@ -2329,6 +2383,7 @@ mod tests {
             low: 99.9,
             close: close_rally,
             volume: 1000.0,
+            adjusted_close: None,
         });
 
         let series = BarSeries {
@@ -2396,6 +2451,7 @@ mod tests {
                 low: 99.9,
                 close: 100.0,
                 volume: 1000.0,
+                adjusted_close: None,
             });
         }
 
@@ -2412,6 +2468,7 @@ mod tests {
             low: drop_price,
             close: drop_price,
             volume: 5000.0, // High volume on drop
+            adjusted_close: None,
         });
 
         let series = BarSeries {
@@ -2497,6 +2554,7 @@ mod tests {
                 low: 99.0,
                 close: 100.0,
                 volume: 1000.0,
+                adjusted_close: None,
             });
         }
 
@@ -2513,6 +2571,7 @@ mod tests {
             low: 100.0,
             close: spike_price,
             volume: 5000.0,
+            adjusted_close: None,
         });
 
         let series = BarSeries {
@@ -2618,6 +2677,7 @@ mod tests {
                 low: 99.9,
                 close: 100.0,
                 volume: 1000.0,
+                adjusted_close: None,
             });
         }
 
@@ -2636,6 +2696,7 @@ mod tests {
                 low: *p - 2.0,
                 close: *p,
                 volume: 5000.0,
+                adjusted_close: None,
             });
         }
 

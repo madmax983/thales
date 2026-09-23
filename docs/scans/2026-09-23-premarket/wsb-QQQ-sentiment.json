@@ -1,0 +1,26 @@
+{
+  "symbol": "QQQ",
+  "queried_at": "2026-09-23T12:17:09.273617+00:00",
+  "scored_at": "2026-09-23T12:18:00.820348+00:00",
+  "result_count": 2,
+  "bullish_hits": 1,
+  "bearish_hits": 0,
+  "mixed_hits": 0,
+  "net_score": 1,
+  "lean": "mixed",
+  "mention_volume": "low",
+  "euphoria_flag": false,
+  "top_posts": [
+    {
+      "title": "QQQ - Invesco QQQ ETF, Reddit sentiment and mention history",
+      "url": "http://apewisdom.io/stocks/QQQ/",
+      "date": "2026-09-23"
+    },
+    {
+      "title": "Ape Wisdom | Trending Stocks on r/wallstreetbets",
+      "url": "https://apewisdom.io/wallstreetbets",
+      "date": "2026-09-23"
+    }
+  ],
+  "method": "keyword scorer v0 — bin/score-wsb.py"
+}

@@ -77,17 +77,17 @@ pub fn calculate(data: &DataFrame, period: usize) -> Result<(Series, Series)> {
         let mut lowest_index = 0;
 
         for j in (i - period)..=i {
-            if let Some(h) = highs[j] {
-                if h > highest_high {
-                    highest_high = h;
-                    highest_index = j;
-                }
+            if let Some(h) = highs[j]
+                && h > highest_high
+            {
+                highest_high = h;
+                highest_index = j;
             }
-            if let Some(l) = lows[j] {
-                if l < lowest_low {
-                    lowest_low = l;
-                    lowest_index = j;
-                }
+            if let Some(l) = lows[j]
+                && l < lowest_low
+            {
+                lowest_low = l;
+                lowest_index = j;
             }
         }
 

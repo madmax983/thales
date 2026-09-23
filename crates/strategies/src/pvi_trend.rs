@@ -28,11 +28,11 @@
 
 use crate::indicators::{atr, pvi, sma};
 use crate::strategy::{Signal, SignalType, Strategy, StrategyConfig, StrategyType};
-use anyhow::{bail, Result};
+use anyhow::{Result, bail};
 use async_trait::async_trait;
 use polars::prelude::*;
-use rust_decimal::prelude::*;
 use rust_decimal::Decimal;
+use rust_decimal::prelude::*;
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

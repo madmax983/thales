@@ -21,8 +21,11 @@ use paper_provider::{PaperClient, PaperConfig};
 use serde::Serialize;
 use serde_json::json;
 use thiserror::Error;
+use volatility::{estimator_by_name, log_returns_from_prices};
+use yahoo_provider::{YahooClient, YahooConfig};
 
 use jev_provider::{JevClient, Questions};
+use thales_cli::dedupe;
 use thales_cli::jev_analysis;
 use thales_cli::jev_gate::{self, GateThresholds, JudgeContext, PRICE_SUMMARY_BARS, PriceSummary};
 use thales_cli::{
@@ -185,10 +188,54 @@ enum Commands {
         symbol: String,
         #[arg(long)]
         timeframe: String,
+        /// Deep history override for providers that support it (yahoo only):
+        /// 1y, 2y, 5y, 10y, max. Needed for volatility estimation.
+        #[arg(long)]
+        history: Option<String>,
+    },
+    /// Fetches a Yahoo options-chain snapshot (SPEC-006 v0). Research input
+    /// only — reports spot, front-expiry ATM IV, and optional IV rank /
+    /// percentile against a history file. Never emits candidates.
+    FetchOptionsChain {
+        #[arg(long)]
+        symbol: String,
+        /// Extra expiration unix timestamps to fetch (repeatable). Default
+        /// response already carries the front expiry's quotes.
+        #[arg(long)]
+        expiry: Vec<i64>,
+        /// Minimum DTE for the front-expiry IV read. Defaults to 7 (skips
+        /// 0DTE noise).
+        #[arg(long, default_value_t = 7)]
+        min_dte: i64,
+        /// JSON array of past front-ATM IV readings, for IV rank/percentile
+        /// context. The scan persists one reading per day; without history
+        /// the IV read ships without rank (honest, not fabricated).
+        #[arg(long)]
+        iv_history: Option<PathBuf>,
     },
     NormalizeBars {
         #[arg(long)]
         input: PathBuf,
+    },
+    /// Fits a volatility estimator over a normalized [`BarSeries`] and emits
+    /// the one-step-ahead forecast. Evidence for sizing/risk — not a signal.
+    ForecastVolatility {
+        #[arg(long)]
+        input: PathBuf,
+        /// Estimator: ewma (v0). garch11 is specified but unimplemented and
+        /// fails closed.
+        #[arg(long, default_value = "ewma")]
+        estimator: String,
+        /// EWMA decay in (0, 1). Defaults to 0.94 (RiskMetrics daily).
+        #[arg(long)]
+        lambda: Option<f64>,
+        /// Minimum returns required. Defaults to the estimator's minimum.
+        #[arg(long)]
+        min_bars: Option<usize>,
+        /// Periods per year for annualization. Inferred from the series
+        /// market (365 crypto, else 252) when omitted.
+        #[arg(long)]
+        annualization: Option<f64>,
     },
     GenerateTradeIntent {
         #[arg(long)]
@@ -269,6 +316,18 @@ enum Commands {
         portfolio: Option<PathBuf>,
         #[arg(long)]
         analysis: Option<PathBuf>,
+    },
+    DedupeSignals {
+        /// Per-strategy signal files for the ensemble (repeatable).
+        /// Each file holds an envelope (or raw list) of TradeIntents.
+        #[arg(long)]
+        input: Vec<PathBuf>,
+        /// Append dedup dispositions to this audit file.
+        #[arg(long)]
+        log: Option<PathBuf>,
+        /// Write the full per-symbol disposition report as JSON here.
+        #[arg(long)]
+        report: Option<PathBuf>,
     },
     UpdateSignalHistory {
         #[arg(long)]
@@ -679,6 +738,42 @@ fn main() {
     }
 }
 
+/// Machine-readable output of `fetch-options-chain`.
+#[derive(Debug, Serialize)]
+struct ChainReport {
+    snapshot: yahoo_provider::ChainSnapshot,
+    front_expiry_unix: Option<i64>,
+    front_dte: Option<i64>,
+    front_atm_iv: Option<f64>,
+    /// Conventional IV rank vs --iv-history (None when no history given).
+    iv_rank: Option<f64>,
+    /// IV percentile vs --iv-history (None when no history given).
+    iv_percentile: Option<f64>,
+    /// How many past IV readings the rank/percentile used (0 = none given).
+    iv_history_n: usize,
+}
+
+/// Machine-readable output of `forecast-volatility`.
+#[derive(Debug, Serialize)]
+struct VolatilityReport {
+    estimator: String,
+    symbol: String,
+    timeframe: String,
+    n_bars: usize,
+    n_returns: usize,
+    /// "adjusted_close" when every bar carried one, else "close".
+    price_source: String,
+    variance: f64,
+    sigma: f64,
+    annualized_sigma: f64,
+    periods_per_year: f64,
+    /// "flag" when --annualization was passed, else "inferred:<market>".
+    annualization_source: String,
+    persistence: f64,
+    half_life_periods: f64,
+    diagnostics: std::collections::BTreeMap<String, f64>,
+}
+
 fn run(command: Commands, raw: bool) -> Result<String, CliError> {
     match command {
         #[cfg(feature = "nova")]
@@ -885,7 +980,13 @@ fn run(command: Commands, raw: bool) -> Result<String, CliError> {
             provider,
             symbol,
             timeframe,
+            history,
         } => {
+            if history.is_some() && provider != "yahoo" {
+                return Err(CliError::Validation(format!(
+                    "--history is only supported by the yahoo provider (got provider '{provider}')"
+                )));
+            }
             let bars = match provider.as_str() {
                 "kraken" => {
                     let cfg =
@@ -910,6 +1011,13 @@ fn run(command: Commands, raw: bool) -> Result<String, CliError> {
                         .fetch_bars(&symbol, &timeframe)
                         .map_err(|e| CliError::Provider(e.to_string()))?
                 }
+                "yahoo" => {
+                    let cfg = YahooConfig::from_env();
+                    let client = YahooClient::new(cfg);
+                    client
+                        .fetch_bars_with_history(&symbol, &timeframe, history.as_deref())
+                        .map_err(|e| CliError::Provider(e.to_string()))?
+                }
                 _ => {
                     return Err(CliError::Validation(format!(
                         "Unsupported provider: {}",
@@ -923,6 +1031,170 @@ fn run(command: Commands, raw: bool) -> Result<String, CliError> {
                 bars,
             };
             ok_envelope(series, vec![], raw)
+        }
+        Commands::FetchOptionsChain {
+            symbol,
+            expiry,
+            min_dte,
+            iv_history,
+        } => {
+            let cfg = YahooConfig::from_env();
+            let client = YahooClient::new(cfg);
+            let mut snapshot = client
+                .fetch_chain(&symbol)
+                .map_err(|e| CliError::Provider(e.to_string()))?;
+            for e in &expiry {
+                let extra = client
+                    .fetch_chain_expiry(&symbol, *e)
+                    .map_err(|e| CliError::Provider(e.to_string()))?;
+                snapshot.expirations.extend(extra.expirations);
+            }
+            let now_unix = std::time::SystemTime::now()
+                .duration_since(std::time::UNIX_EPOCH)
+                .map(|d| d.as_secs() as i64)
+                .unwrap_or(0);
+            let front = snapshot.front_expiry(min_dte, now_unix);
+            let front_expiry_unix = front.map(|f| f.expiry_unix);
+            let front_dte =
+                front_expiry_unix.map(|e| yahoo_provider::ChainSnapshot::dte(e, now_unix));
+            let front_atm_iv = snapshot.front_atm_iv(min_dte, now_unix);
+
+            let (iv_rank, iv_percentile, iv_history_n) = match (&iv_history, front_atm_iv) {
+                (Some(path), Some(iv)) => {
+                    let raw_str = std::fs::read_to_string(path).map_err(|e| {
+                        std::io::Error::new(
+                            e.kind(),
+                            format!("Failed to read file '{}': {}", path.display(), e),
+                        )
+                    })?;
+                    let hist: Vec<f64> = serde_json::from_str(&raw_str).map_err(|e| {
+                        CliError::Validation(format!(
+                            "--iv-history is not a JSON array of numbers: {e}"
+                        ))
+                    })?;
+                    (
+                        options::iv_rank(iv, &hist),
+                        options::iv_percentile(iv, &hist),
+                        hist.len(),
+                    )
+                }
+                _ => (None, None, 0),
+            };
+            let mut warnings = Vec::new();
+            if front_atm_iv.is_none() {
+                warnings.push(
+                    "no usable front-expiry ATM IV (missing expiry or bad IV) — rank omitted"
+                        .to_string(),
+                );
+            } else if iv_history.is_none() {
+                warnings.push(
+                    "no --iv-history given — IV rank/percentile omitted; persist one reading per day"
+                        .to_string(),
+                );
+            }
+
+            ok_envelope(
+                ChainReport {
+                    snapshot,
+                    front_expiry_unix,
+                    front_dte,
+                    front_atm_iv,
+                    iv_rank,
+                    iv_percentile,
+                    iv_history_n,
+                },
+                warnings,
+                raw,
+            )
+        }
+        Commands::ForecastVolatility {
+            input,
+            estimator,
+            lambda,
+            min_bars,
+            annualization,
+        } => {
+            let raw_str = std::fs::read_to_string(&input).map_err(|e| {
+                std::io::Error::new(
+                    e.kind(),
+                    format!("Failed to read file '{}': {}", input.display(), e),
+                )
+            })?;
+            let mut series: BarSeries =
+                match serde_json::from_str::<ResponseEnvelope<BarSeries>>(&raw_str) {
+                    Ok(envelope) => envelope
+                        .data
+                        .ok_or(CliError::Validation("Envelope has no data".to_string()))?,
+                    Err(_) => serde_json::from_str::<BarSeries>(&raw_str)?,
+                };
+            series.bars.sort_by_key(|bar| bar.timestamp_unix_ms);
+
+            let mut warnings = Vec::new();
+            let n_adjusted = series
+                .bars
+                .iter()
+                .filter(|b| b.adjusted_close.is_some())
+                .count();
+            // Only use adjusted closes when coverage is complete: mixing
+            // adjusted and unadjusted prices fabricates jumps at the boundary.
+            let use_adjusted = !series.bars.is_empty() && n_adjusted == series.bars.len();
+            if !use_adjusted && n_adjusted > 0 {
+                warnings.push(format!(
+                    "partial adjusted_close coverage ({n_adjusted}/{} bars); using unadjusted close",
+                    series.bars.len()
+                ));
+            }
+            let (price_source, prices): (String, Vec<f64>) = if use_adjusted {
+                (
+                    "adjusted_close".to_string(),
+                    series
+                        .bars
+                        .iter()
+                        .map(|b| b.adjusted_close.unwrap_or(b.close))
+                        .collect(),
+                )
+            } else {
+                (
+                    "close".to_string(),
+                    series.bars.iter().map(|b| b.close).collect(),
+                )
+            };
+
+            let first = series.bars.first();
+            let market = first.map(|b| b.market.as_str()).unwrap_or("equities");
+            let (periods_per_year, annualization_source) = match annualization {
+                Some(a) => (a, "flag".to_string()),
+                None => {
+                    let ppy = if market == "crypto" { 365.0 } else { 252.0 };
+                    (ppy, format!("inferred:{market}"))
+                }
+            };
+
+            let returns = log_returns_from_prices(&prices)
+                .map_err(|e| CliError::Validation(e.to_string()))?;
+            let est = estimator_by_name(&estimator, lambda, min_bars)
+                .map_err(|e| CliError::Validation(e.to_string()))?;
+            let fit = est
+                .fit(&returns, periods_per_year)
+                .map_err(|e| CliError::Validation(e.to_string()))?;
+
+            let report = VolatilityReport {
+                estimator: fit.estimator,
+                symbol: first.map(|b| b.symbol.clone()).unwrap_or_default(),
+                timeframe: first.map(|b| b.timeframe.clone()).unwrap_or_default(),
+                n_bars: series.bars.len(),
+                n_returns: fit.n_returns,
+                price_source,
+                variance: fit.variance,
+                sigma: fit.sigma,
+                annualized_sigma: fit.annualized_sigma,
+                periods_per_year,
+                annualization_source,
+                persistence: fit.persistence,
+                half_life_periods: fit.half_life_periods,
+                diagnostics: fit.diagnostics.into_iter().collect(),
+            };
+            ok_envelope(report, warnings, raw)
         }
         Commands::NormalizeBars { input } => {
             let raw_str = std::fs::read_to_string(&input).map_err(|e| {
@@ -955,7 +1227,10 @@ fn run(command: Commands, raw: bool) -> Result<String, CliError> {
             strategy,
         } => {
             let intent = TradeIntent {
-                intent_id: format!("{market}:{symbol}:{side}:v0"),
+                // Strategy is part of the id so a hand-crafted intent can
+                // never collide with a strategy-generated one on the same
+                // symbol/side.
+                intent_id: format!("{market}:{symbol}:{strategy}:{side}:v0"),
                 market,
                 symbol,
                 side,
@@ -1323,6 +1598,59 @@ fn run(command: Commands, raw: bool) -> Result<String, CliError> {
             }
 
             ok_envelope(intents, warnings, raw)
+        }
+        Commands::DedupeSignals { input, log, report } => {
+            if input.is_empty() {
+                return Err(CliError::Validation(
+                    "--input is required at least once (one signal file per ensemble strategy)"
+                        .to_string(),
+                ));
+            }
+            let mut files = Vec::new();
+            for path in &input {
+                let intents: Vec<TradeIntent> = match read_json_file::<
+                    ResponseEnvelope<Vec<TradeIntent>>,
+                >(path)
+                {
+                    Ok(envelope) => envelope.data.unwrap_or_default(),
+                    Err(_) => read_json_file::<Vec<TradeIntent>>(path).map_err(|e| {
+                        CliError::Validation(format!(
+                            "Failed to parse TradeIntents from '{}'. Expected a signal envelope or raw intent list. (Original error: {})",
+                            path.display(),
+                            e
+                        ))
+                    })?,
+                };
+                files.push((path.display().to_string(), intents));
+            }
+
+            let result = dedupe::dedupe_files(files);
+
+            if let Some(path) = report {
+                let body = serde_json::to_string_pretty(&serde_json::json!({
+                    "dispositions": result.dispositions,
+                    "empty_inputs": result.empty_inputs,
+                }))
+                .map_err(|e| CliError::Validation(e.to_string()))?;
+                std::fs::write(&path, body).map_err(|e| {
+                    CliError::Validation(format!(
+                        "Failed to write report to '{}': {}",
+                        path.display(),
+                        e
+                    ))
+                })?;
+            }
+
+            if let Some(path) = log {
+                let rows = dedupe::dedup_log(&result, &chrono::Utc::now().to_rfc3339());
+                if !rows.is_empty()
+                    && let Err(e) = reporting::append_to_file(&path, &rows)
+                {
+                    eprintln!("Warning: Failed to write to {}: {}", path.display(), e);
+                }
+            }
+
+            ok_envelope(result.kept, result.warnings, raw)
         }
         Commands::UpdateSignalHistory { input, provider } => {
             let count = match provider.as_str() {
@@ -2803,6 +3131,74 @@ fn run(command: Commands, raw: bool) -> Result<String, CliError> {
     }
 }
 
+/// Thales custom trading universe: the audited manifest at
+/// `crates/cli/universe/universe.json`, embedded at compile time so a
+/// scheduled run can never silently scan the wrong set. `THALES_UNIVERSE_PATH`
+/// overrides it (tests, dev). Any unreadable or invalid manifest is a hard
+/// error: the scan must fail closed rather than fall back to a hardcoded trio.
+const EMBEDDED_UNIVERSE_JSON: &str = include_str!("../universe/universe.json");
+
+#[derive(Debug, serde::Deserialize)]
+struct UniverseEntry {
+    canonical: String,
+    asset_class: String,
+    // Reserved for per-provider routing (Tradytics/TradingView aliases).
+    // Not read yet; the allow keeps `-D warnings` green until it is.
+    #[allow(dead_code)]
+    aliases: std::collections::HashMap<String, String>,
+    provenance: Vec<String>,
+}
+
+#[derive(Debug, serde::Deserialize)]
+struct UniverseManifest {
+    entries: Vec<UniverseEntry>,
+}
+
+fn load_universe() -> Result<Vec<String>, CliError> {
+    let json = match std::env::var("THALES_UNIVERSE_PATH") {
+        Ok(path) if !path.trim().is_empty() => std::fs::read_to_string(&path).map_err(|err| {
+            CliError::Validation(format!("universe manifest unreadable at {path}: {err}"))
+        })?,
+        _ => EMBEDDED_UNIVERSE_JSON.to_string(),
+    };
+    let manifest: UniverseManifest = serde_json::from_str(&json)
+        .map_err(|err| CliError::Validation(format!("universe manifest invalid: {err}")))?;
+    if manifest.entries.is_empty() {
+        return Err(CliError::Validation(
+            "universe manifest has no entries".to_string(),
+        ));
+    }
+    let mut seen = std::collections::HashSet::new();
+    let mut symbols = Vec::with_capacity(manifest.entries.len());
+    for entry in &manifest.entries {
+        if entry.canonical.trim().is_empty() {
+            return Err(CliError::Validation(
+                "universe manifest has a blank canonical symbol".to_string(),
+            ));
+        }
+        if !seen.insert(entry.canonical.clone()) {
+            return Err(CliError::Validation(format!(
+                "duplicate canonical symbol in universe manifest: {}",
+                entry.canonical
+            )));
+        }
+        if entry.asset_class.trim().is_empty() {
+            return Err(CliError::Validation(format!(
+                "universe manifest: {} is missing its asset class",
+                entry.canonical
+            )));
+        }
+        if entry.provenance.is_empty() {
+            return Err(CliError::Validation(format!(
+                "universe manifest: {} is missing provenance",
+                entry.canonical
+            )));
+        }
+        symbols.push(entry.canonical.clone());
+    }
+    Ok(symbols)
+}
+
 fn scan_market(
     provider: &str,
     top_n: usize,
@@ -2877,12 +3273,11 @@ fn scan_market(
             Ok(watchlist.into_iter().map(String::from).collect())
         }
         "paper" => {
-            // Return static list for simulation
-            Ok(vec![
-                "BTCUSD".to_string(),
-                "ETHUSD".to_string(),
-                "SPY".to_string(),
-            ])
+            // Thales custom universe: the audited manifest embedded at
+            // ../universe/universe.json, not a hardcoded trio. Fails closed
+            // if the manifest is missing or corrupt.
+            let symbols = load_universe()?;
+            Ok(symbols.into_iter().take(top_n).collect())
         }
         _ => Err(CliError::Validation(format!(
             "Unsupported provider for scanning: {}",

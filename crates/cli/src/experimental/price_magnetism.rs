@@ -55,7 +55,7 @@ pub struct PriceMagnetismReport {
 ///
 /// let series = BarSeries {
 ///     schema_version: "v0".to_string(),
-///     bars: vec![Bar { symbol: "TEST".into(), market: "test".into(), timeframe: "1d".into(), timestamp_unix_ms: 0, open: 10.0, high: 20.0, low: 5.0, close: 100.5, volume: 100.0 }],
+///     bars: vec![Bar { symbol: "TEST".into(), market: "test".into(), timeframe: "1d".into(), timestamp_unix_ms: 0, open: 10.0, high: 20.0, low: 5.0, close: 100.5, volume: 100.0 adjusted_close: None, }],
 /// };
 ///
 /// let report_opt = analyze_magnetism(&series);
@@ -108,6 +108,7 @@ mod tests {
                 low: 5.0,
                 close: 100.5,
                 volume: 100.0,
+                adjusted_close: None,
             }],
         };
 

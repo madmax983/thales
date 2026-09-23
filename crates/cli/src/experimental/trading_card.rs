@@ -52,7 +52,7 @@ pub struct CardStats {
 ///         timeframe: "1d".to_string(),
 ///         timestamp_unix_ms: 0,
 ///         open: 100.0, high: 110.0, low: 90.0, close: 105.0, volume: 1000.0,
-///     },
+///     adjusted_close: None, },
 /// ];
 /// let series = BarSeries { schema_version: "v1".to_string(), bars };
 ///
@@ -130,7 +130,7 @@ pub fn calculate_stats(series: &BarSeries) -> CardStats {
 ///         timeframe: "1d".to_string(),
 ///         timestamp_unix_ms: 0,
 ///         open: 100.0, high: 110.0, low: 90.0, close: 105.0, volume: 1000.0,
-///     },
+///     adjusted_close: None, },
 /// ];
 /// let series = BarSeries { schema_version: "v1".to_string(), bars };
 ///
@@ -203,6 +203,7 @@ mod tests {
                 low: 90.0,
                 close: 105.0,
                 volume: 1000.0,
+                adjusted_close: None,
             },
             Bar {
                 symbol: "AAPL".to_string(),
@@ -214,6 +215,7 @@ mod tests {
                 low: 100.0,
                 close: 112.0,
                 volume: 2000.0,
+                adjusted_close: None,
             },
         ];
         let series = BarSeries {

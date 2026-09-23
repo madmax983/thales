@@ -15,6 +15,7 @@ fn create_bar(symbol: &str, timestamp: i64, close: f64) -> Bar {
         low: close * 0.99,
         close,
         volume: 1000.0,
+        adjusted_close: None,
     }
 }
 

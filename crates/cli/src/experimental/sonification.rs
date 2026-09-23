@@ -121,7 +121,7 @@ pub struct SonificationReport {
 ///         low: 90.0,
 ///         close: 105.0,
 ///         volume: 1000.0,
-///     },
+///     adjusted_close: None, },
 /// ];
 ///
 /// let series = BarSeries {
@@ -254,6 +254,7 @@ mod tests {
                 low: 90.0,
                 close: 100.0,  // Low close
                 volume: 100.0, // Low volume
+                adjusted_close: None,
             },
             Bar {
                 symbol: "TEST".to_string(),
@@ -265,6 +266,7 @@ mod tests {
                 low: 50.0,      // High volatility
                 close: 200.0,   // High close
                 volume: 1000.0, // High volume
+                adjusted_close: None,
             },
         ];
 

@@ -228,11 +228,11 @@ mod tests {
 
         // Generate data that triggers a breakout
         let mut closes = vec![100.0; 30]; // Stable price
-                                          // At index 29 (last one), spike up to 120.
-                                          // EMA(20) ~ 100. ATR(10) ~ 0 (if flat).
-                                          // Let's make ATR non-zero by having previous volatility.
-                                          // Or just trust the indicator logic handles flat line (ATR=0).
-                                          // If ATR=0, Upper=EMA.
+        // At index 29 (last one), spike up to 120.
+        // EMA(20) ~ 100. ATR(10) ~ 0 (if flat).
+        // Let's make ATR non-zero by having previous volatility.
+        // Or just trust the indicator logic handles flat line (ATR=0).
+        // If ATR=0, Upper=EMA.
         closes[29] = 101.0;
 
         let timestamps: Vec<i64> = (0..30).map(|i| 1000 + i as i64 * 1000).collect();

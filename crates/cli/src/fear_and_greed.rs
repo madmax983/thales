@@ -103,7 +103,7 @@ pub struct FearAndGreedReport {
 ///         open: price, high: price + 2.0, low: price - 2.0, close: price + 1.0,
 ///         volume: 1000.0 + (i as f64) * 10.0,
 ///         timeframe: "1d".to_string(),
-///     });
+///     adjusted_close: None, });
 /// }
 ///
 /// let series = BarSeries { schema_version: "1.0".to_string(), bars };
@@ -306,6 +306,7 @@ mod tests {
                 low: price - 1.5,
                 close: price,
                 volume: 1000.0,
+                adjusted_close: None,
             });
         }
 

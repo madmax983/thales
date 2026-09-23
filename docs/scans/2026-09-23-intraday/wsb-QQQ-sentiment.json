@@ -1,0 +1,41 @@
+{
+  "symbol": "QQQ",
+  "queried_at": "2026-09-23T12:30:00-05:00",
+  "scored_at": "2026-09-23T17:20:25.220536+00:00",
+  "result_count": 8,
+  "bullish_hits": 4,
+  "bearish_hits": 2,
+  "mixed_hits": 2,
+  "net_score": 2,
+  "lean": "mixed",
+  "mention_volume": "high",
+  "euphoria_flag": false,
+  "top_posts": [
+    {
+      "title": "INVESCO QQQ TRUST SERIES 1 (QQQ): Financial Market Data",
+      "url": "https://finnhub.io/?q=%22QQQ%22",
+      "date": "2026-09-23"
+    },
+    {
+      "title": "3 WallStreetBets Stock Picks With Actual Potential for Massive Gains",
+      "url": "https://www.nasdaq.com/articles/3-wallstreetbets-stock-picks-actual-potential-massive-gains",
+      "date": "2024-05-28"
+    },
+    {
+      "title": "Nasdaq Jumps To Close At Record As Chipmakers Climb, Oil Prices Cool — AAPL, META, SPCX, MSFT, VKTX In Focus",
+      "url": "https://stocktwits.com/news-articles/markets/equity/nasdaq-jumps-to-close-at-record-as-chipmakers-climb-oil-prices-cool-aapl-meta-spcx-msft-vktx-in-focus/cZM5GHbRB7L",
+      "date": "2026-09-22"
+    },
+    {
+      "title": "Top 5 stocks mentioned on Reddit's WallStreetBets right now",
+      "url": "https://www.fool.com.au/2022/01/12/top-5-stocks-mentioned-on-reddits-wallstreetbets-right-now/",
+      "date": "2022-01-12"
+    },
+    {
+      "title": "Prediction: The Invesco QQQ Trust Beats the S&P 500 Again Over the Next 5 Years",
+      "url": "https://news.wallstreet.com/prediction-the-invesco-qqq-trust-beats-the-s-and-p-500-again-over-the-next-5-years/",
+      "date": "2026-09-18"
+    }
+  ],
+  "method": "keyword scorer v0 — bin/score-wsb.py"
+}

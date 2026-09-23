@@ -22,6 +22,9 @@ alpaca-provider = { path = "../providers/alpaca" }
 jev-provider = { path = "../providers/jev" }
 kraken-provider = { path = "../providers/kraken" }
 paper-provider = { path = "../providers/paper" }
+yahoo-provider = { path = "../providers/yahoo" }
+options = { path = "../options" }
+volatility = { path = "../volatility" }
 chrono = "0.4"
 rand_distr = "0.4"
 

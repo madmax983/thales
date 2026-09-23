@@ -1,0 +1,41 @@
+{
+  "symbol": "IONQ",
+  "queried_at": "2026-09-23T12:30:00-05:00",
+  "scored_at": "2026-09-23T17:20:25.465440+00:00",
+  "result_count": 6,
+  "bullish_hits": 1,
+  "bearish_hits": 1,
+  "mixed_hits": 1,
+  "net_score": 0,
+  "lean": "mixed",
+  "mention_volume": "medium",
+  "euphoria_flag": false,
+  "top_posts": [
+    {
+      "title": "IONQ Inc (IONQ): Financial Market Data",
+      "url": "https://finnhub.io/?q=%22IONQ%22",
+      "date": "2026-09-23"
+    },
+    {
+      "title": "Palantir, IonQ, Royal Caribbean, Paychex, McDonald's, and More Stocks That Explain Today's Market",
+      "url": "https://www.barrons.com/articles/stock-movers-91bb194a",
+      "date": "2026-09-23"
+    },
+    {
+      "title": "IonQ Shares Surge Following Breakthrough in Quantum Computing Efficiency | Wall Street Next",
+      "url": "https://wsnext.com/cdafa24-Quantum-computing-IonQ/",
+      "date": "2026-09-23"
+    },
+    {
+      "title": "Quantum Stocks: IonQ Claims Key Advance, Sets Nvidia Research Pact",
+      "url": "https://www.investors.com/news/technology/ionq-stock-jumps-quantum-advance-industry-conference/",
+      "date": "2026-09-23"
+    },
+    {
+      "title": "IonQ, Rigetti Computing, D-Wave Quantum, and Quantum Computing Inc. Are Sending Shockwaves Through Wall Street With This $895 Million Warning | The Motley Fool",
+      "url": "https://WWW.FOOL.COM/investing/2026/09/22/ionq-rigetti-dwave-quantum-computing-send-shockwaves-through-wall-street-with-895-million-warning/",
+      "date": "2026-09-22"
+    }
+  ],
+  "method": "keyword scorer v0 — bin/score-wsb.py"
+}

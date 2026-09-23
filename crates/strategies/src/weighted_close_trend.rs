@@ -9,11 +9,11 @@
 
 use crate::indicators::{atr, weighted_close};
 use crate::strategy::{Signal, SignalType, Strategy, StrategyConfig, StrategyType};
-use anyhow::{bail, Context, Result};
+use anyhow::{Context, Result, bail};
 use async_trait::async_trait;
 use polars::prelude::*;
-use rust_decimal::prelude::*;
 use rust_decimal::Decimal;
+use rust_decimal::prelude::*;
 use serde::{Deserialize, Serialize};
 use std::str::FromStr;
 
@@ -106,10 +106,10 @@ impl Strategy for WeightedCloseTrend {
                 sum += wc_dec;
                 window.push_back(wc_dec);
 
-                if window.len() > self.config.sma_period {
-                    if let Some(old) = window.pop_front() {
-                        sum -= old;
-                    }
+                if window.len() > self.config.sma_period
+                    && let Some(old) = window.pop_front()
+                {
+                    sum -= old;
                 }
 
                 if window.len() == self.config.sma_period {

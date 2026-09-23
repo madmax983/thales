@@ -91,18 +91,17 @@ impl Strategy for ConnorsRsiMeanReversion {
                         "CRSI Overbought: {:.2} > {:.2}",
                         crsi_val, self.config.overbought_threshold
                     );
-                } else if let Some(ref sma_vals) = sma_arr {
-                    if let Some(Some(sma_val)) = sma_vals.get(i) {
-                        if price > *sma_val {
-                            exit_signal = true;
-                            exit_reason = format!(
-                                "Price {:.2} > SMA({}) {:.2}",
-                                price,
-                                self.config.exit_sma_period.unwrap(),
-                                sma_val
-                            );
-                        }
-                    }
+                } else if let Some(ref sma_vals) = sma_arr
+                    && let Some(Some(sma_val)) = sma_vals.get(i)
+                    && price > *sma_val
+                {
+                    exit_signal = true;
+                    exit_reason = format!(
+                        "Price {:.2} > SMA({}) {:.2}",
+                        price,
+                        self.config.exit_sma_period.unwrap(),
+                        sma_val
+                    );
                 }
 
                 if exit_signal {

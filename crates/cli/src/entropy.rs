@@ -82,7 +82,8 @@ pub struct EntropyBin {
 ///         low: close,
 ///         close,
 ///         volume: 100.0,
-///     }
+///     adjusted_close: None, }
+///
 /// }
 ///
 /// let series = BarSeries {
@@ -277,6 +278,7 @@ mod tests {
             low: 100.0,
             close,
             volume: 100.0,
+            adjusted_close: None,
         }
     }
 

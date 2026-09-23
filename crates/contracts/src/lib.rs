@@ -22,7 +22,7 @@ use serde::{Deserialize, Serialize};
 /// use contracts::TradeIntent;
 ///
 /// let intent = TradeIntent {
-///     intent_id: "crypto:BTCUSD:buy:v1".to_string(),
+///     intent_id: "crypto:BTCUSD:BollingerBands:buy:v1".to_string(),
 ///     market: "crypto".to_string(),
 ///     symbol: "BTCUSD".to_string(),
 ///     side: "buy".to_string(),
@@ -36,7 +36,8 @@ use serde::{Deserialize, Serialize};
 /// ```
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct TradeIntent {
-    /// A unique identifier for this specific intent (e.g., "crypto:BTCUSD:buy:v0").
+    /// A unique identifier for this specific intent (e.g., "crypto:BTCUSD:BollingerBands:buy:v0").
+    /// The strategy is part of the id so ensemble strategies cannot collide.
     pub intent_id: String,
     /// The market type (e.g., "crypto", "equities").
     pub market: String,
@@ -126,7 +127,7 @@ impl Default for TradeIntent {
 ///     low: 124.8,
 ///     close: 126.0,
 ///     volume: 1_000_000.0,
-/// };
+/// adjusted_close: None, };
 ///
 /// assert_eq!(bar.close, 126.0);
 /// ```
@@ -155,6 +156,11 @@ pub struct Bar {
     /// The volume traded during the interval.
     #[serde(deserialize_with = "deserialize::deserialize_f64_nan")]
     pub volume: f64,
+    /// Split- and dividend-adjusted close, when the provider supplies it
+    /// (e.g. Yahoo `adjclose`). Prefer this over `close` when computing
+    /// returns — unadjusted closes spike spuriously across splits/dividends.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub adjusted_close: Option<f64>,
 }
 
 /// A collection of bars for a specific symbol.
@@ -172,8 +178,8 @@ pub struct Bar {
 ///             market: "equities".to_string(),
 ///             timeframe: "1d".to_string(),
 ///             timestamp_unix_ms: 1622505600000,
-///             open: 125.0, high: 126.0, low: 124.0, close: 125.5, volume: 1000.0
-///         }
+///             open: 125.0, high: 126.0, low: 124.0, close: 125.5, volume: 1000.0,
+///             adjusted_close: None, }
 ///     ],
 /// };
 ///
@@ -224,7 +230,7 @@ pub struct ExecutionRequest {
 ///
 /// let result = ExecutionResult {
 ///     schema_version: "v0".to_string(),
-///     intent_id: "crypto:BTCUSD:buy:v1".to_string(),
+///     intent_id: "crypto:BTCUSD:BollingerBands:buy:v1".to_string(),
 ///     provider: "kraken".to_string(),
 ///     provider_order_id: "OXXXXX-XXXXX-XXXXXX".to_string(),
 ///     status: "submitted".to_string(),

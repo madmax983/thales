@@ -166,6 +166,7 @@ mod tests {
                 low: 95.0,
                 close: 102.0,
                 volume: 1000.0,
+                adjusted_close: None,
             },
             Bar {
                 symbol: "AAPL".to_string(),
@@ -177,6 +178,7 @@ mod tests {
                 low: 100.0,
                 close: 107.0,
                 volume: 2000.0,
+                adjusted_close: None,
             },
         ];
         let series = BarSeries {
@@ -213,6 +215,7 @@ mod tests {
                 low: 95.0,
                 close: 102.0,
                 volume: 1000.0,
+                adjusted_close: None,
             },
             Bar {
                 symbol: "AAPL".to_string(),
@@ -224,6 +227,7 @@ mod tests {
                 low: 100.0,
                 close: 107.0,
                 volume: 2000.0,
+                adjusted_close: None,
             },
         ];
         let series = BarSeries {

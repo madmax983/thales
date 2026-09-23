@@ -87,7 +87,8 @@ pub struct PatternMatch {
 ///         low: 100.0,
 ///         close,
 ///         volume: 100.0,
-///     }
+///     adjusted_close: None, }
+///
 /// }
 ///
 /// // Create a simple V-shape pattern historically, followed by a spike
@@ -288,6 +289,7 @@ mod tests {
             low: 100.0,
             close,
             volume: 100.0,
+            adjusted_close: None,
         }
     }
 

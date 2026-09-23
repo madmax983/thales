@@ -14,7 +14,7 @@
 //!
 //! let mut bars = Vec::new();
 //! for i in 0..20 {
-//!     bars.push(Bar { symbol: "TEST".into(), market: "test".into(), timeframe: "1d".into(), timestamp_unix_ms: i * 1000, open: 100.0, high: 105.0, low: 95.0, close: 100.0 + i as f64, volume: 1000.0 });
+//!     bars.push(Bar { symbol: "TEST".into(), market: "test".into(), timeframe: "1d".into(), timestamp_unix_ms: i * 1000, open: 100.0, high: 105.0, low: 95.0, close: 100.0 + i as f64, volume: 1000.0 adjusted_close: None, });
 //! }
 //! let series = BarSeries { schema_version: "v0".to_string(), bars };
 //!
@@ -108,6 +108,7 @@ mod tests {
             low: close - 0.1,
             close,
             volume: 1000.0,
+            adjusted_close: None,
         }
     }
 

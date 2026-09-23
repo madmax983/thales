@@ -80,7 +80,7 @@ pub struct CandlestickPatternsReport {
 ///     low: 90.0,
 ///     close: 95.0,
 ///     volume: 1000.0,
-/// });
+/// adjusted_close: None, });
 /// series.bars.push(Bar {
 ///     symbol: "AAPL".to_string(),
 ///     market: "equities".to_string(),
@@ -91,7 +91,7 @@ pub struct CandlestickPatternsReport {
 ///     low: 95.0,
 ///     close: 100.001,
 ///     volume: 1000.0,
-/// });
+/// adjusted_close: None, });
 ///
 /// let config = CandlestickPatternsConfig { window_size: 2, doji_threshold_pct: 0.1 };
 /// let report = analyze_candlestick_patterns(&series, config).unwrap();
@@ -259,6 +259,7 @@ mod tests {
                     low: 90.0,
                     close: 95.0,
                     volume: 1000.0,
+                    adjusted_close: None,
                 },
                 Bar {
                     symbol: "AAPL".to_string(),
@@ -270,6 +271,7 @@ mod tests {
                     low: 95.0,
                     close: 100.001, // Adjusted closer so (0.001 / 10.0) <= 0.001
                     volume: 1000.0,
+                    adjusted_close: None,
                 },
             ],
         };
@@ -294,6 +296,7 @@ mod tests {
                     low: 95.0,
                     close: 98.0, // Red candle
                     volume: 1000.0,
+                    adjusted_close: None,
                 },
                 Bar {
                     symbol: "AAPL".to_string(),
@@ -305,6 +308,7 @@ mod tests {
                     low: 96.0,
                     close: 105.0, // Green candle that engulfs previous body
                     volume: 1000.0,
+                    adjusted_close: None,
                 },
             ],
         };

@@ -51,7 +51,7 @@ pub struct AerodynamicsReport {
 ///
 /// let series = BarSeries {
 ///     schema_version: "v0".to_string(),
-///     bars: vec![Bar { symbol: "TEST".into(), market: "test".into(), timeframe: "1d".into(), timestamp_unix_ms: 0, open: 100.0, high: 105.0, low: 100.0, close: 105.0, volume: 1000.0 }],
+///     bars: vec![Bar { symbol: "TEST".into(), market: "test".into(), timeframe: "1d".into(), timestamp_unix_ms: 0, open: 100.0, high: 105.0, low: 100.0, close: 105.0, volume: 1000.0 adjusted_close: None, }],
 /// };
 ///
 /// let report_opt = analyze_aerodynamics(&series);
@@ -124,6 +124,7 @@ mod tests {
                     low: 100.0,
                     close: 105.0,
                     volume: 1000.0,
+                    adjusted_close: None,
                 }, // Drag = 1000 / 5 = 200
                 Bar {
                     symbol: "TEST".into(),
@@ -135,6 +136,7 @@ mod tests {
                     low: 100.0,
                     close: 100.0,
                     volume: 2000.0,
+                    adjusted_close: None,
                 }, // Drag = 2000 / (5/105 * 100) = 2000 / 4.7619 = 420
             ],
         };
@@ -161,6 +163,7 @@ mod tests {
                 low: 100.0,
                 close: 100.0,
                 volume: 1000.0,
+                adjusted_close: None,
             }],
         };
 

@@ -565,6 +565,7 @@ mod tests {
                 low: close - 1.0,
                 close,
                 volume: 1000.0,
+                adjusted_close: None,
             });
         }
 
@@ -584,6 +585,7 @@ mod tests {
                 low: close,        // Low = Close to prevent Stop Loss hit
                 close,
                 volume: 1000.0,
+                adjusted_close: None,
             });
         }
 
@@ -629,6 +631,7 @@ mod tests {
                 low: close,
                 close,
                 volume: 1000.0,
+                adjusted_close: None,
             });
         }
 
@@ -645,6 +648,7 @@ mod tests {
                 low: close,
                 close,
                 volume: 1000.0,
+                adjusted_close: None,
             });
         }
 

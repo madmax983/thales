@@ -231,9 +231,11 @@ mod tests {
         // Expect Entry at i=2 (CMF goes from 0.0 to 1.0)
         assert_eq!(entries.len(), 1);
         assert_eq!(entries[0].timestamp_ms, 3000);
-        assert!(entries[0]
-            .reason
-            .contains("CMF crossed above Buy Threshold"));
+        assert!(
+            entries[0]
+                .reason
+                .contains("CMF crossed above Buy Threshold")
+        );
         assert!(entries[0].stop_loss.is_some());
 
         // Expect Exit at i=4 (CMF goes from 0.0 to -1.0)

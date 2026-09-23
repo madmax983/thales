@@ -1,0 +1,11 @@
+[package]
+name = "volatility"
+edition.workspace = true
+version.workspace = true
+license.workspace = true
+description = "Volatility forecasting for Thales: EWMA (v0) and GARCH(1,1) (v1) estimators over log returns"
+
+[dependencies]
+thiserror.workspace = true
+
+[dev-dependencies]

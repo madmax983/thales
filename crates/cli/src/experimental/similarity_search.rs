@@ -117,17 +117,17 @@ pub struct SimilarityReport {
 ///
 /// // Insert history with pattern
 /// for (i, &p) in pattern.iter().enumerate() {
-///     bars.push(Bar { symbol: "TEST".into(), market: "equities".into(), timeframe: "1d".into(), timestamp_unix_ms: i as i64 * 1000, open: p, high: p, low: p, close: p, volume: 100.0 });
+///     bars.push(Bar { symbol: "TEST".into(), market: "equities".into(), timeframe: "1d".into(), timestamp_unix_ms: i as i64 * 1000, open: p, high: p, low: p, close: p, volume: 100.0 adjusted_close: None, });
 /// }
 ///
 /// // Insert some noise
 /// for i in 4..10 {
-///     bars.push(Bar { symbol: "TEST".into(), market: "equities".into(), timeframe: "1d".into(), timestamp_unix_ms: i as i64 * 1000, open: 5.0, high: 5.0, low: 5.0, close: 5.0, volume: 100.0 });
+///     bars.push(Bar { symbol: "TEST".into(), market: "equities".into(), timeframe: "1d".into(), timestamp_unix_ms: i as i64 * 1000, open: 5.0, high: 5.0, low: 5.0, close: 5.0, volume: 100.0 adjusted_close: None, });
 /// }
 ///
 /// // Insert the pattern again at the very end
 /// for (i, &p) in pattern.iter().enumerate() {
-///     bars.push(Bar { symbol: "TEST".into(), market: "equities".into(), timeframe: "1d".into(), timestamp_unix_ms: (10 + i) as i64 * 1000, open: p, high: p, low: p, close: p, volume: 100.0 });
+///     bars.push(Bar { symbol: "TEST".into(), market: "equities".into(), timeframe: "1d".into(), timestamp_unix_ms: (10 + i) as i64 * 1000, open: p, high: p, low: p, close: p, volume: 100.0 adjusted_close: None, });
 /// }
 ///
 /// let series = BarSeries { schema_version: "v0".to_string(), bars };
@@ -278,6 +278,7 @@ mod tests {
             low: close,
             close,
             volume: 100.0,
+            adjusted_close: None,
         }
     }
 

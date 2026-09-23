@@ -127,9 +127,9 @@ pub fn calculate(
         if let Some(current_ret) = current_ret_opt {
             let start_idx = i - rank_lookback;
             let end_idx = i; // Excluding current? Definition: "percentage of values in the lookback period"
-                             // Usually lookback is previous N days.
-                             // ConnorsRSI definition: "Percent Rank of the one-day return over the past 100 days".
-                             // Does it include today? Usually PercentRank(x, N) compares x against previous N values.
+            // Usually lookback is previous N days.
+            // ConnorsRSI definition: "Percent Rank of the one-day return over the past 100 days".
+            // Does it include today? Usually PercentRank(x, N) compares x against previous N values.
 
             let mut count_lt = 0;
             let mut count_total = 0;

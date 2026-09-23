@@ -1,7 +1,7 @@
 use anyhow::{Context, Result};
 use polars::prelude::*;
-use rust_decimal::prelude::*;
 use rust_decimal::Decimal;
+use rust_decimal::prelude::*;
 
 /// Calculate Exponential Moving Average (EMA)
 ///

@@ -55,11 +55,11 @@ pub fn calculate(data: &DataFrame, period: usize) -> Result<Series> {
 
                     window.push_back((cv_dec, v_dec));
 
-                    if window.len() > period {
-                        if let Some((old_cv, old_v)) = window.pop_front() {
-                            sum_close_vol -= old_cv;
-                            sum_vol -= old_v;
-                        }
+                    if window.len() > period
+                        && let Some((old_cv, old_v)) = window.pop_front()
+                    {
+                        sum_close_vol -= old_cv;
+                        sum_vol -= old_v;
                     }
 
                     if window.len() == period {

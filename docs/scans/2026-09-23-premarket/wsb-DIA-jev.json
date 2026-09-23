@@ -1,0 +1,107 @@
+{
+  "symbol": "DIA",
+  "scored_at": "2026-09-23T12:18:29.198109+00:00",
+  "state": {
+    "task": "wsb_sentiment",
+    "ticker": "DIA",
+    "asof": "2026-09-23T12:18:28.383043+00:00",
+    "context": "You are scoring WallStreetBets retail sentiment as a CONTRARIAN mania meter for a paper-trading scan. WSB speaks in irony, sarcasm, and gallows humor \u2014 read tone, not just keywords. Euphoria means crowded-trade caution, never a buy signal. Some sources are stale-dated; weigh recency. Answer only from the sources below.",
+    "sources": [
+      {
+        "title": "Ape Wisdom | Trending Stocks on r/wallstreetbets",
+        "snippet": "DIA ranked ~#409 on the WSB leaderboard with 1 mention (vs SPY #1 253, QQQ #4 111). Effectively no WSB discussion.",
+        "url": "https://apewisdom.io/wallstreetbets?page=5",
+        "date": "2026-09-23"
+      }
+    ]
+  },
+  "questions": {
+    "lean": {
+      "type": "choice",
+      "instructions": "What is the directional lean of WSB chatter on this ticker across these sources?",
+      "criteria": {
+        "bullish": "Chatter clearly leans bullish: more optimism, upside targets, and call-side energy than fear.",
+        "bearish": "Chatter clearly leans bearish: more fear, downside talk, and put-side hedging than optimism.",
+        "mixed": "Genuinely two-sided: bullish and bearish voices both present, no clear majority.",
+        "quiet": "Too little real chatter to call a lean: stale, off-topic, or thin results."
+      }
+    },
+    "conviction": {
+      "type": "score",
+      "instructions": "How intense is the WSB attention on this ticker right now?",
+      "criteria": [
+        "No meaningful attention: quiet or stale results only",
+        "Light chatter: routine mentions, no excitement",
+        "Moderate buzz: elevated mentions, real debate",
+        "Heavy buzz: surging mentions, strong directional energy",
+        "Euphoric pile-on: mania-like, meme-stock energy"
+      ]
+    },
+    "euphoria": {
+      "type": "noul",
+      "instructions": "Is WSB euphoric about this ticker \u2014 crowded-trade territory?",
+      "criteria": {
+        "true": "Euphoric: pile-on, moon-talk, mania-like. Read as crowded-trade caution.",
+        "false": "Not euphoric: measured, mixed, or quiet chatter."
+      }
+    },
+    "surface": {
+      "type": "noul",
+      "instructions": "Is this sentiment development worth surfacing to Mark in the morning briefing?",
+      "criteria": {
+        "true": "Yes: new, strong, or surprising enough to earn a line in the brief.",
+        "false": "No: routine or thin. Keep it in the audit file only."
+      }
+    }
+  },
+  "jev_report": {
+    "ok": true,
+    "status": 200,
+    "latency_ms": 682.9,
+    "model": "jev-1.13.0",
+    "answers": {
+      "lean": {
+        "type": "choice",
+        "choice": "quiet",
+        "confidence": 1.0,
+        "probabilities": {
+          "mixed": 0.0,
+          "bullish": 0.0,
+          "bearish": 0.0,
+          "quiet": 1.0
+        }
+      },
+      "conviction": {
+        "type": "score",
+        "score": 0.0,
+        "confidence": 1.0,
+        "legend": {
+          "0": "No meaningful attention: quiet or stale results only",
+          "1": "Light chatter: routine mentions, no excitement",
+          "2": "Moderate buzz: elevated mentions, real debate",
+          "3": "Heavy buzz: surging mentions, strong directional energy",
+          "4": "Euphoric pile-on: mania-like, meme-stock energy"
+        },
+        "probabilities": {
+          "0": 1.0,
+          "1": 0.0,
+          "2": 0.0,
+          "3": 0.0,
+          "4": 0.0
+        }
+      },
+      "euphoria": {
+        "type": "noul",
+        "noul": 0.02
+      },
+      "surface": {
+        "type": "noul",
+        "noul": 0.08
+      }
+    },
+    "usage": {
+      "input_tokens": 925,
+      "output_tokens": 98
+    }
+  }
+}

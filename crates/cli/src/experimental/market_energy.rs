@@ -70,21 +70,21 @@ pub struct EnergyReport {
 ///         timeframe: "1d".to_string(),
 ///         timestamp_unix_ms: 0,
 ///         open: 100.0, high: 100.0, low: 100.0, close: 100.0, volume: 100.0,
-///     },
+///     adjusted_close: None, },
 ///     Bar {
 ///         symbol: "BTC".to_string(),
 ///         market: "crypto".to_string(),
 ///         timeframe: "1d".to_string(),
 ///         timestamp_unix_ms: 1,
 ///         open: 105.0, high: 105.0, low: 105.0, close: 105.0, volume: 100.0,
-///     },
+///     adjusted_close: None, },
 ///     Bar {
 ///         symbol: "BTC".to_string(),
 ///         market: "crypto".to_string(),
 ///         timeframe: "1d".to_string(),
 ///         timestamp_unix_ms: 2,
 ///         open: 115.0, high: 115.0, low: 115.0, close: 115.0, volume: 100.0,
-///     },
+///     adjusted_close: None, },
 /// ];
 ///
 /// let series = BarSeries { schema_version: "v0".to_string(), bars };
@@ -169,6 +169,7 @@ mod tests {
             low: close,
             close,
             volume,
+            adjusted_close: None,
         }
     }
 

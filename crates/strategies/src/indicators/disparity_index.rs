@@ -119,10 +119,12 @@ mod tests {
         let df_empty = DataFrame::default();
         let res_empty = calculate(&df_empty, 5);
         assert!(res_empty.is_err());
-        assert!(res_empty
-            .unwrap_err()
-            .to_string()
-            .contains("Data cannot be empty"));
+        assert!(
+            res_empty
+                .unwrap_err()
+                .to_string()
+                .contains("Data cannot be empty")
+        );
 
         // Single data point
         let df_single = df!("close" => &[10.0])?;

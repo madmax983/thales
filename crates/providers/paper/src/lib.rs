@@ -120,6 +120,7 @@ impl PaperClient {
                 low,
                 close,
                 volume: 1000.0 + (i as f64 * 10.0),
+                adjusted_close: None,
             });
 
             price = close;

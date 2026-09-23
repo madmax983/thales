@@ -47,10 +47,10 @@ pub fn calculate(df: &DataFrame, period: usize) -> Result<Series> {
                 window.push_back(v);
                 sum += v;
 
-                if window.len() > period {
-                    if let Some(old) = window.pop_front() {
-                        sum -= old;
-                    }
+                if window.len() > period
+                    && let Some(old) = window.pop_front()
+                {
+                    sum -= old;
                 }
 
                 if window.len() == period {

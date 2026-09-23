@@ -56,8 +56,8 @@ pub struct ThermodynamicsReport {
 /// let series = BarSeries {
 ///     schema_version: "v1".to_string(),
 ///     bars: vec![
-///         Bar { symbol: "BTC".to_string(), market: "crypto".to_string(), timeframe: "1d".to_string(), timestamp_unix_ms: 1000, open: 100.0, high: 110.0, low: 90.0, close: 105.0, volume: 1000.0 },
-///         Bar { symbol: "BTC".to_string(), market: "crypto".to_string(), timeframe: "1d".to_string(), timestamp_unix_ms: 2000, open: 105.0, high: 115.0, low: 95.0, close: 110.0, volume: 1500.0 },
+///         Bar { symbol: "BTC".to_string(), market: "crypto".to_string(), timeframe: "1d".to_string(), timestamp_unix_ms: 1000, open: 100.0, high: 110.0, low: 90.0, close: 105.0, volume: 1000.0 adjusted_close: None, },
+///         Bar { symbol: "BTC".to_string(), market: "crypto".to_string(), timeframe: "1d".to_string(), timestamp_unix_ms: 2000, open: 105.0, high: 115.0, low: 95.0, close: 110.0, volume: 1500.0 adjusted_close: None, },
 ///     ],
 /// };
 ///
@@ -157,6 +157,7 @@ mod tests {
                 low: 95.0 + (i as f64),
                 close: 102.0 + (i as f64),
                 volume: 1000.0,
+                adjusted_close: None,
             });
         }
         let series = BarSeries {

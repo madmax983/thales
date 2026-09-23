@@ -89,7 +89,7 @@ use std::collections::HashMap;
 ///         low: 100.0,
 ///         close: 100.0,
 ///         volume: 100.0,
-///     },
+///     adjusted_close: None, },
 ///     Bar {
 ///         symbol: "TEST".to_string(),
 ///         market: "equities".to_string(),
@@ -100,7 +100,7 @@ use std::collections::HashMap;
 ///         low: 105.0,
 ///         close: 105.0,
 ///         volume: 100.0,
-///     },
+///     adjusted_close: None, },
 /// ];
 ///
 /// let series = BarSeries {
@@ -300,6 +300,7 @@ mod tests {
             low: close,
             close,
             volume: 100.0,
+            adjusted_close: None,
         }
     }
 

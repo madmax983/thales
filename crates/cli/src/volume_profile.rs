@@ -86,7 +86,7 @@ pub struct VolumeBin {
 ///         low: 90.0,
 ///         close: 95.0,
 ///         volume: 100.0,
-///     },
+///     adjusted_close: None, },
 /// ];
 ///
 /// let series = BarSeries {
@@ -328,6 +328,7 @@ mod tests {
             low: 90.0,
             close: 95.0,
             volume: 100.0,
+            adjusted_close: None,
         });
 
         // Bar 2: 95 - 105, Vol 500 (Heaviest volume)
@@ -341,6 +342,7 @@ mod tests {
             low: 95.0,
             close: 100.0,
             volume: 500.0,
+            adjusted_close: None,
         });
 
         // Bar 3: 100 - 110, Vol 50
@@ -354,6 +356,7 @@ mod tests {
             low: 100.0,
             close: 105.0,
             volume: 50.0,
+            adjusted_close: None,
         });
 
         let series = BarSeries {

@@ -70,7 +70,7 @@ pub struct BlackSwanConfig {
 ///         timestamp_unix_ms: i * 1000,
 ///         open: 100.0, high: 105.0, low: 95.0, close: 100.0, volume: 1000.0,
 ///         timeframe: "1d".to_string(),
-///     });
+///     adjusted_close: None, });
 /// }
 ///
 /// let series = BarSeries { schema_version: "1.0".to_string(), bars };
@@ -203,6 +203,7 @@ mod tests {
                 low: 95.0,
                 close: 100.0,
                 volume: 1000.0,
+                adjusted_close: None,
             });
         }
         BarSeries {

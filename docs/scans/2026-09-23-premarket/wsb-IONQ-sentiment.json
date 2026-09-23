@@ -1,0 +1,36 @@
+{
+  "symbol": "IONQ",
+  "queried_at": "2026-09-23T12:17:53.865128+00:00",
+  "scored_at": "2026-09-23T12:18:00.961972+00:00",
+  "result_count": 4,
+  "bullish_hits": 1,
+  "bearish_hits": 0,
+  "mixed_hits": 0,
+  "net_score": 1,
+  "lean": "mixed",
+  "mention_volume": "medium",
+  "euphoria_flag": false,
+  "top_posts": [
+    {
+      "title": "IONQ - IonQ, Reddit sentiment and mention history",
+      "url": "https://apewisdom.io/stocks/IONQ/",
+      "date": "2026-09-23"
+    },
+    {
+      "title": "Ape Wisdom | Trending Stocks on r/wallstreetbets",
+      "url": "https://apewisdom.io/wallstreetbets",
+      "date": "2026-09-23"
+    },
+    {
+      "title": "WallStreetBets Stocks — Most Mentioned September 2026 | AltIndex",
+      "url": "https://altindex.com/wallstreetbets",
+      "date": "2026-09-23"
+    },
+    {
+      "title": "MemebergTerminal - r/WallStreetBets",
+      "url": "https://www.memebergterminal.com/stocks/subreddits/wallstreetbets",
+      "date": "2026-09-23"
+    }
+  ],
+  "method": "keyword scorer v0 — bin/score-wsb.py"
+}

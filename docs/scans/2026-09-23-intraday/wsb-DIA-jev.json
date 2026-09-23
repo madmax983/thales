@@ -1,0 +1,131 @@
+{
+  "symbol": "DIA",
+  "scored_at": "2026-09-23T17:20:33.081041+00:00",
+  "state": {
+    "task": "wsb_sentiment",
+    "ticker": "DIA",
+    "asof": "2026-09-23T17:20:32.260051+00:00",
+    "context": "You are scoring WallStreetBets retail sentiment as a CONTRARIAN mania meter for a paper-trading scan. WSB speaks in irony, sarcasm, and gallows humor \u2014 read tone, not just keywords. Euphoria means crowded-trade caution, never a buy signal. Some sources are stale-dated; weigh recency. Answer only from the sources below.",
+    "sources": [
+      {
+        "title": "SPDR Dow Jones Industrial Average ETF Trust (DIA) Stock Latest News - DIA News Today",
+        "snippet": "Retail investors talked up five hot stocks during the week (Sept. 14 to Sept.18) on X and Reddit's r/WallStreetBets, driven by retail hype, earnings, AI infrastructure momentum, and corporate news flow. Tickers: AAPL, INTC, NBIS, NVDA, ORCL.",
+        "url": "https://www.FinanceCharts.com/etfs/DIA/news",
+        "date": "2026-09-19"
+      },
+      {
+        "title": "This Low-Cost ETF Is Not the Same as Buying the Dow. It...",
+        "snippet": "If you want an easy way to buy the Dow, you might want to consider investing in the SPDR Dow Jones Industrial Average ETF Trust (DIA). This fund holds all 30 stocks from the Dow and charges a modest expense ratio of 0.16%. But the Dow doesn't always beat the market.",
+        "url": "https://marketwirenews.com/stock/dia/news/this-low-cost-etf-is-not-the-same-as-buying-the-dow--8216276333338827.html",
+        "date": "2026-07-08"
+      },
+      {
+        "title": "Dow Theory Letters - The $43 Billion ETF Hiding in Plain Sight. Why DIA Might Outperform SPY and QQQ for the Rest of 2026.",
+        "snippet": "Why Might the Dow's Weighting System Become an Advantage? Because mega-caps like Microsoft, Nvidia, and Apple have expanded to unprecedented valuations, SPY and QQQ have become dangerously top-heavy. DIA spreads its influence across 30 blue-chip names heavily weighted toward industrials, financials, and healthcare.",
+        "url": "https://markets.financialcontent.com/dowtheoryletters/article/barchart-2026-5-19-the-43-billion-etf-hiding-in-plain-sight-why-dia-might-outperform-spy-and-qqq-for-the-rest-of-2026",
+        "date": "2026-05-19"
+      },
+      {
+        "title": "SPDR Dow Jones Industrial Average ETF Trust (DIA) ETF Analysis: A Blue-Chip, Financials-Heavy Portfolio Navigating a Range-Bound Market",
+        "snippet": "The underlying index is composed of 30 large-cap, blue-chip U.S. companies. The fund's largest holding is Goldman Sachs (GS) at roughly 11.5% of assets, followed by Caterpillar (CAT), Microsoft (MSFT), Amgen (AMGN), and UnitedHealth Group (UNH). Financials are the largest exposure at close to 28% of assets.",
+        "url": "https://tickeron.com/ticker/DIA/",
+        "date": "2026-09-17"
+      },
+      {
+        "title": "The Best Dow Jones ETF to Buy in 2026 | The Motley Fool",
+        "snippet": "Should a Dow Jones ETF be a part of your portfolio? A Dow Jones ETF could be worth having in your portfolio if you're looking for more exposure to U.S. large-cap stocks. Is DIA a good ETF? DIA is a low-cost ETF that tracks the Dow Jones Industrial Average.",
+        "url": "https://www.fool.com/investing/stock-market/indexes/dow-jones/etfs/",
+        "date": "2026-09-02"
+      }
+    ]
+  },
+  "questions": {
+    "lean": {
+      "type": "choice",
+      "instructions": "What is the directional lean of WSB chatter on this ticker across these sources?",
+      "criteria": {
+        "bullish": "Chatter clearly leans bullish: more optimism, upside targets, and call-side energy than fear.",
+        "bearish": "Chatter clearly leans bearish: more fear, downside talk, and put-side hedging than optimism.",
+        "mixed": "Genuinely two-sided: bullish and bearish voices both present, no clear majority.",
+        "quiet": "Too little real chatter to call a lean: stale, off-topic, or thin results."
+      }
+    },
+    "conviction": {
+      "type": "score",
+      "instructions": "How intense is the WSB attention on this ticker right now?",
+      "criteria": [
+        "No meaningful attention: quiet or stale results only",
+        "Light chatter: routine mentions, no excitement",
+        "Moderate buzz: elevated mentions, real debate",
+        "Heavy buzz: surging mentions, strong directional energy",
+        "Euphoric pile-on: mania-like, meme-stock energy"
+      ]
+    },
+    "euphoria": {
+      "type": "noul",
+      "instructions": "Is WSB euphoric about this ticker \u2014 crowded-trade territory?",
+      "criteria": {
+        "true": "Euphoric: pile-on, moon-talk, mania-like. Read as crowded-trade caution.",
+        "false": "Not euphoric: measured, mixed, or quiet chatter."
+      }
+    },
+    "surface": {
+      "type": "noul",
+      "instructions": "Is this sentiment development worth surfacing to Mark in the morning briefing?",
+      "criteria": {
+        "true": "Yes: new, strong, or surprising enough to earn a line in the brief.",
+        "false": "No: routine or thin. Keep it in the audit file only."
+      }
+    }
+  },
+  "jev_report": {
+    "ok": true,
+    "status": 200,
+    "latency_ms": 636.1,
+    "model": "jev-1.13.0",
+    "answers": {
+      "lean": {
+        "type": "choice",
+        "choice": "quiet",
+        "confidence": 0.99,
+        "probabilities": {
+          "quiet": 1.0,
+          "bullish": 0.0,
+          "mixed": 0.0,
+          "bearish": 0.0
+        }
+      },
+      "conviction": {
+        "type": "score",
+        "score": 0.1,
+        "confidence": 0.92,
+        "legend": {
+          "0": "No meaningful attention: quiet or stale results only",
+          "1": "Light chatter: routine mentions, no excitement",
+          "2": "Moderate buzz: elevated mentions, real debate",
+          "3": "Heavy buzz: surging mentions, strong directional energy",
+          "4": "Euphoric pile-on: mania-like, meme-stock energy"
+        },
+        "probabilities": {
+          "0": 0.91,
+          "1": 0.09,
+          "2": 0.0,
+          "3": 0.0,
+          "4": 0.0
+        }
+      },
+      "euphoria": {
+        "type": "noul",
+        "noul": 0.08
+      },
+      "surface": {
+        "type": "noul",
+        "noul": 0.15
+      }
+    },
+    "usage": {
+      "input_tokens": 1646,
+      "output_tokens": 98
+    }
+  }
+}

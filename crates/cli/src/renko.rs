@@ -129,7 +129,8 @@ pub struct RenkoReport {
 ///         low: close,
 ///         close,
 ///         volume: 100.0,
-///     }
+///     adjusted_close: None, }
+///
 /// }
 ///
 /// let bars = vec![
@@ -294,6 +295,7 @@ mod tests {
             low: close,
             close,
             volume: 100.0,
+            adjusted_close: None,
         }
     }
 

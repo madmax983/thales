@@ -1,0 +1,11 @@
+[package]
+name = "options"
+edition.workspace = true
+version.workspace = true
+license.workspace = true
+description = "Options pricing for Thales: Black-Scholes, Greeks, and IV rank (SPEC-006 v0)"
+
+[dependencies]
+thiserror.workspace = true
+
+[dev-dependencies]

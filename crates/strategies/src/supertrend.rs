@@ -79,42 +79,39 @@ impl Strategy for Supertrend {
                 None => continue,
             };
 
-            if let Some(pt) = prev_trend {
-                if trend != pt {
-                    let timestamp = timestamps.get(i).unwrap_or(0);
-                    let close = close_series.get(i).unwrap_or(0.0);
-                    let st_val = st_values.get(i).unwrap_or(0.0);
+            if let Some(pt) = prev_trend
+                && trend != pt
+            {
+                let timestamp = timestamps.get(i).unwrap_or(0);
+                let close = close_series.get(i).unwrap_or(0.0);
+                let st_val = st_values.get(i).unwrap_or(0.0);
 
-                    if trend == 1 {
-                        // Trend changed to UP -> Buy Signal
-                        signals.push(Signal {
-                            signal_type: SignalType::Entry,
-                            symbol: self.config.symbol.clone(),
-                            side: "buy".to_string(),
-                            size_hint: "100".to_string(),
-                            confidence: 0.8,
-                            stop_loss: Some(st_val),
-                            take_profit: None,
-                            reason: format!("Supertrend Flip Up (Price {:.2} > Upper Band)", close), // Simplified reason as we don't have previous band easily accessible here without extra lookups
-                            timestamp_ms: timestamp,
-                        });
-                    } else if trend == -1 {
-                        // Trend changed to DOWN -> Sell Signal
-                        signals.push(Signal {
-                            signal_type: SignalType::Exit,
-                            symbol: self.config.symbol.clone(),
-                            side: "sell".to_string(),
-                            size_hint: "max".to_string(),
-                            confidence: 0.8,
-                            stop_loss: None,
-                            take_profit: None,
-                            reason: format!(
-                                "Supertrend Flip Down (Price {:.2} < Lower Band)",
-                                close
-                            ),
-                            timestamp_ms: timestamp,
-                        });
-                    }
+                if trend == 1 {
+                    // Trend changed to UP -> Buy Signal
+                    signals.push(Signal {
+                        signal_type: SignalType::Entry,
+                        symbol: self.config.symbol.clone(),
+                        side: "buy".to_string(),
+                        size_hint: "100".to_string(),
+                        confidence: 0.8,
+                        stop_loss: Some(st_val),
+                        take_profit: None,
+                        reason: format!("Supertrend Flip Up (Price {:.2} > Upper Band)", close), // Simplified reason as we don't have previous band easily accessible here without extra lookups
+                        timestamp_ms: timestamp,
+                    });
+                } else if trend == -1 {
+                    // Trend changed to DOWN -> Sell Signal
+                    signals.push(Signal {
+                        signal_type: SignalType::Exit,
+                        symbol: self.config.symbol.clone(),
+                        side: "sell".to_string(),
+                        size_hint: "max".to_string(),
+                        confidence: 0.8,
+                        stop_loss: None,
+                        take_profit: None,
+                        reason: format!("Supertrend Flip Down (Price {:.2} < Lower Band)", close),
+                        timestamp_ms: timestamp,
+                    });
                 }
             }
             prev_trend = Some(trend);

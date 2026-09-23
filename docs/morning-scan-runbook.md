@@ -22,12 +22,13 @@ Key env contract (no-credential scan):
 
 | Step | Env needed | Without it |
 |---|---|---|
-| `fetch-market-data --provider paper` | none | works (SYNTHETIC bars — see §Honest limits) |
+| `fetch-market-data --provider paper` | none | works (SYNTHETIC bars — pipeline tests only, see §Honest limits) |
+| `fetch-market-data --provider yahoo` | none | works — REAL bars (unofficial Yahoo chart API, no SLA; gentle use: one pass per scan) |
 | `fetch-market-data --provider kraken` | `KRAKEN_API_KEY`, `KRAKEN_API_SECRET` | fails — even though OHLC is a public endpoint, the CLI demands credentials first |
 | `fetch-market-data --provider alpaca` | `ALPACA_API_KEY`, `ALPACA_API_SECRET`, `ALPACA_BASE_URL` | fails (`ALPACA_BASE_URL` has no default) |
 | `scan-market --provider kraken` | `KRAKEN_API_KEY`, `KRAKEN_API_SECRET` | fails (Ticker is public; the CLI still gates on credentials) |
 | `scan-market --provider alpaca` | none | returns a STATIC watchlist, not a live scan |
-| `scan-market --provider paper` | none | returns 3 static symbols |
+| `scan-market --provider paper` | none | serves the audited 124-symbol universe manifest; **fails closed** if unreadable |
 | `judge-signals` | `TYPESAFE_API_KEY` | **fails closed** — the run stops; signals never pass ungated |
 | `analyze-market --jev` | `TYPESAFE_API_KEY` | heuristic labels only without `--jev` |
 
@@ -36,7 +37,7 @@ Key env contract (no-credential scan):
 ```bash
 mkdir -p runs/<run-id>
 $BIN get-positions --provider paper > runs/<run-id>/positions.json
-$BIN scan-market --provider paper --top-n 10 > runs/<run-id>/universe.json   # static list; see §Honest limits
+$BIN scan-market --provider paper --top-n 10 > runs/<run-id>/universe.json   # audited manifest (124 symbols); fails closed if unreadable; see §Honest limits
 ```
 
 Check `positions.json`: envelope is `{"status","errors","warnings","data": [...]}`.
@@ -44,17 +45,72 @@ If status is `error`, stop the run and record the error in the ledger.
 
 ## 2. Data — fetch and normalize, one candidate at a time
 
-For each candidate symbol from the universe (at most 3 — never chase):
+For each candidate symbol from the universe (a bounded shortlist — at most
+`--top-n`, never chase; the full 124-symbol cheap ranking is still future work):
 
 ```bash
-$BIN fetch-market-data --provider paper --symbol BTCUSD --timeframe 1h > runs/<run-id>/fetch-BTCUSD.json
-$BIN normalize-bars --input runs/<run-id>/fetch-BTCUSD.json > runs/<run-id>/bars-BTCUSD.json
+$BIN fetch-market-data --provider yahoo --symbol SPY --timeframe 1d > runs/<run-id>/fetch-SPY.json
+$BIN normalize-bars --input runs/<run-id>/fetch-SPY.json > runs/<run-id>/bars-SPY.json
 ```
+
+`--symbol` takes the entry's `yahoo` alias from `crates/cli/universe/universe.json`
+(e.g. `SPX` → `^GSPC`, `ES` → `ES=F`, `BTCUSD` → `BTC-USD`); US equities/ETFs pass
+through unchanged. `--provider yahoo` is the real-data route (no credential).
+`--provider paper` still exists for pipeline tests but generates synthetic
+sine-wave bars — never use it for a real scan.
 
 Verify `bars-<SYM>.json` has a non-empty `data.bars` array sorted by
 `timestamp_unix_ms`. If the series is empty or the latest bar is stale
 (older than 2x the timeframe), **stop for that symbol and record why**.
 Never fabricate bars.
+
+## 2b. Volatility forecast — one deep fetch per shortlist symbol
+
+The default 6-month Yahoo window is too short for volatility estimation.
+For each shortlist symbol (and only the shortlist — one gentle pass per
+scan), fetch deep history once, normalize, and forecast:
+
+```bash
+$BIN fetch-market-data --provider yahoo --symbol SPY --timeframe 1d --history 2y > runs/<run-id>/fetch-SPY-deep.json
+$BIN normalize-bars --input runs/<run-id>/fetch-SPY-deep.json > runs/<run-id>/bars-SPY-deep.json
+$BIN forecast-volatility --input runs/<run-id>/bars-SPY-deep.json > runs/<run-id>/vol-SPY.json
+```
+
+`--history` is yahoo-only (`1y|2y|5y|10y|max`; `1h` capped at `2y`) and fails
+closed otherwise. `forecast-volatility` fits EWMA (RiskMetrics λ=0.94) over
+log returns of `adjusted_close` when every bar carries one, else `close`
+with a warning. It needs ≥ 60 returns and fails closed on anything less,
+on non-finite input, or on `--estimator garch11` (specified, not built yet).
+
+Fold the result into `analyze-market --research`: daily σ, annualized σ,
+persistence, half-life, and any warnings. A volatility forecast is
+**evidence for sizing and risk, never a trade signal** — it cannot clear
+the Jev gate on its own.
+
+## 2d. Options-chain snapshot — v0 research input (SPEC-006)
+
+For index/equity candidates, pull one Yahoo options-chain snapshot per
+symbol and fold the IV read into `analyze-market --research`. This is the
+scan finally *seeing* expensiveness. v0 emits no options candidates —
+the chain is context, not a signal.
+
+```bash
+$BIN fetch-options-chain --symbol SPY --min-dte 7 \
+  --iv-history runs/iv-history/SPY.json \
+  > runs/<run-id>/chain-SPY.json
+```
+
+- `--min-dte 7` skips 0DTE noise for the front-ATM-IV read.
+- `--iv-history` is a JSON array of past front-ATM IV readings (one per
+  day, persisted by the scan). Without it the read ships without
+  rank/percentile — honest, not fabricated.
+- Record in `--research`: spot, front DTE, front ATM IV, IV rank and
+  percentile when available (e.g. "SPY front (7 DTE) ATM IV 18.2%,
+  rank 82/percentile 91 — expensive vs trailing year").
+- Chain auth (cookie/crumb) failing closed → skip the symbol's IV read,
+  note it in the audit trail, continue the scan. Never fake the read.
+- The Sinclair event checklist lives in research too: earnings dates,
+  FOMC dates, VVIX extremes (see `~/workspace/skills/sinclair/`).
 
 ## 3. Research — fresh web context (coordinator's own step)
 
@@ -80,35 +136,160 @@ working directory. The coordinator writes the audit trail itself (§7).
 requires `TYPESAFE_API_KEY`; in a no-credential scan it is unavailable and the
 heuristic labels stand.
 
-## 4. Signals — deterministic strategy evaluation
+## 3b. Tradytics evidence — options context for each candidate
+
+Do this as part of §3, before running `analyze-market`. For each candidate
+on the cheap-screen shortlist (at most `--top-n` — never chase), pull
+Tradytics options context as evidence:
 
 ```bash
-$BIN generate-signals --input runs/<run-id>/bars-BTCUSD.json \
-  --strategy BollingerBands \
-  --history runs/<run-id>/history.json > runs/<run-id>/signals-BTCUSD.json
+~/workspace/skills/tradytics/bin/fetch-with-cookie.sh gex BTCUSD > runs/<run-id>/tradytics-BTCUSD-gex.json
+# repeat for dealer, summary, candles as needed — one ticker at a time, ≥2s apart
+```
+
+- Preferred route: `fetch-with-cookie.sh` (whitelisted read-only datasets;
+  session cookie via Secure Vault surrogate — never exposed). See the
+  Tradytics skill's `references/api-helper.md` for the dataset list, pacing,
+  and failure taxonomy.
+- If the script reports the session expired (exit 3), the cookie must be
+  resubmitted via the secure card; fall back to the DOM-reading browser task
+  per the skill. The darkpool ticker has no JSON API — use the browser task
+  if dark-pool prints are needed.
+- Fold the headline numbers (GEX levels, dealer deltas, sentiment, notable
+  flow) into the `--research` text passed to `analyze-market` above, so the
+  judge sees them as evidence. Keep the raw JSON under `runs/<run-id>/`.
+- Tradytics evidence is advisory: it informs, never decides. Missing or
+  stale Tradytics data is recorded ("Tradytics unavailable: <reason>") and
+  the run continues on web research + Thales output — it never blocks the
+  gate and is never fabricated.
+
+## 3c. WSB sentiment — retail-mania context for each candidate
+
+Do this as part of §3, before running `analyze-market`. For each candidate
+on the cheap-screen shortlist (at most `--top-n` — never chase), pull a
+WallStreetBets sentiment read per `~/workspace/skills/wsb/SKILL.md`:
+
+1. Run the skill's 2–3 `browser.search` queries per ticker
+   (`ranking_intent: "engagement"`); save the raw results verbatim as
+   `runs/<run-id>/wsb-<SYMBOL>-raw.json`.
+2. Score deterministically with the skill's keyword scorer:
+   ```bash
+   ~/workspace/skills/wsb/bin/score-wsb.py \
+     --input runs/<run-id>/wsb-<SYMBOL>-raw.json \
+     --symbol <SYMBOL> > runs/<run-id>/wsb-<SYMBOL>-sentiment.json
+   ```
+   Exit 0 = scored (even when `quiet` — that is a result); exit 2 =
+   invalid input file. This is the floor: it always runs, costs nothing,
+   and works when Jev is down.
+3. Score the same raw file with one Jev turn (Noul + Score primitives —
+   directional lean is categorical, so it goes through a choice question):
+   ```bash
+   ~/workspace/skills/wsb/bin/score-wsb-jev.py \
+     --input runs/<run-id>/wsb-<SYMBOL>-raw.json \
+     --output runs/<run-id>/wsb-<SYMBOL>-jev.json
+   ```
+   Four questions in one round trip: `lean` (choice: bullish/bearish/
+   mixed/quiet, with probabilities), `conviction` (score 0–4: attention
+   intensity), `euphoria` (noul: crowded-trade check), `surface` (noul:
+   worth a line in the brief?). If the turn fails, the run continues on
+   the deterministic score and records "Jev scorer unavailable: <reason>".
+4. Fold both headlines into the `--research` text passed to
+   `analyze-market`, phrased as observed chatter — never as a
+   recommendation: keyword `lean` + `mention_volume`, Jev lean + its
+   probability mass, `conviction`, `euphoria` vs `euphoria_flag`, and
+   `surface`. When the two leans disagree, say so explicitly ("keyword
+   scorer mixed, Jev bullish 0.62 / mixed 0.38") — the disagreement is
+   data for the judge, not a tie to break by hand.
+
+Read it contrarian: euphoria (either scorer's flag) marks a **crowded
+trade**, not confirmation. Futures (ES/NQ), indices, and most ETFs usually
+score `quiet` — WSB talks single stocks and 0DTE gambles; `quiet` is a
+result, not a failure.
+
+WSB sentiment is advisory: it informs, never decides. Missing or empty
+results are recorded ("WSB unavailable: <reason>") and the run continues on
+web research + Thales output — never fabricated, never a blocker.
+
+## 4. Signals — deterministic strategy evaluation
+
+One setup is not enough to read a market. Evaluate a small ensemble per
+symbol — each strategy fires independently, and the gate judges each
+candidate on its own. The ensemble (regime coverage in parentheses):
+
+- `BollingerBands` (mean reversion)
+- `RsiMeanReversion` (mean reversion)
+- `Supertrend` (trend following)
+- `DonchianBreakout` (breakout)
+
+```bash
+for STRAT in BollingerBands RsiMeanReversion Supertrend DonchianBreakout; do
+  $BIN generate-signals --input runs/<run-id>/bars-BTCUSD.json \
+    --strategy $STRAT \
+    --history runs/<run-id>/history.json > runs/<run-id>/signals-BTCUSD-$STRAT.json
+done
 ```
 
 - An empty `data` list is a valid result — it means no setup, not a failure.
 - Signals only fire when the condition holds on the **latest candle**.
-- If two strategies conflict on the same asset, emit no signal for it and record
-  the conflict.
+- **Strategy identity in `intent_id`:** every intent id carries its strategy
+  (`<market>:<symbol>:<strategy>:<side>:<timestamp_ms>`), so two ensemble
+  strategies firing on the same symbol/side can never collapse into one id.
+- **Ensemble dedup — at most one position per symbol.** After the four
+  strategy files are written, resolve them deterministically with
+  `dedupe-signals` before anything reaches the gate:
+
+```bash
+$BIN dedupe-signals \
+  --input runs/<run-id>/signals-BTCUSD-BollingerBands.json \
+  --input runs/<run-id>/signals-BTCUSD-RsiMeanReversion.json \
+  --input runs/<run-id>/signals-BTCUSD-Supertrend.json \
+  --input runs/<run-id>/signals-BTCUSD-DonchianBreakout.json \
+  --log runs/<run-id>/audit.md \
+  --report runs/<run-id>/dedup-BTCUSD.json \
+  > runs/<run-id>/deduped-BTCUSD.json
+```
+
+- **Conflict rule:** if two strategies fire opposite directions on the same
+  symbol (any `buy` and any `sell` across its strategy files), `dedupe-signals`
+  emits nothing for it — the conflict is recorded in the audit trail and
+  neither side is gated.
+- **Same-direction corroboration:** multiple same-side candidates collapse to
+  exactly one intent — highest confidence wins; ties break on strategy name,
+  then intent_id. Corroboration never multiplies exposure: the dropped
+  candidates are recorded in the disposition report and the audit trail, and
+  are never gated or executed. The kept intent is not modified — its
+  confidence is not inflated for being corroborated.
+- **The four raw strategy files are kept** in the run directory — never
+  deleted, never overwritten. An empty `data` list in one of them is that
+  strategy's no-signal record.
 - Every signal from `generate-signals` carries stop_loss/take_profit sizing;
   never hand-craft intents through `generate-trade-intent` for execution without
   adding risk fields.
 
 ## 5. Gate — `judge-signals`, a direct tool call, never a subagent
 
-Run the gate through the credential wrapper (from `~/workspace/thales`):
+Run the gate through the credential wrapper (from `~/workspace/thales`).
+The input is the **deduped** file from step 4 — at most one intent per symbol,
+already conflict-checked. Gate it directly; there is no second conflict check
+here:
 
 ```bash
 export PATH="$HOME/.cargo/bin:$PATH"
-./scripts/judge-with-jev.sh \
-  --input runs/<run-id>/signals-BTCUSD.json \
-  --analysis runs/<run-id>/analysis-BTCUSD.json \
-  --bars runs/<run-id>/bars-BTCUSD.json \
-  --portfolio runs/<run-id>/positions.json \
-  --emit report \
-  --log runs/<run-id>/audit.md > runs/<run-id>/judged-BTCUSD.json
+# Deduped file holds at most one intent per symbol (empty on conflict or
+# no-signal). Empty files are valid no-setups: skip them without burning a
+# Jev call.
+F=runs/<run-id>/deduped-BTCUSD.json
+if python3 -c "import json,sys; sys.exit(0 if (json.load(open('$F')).get('data')) else 1)"; then
+  ./scripts/judge-with-jev.sh \
+    --input $F \
+    --analysis runs/<run-id>/analysis-BTCUSD.json \
+    --bars runs/<run-id>/bars-BTCUSD.json \
+    --portfolio runs/<run-id>/positions.json \
+    --emit report \
+    --log runs/<run-id>/audit.md > runs/<run-id>/judged-$(basename $F .json).json
+else
+  echo "$(date -u +%FT%TZ) | BTCUSD | no deduped candidate — nothing to gate" >> runs/<run-id>/audit.md
+fi
 ```
 
 `scripts/judge-with-jev.sh` fetches a short-lived surrogate for the
@@ -166,7 +347,7 @@ The coordinator appends to `runs/<run-id>/ledger.md` after the run:
 
 ```markdown
 ## Run <run-id> — 2026-09-23 08:00 CT
-- Universe scanned: BTCUSD, ETHUSD, SPY
+- Universe scanned: <symbols from universe.json, first N of the manifest>
 - Positions before: (from positions.json)
 - Research sources: <links/citations>
 - Data quality: BTCUSD ok (100 bars, latest <ts>); ETHUSD STALE (latest <ts> — skipped, reason)
@@ -182,6 +363,27 @@ rejected candidates get
 (`| Date/Time | Symbol | Signal Ref | Rejection Reason |`).
 `--log` already writes the rejection rows — pass it rather than transcribing.
 
+### Ensemble audit requirements
+
+Every run preserves, per symbol:
+
+- **Symbol and strategy** — which of the four strategies fired, and which one
+  survived the dedup (kept strategy + intent_id, e.g.
+  `crypto:BTCUSD:BollingerBands:buy:1790183127000`).
+- **Signal / no-signal** — all four raw strategy files
+  (`signals-<SYM>-<STRAT>.json`) stay in the run directory; an empty `data`
+  list in one of them is that strategy's no-signal record. Never delete or
+  overwrite them.
+- **Gate verdict and reasons** — `judge-signals --emit report --log audit.md`
+  records the verdict, instrument-quality, regime fit, conviction, and reasons
+  for every deduped candidate.
+- **Conflict / dedup disposition** — `dedupe-signals --log audit.md --report
+  dedup-<SYM>.json` records, per symbol, `single` / `deduped` / `conflict` /
+  no-signal; which intent was kept; which candidates were dropped as
+  corroborators; and which were cancelled by conflict (never gated).
+- **All four raw strategy files** — retained verbatim as the audit record of
+  what each strategy saw on the latest candle.
+
 A run ends. It does not poll, re-open closed work, or re-run a step hoping for a
 different answer.
 
@@ -189,22 +391,34 @@ different answer.
 
 Say these out loud in the report, every time, until the plumbing changes:
 
-1. **The paper provider's market data is synthetic.** `fetch-market-data --provider paper`
-   generates 100 sine-wave bars with hardcoded start prices — it is engineered to
-   trigger setups, not to reflect any market. A no-credential scan proves the
-   pipeline runs; it says nothing about real markets.
+1. **Real bars now come from the Yahoo provider.** `fetch-market-data --provider yahoo`
+   hits Yahoo Finance's public chart API (no key, no signup) and returns real
+   OHLCV for stocks, ETFs, indices (`^GSPC`), futures (`ES=F`), and crypto
+   (`BTC-USD`) — verified live 2026-09-23 (SPY/QQQ 127 daily bars, ^VIX 129,
+   ES=F 128, BTC-USD 185). The `paper` provider's synthetic sine-wave bars
+   remain for pipeline tests only; never use them for a real scan. Caveats:
+   Yahoo's API is unofficial (no SLA), so use it gently — one pass per scan —
+   and the full 124-symbol cheap ranking is still future work: scans run on a
+   bounded shortlist only.
 2. **Live Kraken public data through the CLI currently requires Kraken credentials**,
    because every kraken command calls `KrakenConfig::from_env()` first. The OHLC and
    Ticker endpoints themselves need no auth — the credential demand is a CLI
    artifact, not an exchange requirement.
-3. **`scan-market` for alpaca/paper is a static list**, not a live scan. The only
-   live universe scan is Kraken Ticker (credential-gated).
+3. **`scan-market --provider paper` serves the audited universe manifest**
+   (`crates/cli/universe/universe.json`, embedded at compile time): 104
+   Moontower coverage tickers + Mark's 23 symbols (FB recorded as META) +
+   BTCUSD/ETHUSD + ES/NQ futures = 124 canonical symbols with asset class,
+   provider aliases, and provenance. Entry order is scan priority;
+   `--top-n` takes the first N. If the manifest is unreadable or invalid,
+   the command exits non-zero with `status: error` — it never silently
+   falls back to a short list. The alpaca arm is still a static watchlist;
+   the only live universe scan is Kraken Ticker (credential-gated).
 4. **`judge-signals` runs credentialed via `scripts/judge-with-jev.sh`** (wired
    2026-09-22). If the credential is ever unavailable, a run legitimately ends
    at step 5 with "gate unavailable". That is the design working.
 5. **Paper fills are approximate**: execution price prefers the live Kraken public
-   Ticker, then limit/stop prices, then a dummy 100.0. Synthetic bars + approximate
-   fills = plumbing test only.
+   Ticker, then limit/stop prices, then a dummy 100.0. Approximate fills on
+   real bars = realistic paper plumbing, but still plumbing.
 6. **Nothing here is a live trade.** Paper provider state lives in a local JSON
    file. No order ever leaves the machine without a live provider and Mark's
    explicit per-action word.
@@ -231,6 +445,7 @@ envelope and exit 0 on success, non-zero on validation/provider failure.
 - `judge-signals --emit intents` → `data`: surviving `TradeIntent[]`.
 - `judge-signals --emit report` → `data`: `JudgeReport {approved, rejected, verdicts, thresholds, usage}`.
 - `execute-intent` → `data`: `ExecutionResult[]` with `provider_order_id`.
-- `TradeIntent` carries `intent_id "<market>:<symbol>:<side>:v0"`, `size_hint`,
+- `TradeIntent` carries `intent_id "<market>:<symbol>:<strategy>:<side>:<timestamp_ms>"`
+  (strategy is part of the id so ensemble strategies cannot collide), `size_hint`,
   `confidence` (replaced by the gate's calibrated probability), `stop_loss`,
   `take_profit`, `order_type`, `time_in_force`, `schema_version: "v0"`.

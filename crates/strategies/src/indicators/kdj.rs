@@ -63,11 +63,12 @@ pub fn calculate(
     let mut j_f64: Vec<Option<f64>> = vec![None; data.height()];
 
     for (i, j_val) in j_f64.iter_mut().enumerate().take(data.height()) {
-        if let (Some(k), Some(d)) = (k_arr.get(i), d_arr.get(i)) {
-            if k.is_finite() && d.is_finite() {
-                // %J = 3 * %K - 2 * %D
-                *j_val = Some((3.0 * k) - (2.0 * d));
-            }
+        if let (Some(k), Some(d)) = (k_arr.get(i), d_arr.get(i))
+            && k.is_finite()
+            && d.is_finite()
+        {
+            // %J = 3 * %K - 2 * %D
+            *j_val = Some((3.0 * k) - (2.0 * d));
         }
     }
 

@@ -244,11 +244,11 @@ impl Strategy for StochRsiMeanReversion {
 
                     if pos == "buy" {
                         // Exit on Stop Loss
-                        if let Some(sl) = stop_loss {
-                            if current_close_dec <= sl {
-                                should_exit = true;
-                                exit_reason = "Stop Loss hit".to_string();
-                            }
+                        if let Some(sl) = stop_loss
+                            && current_close_dec <= sl
+                        {
+                            should_exit = true;
+                            exit_reason = "Stop Loss hit".to_string();
                         }
                         // Exit condition: %K crosses below %D in overbought region
                         if !should_exit
@@ -280,11 +280,11 @@ impl Strategy for StochRsiMeanReversion {
                         }
                     } else if pos == "sell" {
                         // Exit on Stop Loss
-                        if let Some(sl) = stop_loss {
-                            if current_close_dec >= sl {
-                                should_exit = true;
-                                exit_reason = "Stop Loss hit".to_string();
-                            }
+                        if let Some(sl) = stop_loss
+                            && current_close_dec >= sl
+                        {
+                            should_exit = true;
+                            exit_reason = "Stop Loss hit".to_string();
                         }
                         // Exit condition: %K crosses above %D in oversold region
                         if !should_exit

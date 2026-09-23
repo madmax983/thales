@@ -79,9 +79,9 @@ impl MarketState {
 /// use thales_cli::markov_chain::{analyze_markov_chain, MarkovConfig};
 ///
 /// let bars = vec![
-///     Bar { symbol: "TEST".to_string(), market: "equities".to_string(), timeframe: "1d".to_string(), timestamp_unix_ms: 0, open: 100.0, high: 100.0, low: 100.0, close: 100.0, volume: 100.0 },
-///     Bar { symbol: "TEST".to_string(), market: "equities".to_string(), timeframe: "1d".to_string(), timestamp_unix_ms: 1, open: 105.0, high: 105.0, low: 105.0, close: 105.0, volume: 100.0 },
-///     Bar { symbol: "TEST".to_string(), market: "equities".to_string(), timeframe: "1d".to_string(), timestamp_unix_ms: 2, open: 100.0, high: 100.0, low: 100.0, close: 100.0, volume: 100.0 },
+///     Bar { symbol: "TEST".to_string(), market: "equities".to_string(), timeframe: "1d".to_string(), timestamp_unix_ms: 0, open: 100.0, high: 100.0, low: 100.0, close: 100.0, volume: 100.0 adjusted_close: None, },
+///     Bar { symbol: "TEST".to_string(), market: "equities".to_string(), timeframe: "1d".to_string(), timestamp_unix_ms: 1, open: 105.0, high: 105.0, low: 105.0, close: 105.0, volume: 100.0 adjusted_close: None, },
+///     Bar { symbol: "TEST".to_string(), market: "equities".to_string(), timeframe: "1d".to_string(), timestamp_unix_ms: 2, open: 100.0, high: 100.0, low: 100.0, close: 100.0, volume: 100.0 adjusted_close: None, },
 /// ];
 /// let series = BarSeries { schema_version: "v0".to_string(), bars };
 /// let report = analyze_markov_chain(&series, MarkovConfig { state_threshold_pct: 0.02 }).unwrap();
@@ -201,6 +201,7 @@ mod tests {
             low: 100.0,
             close,
             volume: 100.0,
+            adjusted_close: None,
         }
     }
 

@@ -121,22 +121,20 @@ pub fn calculate(data: &DataFrame, period: usize, multiplier: f64) -> Result<(Se
             min_deque.push_back(i);
         }
 
-        if i >= period - 1 {
-            if let (Some(&max_idx), Some(&min_idx), Some(atr_val)) =
+        if i >= period - 1
+            && let (Some(&max_idx), Some(&min_idx), Some(atr_val)) =
                 (max_deque.front(), min_deque.front(), atr_val_opt)
-            {
-                if let (Some(max_h), Some(min_l)) = (high.get(max_idx), low.get(min_idx)) {
-                    let highest_high = if max_h.is_finite() { max_h } else { 0.0 };
-                    let lowest_low = if min_l.is_finite() { min_l } else { 0.0 };
-                    let atr_dec = if atr_val.is_finite() { atr_val } else { 0.0 };
+            && let (Some(max_h), Some(min_l)) = (high.get(max_idx), low.get(min_idx))
+        {
+            let highest_high = if max_h.is_finite() { max_h } else { 0.0 };
+            let lowest_low = if min_l.is_finite() { min_l } else { 0.0 };
+            let atr_dec = if atr_val.is_finite() { atr_val } else { 0.0 };
 
-                    let long_exit = highest_high - (atr_dec * mult_dec);
-                    let short_exit = lowest_low + (atr_dec * mult_dec);
+            let long_exit = highest_high - (atr_dec * mult_dec);
+            let short_exit = lowest_low + (atr_dec * mult_dec);
 
-                    long_exit_vals[i] = Some(long_exit);
-                    short_exit_vals[i] = Some(short_exit);
-                }
-            }
+            long_exit_vals[i] = Some(long_exit);
+            short_exit_vals[i] = Some(short_exit);
         }
     }
 

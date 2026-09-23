@@ -49,7 +49,7 @@ use strategies::indicators::{atr, bollinger_bands, donchian_channels, macd, rsi,
 ///         low: 29000.0,
 ///         close: 30500.0,
 ///         volume: 1000.0,
-///     }
+///     adjusted_close: None, }
 /// ];
 /// let series = BarSeries {
 ///     schema_version: "v0".to_string(),
@@ -485,6 +485,7 @@ mod tests {
             low: close * 0.99,
             close,
             volume: 1000.0,
+            adjusted_close: None,
         }
     }
 
@@ -517,6 +518,7 @@ mod tests {
             close: 95.0,
             high: 100.0,
             low: 95.0,
+            adjusted_close: None,
             ..base_bar.clone()
         });
         // Current Green Engulfing
@@ -525,6 +527,7 @@ mod tests {
             close: 101.0,
             high: 101.0,
             low: 94.0,
+            adjusted_close: None,
             ..base_bar.clone()
         });
 
@@ -548,6 +551,7 @@ mod tests {
                 close,
                 high: close * 1.05,
                 low: close * 0.95,
+                adjusted_close: None,
                 ..create_bar(close, i)
             });
         }

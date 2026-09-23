@@ -29,11 +29,11 @@ fn calculate_sma(data: &[Option<f64>], window: usize) -> Result<Vec<Option<f64>>
             count += 1;
         }
 
-        if queue.len() > window {
-            if let Some(Some(val)) = queue.pop_front() {
-                sum -= val;
-                count -= 1;
-            }
+        if queue.len() > window
+            && let Some(Some(val)) = queue.pop_front()
+        {
+            sum -= val;
+            count -= 1;
         }
 
         if queue.len() == window {

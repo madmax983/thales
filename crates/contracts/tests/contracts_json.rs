@@ -46,6 +46,7 @@ fn response_envelope_contains_required_fields() {
         low: 99.5,
         close: 100.5,
         volume: 10_000.0,
+        adjusted_close: None,
     };
     let series = BarSeries {
         schema_version: "v0".to_string(),

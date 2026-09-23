@@ -1,0 +1,1673 @@
+{
+  "version": 1,
+  "generated": "2026-09-22",
+  "sources": {
+    "moontower_104": {
+      "page": "https://moontower.ai/real-vol",
+      "snapshot": "2026-09-22 14:59 CDT",
+      "selection": "104 tickers selected (default ticker filter; export CSV covers this selection)",
+      "extraction": "read-only signed-in session; ticker-filter chip list cross-checked against chart category counts summing to 104"
+    },
+    "mark_extra_23": {
+      "supplied": "2026-09-22",
+      "symbols": [
+        "AAPL",
+        "AMD",
+        "AMZN",
+        "BABA",
+        "BIDU",
+        "BKNG",
+        "CMG",
+        "DIA",
+        "FB",
+        "FFIV",
+        "GOOG",
+        "IWM",
+        "MSFT",
+        "NFLX",
+        "NVDA",
+        "QQQ",
+        "RUT",
+        "SPOT",
+        "SPY",
+        "TLT",
+        "TSLA",
+        "VIX",
+        "ZM"
+      ]
+    }
+  },
+  "normalization": [
+    "FB normalized to META (Meta Platforms renamed ticker FB -> META on 2022-06-09); FB kept as legacy_aliases.",
+    "Indices recorded as asset_class 'index': DJX, NDX, RUT, SPX, VIX.",
+    "UVXY and VXX recorded as asset_class 'etn' (exchange-traded notes).",
+    "BTCUSD/ETHUSD retained from the Thales legacy universe with provenance 'thales-legacy'; BTC/ETH are Moontower's separate canonical forms.",
+    "ES and NQ futures included per Mark 2026-09-22 ('swinging futures is totally on the table'); TradingView aliases ES1!/NQ1! verified in live session 2026-09-22.",
+    "Aliases for other providers default to canonical until verified per provider.",
+    "Entry order is scan priority: Moontower coverage order, then Mark's extras, then legacy crypto, then futures. scan-market --top-n N takes the first N."
+  ],
+  "entries": [
+    {
+      "canonical": "JETS",
+      "asset_class": "etf",
+      "aliases": {
+        "paper": "JETS",
+        "tradytics": "JETS",
+        "tradingview": "JETS",
+        "yahoo": "JETS"
+      },
+      "provenance": [
+        "moontower-104"
+      ]
+    },
+    {
+      "canonical": "DIA",
+      "asset_class": "etf",
+      "aliases": {
+        "paper": "DIA",
+        "tradytics": "DIA",
+        "tradingview": "DIA",
+        "yahoo": "DIA"
+      },
+      "provenance": [
+        "moontower-104",
+        "mark-extra-23"
+      ]
+    },
+    {
+      "canonical": "DJX",
+      "asset_class": "index",
+      "aliases": {
+        "paper": "DJX",
+        "tradytics": "DJX",
+        "tradingview": "DJX",
+        "yahoo": "^DJI"
+      },
+      "provenance": [
+        "moontower-104"
+      ]
+    },
+    {
+      "canonical": "EEM",
+      "asset_class": "etf",
+      "aliases": {
+        "paper": "EEM",
+        "tradytics": "EEM",
+        "tradingview": "EEM",
+        "yahoo": "EEM"
+      },
+      "provenance": [
+        "moontower-104"
+      ]
+    },
+    {
+      "canonical": "IJR",
+      "asset_class": "etf",
+      "aliases": {
+        "paper": "IJR",
+        "tradytics": "IJR",
+        "tradingview": "IJR",
+        "yahoo": "IJR"
+      },
+      "provenance": [
+        "moontower-104"
+      ]
+    },
+    {
+      "canonical": "IWM",
+      "asset_class": "etf",
+      "aliases": {
+        "paper": "IWM",
+        "tradytics": "IWM",
+        "tradingview": "IWM",
+        "yahoo": "IWM"
+      },
+      "provenance": [
+        "moontower-104",
+        "mark-extra-23"
+      ]
+    },
+    {
+      "canonical": "MDY",
+      "asset_class": "etf",
+      "aliases": {
+        "paper": "MDY",
+        "tradytics": "MDY",
+        "tradingview": "MDY",
+        "yahoo": "MDY"
+      },
+      "provenance": [
+        "moontower-104"
+      ]
+    },
+    {
+      "canonical": "NDX",
+      "asset_class": "index",
+      "aliases": {
+        "paper": "NDX",
+        "tradytics": "NDX",
+        "tradingview": "NDX",
+        "yahoo": "^NDX"
+      },
+      "provenance": [
+        "moontower-104"
+      ]
+    },
+    {
+      "canonical": "QQQ",
+      "asset_class": "etf",
+      "aliases": {
+        "paper": "QQQ",
+        "tradytics": "QQQ",
+        "tradingview": "QQQ",
+        "yahoo": "QQQ"
+      },
+      "provenance": [
+        "moontower-104",
+        "mark-extra-23"
+      ]
+    },
+    {
+      "canonical": "RSP",
+      "asset_class": "etf",
+      "aliases": {
+        "paper": "RSP",
+        "tradytics": "RSP",
+        "tradingview": "RSP",
+        "yahoo": "RSP"
+      },
+      "provenance": [
+        "moontower-104"
+      ]
+    },
+    {
+      "canonical": "SCHD",
+      "asset_class": "etf",
+      "aliases": {
+        "paper": "SCHD",
+        "tradytics": "SCHD",
+        "tradingview": "SCHD",
+        "yahoo": "SCHD"
+      },
+      "provenance": [
+        "moontower-104"
+      ]
+    },
+    {
+      "canonical": "SPX",
+      "asset_class": "index",
+      "aliases": {
+        "paper": "SPX",
+        "tradytics": "SPX",
+        "tradingview": "SPX",
+        "yahoo": "^GSPC"
+      },
+      "provenance": [
+        "moontower-104"
+      ]
+    },
+    {
+      "canonical": "SPY",
+      "asset_class": "etf",
+      "aliases": {
+        "paper": "SPY",
+        "tradytics": "SPY",
+        "tradingview": "SPY",
+        "yahoo": "SPY"
+      },
+      "provenance": [
+        "moontower-104",
+        "mark-extra-23"
+      ]
+    },
+    {
+      "canonical": "TNA",
+      "asset_class": "etf",
+      "aliases": {
+        "paper": "TNA",
+        "tradytics": "TNA",
+        "tradingview": "TNA",
+        "yahoo": "TNA"
+      },
+      "provenance": [
+        "moontower-104"
+      ]
+    },
+    {
+      "canonical": "TQQQ",
+      "asset_class": "etf",
+      "aliases": {
+        "paper": "TQQQ",
+        "tradytics": "TQQQ",
+        "tradingview": "TQQQ",
+        "yahoo": "TQQQ"
+      },
+      "provenance": [
+        "moontower-104"
+      ]
+    },
+    {
+      "canonical": "UPRO",
+      "asset_class": "etf",
+      "aliases": {
+        "paper": "UPRO",
+        "tradytics": "UPRO",
+        "tradingview": "UPRO",
+        "yahoo": "UPRO"
+      },
+      "provenance": [
+        "moontower-104"
+      ]
+    },
+    {
+      "canonical": "VOO",
+      "asset_class": "etf",
+      "aliases": {
+        "paper": "VOO",
+        "tradytics": "VOO",
+        "tradingview": "VOO",
+        "yahoo": "VOO"
+      },
+      "provenance": [
+        "moontower-104"
+      ]
+    },
+    {
+      "canonical": "VTI",
+      "asset_class": "etf",
+      "aliases": {
+        "paper": "VTI",
+        "tradytics": "VTI",
+        "tradingview": "VTI",
+        "yahoo": "VTI"
+      },
+      "provenance": [
+        "moontower-104"
+      ]
+    },
+    {
+      "canonical": "VWO",
+      "asset_class": "etf",
+      "aliases": {
+        "paper": "VWO",
+        "tradytics": "VWO",
+        "tradingview": "VWO",
+        "yahoo": "VWO"
+      },
+      "provenance": [
+        "moontower-104"
+      ]
+    },
+    {
+      "canonical": "ARKG",
+      "asset_class": "etf",
+      "aliases": {
+        "paper": "ARKG",
+        "tradytics": "ARKG",
+        "tradingview": "ARKG",
+        "yahoo": "ARKG"
+      },
+      "provenance": [
+        "moontower-104"
+      ]
+    },
+    {
+      "canonical": "XBI",
+      "asset_class": "etf",
+      "aliases": {
+        "paper": "XBI",
+        "tradytics": "XBI",
+        "tradingview": "XBI",
+        "yahoo": "XBI"
+      },
+      "provenance": [
+        "moontower-104"
+      ]
+    },
+    {
+      "canonical": "ICLN",
+      "asset_class": "etf",
+      "aliases": {
+        "paper": "ICLN",
+        "tradytics": "ICLN",
+        "tradingview": "ICLN",
+        "yahoo": "ICLN"
+      },
+      "provenance": [
+        "moontower-104"
+      ]
+    },
+    {
+      "canonical": "NLR",
+      "asset_class": "etf",
+      "aliases": {
+        "paper": "NLR",
+        "tradytics": "NLR",
+        "tradingview": "NLR",
+        "yahoo": "NLR"
+      },
+      "provenance": [
+        "moontower-104"
+      ]
+    },
+    {
+      "canonical": "TAN",
+      "asset_class": "etf",
+      "aliases": {
+        "paper": "TAN",
+        "tradytics": "TAN",
+        "tradingview": "TAN",
+        "yahoo": "TAN"
+      },
+      "provenance": [
+        "moontower-104"
+      ]
+    },
+    {
+      "canonical": "URA",
+      "asset_class": "etf",
+      "aliases": {
+        "paper": "URA",
+        "tradytics": "URA",
+        "tradingview": "URA",
+        "yahoo": "URA"
+      },
+      "provenance": [
+        "moontower-104"
+      ]
+    },
+    {
+      "canonical": "URNM",
+      "asset_class": "etf",
+      "aliases": {
+        "paper": "URNM",
+        "tradytics": "URNM",
+        "tradingview": "URNM",
+        "yahoo": "URNM"
+      },
+      "provenance": [
+        "moontower-104"
+      ]
+    },
+    {
+      "canonical": "BNO",
+      "asset_class": "etf",
+      "aliases": {
+        "paper": "BNO",
+        "tradytics": "BNO",
+        "tradingview": "BNO",
+        "yahoo": "BNO"
+      },
+      "provenance": [
+        "moontower-104"
+      ]
+    },
+    {
+      "canonical": "BOIL",
+      "asset_class": "etf",
+      "aliases": {
+        "paper": "BOIL",
+        "tradytics": "BOIL",
+        "tradingview": "BOIL",
+        "yahoo": "BOIL"
+      },
+      "provenance": [
+        "moontower-104"
+      ]
+    },
+    {
+      "canonical": "DBA",
+      "asset_class": "etf",
+      "aliases": {
+        "paper": "DBA",
+        "tradytics": "DBA",
+        "tradingview": "DBA",
+        "yahoo": "DBA"
+      },
+      "provenance": [
+        "moontower-104"
+      ]
+    },
+    {
+      "canonical": "UNG",
+      "asset_class": "etf",
+      "aliases": {
+        "paper": "UNG",
+        "tradytics": "UNG",
+        "tradingview": "UNG",
+        "yahoo": "UNG"
+      },
+      "provenance": [
+        "moontower-104"
+      ]
+    },
+    {
+      "canonical": "USO",
+      "asset_class": "etf",
+      "aliases": {
+        "paper": "USO",
+        "tradytics": "USO",
+        "tradingview": "USO",
+        "yahoo": "USO"
+      },
+      "provenance": [
+        "moontower-104"
+      ]
+    },
+    {
+      "canonical": "WEAT",
+      "asset_class": "etf",
+      "aliases": {
+        "paper": "WEAT",
+        "tradytics": "WEAT",
+        "tradingview": "WEAT",
+        "yahoo": "WEAT"
+      },
+      "provenance": [
+        "moontower-104"
+      ]
+    },
+    {
+      "canonical": "XLC",
+      "asset_class": "etf",
+      "aliases": {
+        "paper": "XLC",
+        "tradytics": "XLC",
+        "tradingview": "XLC",
+        "yahoo": "XLC"
+      },
+      "provenance": [
+        "moontower-104"
+      ]
+    },
+    {
+      "canonical": "MSOS",
+      "asset_class": "etf",
+      "aliases": {
+        "paper": "MSOS",
+        "tradytics": "MSOS",
+        "tradingview": "MSOS",
+        "yahoo": "MSOS"
+      },
+      "provenance": [
+        "moontower-104"
+      ]
+    },
+    {
+      "canonical": "XLY",
+      "asset_class": "etf",
+      "aliases": {
+        "paper": "XLY",
+        "tradytics": "XLY",
+        "tradingview": "XLY",
+        "yahoo": "XLY"
+      },
+      "provenance": [
+        "moontower-104"
+      ]
+    },
+    {
+      "canonical": "XLP",
+      "asset_class": "etf",
+      "aliases": {
+        "paper": "XLP",
+        "tradytics": "XLP",
+        "tradingview": "XLP",
+        "yahoo": "XLP"
+      },
+      "provenance": [
+        "moontower-104"
+      ]
+    },
+    {
+      "canonical": "BITO",
+      "asset_class": "etf",
+      "aliases": {
+        "paper": "BITO",
+        "tradytics": "BITO",
+        "tradingview": "BITO",
+        "yahoo": "BITO"
+      },
+      "provenance": [
+        "moontower-104"
+      ]
+    },
+    {
+      "canonical": "BMNU",
+      "asset_class": "etf",
+      "aliases": {
+        "paper": "BMNU",
+        "tradytics": "BMNU",
+        "tradingview": "BMNU",
+        "yahoo": "BMNU"
+      },
+      "provenance": [
+        "moontower-104"
+      ]
+    },
+    {
+      "canonical": "BTC",
+      "asset_class": "crypto",
+      "aliases": {
+        "paper": "BTC",
+        "tradytics": "BTC",
+        "tradingview": "BTC",
+        "yahoo": "BTC-USD"
+      },
+      "provenance": [
+        "moontower-104"
+      ]
+    },
+    {
+      "canonical": "ETH",
+      "asset_class": "crypto",
+      "aliases": {
+        "paper": "ETH",
+        "tradytics": "ETH",
+        "tradingview": "ETH",
+        "yahoo": "ETH-USD"
+      },
+      "provenance": [
+        "moontower-104"
+      ]
+    },
+    {
+      "canonical": "ETHA",
+      "asset_class": "etf",
+      "aliases": {
+        "paper": "ETHA",
+        "tradytics": "ETHA",
+        "tradingview": "ETHA",
+        "yahoo": "ETHA"
+      },
+      "provenance": [
+        "moontower-104"
+      ]
+    },
+    {
+      "canonical": "GBTC",
+      "asset_class": "etf",
+      "aliases": {
+        "paper": "GBTC",
+        "tradytics": "GBTC",
+        "tradingview": "GBTC",
+        "yahoo": "GBTC"
+      },
+      "provenance": [
+        "moontower-104"
+      ]
+    },
+    {
+      "canonical": "IBIT",
+      "asset_class": "etf",
+      "aliases": {
+        "paper": "IBIT",
+        "tradytics": "IBIT",
+        "tradingview": "IBIT",
+        "yahoo": "IBIT"
+      },
+      "provenance": [
+        "moontower-104"
+      ]
+    },
+    {
+      "canonical": "MSTU",
+      "asset_class": "etf",
+      "aliases": {
+        "paper": "MSTU",
+        "tradytics": "MSTU",
+        "tradingview": "MSTU",
+        "yahoo": "MSTU"
+      },
+      "provenance": [
+        "moontower-104"
+      ]
+    },
+    {
+      "canonical": "MSTX",
+      "asset_class": "etf",
+      "aliases": {
+        "paper": "MSTX",
+        "tradytics": "MSTX",
+        "tradingview": "MSTX",
+        "yahoo": "MSTX"
+      },
+      "provenance": [
+        "moontower-104"
+      ]
+    },
+    {
+      "canonical": "MSTY",
+      "asset_class": "etf",
+      "aliases": {
+        "paper": "MSTY",
+        "tradytics": "MSTY",
+        "tradingview": "MSTY",
+        "yahoo": "MSTY"
+      },
+      "provenance": [
+        "moontower-104"
+      ]
+    },
+    {
+      "canonical": "MSTZ",
+      "asset_class": "etf",
+      "aliases": {
+        "paper": "MSTZ",
+        "tradytics": "MSTZ",
+        "tradingview": "MSTZ",
+        "yahoo": "MSTZ"
+      },
+      "provenance": [
+        "moontower-104"
+      ]
+    },
+    {
+      "canonical": "OIH",
+      "asset_class": "etf",
+      "aliases": {
+        "paper": "OIH",
+        "tradytics": "OIH",
+        "tradingview": "OIH",
+        "yahoo": "OIH"
+      },
+      "provenance": [
+        "moontower-104"
+      ]
+    },
+    {
+      "canonical": "XLE",
+      "asset_class": "etf",
+      "aliases": {
+        "paper": "XLE",
+        "tradytics": "XLE",
+        "tradingview": "XLE",
+        "yahoo": "XLE"
+      },
+      "provenance": [
+        "moontower-104"
+      ]
+    },
+    {
+      "canonical": "XOP",
+      "asset_class": "etf",
+      "aliases": {
+        "paper": "XOP",
+        "tradytics": "XOP",
+        "tradingview": "XOP",
+        "yahoo": "XOP"
+      },
+      "provenance": [
+        "moontower-104"
+      ]
+    },
+    {
+      "canonical": "FXE",
+      "asset_class": "etf",
+      "aliases": {
+        "paper": "FXE",
+        "tradytics": "FXE",
+        "tradingview": "FXE",
+        "yahoo": "FXE"
+      },
+      "provenance": [
+        "moontower-104"
+      ]
+    },
+    {
+      "canonical": "FXY",
+      "asset_class": "etf",
+      "aliases": {
+        "paper": "FXY",
+        "tradytics": "FXY",
+        "tradingview": "FXY",
+        "yahoo": "FXY"
+      },
+      "provenance": [
+        "moontower-104"
+      ]
+    },
+    {
+      "canonical": "UUP",
+      "asset_class": "etf",
+      "aliases": {
+        "paper": "UUP",
+        "tradytics": "UUP",
+        "tradingview": "UUP",
+        "yahoo": "UUP"
+      },
+      "provenance": [
+        "moontower-104"
+      ]
+    },
+    {
+      "canonical": "KBE",
+      "asset_class": "etf",
+      "aliases": {
+        "paper": "KBE",
+        "tradytics": "KBE",
+        "tradingview": "KBE",
+        "yahoo": "KBE"
+      },
+      "provenance": [
+        "moontower-104"
+      ]
+    },
+    {
+      "canonical": "KRE",
+      "asset_class": "etf",
+      "aliases": {
+        "paper": "KRE",
+        "tradytics": "KRE",
+        "tradingview": "KRE",
+        "yahoo": "KRE"
+      },
+      "provenance": [
+        "moontower-104"
+      ]
+    },
+    {
+      "canonical": "XLF",
+      "asset_class": "etf",
+      "aliases": {
+        "paper": "XLF",
+        "tradytics": "XLF",
+        "tradingview": "XLF",
+        "yahoo": "XLF"
+      },
+      "provenance": [
+        "moontower-104"
+      ]
+    },
+    {
+      "canonical": "EMB",
+      "asset_class": "etf",
+      "aliases": {
+        "paper": "EMB",
+        "tradytics": "EMB",
+        "tradingview": "EMB",
+        "yahoo": "EMB"
+      },
+      "provenance": [
+        "moontower-104"
+      ]
+    },
+    {
+      "canonical": "HYG",
+      "asset_class": "etf",
+      "aliases": {
+        "paper": "HYG",
+        "tradytics": "HYG",
+        "tradingview": "HYG",
+        "yahoo": "HYG"
+      },
+      "provenance": [
+        "moontower-104"
+      ]
+    },
+    {
+      "canonical": "IEF",
+      "asset_class": "etf",
+      "aliases": {
+        "paper": "IEF",
+        "tradytics": "IEF",
+        "tradingview": "IEF",
+        "yahoo": "IEF"
+      },
+      "provenance": [
+        "moontower-104"
+      ]
+    },
+    {
+      "canonical": "LQD",
+      "asset_class": "etf",
+      "aliases": {
+        "paper": "LQD",
+        "tradytics": "LQD",
+        "tradingview": "LQD",
+        "yahoo": "LQD"
+      },
+      "provenance": [
+        "moontower-104"
+      ]
+    },
+    {
+      "canonical": "MUB",
+      "asset_class": "etf",
+      "aliases": {
+        "paper": "MUB",
+        "tradytics": "MUB",
+        "tradingview": "MUB",
+        "yahoo": "MUB"
+      },
+      "provenance": [
+        "moontower-104"
+      ]
+    },
+    {
+      "canonical": "TLT",
+      "asset_class": "etf",
+      "aliases": {
+        "paper": "TLT",
+        "tradytics": "TLT",
+        "tradingview": "TLT",
+        "yahoo": "TLT"
+      },
+      "provenance": [
+        "moontower-104",
+        "mark-extra-23"
+      ]
+    },
+    {
+      "canonical": "ASHR",
+      "asset_class": "etf",
+      "aliases": {
+        "paper": "ASHR",
+        "tradytics": "ASHR",
+        "tradingview": "ASHR",
+        "yahoo": "ASHR"
+      },
+      "provenance": [
+        "moontower-104"
+      ]
+    },
+    {
+      "canonical": "EFA",
+      "asset_class": "etf",
+      "aliases": {
+        "paper": "EFA",
+        "tradytics": "EFA",
+        "tradingview": "EFA",
+        "yahoo": "EFA"
+      },
+      "provenance": [
+        "moontower-104"
+      ]
+    },
+    {
+      "canonical": "EWC",
+      "asset_class": "etf",
+      "aliases": {
+        "paper": "EWC",
+        "tradytics": "EWC",
+        "tradingview": "EWC",
+        "yahoo": "EWC"
+      },
+      "provenance": [
+        "moontower-104"
+      ]
+    },
+    {
+      "canonical": "EWG",
+      "asset_class": "etf",
+      "aliases": {
+        "paper": "EWG",
+        "tradytics": "EWG",
+        "tradingview": "EWG",
+        "yahoo": "EWG"
+      },
+      "provenance": [
+        "moontower-104"
+      ]
+    },
+    {
+      "canonical": "EWJ",
+      "asset_class": "etf",
+      "aliases": {
+        "paper": "EWJ",
+        "tradytics": "EWJ",
+        "tradingview": "EWJ",
+        "yahoo": "EWJ"
+      },
+      "provenance": [
+        "moontower-104"
+      ]
+    },
+    {
+      "canonical": "EWW",
+      "asset_class": "etf",
+      "aliases": {
+        "paper": "EWW",
+        "tradytics": "EWW",
+        "tradingview": "EWW",
+        "yahoo": "EWW"
+      },
+      "provenance": [
+        "moontower-104"
+      ]
+    },
+    {
+      "canonical": "EWY",
+      "asset_class": "etf",
+      "aliases": {
+        "paper": "EWY",
+        "tradytics": "EWY",
+        "tradingview": "EWY",
+        "yahoo": "EWY"
+      },
+      "provenance": [
+        "moontower-104"
+      ]
+    },
+    {
+      "canonical": "EWZ",
+      "asset_class": "etf",
+      "aliases": {
+        "paper": "EWZ",
+        "tradytics": "EWZ",
+        "tradingview": "EWZ",
+        "yahoo": "EWZ"
+      },
+      "provenance": [
+        "moontower-104"
+      ]
+    },
+    {
+      "canonical": "FEZ",
+      "asset_class": "etf",
+      "aliases": {
+        "paper": "FEZ",
+        "tradytics": "FEZ",
+        "tradingview": "FEZ",
+        "yahoo": "FEZ"
+      },
+      "provenance": [
+        "moontower-104"
+      ]
+    },
+    {
+      "canonical": "FXI",
+      "asset_class": "etf",
+      "aliases": {
+        "paper": "FXI",
+        "tradytics": "FXI",
+        "tradingview": "FXI",
+        "yahoo": "FXI"
+      },
+      "provenance": [
+        "moontower-104"
+      ]
+    },
+    {
+      "canonical": "INDA",
+      "asset_class": "etf",
+      "aliases": {
+        "paper": "INDA",
+        "tradytics": "INDA",
+        "tradingview": "INDA",
+        "yahoo": "INDA"
+      },
+      "provenance": [
+        "moontower-104"
+      ]
+    },
+    {
+      "canonical": "KWEB",
+      "asset_class": "etf",
+      "aliases": {
+        "paper": "KWEB",
+        "tradytics": "KWEB",
+        "tradingview": "KWEB",
+        "yahoo": "KWEB"
+      },
+      "provenance": [
+        "moontower-104"
+      ]
+    },
+    {
+      "canonical": "XLV",
+      "asset_class": "etf",
+      "aliases": {
+        "paper": "XLV",
+        "tradytics": "XLV",
+        "tradingview": "XLV",
+        "yahoo": "XLV"
+      },
+      "provenance": [
+        "moontower-104"
+      ]
+    },
+    {
+      "canonical": "XLI",
+      "asset_class": "etf",
+      "aliases": {
+        "paper": "XLI",
+        "tradytics": "XLI",
+        "tradingview": "XLI",
+        "yahoo": "XLI"
+      },
+      "provenance": [
+        "moontower-104"
+      ]
+    },
+    {
+      "canonical": "XLB",
+      "asset_class": "etf",
+      "aliases": {
+        "paper": "XLB",
+        "tradytics": "XLB",
+        "tradingview": "XLB",
+        "yahoo": "XLB"
+      },
+      "provenance": [
+        "moontower-104"
+      ]
+    },
+    {
+      "canonical": "GDX",
+      "asset_class": "etf",
+      "aliases": {
+        "paper": "GDX",
+        "tradytics": "GDX",
+        "tradingview": "GDX",
+        "yahoo": "GDX"
+      },
+      "provenance": [
+        "moontower-104"
+      ]
+    },
+    {
+      "canonical": "GDXJ",
+      "asset_class": "etf",
+      "aliases": {
+        "paper": "GDXJ",
+        "tradytics": "GDXJ",
+        "tradingview": "GDXJ",
+        "yahoo": "GDXJ"
+      },
+      "provenance": [
+        "moontower-104"
+      ]
+    },
+    {
+      "canonical": "GLD",
+      "asset_class": "etf",
+      "aliases": {
+        "paper": "GLD",
+        "tradytics": "GLD",
+        "tradingview": "GLD",
+        "yahoo": "GLD"
+      },
+      "provenance": [
+        "moontower-104"
+      ]
+    },
+    {
+      "canonical": "IAU",
+      "asset_class": "etf",
+      "aliases": {
+        "paper": "IAU",
+        "tradytics": "IAU",
+        "tradingview": "IAU",
+        "yahoo": "IAU"
+      },
+      "provenance": [
+        "moontower-104"
+      ]
+    },
+    {
+      "canonical": "SILJ",
+      "asset_class": "etf",
+      "aliases": {
+        "paper": "SILJ",
+        "tradytics": "SILJ",
+        "tradingview": "SILJ",
+        "yahoo": "SILJ"
+      },
+      "provenance": [
+        "moontower-104"
+      ]
+    },
+    {
+      "canonical": "SLV",
+      "asset_class": "etf",
+      "aliases": {
+        "paper": "SLV",
+        "tradytics": "SLV",
+        "tradingview": "SLV",
+        "yahoo": "SLV"
+      },
+      "provenance": [
+        "moontower-104"
+      ]
+    },
+    {
+      "canonical": "XME",
+      "asset_class": "etf",
+      "aliases": {
+        "paper": "XME",
+        "tradytics": "XME",
+        "tradingview": "XME",
+        "yahoo": "XME"
+      },
+      "provenance": [
+        "moontower-104"
+      ]
+    },
+    {
+      "canonical": "QTUM",
+      "asset_class": "etf",
+      "aliases": {
+        "paper": "QTUM",
+        "tradytics": "QTUM",
+        "tradingview": "QTUM",
+        "yahoo": "QTUM"
+      },
+      "provenance": [
+        "moontower-104"
+      ]
+    },
+    {
+      "canonical": "ITB",
+      "asset_class": "etf",
+      "aliases": {
+        "paper": "ITB",
+        "tradytics": "ITB",
+        "tradingview": "ITB",
+        "yahoo": "ITB"
+      },
+      "provenance": [
+        "moontower-104"
+      ]
+    },
+    {
+      "canonical": "IYR",
+      "asset_class": "etf",
+      "aliases": {
+        "paper": "IYR",
+        "tradytics": "IYR",
+        "tradingview": "IYR",
+        "yahoo": "IYR"
+      },
+      "provenance": [
+        "moontower-104"
+      ]
+    },
+    {
+      "canonical": "VNQ",
+      "asset_class": "etf",
+      "aliases": {
+        "paper": "VNQ",
+        "tradytics": "VNQ",
+        "tradingview": "VNQ",
+        "yahoo": "VNQ"
+      },
+      "provenance": [
+        "moontower-104"
+      ]
+    },
+    {
+      "canonical": "XHB",
+      "asset_class": "etf",
+      "aliases": {
+        "paper": "XHB",
+        "tradytics": "XHB",
+        "tradingview": "XHB",
+        "yahoo": "XHB"
+      },
+      "provenance": [
+        "moontower-104"
+      ]
+    },
+    {
+      "canonical": "XLRE",
+      "asset_class": "etf",
+      "aliases": {
+        "paper": "XLRE",
+        "tradytics": "XLRE",
+        "tradingview": "XLRE",
+        "yahoo": "XLRE"
+      },
+      "provenance": [
+        "moontower-104"
+      ]
+    },
+    {
+      "canonical": "XRT",
+      "asset_class": "etf",
+      "aliases": {
+        "paper": "XRT",
+        "tradytics": "XRT",
+        "tradingview": "XRT",
+        "yahoo": "XRT"
+      },
+      "provenance": [
+        "moontower-104"
+      ]
+    },
+    {
+      "canonical": "DRAM",
+      "asset_class": "etf",
+      "aliases": {
+        "paper": "DRAM",
+        "tradytics": "DRAM",
+        "tradingview": "DRAM",
+        "yahoo": "DRAM"
+      },
+      "provenance": [
+        "moontower-104"
+      ]
+    },
+    {
+      "canonical": "SMH",
+      "asset_class": "etf",
+      "aliases": {
+        "paper": "SMH",
+        "tradytics": "SMH",
+        "tradingview": "SMH",
+        "yahoo": "SMH"
+      },
+      "provenance": [
+        "moontower-104"
+      ]
+    },
+    {
+      "canonical": "SOXL",
+      "asset_class": "etf",
+      "aliases": {
+        "paper": "SOXL",
+        "tradytics": "SOXL",
+        "tradingview": "SOXL",
+        "yahoo": "SOXL"
+      },
+      "provenance": [
+        "moontower-104"
+      ]
+    },
+    {
+      "canonical": "SOXX",
+      "asset_class": "etf",
+      "aliases": {
+        "paper": "SOXX",
+        "tradytics": "SOXX",
+        "tradingview": "SOXX",
+        "yahoo": "SOXX"
+      },
+      "provenance": [
+        "moontower-104"
+      ]
+    },
+    {
+      "canonical": "RUT",
+      "asset_class": "index",
+      "aliases": {
+        "paper": "RUT",
+        "tradytics": "RUT",
+        "tradingview": "RUT",
+        "yahoo": "^RUT"
+      },
+      "provenance": [
+        "moontower-104",
+        "mark-extra-23"
+      ]
+    },
+    {
+      "canonical": "IGV",
+      "asset_class": "etf",
+      "aliases": {
+        "paper": "IGV",
+        "tradytics": "IGV",
+        "tradingview": "IGV",
+        "yahoo": "IGV"
+      },
+      "provenance": [
+        "moontower-104"
+      ]
+    },
+    {
+      "canonical": "ARKK",
+      "asset_class": "etf",
+      "aliases": {
+        "paper": "ARKK",
+        "tradytics": "ARKK",
+        "tradingview": "ARKK",
+        "yahoo": "ARKK"
+      },
+      "provenance": [
+        "moontower-104"
+      ]
+    },
+    {
+      "canonical": "MAGS",
+      "asset_class": "etf",
+      "aliases": {
+        "paper": "MAGS",
+        "tradytics": "MAGS",
+        "tradingview": "MAGS",
+        "yahoo": "MAGS"
+      },
+      "provenance": [
+        "moontower-104"
+      ]
+    },
+    {
+      "canonical": "XLK",
+      "asset_class": "etf",
+      "aliases": {
+        "paper": "XLK",
+        "tradytics": "XLK",
+        "tradingview": "XLK",
+        "yahoo": "XLK"
+      },
+      "provenance": [
+        "moontower-104"
+      ]
+    },
+    {
+      "canonical": "XLU",
+      "asset_class": "etf",
+      "aliases": {
+        "paper": "XLU",
+        "tradytics": "XLU",
+        "tradingview": "XLU",
+        "yahoo": "XLU"
+      },
+      "provenance": [
+        "moontower-104"
+      ]
+    },
+    {
+      "canonical": "UVXY",
+      "asset_class": "etn",
+      "aliases": {
+        "paper": "UVXY",
+        "tradytics": "UVXY",
+        "tradingview": "UVXY",
+        "yahoo": "UVXY"
+      },
+      "provenance": [
+        "moontower-104"
+      ]
+    },
+    {
+      "canonical": "VIX",
+      "asset_class": "index",
+      "aliases": {
+        "paper": "VIX",
+        "tradytics": "VIX",
+        "tradingview": "VIX",
+        "yahoo": "^VIX"
+      },
+      "provenance": [
+        "moontower-104",
+        "mark-extra-23"
+      ]
+    },
+    {
+      "canonical": "VXX",
+      "asset_class": "etn",
+      "aliases": {
+        "paper": "VXX",
+        "tradytics": "VXX",
+        "tradingview": "VXX",
+        "yahoo": "VXX"
+      },
+      "provenance": [
+        "moontower-104"
+      ]
+    },
+    {
+      "canonical": "AAPL",
+      "asset_class": "equity",
+      "aliases": {
+        "paper": "AAPL",
+        "tradytics": "AAPL",
+        "tradingview": "AAPL",
+        "yahoo": "AAPL"
+      },
+      "provenance": [
+        "mark-extra-23"
+      ]
+    },
+    {
+      "canonical": "AMD",
+      "asset_class": "equity",
+      "aliases": {
+        "paper": "AMD",
+        "tradytics": "AMD",
+        "tradingview": "AMD",
+        "yahoo": "AMD"
+      },
+      "provenance": [
+        "mark-extra-23"
+      ]
+    },
+    {
+      "canonical": "AMZN",
+      "asset_class": "equity",
+      "aliases": {
+        "paper": "AMZN",
+        "tradytics": "AMZN",
+        "tradingview": "AMZN",
+        "yahoo": "AMZN"
+      },
+      "provenance": [
+        "mark-extra-23"
+      ]
+    },
+    {
+      "canonical": "BABA",
+      "asset_class": "equity",
+      "aliases": {
+        "paper": "BABA",
+        "tradytics": "BABA",
+        "tradingview": "BABA",
+        "yahoo": "BABA"
+      },
+      "provenance": [
+        "mark-extra-23"
+      ]
+    },
+    {
+      "canonical": "BIDU",
+      "asset_class": "equity",
+      "aliases": {
+        "paper": "BIDU",
+        "tradytics": "BIDU",
+        "tradingview": "BIDU",
+        "yahoo": "BIDU"
+      },
+      "provenance": [
+        "mark-extra-23"
+      ]
+    },
+    {
+      "canonical": "BKNG",
+      "asset_class": "equity",
+      "aliases": {
+        "paper": "BKNG",
+        "tradytics": "BKNG",
+        "tradingview": "BKNG",
+        "yahoo": "BKNG"
+      },
+      "provenance": [
+        "mark-extra-23"
+      ]
+    },
+    {
+      "canonical": "CMG",
+      "asset_class": "equity",
+      "aliases": {
+        "paper": "CMG",
+        "tradytics": "CMG",
+        "tradingview": "CMG",
+        "yahoo": "CMG"
+      },
+      "provenance": [
+        "mark-extra-23"
+      ]
+    },
+    {
+      "canonical": "META",
+      "asset_class": "equity",
+      "aliases": {
+        "paper": "META",
+        "tradytics": "META",
+        "tradingview": "META",
+        "yahoo": "META"
+      },
+      "provenance": [
+        "mark-extra-23"
+      ],
+      "legacy_aliases": [
+        "FB"
+      ]
+    },
+    {
+      "canonical": "FFIV",
+      "asset_class": "equity",
+      "aliases": {
+        "paper": "FFIV",
+        "tradytics": "FFIV",
+        "tradingview": "FFIV",
+        "yahoo": "FFIV"
+      },
+      "provenance": [
+        "mark-extra-23"
+      ]
+    },
+    {
+      "canonical": "GOOG",
+      "asset_class": "equity",
+      "aliases": {
+        "paper": "GOOG",
+        "tradytics": "GOOG",
+        "tradingview": "GOOG",
+        "yahoo": "GOOG"
+      },
+      "provenance": [
+        "mark-extra-23"
+      ]
+    },
+    {
+      "canonical": "MSFT",
+      "asset_class": "equity",
+      "aliases": {
+        "paper": "MSFT",
+        "tradytics": "MSFT",
+        "tradingview": "MSFT",
+        "yahoo": "MSFT"
+      },
+      "provenance": [
+        "mark-extra-23"
+      ]
+    },
+    {
+      "canonical": "NFLX",
+      "asset_class": "equity",
+      "aliases": {
+        "paper": "NFLX",
+        "tradytics": "NFLX",
+        "tradingview": "NFLX",
+        "yahoo": "NFLX"
+      },
+      "provenance": [
+        "mark-extra-23"
+      ]
+    },
+    {
+      "canonical": "NVDA",
+      "asset_class": "equity",
+      "aliases": {
+        "paper": "NVDA",
+        "tradytics": "NVDA",
+        "tradingview": "NVDA",
+        "yahoo": "NVDA"
+      },
+      "provenance": [
+        "mark-extra-23"
+      ]
+    },
+    {
+      "canonical": "SPOT",
+      "asset_class": "equity",
+      "aliases": {
+        "paper": "SPOT",
+        "tradytics": "SPOT",
+        "tradingview": "SPOT",
+        "yahoo": "SPOT"
+      },
+      "provenance": [
+        "mark-extra-23"
+      ]
+    },
+    {
+      "canonical": "TSLA",
+      "asset_class": "equity",
+      "aliases": {
+        "paper": "TSLA",
+        "tradytics": "TSLA",
+        "tradingview": "TSLA",
+        "yahoo": "TSLA"
+      },
+      "provenance": [
+        "mark-extra-23"
+      ]
+    },
+    {
+      "canonical": "ZM",
+      "asset_class": "equity",
+      "aliases": {
+        "paper": "ZM",
+        "tradytics": "ZM",
+        "tradingview": "ZM",
+        "yahoo": "ZM"
+      },
+      "provenance": [
+        "mark-extra-23"
+      ]
+    },
+    {
+      "canonical": "BTCUSD",
+      "asset_class": "crypto",
+      "aliases": {
+        "paper": "BTCUSD",
+        "tradytics": "BTCUSD",
+        "tradingview": "BTCUSD",
+        "yahoo": "BTC-USD"
+      },
+      "provenance": [
+        "thales-legacy"
+      ]
+    },
+    {
+      "canonical": "ETHUSD",
+      "asset_class": "crypto",
+      "aliases": {
+        "paper": "ETHUSD",
+        "tradytics": "ETHUSD",
+        "tradingview": "ETHUSD",
+        "yahoo": "ETH-USD"
+      },
+      "provenance": [
+        "thales-legacy"
+      ]
+    },
+    {
+      "canonical": "ES",
+      "asset_class": "future",
+      "aliases": {
+        "paper": "ES",
+        "tradytics": "ES",
+        "tradingview": "ES1!",
+        "yahoo": "ES=F"
+      },
+      "provenance": [
+        "mark-futures-2026-09-22"
+      ]
+    },
+    {
+      "canonical": "NQ",
+      "asset_class": "future",
+      "aliases": {
+        "paper": "NQ",
+        "tradytics": "NQ",
+        "tradingview": "NQ1!",
+        "yahoo": "NQ=F"
+      },
+      "provenance": [
+        "mark-futures-2026-09-22"
+      ]
+    }
+  ]
+}

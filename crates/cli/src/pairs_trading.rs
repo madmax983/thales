@@ -74,7 +74,8 @@ pub struct PairsReport {
 ///         low: close,
 ///         close,
 ///         volume: 100.0,
-///     }
+///     adjusted_close: None, }
+///
 /// }
 ///
 /// let bars_a = vec![
@@ -248,6 +249,7 @@ mod tests {
             low: close,
             close,
             volume: 100.0,
+            adjusted_close: None,
         }
     }
 

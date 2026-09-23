@@ -72,35 +72,33 @@ pub fn calculate(data: &DataFrame, period: usize) -> Result<Series> {
             curr_vol_opt,
             prev_high_opt,
             prev_low_opt,
-        ) {
-            if curr_high.is_finite()
-                && curr_low.is_finite()
-                && curr_vol.is_finite()
-                && prev_high.is_finite()
-                && prev_low.is_finite()
-            {
-                let (ch, cl, cv, ph, pl) = (curr_high, curr_low, curr_vol, prev_high, prev_low);
+        ) && curr_high.is_finite()
+            && curr_low.is_finite()
+            && curr_vol.is_finite()
+            && prev_high.is_finite()
+            && prev_low.is_finite()
+        {
+            let (ch, cl, cv, ph, pl) = (curr_high, curr_low, curr_vol, prev_high, prev_low);
 
-                // Distance Moved = ((Current High + Current Low) / 2) - ((Prior High + Prior Low) / 2)
-                let curr_midpoint = (ch + cl) / 2.0;
-                let prev_midpoint = (ph + pl) / 2.0;
-                let distance_moved = curr_midpoint - prev_midpoint;
+            // Distance Moved = ((Current High + Current Low) / 2) - ((Prior High + Prior Low) / 2)
+            let curr_midpoint = (ch + cl) / 2.0;
+            let prev_midpoint = (ph + pl) / 2.0;
+            let distance_moved = curr_midpoint - prev_midpoint;
 
-                let range = ch - cl;
-                if range != 0.0 && cv != 0.0 {
-                    // Box Ratio = (Volume / 100,000,000) / (High - Low)
-                    let volume_scaled = cv / 100_000_000.0; // Usually volume is scaled by 10,000, 100,000, or 100_000_000. Standard EOM formula uses 100,000_000.
-                    let box_ratio = volume_scaled / range;
+            let range = ch - cl;
+            if range != 0.0 && cv != 0.0 {
+                // Box Ratio = (Volume / 100,000,000) / (High - Low)
+                let volume_scaled = cv / 100_000_000.0; // Usually volume is scaled by 10,000, 100,000, or 100_000_000. Standard EOM formula uses 100,000_000.
+                let box_ratio = volume_scaled / range;
 
-                    if box_ratio != 0.0 {
-                        let eom_1 = distance_moved / box_ratio;
-                        *val = Some(eom_1);
-                    } else {
-                        *val = Some(0.0);
-                    }
+                if box_ratio != 0.0 {
+                    let eom_1 = distance_moved / box_ratio;
+                    *val = Some(eom_1);
                 } else {
                     *val = Some(0.0);
                 }
+            } else {
+                *val = Some(0.0);
             }
         }
     }

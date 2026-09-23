@@ -44,11 +44,13 @@ All commands return:
 ### `fetch-market-data`
 
 ```powershell
-cargo run -p thales-cli -- fetch-market-data --provider <alpaca|kraken> --symbol <SYMBOL> --timeframe <TF>
+cargo run -p thales-cli -- fetch-market-data --provider <alpaca|kraken|paper|yahoo> --symbol <SYMBOL> --timeframe <TF>
 ```
 
 - Returns `BarSeries` envelope.
-- Current behavior: scaffold data (single synthetic bar), not live market fetch yet.
+- `paper` generates synthetic scaffold bars (pipeline tests only); `yahoo`
+  returns real bars from Yahoo Finance's public chart API (no credential).
+  Supported yahoo timeframes: `1d`, `1h`, `1wk`.
 
 ### `normalize-bars`
 
@@ -65,7 +67,9 @@ cargo run -p thales-cli -- generate-trade-intent --market <equities|crypto> --sy
 ```
 
 - Returns `TradeIntent`.
-- `intent_id` format: `<market>:<symbol>:<side>:v0`.
+- `intent_id` format: `<market>:<symbol>:<strategy>:<side>:v0` (strategy is part
+  of the id so a hand-crafted intent can never collide with a
+  strategy-generated one on the same symbol/side).
 
 ### `validate-intent`
 
@@ -138,6 +142,23 @@ cargo run -p thales-cli -- judge-signals --input <path-to-signals-json> [--analy
   `--emit report` returns the full audit trail instead.
 - `--log <path>` appends rejected signals as `| Date/Time | Symbol | Signal Ref | Rejection Reason |` rows.
 - The gate can only remove or shrink signals. It never creates them.
+
+### `dedupe-signals`
+
+```powershell
+cargo run -p thales-cli -- dedupe-signals --input <signals-A.json> --input <signals-B.json> [--log <audit.md>] [--report <dedup.json>]
+```
+
+- Deterministically resolves one symbol's ensemble strategy files to **at most
+  one intent**: opposite directions (`buy` vs `sell`) → conflict, emits nothing
+  and gates nothing; same-direction corroboration → keeps exactly one (highest
+  `confidence`; ties break on strategy name, then `intent_id`); a single
+  candidate passes through untouched.
+- The kept intent is never mutated. Output `data` is the surviving `TradeIntent`
+  list (sorted by symbol), ready for `judge-signals`.
+- `--report` writes the per-symbol disposition JSON (`single` / `deduped` /
+  `conflict`, kept id, dropped ids); `--log` appends disposition rows to the
+  audit file in the same four-column shape `judge-signals --log` uses.
 
 ### `analyze-market`
 

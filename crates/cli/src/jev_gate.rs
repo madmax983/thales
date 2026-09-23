@@ -907,6 +907,7 @@ mod tests {
             low,
             close,
             volume,
+            adjusted_close: None,
         }
     }
 

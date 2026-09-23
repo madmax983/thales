@@ -97,6 +97,7 @@ mod tests {
                 low: 95.0,
                 close: 100.0,
                 volume: 1000.0,
+                adjusted_close: None,
             }],
         };
 

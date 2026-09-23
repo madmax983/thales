@@ -127,6 +127,7 @@ pub fn generate_synthetic_data(config: SyntheticDataConfig) -> Result<BarSeries>
             low,
             close,
             volume,
+            adjusted_close: None,
         });
 
         current_price = close;

@@ -1,0 +1,18 @@
+{
+ "symbol": "IWM",
+ "queried_at": "2026-09-23T12:17:38.185448+00:00",
+ "results": [
+  {
+   "title": "IWM - Reddit sentiment and mention history",
+   "snippet": "ApeWisdom last 24h: Mentions 12 +71%, Upvotes 19 +73%, 11 users, Sentiment 44%. On WSB specifically: 10 mentions by 9 users, 44% positive vs 56% negative. Keywords: spy, made, even, pumping, bad.",
+   "url": "http://apewisdom.io/stocks/IWM/",
+   "date": "2026-09-23"
+  },
+  {
+   "title": "AltIndex IWM Reddit Mentions",
+   "snippet": "Reddit sentiment for IWM: 55/100 Neutral. Mentions running below recent average; 0 mentions/day per AltIndex crawl 6 days ago.",
+   "url": "https://altindex.com/ticker/iwm/reddit-mentions",
+   "date": "2026-09-23"
+  }
+ ]
+}

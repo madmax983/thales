@@ -74,14 +74,12 @@ pub fn calculate(
                 }
             }
 
-            if valid {
-                if let Some(current) = macd_decimals[i] {
-                    let range = highest - lowest;
-                    if range == 0.0 {
-                        k1[i] = Some(0.0);
-                    } else {
-                        k1[i] = Some(hundred * (current - lowest) / range);
-                    }
+            if valid && let Some(current) = macd_decimals[i] {
+                let range = highest - lowest;
+                if range == 0.0 {
+                    k1[i] = Some(0.0);
+                } else {
+                    k1[i] = Some(hundred * (current - lowest) / range);
                 }
             }
         }
@@ -113,14 +111,12 @@ pub fn calculate(
                 }
             }
 
-            if valid {
-                if let Some(current) = d1[i] {
-                    let range = highest - lowest;
-                    if range == 0.0 {
-                        k2[i] = Some(0.0);
-                    } else {
-                        k2[i] = Some(hundred * (current - lowest) / range);
-                    }
+            if valid && let Some(current) = d1[i] {
+                let range = highest - lowest;
+                if range == 0.0 {
+                    k2[i] = Some(0.0);
+                } else {
+                    k2[i] = Some(hundred * (current - lowest) / range);
                 }
             }
         }

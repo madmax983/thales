@@ -154,7 +154,7 @@ mod tests {
         assert!(val1 > 16.0 && val1 < 18.0); // Widen bounds as offset calculation affects the exact value
 
         let val2 = result_f64.get(10).unwrap(); // prices[10] is 20.0
-                                                // println!("val2: {}", val2);
+        // println!("val2: {}", val2);
         assert!(val2 > 18.0 && val2 < 20.0);
 
         Ok(())

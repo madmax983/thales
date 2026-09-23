@@ -1,0 +1,149 @@
+{
+  "symbol": "QQQ",
+  "scored_at": "2026-09-23T17:20:32.170988+00:00",
+  "state": {
+    "task": "wsb_sentiment",
+    "ticker": "QQQ",
+    "asof": "2026-09-23T17:20:31.389869+00:00",
+    "context": "You are scoring WallStreetBets retail sentiment as a CONTRARIAN mania meter for a paper-trading scan. WSB speaks in irony, sarcasm, and gallows humor \u2014 read tone, not just keywords. Euphoria means crowded-trade caution, never a buy signal. Some sources are stale-dated; weigh recency. Answer only from the sources below.",
+    "sources": [
+      {
+        "title": "INVESCO QQQ TRUST SERIES 1 (QQQ): Financial Market Data",
+        "snippet": "Current Price: 738.7, Previous Close Price: 747.46, Change: -8.76, Percent Change: -1.172",
+        "url": "https://finnhub.io/?q=%22QQQ%22",
+        "date": "2026-09-23"
+      },
+      {
+        "title": "3 WallStreetBets Stock Picks With Actual Potential for Massive Gains",
+        "snippet": "QQQ had the fourth-highest mentions over the past 24 hours at the time of writing, with 64, 33% less than the previous day. ... Invesco NASDAQ 100 ETF QQQM tracks the performance of the Nasdaq-100 Index. ... Kudos to WSB members for understanding this.",
+        "url": "https://www.nasdaq.com/articles/3-wallstreetbets-stock-picks-actual-potential-massive-gains",
+        "date": "2024-05-28"
+      },
+      {
+        "title": "Nasdaq Jumps To Close At Record As Chipmakers Climb, Oil Prices Cool \u2014 AAPL, META, SPCX, MSFT, VKTX In Focus",
+        "snippet": "Retail sentiment on Stocktwits for QQQ and SPY moved to 'bullish' from 'neutral' a day ago, with 'high' message volumes, and remained 'bearish' for the DIA.",
+        "url": "https://stocktwits.com/news-articles/markets/equity/nasdaq-jumps-to-close-at-record-as-chipmakers-climb-oil-prices-cool-aapl-meta-spcx-msft-vktx-in-focus/cZM5GHbRB7L",
+        "date": "2026-09-22"
+      },
+      {
+        "title": "Top 5 stocks mentioned on Reddit's WallStreetBets right now",
+        "snippet": "So let's take a look at the 5 most-discussed stocks on WallStreetBets as of Tuesday January 11 Australian time, thanks to statistics from Swaggy Stocks: 1. Tesla, 2. GameStop, 3. Tilray, 4. Invesco QQQ Trust Series 1 (QQQ), 5. Nvidia.",
+        "url": "https://www.fool.com.au/2022/01/12/top-5-stocks-mentioned-on-reddits-wallstreetbets-right-now/",
+        "date": "2022-01-12"
+      },
+      {
+        "title": "Prediction: The Invesco QQQ Trust Beats the S&P 500 Again Over the Next 5 Years",
+        "snippet": "As of this writing, the Invesco QQQ Trust (QQQ) has returned 20.67% over the past year, versus 16.54% for the Vanguard S&P 500 ETF (VOO).",
+        "url": "https://news.wallstreet.com/prediction-the-invesco-qqq-trust-beats-the-s-and-p-500-again-over-the-next-5-years/",
+        "date": "2026-09-18"
+      },
+      {
+        "title": "WallStreetBets Group Releases Synthetic Stock Trading Dapp - Tokenist",
+        "snippet": "the website explains they are 'empowering investors to buy stocks without the intervention of a middle man'... the app currently offers only seven stocks... All of these options (excluding Ethereum) are popular on the WallStreetBets subreddit.",
+        "url": "https://tokenist.com/wallstreetbets-group-releases-synthetic-stock-trading-dapp/",
+        "date": "2021-11-25"
+      },
+      {
+        "title": "Best WallStreetBets Stocks to Buy December Week 2 Roundup - Economy Watch",
+        "snippet": "QQQ, which tracks the Nasdaq-100 Index, is a popular ETF on WallStreetBets. The ETF gives you diversified exposure to large-cap US technology companies. However, the outlook for US tech stocks looks bullish.",
+        "url": "https://www.economywatch.com/news/best-wallstreetbets-stocks-to-buy-december-week-2-roundup",
+        "date": "2021-12-08"
+      },
+      {
+        "title": "Why Invesco NASDAQ 100 ETF's Lower Fee Quietly Outperforms Invesco QQQ Trust for Buy-and-Hold Investors",
+        "snippet": "QQQ shows up constantly across r/wallstreetbets, including a viral '$7K off $287 on $650 call on QQQ' post and a '1.8M YOLO QQQ short' thread. QQQM barely registers on Reddit.",
+        "url": "https://newsbreak-local-stage.nb-internal.com/24-7-wall-st--561338/4638015106437-why-invesco-nasdaq-100-etf-s-lower-fee-quietly-outperforms-invesco-qqq-trust-for-buy-and-hold-investors",
+        "date": "2026-05-07"
+      }
+    ]
+  },
+  "questions": {
+    "lean": {
+      "type": "choice",
+      "instructions": "What is the directional lean of WSB chatter on this ticker across these sources?",
+      "criteria": {
+        "bullish": "Chatter clearly leans bullish: more optimism, upside targets, and call-side energy than fear.",
+        "bearish": "Chatter clearly leans bearish: more fear, downside talk, and put-side hedging than optimism.",
+        "mixed": "Genuinely two-sided: bullish and bearish voices both present, no clear majority.",
+        "quiet": "Too little real chatter to call a lean: stale, off-topic, or thin results."
+      }
+    },
+    "conviction": {
+      "type": "score",
+      "instructions": "How intense is the WSB attention on this ticker right now?",
+      "criteria": [
+        "No meaningful attention: quiet or stale results only",
+        "Light chatter: routine mentions, no excitement",
+        "Moderate buzz: elevated mentions, real debate",
+        "Heavy buzz: surging mentions, strong directional energy",
+        "Euphoric pile-on: mania-like, meme-stock energy"
+      ]
+    },
+    "euphoria": {
+      "type": "noul",
+      "instructions": "Is WSB euphoric about this ticker \u2014 crowded-trade territory?",
+      "criteria": {
+        "true": "Euphoric: pile-on, moon-talk, mania-like. Read as crowded-trade caution.",
+        "false": "Not euphoric: measured, mixed, or quiet chatter."
+      }
+    },
+    "surface": {
+      "type": "noul",
+      "instructions": "Is this sentiment development worth surfacing to Mark in the morning briefing?",
+      "criteria": {
+        "true": "Yes: new, strong, or surprising enough to earn a line in the brief.",
+        "false": "No: routine or thin. Keep it in the audit file only."
+      }
+    }
+  },
+  "jev_report": {
+    "ok": true,
+    "status": 200,
+    "latency_ms": 674.7,
+    "model": "jev-1.13.0",
+    "answers": {
+      "lean": {
+        "type": "choice",
+        "choice": "bullish",
+        "confidence": 0.3,
+        "probabilities": {
+          "bullish": 0.48,
+          "mixed": 0.36,
+          "bearish": 0.01,
+          "quiet": 0.15
+        }
+      },
+      "conviction": {
+        "type": "score",
+        "score": 1.45,
+        "confidence": 0.52,
+        "legend": {
+          "0": "No meaningful attention: quiet or stale results only",
+          "1": "Light chatter: routine mentions, no excitement",
+          "2": "Moderate buzz: elevated mentions, real debate",
+          "3": "Heavy buzz: surging mentions, strong directional energy",
+          "4": "Euphoric pile-on: mania-like, meme-stock energy"
+        },
+        "probabilities": {
+          "0": 0.06,
+          "1": 0.51,
+          "2": 0.37,
+          "3": 0.06,
+          "4": 0.0
+        }
+      },
+      "euphoria": {
+        "type": "noul",
+        "noul": 0.29
+      },
+      "surface": {
+        "type": "noul",
+        "noul": 0.43
+      }
+    },
+    "usage": {
+      "input_tokens": 2060,
+      "output_tokens": 99
+    }
+  }
+}

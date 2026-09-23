@@ -16,7 +16,7 @@
 
 use crate::indicators::{atr, kama};
 use crate::strategy::{Signal, SignalType, Strategy, StrategyConfig, StrategyType};
-use anyhow::{bail, Result};
+use anyhow::{Result, bail};
 use async_trait::async_trait;
 use polars::prelude::*;
 use rust_decimal::Decimal;

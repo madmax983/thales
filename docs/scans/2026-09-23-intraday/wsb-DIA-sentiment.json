@@ -1,0 +1,41 @@
+{
+  "symbol": "DIA",
+  "queried_at": "2026-09-23T12:30:00-05:00",
+  "scored_at": "2026-09-23T17:20:25.299166+00:00",
+  "result_count": 5,
+  "bullish_hits": 2,
+  "bearish_hits": 0,
+  "mixed_hits": 0,
+  "net_score": 2,
+  "lean": "mixed",
+  "mention_volume": "medium",
+  "euphoria_flag": false,
+  "top_posts": [
+    {
+      "title": "SPDR Dow Jones Industrial Average ETF Trust (DIA) Stock Latest News - DIA News Today",
+      "url": "https://www.FinanceCharts.com/etfs/DIA/news",
+      "date": "2026-09-19"
+    },
+    {
+      "title": "This Low-Cost ETF Is Not the Same as Buying the Dow. It...",
+      "url": "https://marketwirenews.com/stock/dia/news/this-low-cost-etf-is-not-the-same-as-buying-the-dow--8216276333338827.html",
+      "date": "2026-07-08"
+    },
+    {
+      "title": "Dow Theory Letters - The $43 Billion ETF Hiding in Plain Sight. Why DIA Might Outperform SPY and QQQ for the Rest of 2026.",
+      "url": "https://markets.financialcontent.com/dowtheoryletters/article/barchart-2026-5-19-the-43-billion-etf-hiding-in-plain-sight-why-dia-might-outperform-spy-and-qqq-for-the-rest-of-2026",
+      "date": "2026-05-19"
+    },
+    {
+      "title": "SPDR Dow Jones Industrial Average ETF Trust (DIA) ETF Analysis: A Blue-Chip, Financials-Heavy Portfolio Navigating a Range-Bound Market",
+      "url": "https://tickeron.com/ticker/DIA/",
+      "date": "2026-09-17"
+    },
+    {
+      "title": "The Best Dow Jones ETF to Buy in 2026 | The Motley Fool",
+      "url": "https://www.fool.com/investing/stock-market/indexes/dow-jones/etfs/",
+      "date": "2026-09-02"
+    }
+  ],
+  "method": "keyword scorer v0 — bin/score-wsb.py"
+}

@@ -109,6 +109,7 @@ mod tests {
                 low: 90.0,
                 close: 105.0,
                 volume: 1000.0,
+                adjusted_close: None,
             },
             Bar {
                 symbol: "TEST".into(),
@@ -120,6 +121,7 @@ mod tests {
                 low: 112.0,
                 close: 118.0,
                 volume: 1500.0,
+                adjusted_close: None,
             },
         ]
     }

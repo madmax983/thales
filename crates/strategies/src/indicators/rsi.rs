@@ -122,11 +122,7 @@ pub fn calculate(data: &DataFrame, period: usize) -> Result<Series> {
             avg_loss = (avg_loss * period_minus_one + curr_loss) / period_f;
 
             let rsi = if avg_loss == 0.0 {
-                if avg_gain == 0.0 {
-                    50.0
-                } else {
-                    hundred
-                }
+                if avg_gain == 0.0 { 50.0 } else { hundred }
             } else {
                 let rs = avg_gain / avg_loss;
                 hundred - (hundred / (1.0 + rs))

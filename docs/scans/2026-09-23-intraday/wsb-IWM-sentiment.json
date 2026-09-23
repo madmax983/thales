@@ -1,0 +1,36 @@
+{
+  "symbol": "IWM",
+  "queried_at": "2026-09-23T12:30:00-05:00",
+  "scored_at": "2026-09-23T17:20:25.380110+00:00",
+  "result_count": 4,
+  "bullish_hits": 2,
+  "bearish_hits": 2,
+  "mixed_hits": 1,
+  "net_score": 0,
+  "lean": "mixed",
+  "mention_volume": "medium",
+  "euphoria_flag": false,
+  "top_posts": [
+    {
+      "title": "Sentiment Analysis: IWM",
+      "url": "https://www.syntheticalpha.ai/weekly-reports/IWM",
+      "date": "2026-06-17"
+    },
+    {
+      "title": "The IWM Small-Cap Trade Is Built On A Narrative That Already Died",
+      "url": "https://www.ainvest.com/news/iwm-small-cap-trade-built-narrative-died-2606/",
+      "date": "2026-05-31"
+    },
+    {
+      "title": "iShares Russell 2000 ETF (IWM) Draws Large Weekly Inflow as Small-Cap Exposure Gains",
+      "url": "https://www.etfchannel.com/article/202609/ishares-russell-2000-etf-iwm-draws-large-weekly-inflow-as-small-cap-exposure-IWM09182026inflow.htm/",
+      "date": "2026-09-18"
+    },
+    {
+      "title": "Risk-On In Small-Caps After iShares Russell 2000 ETF Breaks Out",
+      "url": "https://www.sharewise.com/us/news_articles/RiskOn_In_SmallCaps_After_iShares_Russell_2000_ETFs_Breaks_Out_MarketBeat_20230605_1445",
+      "date": "2023-06-05"
+    }
+  ],
+  "method": "keyword scorer v0 — bin/score-wsb.py"
+}

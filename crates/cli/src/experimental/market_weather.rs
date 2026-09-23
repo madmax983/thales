@@ -62,7 +62,7 @@ pub struct MarketWeather {
 ///         timeframe: "1d".to_string(),
 ///         timestamp_unix_ms: i * 86400000,
 ///         open: 100.0, high: 100.0, low: 100.0, close: 100.0, volume: 100.0,
-///     });
+///     adjusted_close: None, });
 /// }
 /// let series = BarSeries { schema_version: "v1".to_string(), bars };
 ///
@@ -147,6 +147,7 @@ mod tests {
             low: close,
             close,
             volume,
+            adjusted_close: None,
         }
     }
 

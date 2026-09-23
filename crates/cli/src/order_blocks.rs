@@ -113,7 +113,7 @@ pub struct OrderBlocksReport {
 ///         low: 99.0,
 ///         close: 100.0,
 ///         volume: 1000.0,
-///     }
+///     adjusted_close: None, }
 /// }).collect();
 ///
 /// let series = BarSeries {
@@ -249,6 +249,7 @@ mod tests {
                 low: 95.0,
                 close: 100.0,
                 volume: 1.0,
+                adjusted_close: None,
             },
             Bar {
                 symbol: "BTC".into(),
@@ -260,6 +261,7 @@ mod tests {
                 low: 95.0,
                 close: 100.0,
                 volume: 1.0,
+                adjusted_close: None,
             },
             Bar {
                 symbol: "BTC".into(),
@@ -271,6 +273,7 @@ mod tests {
                 low: 95.0,
                 close: 100.0,
                 volume: 1.0,
+                adjusted_close: None,
             },
             Bar {
                 symbol: "BTC".into(),
@@ -282,6 +285,7 @@ mod tests {
                 low: 95.0,
                 close: 100.0,
                 volume: 1.0,
+                adjusted_close: None,
             },
             // Small bearish candle (The potential OB)
             Bar {
@@ -294,6 +298,7 @@ mod tests {
                 low: 98.0,
                 close: 99.0,
                 volume: 1.0,
+                adjusted_close: None,
             },
             // Strong bullish expansion
             Bar {
@@ -306,6 +311,7 @@ mod tests {
                 low: 99.0,
                 close: 125.0,
                 volume: 5.0,
+                adjusted_close: None,
             },
             // Next candles
             Bar {
@@ -318,6 +324,7 @@ mod tests {
                 low: 120.0,
                 close: 128.0,
                 volume: 1.0,
+                adjusted_close: None,
             },
             Bar {
                 symbol: "BTC".into(),
@@ -329,6 +336,7 @@ mod tests {
                 low: 125.0,
                 close: 130.0,
                 volume: 1.0,
+                adjusted_close: None,
             },
             // Mitigation candle (touches the OB top which is 102.0)
             Bar {
@@ -341,6 +349,7 @@ mod tests {
                 low: 100.0,
                 close: 110.0,
                 volume: 2.0,
+                adjusted_close: None,
             },
         ]
     }

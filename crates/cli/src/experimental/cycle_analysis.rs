@@ -109,7 +109,7 @@ pub struct CycleReport {
 ///         low: 100.0,
 ///         close: 100.0 + (i as f64).sin(), // Add a slight sine wave
 ///         volume: 100.0,
-///     });
+///     adjusted_close: None, });
 /// }
 ///
 /// let series = BarSeries {
@@ -224,6 +224,7 @@ mod tests {
             low: close,
             close,
             volume: 100.0,
+            adjusted_close: None,
         }
     }
 

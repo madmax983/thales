@@ -532,6 +532,7 @@ impl KrakenClient {
                                 low,
                                 close,
                                 volume,
+                                adjusted_close: None,
                             });
                         }
                     }

@@ -1,0 +1,137 @@
+{
+  "symbol": "IONQ",
+  "scored_at": "2026-09-23T17:20:34.424132+00:00",
+  "state": {
+    "task": "wsb_sentiment",
+    "ticker": "IONQ",
+    "asof": "2026-09-23T17:20:33.839040+00:00",
+    "context": "You are scoring WallStreetBets retail sentiment as a CONTRARIAN mania meter for a paper-trading scan. WSB speaks in irony, sarcasm, and gallows humor \u2014 read tone, not just keywords. Euphoria means crowded-trade caution, never a buy signal. Some sources are stale-dated; weigh recency. Answer only from the sources below.",
+    "sources": [
+      {
+        "title": "IONQ Inc (IONQ): Financial Market Data",
+        "snippet": "Current Price: 42.91, Open Price: 45.84, High Price: 46.05, Low Price: 41.63, Previous Close Price: 40.74, Percent Change: 5.3265. Beta: 3.35.",
+        "url": "https://finnhub.io/?q=%22IONQ%22",
+        "date": "2026-09-23"
+      },
+      {
+        "title": "Palantir, IonQ, Royal Caribbean, Paychex, McDonald's, and More Stocks That Explain Today's Market",
+        "snippet": "IonQ gained 6.6% after the company said its latest quantum computer, Superion 256, will be the first system in Nvidia's quantum research center. The new device will act as a specialized co-processor alongside an Nvidia GPU cluster. Shares of Nvidia fell 1.3%.",
+        "url": "https://www.barrons.com/articles/stock-movers-91bb194a",
+        "date": "2026-09-23"
+      },
+      {
+        "title": "IonQ Shares Surge Following Breakthrough in Quantum Computing Efficiency | Wall Street Next",
+        "snippet": "IonQ stock surged after demonstrating real-time quantum error correction using a single standard CPU, solving a critical scalability bottleneck and eliminating the need for specialized hardware. On September 22, 2026, IonQ stock closed at $40.74 before rising 12.27% in after-hours trading to $45.74.",
+        "url": "https://wsnext.com/cdafa24-Quantum-computing-IonQ/",
+        "date": "2026-09-23"
+      },
+      {
+        "title": "Quantum Stocks: IonQ Claims Key Advance, Sets Nvidia Research Pact",
+        "snippet": "IonQ stock rose on Wednesday after the company announced an advance in quantum computing during one of the industry's largest conferences. On the stock market today, IonQ stock initially popped over 10%, then pared gains. In midday trading, shares were up 5% to 42.78.",
+        "url": "https://www.investors.com/news/technology/ionq-stock-jumps-quantum-advance-industry-conference/",
+        "date": "2026-09-23"
+      },
+      {
+        "title": "IonQ, Rigetti Computing, D-Wave Quantum, and Quantum Computing Inc. Are Sending Shockwaves Through Wall Street With This $895 Million Warning | The Motley Fool",
+        "snippet": "It's the insider trading activity for Wall Street's hottest quantum computing stocks that's sending shockwaves through Wall Street. Over the trailing two years, insiders have been steady sellers: IonQ: $454,454,505 in net selling. Insider buying at this quantum computing quartet has been almost nonexistent.",
+        "url": "https://WWW.FOOL.COM/investing/2026/09/22/ionq-rigetti-dwave-quantum-computing-send-shockwaves-through-wall-street-with-895-million-warning/",
+        "date": "2026-09-22"
+      },
+      {
+        "title": "Quantum stocks jump ahead of industry conference",
+        "snippet": "Shares of quantum-computing companies jumped on Wednesday in premarket trading ahead of an industry conference starting later today. IonQ's stock surged by almost 14% to $46.42 as investors prepare to hear from Chief Executive Niccolo de Masi, who will be speaking late Thursday morning Eastern time at the event.",
+        "url": "https://www.marketwatch.com/livecoverage/stock-market-today-dow-s-p-500-nasdaq-firm-start-oil-prices-pull-back-further/card/quantum-stocks-jump-ahead-of-industry-conference-OLJAXb1UQq3ArtSZyjFB",
+        "date": "2026-09-23"
+      }
+    ]
+  },
+  "questions": {
+    "lean": {
+      "type": "choice",
+      "instructions": "What is the directional lean of WSB chatter on this ticker across these sources?",
+      "criteria": {
+        "bullish": "Chatter clearly leans bullish: more optimism, upside targets, and call-side energy than fear.",
+        "bearish": "Chatter clearly leans bearish: more fear, downside talk, and put-side hedging than optimism.",
+        "mixed": "Genuinely two-sided: bullish and bearish voices both present, no clear majority.",
+        "quiet": "Too little real chatter to call a lean: stale, off-topic, or thin results."
+      }
+    },
+    "conviction": {
+      "type": "score",
+      "instructions": "How intense is the WSB attention on this ticker right now?",
+      "criteria": [
+        "No meaningful attention: quiet or stale results only",
+        "Light chatter: routine mentions, no excitement",
+        "Moderate buzz: elevated mentions, real debate",
+        "Heavy buzz: surging mentions, strong directional energy",
+        "Euphoric pile-on: mania-like, meme-stock energy"
+      ]
+    },
+    "euphoria": {
+      "type": "noul",
+      "instructions": "Is WSB euphoric about this ticker \u2014 crowded-trade territory?",
+      "criteria": {
+        "true": "Euphoric: pile-on, moon-talk, mania-like. Read as crowded-trade caution.",
+        "false": "Not euphoric: measured, mixed, or quiet chatter."
+      }
+    },
+    "surface": {
+      "type": "noul",
+      "instructions": "Is this sentiment development worth surfacing to Mark in the morning briefing?",
+      "criteria": {
+        "true": "Yes: new, strong, or surprising enough to earn a line in the brief.",
+        "false": "No: routine or thin. Keep it in the audit file only."
+      }
+    }
+  },
+  "jev_report": {
+    "ok": true,
+    "status": 200,
+    "latency_ms": 469.4,
+    "model": "jev-1.13.0",
+    "answers": {
+      "lean": {
+        "type": "choice",
+        "choice": "quiet",
+        "confidence": 0.64,
+        "probabilities": {
+          "mixed": 0.14,
+          "bearish": 0.02,
+          "bullish": 0.1,
+          "quiet": 0.74
+        }
+      },
+      "conviction": {
+        "type": "score",
+        "score": 1.27,
+        "confidence": 0.0,
+        "legend": {
+          "0": "No meaningful attention: quiet or stale results only",
+          "1": "Light chatter: routine mentions, no excitement",
+          "2": "Moderate buzz: elevated mentions, real debate",
+          "3": "Heavy buzz: surging mentions, strong directional energy",
+          "4": "Euphoric pile-on: mania-like, meme-stock energy"
+        },
+        "probabilities": {
+          "0": 0.47,
+          "1": 0.1,
+          "2": 0.14,
+          "3": 0.27,
+          "4": 0.02
+        }
+      },
+      "euphoria": {
+        "type": "noul",
+        "noul": 0.26
+      },
+      "surface": {
+        "type": "noul",
+        "noul": 0.58
+      }
+    },
+    "usage": {
+      "input_tokens": 1787,
+      "output_tokens": 98
+    }
+  }
+}

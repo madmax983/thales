@@ -1,0 +1,113 @@
+{
+  "symbol": "QQQ",
+  "scored_at": "2026-09-23T12:18:17.667468+00:00",
+  "state": {
+    "task": "wsb_sentiment",
+    "ticker": "QQQ",
+    "asof": "2026-09-23T12:18:16.922349+00:00",
+    "context": "You are scoring WallStreetBets retail sentiment as a CONTRARIAN mania meter for a paper-trading scan. WSB speaks in irony, sarcasm, and gallows humor \u2014 read tone, not just keywords. Euphoria means crowded-trade caution, never a buy signal. Some sources are stale-dated; weigh recency. Answer only from the sources below.",
+    "sources": [
+      {
+        "title": "QQQ - Invesco QQQ ETF, Reddit sentiment and mention history",
+        "snippet": "QQQ Overall Summary (last 24h): Mentions 118 -39%, Upvotes 360 -31%, mentioning users 78 -38%, Sentiment 60%. QQQ Sentiment on WSB 61%. During the last 24H QQQ was mentioned 109 times on WallstreetBets by 70 different users. Invesco QQQ ETF received 60% positive comments versus 40% negative comments. Keywords: spy, calls, ath, up, time.",
+        "url": "http://apewisdom.io/stocks/QQQ/",
+        "date": "2026-09-23"
+      },
+      {
+        "title": "Ape Wisdom | Trending Stocks on r/wallstreetbets",
+        "snippet": "Top 15: 1 SPY 253 mentions -12%, 2 MU 240 +40%, 3 META 147 -63%, 4 QQQ 111 -36%, 5 AMD 85 -71%, 6 SNDK 80 +7%, 7 NVDA 54 -40%, 8 DTE 53 -31%, 9 MSFT 43 +54%, 10 GOOG 40 +8%, 11 BB 38 +217%, 12 TSLA 35 +84%, 13 GOOGL 31 +107%, 14 SOXL 30 +43%, 15 AVGO 29 -29%.",
+        "url": "https://apewisdom.io/wallstreetbets",
+        "date": "2026-09-23"
+      }
+    ]
+  },
+  "questions": {
+    "lean": {
+      "type": "choice",
+      "instructions": "What is the directional lean of WSB chatter on this ticker across these sources?",
+      "criteria": {
+        "bullish": "Chatter clearly leans bullish: more optimism, upside targets, and call-side energy than fear.",
+        "bearish": "Chatter clearly leans bearish: more fear, downside talk, and put-side hedging than optimism.",
+        "mixed": "Genuinely two-sided: bullish and bearish voices both present, no clear majority.",
+        "quiet": "Too little real chatter to call a lean: stale, off-topic, or thin results."
+      }
+    },
+    "conviction": {
+      "type": "score",
+      "instructions": "How intense is the WSB attention on this ticker right now?",
+      "criteria": [
+        "No meaningful attention: quiet or stale results only",
+        "Light chatter: routine mentions, no excitement",
+        "Moderate buzz: elevated mentions, real debate",
+        "Heavy buzz: surging mentions, strong directional energy",
+        "Euphoric pile-on: mania-like, meme-stock energy"
+      ]
+    },
+    "euphoria": {
+      "type": "noul",
+      "instructions": "Is WSB euphoric about this ticker \u2014 crowded-trade territory?",
+      "criteria": {
+        "true": "Euphoric: pile-on, moon-talk, mania-like. Read as crowded-trade caution.",
+        "false": "Not euphoric: measured, mixed, or quiet chatter."
+      }
+    },
+    "surface": {
+      "type": "noul",
+      "instructions": "Is this sentiment development worth surfacing to Mark in the morning briefing?",
+      "criteria": {
+        "true": "Yes: new, strong, or surprising enough to earn a line in the brief.",
+        "false": "No: routine or thin. Keep it in the audit file only."
+      }
+    }
+  },
+  "jev_report": {
+    "ok": true,
+    "status": 200,
+    "latency_ms": 548.2,
+    "model": "jev-1.13.0",
+    "answers": {
+      "lean": {
+        "type": "choice",
+        "choice": "bullish",
+        "confidence": 0.7,
+        "probabilities": {
+          "quiet": 0.02,
+          "mixed": 0.09,
+          "bullish": 0.77,
+          "bearish": 0.12
+        }
+      },
+      "conviction": {
+        "type": "score",
+        "score": 1.63,
+        "confidence": 0.6,
+        "legend": {
+          "0": "No meaningful attention: quiet or stale results only",
+          "1": "Light chatter: routine mentions, no excitement",
+          "2": "Moderate buzz: elevated mentions, real debate",
+          "3": "Heavy buzz: surging mentions, strong directional energy",
+          "4": "Euphoric pile-on: mania-like, meme-stock energy"
+        },
+        "probabilities": {
+          "0": 0.0,
+          "1": 0.42,
+          "2": 0.53,
+          "3": 0.05,
+          "4": 0.0
+        }
+      },
+      "euphoria": {
+        "type": "noul",
+        "noul": 0.23
+      },
+      "surface": {
+        "type": "noul",
+        "noul": 0.34
+      }
+    },
+    "usage": {
+      "input_tokens": 1244,
+      "output_tokens": 99
+    }
+  }
+}

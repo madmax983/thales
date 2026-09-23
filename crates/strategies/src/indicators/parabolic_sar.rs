@@ -10,7 +10,7 @@
 //!   bringing the SAR closer to the price and tightening the trailing stop.
 //! - **Stop and Reverse (SAR):** The calculated price level. If the actual price crosses the SAR, the trend flips direction.
 
-use anyhow::{anyhow, Result};
+use anyhow::{Result, anyhow};
 use polars::prelude::*;
 
 type SarResult = Result<(Vec<Option<f64>>, Vec<Option<bool>>)>;

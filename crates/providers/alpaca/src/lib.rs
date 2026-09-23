@@ -320,6 +320,7 @@ impl AlpacaClient {
                     low: b.l,
                     close: b.c,
                     volume: b.v as f64,
+                    adjusted_close: None,
                 });
             }
         }
