@@ -224,6 +224,7 @@ pub async fn run_backtest_with_strategy(
     // 4. Simulation Loop
     let mut position: Option<OpenPosition> = None;
     let mut trades: Vec<BacktestTrade> = Vec::new();
+    let mut realized_pnl: f64 = 0.0;
     let mut equity_curve: Vec<EquityPoint> = Vec::new();
     let mut pending_orders: Vec<PendingOrder> = Vec::new();
 
@@ -333,6 +334,7 @@ pub async fn run_backtest_with_strategy(
                             pnl_pct: pnl / (pos.entry_price * pos.qty), // ROI on trade not account
                             exit_reason: order.signal.reason.clone(),
                         });
+                        realized_pnl += pnl;
 
                         position = None;
                     }
@@ -404,6 +406,7 @@ pub async fn run_backtest_with_strategy(
                     pnl_pct: pnl / (pos.entry_price * pos.qty),
                     exit_reason: reason,
                 });
+                realized_pnl += pnl;
 
                 position = None;
             }
@@ -454,7 +457,6 @@ pub async fn run_backtest_with_strategy(
         };
 
         // Equity = Initial + Realized + Unrealized
-        let realized_pnl: f64 = trades.iter().map(|t| t.pnl).sum();
         let current_equity = config.initial_capital + realized_pnl + unrealized_pnl;
 
         equity_curve.push(EquityPoint {
@@ -472,7 +474,6 @@ pub async fn run_backtest_with_strategy(
     }
 
     // 5. Finalize Metrics
-    let realized_pnl: f64 = trades.iter().map(|t| t.pnl).sum();
     let final_equity = config.initial_capital + realized_pnl; // Close all at end?
     // Let's assume open positions are marked to market at final close
     let total_return_pct = (final_equity - config.initial_capital) / config.initial_capital * 100.0;
