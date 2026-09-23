@@ -481,3 +481,67 @@ per-bar work already living in the same closure (equity-curve push,
 signal-map lookup, position bookkeeping). This is the asymptotic-argument
 evidence class (see project instructions): the fix is expected to flatten
 this curve, not just shave a constant off it.
+## After: backtest-loop realized-PnL accumulator
+
+`crates/cli/src/backtest.rs`: replaced the per-bar `trades.iter().map(|t|
+t.pnl).sum()` with a `realized_pnl: f64` accumulator initialized to `0.0`
+before the simulation loop and incremented by `pnl` at each of the two
+trade-close sites (intrabar SL/TP exit, and signal-driven exit) — the same
+two places that already compute `pnl` for the trade being pushed. The
+post-loop "Finalize Metrics" recomputation of the same sum was removed
+too, reusing the accumulator instead (both are the same value, summed in
+the same order, so this is bit-identical, not just equivalent). No
+algorithm, ordering, or public output changed — this is a pure
+`O(n²) -> O(n)` reduction of redundant work already being tracked
+elsewhere.
+
+Primary harness (`perf/bolt_benchmark.sh --callgrind`, same fixture, same
+machine, same session):
+
+```
+I refs: 2,533,550,698   (this run's baseline: 2,623,791,528)
+```
+
+| | Ir | % of this run's baseline |
+|---|---:|---:|
+| Baseline (post-indicator-layer-fix) | 2,623,791,528 | 100.00% |
+| After backtest-loop fix | 2,533,550,698 | 96.56% |
+| **Delta** | **-90,240,830** | **-3.44%** |
+
+`run_backtest_with_strategy::{{closure}}` self-cost drops from
+139,180,543 (5.30%) to 51,106,946 (2.02%) — a 63% reduction in the target
+function itself. The whole-workload delta (-3.44%) does not on its own
+clear the flat "≥5% of total instructions" bar, so this change is
+justified instead by the asymptotic-improvement criterion: same three
+input sizes, same `perf/bolt_asymptotic.sh` harness, **after** the fix:
+
+| Bars | Trades | Ir (closure self-cost) | % of run's total Ir |
+|---:|---:|---:|---:|
+| 5,000 | 124 | 547,140 | 0.57% |
+| 10,000 | 222 | 1,258,253 | 0.66% |
+| 20,000 | 479 | 2,141,407 | 0.56% |
+
+Before the fix this function's cost share grew with input size (1.27% ->
+1.86% -> 2.97%); after the fix it is flat (~0.55-0.66%, no growth trend) —
+the quadratic term is gone, leaving the genuinely linear per-bar work
+(equity-curve push, signal-map lookup, position bookkeeping). This is the
+"asymptotic complexity improvement, demonstrated across input sizes" gate,
+independent of the whole-workload percentage, which is small only because
+`rust_decimal` still dominates the total at this fixture size (see
+previous sections) — the defect this fixes gets proportionally worse, not
+better, on longer backtests, which is exactly the scenario a real user
+runs when evaluating a strategy over years of history rather than a few
+thousand hourly bars.
+
+`cargo test --workspace --all-features` (924 unit + doctests across the
+workspace) passes unchanged; no test's expected trade count, PnL, or
+equity value needed updating, consistent with this being a pure
+redundant-work removal rather than a behavior change.
+
+### Reproduce
+
+```sh
+cargo build --release -p thales-cli --features nova
+perf/bolt_benchmark.sh --callgrind     # whole-workload delta
+perf/bolt_asymptotic.sh --callgrind    # per-size scaling curve
+```
