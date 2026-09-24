@@ -52,10 +52,10 @@ pub struct PriceKinematics {
 /// use thales_cli::experimental::kinematics::calculate_kinematics;
 ///
 /// let bars = vec![
-///     Bar { symbol: "AAPL".into(), market: "equities".into(), timeframe: "1d".into(), timestamp_unix_ms: 0, open: 100.0, high: 100.0, low: 100.0, close: 100.0, volume: 100.0 adjusted_close: None, },
-///     Bar { symbol: "AAPL".into(), market: "equities".into(), timeframe: "1d".into(), timestamp_unix_ms: 1, open: 105.0, high: 105.0, low: 105.0, close: 105.0, volume: 100.0 adjusted_close: None, },
-///     Bar { symbol: "AAPL".into(), market: "equities".into(), timeframe: "1d".into(), timestamp_unix_ms: 2, open: 115.0, high: 115.0, low: 115.0, close: 115.0, volume: 100.0 adjusted_close: None, },
-///     Bar { symbol: "AAPL".into(), market: "equities".into(), timeframe: "1d".into(), timestamp_unix_ms: 3, open: 130.0, high: 130.0, low: 130.0, close: 130.0, volume: 100.0 adjusted_close: None, },
+///     Bar { symbol: "AAPL".into(), market: "equities".into(), timeframe: "1d".into(), timestamp_unix_ms: 0, open: 100.0, high: 100.0, low: 100.0, close: 100.0, volume: 100.0, adjusted_close: None, },
+///     Bar { symbol: "AAPL".into(), market: "equities".into(), timeframe: "1d".into(), timestamp_unix_ms: 1, open: 105.0, high: 105.0, low: 105.0, close: 105.0, volume: 100.0, adjusted_close: None, },
+///     Bar { symbol: "AAPL".into(), market: "equities".into(), timeframe: "1d".into(), timestamp_unix_ms: 2, open: 115.0, high: 115.0, low: 115.0, close: 115.0, volume: 100.0, adjusted_close: None, },
+///     Bar { symbol: "AAPL".into(), market: "equities".into(), timeframe: "1d".into(), timestamp_unix_ms: 3, open: 130.0, high: 130.0, low: 130.0, close: 130.0, volume: 100.0, adjusted_close: None, },
 /// ];
 /// let series = BarSeries { schema_version: "v1".into(), bars };
 ///

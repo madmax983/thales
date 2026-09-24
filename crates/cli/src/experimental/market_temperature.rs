@@ -76,8 +76,8 @@ pub struct TemperatureReport {
 /// let series = BarSeries {
 ///     schema_version: "v1".to_string(),
 ///     bars: vec![
-///         Bar { symbol: "BTC".into(), market: "crypto".into(), timeframe: "1d".into(), timestamp_unix_ms: 0, open: 100.0, high: 110.0, low: 90.0, close: 100.0, volume: 1000.0 adjusted_close: None, },
-///         Bar { symbol: "BTC".into(), market: "crypto".into(), timeframe: "1d".into(), timestamp_unix_ms: 1, open: 100.0, high: 120.0, low: 100.0, close: 110.0, volume: 2000.0 adjusted_close: None, },
+///         Bar { symbol: "BTC".into(), market: "crypto".into(), timeframe: "1d".into(), timestamp_unix_ms: 0, open: 100.0, high: 110.0, low: 90.0, close: 100.0, volume: 1000.0, adjusted_close: None, },
+///         Bar { symbol: "BTC".into(), market: "crypto".into(), timeframe: "1d".into(), timestamp_unix_ms: 1, open: 100.0, high: 120.0, low: 100.0, close: 110.0, volume: 2000.0, adjusted_close: None, },
 ///     ],
 /// };
 ///

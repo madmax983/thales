@@ -96,9 +96,9 @@ pub struct PriceDnaReport {
 ///     schema_version: "v0".to_string(),
 ///     bars: vec![
 ///         // Bar 1: Up, Volume: 200 (Above average threshold 125) -> A
-///         Bar { symbol: "TEST".into(), market: "test".into(), timeframe: "1d".into(), timestamp_unix_ms: 0, open: 100.0, high: 110.0, low: 90.0, close: 105.0, volume: 200.0 adjusted_close: None, },
+///         Bar { symbol: "TEST".into(), market: "test".into(), timeframe: "1d".into(), timestamp_unix_ms: 0, open: 100.0, high: 110.0, low: 90.0, close: 105.0, volume: 200.0, adjusted_close: None, },
 ///         // Bar 2: Down, Volume: 50 (Below average threshold 125) -> G
-///         Bar { symbol: "TEST".into(), market: "test".into(), timeframe: "1d".into(), timestamp_unix_ms: 1000, open: 100.0, high: 110.0, low: 90.0, close: 95.0, volume: 50.0 adjusted_close: None, },
+///         Bar { symbol: "TEST".into(), market: "test".into(), timeframe: "1d".into(), timestamp_unix_ms: 1000, open: 100.0, high: 110.0, low: 90.0, close: 95.0, volume: 50.0, adjusted_close: None, },
 ///     ],
 /// };
 ///
