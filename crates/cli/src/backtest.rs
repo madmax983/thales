@@ -413,8 +413,11 @@ pub async fn run_backtest_with_strategy(
         }
 
         // C. Process New Signals (for Next Tick)
-        // We look for signals generated at THIS timestamp.
-        if let Some(sigs) = signals_map.get(&current_time) {
+        // We look for signals generated at THIS timestamp. Each bar's timestamp is looked
+        // up at most once (the loop above only ever advances `current_time`), so removing
+        // the entry - rather than borrowing it - lets us move the chosen Signal into the
+        // PendingOrder instead of cloning it, with no change in which signal is picked.
+        if let Some(sigs) = signals_map.remove(&current_time) {
             // Sort signals?
             // Prioritize Exits over Entries?
             // For now, just take the first valid one.
@@ -431,13 +434,13 @@ pub async fn run_backtest_with_strategy(
                     // Strategy usually provides them. If not, maybe we should add default?
                     // For now, trust strategy.
                     pending_orders.push(PendingOrder {
-                        signal: sig.clone(),
+                        signal: sig,
                         timestamp: current_time,
                     });
                     break; // Only take one action per bar
                 } else if position.is_some() && is_exit {
                     pending_orders.push(PendingOrder {
-                        signal: sig.clone(),
+                        signal: sig,
                         timestamp: current_time,
                     });
                     break;

@@ -545,3 +545,103 @@ cargo build --release -p thales-cli --features nova
 perf/bolt_benchmark.sh --callgrind     # whole-workload delta
 perf/bolt_asymptotic.sh --callgrind    # per-size scaling curve
 ```
+
+## Baseline for this run (before the signal-clone fix, allocation profile)
+
+Instruction counts (`perf/bolt_benchmark.sh --callgrind`) had, by this point,
+already had the mechanical `rust_decimal` sweeps applied in prior runs, and
+the profile's remaining top entries (`base2_to_decimal` 21%,
+`ChunkedArray::get` 9.6%, `Buf24::rescale` 8.4%, `div_impl` 6.6%) were all
+re-confirmed as either attributable to indicators with a genuine precision
+need, or too diffuse across ~150 call sites to fix as a single bounded
+change (both already documented above). Neither instruction-count avenue
+had anything new left to fix, so this run profiled a dimension the prior
+ones hadn't: **allocation behavior**, via valgrind's built-in `dhat` tool
+(no new crate dependency — see `perf/bolt_benchmark.sh --dhat`).
+
+```
+Total: 196,347,389 bytes in 610,062 blocks
+```
+
+A `CARGO_PROFILE_RELEASE_DEBUG=1 cargo build --release -p thales-cli
+--features nova` rebuild (debug info only, no behavior/codegen-affecting
+change) run through the same `--dhat` harness gives line-level attribution.
+The top 5 allocation-site records by block count:
+
+| Blocks | Bytes | Site |
+|---:|---:|---|
+| 51,669 | 31,623,296 | `backtest.rs:221` — `signals_map.entry(ts).or_default().push(signal)` |
+| 17,783 | 88,915 | `backtest.rs:440` via `<Signal as Clone>::clone` (`symbol: String`) |
+| 17,783 | 65,047 | `backtest.rs:440` via `<Signal as Clone>::clone` (`side: String`) |
+| 17,783 | 53,097 | `backtest.rs:440` via `<Signal as Clone>::clone` (`size_hint: String`) |
+| 17,783 | 718,410 | `backtest.rs:440` via `<Signal as Clone>::clone` (`reason: String`) |
+
+The four `Signal::clone` records (71,132 blocks combined, **11.66%** of all
+610,062 blocks in the profile) share one root cause:
+`backtest.rs`'s per-bar loop reads the current bar's candidate signals via
+`signals_map.get(&current_time)` (a borrow), then does
+`pending_orders.push(PendingOrder { signal: sig.clone(), .. })` to get an
+owned `Signal` for the order — cloning all four of `Signal`'s owned
+`String` fields (`symbol`, `side`, `size_hint`, `reason`), one heap
+allocation each, every time an order is opened or closed.
+
+The clone is avoidable: the simulation loop's outer `for i in
+0..bars.bars.len()` only ever advances `current_time`, so each
+`signals_map` key is looked up at most once in the function's entire
+lifetime — nothing later needs the borrowed entry back. Swapping
+`.get(&current_time)` for `.remove(&current_time)` yields an **owned**
+`Vec<Signal>`, so the chosen `sig` can be moved into `PendingOrder`
+directly instead of cloned, with the exact same signal selected via the
+same `is_entry`/`is_exit`/`break` logic as before.
+
+(The other top record, `backtest.rs:221`'s `or_default().push(signal)`,
+8.5% of all blocks, is a related but separate defect — a fresh `Vec<Signal>`
+over-allocates to the 4-element `MIN_NON_ZERO_CAP` for what's a single
+element in 65.8% of groups per a one-off instrumented count. Left as a
+follow-up: fixing it well needs either a measured `with_capacity` hint or
+a small enum to avoid the Vec entirely for the single-signal case, and
+this run's evidence is about the clone, not this site.)
+
+## After: avoid the Signal clone in the per-bar order loop
+
+`crates/cli/src/backtest.rs`: changed `signals_map.get(&current_time)` to
+`signals_map.remove(&current_time)`, and `sig.clone()` (both call sites -
+the entry-order and exit-order branches) to a plain move of `sig`. No
+other logic changed: same borrow-vs-own semantics aside, the loop reads
+the same signals in the same order and takes the same first match.
+
+Same harness, same fixture, same machine, same session:
+
+```
+Total: 194,523,715 bytes in 472,414 blocks   (baseline: 196,347,389 bytes in 610,062 blocks)
+```
+
+| | Blocks | Bytes |
+|---|---:|---:|
+| Baseline | 610,062 | 196,347,389 |
+| After | 472,414 | 194,523,715 |
+| **Delta** | **-137,648 (-22.57%)** | **-1,823,674 (-0.93%)** |
+
+Clears the impact floor (≥10% reduction in allocation count) by more than
+2x. The bytes delta is small — `String` allocations are individually tiny,
+so removing ~71k of them barely moves total bytes even though it moves
+total block count substantially; the floor requires clearing count *or*
+bytes, not both, and count clears it comfortably.
+
+`perf/bolt_benchmark.sh --callgrind` (context, not the basis for this fix):
+instructions go from 2,535,532,502 to 2,502,300,089 (**-1.31%**, does not
+clear the instruction-count floor alone — expected, since this fix removes
+allocator/memcpy work, not `rust_decimal` or indicator arithmetic, and
+those still dominate this fixture's instruction profile).
+
+`cargo test --workspace --all-features`: 0 failures, no expectation
+changed — this is a pure ownership-transfer change with identical
+selection logic, not a behavior change.
+
+### Reproduce
+
+```sh
+cargo build --release -p thales-cli --features nova
+perf/bolt_benchmark.sh --dhat        # allocation count/bytes delta
+perf/bolt_benchmark.sh --callgrind   # instruction-count context
+```
