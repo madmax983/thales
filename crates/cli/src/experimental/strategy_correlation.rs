@@ -117,7 +117,7 @@ fn pearson_correlation(x: &[f64], y: &[f64]) -> f64 {
 /// # tokio::runtime::Runtime::new().unwrap().block_on(async {
 /// let mut bars = Vec::new();
 /// for i in 0..50 {
-///     bars.push(Bar { symbol: "TEST".into(), market: "equities".into(), timeframe: "1d".into(), timestamp_unix_ms: i * 1000, open: 100.0, high: 105.0, low: 95.0, close: 100.0 + i as f64, volume: 100.0 adjusted_close: None, });
+///     bars.push(Bar { symbol: "TEST".into(), market: "equities".into(), timeframe: "1d".into(), timestamp_unix_ms: i * 1000, open: 100.0, high: 105.0, low: 95.0, close: 100.0 + i as f64, volume: 100.0, adjusted_close: None, });
 /// }
 ///
 /// let series = BarSeries { schema_version: "v0".to_string(), bars };

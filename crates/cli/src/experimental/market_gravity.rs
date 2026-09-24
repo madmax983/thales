@@ -16,7 +16,7 @@
 //! let series = BarSeries {
 //!     schema_version: "v0".to_string(),
 //!     bars: vec![
-//!         Bar { symbol: "TEST".into(), market: "test".into(), timeframe: "1d".into(), timestamp_unix_ms: 0, open: 100.0, high: 110.0, low: 90.0, close: 105.0, volume: 1000.0 adjusted_close: None, },
+//!         Bar { symbol: "TEST".into(), market: "test".into(), timeframe: "1d".into(), timestamp_unix_ms: 0, open: 100.0, high: 110.0, low: 90.0, close: 105.0, volume: 1000.0, adjusted_close: None, },
 //!     ],
 //! };
 //! let config = MarketGravityConfig { num_bins: 5 };

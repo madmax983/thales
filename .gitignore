@@ -12,3 +12,6 @@ paper_portfolio.json
 # Per-run artifacts. These are outputs, not source.
 /artifacts
 /perf/callgrind.*.out
+/perf/dhat.*.json
+/perf/dhat.*.stderr.txt
+/perf/group_hist.txt
