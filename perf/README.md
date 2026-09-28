@@ -645,3 +645,117 @@ cargo build --release -p thales-cli --features nova
 perf/bolt_benchmark.sh --dhat        # allocation count/bytes delta
 perf/bolt_benchmark.sh --callgrind   # instruction-count context
 ```
+
+## Negative result: `signals_map` singleton-inlining enum
+
+### Baseline for this run
+
+Recorded with `valgrind-3.22.0`, `perf/bolt_benchmark.sh --dhat`, release build of
+`thales-cli` (`--features nova`), same fixture, same machine, same session, at the
+commit that includes the Signal-clone fix above:
+
+```
+Total: 194,510,547 bytes in 472,418 blocks
+```
+
+### Hypothesis
+
+The previous run's follow-up note flagged `backtest.rs:221`
+(`signals_map.entry(ts).or_default().push(signal)`) as the next allocation-count
+target: **8.5% of all blocks** in that run's profile, and a one-off instrumented
+count found **65.8% of `(strategy, timestamp)` groups hold exactly one `Signal`**.
+Re-confirmed at this commit with a `CARGO_PROFILE_RELEASE_DEBUG=1` rebuild through
+`--dhat`'s line-level attribution: this single call site is now the single largest
+allocation site in the whole profile, **51,667 of 472,415 blocks (10.9%)**, because
+`Vec::push` on a freshly-`or_default()`-ed `Vec<Signal>` always grows straight to
+`RawVec`'s `min_non_zero_cap` of 4 elements (`Signal` is ~150 bytes: string fields
+alone put it well outside the 1-byte/`>1024`-byte special cases), regardless of
+whether the group ever receives a second signal.
+
+Hypothesis: replacing the map's `Vec<Signal>` value with a small enum —
+`enum SignalSlot { One(Signal), Many(Vec<Signal>) }` — would store the common
+single-signal case inline in the `HashMap`'s own bucket, eliminating that group's
+heap allocation entirely, and defer to a `Vec` (sized exactly with `vec![a, b]`,
+not `Vec::push`'s amortized-to-4 growth) only for the genuinely multi-signal case.
+Back-of-envelope: 65.8% × 51,667 ≈ 34,000 removed allocations, ×~612 bytes
+(4 × `size_of::<Signal>()`) each ≈ 20.7MB, comfortably over the ≥10%-bytes floor.
+
+### Change (implemented, then reverted — see below)
+
+Added `SignalSlot` (`One(Signal)` / `Many(Vec<Signal>)`) with a `push` method that
+promotes `One` to `Many` via `vec![existing, sig]` on the second signal, plus an
+`IntoIterator` impl so the simulation loop's existing `for sig in sigs { ... }`
+needed no changes. `signals_map`'s value type changed from `Vec<Signal>` to
+`SignalSlot`; the group-construction loop switched from `.entry(...).or_default()`
+to an explicit `Entry::Occupied`/`Entry::Vacant` match so the first signal is
+inserted as `SignalSlot::One` instead of pushed into a `Vec`.
+`cargo test --workspace --all-features`: 0 failures (pure data-structure change,
+same signals selected in the same order).
+
+### Measurement — the hypothesis was wrong
+
+Same harness, same fixture, same machine, same session:
+
+```
+Total: 191,234,915 bytes in 438,513 blocks   (baseline: 194,510,547 bytes in 472,418 blocks)
+```
+
+| | Blocks | Bytes |
+|---|---:|---:|
+| Baseline | 472,418 | 194,510,547 |
+| After | 438,513 | 191,234,915 |
+| **Delta** | **-33,905 (-7.18%)** | **-3,275,632 (-1.68%)** |
+
+The block-count delta (-7.18%) is close to the naive estimate (removing ~34,000
+singleton allocations), confirming the mechanism fired as predicted — but the byte
+delta (-1.68%) is an order of magnitude short of the ~10.6%-of-baseline estimate,
+and neither clears the ≥10%-reduction impact floor.
+
+A second, line-level `--dhat` pass (`CARGO_PROFILE_RELEASE_DEBUG=1` rebuild)
+explains the shortfall: a new top allocation site appeared that didn't exist in
+the baseline profile —
+
+```
+28,565,536 bytes in 661 blocks | HashMap::<i64, SignalSlot, ...>::entry (hash/map.rs:976)
+```
+
+— i.e. the `HashMap<i64, SignalSlot>`'s own internal table-resize allocations.
+`SignalSlot` is a large enum: its `One` variant embeds a whole `Signal` inline
+(~150+ bytes of `String`/`Option<f64>`/`f64` fields plus the enum discriminant),
+versus the ~24 bytes of a bare `Vec<Signal>` (ptr+len+cap) the map used to store
+per key. A `HashMap`'s table stores keys and values inline in each bucket and
+sizes the whole table to the next power-of-two bucket count at a fixed max load
+factor, so inflating the *value type* inflates every bucket in the table, occupied
+or not, on every resize — not just the buckets that actually hold a second signal.
+Across ~80 strategies' worth of per-backtest `HashMap`s (each grown from scratch
+over up to 5,000 bars), that table-resize cost (28.5MB) ate back nearly all of the
+~20.7MB predicted savings from removing the per-group `Vec` allocations, leaving a
+net 3.3MB (1.68%) — real, but far under the floor.
+
+Considered but not implemented: boxing the singleton case (`One(Box<Signal>)`)
+would shrink `SignalSlot` back to pointer size and avoid the `HashMap`-table-bloat
+mechanism above, but it reintroduces exactly one heap allocation per singleton
+group (allocating the `Box`) — i.e. **zero** improvement on the block-count floor,
+and the byte-only saving (going from a 608-byte `capacity-4` `Vec` allocation to a
+~152-byte boxed `Signal`) works out to only ~8% of baseline by the same
+back-of-envelope method, still short of the 10% floor, and unverified besides.
+Since neither this nor the implemented version had a plausible path over the
+floor, no further variant was attempted.
+
+**Reverted.** `crates/cli/src/backtest.rs` is unchanged from the previous entry
+in this file. Recording this here so nobody re-attempts the same
+`Vec`-inlining-into-a-`HashMap`-value idea on this call site without also
+accounting for the value type's effect on the table's own allocation size —
+the mechanism generalizes to *any* `HashMap<K, V>` where `V` is made larger to
+save a child allocation.
+
+### Reproduce
+
+```sh
+cargo build --release -p thales-cli --features nova
+perf/bolt_benchmark.sh --dhat        # allocation count/bytes delta (this run's numbers)
+CARGO_PROFILE_RELEASE_DEBUG=1 cargo build --release -p thales-cli --features nova
+valgrind --tool=dhat --dhat-out-file=/tmp/dhat.json \
+  target/release/thales-cli benchmark --input perf/fixtures/synthetic_bars_5000.json \
+  --initial-capital 10000 --risk 100 --sort-by total_return   # line-level attribution
+```
