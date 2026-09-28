@@ -759,3 +759,107 @@ valgrind --tool=dhat --dhat-out-file=/tmp/dhat.json \
   target/release/thales-cli benchmark --input perf/fixtures/synthetic_bars_5000.json \
   --initial-capital 10000 --risk 100 --sort-by total_return   # line-level attribution
 ```
+
+## Negative result: trade-lifecycle `String` cleanup (dead field, static `side`, moved `reason`)
+
+### Baseline for this run
+
+Same commit as the `SignalSlot` attempt above (reverted, so this is the same code):
+
+```
+Total: 194,510,547 bytes in 472,418 blocks
+```
+
+### Hypothesis
+
+A line-level `--dhat` sweep (`CARGO_PROFILE_RELEASE_DEBUG=1` rebuild) of every
+`backtest.rs`-attributed allocation site found three further sites, all `String`
+allocations in the position open/close path, none of them touching the
+`signals_map` `HashMap` (so the value-type-inflation failure mode from the
+`SignalSlot` attempt above doesn't apply — `OpenPosition` is a plain local
+`Option`, not a hash-map value):
+
+| Line | Blocks | What |
+|---:|---:|---|
+| 278 | 16,625 | `symbol: order.signal.symbol.clone()` into `OpenPosition.symbol` |
+| 273/275 | 16,625 | `"long".to_string()` / `"short".to_string()` into `OpenPosition.side` |
+| 335 | 12,537 | `exit_reason: order.signal.reason.clone()` in the signal-driven exit path |
+
+`OpenPosition.symbol` turned out to be genuinely dead: `#[allow(dead_code)]` was
+already on the field, and `grep -n "pos\.symbol\|position\.symbol"` across
+`backtest.rs` returns nothing but the field declaration and its one write site —
+it's written on every position open and never read. `OpenPosition.side` is
+compared only against the literals `"long"`/`"short"` within this same
+(non-`pub`) struct, so it never needs to *own* a `String` — a `&'static str`
+suffices and the open-time `.to_string()` can be dropped (the two close-time
+sites that build the *public* `BacktestTrade.side: String` field switch from
+`.clone()` to `.to_string()`, an unavoidable allocation either way, since that
+field is part of the serialized result). `order.signal.reason.clone()` at line
+335 is the last use of `order` in that branch (confirmed by reading the
+enclosing scope) and `order: PendingOrder` is owned, so it can be moved instead
+of cloned with zero behavior change.
+
+Estimated combined impact (line-sum over the profile, before making the change):
+45,787 blocks (9.69% of baseline) / 663,107 bytes (0.34% of baseline) — under
+the ≥10% floor on both counts, but the `SignalSlot` attempt above already showed
+that a line-sum estimate isn't trustworthy on its own here, so the change was
+implemented and measured rather than skipped on the estimate alone.
+
+### Change
+
+`crates/cli/src/backtest.rs`: removed the dead `OpenPosition.symbol: String`
+field entirely; changed `OpenPosition.side` from `String` to `&'static str`
+(open-time construction uses the literals directly, the two `BacktestTrade`
+construction sites use `.to_string()` instead of `.clone()`); changed
+`exit_reason: order.signal.reason.clone()` to `exit_reason: order.signal.reason`
+(move). No algorithm or output change — `cargo test --workspace --all-features`
+passed unchanged (0 failures across all 32 test binaries/doctests).
+
+### Measurement — real numbers matched the estimate, and still miss the floor
+
+Same harness, same fixture, same machine, same session:
+
+```
+Total: 193,856,096 bytes in 426,621 blocks   (baseline: 194,510,547 bytes in 472,418 blocks)
+```
+
+| | Blocks | Bytes |
+|---|---:|---:|
+| Baseline | 472,418 | 194,510,547 |
+| After | 426,621 | 193,856,096 |
+| **Delta** | **-45,797 (-9.69%)** | **-654,451 (-0.34%)** |
+
+Unlike the `SignalSlot` attempt, this one landed almost exactly on the
+back-of-envelope estimate (45,787 blocks / 663,107 bytes predicted vs. 45,797 /
+654,451 measured) — expected, since none of these three sites share a container
+whose own allocation size could be inflated by the change. But 9.69% is still
+short of the ≥10% block-count floor, and 0.34% is nowhere near the ≥10%
+bytes floor. For context (not itself a passing criterion here, since the
+instruction floor requires the *target* to be ≥5% of the profile and these
+sites individually are ~0.01–0.03% of instructions each per earlier callgrind
+runs), removing ~46k small `String` allocations is very unlikely to move
+instruction count by anywhere near the 5% floor either — the prior "Signal
+clone" fix (PR #2458) removed 71,132 similar `String`-clone blocks and only
+moved instructions by 1.31%.
+
+**Reverted.** `crates/cli/src/backtest.rs` is unchanged from the previous entry
+in this file. The remaining large allocation cost in this profile (line 210,
+`strategy.generate_signals(&df).await` — 310,528 blocks, **65.7% of the total**)
+is not a single mechanism: it's the combined internal `Vec`/`String` allocation
+behavior of ~80 independently-implemented `Strategy::generate_signals` methods,
+inlined into one call site by the profiler's line attribution. Fixing it would
+mean auditing and changing an unbounded number of strategy files individually
+rather than one bounded call site — the same "too diffuse for a single change"
+conclusion already on record for `polars_core::ChunkedArray::get` earlier in
+this file.
+
+### Reproduce
+
+```sh
+cargo build --release -p thales-cli --features nova
+perf/bolt_benchmark.sh --dhat
+CARGO_PROFILE_RELEASE_DEBUG=1 cargo build --release -p thales-cli --features nova
+valgrind --tool=dhat --dhat-out-file=/tmp/dhat.json \
+  target/release/thales-cli benchmark --input perf/fixtures/synthetic_bars_5000.json \
+  --initial-capital 10000 --risk 100 --sort-by total_return   # line-level attribution
+```
