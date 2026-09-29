@@ -73,14 +73,18 @@ scan), fetch deep history once, normalize, and forecast:
 ```bash
 $BIN fetch-market-data --provider yahoo --symbol SPY --timeframe 1d --history 2y > runs/<run-id>/fetch-SPY-deep.json
 $BIN normalize-bars --input runs/<run-id>/fetch-SPY-deep.json > runs/<run-id>/bars-SPY-deep.json
-$BIN forecast-volatility --input runs/<run-id>/bars-SPY-deep.json > runs/<run-id>/vol-SPY.json
+$BIN forecast-volatility --estimator garch11 --input runs/<run-id>/bars-SPY-deep.json > runs/<run-id>/vol-SPY.json
 ```
 
 `--history` is yahoo-only (`1y|2y|5y|10y|max`; `1h` capped at `2y`) and fails
-closed otherwise. `forecast-volatility` fits EWMA (RiskMetrics λ=0.94) over
-log returns of `adjusted_close` when every bar carries one, else `close`
-with a warning. It needs ≥ 60 returns and fails closed on anything less,
-on non-finite input, or on `--estimator garch11` (specified, not built yet).
+closed otherwise. Run the vol step with `--estimator garch11`: it fits a
+Gaussian-MLE GARCH(1,1) (deterministic Nelder-Mead) over log returns of
+`adjusted_close` when every bar carries one, else `close` with a warning.
+It needs ≥ 250 returns and fails closed on anything less or on non-finite
+input. If the fit returns `boundary_solution: 1.0` (the α+β → 1 edge) or
+fails for insufficient data, fall back to EWMA (RiskMetrics λ=0.94,
+≥ 60 returns), say so in the ledger, and record which estimator produced
+the reading.
 
 Fold the result into `analyze-market --research`: daily σ, annualized σ,
 persistence, half-life, and any warnings. A volatility forecast is

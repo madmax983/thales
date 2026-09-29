@@ -1,6 +1,6 @@
 # SPEC-005: Volatility Forecasting (EWMA now, GARCH next)
 
-**Status**: v0 built 2026-09-23 (EWMA, `forecast-volatility`, `--history`, `adjusted_close`); v1 GARCH(1,1) still open
+**Status**: v0 built 2026-09-23 (EWMA, `forecast-volatility`, `--history`, `adjusted_close`); v1 GARCH(1,1) built 2026-09-29 (Gaussian MLE, deterministic Nelder-Mead, `--estimator garch11`)
 **Owner**: Mark
 **Created**: 2026-09-23
 
@@ -173,8 +173,7 @@ come from `adjusted_close`.
 ## 6. Rollout
 - **v0**: `crates/volatility` + EWMA, `forecast-volatility` CLI,
 `--history` + `adjclose` in the yahoo provider, runbook §2b, tests.
-- **v1**: GARCH(1,1) estimator, coordinator flips shortlist to
-`--estimator garch11` with EWMA fallback on warnings.
+- **v1**: GARCH(1,1) estimator — shipped 2026-09-29 (Gaussian MLE, deterministic Nelder-Mead, `forecast-volatility --estimator garch11`). Coordinator flip of the shortlist to garch11 (with EWMA fallback on `boundary_solution`) still pending.
 - **v2**: GJR-GARCH asymmetry; vol-targeted sizing in the Signal Generator;
 Tiingo cross-validation if Yahoo quality issues surface in audits.
 
