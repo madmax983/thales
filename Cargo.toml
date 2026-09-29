@@ -9,6 +9,7 @@ members = [
   "crates/cli",
   "crates/strategies",
   "crates/volatility",
+  "crates/regime",
   "crates/options",
 ]
 resolver = "2"

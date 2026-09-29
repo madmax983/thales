@@ -180,6 +180,23 @@ cargo run -p thales-cli -- analyze-market --input <path-to-bars-json> [--researc
 - Optional arguments `--research` and `--news` allow injecting external context (e.g., from search tools) into the report.
 - Returns `MarketAnalysis` envelope.
 
+### `regime-status`
+
+```powershell
+cargo run -p thales-cli -- regime-status --input <path-to-index-bars-json> [--events docs/regime-events.jsonl] [--zbt-history <path>]
+```
+
+- Merges the computed FTD state machine (O'Neil CAN SLIM on the bars) with
+  reported regime events and the curated ZBT history into one `RegimeReport`:
+  `regime` (`Correction|AttemptedRally|ConfirmedUptrend|Unknown`), `basis`
+  (`reported|computed|both`), `agreement`, FTD evidence, reported
+  cross-check, and ZBT context.
+- Run on **index** bars (SPY/DIA/QQQ), not candidates. Advisory only: feeds
+  `Market_Regime.md` and `analyze-market --research`; never creates, sizes,
+  or approves a trade. See `docs/regime-detectors.md`.
+- Missing `--events` log reads as empty (warning, not error); malformed log
+  lines fail closed. Empty bars → `Unknown` with a note.
+
 ## Required Environment Variables
 
 ### TypeSafe AI

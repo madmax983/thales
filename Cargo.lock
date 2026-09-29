@@ -2363,6 +2363,17 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "a96887878f22d7bad8a3b6dc5b7440e0ada9a245242924394987b21cf2210a4c"
 
 [[package]]
+name = "regime"
+version = "0.1.0"
+dependencies = [
+ "chrono",
+ "contracts",
+ "serde",
+ "serde_json",
+ "thiserror 2.0.18",
+]
+
+[[package]]
 name = "rend"
 version = "0.4.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2924,6 +2935,7 @@ dependencies = [
  "polars",
  "rand 0.8.5",
  "rand_distr",
+ "regime",
  "serde",
  "serde_json",
  "strategies",

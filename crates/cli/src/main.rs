@@ -139,6 +139,14 @@ enum Commands {
         #[arg(long)]
         input: PathBuf,
     },
+    RegimeStatus {
+        #[arg(long)]
+        input: PathBuf,
+        #[arg(long)]
+        events: Option<PathBuf>,
+        #[arg(long)]
+        zbt_history: Option<PathBuf>,
+    },
 
     #[cfg(feature = "nova")]
     AnalyzeQuantum {
@@ -222,8 +230,8 @@ enum Commands {
     ForecastVolatility {
         #[arg(long)]
         input: PathBuf,
-        /// Estimator: ewma (v0). garch11 is specified but unimplemented and
-        /// fails closed.
+        /// Estimator: ewma (v0, RiskMetrics default) or garch11 (v1,
+        /// Gaussian-MLE GARCH(1,1); needs ≥ 250 returns, fails closed below).
         #[arg(long, default_value = "ewma")]
         estimator: String,
         /// EWMA decay in (0, 1). Defaults to 0.94 (RiskMetrics daily).
@@ -1492,6 +1500,67 @@ fn run(command: Commands, raw: bool) -> Result<String, CliError> {
             }
 
             ok_envelope(analysis, vec![], raw)
+        }
+        Commands::RegimeStatus {
+            input,
+            events,
+            zbt_history,
+        } => {
+            let raw_str = std::fs::read_to_string(&input).map_err(|e| {
+                std::io::Error::new(
+                    e.kind(),
+                    format!("Failed to read file '{}': {}", input.display(), e),
+                )
+            })?;
+            let series: BarSeries =
+                match serde_json::from_str::<ResponseEnvelope<BarSeries>>(&raw_str) {
+                    Ok(envelope) => envelope
+                        .data
+                        .ok_or(CliError::Validation("Envelope has no data".to_string()))?,
+                    Err(_) => serde_json::from_str::<BarSeries>(&raw_str)?,
+                };
+
+            let ftd = regime::ftd::detect(&series, &regime::ftd::FtdConfig::default())
+                .map_err(|e| CliError::Validation(e.to_string()))?;
+
+            let mut warnings: Vec<String> = Vec::new();
+            let reported_events = match events {
+                Some(path) => {
+                    if !path.exists() {
+                        warnings.push(format!(
+                            "events log not found at '{}': reported section will be empty",
+                            path.display()
+                        ));
+                    }
+                    regime::events::read_events_log(&path)
+                        .map_err(|e| CliError::Validation(e.to_string()))?
+                }
+                None => {
+                    warnings.push(
+                        "no --events log given: reported section will be empty; basis is computed only"
+                            .to_string(),
+                    );
+                    Vec::new()
+                }
+            };
+
+            let history = match zbt_history {
+                Some(path) => {
+                    let content = std::fs::read_to_string(&path).map_err(|e| {
+                        CliError::Validation(format!(
+                            "cannot read ZBT history '{}': {e}",
+                            path.display()
+                        ))
+                    })?;
+                    serde_json::from_str(&content).map_err(|e| {
+                        CliError::Validation(format!("malformed ZBT history JSON: {e}"))
+                    })?
+                }
+                None => regime::zbt::history().map_err(|e| CliError::Validation(e.to_string()))?,
+            };
+
+            let report = regime::merge::merge(ftd, &reported_events, &history);
+            ok_envelope(report, warnings, raw)
         }
         Commands::GenerateSignals {
             input,
