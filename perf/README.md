@@ -706,3 +706,24 @@ I refs: 1,725,093,737
 `Decimal::from_f64_retain` (`base2_to_decimal`, 10.73% self overall) and back
 with `to_f64`. It is called by `BollingerBandsMeanReversion`,
 `BollingerRsiMeanReversion` and `TtmSqueeze`.
+
+## After: `bollinger_bands.rs` converted to native f64
+
+Same harness, fixture and session:
+
+```
+I refs: 1,556,790,590   (this run's baseline: 1,725,093,737)
+```
+
+| | Ir | % of baseline |
+|---|---:|---:|
+| Baseline | 1,725,093,737 | 100.00% |
+| After `bollinger_bands.rs` f64 | 1,556,790,590 | 90.24% |
+| **Delta** | **-168,303,147** | **-9.76%** |
+
+Clears the impact floor (>=5% instructions on a path that is 10.01% of the
+workload). `perf/bolt_benchmark.sh` `benchmark` output on the fixture is
+byte-identical before and after (`cmp`). Mean and variance are computed
+two-pass per window rather than from rolling sums, so there is no f64
+cancellation drift; non-finite or missing input still resets the window.
+All existing tests pass unchanged.
