@@ -2,9 +2,6 @@
 
 use anyhow::{Context, Result};
 use polars::prelude::*;
-use rust_decimal::Decimal;
-use rust_decimal::prelude::*;
-use std::collections::VecDeque;
 
 /// Calculate Bollinger Bands
 ///
@@ -50,82 +47,34 @@ pub fn calculate(
     let mut middle_band: Vec<Option<f64>> = Vec::with_capacity(close.len());
     let mut upper_band: Vec<Option<f64>> = Vec::with_capacity(close.len());
 
-    let mut window: VecDeque<Decimal> = VecDeque::with_capacity(period);
-    let mut sum_x = Decimal::ZERO;
-    let mut sum_x2 = Decimal::ZERO; // Sum of x^2
-
-    let period_dec =
-        Decimal::from_usize(period).context("Invalid period for Decimal conversion")?;
-    let k_dec = Decimal::from_f64_retain(std_dev_multiplier).unwrap_or(Decimal::ZERO);
+    // Contiguous run of valid values; reset on missing/NaN data.
+    let mut run: Vec<f64> = Vec::with_capacity(close.len());
+    let period_f = period as f64;
 
     for i in 0..close.len() {
-        let val_opt = close.get(i);
+        match close.get(i) {
+            Some(val) if val.is_finite() => {
+                run.push(val);
+                if run.len() >= period {
+                    // Two-pass over the window: avoids the cancellation a
+                    // rolling sum of squares suffers in f64.
+                    let window = &run[run.len() - period..];
+                    let mean = window.iter().sum::<f64>() / period_f;
+                    let variance =
+                        window.iter().map(|x| (x - mean) * (x - mean)).sum::<f64>() / period_f;
+                    let std_dev = variance.sqrt();
 
-        match val_opt {
-            Some(val) => {
-                if let Some(d) = Decimal::from_f64_retain(val) {
-                    // Update rolling sums
-                    sum_x += d;
-                    sum_x2 += d * d;
-                    window.push_back(d);
-
-                    // Maintain window size
-                    if window.len() > period
-                        && let Some(old) = window.pop_front()
-                    {
-                        sum_x -= old;
-                        sum_x2 -= old * old;
-                    }
-
-                    if window.len() == period {
-                        // Calculate stats
-                        let mean = sum_x / period_dec;
-
-                        // Variance = (Sum(x^2) / N) - (Mean^2)
-                        // Note: floating point precision might make this slightly negative close to 0
-                        let variance_term1 = sum_x2 / period_dec;
-                        let variance_term2 = mean * mean;
-                        let variance = variance_term1 - variance_term2;
-
-                        // Clamp variance to 0 if slightly negative due to precision
-                        let variance = if variance < Decimal::ZERO {
-                            Decimal::ZERO
-                        } else {
-                            variance
-                        };
-
-                        // sqrt returns None if negative, but we clamped it.
-                        let std_dev = variance.sqrt().unwrap_or(Decimal::ZERO);
-
-                        let upper = mean + (k_dec * std_dev);
-                        let lower = mean - (k_dec * std_dev);
-
-                        middle_band.push(mean.to_f64());
-                        upper_band.push(upper.to_f64());
-                        lower_band.push(lower.to_f64());
-                    } else {
-                        // Not enough data yet
-                        middle_band.push(None);
-                        upper_band.push(None);
-                        lower_band.push(None);
-                    }
+                    middle_band.push(Some(mean));
+                    upper_band.push(Some(mean + std_dev_multiplier * std_dev));
+                    lower_band.push(Some(mean - std_dev_multiplier * std_dev));
                 } else {
-                    // Invalid float (e.g. NaN)
-                    // Reset
-                    window.clear();
-                    sum_x = Decimal::ZERO;
-                    sum_x2 = Decimal::ZERO;
                     middle_band.push(None);
                     upper_band.push(None);
                     lower_band.push(None);
                 }
             }
-            None => {
-                // Missing data
-                // Reset
-                window.clear();
-                sum_x = Decimal::ZERO;
-                sum_x2 = Decimal::ZERO;
+            _ => {
+                run.clear();
                 middle_band.push(None);
                 upper_band.push(None);
                 lower_band.push(None);
