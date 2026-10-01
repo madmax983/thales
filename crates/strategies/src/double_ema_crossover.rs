@@ -278,7 +278,17 @@ mod tests {
             .collect();
 
         assert!(!entries.is_empty(), "Should generate entry signals");
-        assert!(!exits.is_empty(), "Should generate exit signals");
+
+        // The first 50 bars are a straight upward ramp, so the DEMAs must not
+        // cross there; the only genuine reversal is the turn down at bar 50.
+        // (An exit requires a second, opposite crossover, which this data lacks.)
+        assert!(
+            signals.iter().all(|s| s.timestamp_ms >= 50 * 60000),
+            "No crossover signals expected during the monotonic uptrend"
+        );
+        assert!(exits.is_empty(), "Only one genuine reversal in the data");
+        assert_eq!(entries.len(), 1);
+        assert_eq!(entries[0].side, "sell");
 
         let first_entry = entries.first().unwrap();
         assert!(

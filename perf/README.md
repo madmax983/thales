@@ -660,3 +660,33 @@ inclusive**; its `Decimal::from_f64_retain` edge into `base2_to_decimal`
 is 354,147,871 Ir (14.15%, 309,477 calls). Other top entries:
 `base2_to_decimal` 21.14%, `ChunkedArray::get` 9.61%, `Buf24::rescale`
 8.40%, `div_impl` 6.64%.
+
+## After: `ema.rs` converted to native f64
+
+Same harness, fixture and session:
+
+```
+I refs: 1,715,096,081   (this run's baseline: 2,502,246,698)
+```
+
+| | Ir | % of baseline |
+|---|---:|---:|
+| Baseline | 2,502,246,698 | 100.00% |
+| After `ema.rs` f64 | 1,715,096,081 | 68.54% |
+| **Delta** | **-787,150,617** | **-31.46%** |
+
+`base2_to_decimal` falls from 528,961,837 (21.14%) to 185,202,504 (10.80%).
+`perf/bolt_benchmark.sh` `benchmark` output on the fixture is byte-identical
+before and after.
+
+### Deliberate behavior change (accepted)
+
+This resolves the earlier "`ema.rs` reverted" negative result by accepting the
+change rather than matching `Decimal`'s extra precision. On the
+`double_ema_crossover` test data (50-bar up ramp, then down) the old
+`Decimal` EMA produced whipsaw signals at bars 22-31 on a straight uptrend
+(short entry 22, long entry 24, short entry 26, long entry 31) from
+sub-1e-13 noise in `short_dema - long_dema`; only the exit at bar 51 / short
+entry at bar 51 were genuine. The f64 version emits only the genuine
+short entry at bar 51. `test_entry_and_exit_signals` was updated to assert
+that (no signals during the ramp, a single short entry, no exit).

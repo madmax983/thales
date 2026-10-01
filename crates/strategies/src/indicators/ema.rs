@@ -1,7 +1,5 @@
 use anyhow::{Context, Result};
 use polars::prelude::*;
-use rust_decimal::Decimal;
-use rust_decimal::prelude::*;
 
 /// Calculate Exponential Moving Average (EMA)
 ///
@@ -28,56 +26,37 @@ pub fn calculate(data: &DataFrame, period: usize) -> Result<Series> {
         .context("Close column must be numeric (f64)")?;
 
     let mut ema_values: Vec<Option<f64>> = Vec::with_capacity(close.len());
-    let k = Decimal::from_f64(2.0 / (period as f64 + 1.0))
-        .context("Invalid period for K calculation")?;
-    let mut prev_ema: Option<Decimal> = None;
-    let mut window_sum = Decimal::ZERO;
+    let k = 2.0 / (period as f64 + 1.0);
+    let mut prev_ema: Option<f64> = None;
+    let mut window_sum = 0.0f64;
     let mut count = 0;
-    let period_dec = Decimal::from_usize(period).context("Invalid period")?;
+    let period_f = period as f64;
 
     for i in 0..close.len() {
-        let val_opt = close.get(i);
-
-        match val_opt {
-            Some(val) => {
-                if let Some(d) = Decimal::from_f64_retain(val) {
-                    if count < period {
-                        window_sum += d;
-                        count += 1;
-
-                        if count == period {
-                            // Calculate SMA as seed
-                            let seed = window_sum / period_dec;
-                            ema_values.push(seed.to_f64());
-                            prev_ema = Some(seed);
-                        } else {
-                            ema_values.push(None);
-                        }
+        match close.get(i) {
+            Some(d) if d.is_finite() => {
+                if count < period {
+                    window_sum += d;
+                    count += 1;
+                    if count == period {
+                        let seed = window_sum / period_f;
+                        ema_values.push(Some(seed));
+                        prev_ema = Some(seed);
                     } else {
-                        // Calculate EMA
-                        if let Some(prev) = prev_ema {
-                            let ema = (d * k) + (prev * (Decimal::ONE - k));
-                            ema_values.push(ema.to_f64());
-                            prev_ema = Some(ema);
-                        } else {
-                            // Should not happen if logic is correct
-                            ema_values.push(None);
-                        }
+                        ema_values.push(None);
                     }
+                } else if let Some(prev) = prev_ema {
+                    let ema = d * k + prev * (1.0 - k);
+                    ema_values.push(Some(ema));
+                    prev_ema = Some(ema);
                 } else {
-                    // Invalid value (NaN, etc.)
-                    // Reset
                     ema_values.push(None);
-                    count = 0;
-                    window_sum = Decimal::ZERO;
-                    prev_ema = None;
                 }
             }
-            None => {
-                // Missing value
+            _ => {
                 ema_values.push(None);
                 count = 0;
-                window_sum = Decimal::ZERO;
+                window_sum = 0.0;
                 prev_ema = None;
             }
         }
