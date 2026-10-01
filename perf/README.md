@@ -645,3 +645,18 @@ cargo build --release -p thales-cli --features nova
 perf/bolt_benchmark.sh --dhat        # allocation count/bytes delta
 perf/bolt_benchmark.sh --callgrind   # instruction-count context
 ```
+
+## Baseline for this run (before the `ema.rs` f64 conversion)
+
+Recorded with `valgrind-3.22.0`, `perf/bolt_benchmark.sh --callgrind`,
+release build of `thales-cli` (`--features nova`), same fixture, at `dca36b8`:
+
+```
+I refs: 2,502,246,698
+```
+
+`strategies::indicators::ema::calculate` is **830,189,803 Ir (33.18%)
+inclusive**; its `Decimal::from_f64_retain` edge into `base2_to_decimal`
+is 354,147,871 Ir (14.15%, 309,477 calls). Other top entries:
+`base2_to_decimal` 21.14%, `ChunkedArray::get` 9.61%, `Buf24::rescale`
+8.40%, `div_impl` 6.64%.
