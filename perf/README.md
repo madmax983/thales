@@ -690,3 +690,19 @@ sub-1e-13 noise in `short_dema - long_dema`; only the exit at bar 51 / short
 entry at bar 51 were genuine. The f64 version emits only the genuine
 short entry at bar 51. `test_entry_and_exit_signals` was updated to assert
 that (no signals during the ramp, a single short entry, no exit).
+
+## Baseline for this run (before the `bollinger_bands.rs` f64 conversion)
+
+Recorded with `valgrind-3.22.0`, `perf/bolt_benchmark.sh --callgrind`,
+release build of `thales-cli` (`--features nova`), same fixture, at `25a6487`:
+
+```
+I refs: 1,725,093,737
+```
+
+`strategies::indicators::bollinger_bands::calculate` is **172,645,198 Ir
+(10.01%) inclusive**; it still runs its rolling sums, mean, variance and
+`sqrt` in `rust_decimal::Decimal` and converts every bar with
+`Decimal::from_f64_retain` (`base2_to_decimal`, 10.73% self overall) and back
+with `to_f64`. It is called by `BollingerBandsMeanReversion`,
+`BollingerRsiMeanReversion` and `TtmSqueeze`.
