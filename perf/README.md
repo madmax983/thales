@@ -727,3 +727,26 @@ byte-identical before and after (`cmp`). Mean and variance are computed
 two-pass per window rather than from rolling sums, so there is no f64
 cancellation drift; non-finite or missing input still resets the window.
 All existing tests pass unchanged.
+
+## Baseline for this run (before the `ulcer_index.rs` / `zscore.rs` f64 conversion)
+
+Recorded with `valgrind-3.22.0`, `perf/bolt_benchmark.sh --callgrind`,
+release build of `thales-cli` (`--features nova`), same fixture, at `ab3478f`:
+
+```
+I refs: 1,558,136,642
+```
+
+Inclusive cost (`callgrind_annotate --inclusive=yes`):
+
+| Ir | % | Function |
+|---:|---:|---|
+| 108,989,766 | 6.99% | `strategies::indicators::ulcer_index::calculate` |
+| 102,339,489 | 6.57% | `strategies::indicators::atr::calculate` |
+| 81,596,356 | 5.24% | `strategies::indicators::zscore::calculate` |
+
+`ulcer_index` (used by `UlcerIndexMeanReversion`) and `zscore` (used by
+`ZScoreMeanReversion`) still run their windows, rolling sums, division and
+`sqrt` in `rust_decimal::Decimal`, converting each bar with
+`Decimal::from_f64_retain` (`base2_to_decimal`) and back with `to_f64`.
+Together they are 12.2% of the workload.
