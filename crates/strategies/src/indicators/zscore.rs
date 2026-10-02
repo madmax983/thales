@@ -1,7 +1,5 @@
 use anyhow::{Context, Result};
 use polars::prelude::*;
-use rust_decimal::Decimal;
-use rust_decimal::prelude::*;
 use std::collections::VecDeque;
 
 /// Calculate Z-Score
@@ -29,76 +27,38 @@ pub fn calculate(data: &DataFrame, period: usize) -> Result<Series> {
         .context("Close column must be numeric (f64)")?;
 
     let mut zscore_values: Vec<Option<f64>> = Vec::with_capacity(close.len());
-    let mut window: VecDeque<Decimal> = VecDeque::with_capacity(period);
+    let mut window: VecDeque<f64> = VecDeque::with_capacity(period);
 
-    let mut sum_x = Decimal::ZERO;
-    let mut sum_x2 = Decimal::ZERO; // Sum of x^2
-
-    let period_dec =
-        Decimal::from_usize(period).context("Invalid period for Decimal conversion")?;
+    let period_f = period as f64;
 
     for i in 0..close.len() {
-        let val_opt = close.get(i);
+        match close.get(i).filter(|v| v.is_finite()) {
+            Some(d) => {
+                window.push_back(d);
+                if window.len() > period {
+                    window.pop_front();
+                }
 
-        match val_opt {
-            Some(val) => {
-                if let Some(d) = Decimal::from_f64_retain(val) {
-                    // Update rolling sums
-                    sum_x += d;
-                    sum_x2 += d * d;
-                    window.push_back(d);
+                if window.len() == period {
+                    // Two-pass mean/variance per window: no rolling-sum cancellation drift.
+                    let mean = window.iter().sum::<f64>() / period_f;
+                    let variance =
+                        window.iter().map(|&x| (x - mean) * (x - mean)).sum::<f64>() / period_f;
+                    let std_dev = variance.sqrt();
 
-                    // Maintain window size
-                    if window.len() > period
-                        && let Some(old) = window.pop_front()
-                    {
-                        sum_x -= old;
-                        sum_x2 -= old * old;
-                    }
-
-                    if window.len() == period {
-                        // Calculate stats
-                        let mean = sum_x / period_dec;
-
-                        // Variance = (Sum(x^2) / N) - (Mean^2)
-                        let variance_term1 = sum_x2 / period_dec;
-                        let variance_term2 = mean * mean;
-                        let variance = variance_term1 - variance_term2;
-
-                        // Clamp variance to 0 if slightly negative due to precision
-                        let variance = if variance < Decimal::ZERO {
-                            Decimal::ZERO
-                        } else {
-                            variance
-                        };
-
-                        let std_dev = variance.sqrt().unwrap_or(Decimal::ZERO);
-
-                        if std_dev.is_zero() {
-                            zscore_values.push(Some(0.0));
-                        } else {
-                            let z_score = (d - mean) / std_dev;
-                            zscore_values.push(z_score.to_f64());
-                        }
+                    if std_dev == 0.0 {
+                        zscore_values.push(Some(0.0));
                     } else {
-                        // Not enough data yet
-                        zscore_values.push(None);
+                        zscore_values.push(Some((d - mean) / std_dev));
                     }
                 } else {
-                    // Invalid float (e.g. NaN)
-                    // Reset
-                    window.clear();
-                    sum_x = Decimal::ZERO;
-                    sum_x2 = Decimal::ZERO;
+                    // Not enough data yet
                     zscore_values.push(None);
                 }
             }
             None => {
-                // Missing data
-                // Reset
+                // Missing or non-finite data: reset
                 window.clear();
-                sum_x = Decimal::ZERO;
-                sum_x2 = Decimal::ZERO;
                 zscore_values.push(None);
             }
         }

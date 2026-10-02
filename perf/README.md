@@ -750,3 +750,26 @@ Inclusive cost (`callgrind_annotate --inclusive=yes`):
 `sqrt` in `rust_decimal::Decimal`, converting each bar with
 `Decimal::from_f64_retain` (`base2_to_decimal`) and back with `to_f64`.
 Together they are 12.2% of the workload.
+
+## After: `ulcer_index.rs` and `zscore.rs` converted to native f64
+
+Same harness, fixture and session:
+
+```
+I refs: 1,369,842,653   (this run's baseline: 1,558,136,642)
+```
+
+| | Ir | % of baseline |
+|---|---:|---:|
+| Baseline | 1,558,136,642 | 100.00% |
+| After `ulcer_index.rs` + `zscore.rs` f64 | 1,369,842,653 | 87.92% |
+| **Delta** | **-188,293,989** | **-12.08%** |
+
+Clears the impact floor (>=5% instructions on paths that are 12.2% of the
+workload). `perf/bolt_benchmark.sh` `benchmark` output on the fixture is
+byte-identical before and after (`cmp`). All existing tests pass unchanged.
+
+The earlier exclusion of these files (variance cancellation in f64) is
+addressed by computing mean and variance two-pass per window rather than from
+rolling sums, as in `bollinger_bands.rs`; constant input still yields exactly
+`0.0`. Non-finite or missing input still resets the windows.
