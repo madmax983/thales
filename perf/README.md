@@ -743,3 +743,26 @@ only to compare values and to format reason strings on the rare bars where a
 signal fires: `TripleSmaCrossover` (33.6M Ir inclusive of the
 conversions in its `generate_signals` closure), `Macd` (25.2M),
 `EmaCrossover` (22.4M), `KamaCrossover` (22.4M), ~103.6M Ir (6.7%) together.
+
+## After: crossover strategies compare in f64, convert to `Decimal` only to format reasons
+
+`TripleSmaCrossover`, `Macd`, `EmaCrossover` and `KamaCrossover` now keep the
+indicator values as `f64` (filtered with `is_finite()`, matching
+`from_f64_retain`'s `None` for NaN/inf) and call `crate::round2` only on the
+bars that emit a signal. Same harness, fixture and session:
+
+```
+I refs: 1,447,933,306   (this run's baseline: 1,556,852,637)
+```
+
+| | Ir | % of baseline |
+|---|---:|---:|
+| Baseline | 1,556,852,637 | 100.00% |
+| After | 1,447,933,306 | 93.00% |
+| **Delta** | **-108,919,331** | **-7.00%** |
+
+Clears the impact floor (>=5% instructions; the targeted closures were 6.7%
+inclusive of the workload). `benchmark` output on the fixture is
+byte-identical before and after (`cmp`). Known edge: `Decimal` collapses
+magnitudes below 1e-28 to zero while `f64` does not, so a MACD/SMA value that
+tiny could now order differently; no existing test or the fixture hits it.

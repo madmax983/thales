@@ -13,11 +13,11 @@
 //! Average True Range (ATR) trailing stop loss for risk management.
 
 use crate::indicators::{atr, ema};
+use crate::round2;
 use crate::strategy::{Signal, SignalType, Strategy, StrategyConfig, StrategyType};
 use anyhow::Result;
 use async_trait::async_trait;
 use polars::prelude::*;
-use rust_decimal::Decimal;
 use serde::{Deserialize, Serialize};
 
 /// Configuration for the [`EmaCrossover`] strategy.
@@ -110,10 +110,10 @@ impl Strategy for EmaCrossover {
             let price_opt = close_arr.get(i);
 
             // Ensure we have EMA values
-            let s_curr_opt = short_ema.get(i).and_then(Decimal::from_f64_retain);
-            let l_curr_opt = long_ema.get(i).and_then(Decimal::from_f64_retain);
-            let s_prev_opt = short_ema.get(i - 1).and_then(Decimal::from_f64_retain);
-            let l_prev_opt = long_ema.get(i - 1).and_then(Decimal::from_f64_retain);
+            let s_curr_opt = short_ema.get(i).filter(|v| v.is_finite());
+            let l_curr_opt = long_ema.get(i).filter(|v| v.is_finite());
+            let s_prev_opt = short_ema.get(i - 1).filter(|v| v.is_finite());
+            let l_prev_opt = long_ema.get(i - 1).filter(|v| v.is_finite());
 
             let atr_opt = atr_arr.get(i);
 
@@ -132,8 +132,8 @@ impl Strategy for EmaCrossover {
                         take_profit: None,
                         reason: format!(
                             "Bearish Crossover: Short {} < Long {}",
-                            sc.round_dp(2),
-                            lc.round_dp(2)
+                            round2(sc),
+                            round2(lc)
                         ),
                         timestamp_ms: timestamp,
                     });
@@ -158,8 +158,8 @@ impl Strategy for EmaCrossover {
                         take_profit: None,
                         reason: format!(
                             "Bullish Crossover: Short {} > Long {}",
-                            sc.round_dp(2),
-                            lc.round_dp(2)
+                            round2(sc),
+                            round2(lc)
                         ),
                         timestamp_ms: timestamp,
                     });

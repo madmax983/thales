@@ -6,11 +6,11 @@
 //! - **Exit Signal:** A sell signal is generated when the fast SMA crosses below both the medium and slow SMAs.
 //!
 use crate::indicators::{atr, sma};
+use crate::round2;
 use crate::strategy::{Signal, SignalType, Strategy, StrategyConfig, StrategyType};
 use anyhow::Result;
 use async_trait::async_trait;
 use polars::prelude::*;
-use rust_decimal::Decimal;
 use serde::{Deserialize, Serialize};
 
 /// Configuration parameters for the `TripleSmaCrossover` strategy.
@@ -123,15 +123,14 @@ impl Strategy for TripleSmaCrossover {
             let price_opt = close_arr.get(i);
 
             // Ensure we have SMA values
-            // NOTE: these remain Decimal (not converted) because `sc`/`mc`/`lc` below use
-            // `.round_dp(2)` in the reason strings, which is not a simple round-trip shape.
-            let s_curr_opt = short_sma.get(i).and_then(Decimal::from_f64_retain);
-            let m_curr_opt = medium_sma.get(i).and_then(Decimal::from_f64_retain);
-            let l_curr_opt = long_sma.get(i).and_then(Decimal::from_f64_retain);
+            // Compared as f64; `round2` converts to Decimal only when a reason string is built.
+            let s_curr_opt = short_sma.get(i).filter(|v| v.is_finite());
+            let m_curr_opt = medium_sma.get(i).filter(|v| v.is_finite());
+            let l_curr_opt = long_sma.get(i).filter(|v| v.is_finite());
 
-            let s_prev_opt = short_sma.get(i - 1).and_then(Decimal::from_f64_retain);
-            let m_prev_opt = medium_sma.get(i - 1).and_then(Decimal::from_f64_retain);
-            let l_prev_opt = long_sma.get(i - 1).and_then(Decimal::from_f64_retain);
+            let s_prev_opt = short_sma.get(i - 1).filter(|v| v.is_finite());
+            let m_prev_opt = medium_sma.get(i - 1).filter(|v| v.is_finite());
+            let l_prev_opt = long_sma.get(i - 1).filter(|v| v.is_finite());
 
             let atr_opt = atr_arr.get(i);
 
@@ -165,9 +164,9 @@ impl Strategy for TripleSmaCrossover {
                         take_profit: None,
                         reason: format!(
                             "Bullish Triple Crossover: Short {} > Medium {} > Long {}",
-                            sc.round_dp(2),
-                            mc.round_dp(2),
-                            lc.round_dp(2)
+                            round2(sc),
+                            round2(mc),
+                            round2(lc)
                         ),
                         timestamp_ms: timestamp,
                     });
@@ -189,9 +188,9 @@ impl Strategy for TripleSmaCrossover {
                         take_profit: None,
                         reason: format!(
                             "Bearish Triple Crossover: Short {} < Medium {} < Long {}",
-                            sc.round_dp(2),
-                            mc.round_dp(2),
-                            lc.round_dp(2)
+                            round2(sc),
+                            round2(mc),
+                            round2(lc)
                         ),
                         timestamp_ms: timestamp,
                     });
@@ -210,11 +209,7 @@ impl Strategy for TripleSmaCrossover {
                         confidence: 0.8,
                         stop_loss: None,
                         take_profit: None,
-                        reason: format!(
-                            "Exit Long: Short {} < Medium {}",
-                            sc.round_dp(2),
-                            mc.round_dp(2),
-                        ),
+                        reason: format!("Exit Long: Short {} < Medium {}", round2(sc), round2(mc),),
                         timestamp_ms: timestamp,
                     });
                 }
@@ -234,8 +229,8 @@ impl Strategy for TripleSmaCrossover {
                         take_profit: None,
                         reason: format!(
                             "Exit Short: Short {} > Medium {}",
-                            sc.round_dp(2),
-                            mc.round_dp(2),
+                            round2(sc),
+                            round2(mc),
                         ),
                         timestamp_ms: timestamp,
                     });
