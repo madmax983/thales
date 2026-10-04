@@ -727,3 +727,19 @@ byte-identical before and after (`cmp`). Mean and variance are computed
 two-pass per window rather than from rolling sums, so there is no f64
 cancellation drift; non-finite or missing input still resets the window.
 All existing tests pass unchanged.
+
+## Baseline for this run (before removing per-bar `Decimal::from_f64_retain` from crossover strategies)
+
+Recorded with `valgrind-3.22.0`, `perf/bolt_benchmark.sh --callgrind`,
+release build of `thales-cli` (`--features nova`), same fixture, at `ab3478f`:
+
+```
+I refs: 1,556,852,637
+```
+
+`Decimal::from_f64_retain` (-> `base2_to_decimal`) is 157,357,265 Ir (10.11%)
+self+callee of the total. Four crossover strategies call it 4-6 times per bar
+only to compare values and to format reason strings on the rare bars where a
+signal fires: `TripleSmaCrossover` (33.6M Ir inclusive of the
+conversions in its `generate_signals` closure), `Macd` (25.2M),
+`EmaCrossover` (22.4M), `KamaCrossover` (22.4M), ~103.6M Ir (6.7%) together.
