@@ -8,11 +8,11 @@
 //! to protect profits during volatile price movements.
 
 use crate::indicators::{atr, macd};
+use crate::round2;
 use crate::strategy::{Signal, SignalType, Strategy, StrategyConfig, StrategyType};
 use anyhow::Result;
 use async_trait::async_trait;
 use polars::prelude::*;
-use rust_decimal::Decimal;
 use serde::{Deserialize, Serialize};
 
 /// Configuration parameters for the `Macd` strategy.
@@ -129,10 +129,10 @@ impl Strategy for Macd {
             let timestamp = time_arr.get(i).unwrap_or(0);
             let price_opt = close_arr.get(i);
 
-            let m_curr_opt = macd_arr.get(i).and_then(Decimal::from_f64_retain);
-            let s_curr_opt = signal_arr.get(i).and_then(Decimal::from_f64_retain);
-            let m_prev_opt = macd_arr.get(i - 1).and_then(Decimal::from_f64_retain);
-            let s_prev_opt = signal_arr.get(i - 1).and_then(Decimal::from_f64_retain);
+            let m_curr_opt = macd_arr.get(i).filter(|v| v.is_finite());
+            let s_curr_opt = signal_arr.get(i).filter(|v| v.is_finite());
+            let m_prev_opt = macd_arr.get(i - 1).filter(|v| v.is_finite());
+            let s_prev_opt = signal_arr.get(i - 1).filter(|v| v.is_finite());
 
             let atr_opt = atr_arr.get(i);
 
@@ -152,8 +152,8 @@ impl Strategy for Macd {
                         take_profit: None,
                         reason: format!(
                             "Bearish Crossover: MACD {} < Signal {}",
-                            mc.round_dp(2),
-                            sc.round_dp(2)
+                            round2(mc),
+                            round2(sc)
                         ),
                         timestamp_ms: timestamp,
                     });
@@ -178,8 +178,8 @@ impl Strategy for Macd {
                         take_profit: None, // Let trend run
                         reason: format!(
                             "Bullish Crossover: MACD {} > Signal {}",
-                            mc.round_dp(2),
-                            sc.round_dp(2)
+                            round2(mc),
+                            round2(sc)
                         ),
                         timestamp_ms: timestamp,
                     });

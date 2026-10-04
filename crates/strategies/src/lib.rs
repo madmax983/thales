@@ -24,6 +24,14 @@
 //! - [`sma_crossover::SmaCrossover`] - Trend following using SMA crossovers.
 //! - [`coppock_curve::CoppockCurve`] - Trend following using the Coppock Curve.
 
+/// Rounds `v` to 2 decimal places via `Decimal` for reason strings. Kept off the
+/// per-bar path: callers convert only on the bars where a signal fires.
+pub(crate) fn round2(v: f64) -> rust_decimal::Decimal {
+    rust_decimal::Decimal::from_f64_retain(v)
+        .unwrap_or_default()
+        .round_dp(2)
+}
+
 pub mod adl_momentum;
 pub mod adx_macd_trend;
 pub mod adx_momentum;
