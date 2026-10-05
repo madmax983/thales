@@ -134,6 +134,7 @@ pub struct Signal {
 ///     }
 /// }
 /// ```
+#[allow(clippy::double_must_use)] // async_trait emits its own #[must_use] on the boxed future
 #[async_trait]
 pub trait Strategy: Send + Sync {
     /// Returns the unique name of the strategy.
