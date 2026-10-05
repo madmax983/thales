@@ -4,7 +4,6 @@
 
 use anyhow::{Context, Result};
 use polars::prelude::*;
-use rust_decimal::prelude::*;
 use std::collections::VecDeque;
 
 /// Calculate Ulcer Index
@@ -39,31 +38,25 @@ pub fn calculate(data: &DataFrame, period: usize) -> Result<Series> {
         .context("'close' column must be numeric (f64)")?;
 
     let mut ui_values: Vec<Option<f64>> = Vec::with_capacity(close_arr.len());
-    let mut max_window: VecDeque<Decimal> = VecDeque::with_capacity(period);
-    let mut dd_window: VecDeque<Decimal> = VecDeque::with_capacity(period);
+    let mut max_window: VecDeque<f64> = VecDeque::with_capacity(period);
+    let mut dd_window: VecDeque<f64> = VecDeque::with_capacity(period);
 
-    let period_dec = Decimal::from_usize(period).context("Invalid period for Decimal")?;
-    let hundred = Decimal::from_usize(100).context("Failed to create Decimal 100")?;
+    let period_f = period as f64;
 
     for i in 0..close_arr.len() {
-        if let Some(val) = close_arr.get(i) {
-            if let Some(d) = Decimal::from_f64_retain(val) {
+        match close_arr.get(i).filter(|v| v.is_finite()) {
+            Some(d) => {
                 max_window.push_back(d);
                 if max_window.len() > period {
                     max_window.pop_front();
                 }
 
-                let mut current_max = Decimal::ZERO;
-                for &v in max_window.iter() {
-                    if v > current_max {
-                        current_max = v;
-                    }
-                }
+                let current_max = max_window.iter().fold(0.0_f64, |m, &v| m.max(v));
 
-                let drawdown = if current_max > Decimal::ZERO {
-                    (d - current_max) / current_max * hundred
+                let drawdown = if current_max > 0.0 {
+                    (d - current_max) / current_max * 100.0
                 } else {
-                    Decimal::ZERO
+                    0.0
                 };
 
                 dd_window.push_back(drawdown);
@@ -72,30 +65,17 @@ pub fn calculate(data: &DataFrame, period: usize) -> Result<Series> {
                 }
 
                 if dd_window.len() == period {
-                    let mut sum_sq_dd = Decimal::ZERO;
-                    for &dd in dd_window.iter() {
-                        sum_sq_dd += dd * dd;
-                    }
-
-                    let avg_sq_dd = sum_sq_dd / period_dec;
-                    let ui = if let Some(val) = avg_sq_dd.sqrt() {
-                        val
-                    } else {
-                        Decimal::ZERO
-                    };
-                    ui_values.push(ui.to_f64());
+                    let sum_sq_dd: f64 = dd_window.iter().map(|&dd| dd * dd).sum();
+                    ui_values.push(Some((sum_sq_dd / period_f).sqrt()));
                 } else {
                     ui_values.push(None);
                 }
-            } else {
+            }
+            None => {
                 max_window.clear();
                 dd_window.clear();
                 ui_values.push(None);
             }
-        } else {
-            max_window.clear();
-            dd_window.clear();
-            ui_values.push(None);
         }
     }
 
