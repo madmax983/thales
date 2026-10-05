@@ -727,3 +727,18 @@ byte-identical before and after (`cmp`). Mean and variance are computed
 two-pass per window rather than from rolling sums, so there is no f64
 cancellation drift; non-finite or missing input still resets the window.
 All existing tests pass unchanged.
+
+## Baseline for this run (before the `ulcer_index.rs` f64 conversion)
+
+Recorded with `valgrind-3.22.0`, `perf/bolt_benchmark.sh --callgrind`,
+release build of `thales-cli` (`--features nova`), same fixture, at `ab3478f`:
+
+```
+I refs: 1,556,596,478
+```
+
+`strategies::indicators::ulcer_index::calculate` is **108,989,857 Ir (7.00%)
+inclusive**. It keeps its drawdown window and sum of squares in
+`rust_decimal::Decimal`, converts every bar with `Decimal::from_f64_retain`
+(`base2_to_decimal`), takes `Decimal::sqrt` and converts back with `to_f64`.
+Called by `UlcerIndexMeanReversion` (5,000 bars, period 14).
