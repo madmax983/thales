@@ -742,3 +742,22 @@ inclusive**. It keeps its drawdown window and sum of squares in
 `rust_decimal::Decimal`, converts every bar with `Decimal::from_f64_retain`
 (`base2_to_decimal`), takes `Decimal::sqrt` and converts back with `to_f64`.
 Called by `UlcerIndexMeanReversion` (5,000 bars, period 14).
+
+## After: `ulcer_index.rs` converted to native f64
+
+Same harness, fixture and session:
+
+```
+I refs: 1,450,986,734   (this run's baseline: 1,556,596,478)
+```
+
+| | Ir | % of baseline |
+|---|---:|---:|
+| Baseline | 1,556,596,478 | 100.00% |
+| After `ulcer_index.rs` f64 | 1,450,986,734 | 93.22% |
+| **Delta** | **-105,609,744** | **-6.78%** |
+
+Clears the impact floor (>=5% instructions on a path that is 7.00% of the
+workload). `perf/bolt_benchmark.sh` `benchmark` output on the fixture is
+byte-identical before and after (`cmp`). Non-finite or missing input still
+resets both windows. All existing tests pass unchanged.
