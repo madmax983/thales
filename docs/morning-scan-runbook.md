@@ -37,7 +37,13 @@ Key env contract (no-credential scan):
 ```bash
 mkdir -p runs/<run-id>
 $BIN get-positions --provider paper > runs/<run-id>/positions.json
-$BIN scan-market --provider paper --top-n 10 > runs/<run-id>/universe.json   # audited manifest (124 symbols); fails closed if unreadable; see §Honest limits
+# Dynamic shortlist: cheap deterministic screen over the full 124-symbol
+# manifest (momentum / range expansion / volume spike / breakout proximity —
+# no Jev calls, no evidence pulls). Symbols with open positions are always
+# shortlisted in addition to the top-N ranked picks, so the deep scan can
+# manage (exit/scale) the book. Fails closed if the manifest is unreadable.
+$BIN screen-universe --top-n 10 --positions runs/<run-id>/positions.json \
+  > runs/<run-id>/universe.json
 ```
 
 Check `positions.json`: envelope is `{"status","errors","warnings","data": [...]}`.
@@ -45,8 +51,9 @@ If status is `error`, stop the run and record the error in the ledger.
 
 ## 2. Data — fetch and normalize, one candidate at a time
 
-For each candidate symbol from the universe (a bounded shortlist — at most
-`--top-n`, never chase; the full 124-symbol cheap ranking is still future work):
+For each candidate symbol in the screen's shortlist (`data.shortlist` from
+`runs/<run-id>/universe.json` — the dynamically ranked picks plus any held
+positions, never the raw manifest order):
 
 ```bash
 $BIN fetch-market-data --provider yahoo --symbol SPY --timeframe 1d > runs/<run-id>/fetch-SPY.json
@@ -455,7 +462,7 @@ The coordinator appends to `runs/<run-id>/ledger.md` after the run:
 
 ```markdown
 ## Run <run-id> — 2026-09-23 08:00 CT
-- Universe scanned: <symbols from universe.json, first N of the manifest>
+- Universe scanned: <`data.shortlist` from universe.json — ranked picks + held symbols>
 - Positions before: (from positions.json)
 - Research sources: <links/citations>
 - Data quality: BTCUSD ok (100 bars, latest <ts>); ETHUSD STALE (latest <ts> — skipped, reason)
@@ -510,9 +517,12 @@ Say these out loud in the report, every time, until the plumbing changes:
    (`BTC-USD`) — verified live 2026-09-23 (SPY/QQQ 127 daily bars, ^VIX 129,
    ES=F 128, BTC-USD 185). The `paper` provider's synthetic sine-wave bars
    remain for pipeline tests only; never use them for a real scan. Caveats:
-   Yahoo's API is unofficial (no SLA), so use it gently — one pass per scan —
-   and the full 124-symbol cheap ranking is still future work: scans run on a
-   bounded shortlist only.
+   Yahoo's API is unofficial (no SLA), so use it gently — one pass per scan.
+   The screen pass (`screen-universe`) fetches daily bars for all 124
+   manifest symbols sequentially (~3 minutes); the deep scan then re-fetches
+   only its shortlist. If Yahoo is down or rate-limiting, the screen records
+   per-symbol warnings and shortlists from whatever scored — it never
+   fabricates a symbol, and it fails closed only if nothing scored at all.
 2. **Live Kraken public data through the CLI currently requires Kraken credentials**,
    because every kraken command calls `KrakenConfig::from_env()` first. The OHLC and
    Ticker endpoints themselves need no auth — the credential demand is a CLI

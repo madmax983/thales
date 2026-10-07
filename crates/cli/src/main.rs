@@ -29,7 +29,7 @@ use thales_cli::dedupe;
 use thales_cli::jev_analysis;
 use thales_cli::jev_gate::{self, GateThresholds, JudgeContext, PRICE_SUMMARY_BARS, PriceSummary};
 use thales_cli::{
-    analysis, backtest, benchmark, history, optimizer, reporting, search_history, signals,
+    analysis, backtest, benchmark, history, optimizer, reporting, screener, search_history, signals,
 };
 
 #[cfg(feature = "nova")]
@@ -352,6 +352,22 @@ enum Commands {
         min_volatility: f64,
         #[arg(long, default_value = "0.0")]
         min_momentum: f64,
+    },
+    /// Cheap deterministic ranking pass over the full audited universe.
+    /// Fetches daily bars for every manifest symbol, scores each on
+    /// momentum / range expansion / volume spike / breakout proximity, and
+    /// returns a ranked shortlist for the deep scan. Symbols with open
+    /// positions (from `--positions`) are always shortlisted in addition to
+    /// the top-N ranked picks, so exits can fire on the book.
+    ScreenUniverse {
+        #[arg(long, default_value = "10")]
+        top_n: usize,
+        #[arg(long, default_value = "1d")]
+        timeframe: String,
+        /// Path to `get-positions` output (envelope or raw list). Held
+        /// symbols are force-included in the shortlist.
+        #[arg(long)]
+        positions: Option<PathBuf>,
     },
     GetPositions {
         #[arg(long)]
@@ -1765,6 +1781,41 @@ fn run(command: Commands, raw: bool) -> Result<String, CliError> {
         } => {
             let symbols = scan_market(&provider, top_n, min_volatility, min_momentum)?;
             ok_envelope(symbols, vec![], raw)
+        }
+        Commands::ScreenUniverse {
+            top_n,
+            timeframe,
+            positions,
+        } => {
+            // Held symbols are force-included in the shortlist so the deep
+            // scan can manage (exit/scale) open positions.
+            let held: Vec<String> = if let Some(path) = positions {
+                let raw_pos = std::fs::read_to_string(&path).map_err(|e| {
+                    std::io::Error::new(
+                        e.kind(),
+                        format!("Failed to read file '{}': {}", path.display(), e),
+                    )
+                })?;
+                let list: Vec<contracts::Position> = match serde_json::from_str::<
+                    ResponseEnvelope<Vec<contracts::Position>>,
+                >(&raw_pos)
+                {
+                    Ok(env) => env.data.unwrap_or_default(),
+                    Err(_) => serde_json::from_str(&raw_pos).unwrap_or_default(),
+                };
+                list.into_iter().map(|p| p.symbol).collect()
+            } else {
+                Vec::new()
+            };
+            let cfg = YahooConfig::from_env();
+            let client = YahooClient::new(cfg);
+            let (result, warnings) = screener::screen_universe(top_n, &held, &|alias| {
+                client
+                    .fetch_bars(alias, &timeframe)
+                    .map_err(|e| e.to_string())
+            })
+            .map_err(CliError::Validation)?;
+            ok_envelope(result, warnings, raw)
         }
         Commands::GetPositions { provider } => match provider.as_str() {
             "kraken" => {
@@ -3203,69 +3254,12 @@ fn run(command: Commands, raw: bool) -> Result<String, CliError> {
 /// Thales custom trading universe: the audited manifest at
 /// `crates/cli/universe/universe.json`, embedded at compile time so a
 /// scheduled run can never silently scan the wrong set. `THALES_UNIVERSE_PATH`
-/// overrides it (tests, dev). Any unreadable or invalid manifest is a hard
-/// error: the scan must fail closed rather than fall back to a hardcoded trio.
-const EMBEDDED_UNIVERSE_JSON: &str = include_str!("../universe/universe.json");
-
-#[derive(Debug, serde::Deserialize)]
-struct UniverseEntry {
-    canonical: String,
-    asset_class: String,
-    // Reserved for per-provider routing (Tradytics/TradingView aliases).
-    // Not read yet; the allow keeps `-D warnings` green until it is.
-    #[allow(dead_code)]
-    aliases: std::collections::HashMap<String, String>,
-    provenance: Vec<String>,
-}
-
-#[derive(Debug, serde::Deserialize)]
-struct UniverseManifest {
-    entries: Vec<UniverseEntry>,
-}
-
+/// overrides it (tests, dev). Loading lives in `screener` (single source of
+/// truth); any unreadable or invalid manifest is a hard error: the scan must
+/// fail closed rather than fall back to a hardcoded trio.
 fn load_universe() -> Result<Vec<String>, CliError> {
-    let json = match std::env::var("THALES_UNIVERSE_PATH") {
-        Ok(path) if !path.trim().is_empty() => std::fs::read_to_string(&path).map_err(|err| {
-            CliError::Validation(format!("universe manifest unreadable at {path}: {err}"))
-        })?,
-        _ => EMBEDDED_UNIVERSE_JSON.to_string(),
-    };
-    let manifest: UniverseManifest = serde_json::from_str(&json)
-        .map_err(|err| CliError::Validation(format!("universe manifest invalid: {err}")))?;
-    if manifest.entries.is_empty() {
-        return Err(CliError::Validation(
-            "universe manifest has no entries".to_string(),
-        ));
-    }
-    let mut seen = std::collections::HashSet::new();
-    let mut symbols = Vec::with_capacity(manifest.entries.len());
-    for entry in &manifest.entries {
-        if entry.canonical.trim().is_empty() {
-            return Err(CliError::Validation(
-                "universe manifest has a blank canonical symbol".to_string(),
-            ));
-        }
-        if !seen.insert(entry.canonical.clone()) {
-            return Err(CliError::Validation(format!(
-                "duplicate canonical symbol in universe manifest: {}",
-                entry.canonical
-            )));
-        }
-        if entry.asset_class.trim().is_empty() {
-            return Err(CliError::Validation(format!(
-                "universe manifest: {} is missing its asset class",
-                entry.canonical
-            )));
-        }
-        if entry.provenance.is_empty() {
-            return Err(CliError::Validation(format!(
-                "universe manifest: {} is missing provenance",
-                entry.canonical
-            )));
-        }
-        symbols.push(entry.canonical.clone());
-    }
-    Ok(symbols)
+    let entries = screener::load_manifest().map_err(CliError::Validation)?;
+    Ok(entries.into_iter().map(|e| e.canonical).collect())
 }
 
 fn scan_market(

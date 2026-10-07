@@ -1618,32 +1618,6 @@
       ]
     },
     {
-      "canonical": "BTCUSD",
-      "asset_class": "crypto",
-      "aliases": {
-        "paper": "BTCUSD",
-        "tradytics": "BTCUSD",
-        "tradingview": "BTCUSD",
-        "yahoo": "BTC-USD"
-      },
-      "provenance": [
-        "thales-legacy"
-      ]
-    },
-    {
-      "canonical": "ETHUSD",
-      "asset_class": "crypto",
-      "aliases": {
-        "paper": "ETHUSD",
-        "tradytics": "ETHUSD",
-        "tradingview": "ETHUSD",
-        "yahoo": "ETH-USD"
-      },
-      "provenance": [
-        "thales-legacy"
-      ]
-    },
-    {
       "canonical": "ES",
       "asset_class": "future",
       "aliases": {

@@ -110,6 +110,22 @@ cargo run -p thales-cli -- get-selling-power --provider <alpaca|kraken|paper> --
 - Returns sellable asset balance as `{ "asset": "...", "amount": <f64> }`.
 - For `kraken`, this uses the base-asset wallet balance for the requested trading pair.
 
+### `screen-universe`
+
+```powershell
+cargo run -p thales-cli -- screen-universe --top-n 10 [--positions <path-to-positions-json>]
+```
+
+- Cheap deterministic ranking pass over the full 124-symbol audited universe
+  (one daily-bars Yahoo fetch per symbol, ~3 minutes sequential).
+- Scores each symbol on 20-day momentum magnitude, range expansion vs ATR(14),
+  volume spike vs 20-day average, and proximity to the 20-day Donchian edge;
+  each metric becomes a percentile rank, combined 30/25/25/20 — no Jev calls.
+- Returns the full ranking plus `shortlist`: held symbols (from `--positions`,
+  always included so exits can fire on the book) followed by the top-N ranked
+  picks. Per-symbol fetch/score failures become warnings; fails closed only if
+  nothing scored or the manifest is unreadable.
+
 ### `generate-signals`
 
 ```powershell

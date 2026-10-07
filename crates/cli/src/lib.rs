@@ -46,6 +46,7 @@ pub mod pattern_match;
 #[cfg(feature = "nova")]
 pub mod renko;
 pub mod reporting;
+pub mod screener;
 pub mod search_history;
 #[cfg(feature = "nova")]
 pub mod seasonality;
