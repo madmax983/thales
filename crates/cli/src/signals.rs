@@ -16,6 +16,32 @@ use polars::prelude::*;
 use std::path::Path;
 use strategies::strategy::{Signal, SignalType, StrategyType};
 
+/// Maps provider-specific ticker aliases to canonical universe symbols so the
+/// gate, dedup, execution, and portfolio all agree on one symbol per instrument.
+///
+/// Yahoo Finance aliases seen in the wild: `^NDX` (Nasdaq-100 index),
+/// `^DJI` (Dow Jones Industrial Average), `ES=F` / `NQ=F` (CME futures).
+/// The scan universe uses `NDX`, `DJX`, `ES`, `NQ`.
+pub fn canonical_symbol(symbol: &str) -> String {
+    let upper = symbol.trim().to_uppercase();
+    let stripped = upper.strip_prefix('^').unwrap_or(&upper);
+    let stripped = stripped.strip_suffix("=F").unwrap_or(stripped);
+    match stripped {
+        "DJI" => "DJX".to_string(),
+        s => s.to_string(),
+    }
+}
+
+/// Strict pyramid sizing: a ScaleIn (add to an existing position) gets half
+/// the normal risk-based size. `"max"` and unparseable hints pass through
+/// untouched for the caller to validate.
+fn pyramid_size_hint(size_hint: &str) -> String {
+    match size_hint.parse::<f64>() {
+        Ok(s) if s.is_finite() && s > 0.0 => format!("{:.6}", s * 0.5),
+        _ => size_hint.to_string(),
+    }
+}
+
 fn resolve_signal_type(
     signal: &Signal,
     position: Option<&contracts::Position>,
@@ -140,11 +166,18 @@ pub async fn generate_signals(
     analysis: Option<MarketAnalysis>,
 ) -> Result<Vec<TradeIntent>> {
     // 1. Analyze Market
-    let market_analysis = if let Some(a) = analysis {
+    let mut market_analysis = if let Some(a) = analysis {
         a
     } else {
         analysis::analyze(bars)
     };
+
+    // Normalize provider ticker aliases (e.g. Yahoo `^NDX`) to canonical
+    // universe symbols. Everything downstream — strategy config, position
+    // matching, intent ids, gate, dedup, execution — keys off this symbol,
+    // so an unnormalized alias would double-count exposure (e.g. `^NDX`
+    // beside `NDX`) and defeat the Entry-vs-ScaleIn position check below.
+    market_analysis.symbol = canonical_symbol(&market_analysis.symbol);
 
     // 2. Prepare Data for Strategy
     let df = bars_to_dataframe(bars)?;
@@ -356,6 +389,17 @@ pub async fn generate_signals(
             let (final_signal_type, mut rationale_suffix) =
                 resolve_signal_type(signal, existing_pos);
 
+            // Strict pyramid rule: ScaleIn adds (same-direction signal while
+            // already holding) get half the normal risk-based size. The gate
+            // may shrink further via reduce_size; the runbook's pyramid guard
+            // additionally requires high gate conviction for adds to execute.
+            let size_hint = if final_signal_type == SignalType::ScaleIn {
+                rationale_suffix.push_str(" (Pyramid add: half size)");
+                pyramid_size_hint(&size_hint)
+            } else {
+                size_hint
+            };
+
             // Filter out invalid Exits (no position)
             if !skip {
                 skip = (final_signal_type == SignalType::Exit
@@ -549,6 +593,31 @@ mod tests {
     use contracts::{Bar, MarketAnalysis, TradeIntent};
     use std::io::Write;
     use tempfile::NamedTempFile;
+
+    #[test]
+    fn test_canonical_symbol_strips_yahoo_aliases() {
+        assert_eq!(canonical_symbol("^NDX"), "NDX");
+        assert_eq!(canonical_symbol("^DJI"), "DJX");
+        assert_eq!(canonical_symbol("ES=F"), "ES");
+        assert_eq!(canonical_symbol("NQ=F"), "NQ");
+        // Canonical names pass through untouched.
+        assert_eq!(canonical_symbol("NDX"), "NDX");
+        assert_eq!(canonical_symbol("QQQ"), "QQQ");
+        assert_eq!(canonical_symbol("SPY"), "SPY");
+        // Case-insensitive, whitespace-tolerant.
+        assert_eq!(canonical_symbol("  ^ndx "), "NDX");
+        assert_eq!(canonical_symbol("es=f"), "ES");
+    }
+
+    #[test]
+    fn test_pyramid_size_hint_halves_numeric_sizes() {
+        assert_eq!(pyramid_size_hint("2.730010"), "1.365005");
+        assert_eq!(pyramid_size_hint("0.066746"), "0.033373");
+        // Non-numeric hints pass through for the caller to validate.
+        assert_eq!(pyramid_size_hint("max"), "max");
+        assert_eq!(pyramid_size_hint("0"), "0");
+        assert_eq!(pyramid_size_hint("-1.5"), "-1.5");
+    }
 
     fn create_dummy_history_entry(symbol: &str, timestamp: i64) -> HistoryEntry {
         HistoryEntry {

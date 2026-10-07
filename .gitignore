@@ -3,6 +3,9 @@ __pycache__/
 temp_*
 *.log
 paper_portfolio.json
+paper_portfolio.db
+paper_portfolio.db-journal
+*.json.bak
 
 # Secrets. Never commit these.
 .env

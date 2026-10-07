@@ -13,7 +13,11 @@ Doing nothing is an expected outcome — most runs should end without a trade.
 export PATH="$HOME/.cargo/bin:$PATH"
 export RUSTUP_TOOLCHAIN=stable          # nightly cannot compile Polars 0.42
 export TMPDIR="$HOME/workspace/.tmp-thales-ci"   # /tmp is a 512 MiB tmpfs; linking Polars crashes there
-export PAPER_PORTFOLIO_PATH="$HOME/workspace/thales/runs/<run-id>/paper_portfolio.json"
+export PAPER_PORTFOLIO_PATH="$HOME/workspace/thales/paper_portfolio.db"
+# Single persistent SQLite portfolio shared by EVERY scan run. Never use a
+# per-run path here: per-run paths start each scan with a flat portfolio and
+# silently discard open positions (and their stops/targets) between runs.
+# Legacy JSON portfolio files are migrated automatically on first open.
 cd ~/workspace/thales
 BIN=./target/debug/thales-cli          # build once with: cargo +stable build -p thales-cli
 ```
@@ -309,6 +313,12 @@ done
 - Every signal from `generate-signals` carries stop_loss/take_profit sizing;
   never hand-craft intents through `generate-trade-intent` for execution without
   adding risk fields.
+- **Canonical symbols:** `generate-signals` normalizes provider ticker aliases
+  to canonical universe symbols before anything else (`^NDX`→`NDX`,
+  `^DJI`→`DJX`, `ES=F`→`ES`, `NQ=F`→`NQ`). The gate, dedup, execution, and
+  portfolio all key off the canonical symbol, so an alias can never create a
+  parallel position beside the real one (the `^NDX`/`NDX` double-count of
+  2026-10-07). Never bypass this by hand-writing intents with aliased symbols.
 
 ## 5. Gate — `judge-signals`, a direct tool call, never a subagent
 
@@ -429,19 +439,71 @@ Rules (deterministic, no judgement calls):
 - **Single:** one approved candidate passes through untouched.
 - The dedup can only **remove** candidates. It never creates them.
 - `deduped-<SYM>.json` holds **at most one intent per symbol** — this is the
-  execution input.
+  input to the pyramid guard, not to execution.
 
-## 7. Execute — only what survived the gate and the dedup, paper only
+## 6c. Pyramid guard — ScaleIn adds need high conviction
+
+A `ScaleIn` intent means the pipeline wants to add to an already-open
+position. Adds are allowed, but strict: the gate must have rated its
+conviction at **3.0/4 or higher** ("Strong"). Anything weaker is skipped —
+the existing position stays, managed by its stop/target, and the skip is
+recorded in the audit trail. (Sizing is already halved for ScaleIns inside
+`generate-signals`; the gate may shrink further via `reduce_size`.)
+
+This is deterministic — no judgement calls, no thresholds changed mid-run:
 
 ```bash
-# deduped-BTCUSD.json data is the surviving TradeIntent list (at most one per
-# symbol, every intent independently gate-approved)
-$BIN execute-intent --provider paper --input runs/<run-id>/deduped-BTCUSD.json \
+# Step 6c: drop ScaleIn intents whose gate conviction is below 3.0/4.
+# Verdicts are joined to intents by intent_id across all judged reports.
+python3 - <<'EOF'
+import json, glob
+RUN = "runs/<run-id>"
+SYM = "BTCUSD"
+deduped = json.load(open(f"{RUN}/deduped-{SYM}.json"))
+verdicts = {}
+for p in glob.glob(f"{RUN}/judged-{SYM}-*.json"):
+    rep = json.load(open(p))
+    for v in rep["data"]["verdicts"]:
+        verdicts[v["intent_id"]] = v
+surviving, dropped = [], []
+for it in deduped:
+    if it.get("signal_type") == "ScaleIn":
+        v = verdicts.get(it["intent_id"], {})
+        conv = (v.get("conviction") or {}).get("score")
+        if conv is None or conv < 3.0:
+            dropped.append((it["intent_id"], it["symbol"], conv))
+            continue
+    surviving.append(it)
+json.dump(surviving, open(f"{RUN}/pyramid-filtered-{SYM}.json", "w"), indent=2)
+with open(f"{RUN}/audit.md", "a") as a:
+    for iid, sym, conv in dropped:
+        a.write(f"{__import__('datetime').datetime.now(__import__('datetime').timezone.utc):%FT%TZ} | {sym} | {iid} | pyramid guard: ScaleIn conviction {conv} < 3.0/4 — add skipped, position held\n")
+print(f"pyramid guard: {len(surviving)} survive, {len(dropped)} ScaleIn adds skipped")
+EOF
+```
+
+Rules (deterministic, no judgement calls):
+
+- **Entry intents pass through untouched** — the guard only constrains adds.
+- **ScaleIn with conviction ≥ 3.0/4 executes** at its (already halved) size.
+- **ScaleIn with conviction < 3.0/4, or a missing conviction rating, is
+  skipped** — fail closed, consistent with the rest of the pipeline.
+- The guard can only **remove** candidates. It never creates them.
+- `pyramid-filtered-<SYM>.json` is the execution input.
+
+## 7. Execute — only what survived the gate, the dedup, and the pyramid guard, paper only
+
+```bash
+# pyramid-filtered-BTCUSD.json is the surviving TradeIntent list (at most one
+# per symbol, every intent independently gate-approved, ScaleIn adds additionally
+# conviction-screened by the pyramid guard)
+$BIN execute-intent --provider paper --input runs/<run-id>/pyramid-filtered-BTCUSD.json \
   > runs/<run-id>/execution-BTCUSD.json
 ```
 
 - Validate first (the CLI validates intents before submitting).
-- `execute-intent --provider paper` writes to `$PAPER_PORTFOLIO_PATH`; prices
+- `execute-intent --provider paper` writes to `$PAPER_PORTFOLIO_PATH` (a SQLite
+  database holding open `positions` plus a `fills` trade log); prices
   come from Kraken's **public** Ticker when reachable, else the intent's
   limit/stop price, else a dummy 100.0 with a stderr warning. A dummy-price fill
   is a plumbing test, not a simulation — record which price source was used.

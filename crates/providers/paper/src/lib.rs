@@ -1,23 +1,55 @@
 //! Paper Trading Provider
 //!
 //! A local simulator for executing trades without real money.
-//! It persists positions to a JSON file.
+//! It persists positions and a fill log to a SQLite database, so the paper
+//! portfolio survives across separate CLI invocations (e.g. scheduled scans).
+//!
+//! The database path comes from `PAPER_PORTFOLIO_PATH`. Point every scan at
+//! the SAME path to keep one continuous paper portfolio; per-run paths start
+//! each run flat. A legacy JSON portfolio file at the same path is migrated
+//! automatically on first open.
 
 use std::collections::HashMap;
-use std::fs;
 use std::path::PathBuf;
 use std::time::{SystemTime, UNIX_EPOCH};
 
 use contracts::{Bar, ExecutionResult, TradeIntent};
 use reqwest::blocking::Client;
+use rusqlite::{Connection, params};
 use serde::{Deserialize, Serialize};
 use thiserror::Error;
 
-const DEFAULT_PORTFOLIO_FILE: &str = "paper_portfolio.json";
+const DEFAULT_PORTFOLIO_FILE: &str = "paper_portfolio.db";
+
+/// SQLite magic header: "SQLite format 3\0".
+const SQLITE_MAGIC: &[u8] = b"SQLite format 3\x00";
+
+const SCHEMA: &str = "
+CREATE TABLE IF NOT EXISTS positions (
+    symbol      TEXT PRIMARY KEY,
+    qty         REAL NOT NULL,
+    avg_price   REAL NOT NULL,
+    stop_loss   REAL,
+    take_profit REAL,
+    updated_at_ms INTEGER NOT NULL
+);
+CREATE TABLE IF NOT EXISTS fills (
+    id          INTEGER PRIMARY KEY AUTOINCREMENT,
+    ts_ms       INTEGER NOT NULL,
+    symbol      TEXT NOT NULL,
+    side        TEXT NOT NULL,
+    qty         REAL NOT NULL,
+    price       REAL NOT NULL,
+    intent_id   TEXT NOT NULL,
+    order_id    TEXT NOT NULL
+);
+";
 
 /// Configuration for the Paper provider.
 #[derive(Debug, Clone)]
 pub struct PaperConfig {
+    /// Path to the SQLite portfolio database. Every scan that should share
+    /// one continuous paper portfolio must use the same path.
     pub portfolio_path: PathBuf,
 }
 
@@ -168,6 +200,11 @@ impl PaperClient {
             ));
         }
 
+        let now_ms = SystemTime::now()
+            .duration_since(UNIX_EPOCH)
+            .map_err(|err| PaperProviderError::Clock(err.to_string()))?
+            .as_millis() as i64;
+
         // Update Portfolio
         let position = portfolio
             .positions
@@ -176,6 +213,9 @@ impl PaperClient {
                 symbol: symbol.clone(),
                 qty: 0.0,
                 avg_price: 0.0,
+                stop_loss: None,
+                take_profit: None,
+                updated_at_ms: now_ms,
             });
 
         // Calculate trade impact
@@ -193,36 +233,57 @@ impl PaperClient {
         let old_qty = position.qty;
         let new_qty = old_qty + trade_amount;
 
-        if (old_qty >= 0.0 && trade_amount > 0.0) || (old_qty <= 0.0 && trade_amount < 0.0) {
+        let increasing =
+            (old_qty >= 0.0 && trade_amount > 0.0) || (old_qty <= 0.0 && trade_amount < 0.0);
+        let flipped = !increasing && old_qty.signum() != new_qty.signum() && new_qty != 0.0;
+
+        if increasing {
             // Increasing position (Longer or Shorter)
             // New Avg = (OldVal + NewVal) / NewQty
             // Val = Qty * Price
             let total_val = (old_qty.abs() * position.avg_price) + (intent_qty * price);
             position.avg_price = total_val / new_qty.abs();
+            // (Re)arm stop/target from the intent when adding to the position.
+            if intent.stop_loss.is_some() {
+                position.stop_loss = intent.stop_loss;
+            }
+            if intent.take_profit.is_some() {
+                position.take_profit = intent.take_profit;
+            }
         }
         // Else: Reducing position or flipping.
         // If flipping (e.g. Long 10, Sell 20 -> Short 10), the new avg price for the Short part
         // should be the execution price.
-        else if old_qty.signum() != new_qty.signum() && new_qty != 0.0 {
+        else if flipped {
             // Flipped
             // The part that closed the old position uses old avg price (for PnL).
             // The part that opened the new position uses new execution price.
             position.avg_price = price;
+            position.stop_loss = intent.stop_loss;
+            position.take_profit = intent.take_profit;
         }
+        // Reducing: keep the existing stop/target.
 
         position.qty = new_qty;
+        position.updated_at_ms = now_ms;
+
+        let order_id = format!("paper-{}-{}", symbol, now_ms);
+        let fill = FillRecord {
+            ts_ms: now_ms,
+            symbol: symbol.clone(),
+            side: intent.side.clone(),
+            qty: intent_qty,
+            price,
+            intent_id: intent.intent_id.clone(),
+            order_id: order_id.clone(),
+        };
 
         // Clean up empty positions
         if position.qty.abs() < 1e-8 {
             portfolio.positions.remove(&symbol);
         }
 
-        self.save_portfolio(&portfolio)?;
-
-        let submitted_at_unix_ms = SystemTime::now()
-            .duration_since(UNIX_EPOCH)
-            .map_err(|err| PaperProviderError::Clock(err.to_string()))?
-            .as_millis() as i64;
+        self.save_portfolio(&portfolio, Some(&fill))?;
 
         if let Some(algo) = &intent.execution_algo {
             eprintln!("Paper Executing with Algo: {}", algo);
@@ -232,9 +293,9 @@ impl PaperClient {
             schema_version: "v0".to_string(),
             intent_id: intent.intent_id.clone(),
             provider: "paper".to_string(),
-            provider_order_id: format!("paper-{}-{}", symbol, submitted_at_unix_ms),
+            provider_order_id: order_id,
             status: "filled".to_string(),
-            submitted_at_unix_ms,
+            submitted_at_unix_ms: now_ms,
         })
     }
 
@@ -295,25 +356,133 @@ impl PaperClient {
             .map_err(|_| PaperProviderError::InvalidBuyingPower(raw))
     }
 
-    fn load_portfolio(&self) -> Result<PaperPortfolio, PaperProviderError> {
-        if !self.config.portfolio_path.exists() {
-            return Ok(PaperPortfolio {
-                positions: HashMap::new(),
-            });
+    /// Opens the SQLite portfolio database, creating parent directories and
+    /// tables as needed. A legacy JSON portfolio file at the same path is
+    /// migrated into the new schema on first open.
+    fn open_db(&self) -> Result<Connection, PaperProviderError> {
+        let path = &self.config.portfolio_path;
+        if let Some(parent) = path.parent()
+            && !parent.as_os_str().is_empty()
+        {
+            std::fs::create_dir_all(parent)?;
         }
-        let content = fs::read_to_string(&self.config.portfolio_path)?;
-        if content.trim().is_empty() {
-            return Ok(PaperPortfolio {
-                positions: HashMap::new(),
-            });
-        }
-        let portfolio: PaperPortfolio = serde_json::from_str(&content)?;
-        Ok(portfolio)
+        self.migrate_legacy_json(path)?;
+        let conn = Connection::open(path)?;
+        conn.execute_batch(SCHEMA)?;
+        Ok(conn)
     }
 
-    fn save_portfolio(&self, portfolio: &PaperPortfolio) -> Result<(), PaperProviderError> {
-        let content = serde_json::to_string_pretty(portfolio)?;
-        fs::write(&self.config.portfolio_path, content)?;
+    /// If `path` holds a legacy JSON portfolio (not a SQLite database),
+    /// import its positions, then let the caller replace the file.
+    /// Returns Ok(false) when there was nothing to migrate.
+    fn migrate_legacy_json(&self, path: &PathBuf) -> Result<bool, PaperProviderError> {
+        if !path.exists() {
+            return Ok(false);
+        }
+        let bytes = std::fs::read(path)?;
+        if bytes.is_empty() || bytes.starts_with(SQLITE_MAGIC) {
+            return Ok(false);
+        }
+        let text = String::from_utf8_lossy(&bytes);
+        let legacy: PaperPortfolio = match serde_json::from_str(&text) {
+            Ok(p) => p,
+            Err(_) => return Ok(false), // not a legacy portfolio either; let SQLite report it
+        };
+        // Swap the JSON file aside before creating the database at its path.
+        let backup = path.with_extension("json.bak");
+        std::fs::rename(path, &backup)?;
+        let mut conn = Connection::open(path)?;
+        conn.execute_batch(SCHEMA)?;
+        let now_ms = SystemTime::now()
+            .duration_since(UNIX_EPOCH)
+            .map_err(|e| PaperProviderError::Clock(e.to_string()))?
+            .as_millis() as i64;
+        {
+            let tx = conn.transaction()?;
+            for pos in legacy.positions.values() {
+                tx.execute(
+                    "INSERT INTO positions (symbol, qty, avg_price, stop_loss, take_profit, updated_at_ms)
+                     VALUES (?1, ?2, ?3, ?4, ?5, ?6)",
+                    params![
+                        pos.symbol,
+                        pos.qty,
+                        pos.avg_price,
+                        pos.stop_loss,
+                        pos.take_profit,
+                        now_ms,
+                    ],
+                )?;
+            }
+            tx.commit()?;
+        }
+        eprintln!(
+            "Paper portfolio migrated from legacy JSON to SQLite (backup: {})",
+            backup.display()
+        );
+        Ok(true)
+    }
+
+    fn load_portfolio(&self) -> Result<PaperPortfolio, PaperProviderError> {
+        let conn = self.open_db()?;
+        let mut stmt = conn.prepare(
+            "SELECT symbol, qty, avg_price, stop_loss, take_profit, updated_at_ms FROM positions",
+        )?;
+        let rows = stmt.query_map([], |row| {
+            Ok(PaperPosition {
+                symbol: row.get(0)?,
+                qty: row.get(1)?,
+                avg_price: row.get(2)?,
+                stop_loss: row.get(3)?,
+                take_profit: row.get(4)?,
+                updated_at_ms: row.get(5)?,
+            })
+        })?;
+        let mut positions = HashMap::new();
+        for row in rows {
+            let pos: PaperPosition = row?;
+            positions.insert(pos.symbol.clone(), pos);
+        }
+        Ok(PaperPortfolio { positions })
+    }
+
+    fn save_portfolio(
+        &self,
+        portfolio: &PaperPortfolio,
+        fill: Option<&FillRecord>,
+    ) -> Result<(), PaperProviderError> {
+        let mut conn = self.open_db()?;
+        let tx = conn.transaction()?;
+        tx.execute("DELETE FROM positions", [])?;
+        for pos in portfolio.positions.values() {
+            tx.execute(
+                "INSERT INTO positions (symbol, qty, avg_price, stop_loss, take_profit, updated_at_ms)
+                 VALUES (?1, ?2, ?3, ?4, ?5, ?6)",
+                params![
+                    pos.symbol,
+                    pos.qty,
+                    pos.avg_price,
+                    pos.stop_loss,
+                    pos.take_profit,
+                    pos.updated_at_ms,
+                ],
+            )?;
+        }
+        if let Some(f) = fill {
+            tx.execute(
+                "INSERT INTO fills (ts_ms, symbol, side, qty, price, intent_id, order_id)
+                 VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7)",
+                params![
+                    f.ts_ms,
+                    f.symbol,
+                    f.side,
+                    f.qty,
+                    f.price,
+                    f.intent_id,
+                    f.order_id,
+                ],
+            )?;
+        }
+        tx.commit()?;
         Ok(())
     }
 
@@ -367,12 +536,31 @@ struct PaperPortfolio {
     positions: HashMap<String, PaperPosition>,
 }
 
+/// One recorded fill in the paper trade log.
+#[derive(Debug, Clone)]
+struct FillRecord {
+    ts_ms: i64,
+    symbol: String,
+    side: String,
+    qty: f64,
+    price: f64,
+    intent_id: String,
+    order_id: String,
+}
+
 #[derive(Debug, Clone, Serialize, Deserialize)]
 struct PaperPosition {
     symbol: String,
     // Store signed qty: >0 Long, <0 Short
     qty: f64,
     avg_price: f64,
+    // `default` so legacy JSON portfolios (pre-SL/TP) still deserialize.
+    #[serde(default)]
+    stop_loss: Option<f64>,
+    #[serde(default)]
+    take_profit: Option<f64>,
+    #[serde(default)]
+    updated_at_ms: i64,
 }
 
 fn validate_side(side: &str) -> Result<(), PaperProviderError> {
@@ -399,6 +587,8 @@ pub enum PaperProviderError {
     Io(#[from] std::io::Error),
     #[error("json error: {0}")]
     Json(#[from] serde_json::Error),
+    #[error("sqlite error: {0}")]
+    Sqlite(#[from] rusqlite::Error),
     #[error("http transport error: {0}")]
     Http(#[from] reqwest::Error),
     #[error("invalid side: {0}")]
@@ -416,15 +606,19 @@ pub enum PaperProviderError {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use std::io::Write;
     use tempfile::NamedTempFile;
+
+    fn test_client(path: &std::path::Path) -> PaperClient {
+        PaperClient::new(PaperConfig {
+            portfolio_path: path.to_path_buf(),
+        })
+    }
 
     #[test]
     fn test_paper_execution_limit_order() {
         let temp_file = NamedTempFile::new().unwrap();
-        let config = PaperConfig {
-            portfolio_path: temp_file.path().to_path_buf(),
-        };
-        let client = PaperClient::new(config);
+        let client = test_client(temp_file.path());
 
         let intent = TradeIntent {
             intent_id: "test:1".to_string(),
@@ -448,10 +642,7 @@ mod tests {
     #[test]
     fn test_paper_execution_sell_partial() {
         let temp_file = NamedTempFile::new().unwrap();
-        let config = PaperConfig {
-            portfolio_path: temp_file.path().to_path_buf(),
-        };
-        let client = PaperClient::new(config);
+        let client = test_client(temp_file.path());
 
         // Buy 1.0
         let buy_intent = TradeIntent {
@@ -484,12 +675,79 @@ mod tests {
     #[test]
     fn test_get_buying_power_returns_positive_value() {
         let temp_file = NamedTempFile::new().unwrap();
-        let config = PaperConfig {
-            portfolio_path: temp_file.path().to_path_buf(),
-        };
-        let client = PaperClient::new(config);
+        let client = test_client(temp_file.path());
 
         let buying_power = client.get_buying_power().unwrap();
         assert!(buying_power > 0.0);
+    }
+
+    #[test]
+    fn test_positions_survive_across_client_instances() {
+        // Regression test: the paper portfolio must persist across separate
+        // CLI invocations (e.g. scheduled scans), not just within one client.
+        let temp_file = NamedTempFile::new().unwrap();
+        let path = temp_file.path().to_path_buf();
+
+        {
+            let client = test_client(&path);
+            let intent = TradeIntent {
+                intent_id: "test:persist".to_string(),
+                symbol: "QQQ".to_string(),
+                side: "buy".to_string(),
+                size_hint: "2.5".to_string(),
+                limit_price: Some(750.0),
+                stop_loss: Some(730.0),
+                take_profit: Some(790.0),
+                ..Default::default()
+            };
+            client.execute_intent(&intent).unwrap();
+        } // client dropped; simulates end of one scan run
+
+        {
+            let client = test_client(&path);
+            let positions = client.get_open_positions().unwrap();
+            assert_eq!(positions.len(), 1);
+            assert_eq!(positions[0].symbol, "QQQ");
+            assert_eq!(positions[0].qty, 2.5);
+            assert_eq!(positions[0].entry_price, Some(750.0));
+        }
+
+        // Stop/target survive the round trip too.
+        let client = test_client(&path);
+        let portfolio = client.load_portfolio().unwrap();
+        let pos = &portfolio.positions["QQQ"];
+        assert_eq!(pos.stop_loss, Some(730.0));
+        assert_eq!(pos.take_profit, Some(790.0));
+
+        // And the fill was logged.
+        let conn = client.open_db().unwrap();
+        let fill_count: i64 = conn
+            .query_row("SELECT COUNT(*) FROM fills WHERE symbol = 'QQQ'", [], |r| {
+                r.get(0)
+            })
+            .unwrap();
+        assert_eq!(fill_count, 1);
+    }
+
+    #[test]
+    fn test_legacy_json_portfolio_migrates() {
+        let mut temp_file = NamedTempFile::new().unwrap();
+        // Legacy shape: no stop_loss / take_profit / updated_at_ms fields.
+        let legacy = r#"{"positions":{"NDX":{"symbol":"NDX","qty":0.065,"avg_price":100.0}}}"#;
+        temp_file.write_all(legacy.as_bytes()).unwrap();
+        temp_file.flush().unwrap();
+        let path = temp_file.path().to_path_buf();
+
+        let client = test_client(&path);
+        let positions = client.get_open_positions().unwrap();
+        assert_eq!(positions.len(), 1);
+        assert_eq!(positions[0].symbol, "NDX");
+        assert_eq!(positions[0].qty, 0.065);
+
+        // The JSON file was replaced by a real SQLite database.
+        let bytes = std::fs::read(&path).unwrap();
+        assert!(bytes.starts_with(SQLITE_MAGIC));
+        // And a backup of the original JSON was kept alongside.
+        assert!(path.with_extension("json.bak").exists());
     }
 }
