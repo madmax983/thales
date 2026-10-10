@@ -776,3 +776,23 @@ inclusive** (called once, by `ZScoreMeanReversion`). It keeps rolling sums and
 the window in `rust_decimal::Decimal`, converts every bar with
 `Decimal::from_f64_retain` (`base2_to_decimal`), takes `Decimal::sqrt`, divides
 in `Decimal`, and converts back with `to_f64`.
+
+## After: `zscore.rs` converted to native f64
+
+Same harness, fixture and session:
+
+```
+I refs: 1,370,011,780   (this run's baseline: 1,449,952,523)
+```
+
+| | Ir | % of baseline |
+|---|---:|---:|
+| Baseline | 1,449,952,523 | 100.00% |
+| After `zscore.rs` f64 | 1,370,011,780 | 94.49% |
+| **Delta** | **-79,940,743** | **-5.51%** |
+
+Clears the impact floor (>=5% instructions on a path that is 5.63% of the
+workload) narrowly. `perf/bolt_benchmark.sh` `benchmark` output on the
+fixture is byte-identical before and after (`cmp`). Mean and variance are
+computed two-pass per window (no rolling-sum drift); non-finite or missing
+input still resets the window. All existing tests pass unchanged.
