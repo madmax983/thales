@@ -761,3 +761,18 @@ Clears the impact floor (>=5% instructions on a path that is 7.00% of the
 workload). `perf/bolt_benchmark.sh` `benchmark` output on the fixture is
 byte-identical before and after (`cmp`). Non-finite or missing input still
 resets both windows. All existing tests pass unchanged.
+
+## Baseline for this run (before the `zscore.rs` f64 conversion)
+
+Recorded with `valgrind-3.22.0`, `perf/bolt_benchmark.sh --callgrind`,
+release build of `thales-cli` (`--features nova`), same fixture, at `900026e`:
+
+```
+I refs: 1,449,952,523
+```
+
+`strategies::indicators::zscore::calculate` is **81,601,430 Ir (5.63%)
+inclusive** (called once, by `ZScoreMeanReversion`). It keeps rolling sums and
+the window in `rust_decimal::Decimal`, converts every bar with
+`Decimal::from_f64_retain` (`base2_to_decimal`), takes `Decimal::sqrt`, divides
+in `Decimal`, and converts back with `to_f64`.
