@@ -796,3 +796,21 @@ workload) narrowly. `perf/bolt_benchmark.sh` `benchmark` output on the
 fixture is byte-identical before and after (`cmp`). Mean and variance are
 computed two-pass per window (no rolling-sum drift); non-finite or missing
 input still resets the window. All existing tests pass unchanged.
+
+## Baseline for this run (before the crossover-strategy Decimal display fix)
+
+Recorded with `valgrind-3.22.0`, `perf/bolt_benchmark.sh --callgrind`,
+release build of `thales-cli` (`--features nova`), same fixture:
+
+```
+I refs: 1,370,005,776
+```
+
+`Decimal::from_f64_retain` -> `base2_to_decimal` is 163,297,149 Ir
+(**11.92%**); 146,439,405 Ir of it (**10.69%**, 129,462 calls, ~1,130 Ir each)
+comes from `from_f64_retain`, called every bar by seven strategies
+(`triple_sma_crossover`, `macd`, `hma_macd_trend`, `ema_crossover`,
+`kama_crossover`, `bollinger_bands` mean-reversion,
+`weighted_close_trend`). The converted values are used only for
+comparisons and for `round_dp(2)` text in the `reason` string, which is
+built only when a signal fires (a tiny fraction of bars).
