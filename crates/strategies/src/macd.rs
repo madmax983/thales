@@ -15,6 +15,11 @@ use polars::prelude::*;
 use rust_decimal::Decimal;
 use serde::{Deserialize, Serialize};
 
+/// Two-decimal display form for reason strings, built only when a signal fires.
+fn round2(v: f64) -> Decimal {
+    Decimal::from_f64_retain(v).unwrap_or_default().round_dp(2)
+}
+
 /// Configuration parameters for the `Macd` strategy.
 ///
 /// # Examples
@@ -129,10 +134,10 @@ impl Strategy for Macd {
             let timestamp = time_arr.get(i).unwrap_or(0);
             let price_opt = close_arr.get(i);
 
-            let m_curr_opt = macd_arr.get(i).and_then(Decimal::from_f64_retain);
-            let s_curr_opt = signal_arr.get(i).and_then(Decimal::from_f64_retain);
-            let m_prev_opt = macd_arr.get(i - 1).and_then(Decimal::from_f64_retain);
-            let s_prev_opt = signal_arr.get(i - 1).and_then(Decimal::from_f64_retain);
+            let m_curr_opt = macd_arr.get(i).filter(|v| v.is_finite());
+            let s_curr_opt = signal_arr.get(i).filter(|v| v.is_finite());
+            let m_prev_opt = macd_arr.get(i - 1).filter(|v| v.is_finite());
+            let s_prev_opt = signal_arr.get(i - 1).filter(|v| v.is_finite());
 
             let atr_opt = atr_arr.get(i);
 
@@ -152,8 +157,8 @@ impl Strategy for Macd {
                         take_profit: None,
                         reason: format!(
                             "Bearish Crossover: MACD {} < Signal {}",
-                            mc.round_dp(2),
-                            sc.round_dp(2)
+                            round2(mc),
+                            round2(sc)
                         ),
                         timestamp_ms: timestamp,
                     });
@@ -178,8 +183,8 @@ impl Strategy for Macd {
                         take_profit: None, // Let trend run
                         reason: format!(
                             "Bullish Crossover: MACD {} > Signal {}",
-                            mc.round_dp(2),
-                            sc.round_dp(2)
+                            round2(mc),
+                            round2(sc)
                         ),
                         timestamp_ms: timestamp,
                     });

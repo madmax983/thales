@@ -22,6 +22,11 @@ use polars::prelude::*;
 use rust_decimal::Decimal;
 use serde::{Deserialize, Serialize};
 
+/// Two-decimal display form for reason strings, built only when a signal fires.
+fn round2(v: f64) -> Decimal {
+    Decimal::from_f64_retain(v).unwrap_or_default().round_dp(2)
+}
+
 /// Configuration for the [`KamaCrossover`] strategy.
 ///
 /// This struct defines the lookback periods and scaling factors required to construct both
@@ -169,10 +174,10 @@ impl Strategy for KamaCrossover {
             let timestamp = time_arr.get(i).unwrap_or(0);
             let price_opt = close_arr.get(i);
 
-            let s_curr_opt = short_kama.get(i).and_then(Decimal::from_f64_retain);
-            let l_curr_opt = long_kama.get(i).and_then(Decimal::from_f64_retain);
-            let s_prev_opt = short_kama.get(i - 1).and_then(Decimal::from_f64_retain);
-            let l_prev_opt = long_kama.get(i - 1).and_then(Decimal::from_f64_retain);
+            let s_curr_opt = short_kama.get(i).filter(|v| v.is_finite());
+            let l_curr_opt = long_kama.get(i).filter(|v| v.is_finite());
+            let s_prev_opt = short_kama.get(i - 1).filter(|v| v.is_finite());
+            let l_prev_opt = long_kama.get(i - 1).filter(|v| v.is_finite());
 
             let atr_opt = atr_arr.get(i);
 
@@ -191,8 +196,8 @@ impl Strategy for KamaCrossover {
                         take_profit: None,
                         reason: format!(
                             "Bearish KAMA Crossover: Short {} < Long {}",
-                            sc.round_dp(2),
-                            lc.round_dp(2)
+                            round2(sc),
+                            round2(lc)
                         ),
                         timestamp_ms: timestamp,
                     });
@@ -217,8 +222,8 @@ impl Strategy for KamaCrossover {
                         take_profit: None,
                         reason: format!(
                             "Bullish KAMA Crossover: Short {} > Long {}",
-                            sc.round_dp(2),
-                            lc.round_dp(2)
+                            round2(sc),
+                            round2(lc)
                         ),
                         timestamp_ms: timestamp,
                     });

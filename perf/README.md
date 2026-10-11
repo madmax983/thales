@@ -814,3 +814,24 @@ comes from `from_f64_retain`, called every bar by seven strategies
 `weighted_close_trend`). The converted values are used only for
 comparisons and for `round_dp(2)` text in the `reason` string, which is
 built only when a signal fires (a tiny fraction of bars).
+
+## After: crossover strategies compare in f64
+
+`ema_crossover`, `kama_crossover`, `macd`, `triple_sma_crossover` now
+compare the indicator values as finite `f64` and build the `Decimal` (for
+`round_dp(2)` in the reason string) only when a signal fires.
+
+```
+I refs: 1,263,345,331   (baseline: 1,370,005,776)
+```
+
+| | Ir | % of baseline |
+|---|---:|---:|
+| Baseline | 1,370,005,776 | 100.00% |
+| After | 1,263,345,331 | 92.21% |
+| **Delta** | **-106,660,445** | **-7.79%** |
+
+`base2_to_decimal` 11.92% -> 5.20% of the (smaller) total. `benchmark`
+output on the fixture is byte-identical before/after (`cmp`). Not converted:
+`hma_macd_trend`, `bollinger_bands`, `weighted_close_trend` (genuine
+`Decimal` arithmetic/accumulators; separate follow-ups).
