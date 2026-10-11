@@ -20,6 +20,11 @@ use polars::prelude::*;
 use rust_decimal::Decimal;
 use serde::{Deserialize, Serialize};
 
+/// Two-decimal display form for reason strings, built only when a signal fires.
+fn round2(v: f64) -> Decimal {
+    Decimal::from_f64_retain(v).unwrap_or_default().round_dp(2)
+}
+
 /// Configuration for the [`EmaCrossover`] strategy.
 ///
 /// Defines the periods for the fast and slow EMAs, as well as risk management parameters.
@@ -110,10 +115,10 @@ impl Strategy for EmaCrossover {
             let price_opt = close_arr.get(i);
 
             // Ensure we have EMA values
-            let s_curr_opt = short_ema.get(i).and_then(Decimal::from_f64_retain);
-            let l_curr_opt = long_ema.get(i).and_then(Decimal::from_f64_retain);
-            let s_prev_opt = short_ema.get(i - 1).and_then(Decimal::from_f64_retain);
-            let l_prev_opt = long_ema.get(i - 1).and_then(Decimal::from_f64_retain);
+            let s_curr_opt = short_ema.get(i).filter(|v| v.is_finite());
+            let l_curr_opt = long_ema.get(i).filter(|v| v.is_finite());
+            let s_prev_opt = short_ema.get(i - 1).filter(|v| v.is_finite());
+            let l_prev_opt = long_ema.get(i - 1).filter(|v| v.is_finite());
 
             let atr_opt = atr_arr.get(i);
 
@@ -132,8 +137,8 @@ impl Strategy for EmaCrossover {
                         take_profit: None,
                         reason: format!(
                             "Bearish Crossover: Short {} < Long {}",
-                            sc.round_dp(2),
-                            lc.round_dp(2)
+                            round2(sc),
+                            round2(lc)
                         ),
                         timestamp_ms: timestamp,
                     });
@@ -158,8 +163,8 @@ impl Strategy for EmaCrossover {
                         take_profit: None,
                         reason: format!(
                             "Bullish Crossover: Short {} > Long {}",
-                            sc.round_dp(2),
-                            lc.round_dp(2)
+                            round2(sc),
+                            round2(lc)
                         ),
                         timestamp_ms: timestamp,
                     });
