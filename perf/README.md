@@ -835,3 +835,20 @@ I refs: 1,263,345,331   (baseline: 1,370,005,776)
 output on the fixture is byte-identical before/after (`cmp`). Not converted:
 `hma_macd_trend`, `bollinger_bands`, `weighted_close_trend` (genuine
 `Decimal` arithmetic/accumulators; separate follow-ups).
+
+## Baseline for this run (before the backtest signal-lookup change)
+
+Recorded with `valgrind-3.22.0`, `perf/bolt_benchmark.sh --callgrind`,
+release build of `thales-cli` (`--features nova`), same fixture:
+
+```
+I refs: 1,263,040,554
+```
+
+`run_backtest_with_strategy` groups each strategy's signals into a
+`HashMap<i64, Vec<Signal>>` (default SipHash) and does one `remove` per bar.
+Profile edges: `RandomState::hash_one::<&i64>` 78.4M Ir (**6.2%**, 552,157
+calls, of which `sip::Hasher::write` 30.9M), `reserve_rehash` 11.0M (0.87%),
+plus one `Vec<Signal>` malloc/free per distinct signal timestamp. Hypothesis:
+a stable sort by timestamp plus a binary search per bar returns the same
+signals in the same order without hashing or per-key allocations.
