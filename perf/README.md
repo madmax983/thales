@@ -852,3 +852,24 @@ calls, of which `sip::Hasher::write` 30.9M), `reserve_rehash` 11.0M (0.87%),
 plus one `Vec<Signal>` malloc/free per distinct signal timestamp. Hypothesis:
 a stable sort by timestamp plus a binary search per bar returns the same
 signals in the same order without hashing or per-key allocations.
+
+## After: backtest signals looked up by sorted cursor, not `HashMap`
+
+Signals are stable-sorted by timestamp; each bar advances a cursor (binary
+search only if a timestamp moves backwards) and takes that timestamp's
+signals, clearing any left after the per-bar `break` so a repeated bar
+timestamp behaves as the old `HashMap::remove` did.
+
+```
+I refs: 1,179,554,757   (baseline: 1,263,040,554)
+```
+
+| | Ir | % of baseline |
+|---|---:|---:|
+| Baseline | 1,263,040,554 | 100.00% |
+| After | 1,179,554,757 | 93.39% |
+| **Delta** | **-83,485,797** | **-6.61%** |
+
+`benchmark` output on the fixture is byte-identical before/after (`cmp`).
+(A pure binary-search variant measured 1,206,249,917, -4.50%, below the floor;
+the cursor is what clears it.)

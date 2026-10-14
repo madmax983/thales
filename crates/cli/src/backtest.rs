@@ -209,17 +209,14 @@ pub async fn run_backtest_with_strategy(
     // 2. Generate All Signals
     let raw_signals = strategy.generate_signals(&df).await?;
 
-    // Group signals by timestamp for efficient lookup
-    // Assuming signals are sorted by timestamp, but let's map them.
-    // Use a HashMap<Timestamp, Vec<Signal>>
-    let mut signals_map: std::collections::HashMap<i64, Vec<Signal>> =
-        std::collections::HashMap::new();
-    for signal in raw_signals {
-        signals_map
-            .entry(signal.timestamp_ms)
-            .or_default()
-            .push(signal);
-    }
+    // Order signals by timestamp (stable, so signals sharing a timestamp keep their
+    // generation order) and look each bar up by binary search.
+    let mut raw_signals = raw_signals;
+    raw_signals.sort_by_key(|s| s.timestamp_ms);
+    let signal_times: Vec<i64> = raw_signals.iter().map(|s| s.timestamp_ms).collect();
+    let mut ordered_signals: Vec<Option<Signal>> = raw_signals.into_iter().map(Some).collect();
+    let mut sig_cursor = 0usize;
+    let mut prev_signal_time = i64::MIN;
 
     // 4. Simulation Loop
     let mut position: Option<OpenPosition> = None;
@@ -414,10 +411,25 @@ pub async fn run_backtest_with_strategy(
 
         // C. Process New Signals (for Next Tick)
         // We look for signals generated at THIS timestamp. Each bar's timestamp is looked
-        // up at most once (the loop above only ever advances `current_time`), so removing
-        // the entry - rather than borrowing it - lets us move the chosen Signal into the
+        // up at most once (a repeated timestamp finds its signals already cleared), so
+        // taking them - rather than borrowing - lets us move the chosen Signal into the
         // PendingOrder instead of cloning it, with no change in which signal is picked.
-        if let Some(sigs) = signals_map.remove(&current_time) {
+        // Bars normally ascend, so resume from the previous position; fall back to a
+        // binary search if the timestamp moved backwards.
+        if current_time < prev_signal_time {
+            sig_cursor = signal_times.partition_point(|&t| t < current_time);
+        } else {
+            while sig_cursor < signal_times.len() && signal_times[sig_cursor] < current_time {
+                sig_cursor += 1;
+            }
+        }
+        prev_signal_time = current_time;
+        let sig_lo = sig_cursor;
+        let sig_hi = sig_lo + signal_times[sig_lo..].partition_point(|&t| t <= current_time);
+        if sig_lo < sig_hi {
+            let sigs = ordered_signals[sig_lo..sig_hi]
+                .iter_mut()
+                .filter_map(Option::take);
             // Sort signals?
             // Prioritize Exits over Entries?
             // For now, just take the first valid one.
@@ -446,6 +458,8 @@ pub async fn run_backtest_with_strategy(
                     break;
                 }
             }
+            // A repeated bar timestamp must not see signals left over after the `break`.
+            ordered_signals[sig_lo..sig_hi].fill_with(|| None);
         }
 
         // D. Update Equity Curve
