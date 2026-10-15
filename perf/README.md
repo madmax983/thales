@@ -873,3 +873,43 @@ I refs: 1,179,554,757   (baseline: 1,263,040,554)
 `benchmark` output on the fixture is byte-identical before/after (`cmp`).
 (A pure binary-search variant measured 1,206,249,917, -4.50%, below the floor;
 the cursor is what clears it.)
+
+## Baseline for this run (before the slice-read change in indicators)
+
+Same harness, fixture and machine, at the commit that includes the
+sorted-cursor change above:
+
+```
+I refs: 1,179,620,092
+```
+
+Top self cost is now `polars_core::ChunkedArray<Float64Type>::get` at
+221.5M Ir (**18.78%**), ~47 Ir per call over 4.74M calls from 120 callers.
+Largest caller edge: `indicators::atr::calculate`, 53.3M Ir (**4.52%**) over
+1.18M calls (three `.get(i)` per bar for `high`/`low`/`close`, called by 79
+strategies); then `ema` 15.1M, `sma` 8.8M, `rsi` 5.4M. Hypothesis: the
+columns are single-chunk and null-free, so borrowing `cont_slice()` once and
+indexing a `&[f64]` removes the per-element chunk lookup and validity-bit
+check that `get` pays.
+
+## After: ATR/EMA/SMA read columns as a borrowed slice
+
+`indicators::values_or_nan` borrows `Float64Chunked::cont_slice()` (single
+chunk, no nulls) and falls back to a null->NaN copy otherwise. `atr`, `ema`
+and `sma` index the slice instead of calling `.get(i)` per element; each
+already treated null and non-finite values identically, so behavior is
+unchanged (`rsi` is not converted: its second loop distinguishes NaN from
+null).
+
+```
+I refs: 1,103,925,571   (baseline: 1,179,620,092)
+```
+
+| | Ir | % of baseline |
+|---|---:|---:|
+| Baseline | 1,179,620,092 | 100.00% |
+| After | 1,103,925,571 | 93.58% |
+| **Delta** | **-75,694,521** | **-6.42%** |
+
+`ChunkedArray<Float64Type>::get`: 221.5M -> 147.7M Ir. `benchmark` output on
+the fixture is byte-identical before/after (`cmp`).

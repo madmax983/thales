@@ -26,15 +26,16 @@ pub fn calculate(data: &DataFrame, period: usize) -> Result<Series> {
         .context("Close column must be numeric (f64)")?;
 
     let mut ema_values: Vec<Option<f64>> = Vec::with_capacity(close.len());
+    let close = super::values_or_nan(close);
     let k = 2.0 / (period as f64 + 1.0);
     let mut prev_ema: Option<f64> = None;
     let mut window_sum = 0.0f64;
     let mut count = 0;
     let period_f = period as f64;
 
-    for i in 0..close.len() {
-        match close.get(i) {
-            Some(d) if d.is_finite() => {
+    for &d in close.iter() {
+        match d {
+            d if d.is_finite() => {
                 if count < period {
                     window_sum += d;
                     count += 1;

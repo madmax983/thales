@@ -56,6 +56,9 @@ pub fn calculate(data: &DataFrame, period: usize) -> Result<Series> {
         .context("Close column must be numeric (f64)")?;
 
     let len = close.len();
+    let high = super::values_or_nan(high);
+    let low = super::values_or_nan(low);
+    let close = super::values_or_nan(close);
     let mut atr_values: Vec<Option<f64>> = vec![None; len];
 
     if len < period {
@@ -77,8 +80,8 @@ pub fn calculate(data: &DataFrame, period: usize) -> Result<Series> {
     // Let's do it in loop.
 
     // First TR (index 0)
-    let h0 = high.get(0).unwrap_or(f64::NAN);
-    let l0 = low.get(0).unwrap_or(f64::NAN);
+    let h0 = high[0];
+    let l0 = low[0];
 
     if h0.is_nan() || l0.is_nan() {
         valid_start = false;
@@ -89,9 +92,9 @@ pub fn calculate(data: &DataFrame, period: usize) -> Result<Series> {
 
     // Subsequent TRs for initial SMA
     for i in 1..period {
-        let h = high.get(i).unwrap_or(f64::NAN);
-        let l = low.get(i).unwrap_or(f64::NAN);
-        let cp = close.get(i - 1).unwrap_or(f64::NAN);
+        let h = high[i];
+        let l = low[i];
+        let cp = close[i - 1];
 
         if h.is_nan() || l.is_nan() || cp.is_nan() {
             valid_start = false;
@@ -113,9 +116,9 @@ pub fn calculate(data: &DataFrame, period: usize) -> Result<Series> {
 
     // Calculate remaining ATRs using Wilder's Smoothing
     for (i, atr_val) in atr_values.iter_mut().enumerate().take(len).skip(period) {
-        let h = high.get(i).unwrap_or(f64::NAN);
-        let l = low.get(i).unwrap_or(f64::NAN);
-        let cp = close.get(i - 1).unwrap_or(f64::NAN);
+        let h = high[i];
+        let l = low[i];
+        let cp = close[i - 1];
 
         if h.is_nan() || l.is_nan() || cp.is_nan() {
             *atr_val = None;

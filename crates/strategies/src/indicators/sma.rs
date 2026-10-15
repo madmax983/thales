@@ -27,47 +27,33 @@ pub fn calculate(data: &DataFrame, period: usize) -> Result<Series> {
         .context("Close column must be numeric (f64)")?;
 
     let mut sma_values: Vec<Option<f64>> = Vec::with_capacity(close.len());
+    let close = super::values_or_nan(close);
     let mut window: VecDeque<f64> = VecDeque::with_capacity(period);
     let mut sum = 0.0f64;
     let period_f = period as f64;
 
-    for i in 0..close.len() {
-        let val_opt = close.get(i);
+    for &val in close.iter() {
+        // Null, NaN and infinity all count as a gap.
+        if val.is_finite() {
+            sum += val;
+            window.push_back(val);
 
-        match val_opt {
-            Some(val) => {
-                // Handle potential NaN or infinity by treating as None or error?
-                // For robustness, let's treat invalid f64 as gap.
-                if val.is_finite() {
-                    let d = val;
-                    sum += d;
-                    window.push_back(d);
-
-                    if window.len() > period
-                        && let Some(old) = window.pop_front()
-                    {
-                        sum -= old;
-                    }
-
-                    if window.len() == period {
-                        let avg = sum / period_f;
-                        sma_values.push(Some(avg));
-                    } else {
-                        sma_values.push(None);
-                    }
-                } else {
-                    // Failed to convert (e.g. NaN)
-                    sma_values.push(None);
-                    window.clear();
-                    sum = 0.0;
-                }
+            if window.len() > period
+                && let Some(old) = window.pop_front()
+            {
+                sum -= old;
             }
-            None => {
-                // Missing data point
+
+            if window.len() == period {
+                let avg = sum / period_f;
+                sma_values.push(Some(avg));
+            } else {
                 sma_values.push(None);
-                window.clear();
-                sum = 0.0;
             }
+        } else {
+            sma_values.push(None);
+            window.clear();
+            sum = 0.0;
         }
     }
 
