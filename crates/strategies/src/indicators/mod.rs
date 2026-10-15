@@ -73,3 +73,14 @@ pub mod williams_r;
 pub mod wma;
 pub mod zlema;
 pub mod zscore;
+
+/// Borrow an `f64` column as a contiguous slice, mapping nulls to `NaN`.
+///
+/// `ChunkedArray::get` pays a chunk lookup and validity-bit check per element;
+/// a single-chunk, null-free column (the normal case) is indexed directly.
+pub(crate) fn values_or_nan(ca: &polars::prelude::Float64Chunked) -> std::borrow::Cow<'_, [f64]> {
+    match ca.cont_slice() {
+        Ok(slice) => std::borrow::Cow::Borrowed(slice),
+        Err(_) => std::borrow::Cow::Owned(ca.iter().map(|v| v.unwrap_or(f64::NAN)).collect()),
+    }
+}
